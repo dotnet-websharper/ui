@@ -5,12 +5,32 @@ Two problems in scope:
 1. Dynamic data-flow graph
 2. Its integration with DOM, and motivating examples
 
+Produce WebSharper, JavaScript and TypeScript variants of the library.
+
 Relevant prototypes:
 
 * [Complets](https://bitbucket.org/jankoa/complets/)
 * [RDom](https://gist.github.com/t0yv0/acea43d45002861b7f9f)
 
-## Related Projects
+## Dyanmic data-flow graph requirements
+
+1. Specified semantics 
+2. Ability to skip unnecessary computation steps
+3. Ability to inject long-running (network) computations - no global lock
+4. Ideally, a GC-friendly interface where consumers get collected without manually detaching from producers
+5. Take advantage of graph structure
+
+## Reactive DOM requirements
+
+1. Built on top of dynamic dataflow, bi-directional (if needed) flow
+2. Compared to Virtual DOM, better tools for managing identity and widgets with encapsulated state
+3. Specifically, tools to manage dynamic collections of elements with identity
+4. Glitch-freedom: never present user with inconsistent state (not in RDom prototype yet)
+5. Monoid API - nodes and node-lists treated in the same type
+6. User-friendly combinators, with evidence of usability - need multiple motivating examples
+7. Combinators for specifying transition animations
+
+## Related projects
 
 ### Facebook React
 
@@ -34,6 +54,14 @@ http://www.flapjax-lang.org/
 http://elm-lang.org/
 
 Functional language with a custom type system that simpy rules out complicated-to-implement aspects of FRP.
+
+### D3.js
+
+http://d3js.org/
+
+Successful JavaScript data visualization library. Uses an "enter/exit" to specify what happens
+on updates to a dynamic collection. Offers great examples to port/adapt.
+
 
 ## Literature
 
