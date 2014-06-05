@@ -1,4 +1,6 @@
-# Data flow semantics
+# Data flow
+
+## Semantics
 
 Informally, programmer specifies spreadsheet cells and how they depend on each other. Cell A, cell B, with B = A + 1.
 What makes the graph dynamic is that there are cells whose existence depends on data. They come and go.
