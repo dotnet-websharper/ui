@@ -2,7 +2,7 @@
  
 Two problems in scope:
 
-1. Dynamic data-flow graph ([ideas](Ideas.md) here)
+1. Dynamic data-flow graph ([ideas](Dataflow.md) here)
 2. Its integration with DOM, and motivating examples
 
 Produce WebSharper, JavaScript and TypeScript variants of the library.
