@@ -74,10 +74,12 @@ Solutions:
 Idea 2 seems to allow direct implementation, where RViews are implemented as concurrent processes,
 and observations allow to block until the observation becomes obsolete:
 
+```fsharp
 /// One-time observation of a reactive varible.
 type Observation<'T> =
     member Obsolete : IVar<unit>
     member Value : 'T
+```
 
 See **Concurrent Programming in ML** for a discussion of IVar abstraction.
 
