@@ -25,6 +25,9 @@ val Set : RVar<'T> -> 'T -> unit
 /// Read-only reactive views.
 type RView<'T>
 
+/// View a var.
+val View : RVar<'T> -> RView<'T>
+
 /// Observation.
 val Current : RView<'T> -> 'T
 
