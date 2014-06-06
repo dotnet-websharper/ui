@@ -10,3 +10,5 @@ val Create : 'T -> RVar<'T>
 
 /// Imperatively set it.
 val Set : RVar<'T> -> 'T -> unit
+
+val _GetValue : RVar<'T> -> 'T

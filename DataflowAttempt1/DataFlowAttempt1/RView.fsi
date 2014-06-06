@@ -3,8 +3,12 @@
 /// Each reactive view depends on one or more RVar inputs.
 
 /// RViews can also be viewed as processes / nodes within the Dataflow Graph.
+open IntelliFactory.WebSharper.UI.Next.RVar
 
 type RView<'T>
+
+/// Creation from an RVar
+val View : RVar<'T> -> RView<'T>
 
 /// Observation.
 val Current : RView<'T> -> 'T
