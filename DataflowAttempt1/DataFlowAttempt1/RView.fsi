@@ -24,3 +24,6 @@ val Apply : RView<'A->'B> -> RView<'A> -> RView<'B>
 
 /// Dynamic composition.
 val Join : RView<RView<'T>> -> RView<'T>
+
+/// Waiting for update
+val WaitForUpdate : RView<'T> -> Async<unit>
