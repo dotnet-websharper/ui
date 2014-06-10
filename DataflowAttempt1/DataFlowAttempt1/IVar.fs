@@ -14,8 +14,8 @@ open System.Collections.Generic
 /// In the Full state, a Put is erroneous. Get doesn't trigger a state transition
 /// and simply returns the value.
 
-type  State<'T> = | Empty of LinkedList<'T -> unit>
-                  | Full of 'T
+type State<'T> = | Empty of LinkedList<'T -> unit>
+                 | Full of 'T
 
 type IVar<'T> = { mutable State : State<'T> }
 
@@ -48,9 +48,10 @@ let Put (iv : IVar<'T>) (new_val : 'T) =
 /// Waits for one of the IVars to have a value, and returns the first that is
 /// available.
 let First iv1 iv2 =
-    let a_iv1 = async { return iv1 }
-    let a_iv2 = async { return iv2 }
+ //   let a_iv1 = Get iv1 
+   // let a_iv2 = Get iv2
     async {
-        let res = System.Threading.Tasks.Task.WhenAny [Async.StartAsTask a_iv1; Async.StartAsTask a_iv2]
+        let res = System.Threading.Tasks.Task.WhenAny [Get iv1 |> Async.StartAsTask ; Get iv2 |> Async.StartAsTask ]
         return res.Result.Result
     }
+    // async { return! Get iv2 }

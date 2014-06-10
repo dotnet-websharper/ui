@@ -10,15 +10,25 @@ type Observation<'T> = { ObservedValue : 'T; Obsolete : IVar<unit> }
 
 let Observe (x : RVar.RVar<'T>) = 
     let observed_val = RVar._GetValue x
-    { ObservedValue = observed_val ; Obsolete = IVar.Create () }
+    { ObservedValue = observed_val ; Obsolete = RVar._GetObs x }
 
 /// A View of an RVar.
 type RView<'T> = {  RVar : RVar<'T> ; mutable Observation : Observation<'T> }
 
 /// Create a view backed by a given reactive variable
 let View (rv : RVar<'T>) = 
-    let obs = Observe rv
-    { RVar = rv ; Observation = obs }
+    let res = { RVar = rv ; Observation = Unchecked.defaultof<_> }
+    let rec update () =
+        async {
+            let obs = Observe rv
+            let obsolete = IVar.Create ()
+            res.Observation <- {ObservedValue = obs.ObservedValue ; Obsolete = obsolete }
+            do! IVar.Get obs.Obsolete
+            do IVar.Put obsolete () 
+            return! update()
+        }
+    Async.Start (update ())
+    res
 
 let Current (t : RView<'T>) = t.Observation.ObservedValue
 
@@ -36,16 +46,19 @@ let Map (fn : ('A -> 'B)) (rv1 : RView<'A>) =
             // Observe value of the RVar, and create a new observation with the fn applied
             let obs = Observe rv1.RVar
             let obsolete = IVar.Create ()
+            let new_val = fn obs.ObservedValue
             res.Observation <- { ObservedValue = fn obs.ObservedValue ; Obsolete = obsolete }
-
+            do RVar.Set rv new_val
             // When RV1 updated again, we'll have to re-update
             do! IVar.Get obs.Obsolete
             do IVar.Put obsolete ()
+            return! update()
         }
     Async.Start (update ())
     res
 // Unchecked.defaultof<RView<'B>> 
 
+// Apply : RView<'A -> 'B> -> RView<'A> -> RView<'B>
 let Apply (fn : RView<'A -> 'B>) (v : RView<'A>) = 
     // HMMM: Currently defining a new RVar for the result of the composition.
     // Not sure whether this is the Right Way To Do It, but will do for now...
@@ -65,14 +78,11 @@ let Apply (fn : RView<'A -> 'B>) (v : RView<'A>) =
             // Get the result, set our observation to this
             let ov = o_fn.ObservedValue o_x.ObservedValue
             do res.Observation <- 
-                { ObservedValue = o_fn.ObservedValue o_x.ObservedValue ; Obsolete = obsolete}
+                { ObservedValue = ov ; Obsolete = obsolete}
             do RVar.Set rv ov
 
 
-            async {
-                let! first = IVar.First o_fn.Obsolete o_x.Obsolete
-                do! IVar.Get first
-            } |> ignore
+            do! IVar.First o_x.Obsolete o_fn.Obsolete 
             do IVar.Put obsolete ()
             return! update ()
         }
@@ -98,3 +108,10 @@ let Apply f x =
   res
 *)
 let Join (x : RView<RView<'T>>) = Unchecked.defaultof<RView<'T>>
+
+
+/// Blocks until current observation is obsolete
+let WaitForUpdate (rv : RView<'T>) = 
+    async {
+        do! IVar.Get (rv.Observation.Obsolete)
+    }
