@@ -1,21 +1,27 @@
 ﻿/// Accessor functions for a set of reactive variables.
 module IntelliFactory.WebSharper.UI.Next.RView
+
+open IntelliFactory.WebSharper
 open IntelliFactory.WebSharper.UI.Next.IVar
 open IntelliFactory.WebSharper.UI.Next.RVar
 
 /// An observation of the contents of an RVar.
 /// Contains the observed value, and an IVar which is marked when the
 /// observation is obsolete.
+[<JavaScript>]
 type Observation<'T> = { ObservedValue : 'T; Obsolete : IVar<unit> }
 
+[<JavaScript>]
 let Observe (x : RVar.RVar<'T>) = 
     let observed_val = RVar._GetValue x
     { ObservedValue = observed_val ; Obsolete = RVar._GetObs x }
 
 /// A View of an RVar.
+[<JavaScript>]
 type RView<'T> = {  RVar : RVar<'T> ; mutable Observation : Observation<'T> }
 
 /// Create a view backed by a given reactive variable
+[<JavaScript>]
 let View (rv : RVar<'T>) = 
     let res = { RVar = rv ; Observation = Unchecked.defaultof<_> }
     let rec update () =
@@ -25,23 +31,26 @@ let View (rv : RVar<'T>) =
             res.Observation <- {ObservedValue = obs.ObservedValue ; Obsolete = obsolete }
             do! IVar.Get obs.Obsolete
             do IVar.Put obsolete () 
-            return! update()
+            return! update() :> Async<unit>
         }
     Async.Start (update ())
     res
 
+[<JavaScript>]
 let Current (t : RView<'T>) = t.Observation.ObservedValue
 
 /// Easy one :)
+[<JavaScript>]
 let Const (t : 'T) =
     let rv = RVar.Create t
     let obs = { ObservedValue = t ; Obsolete = IVar.Create () }
     { RVar = rv; Observation = obs }
 
+[<JavaScript>]
 let Map (fn : ('A -> 'B)) (rv1 : RView<'A>) = 
     let rv = RVar.Create Unchecked.defaultof<'B>
     let res = { RVar = rv ; Observation = Unchecked.defaultof<_> }
-    let rec update () =
+    let rec update x =
         async {
             // Observe value of the RVar, and create a new observation with the fn applied
             let obs = Observe rv1.RVar
@@ -52,16 +61,15 @@ let Map (fn : ('A -> 'B)) (rv1 : RView<'A>) =
             // When RV1 updated again, we'll have to re-update
             do! IVar.Get obs.Obsolete
             do IVar.Put obsolete ()
-            return! update()
+            return! update () :> Async<unit>
         }
     Async.Start (update ())
     res
 // Unchecked.defaultof<RView<'B>> 
 
 // Apply : RView<'A -> 'B> -> RView<'A> -> RView<'B>
+[<JavaScript>]
 let Apply (fn : RView<'A -> 'B>) (v : RView<'A>) = 
-    // HMMM: Currently defining a new RVar for the result of the composition.
-    // Not sure whether this is the Right Way To Do It, but will do for now...
     let rv = RVar.Create Unchecked.defaultof<'B>
 
     // Define result placeholder
@@ -81,10 +89,9 @@ let Apply (fn : RView<'A -> 'B>) (v : RView<'A>) =
                 { ObservedValue = ov ; Obsolete = obsolete}
             do RVar.Set rv ov
 
-
-            do! IVar.First o_x.Obsolete o_fn.Obsolete 
+            do! IVar.Get (IVar.First o_x.Obsolete o_fn.Obsolete)
             do IVar.Put obsolete ()
-            return! update ()
+            return! update () :> Async<unit>
         }
     Async.Start(update ())
     res
@@ -107,10 +114,12 @@ let Apply f x =
   Async.Start(update ())
   res
 *)
+[<JavaScript>]
 let Join (x : RView<RView<'T>>) = Unchecked.defaultof<RView<'T>>
 
 
 /// Blocks until current observation is obsolete
+[<JavaScript>]
 let WaitForUpdate (rv : RView<'T>) = 
     async {
         do! IVar.Get (rv.Observation.Obsolete)
