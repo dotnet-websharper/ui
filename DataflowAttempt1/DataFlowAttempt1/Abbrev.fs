@@ -1,9 +1,10 @@
 ﻿[<AutoOpen>]
 module IntelliFactory.WebSharper.UI.Next.Abbrev
 
-[<Sealed>]
-type JavaScriptAttribute() =
-    inherit System.Attribute()
+open IntelliFactory.WebSharper
 
+[<JavaScript>]
 let U<'T> = Unchecked.defaultof<'T>
 
+[<Inline "$f()">] 
+let lock root f = lock root f

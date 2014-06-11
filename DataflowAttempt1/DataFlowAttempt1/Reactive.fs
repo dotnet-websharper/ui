@@ -1,7 +1,11 @@
 ﻿module IntelliFactory.WebSharper.UI.Next.Reactive
 
+open IntelliFactory.WebSharper
+
+[<JavaScript>]
 type IVar<'T> = IVar.IVar<'T>
 
+[<JavaScript>]
 type Observation<'T> =
     {
         Observed : 'T
@@ -23,6 +27,7 @@ module Observation =
     let Value x =
         x.Observed
 
+[<JavaScript>]
 type Var<'T> =
     {
         mutable Depth : int
@@ -56,6 +61,7 @@ module Var =
         lock v.Root <| fun () ->
             v.Observation
 
+[<JavaScript>]
 type View<'T> =
     | V of Var<'T>
 

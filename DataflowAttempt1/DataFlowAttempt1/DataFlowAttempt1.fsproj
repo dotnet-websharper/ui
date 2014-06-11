@@ -53,6 +53,8 @@
     <Compile Include="IVar.fs" />
     <Compile Include="Reactive.fsi" />
     <Compile Include="Reactive.fs" />
+    <Compile Include="RDom.fsi" />
+    <Compile Include="RDom.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
