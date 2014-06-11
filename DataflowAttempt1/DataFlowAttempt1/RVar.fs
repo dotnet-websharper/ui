@@ -1,6 +1,6 @@
 ﻿module IntelliFactory.WebSharper.UI.Next.RVar
 
-open IntelliFactory.WebSharper
+//open IntelliFactory.WebSharper
 open IntelliFactory.WebSharper.UI.Next.IVar
 
 [<JavaScript>]

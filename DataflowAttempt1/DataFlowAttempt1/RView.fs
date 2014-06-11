@@ -30,8 +30,8 @@ let View (rv : RVar<'T>) =
             let obsolete = IVar.Create ()
             res.Observation <- {ObservedValue = obs.ObservedValue ; Obsolete = obsolete }
             do! IVar.Get obs.Obsolete
-            do IVar.Put obsolete () 
-            return! update() :> Async<unit>
+            do IVar.Put obsolete ()
+            return! update ()
         }
     Async.Start (update ())
     res
@@ -62,7 +62,7 @@ let Map (fn : ('A -> 'B)) (rv1 : RView<'A>) =
             // When RV1 updated again, we'll have to re-update
             do! IVar.Get obs.Obsolete
             do IVar.Put obsolete ()
-            return! update () :> Async<unit>
+            return! update ()
         }
     Async.Start (update ())
     res
@@ -89,10 +89,9 @@ let Apply (fn : RView<'A -> 'B>) (v : RView<'A>) =
             do res.Observation <- 
                 { ObservedValue = ov ; Obsolete = obsolete}
             do RVar.Set rv ov
-
             do! IVar.Get (IVar.First o_x.Obsolete o_fn.Obsolete)
             do IVar.Put obsolete ()
-            return! update () :> Async<unit>
+            return! update ()
         }
     Async.Start(update ())
     res
