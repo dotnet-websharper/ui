@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2013 for Web
-VisualStudioVersion = 12.0.30501.0
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "DataFlowAttempt1", "DataFlowAttempt1.fsproj", "{907B8F05-E415-4E7B-B10C-D8CAD8290A95}"
 EndProject
@@ -9,6 +9,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "DataflowAttempt1.Tests.Cons
 	ProjectSection(ProjectDependencies) = postProject
 		{907B8F05-E415-4E7B-B10C-D8CAD8290A95} = {907B8F05-E415-4E7B-B10C-D8CAD8290A95}
 	EndProjectSection
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "DataflowAttempt1.Tests.WebSharper", "..\DataflowAttempt1.Tests.WebSharper\DataflowAttempt1.Tests.WebSharper.fsproj", "{7A238D44-3C77-4EBE-A027-6BFAD63CEEBB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,6 +26,10 @@ Global
 		{DDC2BC93-9184-42FC-92C6-2C8CBD0EE255}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DDC2BC93-9184-42FC-92C6-2C8CBD0EE255}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DDC2BC93-9184-42FC-92C6-2C8CBD0EE255}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A238D44-3C77-4EBE-A027-6BFAD63CEEBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A238D44-3C77-4EBE-A027-6BFAD63CEEBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A238D44-3C77-4EBE-A027-6BFAD63CEEBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A238D44-3C77-4EBE-A027-6BFAD63CEEBB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

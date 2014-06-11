@@ -3,7 +3,7 @@
 open System
 open System.Collections.Generic
 
-// open IntelliFactory.WebSharper
+open IntelliFactory.WebSharper
 
 [<JavaScript>]
 type State<'T> = | Empty of LinkedList<'T -> unit>
