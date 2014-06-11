@@ -5,3 +5,5 @@ module IntelliFactory.WebSharper.UI.Next.Abbrev
 type JavaScriptAttribute() =
     inherit System.Attribute()
 
+let U<'T> = Unchecked.defaultof<'T>
+

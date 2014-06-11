@@ -1,29 +1,23 @@
 ﻿module IntelliFactory.WebSharper.UI.Next.ConsoleTest
 
-open IntelliFactory.WebSharper.UI.Next.RVar
-open IntelliFactory.WebSharper.UI.Next.RView
+module R = IntelliFactory.WebSharper.UI.Next.Reactive
 
 open System.IO
 
-let consoleCB name (v : RView<'T>) =
-    let rec update () =
-        async {
-            let cur_val = RView.Current v
-            printfn "Value of %s: %A; Depth: %i" name cur_val (RView.Depth v)
-            do! RView.WaitForUpdate v
-            return! (update ())
-        }
-    Async.Start (update ())
+let consoleCB name (v: R.View<'T>) =
+    v
+    |> R.View.Sink (fun cur ->
+        printfn "Value of %s: %A" name cur)
 
-let (<^^>) = RView.Map
-let (<**>) = RView.Apply
+let (<^^>) = R.View.Map
+let (<**>) = R.View.Apply
 
 [<EntryPoint>]
-let main args = 
-    let rv1 = RVar.Create 5
-    let rv2 = RVar.Create 10
+let main args =
+    let rv1 = R.Var.Create 5
+    let rv2 = R.Var.Create 10
     // Diamond graph structure
-    let view_1 = RView.View rv1
+    let view_1 = R.View.Create rv1
     let view_2 = (fun x -> x + 10) <^^> view_1
     let view_3 = (fun x -> x + 5) <^^> view_1
     let view_4 = (fun x y -> x + y) <^^> view_2 <**> view_3 
@@ -38,9 +32,9 @@ let main args =
     Async.Start (update_task)
 
     System.Console.ReadKey true |> ignore 
-    RVar.Set rv1 100
+    R.Var.Set rv1 100
     System.Console.ReadKey true |> ignore 
-    RVar.Set rv1 110
+    R.Var.Set rv1 110
     System.Console.ReadKey true |> ignore
     0
     
