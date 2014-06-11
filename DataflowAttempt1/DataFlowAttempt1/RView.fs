@@ -18,12 +18,12 @@ let Observe (x : RVar.RVar<'T>) =
 
 /// A View of an RVar.
 [<JavaScript>]
-type RView<'T> = {  RVar : RVar<'T> ; mutable Observation : Observation<'T> }
+type RView<'T> = {  RVar : RVar<'T> ; Depth : int ; mutable Observation : Observation<'T> }
 
 /// Create a view backed by a given reactive variable
 [<JavaScript>]
 let View (rv : RVar<'T>) = 
-    let res = { RVar = rv ; Observation = Unchecked.defaultof<_> }
+    let res = { RVar = rv ; Depth = 0 ; Observation = Unchecked.defaultof<_> }
     let rec update () =
         async {
             let obs = Observe rv
@@ -44,12 +44,13 @@ let Current (t : RView<'T>) = t.Observation.ObservedValue
 let Const (t : 'T) =
     let rv = RVar.Create t
     let obs = { ObservedValue = t ; Obsolete = IVar.Create () }
-    { RVar = rv; Observation = obs }
+    { RVar = rv; Depth = 0 ; Observation = obs }
 
 [<JavaScript>]
 let Map (fn : ('A -> 'B)) (rv1 : RView<'A>) = 
     let rv = RVar.Create Unchecked.defaultof<'B>
-    let res = { RVar = rv ; Observation = Unchecked.defaultof<_> }
+    let depth = rv1.Depth + 1
+    let res = { RVar = rv ; Depth = depth ; Observation = Unchecked.defaultof<_> }
     let rec update x =
         async {
             // Observe value of the RVar, and create a new observation with the fn applied
@@ -71,9 +72,9 @@ let Map (fn : ('A -> 'B)) (rv1 : RView<'A>) =
 [<JavaScript>]
 let Apply (fn : RView<'A -> 'B>) (v : RView<'A>) = 
     let rv = RVar.Create Unchecked.defaultof<'B>
-
+    let depth = (max fn.Depth v.Depth) + 1
     // Define result placeholder
-    let res = { RVar = rv ; Observation = Unchecked.defaultof<_> } 
+    let res = { RVar = rv ; Depth = depth ;  Observation = Unchecked.defaultof<_> } 
     let rec update () =
         async {
             // Observe the fn and variable
@@ -124,3 +125,6 @@ let WaitForUpdate (rv : RView<'T>) =
     async {
         do! IVar.Get (rv.Observation.Obsolete)
     }
+
+[<JavaScript>]
+let Depth (rv : RView<'T>) = rv.Depth
