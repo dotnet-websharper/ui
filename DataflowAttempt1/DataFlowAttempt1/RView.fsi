@@ -27,3 +27,5 @@ val Join : RView<RView<'T>> -> RView<'T>
 
 /// Waiting for update
 val WaitForUpdate : RView<'T> -> Async<unit>
+
+val Depth : RView<'T> -> int
