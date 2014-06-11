@@ -77,8 +77,12 @@ module View =
     let Const v =
         Create (Var.Create v)
 
+    let Now x =
+        let o = Observe x
+        o.Observed
+
     let Map fn (V x as view) =
-        let rv = Var.CreateWithDepth U (Var.Depth x + 1)
+        let rv = Var.CreateWithDepth (fn (Now view)) (Var.Depth x + 1)
         async {
             while true do
                 // observe current x
@@ -93,7 +97,7 @@ module View =
         V rv
 
     let Map2 fn (V x as vx) (V y as vy) =
-        let rv = Var.CreateWithDepth U (max (Var.Depth x) (Var.Depth y) + 1)
+        let rv = Var.CreateWithDepth (fn (Now vx) (Now vy)) (max (Var.Depth x) (Var.Depth y) + 1)
         async {
             while true do
                 // observe current x and y
@@ -112,7 +116,7 @@ module View =
         Map2 (fun f x -> f x) f x
 
     let Join (V x as vx) =
-        let rv = Var.Create U
+        let rv = Var.Create (Now (Now vx))
         // rv.Depth <- 9 (* TODO: depth is actually dynamic *)
         async {
             while true do
