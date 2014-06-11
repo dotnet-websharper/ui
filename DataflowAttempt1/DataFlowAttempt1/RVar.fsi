@@ -1,6 +1,7 @@
 ﻿/// RVar.fsi
 /// Specifies the interface for reactive variables.
 module IntelliFactory.WebSharper.UI.Next.RVar
+
 open IntelliFactory.WebSharper.UI.Next.IVar
 
 /// Reactive variables.
