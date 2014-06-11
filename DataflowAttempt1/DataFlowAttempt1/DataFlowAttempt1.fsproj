@@ -49,12 +49,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <Compile Include="Abbrev.fs" />
     <Compile Include="IVar.fs" />
     <Compile Include="RVar.fsi" />
-    <Compile Include="RView.fsi" />
     <Compile Include="RVar.fs" />
+    <Compile Include="RView.fsi" />
     <Compile Include="RView.fs" />
-    <None Include="packages.config" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
