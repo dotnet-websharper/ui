@@ -84,6 +84,7 @@ let emptyAttr =
 let concatAttr xs =
     Seq.fold appendAttr emptyAttr xs
 
+let whenChanged rvi f = Async.Start (async { return RVi.Sink f rvi } )
 
 // Creates an attribute with the given name and value.
 // The value is backed by the view of a reactive variable, and changes when this updates.
@@ -93,7 +94,7 @@ let attr name rvar =
     let view = RVi.Create rvar
     let obs = RVi.Observe view
     let a = createAttr name (RO.Value obs)
-    RVi.Sink (fun new_val -> a.Value <- new_val) view 
+    whenChanged view (fun new_val -> a.Value <- new_val) 
     AttrNode a
 
 let addAttr (el: Dom.Element) attr =
@@ -122,7 +123,7 @@ let text txt_var =
     let obs = RVi.Observe view
     let cur_val = RO.Value obs
     let t = createText cur_val
-    RVi.Sink (fun txt -> t.NodeValue <- txt) view
+    whenChanged view (fun txt -> t.NodeValue <- txt)
     Text t
 
 let var tr =
@@ -134,7 +135,7 @@ let var tr =
         match out.parent with
         | None -> ()
         | Some el -> relink el
-    RVi.Sink updateVarTree tr
+    whenChanged tr updateVarTree
     res
 
 type Init = Dom.Element -> unit
@@ -162,8 +163,8 @@ let input (text: Var<string>) =
         let view = RVi.Create text
         let obs = RVi.Observe view
         el?value <- RO.Value obs
-        RVi.Sink (fun t -> el?value <- t) view
-        let onChange () = Var.Set text el?value
+        whenChanged view (fun t -> el?value <- t) 
+        let onChange () = JavaScript.Log "Input onChange" ; Var.Set text el?value
         el.AddEventListener("input", onChange, false)
     element "input" emptyAttr emptyTree (Some init)
 
@@ -184,9 +185,9 @@ let select (show: 'T -> string) (options: list<'T>) (current: Var<'T>) =
         let obs = RVi.Observe view
         let cur_val = RO.Value obs
         setSelectedItem el cur_val
-        RVi.Sink (setSelectedItem el) view
         // Var.whenChanged current (setSelectedItem el)
-        let onChange () = Var.Set current (getSelectedItem el)
+        whenChanged view (setSelectedItem el) 
+        let onChange () = JavaScript.Log "select onChange" ; Var.Set current (getSelectedItem el)
         el.AddEventListener("change", onChange, false)
     let optionElements =
         options
