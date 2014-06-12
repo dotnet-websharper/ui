@@ -1,5 +1,6 @@
 ﻿module IntelliFactory.WebSharper.UI.Next.ConsoleTest
 
+open IntelliFactory.WebSharper.UI.Next
 module R = IntelliFactory.WebSharper.UI.Next.Reactive
 
 open System.IO
@@ -19,9 +20,9 @@ let main args =
     // Diamond graph structure
     let view_1 = R.View.Create rv1
     let view_2 = (fun x -> x + 10) <^^> view_1
-    let view_3 = (fun x -> x + 5) <^^> view_1
-    let view_4 = (fun x y -> x + y) <^^> view_2 <**> view_3 
-
+    let view_5 = R.View.Create rv2
+    let view_3 = (fun x -> x + 5) <^^> view_5
+    let view_4 = R.View.Const (fun x y -> x + y) <**> view_2 <**> view_5
     let update_task = 
         async {
             do (consoleCB "View 1" view_1)
@@ -34,7 +35,7 @@ let main args =
     System.Console.ReadKey true |> ignore 
     R.Var.Set rv1 100
     System.Console.ReadKey true |> ignore 
-    R.Var.Set rv1 110
+    R.Var.Set rv2 110
     System.Console.ReadKey true |> ignore
     0
     

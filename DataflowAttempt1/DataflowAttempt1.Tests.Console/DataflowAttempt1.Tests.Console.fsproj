@@ -9,10 +9,11 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>DataflowAttempt1.Tests.Console</RootNamespace>
     <AssemblyName>DataflowAttempt1.Tests.Console</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
     <Name>DataflowAttempt1.Tests.Console</Name>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -49,6 +50,7 @@
   <ItemGroup>
     <None Include="App.config" />
     <Compile Include="ConsoleTest.fs" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DataFlowAttempt1\DataFlowAttempt1.fsproj">
@@ -73,6 +75,7 @@
     </Otherwise>
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
+  <Import Project="..\DataFlowAttempt1\packages\WebSharper.2.5.114.49\build\WebSharper.targets" Condition="Exists('..\DataFlowAttempt1\packages\WebSharper.2.5.114.49\build\WebSharper.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -32,7 +32,6 @@ module Phones =
         || ph.Snippet.Contains(q)
 
 let ( <*> ) f x = RVi.Apply f x
-let ( <^^> ) = RVi.Map
 
 let t x = RD.text (RVa.Create x)
 let el name xs = RD.element name RD.emptyAttr (RD.concatTree xs) None
@@ -45,8 +44,7 @@ let phonesWidget (phones: list<Phone>) =
     let phones_view = RVi.Create allPhones
     let query_view = RVi.Create query
     let order_view = RVi.Create order
-   
-   
+
     let visible_phones = RVi.Const (fun all query order ->
             all
             |> List.filter (Phones.matchesQuery query)
@@ -63,6 +61,7 @@ let phonesWidget (phones: list<Phone>) =
             el "span" [ t ph.Name ]
             el "p" [ t ph.Snippet ]
         ]
+
     RD.concatTree [
         t "Search: "
         RD.input query
@@ -70,6 +69,7 @@ let phonesWidget (phones: list<Phone>) =
         RD.select Orders.show [Alphabetical; Newest] order
         el "ul" [ RD.forEach visiblePhones showPhone ]
     ]
+
 
 let main =
     let defPhone name snip age =

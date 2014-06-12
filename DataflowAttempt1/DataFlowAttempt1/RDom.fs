@@ -84,7 +84,7 @@ let emptyAttr =
 let concatAttr xs =
     Seq.fold appendAttr emptyAttr xs
 
-let whenChanged rvi f = Async.Start (async { return RVi.Sink f rvi } )
+let whenChanged rvi f = RVi.Sink f rvi
 
 // Creates an attribute with the given name and value.
 // The value is backed by the view of a reactive variable, and changes when this updates.
@@ -96,6 +96,11 @@ let attr name rvar =
     let a = createAttr name (RO.Value obs)
     whenChanged view (fun new_val -> a.Value <- new_val) 
     AttrNode a
+
+
+let staticAttr name value =
+    let view = RVa.Create value
+    attr name view
 
 let addAttr (el: Dom.Element) attr =
     let rec loop attr =
@@ -117,7 +122,6 @@ let concatTree xs =
     Seq.fold appendTree emptyTree xs
 
 // Creates a text DOM element, backed by a reactive variable
-[<JavaScript>]
 let text txt_var =
     let view = RVi.Create txt_var
     let obs = RVi.Observe view
@@ -125,6 +129,9 @@ let text txt_var =
     let t = createText cur_val
     whenChanged view (fun txt -> t.NodeValue <- txt)
     Text t
+
+let staticText (t : string) =
+    createText t |> Text
 
 let var tr =
     let obs = RVi.Observe tr
@@ -166,7 +173,18 @@ let input (text: Var<string>) =
         whenChanged view (fun t -> el?value <- t) 
         let onChange () = JavaScript.Log "Input onChange" ; Var.Set text el?value
         el.AddEventListener("input", onChange, false)
+
     element "input" emptyAttr emptyTree (Some init)
+
+let button (caption : string) (view : View<'T>) (fn : 'T -> unit) =
+    let init (el : Dom.Element) =
+        el.AddEventListener("click", 
+            (fun (x : Dom.Event) -> let obs = RVi.Observe view
+                                    RO.Value obs |> fn), false)
+    element "input" 
+        (concatAttr [staticAttr "type" "button"; staticAttr "value" caption])
+        emptyTree (Some init)
+  
 
 let select (show: 'T -> string) (options: list<'T>) (current: Var<'T>) =
     let getIndex (el: Dom.Element) =
@@ -185,7 +203,6 @@ let select (show: 'T -> string) (options: list<'T>) (current: Var<'T>) =
         let obs = RVi.Observe view
         let cur_val = RO.Value obs
         setSelectedItem el cur_val
-        // Var.whenChanged current (setSelectedItem el)
         whenChanged view (setSelectedItem el) 
         let onChange () = JavaScript.Log "select onChange" ; Var.Set current (getSelectedItem el)
         el.AddEventListener("change", onChange, false)
@@ -207,6 +224,7 @@ let memo f =
 
 let forEach input render =
     let mRender = memo render
+    //let mRender = render
     input
     |> RVi.Map (List.map mRender >> concatTree)
     |> var

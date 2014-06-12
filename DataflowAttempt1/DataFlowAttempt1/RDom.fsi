@@ -34,6 +34,9 @@ val emptyTree : Tree
 /// Constructs a reactive text node.
 val text : Var<string> -> Tree
 
+/// Constructs a static text node, not backed by an RVar
+val staticText : string -> Tree
+
 /// Embeds time-varying fragments into the tree.
 val var : View<Tree> -> Tree
 
@@ -52,8 +55,15 @@ val runById : id: string -> Tree -> unit
 /// Input box.
 val input : Var<string> -> Tree
 
+/// Submit button. Takes a view of reactive components with which it is associated,
+/// and a callback function of what to do with this view once the button is pressed
+val button : caption : string -> view : View<'T> -> fn : ('T -> unit) -> Tree
+
 /// Select box.
 val select<'T when 'T : equality> : ('T -> string) -> list<'T> -> Var<'T> -> Tree
 
 /// Memoizing collection display.
 val forEach<'T when 'T : equality> : View<list<'T>> -> ('T -> Tree) -> Tree
+
+/// Simple, static attribute
+val staticAttr : name : string -> value : string -> Attr
