@@ -47,6 +47,7 @@ let Put var value =
         for p in waiting do
             // Return the value to all of the tasks waiting for it
             Async.Start <| async { return p value }
+        waiting.Clear ()
 
 /// Waits on two IVars, and returns the first one which fires
 [<JavaScript>]
@@ -57,6 +58,7 @@ let First a b =
     let k x =
         lock root <| fun () ->
             if not !fired then
+                JavaScript.Log "IVar.First firing"
                 fired := true
                 Put r x
     When a k

@@ -1,6 +1,5 @@
 Examples
 ========
-========
 
 Here are some example use-cases for the Reactive DOM library.
 
@@ -8,28 +7,27 @@ TODO List
 =========
 A simple TODO list, which seems to be the de facto ``Hello World'' of reactive DOM systems such as React.
 
-Ease of implementation: Easy
-Location: http://facebook.github.io/react/index.html
-Demonstrates: Compositionality, simplicity, input elements
+* Ease of implementation: Easy
+* Location: http://facebook.github.io/react/index.html
+* Demonstrates: Compositionality, simplicity, input elements
 
 Word Tree
 =========
 A tree of words; decomposing sentences and showing common starts of sentences and so on.
 
-Ease of implementation: Difficult
-Location: 
-    Demo : http://www.jasondavies.com/wordtree/?source=obama-war-speech.txt&prefix=Iraq&reverse=0
-    Implementation : http://www.jasondavies.com/wordtree/wordtree.js?20131114
-
-Demonstrates: dynamic / reactive DOM, ability to work with data
+* Ease of implementation: Difficult
+* Location: 
+  -  Demo : http://www.jasondavies.com/wordtree/?source=obama-war-speech.txt&prefix=Iraq&reverse=0
+  -  Implementation : http://www.jasondavies.com/wordtree/wordtree.js?20131114
+* Demonstrates: dynamic / reactive DOM, ability to work with data
 
 
 ``Follow the Mouse''
 ====================
 A simple application, wherein a box follows the mouse.
 
-Ease of implementation: should be easy
-Location: http://www.flapjax-lang.org/demos/mouse1.html
+* Ease of implementation: should be easy
+* Location: http://www.flapjax-lang.org/demos/mouse1.html
 Demonstrates: our analogue of ``signals'', where we work with a constantly-changing value, in this case the position of the mouse, as well as the fact that the framework should be able to work with non-static components.
 
 
@@ -37,29 +35,29 @@ Platform Game (Mario-esque)
 ===========================
 A platform game (or at least the basic outline of one).
 
-Ease of implementation: Medium
-Location: http://www.elm-lang.org/edit/examples/Intermediate/Mario.elm
-Demonstrates: Fun example, reacting to user input
+* Ease of implementation: Medium
+* Location: http://www.elm-lang.org/edit/examples/Intermediate/Mario.elm
+* Demonstrates: Fun example, reacting to user input
 
 
 Calculator
 ==========
 A simple calculator, performing operations on inputs given by the user. Also used as one of the examples for Complets.
 
-Ease of implementation: Easy but likely a tad time-consuming
-Location: http://www.elm-lang.org/edit/examples/Intermediate/Calculator.elm
-Demonstrates: Static components, identity, data retention. A component which can be both triggered by user input (entering a number) and by the system (upon completion of a calculation). I think it would fit quite nicely into the model...
+* Ease of implementation: Easy but likely a tad time-consuming
+* Location: http://www.elm-lang.org/edit/examples/Intermediate/Calculator.elm
+* Demonstrates: Static components, identity, data retention. A component which can be both triggered by user input (entering a number) and by the system (upon completion of a calculation). I think it would fit quite nicely into the model...
 
 
 Collapsible Tree
 ================
 A collapsible tree, allowing for different levels to be viewed, and for these to be collapsed if no longer necessary. 
 
-Ease of implementation: Medium
-Location:
-    Demo: http://mbostock.github.io/d3/talk/20111018/tree.html
-    Source: view-source:http://mbostock.github.io/d3/talk/20111018/tree.html 
-Demonstrates: Animation of static components, displaying an underlying hierarchical data structure. Also, D3's code fot this is incredibly succinct and simple, so we'd want to aim for that. Retention of identity: so, if we fully expand three nodes, collapse the highest-level one, and then reopen it again, the child nodes should still be fully expanded.
+* Ease of implementation: Medium
+* Location:
+  -  Demo: http://mbostock.github.io/d3/talk/20111018/tree.html
+  -  Source: view-source:http://mbostock.github.io/d3/talk/20111018/tree.html 
+* Demonstrates: Animation of static components, displaying an underlying hierarchical data structure. Also, D3's code fot this is incredibly succinct and simple, so we'd want to aim for that. Retention of identity: so, if we fully expand three nodes, collapse the highest-level one, and then reopen it again, the child nodes should still be fully expanded.
 
 
 Bar Chart
