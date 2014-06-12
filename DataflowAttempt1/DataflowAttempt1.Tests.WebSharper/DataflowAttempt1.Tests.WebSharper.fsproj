@@ -105,7 +105,7 @@
     <Content Include="Web.config" />
     <Content Include="Global.asax" />
     <None Include="packages.config" />
-    <Compile Include="PhoneExample.fs" />
+    <Compile Include="CommentBox.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

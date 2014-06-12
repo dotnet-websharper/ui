@@ -58,7 +58,7 @@ let First a b =
     let k x =
         lock root <| fun () ->
             if not !fired then
-                JavaScript.Log "IVar.First firing"
+              //  JavaScript.Log "IVar.First firing"
                 fired := true
                 Put r x
     When a k
