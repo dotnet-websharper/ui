@@ -58,7 +58,6 @@
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
-  <Import Project="..\DataFlowAttempt1\packages\WebSharper.2.5.111.45\build\WebSharper.targets" Condition="Exists('..\DataFlowAttempt1\packages\WebSharper.2.5.111.45\build\WebSharper.targets')" />
   <ProjectExtensions>
     <VisualStudio>
       <FlavorProperties Guid="{349c5851-65df-11da-9384-00065b846f21}">
@@ -98,14 +97,12 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
+  <Import Project="..\DataFlowAttempt1\packages\WebSharper.2.5.114.49\build\WebSharper.targets" Condition="Exists('..\DataFlowAttempt1\packages\WebSharper.2.5.114.49\build\WebSharper.targets')" />
   <ItemGroup>
-    <Compile Include="Client.fs" />
-    <Compile Include="Main.fs" />
-    <Content Include="index.html" />
     <Content Include="Web.config" />
     <Content Include="Global.asax" />
     <None Include="packages.config" />
-    <Compile Include="CommentBox.fs" />
+    <Compile Include="PhoneExample.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
@@ -113,8 +110,6 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Web" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\DataFlowAttempt1\DataFlowAttempt1.fsproj">
       <Name>DataFlowAttempt1</Name>
       <Project>{907b8f05-e415-4e7b-b10c-d8cad8290a95}</Project>

@@ -15,10 +15,12 @@ type Var<'T> = Reactive.Var<'T>
 /// Simple comment data structure
 module Comments =
     type Comment = { Author : string; Content : string }
-    [<JavaScript>]
     let mkComment a s = {Author = a ; Content = s}
 
 type Comment = Comments.Comment
+
+// TODO: Shift this to the RVi lib
+let (<*>) f x = RVi.Apply f x 
 
 /// Server component of the comment box
 module CommentServer =
@@ -42,22 +44,6 @@ module CommentServer =
             return ()
         }
         
-
-/// Polls the server periodically for updates, and updates the comments variable
-[<JavaScript>]
-let updateTask (comment_var : Var<Comment list>) =
-    async {
-        while true do
-            try
-                do! Async.Sleep 5000
-                let! comments = CommentServer.GetComments ()
-                do RVa.Set comment_var comments
-            with ex -> JavaScript.Log <| "Exception: " + ex.ToString ()
-    }
-
-
-// TODO: Shift this to the RVi lib
-let (<*>) f x = RVi.Apply f x 
 
 [<JavaScript>]
 module CommentBoxExample =
@@ -119,9 +105,21 @@ module CommentBoxExample =
 
     let init_comments = [ Comments.mkComment "Simon" "Hello, world!" ]
 
+    /// Polls the server periodically for updates, and updates the comments variable
+    [<JavaScript>]
+    let updateTask (comment_var : Var<Comment list>) =
+        async {
+            while true do
+                try
+                    do! Async.Sleep 5000
+                    let! comments = CommentServer.GetComments ()
+                    do RVa.Set comment_var comments
+                with ex -> JavaScript.Log <| "Exception: " + ex.ToString ()
+        }
+        (*
     let main =
         let comment_var = RVa.Create init_comments
         JavaScript.Log "Hello!"
         RD.runById "main" (commentBox comment_var)
-   //     updateTask comment_var |> Async.Start
-        
+        updateTask comment_var |> Async.Start
+        *)

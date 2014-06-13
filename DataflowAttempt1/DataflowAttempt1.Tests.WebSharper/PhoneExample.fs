@@ -41,20 +41,14 @@ let phonesWidget (phones: list<Phone>) =
     let query = RVa.Create ""
     let order = RVa.Create Newest
 
-    let phones_view = RVi.Create allPhones
-    let query_view = RVi.Create query
-    let order_view = RVi.Create order
-
-    let visible_phones = RVi.Const (fun all query order ->
-            all
-            |> List.filter (Phones.matchesQuery query)
-            |> List.sortWith (Phones.compare order))
-             
     let visiblePhones =
-            visible_phones
-            <*> phones_view
-            <*> query_view
-            <*> order_view
+            RVi.Const (fun all query order ->
+                all
+                |> List.filter (Phones.matchesQuery query)
+                |> List.sortWith (Phones.compare order))
+            <*> RVi.Create allPhones
+            <*> RVi.Create query
+            <*> RVi.Create order
 
     let showPhone ph =
         el "li" [
