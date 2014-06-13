@@ -1,49 +1,27 @@
-﻿[<ReflectedDefinition>]
-module ReactiveExamples.CommentBox
+﻿module WebSharper.UI.Next.Tests.CommentBox
 
 open IntelliFactory.WebSharper
-open IntelliFactory.WebSharper.UI.Next
+open IntelliFactory.WebSharper.Html
 
-open System.Collections.Generic
 
 module RD = IntelliFactory.WebSharper.UI.Next.RDom
 module RVa = IntelliFactory.WebSharper.UI.Next.Reactive.Var
 module RVi = IntelliFactory.WebSharper.UI.Next.Reactive.View
 
-type Var<'T> = Reactive.Var<'T>
+open IntelliFactory.WebSharper.UI.Next.Reactive
+
+module CommentServer = WebSharper.UI.Next.Tests.CommentBoxServer.CommentServer
+
+
 
 /// Simple comment data structure
-module Comments =
-    type Comment = { Author : string; Content : string }
-    let mkComment a s = {Author = a ; Content = s}
-
-type Comment = Comments.Comment
+[<JavaScript>]
+type Comment = CommentBoxCommon.Comment
 
 // TODO: Shift this to the RVi lib
+[<JavaScript>]
 let (<*>) f x = RVi.Apply f x 
 
-/// Server component of the comment box
-module CommentServer =
-    let mutable comments = [Comments.mkComment "Simon" "Hello, world!"
-                            Comments.mkComment "SimonJF" "I am FP Simon! Mwahahaha."
-                            Comments.mkComment "Tommy Fowler" "Meow meow give me food!"]
-
-
-    /// Returns the list of comments in the comment box
-    [<Rpc>]
-    let GetComments () = 
-        async {
-            return comments
-        }
-    
-    /// Adds a comment to the list of comments on the server
-    [<Rpc>]
-    let AddComment (comment : Comment) =
-        async {
-            do comments <- comment :: comments
-            return ()
-        }
-        
 
 [<JavaScript>]
 module CommentBoxExample =
@@ -81,7 +59,7 @@ module CommentBoxExample =
         ]
 
     /// A function to render a comment component
-    let comment (c : Comments.Comment) = 
+    let comment (c : Comment) = 
         el "div" [ 
             el "h2" [RD.text <| RVa.Create c.Author]
             RD.text <| RVa.Create c.Content
@@ -103,10 +81,9 @@ module CommentBoxExample =
             commentForm
         ]
 
-    let init_comments = [ Comments.mkComment "Simon" "Hello, world!" ]
+    let init_comments = [ CommentBoxCommon.mkComment "Simon" "Hello, world!" ]
 
     /// Polls the server periodically for updates, and updates the comments variable
-    [<JavaScript>]
     let updateTask (comment_var : Var<Comment list>) =
         async {
             while true do
@@ -116,10 +93,12 @@ module CommentBoxExample =
                     do RVa.Set comment_var comments
                 with ex -> JavaScript.Log <| "Exception: " + ex.ToString ()
         }
-        (*
-    let main =
+       
+    [<JavaScript>]
+    let main () =
         let comment_var = RVa.Create init_comments
         JavaScript.Log "Hello!"
-        RD.runById "main" (commentBox comment_var)
         updateTask comment_var |> Async.Start
-        *)
+        RD.runById "main" (commentBox comment_var)
+        Div [ ]
+
