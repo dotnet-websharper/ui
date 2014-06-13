@@ -42,7 +42,8 @@ let Put var value =
             | Full _ ->
                 None
     match waiting with
-    | None -> failwith "IVar.Put: already set"
+    | None -> JavaScript.Alert "IVar.Put: already set"
+              failwith "IVar.Put: already set"
     | Some waiting ->
         for p in waiting do
             // Return the value to all of the tasks waiting for it

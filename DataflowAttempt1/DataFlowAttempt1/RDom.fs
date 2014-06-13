@@ -171,7 +171,9 @@ let input (text: Var<string>) =
         let obs = RVi.Observe view
         el?value <- RO.Value obs
         whenChanged view (fun t -> el?value <- t) 
-        let onChange () = JavaScript.Log "Input onChange" ; Var.Set text el?value
+        let onChange (x : Dom.Event) = 
+            JavaScript.Log "Input onChange" 
+            Var.Set text el?value
         el.AddEventListener("input", onChange, false)
 
     element "input" emptyAttr emptyTree (Some init)
@@ -204,7 +206,9 @@ let select (show: 'T -> string) (options: list<'T>) (current: Var<'T>) =
         let cur_val = RO.Value obs
         setSelectedItem el cur_val
         whenChanged view (setSelectedItem el) 
-        let onChange () = JavaScript.Log "select onChange" ; Var.Set current (getSelectedItem el)
+        let onChange (x : Dom.Event) = 
+            JavaScript.Log "select onChange" 
+            Var.Set current (getSelectedItem el)
         el.AddEventListener("change", onChange, false)
     let optionElements =
         options
