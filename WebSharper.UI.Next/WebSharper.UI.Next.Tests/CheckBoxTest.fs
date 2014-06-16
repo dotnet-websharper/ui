@@ -18,6 +18,7 @@ module CheckBoxTest =
                   mkPerson "Clare" 50 ; mkPerson "Andy" 51]
     let showPerson p = "Name: " + p.Name + ", age: " + string(p.Age)
     
+
     let main () = 
         let (sel_people : Var<Person list>) = RVa.Create []
         let chkbox = RD.check (fun p -> p.Name) people sel_people
@@ -28,6 +29,7 @@ module CheckBoxTest =
         let rv_pnl = RVa.Create ""
         RVi.Sink (fun people -> peopleNameList people |> RVa.Set rv_pnl) people_rvi
         let lbl = RD.text rv_pnl
+
         RD.runById "main" (concatTree [chkbox ; lbl])
         Div [ ]
  
