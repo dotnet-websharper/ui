@@ -115,6 +115,8 @@
     <Compile Include="CommentBoxCommon.fs" />
     <Compile Include="CommentBoxServer.fs" />
     <Compile Include="CommentBox.fs" />
+    <Compile Include="TextBenchmark.fs" />
+    <Compile Include="CheckBoxTest.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
   <ItemGroup>

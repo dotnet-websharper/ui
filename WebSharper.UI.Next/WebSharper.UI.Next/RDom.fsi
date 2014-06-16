@@ -55,12 +55,18 @@ val runById : id: string -> Tree -> unit
 /// Input box.
 val input : Var<string> -> Tree
 
+/// TEMP: polymorphic input box
+val inputConvert : show : ('T -> string) -> read : (string -> 'T) -> Var<'T> -> Tree
+
 /// Submit button. Takes a view of reactive components with which it is associated,
 /// and a callback function of what to do with this view once the button is pressed
 val button : caption : string -> view : View<'T> -> fn : ('T -> unit) -> Tree
 
 /// Select box.
 val select<'T when 'T : equality> : ('T -> string) -> list<'T> -> Var<'T> -> Tree
+
+/// Check Box Group
+val check<'T when 'T : equality> : ('T -> string) -> list<'T> -> Var<list<'T>> -> Tree
 
 /// Memoizing collection display.
 val forEach<'T when 'T : equality> : View<list<'T>> -> ('T -> Tree) -> Tree
