@@ -10,5 +10,5 @@ type JavaScriptAttribute () =
 [<JavaScript>]
 let U<'T> = Unchecked.defaultof<'T>
 
-[<Inline "$f()">] 
+[<Inline "$f()">]
 let lock root f = lock root f

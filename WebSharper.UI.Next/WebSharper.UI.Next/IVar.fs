@@ -5,22 +5,22 @@ open System.Collections.Generic
 
 open IntelliFactory.WebSharper
 
-[<JavaScript>]
-type State<'T> = | Empty of LinkedList<'T -> unit>
-                 | Full of 'T
+type State<'T> =
+    | Empty of ResizeArray<'T -> unit>
+    | Full of 'T
 
 [<JavaScript>]
 type IVar<'T> = { mutable State : State<'T>; Root : obj }
 
 [<JavaScript>]
-let Create () = { State = Empty (LinkedList ()); Root = obj () }
+let Create () = { State = Empty (ResizeArray ()); Root = obj () }
 
 [<JavaScript>]
 let When (v: IVar<'T>) (k: 'T -> unit) =
     let v =
         lock v.Root <| fun () ->
             match v.State with
-            | Empty cc -> cc.AddFirst(k) |> ignore; None
+            | Empty cc -> cc.Add(k); None
             | Full r -> Some r
     Option.iter k v
 
@@ -45,10 +45,10 @@ let Put var value =
     | None -> JavaScript.Alert "IVar.Put: already set"
               failwith "IVar.Put: already set"
     | Some waiting ->
-        for p in waiting do
+        waiting.ToArray()
+        |> Array.iter (fun p ->
             // Return the value to all of the tasks waiting for it
-            Async.Start <| async { return p value }
-        waiting.Clear ()
+            Async.Start <| async { return p value })
 
 /// Waits on two IVars, and returns the first one which fires
 [<JavaScript>]

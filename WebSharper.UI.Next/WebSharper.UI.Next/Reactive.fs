@@ -103,13 +103,10 @@ module View =
                 // observe current x and y
                 let o1 = Observe vx
                 let o2 = Observe vy
-                // set the output to z = f x y 
+                // set the output to z = f x y
                 do Var.Set rv (fn o1.Observed o2.Observed)
                 // wait until *either* observation is obsolete
-                JavaScript.Log "Waiting for IV.First..."
                 do! IVar.Get (IVar.First o1.Obsolete o2.Obsolete)
-                JavaScript.Log "Apply IV.First fired"
-                // loop ..
         }
         |> Async.Start
         V rv
@@ -140,10 +137,8 @@ module View =
     let Sink f (V x as vx) =
         async {
             while true do
-                do JavaScript.Log "Sink fired"
                 let o = Observe vx
                 do f o.Observed
-                do JavaScript.Log "After function in sink"
                 do! IVar.Get o.Obsolete
         }
         |> Async.Start
