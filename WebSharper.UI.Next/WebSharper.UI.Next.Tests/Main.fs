@@ -8,13 +8,12 @@ open WebSharper.UI.Next.Tests.CommentBox
 open WebSharper.UI.Next.Tests.PhoneExample
 open WebSharper.UI.Next.Tests.TextBenchmark
 
-
 type Action =
     | Phone
     | Comment
     | CheckBox
     | TextBenchmark 
-
+    | TodoList 
 
 module Controls =
 
@@ -50,6 +49,15 @@ module Controls =
         override __.Body =
             TextBenchmark.TextBenchmark.main () :> _
          
+
+    [<Sealed>]
+    type EntryPointTodo() =
+        inherit Web.Control()
+
+        [<JavaScript>]
+        override __.Body =
+            TodoList.TodoList.main () :> _
+         
 module Skin =
     open System.Web
 
@@ -82,43 +90,30 @@ module Site =
             LI ["CommentBox" => ctx.Link Comment]
             LI ["CheckBox" => ctx.Link CheckBox]
             LI ["TextBenchmark" => ctx.Link TextBenchmark]
+            LI ["TodoList" => ctx.Link TodoList]
         ]
 
+
+    let page title control =
+        Skin.WithTemplate title <| fun ctx ->
+            [
+                Div [Text title]
+                Div [] -< [Id "main"]
+                Links ctx
+                Div [control]
+            ]     
+        
+
     let PhonePage =
-        Skin.WithTemplate "PhoneExample" <| fun ctx ->
-            [
-                Div [Text "PhoneExample"]
-                Div [] -< [Id "main"]
-                Links ctx
-                Div [new Controls.EntryPointPhone()]
-            ]
-
+        page "PhoneExample" (new Controls.EntryPointPhone())
     let CommentPage =
-        Skin.WithTemplate "CommentBox" <| fun ctx ->
-            [
-                Div [Text "CommentBox"]
-                Div [] -< [Id "main"]
-                Links ctx
-                Div [new Controls.EntryPointComment()]
-            ]
-
+        page "PhoneExample" (new Controls.EntryPointComment())
     let CBPage =
-        Skin.WithTemplate "CheckBox" <| fun ctx ->
-            [
-                Div [Text "CheckBox"]
-                Div [] -< [Id "main"]
-                Links ctx
-                Div [new Controls.EntryPointCB()]
-            ]
-
+        page "CheckBox" (new Controls.EntryPointCB())
     let TBPage =
-        Skin.WithTemplate "TextBox" <| fun ctx ->
-            [
-                Div [Text "TextBox"]
-                Div [] -< [Id "main"]
-                Links ctx
-                Div [new Controls.EntryPointTB()]
-            ]
+        page "TextBenchmark" (new Controls.EntryPointTB())
+    let TodoPage =
+        page "TodoList" (new Controls.EntryPointTodo())
 
     let Main =
         Sitelet.Sum [
@@ -126,6 +121,7 @@ module Site =
             Sitelet.Content "/Comment" Comment CommentPage
             Sitelet.Content "/Checkbox" CheckBox CBPage
             Sitelet.Content "/Textbox" TextBenchmark TBPage 
+            Sitelet.Content "/TodoList" TodoList TodoPage
         ]
 
 [<Sealed>]
