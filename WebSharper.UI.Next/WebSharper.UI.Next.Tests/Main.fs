@@ -8,9 +8,9 @@ open WebSharper.UI.Next.Tests.CommentBox
 open WebSharper.UI.Next.Tests.PhoneExample
 
 type Action =
-    | Home
-    | About
-
+    | Phone
+    | Comment
+    | CheckBox
 module Controls =
 
     [<Sealed>]
@@ -28,6 +28,14 @@ module Controls =
         [<JavaScript>]
         override __.Body =
             PhoneExample.PhoneExample.main () :> _
+
+    [<Sealed>]
+    type EntryPointCB() =
+        inherit Web.Control()
+
+        [<JavaScript>]
+        override __.Body =
+            CheckBoxTest.CheckBoxTest.main () :> _
 
 
 module Skin =
@@ -58,39 +66,50 @@ module Site =
 
     let Links (ctx: Context<Action>) =
         UL [
-            LI ["Home" => ctx.Link Home]
-            LI ["About" => ctx.Link About]
+            LI ["Phone" => ctx.Link Phone]
+            LI ["CommentBox" => ctx.Link Comment]
+            LI ["CheckBox" => ctx.Link CheckBox]
         ]
 
-    let HomePage =
-        Skin.WithTemplate "HomePage" <| fun ctx ->
+    let PhonePage =
+        Skin.WithTemplate "PhoneExample" <| fun ctx ->
             [
-                Div [Text "HOME"]
+                Div [Text "PhoneExample"]
                 Div [] -< [Id "main"]
                 Links ctx
                 Div [new Controls.EntryPointPhone()]
             ]
 
-    let AboutPage =
-        Skin.WithTemplate "AboutPage" <| fun ctx ->
+    let CommentPage =
+        Skin.WithTemplate "CommentBox" <| fun ctx ->
             [
-                Div [Text "ABOUT"]
+                Div [Text "CommentBox"]
                 Div [] -< [Id "main"]
                 Links ctx
                 Div [new Controls.EntryPointComment()]
             ]
 
+    let CBPage =
+        Skin.WithTemplate "CheckBox" <| fun ctx ->
+            [
+                Div [Text "CheckBox"]
+                Div [] -< [Id "main"]
+                Links ctx
+                Div [new Controls.EntryPointCB()]
+            ]
+
     let Main =
         Sitelet.Sum [
-            Sitelet.Content "/" Home HomePage
-            Sitelet.Content "/About" About AboutPage
+            Sitelet.Content "/" Phone PhonePage
+            Sitelet.Content "/Comment" Comment CommentPage
+            Sitelet.Content "/Checkbox" CheckBox CBPage
         ]
 
 [<Sealed>]
 type Website() =
     interface IWebsite<Action> with
         member this.Sitelet = Site.Main
-        member this.Actions = [Home; About]
+        member this.Actions = [Phone ; Comment ; CheckBox]
 
 type Global() =
     inherit System.Web.HttpApplication()

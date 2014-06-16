@@ -86,6 +86,9 @@ let concatAttr xs =
 
 let whenChanged rvi f = RVi.Sink f rvi
 
+
+let mutable groupCount = 0
+
 // Creates an attribute with the given name and value.
 // The value is backed by the view of a reactive variable, and changes when this updates.
 let attr name rvar =
@@ -165,7 +168,7 @@ let runById id tr =
     | null -> failwith ("invalid id: " + id)
     | el -> run el tr
 
-let input (text: Var<string>) =
+(*
     let init (el: Dom.Element) =
         let view = RVi.Create text
         let obs = RVi.Observe view
@@ -177,6 +180,21 @@ let input (text: Var<string>) =
         el.AddEventListener("input", onChange, false)
 
     element "input" emptyAttr emptyTree (Some init)
+    *)
+let inputConvert (show : 'T -> string) (read : string -> 'T) (v : Var<'T>) =
+    let init (el : Dom.Element) =
+        let view = RVi.Create v
+        let obs = RVi.Observe view
+        el?value <- RO.Value obs
+        whenChanged view (fun t -> el?value <- show t)
+        let onChange (x : Dom.Event) =
+            JavaScript.Log "InputConvert onChange"
+            Var.Set v (el?value |> read)
+        el.AddEventListener("input", onChange, false)
+    element "input" emptyAttr emptyTree (Some init)
+
+let input (text: Var<string>) =
+    inputConvert id id text
 
 let button (caption : string) (view : View<'T>) (fn : 'T -> unit) =
     let init (el : Dom.Element) =
@@ -217,6 +235,40 @@ let select (show: 'T -> string) (options: list<'T>) (current: Var<'T>) =
             element "option" (attr "value" (Var.Create (string i))) t None)
         |> concatTree
     element "select" emptyAttr optionElements (Some init)
+
+let check (show : 'T -> string) (items : list<'T>) (chk : Var<list<'T>>) =
+    // Create RView for the list of checked items
+    let rvi = RVi.Create chk
+
+    // Update list of checked items, given an item and whether it's checked or not
+    let updateList t chkd =
+        let obs = RVi.Observe rvi |> RO.Value
+        let chk' = 
+            if chkd then 
+                obs @ [t]
+            else
+                List.filter (fun x -> x <> t) obs
+        RVa.Set chk chk' 
+
+    let initCheck i (el : Dom.Element) =
+        let onClick i (x : Dom.Event) =
+            JavaScript.Log "checkbox click"
+            let chkd = el?checked
+            updateList (List.nth items i) chkd
+        el.AddEventListener("click", onClick i, false)
+
+    let checkElements =
+        items
+        |> List.mapi (fun i o ->
+            let t = staticText (show o)
+            let attrs = [staticAttr "type" "checkbox"
+                         staticAttr "name" (string groupCount)
+                         staticAttr "value" (string i)]
+            let chkElem = element "input" (concatAttr attrs) emptyTree (Some <| initCheck i)
+            element "div" emptyAttr (concatTree [chkElem ; t]) None)
+        |> concatTree
+    groupCount <- groupCount + 1
+    checkElements
 
 let memo f =
     let d = System.Collections.Generic.Dictionary()
