@@ -61,6 +61,7 @@ module Var =
         lock v.Root <| fun () ->
             v.Observation
 
+
 [<JavaScript>]
 type View<'T> =
     | V of Var<'T>
@@ -142,3 +143,10 @@ module View =
                 do! IVar.Get o.Obsolete
         }
         |> Async.Start
+
+
+[<JavaScript>]
+let FromView (v : View<'T>) =
+    let va = View.Now v |> Var.Create 
+    View.Sink (Var.Set va) v
+    va

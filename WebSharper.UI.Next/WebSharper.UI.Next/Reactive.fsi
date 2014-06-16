@@ -47,3 +47,5 @@ module View =
 
     /// Dynamic composition.
     val Bind : ('A -> View<'B>) -> View<'A> -> View<'B>
+
+val FromView : View<'T> -> Var<'T>

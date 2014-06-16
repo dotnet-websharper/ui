@@ -6,11 +6,16 @@ open IntelliFactory.WebSharper.Sitelets
 
 open WebSharper.UI.Next.Tests.CommentBox
 open WebSharper.UI.Next.Tests.PhoneExample
+open WebSharper.UI.Next.Tests.TextBenchmark
+
 
 type Action =
     | Phone
     | Comment
     | CheckBox
+    | TextBenchmark 
+
+
 module Controls =
 
     [<Sealed>]
@@ -37,7 +42,14 @@ module Controls =
         override __.Body =
             CheckBoxTest.CheckBoxTest.main () :> _
 
+    [<Sealed>]
+    type EntryPointTB() =
+        inherit Web.Control()
 
+        [<JavaScript>]
+        override __.Body =
+            TextBenchmark.TextBenchmark.main () :> _
+         
 module Skin =
     open System.Web
 
@@ -69,6 +81,7 @@ module Site =
             LI ["Phone" => ctx.Link Phone]
             LI ["CommentBox" => ctx.Link Comment]
             LI ["CheckBox" => ctx.Link CheckBox]
+            LI ["TextBenchmark" => ctx.Link TextBenchmark]
         ]
 
     let PhonePage =
@@ -98,18 +111,28 @@ module Site =
                 Div [new Controls.EntryPointCB()]
             ]
 
+    let TBPage =
+        Skin.WithTemplate "TextBox" <| fun ctx ->
+            [
+                Div [Text "TextBox"]
+                Div [] -< [Id "main"]
+                Links ctx
+                Div [new Controls.EntryPointTB()]
+            ]
+
     let Main =
         Sitelet.Sum [
             Sitelet.Content "/" Phone PhonePage
             Sitelet.Content "/Comment" Comment CommentPage
             Sitelet.Content "/Checkbox" CheckBox CBPage
+            Sitelet.Content "/Textbox" TextBenchmark TBPage 
         ]
 
 [<Sealed>]
 type Website() =
     interface IWebsite<Action> with
         member this.Sitelet = Site.Main
-        member this.Actions = [Phone ; Comment ; CheckBox]
+        member this.Actions = [Phone ; Comment ; CheckBox; TextBenchmark]
 
 type Global() =
     inherit System.Web.HttpApplication()
