@@ -13,8 +13,8 @@ open IntelliFactory.WebSharper.UI.Next.Reactive
 [<JavaScript>]
 module ReactiveCollection =
     type ReactiveCollection<'T>
-    type HashCode = int
-    type MapTy<'T> = Map<HashCode, Var<'T>>
+    type VarKey = int
+    type MapTy<'T> = Map<VarKey, Var<'T>>
 
     val CreateReactiveCollection : Var<'T> list -> ReactiveCollection<'T>
 
