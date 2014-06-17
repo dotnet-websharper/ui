@@ -12,8 +12,8 @@ type Action =
     | Phone
     | Comment
     | CheckBox
-    | TextBenchmark 
-    | TodoList 
+    | TextBenchmark
+    | TodoList
 
 module Controls =
 
@@ -22,7 +22,7 @@ module Controls =
         inherit Web.Control()
 
         [<JavaScript>]
-        override __.Body = 
+        override __.Body =
             CommentBox.CommentBoxExample.main () :> _
 
     [<Sealed>]
@@ -48,7 +48,6 @@ module Controls =
         [<JavaScript>]
         override __.Body =
             TextBenchmark.TextBenchmark.main () :> _
-         
 
     [<Sealed>]
     type EntryPointTodo() =
@@ -57,7 +56,7 @@ module Controls =
         [<JavaScript>]
         override __.Body =
             TodoList.TodoList.main () :> _
-         
+
 module Skin =
     open System.Web
 
@@ -93,7 +92,6 @@ module Site =
             LI ["TodoList" => ctx.Link TodoList]
         ]
 
-
     let page title control =
         Skin.WithTemplate title <| fun ctx ->
             [
@@ -101,8 +99,7 @@ module Site =
                 Div [] -< [Id "main"]
                 Links ctx
                 Div [control]
-            ]     
-        
+            ]
 
     let PhonePage =
         page "PhoneExample" (new Controls.EntryPointPhone())
@@ -120,7 +117,7 @@ module Site =
             Sitelet.Content "/" Phone PhonePage
             Sitelet.Content "/Comment" Comment CommentPage
             Sitelet.Content "/Checkbox" CheckBox CBPage
-            Sitelet.Content "/Textbox" TextBenchmark TBPage 
+            Sitelet.Content "/Textbox" TextBenchmark TBPage
             Sitelet.Content "/TodoList" TodoList TodoPage
         ]
 

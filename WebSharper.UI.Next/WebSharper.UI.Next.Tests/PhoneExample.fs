@@ -1,4 +1,4 @@
-﻿module WebSharper.UI.Next.Tests.PhoneExample 
+﻿module WebSharper.UI.Next.Tests.PhoneExample
 
 open IntelliFactory.WebSharper
 open IntelliFactory.WebSharper.Html
@@ -37,8 +37,8 @@ module Phones =
 module PhoneExample =
     let ( <*> ) f x = RVi.Apply f x
 
-    let t x = RD.text (RVa.Create x)
-    let el name xs = RD.element name RD.emptyAttr (RD.concatTree xs) None
+    let t x = RD.TextField (RVa.Create x)
+    let el name xs = RD.Element name RD.EmptyAttr (RD.ConcatTree xs) None
 
     let phonesWidget (phones: list<Phone>) =
         let allPhones = RVa.Create phones
@@ -60,14 +60,13 @@ module PhoneExample =
                 el "p" [ t ph.Snippet ]
             ]
 
-        RD.concatTree [
+        RD.ConcatTree [
             t "Search: "
-            RD.input query
+            RD.Input query
             t "Sort by: "
-            RD.select Orders.show [Alphabetical; Newest] order
-            el "ul" [ RD.forEach visiblePhones showPhone ]
+            RD.Select Orders.show [Alphabetical; Newest] order
+            el "ul" [ RD.ForEach visiblePhones showPhone ]
         ]
-
 
     let main () =
         JavaScript.Alert "Hi from Phone Example"
@@ -82,6 +81,5 @@ module PhoneExample =
             defPhone "Motorola XOOM™ with Wi-Fi" "The Next, Next generation tablet" 2
             defPhone "Motorola XOOM™ with Wi-Fi" "The Next, Next generation tablet" 3
         ]
-        |> RD.runById "main"
+        |> RD.RunById "main"
         Div [ ]
-
