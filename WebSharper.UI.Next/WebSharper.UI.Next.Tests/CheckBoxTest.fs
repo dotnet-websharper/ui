@@ -14,22 +14,20 @@ module RD = IntelliFactory.WebSharper.UI.Next.RDom
 module CheckBoxTest =
     type Person = { Name : string ; Age : int }
     let mkPerson n a = { Name = n; Age = a }
-    let people = [mkPerson "Simon" 22 ; mkPerson "Peter" 18 ; 
+    let people = [mkPerson "Simon" 22 ; mkPerson "Peter" 18 ;
                   mkPerson "Clare" 50 ; mkPerson "Andy" 51]
     let showPerson p = "Name: " + p.Name + ", age: " + string(p.Age)
-    
 
-    let main () = 
-        let (sel_people : Var<Person list>) = RVa.Create []
-        let chkbox = RD.check (fun p -> p.Name) people sel_people
-       
-        let people_rvi = RVi.Create sel_people
-        
+    let main () =
+        let (selPeople : Var<Person list>) = RVa.Create []
+        let chkBox = RD.CheckBox (fun p -> p.Name) people selPeople
+
+        let peopleRVi = RVi.Create selPeople
+
         let peopleNameList xs = List.fold (fun acc p -> acc + p.Name + ", ") "" xs
-        let rv_pnl = RVa.Create ""
-        RVi.Sink (fun people -> peopleNameList people |> RVa.Set rv_pnl) people_rvi
-        let lbl = RD.text rv_pnl
+        let rvPNL = RVa.Create ""
+        RVi.Sink (fun people -> peopleNameList people |> RVa.Set rvPNL) peopleRVi
+        let lbl = RD.TextField rvPNL
 
-        RD.runById "main" (concatTree [chkbox ; lbl])
+        RD.RunById "main" (ConcatTree [chkBox ; lbl])
         Div [ ]
- 
