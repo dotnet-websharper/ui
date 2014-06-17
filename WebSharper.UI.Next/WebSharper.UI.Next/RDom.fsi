@@ -24,6 +24,9 @@ module Attrs =
     /// Constructs a new time-varying attribute.
     val View : name: string -> R.View<string> -> Attr
 
+    /// Empty attribute list.
+    val Empty : Attr
+
 /// Represents a time-varying node list.
 type Tree
 
@@ -36,17 +39,17 @@ val Concat : seq<Tree> -> Tree
 /// Empty tree.
 val Empty : Tree
 
+/// Constructs a static text node, not backed by an RVar.
+val TextNode : string -> Tree
+
 /// Constructs a reactive text node.
 val TextView : R.View<string> -> Tree
 
-/// Constructs a static text node, not backed by an RVar.
-val Text : string -> Tree
-
 /// Embeds time-varying fragments into the tree.
-val View : R.View<Tree> -> Tree
+val EmbedView : R.View<Tree> -> Tree
 
 /// Constructs a reactive element node.
-val Element : name: string -> Attr -> Tree -> Tree
+val Element : name: string -> seq<Attr> -> seq<Tree> -> Tree
 
 /// Runs a reactive tree as contents of the given element.
 val Run : Dom.Element -> Tree -> unit
@@ -56,6 +59,13 @@ val RunById : id: string -> Tree -> unit
 
 /// Input box.
 val Input : R.Var<string> -> Tree
+
+/// Submit button. Takes a view of reactive components with which it is associated,
+/// and a callback function of what to do with this view once the button is pressed
+val Button : caption: string -> (unit -> unit) -> Tree
+
+/// Check Box Group.
+val CheckBox<'T when 'T : equality> : ('T -> string) -> list<'T> -> R.Var<list<'T>> -> Tree
 
 /// Select box.
 val Select<'T when 'T : equality> : ('T -> string) -> list<'T> -> R.Var<'T> -> Tree

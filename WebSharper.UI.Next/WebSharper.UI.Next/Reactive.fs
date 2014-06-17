@@ -61,6 +61,12 @@ module Var =
         lock v.Root <| fun () ->
             v.Observation
 
+    let Update var f =
+        lock var.Root <| fun () ->
+            let o0 = var.Observation
+            var.Observation <- Observation.Create (f o0.Observed)
+            o0
+        |> Observation.Mark
 
 [<JavaScript>]
 type View<'T> =
