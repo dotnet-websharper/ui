@@ -156,7 +156,7 @@ and VarSkel =
     }
 
 /// Embedding dynamic nodes.
-let View v =
+let EmbedView v =
     let sk =
         {
             BeforeSkel = S0
@@ -182,7 +182,6 @@ let View v =
 
 /// Main DOM manipulation routine used in Var nodes: remove old, insert cur.
 let patch (parent: El) pos old cur =
-    JavaScript.Log("patch", parent)
     let rm (el: Node) =
         if Object.ReferenceEquals(el.ParentNode, parent) then
             parent.RemoveChild(el) |> ignore
@@ -197,12 +196,8 @@ let patch (parent: El) pos old cur =
         match sk with
         | S0 -> ()
         | S2 (x, y) -> ins x; ins y
-        | SE x ->
-            JavaScript.Log("insert ELM", x.DomElem)
-            insertNode parent pos x.DomElem
-        | ST x ->
-            JavaScript.Log("insert TXT", x.DomText, x.TextValue)
-            insertNode parent pos x.DomText
+        | SE x -> insertNode parent pos x.DomElem
+        | ST x -> insertNode parent pos x.DomText
         | SV x -> ins x.CurrentSkel
     remove old
     ins cur
@@ -254,7 +249,7 @@ let update parent skel =
     upd parent skel AtEnd |> ignore
 
 let Run parent tree =
-    let (Tr (skel, ver)) = View (R.View.Const tree)
+    let (Tr (skel, ver)) = EmbedView (R.View.Const tree)
     R.View.Sink (fun _ -> update parent skel) ver
 
 let RunById id tr =
@@ -278,8 +273,22 @@ let element (el: El) (At (attrs, attrVer)) (Tr (children, ver)) =
         Ver()
     Tr (skel, R.View.Map2 update attrVer ver)
 
+let Empty =
+    Tr (S0, R.View.Const (Ver ()))
+
+let appendSkel x y =
+    match x, y with
+    | S0, r | r, S0 -> r
+    | _ -> S2 (x, y)
+
+let Append (Tr (a, aV)) (Tr (b, bV)) =
+    Tr (appendSkel a b, R.View.Map2 (fun _ _ -> Ver()) aV bV)
+
+let Concat xs =
+    Array.MapReduce (fun x -> x) Empty Append (Seq.toArray xs)
+
 let Element name attr children =
-    element (createElement name) attr children
+    element (createElement name) (Attrs.Concat attr) (Concat children)
 
 let TextView view =
     let v = R.View.Now view
@@ -298,22 +307,10 @@ let TextView view =
         Ver()
     Tr (skel, R.View.Map update view)
 
-let Text t =
+let TextNode t =
     TextView (R.View.Const t)
 
-let Empty =
-    Tr (S0, R.View.Const (Ver ()))
-
-let appendSkel x y =
-    match x, y with
-    | S0, r | r, S0 -> r
-    | _ -> S2 (x, y)
-
-let Append (Tr (a, aV)) (Tr (b, bV)) =
-    Tr (appendSkel a b, R.View.Map2 (fun _ _ -> Ver()) aV bV)
-
-let Concat xs =
-    Array.MapReduce (fun x -> x) Empty Append (Seq.toArray xs)
+// form helpers
 
 let Input (var: R.Var<string>) =
     let el = createElement "input"
@@ -325,7 +322,6 @@ let Input (var: R.Var<string>) =
     element el Attrs.Empty Empty
 
 let Select (show: 'T -> string) (options: list<'T>) (current: R.Var<'T>) =
-    let el = createElement "select"
     let getIndex (el: El) =
         el?selectedIndex : int
     let setIndex (el: El) (i: int) =
@@ -337,6 +333,7 @@ let Select (show: 'T -> string) (options: list<'T>) (current: R.Var<'T>) =
         List.findIndex ((=) x) options
     let setSelectedItem (el: El) item =
         setIndex el (itemIndex item)
+    let el = createElement "select"
     let view = R.View.Create current
     view
     |> R.View.Sink (setSelectedItem el)
@@ -346,10 +343,49 @@ let Select (show: 'T -> string) (options: list<'T>) (current: R.Var<'T>) =
     let optionElements =
         options
         |> List.mapi (fun i o ->
-            let t = Text (show o)
-            Element "option" (Attrs.Create "value" (string i)) t)
+            let t = TextNode (show o)
+            Element "option" [Attrs.Create "value" (string i)] [t])
         |> Concat
     element el Attrs.Empty optionElements
+
+/// Counter used in CheckBox below to generate a UID.
+let mutable groupCount = 0
+
+let CheckBox (show: 'T -> string) (items: list<'T>) (chk: R.Var<list<'T>>) =
+    // Create RView for the list of checked items
+    let rvi = R.View.Create chk
+    // Update list of checked items, given an item and whether it's checked or not.
+    let updateList t chkd =
+        R.Var.Update chk (fun obs ->
+            let obs =
+                if chkd then
+                    obs @ [t]
+                else
+                    List.filter (fun x -> x <> t) obs
+            Seq.distinct obs
+            |> Seq.toList)
+    let initCheck i (el: Dom.Element) =
+        let onClick i (x: Dom.Event) =
+            let chkd = el?``checked``
+            updateList (List.nth items i) chkd
+        el.AddEventListener("click", onClick i, false)
+    let checkElements =
+        items
+        |> List.mapi (fun i o ->
+            let t = TextNode (show o)
+            let attrs =
+                [
+                    Attrs.Create "type" "checkbox"
+                    Attrs.Create "name" (string groupCount)
+                    Attrs.Create "value" (string i)
+                ]
+            let el = createElement "input"
+            initCheck i el
+            let chkElem = element el (Attrs.Concat attrs) Empty
+            Element "div" [] [chkElem; t])
+        |> Concat
+    groupCount <- groupCount + 1
+    checkElements
 
 // collections
 
@@ -361,8 +397,14 @@ let memo f =
             d.[key] <- v
             v
 
+let Button caption action =
+    let el = createElement "input"
+    el.AddEventListener("click", (fun (ev: Dom.Event) -> action ()), false)
+    let attrs = Attrs.Concat [Attrs.Create "type" "button"; Attrs.Create "value" caption]
+    element el attrs Empty
+
 let ForEach input render =
     let mRender = memo render
     input
     |> R.View.Map (List.map mRender >> Concat)
-    |> View
+    |> EmbedView

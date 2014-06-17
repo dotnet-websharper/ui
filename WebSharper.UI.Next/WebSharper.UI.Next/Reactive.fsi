@@ -18,6 +18,7 @@ module Observation =
 module Var =
     val Create : 'T -> Var<'T>
     val Set : Var<'T> -> 'T -> unit
+    val Update : Var<'T> -> ('T -> 'T) -> unit
 
 module View =
 
