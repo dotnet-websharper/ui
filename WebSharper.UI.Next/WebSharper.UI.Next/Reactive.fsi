@@ -21,6 +21,9 @@ module Var =
 
 module View =
 
+    /// Current value.
+    val Now : View<'T> -> 'T
+
     /// Creation from an RVar
     val Create : Var<'T> -> View<'T>
 
@@ -48,4 +51,5 @@ module View =
     /// Dynamic composition.
     val Bind : ('A -> View<'B>) -> View<'A> -> View<'B>
 
-val FromView : View<'T> -> Var<'T>
+    /// Array combinator exposed for efficiency.
+    val MapArray : ('A[] -> 'B) -> View<'A>[] -> View<'B>

@@ -42,8 +42,9 @@ let Put var value =
             | Full _ ->
                 None
     match waiting with
-    | None -> JavaScript.Alert "IVar.Put: already set"
-              failwith "IVar.Put: already set"
+    | None ->
+        JavaScript.Alert "IVar.Put: already set"
+        failwith "IVar.Put: already set"
     | Some waiting ->
         waiting.ToArray()
         |> Array.iter (fun p ->
@@ -59,9 +60,23 @@ let First a b =
     let k x =
         lock root <| fun () ->
             if not !fired then
-              //  JavaScript.Log "IVar.First firing"
                 fired := true
                 Put r x
     When a k
     When b k
+    r
+
+/// Waits on many IVars, and returns the first one which fires
+[<JavaScript>]
+let FirstOfArray (vars: IVar<'T>[]) : IVar<'T> =
+    // TODO: spec. for Length = 0, Length = 1, Length = 2
+    let r = Create ()
+    let root = obj ()
+    let fired = ref false
+    let k x =
+        lock root <| fun () ->
+            if not !fired then
+                fired := true
+                Put r x
+    Array.iter (fun v -> When v k) vars
     r

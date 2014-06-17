@@ -1,22 +1,28 @@
-﻿module IntelliFactory.WebSharper.UI.Next.RDom
+﻿/// Defines a reactive DOM component built on Vars and RViews.
+[<ReflectedDefinition>]
+module IntelliFactory.WebSharper.UI.Next.RDom
 
+open System
+open System.Collections.Generic
 open IntelliFactory.WebSharper
-open IntelliFactory.WebSharper.Html
-open IntelliFactory.WebSharper.UI.Next.Reactive
+module R = Reactive
 
-module RVi = Reactive.View
-module RVa = Reactive.Var
-module RO = Reactive.Observation
+// utilities
 
-/// Defines a reactive DOM component built on Vars and RViews.
+type El = Dom.Element
+type Node = Dom.Node
 
 let doc =
     Dom.Document.Current
 
-let appendTo (ctx: Dom.Element) node =
+let appendTo (ctx: El) node =
     ctx.AppendChild(node) |> ignore
 
-let clear (ctx: Dom.Element) =
+let clearAttrs (ctx: El) =
+    while ctx.HasAttributes() do
+        ctx.RemoveAttributeNode(ctx.Attributes.[0] :?> _) |> ignore
+
+let clear (ctx: El) =
     while ctx.HasChildNodes() do
         ctx.RemoveChild(ctx.FirstChild) |> ignore
 
@@ -31,257 +37,332 @@ let createAttr name value =
     a.Value <- value
     a
 
-type Tree =
-    | Append of Tree * Tree
-    | Elem of ElemTree
-    | Empty
-    | Text of Dom.Text
-    | Var of VarTree
+let setAttr (el: El) name value =
+    el.SetAttribute(name, value)
 
-and ElemTree =
-    {
-        children : Tree
-        dom : Dom.Element
-    }
+type InsertPos =
+    | AtEnd
+    | BeforeNode of Dom.Node
 
-and VarTree =
-    {
-        mutable parent : option<ElemTree>
-        mutable tree : Tree
-    }
+let insertNode (parent: El) pos node =
+    match pos with
+    | AtEnd -> parent.AppendChild(node) |> ignore
+    | BeforeNode marker -> parent.InsertBefore(node, marker) |> ignore
 
-let relink parent =
-    let children = parent.children
-    let el = parent.dom
-    clear el
-    let rec loop tr =
-        match tr with
-        | Append (a, b) -> loop a; loop b
-        | Elem x -> appendTo el x.dom
-        | Empty -> ()
-        | Text t -> appendTo el t
-        | Var vn ->
-            vn.parent <- Some parent
-            loop vn.tree
-    loop children
+[<Sealed>]
+type Ver() = class end
 
-let createVarTree t =
-    { parent = None; tree = t }
+// attribute trees
 
 type Attr =
-    | AppendAttr of Attr * Attr
-    | AttrNode of Dom.Attr
-    | EmptyAttr
+    | At of AttrsSkel * R.View<Ver>
 
-let appendAttr a b =
-    match a, b with
-    | EmptyAttr, x | x, EmptyAttr -> x
-    | _ -> AppendAttr (a, b)
+and AttrsSkel =
+    | A0
+    | A1 of AttrSkel
+    | A2 of AttrsSkel * AttrsSkel
 
-let emptyAttr =
-    EmptyAttr
+and AttrSkel =
+    {
+        AttrName : string
+        mutable AttrDirty : bool
+        mutable AttrValue : string
+    }
 
-let concatAttr xs =
-    Seq.fold appendAttr emptyAttr xs
+module Attrs =
 
-let whenChanged rvi f = RVi.Sink f rvi
+    let rec needsUpdate skel =
+        match skel with
+        | A0 -> false
+        | A1 sk -> sk.AttrDirty
+        | A2 (a, b) -> needsUpdate a || needsUpdate b
 
+    let View name view =
+        let sk =
+            {
+                AttrName = name
+                AttrDirty = true
+                AttrValue = R.View.Now view
+            }
+        let skel = A1 sk
+        let update v =
+            sk.AttrDirty <- true
+            sk.AttrValue <- v
+            Ver()
+        At (skel, R.View.Map update view)
 
-let mutable groupCount = 0
+    let Empty =
+        At (A0, R.View.Const (Ver()))
 
-// Creates an attribute with the given name and value.
-// The value is backed by the view of a reactive variable, and changes when this updates.
-let attr name rvar =
-    // Create an RVar and RView for the value and view, associate it with the attribute,
-    // and specify a callback for what should happen to the RDOM once this updates.
-    let view = RVi.Create rvar
-    let obs = RVi.Observe view
-    let a = createAttr name (RO.Value obs)
-    whenChanged view (fun new_val -> a.Value <- new_val) 
-    AttrNode a
+    let Create name value =
+        View name (R.View.Const value)
 
+    let append a b =
+        match a, b with
+        | A0, x | x, A0-> x
+        | _ -> A2 (a, b)
 
-let staticAttr name value =
-    let view = RVa.Create value
-    attr name view
+    let Append (At (a, vA)) (At (b, vB)) =
+        At (append a b, R.View.Map2 (fun _ _ -> Ver()) vA vB)
 
-let addAttr (el: Dom.Element) attr =
-    let rec loop attr =
-        match attr with
-        | AppendAttr (a, b) -> loop a; loop b
-        | EmptyAttr -> ()
-        | AttrNode x -> el.SetAttributeNode(x) |> ignore
-    loop attr
+    let Concat xs =
+        Array.MapReduce (fun x -> x) Empty Append (Seq.toArray xs)
 
-let appendTree a b =
-    match a, b with
-    | Empty, x | x, Empty -> x
-    | _ -> Append (a, b)
+    let update (par: El) skel =
+        let rec loop skel =
+            match skel with
+            | A0 -> ()
+            | A1 x ->
+                if x.AttrDirty then
+                    x.AttrDirty <- false
+                    par.SetAttribute(x.AttrName, x.AttrValue)
+            | A2 (a, b) -> loop a; loop b
+        loop skel
 
-let emptyTree =
-    Empty
+// element trees
 
-let concatTree xs =
-    Seq.fold appendTree emptyTree xs
+type Tree =
+    | Tr of Skel * R.View<Ver>
 
-// Creates a text DOM element, backed by a reactive variable
-let text txt_var =
-    let view = RVi.Create txt_var
-    let obs = RVi.Observe view
-    let cur_val = RO.Value obs
-    let t = createText cur_val
-    whenChanged view (fun txt -> t.NodeValue <- txt)
-    Text t
+and Skel =
+    | S0
+    | S2 of Skel * Skel
+    | SE of ElemSkel
+    | ST of TextSkel
+    | SV of VarSkel
 
-let staticText (t : string) =
-    createText t |> Text
+and ElemSkel =
+    {
+        AttrsSkel : AttrsSkel
+        Children : Skel
+        DomElem : El
+        mutable ElemDirty : bool
+        mutable NeedsVisit : bool
+    }
 
-let var tr =
-    let obs = RVi.Observe tr
-    let out = createVarTree (RO.Value obs)
-    let res = Var out
-    let updateVarTree next =
-        out.tree <- next
-        match out.parent with
-        | None -> ()
-        | Some el -> relink el
-    whenChanged tr updateVarTree
-    res
+and TextSkel =
+    {
+        DomText : Dom.Text
+        mutable TextDirty : bool
+        mutable TextValue : string
+    }
 
-type Init = Dom.Element -> unit
+and VarSkel =
+    {
+        mutable BeforeSkel : Skel
+        mutable CurrentSkel : Skel
+        mutable IsDirty : bool
+        mutable VarNeedsVisit : bool
+    }
 
-let element name attr tree (init: option<Init>) =
-    let dom = createElement name
-    addAttr dom attr
-    let e = { dom = dom; children = tree }
-    relink e
-    match init with
-    | Some init -> init dom
-    | _ -> ()
-    Elem e
+/// Embedding dynamic nodes.
+let View v =
+    let sk =
+        {
+            BeforeSkel = S0
+            CurrentSkel = S0
+            IsDirty = true
+            VarNeedsVisit = true
+        }
+    let skel = SV sk
+    let ver =
+        v
+        |> R.View.Bind (fun (Tr (ske, y)) ->
+            // outer change: new skel, mark dirty
+            sk.CurrentSkel <- ske
+            sk.IsDirty <- true
+            y
+            |> R.View.Map (fun ver ->
+                // inner change: while this node has not changed,
+                // its children have, and we mark that for the visitor
+                // to later descend into it
+                sk.VarNeedsVisit <- true
+                ver))
+    Tr (skel, ver)
 
-let run (el: Dom.Element) tr =
-    relink { dom = el; children = tr }
+/// Main DOM manipulation routine used in Var nodes: remove old, insert cur.
+let patch (parent: El) pos old cur =
+    JavaScript.Log("patch", parent)
+    let rm (el: Node) =
+        if Object.ReferenceEquals(el.ParentNode, parent) then
+            parent.RemoveChild(el) |> ignore
+    let rec remove sk =
+        match sk with
+        | S0 -> ()
+        | S2 (x, y) -> remove x; remove y
+        | SE x -> rm x.DomElem
+        | ST x -> rm x.DomText
+        | SV x -> remove x.CurrentSkel
+    let rec ins sk =
+        match sk with
+        | S0 -> ()
+        | S2 (x, y) -> ins x; ins y
+        | SE x ->
+            JavaScript.Log("insert ELM", x.DomElem)
+            insertNode parent pos x.DomElem
+        | ST x ->
+            JavaScript.Log("insert TXT", x.DomText, x.TextValue)
+            insertNode parent pos x.DomText
+        | SV x -> ins x.CurrentSkel
+    remove old
+    ins cur
 
-let runById id tr =
+/// Descends into Skel and updates dirty nodes.
+let update parent skel =
+    let rec posOf sk =
+        match sk with
+        | S0 -> AtEnd
+        | S2 (x, _) -> posOf x
+        | SE x -> BeforeNode x.DomElem
+        | ST x -> BeforeNode x.DomText
+        | SV x -> posOf x.CurrentSkel
+    let rec upd par skel pos =
+        match skel with
+        | S0 -> pos
+        | S2 (a, b) -> upd par a (upd par b pos)
+        | SE e ->
+            JavaScript.Log("upd", e.DomElem)
+            if Attrs.needsUpdate e.AttrsSkel then
+                Attrs.update par e.AttrsSkel
+            if e.NeedsVisit then
+                e.NeedsVisit <- false
+                upd e.DomElem e.Children AtEnd |> ignore
+            if e.ElemDirty then
+                e.ElemDirty <- false
+                patch e.DomElem AtEnd S0 e.Children
+            BeforeNode e.DomElem
+        | ST t ->
+            if t.TextDirty then
+                JavaScript.Log("update: text := ", t.TextValue)
+                t.DomText.NodeValue <- t.TextValue
+                t.TextDirty <- false
+            BeforeNode t.DomText
+        | SV v ->
+            // first, update descendants, compute position
+            let nPos =
+                if v.VarNeedsVisit then
+                    v.VarNeedsVisit <- false
+                    upd par v.CurrentSkel pos
+                else
+                    posOf v.CurrentSkel
+            // propagate changes to DOM tree here if needed
+            if v.IsDirty then
+                patch par pos v.BeforeSkel v.CurrentSkel
+                v.BeforeSkel <- v.CurrentSkel
+                v.IsDirty <- false
+            nPos
+    upd parent skel AtEnd |> ignore
+
+let Run parent tree =
+    let (Tr (skel, ver)) = View (R.View.Const tree)
+    R.View.Sink (fun _ -> update parent skel) ver
+
+let RunById id tr =
     match doc.GetElementById(id) with
     | null -> failwith ("invalid id: " + id)
-    | el -> run el tr
+    | el -> Run el tr
 
-(*
-    let init (el: Dom.Element) =
-        let view = RVi.Create text
-        let obs = RVi.Observe view
-        el?value <- RO.Value obs
-        whenChanged view (fun t -> el?value <- t) 
-        let onChange (x : Dom.Event) = 
-            JavaScript.Log "Input onChange" 
-            Var.Set text el?value
-        el.AddEventListener("input", onChange, false)
+/// Element node constructor given an existing El root.
+let element (el: El) (At (attrs, attrVer)) (Tr (children, ver)) =
+    let sk =
+        {
+            AttrsSkel = attrs
+            Children = children
+            DomElem = el
+            ElemDirty = true
+            NeedsVisit = true
+        }
+    let skel = SE sk
+    let update (a: Ver) (b: Ver) =
+        sk.NeedsVisit <- true
+        Ver()
+    Tr (skel, R.View.Map2 update attrVer ver)
 
-    element "input" emptyAttr emptyTree (Some init)
-    *)
-let inputConvert (show : 'T -> string) (read : string -> 'T) (v : Var<'T>) =
-    let init (el : Dom.Element) =
-        let view = RVi.Create v
-        let obs = RVi.Observe view
-        el?value <- RO.Value obs
-        whenChanged view (fun t -> el?value <- show t)
-        let onChange (x : Dom.Event) =
-            JavaScript.Log "InputConvert onChange"
-            Var.Set v (el?value |> read)
-        el.AddEventListener("input", onChange, false)
-    element "input" emptyAttr emptyTree (Some init)
+let Element name attr children =
+    element (createElement name) attr children
 
-let input (text: Var<string>) =
-    inputConvert id id text
+let TextView view =
+    let v = R.View.Now view
+    let node = createText v
+    let sk =
+        {
+            DomText = node
+            TextDirty = true
+            TextValue = v
+        }
+    let skel = ST sk
+    let update v =
+        JavaScript.Log("SetText to ", v)
+        sk.TextDirty <- true
+        sk.TextValue <- v
+        Ver()
+    Tr (skel, R.View.Map update view)
 
-let button (caption : string) (view : View<'T>) (fn : 'T -> unit) =
-    let init (el : Dom.Element) =
-        el.AddEventListener("click", 
-            (fun (x : Dom.Event) -> let obs = RVi.Observe view
-                                    RO.Value obs |> fn), false)
-    element "input" 
-        (concatAttr [staticAttr "type" "button"; staticAttr "value" caption])
-        emptyTree (Some init)
-  
+let Text t =
+    TextView (R.View.Const t)
 
-let select (show: 'T -> string) (options: list<'T>) (current: Var<'T>) =
-    let getIndex (el: Dom.Element) =
+let Empty =
+    Tr (S0, R.View.Const (Ver ()))
+
+let appendSkel x y =
+    match x, y with
+    | S0, r | r, S0 -> r
+    | _ -> S2 (x, y)
+
+let Append (Tr (a, aV)) (Tr (b, bV)) =
+    Tr (appendSkel a b, R.View.Map2 (fun _ _ -> Ver()) aV bV)
+
+let Concat xs =
+    Array.MapReduce (fun x -> x) Empty Append (Seq.toArray xs)
+
+let Input (var: R.Var<string>) =
+    let el = createElement "input"
+    R.View.Create var
+    |> R.View.Sink (fun v -> el?value <- v)
+    let onChange (x: Dom.Event) =
+        R.Var.Set var el?value
+    el.AddEventListener("input", onChange, false)
+    element el Attrs.Empty Empty
+
+let Select (show: 'T -> string) (options: list<'T>) (current: R.Var<'T>) =
+    let el = createElement "select"
+    let getIndex (el: El) =
         el?selectedIndex : int
-    let setIndex (el: Dom.Element) (i: int) =
+    let setIndex (el: El) (i: int) =
         el?selectedIndex <- i
     let getSelectedItem el =
         let i = getIndex el
         options.[i]
     let itemIndex x =
         List.findIndex ((=) x) options
-    let setSelectedItem (el: Dom.Element) item =
+    let setSelectedItem (el: El) item =
         setIndex el (itemIndex item)
-    let init (el: Dom.Element) =
-        let view = RVi.Create current
-        let obs = RVi.Observe view
-        let cur_val = RO.Value obs
-        setSelectedItem el cur_val
-        whenChanged view (setSelectedItem el) 
-        let onChange (x : Dom.Event) = 
-            JavaScript.Log "select onChange" 
-            Var.Set current (getSelectedItem el)
-        el.AddEventListener("change", onChange, false)
+    let view = R.View.Create current
+    view
+    |> R.View.Sink (setSelectedItem el)
+    let onChange (x: Dom.Event) =
+        R.Var.Set current (getSelectedItem el)
+    el.AddEventListener("change", onChange, false)
     let optionElements =
         options
         |> List.mapi (fun i o ->
-            let t = text (Var.Create (show o))
-            element "option" (attr "value" (Var.Create (string i))) t None)
-        |> concatTree
-    element "select" emptyAttr optionElements (Some init)
+            let t = Text (show o)
+            Element "option" (Attrs.Create "value" (string i)) t)
+        |> Concat
+    element el Attrs.Empty optionElements
 
-let check (show : 'T -> string) (items : list<'T>) (chk : Var<list<'T>>) =
-    // Create RView for the list of checked items
-    let rvi = RVi.Create chk
-
-    // Update list of checked items, given an item and whether it's checked or not
-    let updateList t chkd =
-        let obs = RVi.Observe rvi |> RO.Value
-        let chk' = 
-            if chkd then 
-                obs @ [t]
-            else
-                List.filter (fun x -> x <> t) obs
-        RVa.Set chk chk' 
-
-    let initCheck i (el : Dom.Element) =
-        let onClick i (x : Dom.Event) =
-            JavaScript.Log "checkbox click"
-            let chkd = el?checked
-            updateList (List.nth items i) chkd
-        el.AddEventListener("click", onClick i, false)
-
-    let checkElements =
-        items
-        |> List.mapi (fun i o ->
-            let t = staticText (show o)
-            let attrs = [staticAttr "type" "checkbox"
-                         staticAttr "name" (string groupCount)
-                         staticAttr "value" (string i)]
-            let chkElem = element "input" (concatAttr attrs) emptyTree (Some <| initCheck i)
-            element "div" emptyAttr (concatTree [chkElem ; t]) None)
-        |> concatTree
-    groupCount <- groupCount + 1
-    checkElements
+// collections
 
 let memo f =
-    let d = System.Collections.Generic.Dictionary()
+    let d = Dictionary()
     fun key ->
         if d.ContainsKey(key) then d.[key] else
             let v = f key
             d.[key] <- v
             v
 
-let forEach input render =
+let ForEach input render =
     let mRender = memo render
-    //let mRender = render
     input
-    |> RVi.Map (List.map mRender >> concatTree)
-    |> var
-
+    |> R.View.Map (List.map mRender >> Concat)
+    |> View

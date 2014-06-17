@@ -1,75 +1,64 @@
-﻿[<ReflectedDefinition>]
-module IntelliFactory.WebSharper.UI.Next.RDom
+﻿module IntelliFactory.WebSharper.UI.Next.RDom
 
 open IntelliFactory.WebSharper
-open IntelliFactory.WebSharper.UI.Next.Reactive
+module R = Reactive
 
 /// Represents a time-varying attribute list.
 type Attr
 
-/// Append on attributes.
-val appendAttr : Attr -> Attr -> Attr
+/// Operations on attribute lists.
+module Attrs =
 
-/// Constructs a new time-varying attribute.
-val attr : name: string -> Var<string> -> Attr
+    /// Append on attributes.
+    val Append : Attr -> Attr -> Attr
 
-/// Concatenation on attributes.
-val concatAttr : seq<Attr> -> Attr
+    /// Concatenation on attributes.
+    val Concat : seq<Attr> -> Attr
 
-/// Empty attribute list.
-val emptyAttr : Attr
+    /// Constructs a simple constant attribute.
+    val Create : name: string -> value: string -> Attr
+
+    /// Empty attribute list.
+    val Empty : Attr
+
+    /// Constructs a new time-varying attribute.
+    val View : name: string -> R.View<string> -> Attr
 
 /// Represents a time-varying node list.
 type Tree
 
 /// Append on trees.
-val appendTree : Tree -> Tree -> Tree
+val Append : Tree -> Tree -> Tree
 
 /// Concatenation on trees.
-val concatTree : seq<Tree> -> Tree
+val Concat : seq<Tree> -> Tree
 
 /// Empty tree.
-val emptyTree : Tree
+val Empty : Tree
 
 /// Constructs a reactive text node.
-val text : Var<string> -> Tree
+val TextView : R.View<string> -> Tree
 
-/// Constructs a static text node, not backed by an RVar
-val staticText : string -> Tree
+/// Constructs a static text node, not backed by an RVar.
+val Text : string -> Tree
 
 /// Embeds time-varying fragments into the tree.
-val var : View<Tree> -> Tree
-
-/// Custom initializer run every time an element is re-linked with a parent.
-type Init = Dom.Element -> unit
+val View : R.View<Tree> -> Tree
 
 /// Constructs a reactive element node.
-val element : name: string -> Attr -> Tree -> option<Init> -> Tree
+val Element : name: string -> Attr -> Tree -> Tree
 
 /// Runs a reactive tree as contents of the given element.
-val run : Dom.Element -> Tree -> unit
+val Run : Dom.Element -> Tree -> unit
 
 /// Same as run, but looks up the element by ID.
-val runById : id: string -> Tree -> unit
+val RunById : id: string -> Tree -> unit
 
 /// Input box.
-val input : Var<string> -> Tree
-
-/// TEMP: polymorphic input box
-val inputConvert : show : ('T -> string) -> read : (string -> 'T) -> Var<'T> -> Tree
-
-/// Submit button. Takes a view of reactive components with which it is associated,
-/// and a callback function of what to do with this view once the button is pressed
-val button : caption : string -> view : View<'T> -> fn : ('T -> unit) -> Tree
+val Input : R.Var<string> -> Tree
 
 /// Select box.
-val select<'T when 'T : equality> : ('T -> string) -> list<'T> -> Var<'T> -> Tree
+val Select<'T when 'T : equality> : ('T -> string) -> list<'T> -> R.Var<'T> -> Tree
 
-/// Check Box Group
-val check<'T when 'T : equality> : ('T -> string) -> list<'T> -> Var<list<'T>> -> Tree
-
-/// Memoizing collection display.
-val forEach<'T when 'T : equality> : View<list<'T>> -> ('T -> Tree) -> Tree
-
-/// Simple, static attribute
-val staticAttr : name : string -> value : string -> Attr
+/// Memoizing collection display. TODO: general R.View function/strategy?
+val ForEach<'T when 'T : equality> : R.View<list<'T>> -> ('T -> Tree) -> Tree
