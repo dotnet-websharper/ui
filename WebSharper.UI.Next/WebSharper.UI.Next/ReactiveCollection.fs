@@ -8,8 +8,8 @@ module RVi = Reactive.View
 module RO = Reactive.Observation
 
 module ReactiveCollection =
-    type HashCode = int
-    type MapTy<'T> = Map<HashCode, Var<'T>>
+    type VarKey = int
+    type MapTy<'T> = Map<VarKey, Var<'T>>
     type ReactiveCollection<'T> =
         { InnerMap : Var<MapTy<'T>> ; InnerMapView : View<MapTy<'T>> }
 
