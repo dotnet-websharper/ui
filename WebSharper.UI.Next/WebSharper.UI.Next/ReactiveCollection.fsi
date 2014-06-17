@@ -14,14 +14,14 @@ open IntelliFactory.WebSharper.UI.Next.Reactive
 module ReactiveCollection =
     type ReactiveCollection<'T>
     type VarKey = int
-    type MapTy<'T> = Map<VarKey, Var<'T>>
+    type MapTy<'T> = Map<VarKey, 'T>
 
-    val CreateReactiveCollection : Var<'T> list -> ReactiveCollection<'T>
+    val CreateReactiveCollection : 'T list -> ('T -> VarKey) -> ReactiveCollection<'T>
 
     /// Add a variable to the reactive collection, triggering a re-render
-    val AddVar : ReactiveCollection<'T> -> Var<'T> -> unit
+    val AddVar : ReactiveCollection<'T> -> 'T -> unit
 
     /// Removes a variable from the reactive collection, triggering a re-render
-    val RemoveVar : ReactiveCollection<'T> -> Var<'T> -> unit
+    val RemoveVar : ReactiveCollection<'T> -> 'T -> unit
 
     val ViewCollection : ReactiveCollection<'T> -> View<MapTy<'T>>

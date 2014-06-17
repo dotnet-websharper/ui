@@ -31,21 +31,22 @@ module TodoList =
     let addItem (item : TodoItem) (lst : TodoItem list) = lst @ [item]
 
     (* Experimental *)
-    let renderItemVar (coll : ReactiveCollection<TodoItem>) (todoVar : Var<TodoItem>) =
+    let renderItemVar (coll : ReactiveCollection<Var<TodoItem>>) (todoVar : Var<TodoItem>) =
         let view = RVi.Create todoVar
-        let todo = RVi.Observe view |> RO.Value
-        el "div" [
-            (if (todo.Done) then
-                el "del" [ StaticText todo.TodoText ]
-             else
-                StaticText todo.TodoText)
+        RVi.Map
+            (fun todo ->
+                el "div" [
+                    (if (todo.Done) then
+                        el "del" [ StaticText todo.TodoText ]
+                     else
+                        StaticText todo.TodoText)
 
-            Button "Done" (RVi.Const ())
-                (fun _ -> RVa.Set todoVar {todo with Done = true})
+                    Button "Done" (RVi.Const ())
+                        (fun _ -> RVa.Set todoVar {todo with Done = true})
 
-            Button "Remove" (RVi.Const ())
-                (fun _ -> RC.RemoveVar coll todoVar)
-        ]
+                    Button "Remove" (RVi.Const ())
+                        (fun _ -> RC.RemoveVar coll todoVar)
+                ]) view |> EmbedVar
 
     let todoList coll =
         el "div" [
@@ -66,7 +67,7 @@ module TodoList =
         ]
 
     let todoExample =
-        let rc = RC.CreateReactiveCollection []
+        let rc = RC.CreateReactiveCollection [] (RVa.GetKey)
         el "div" [
             todoList rc
             todoForm rc

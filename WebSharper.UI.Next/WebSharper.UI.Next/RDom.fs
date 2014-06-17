@@ -269,8 +269,7 @@ let ForEach input render =
     |> RVi.Map (List.map mRender >> ConcatTree)
     |> EmbedVar
 
-let RenderCollection<'T> (coll : ReactiveCollection<'T>) (render : ReactiveCollection<'T> -> Var<'T> -> Tree) =
-    // let mRender = memo render
+let RenderCollection<'T> (coll : ReactiveCollection<'T>) (render : ReactiveCollection<'T> -> 'T -> Tree) =
     // Trigger rendering function on each item in the collection
     ViewCollection coll
     |> RVi.Map (fun map ->
@@ -278,8 +277,3 @@ let RenderCollection<'T> (coll : ReactiveCollection<'T>) (render : ReactiveColle
         |> List.rev
         |> ConcatTree)
     |> EmbedVar
-    (*
-    coll
-    |> RVi.Map (List.map mRender >> ConcatTree)
-    |> EmbedVar
-    *)

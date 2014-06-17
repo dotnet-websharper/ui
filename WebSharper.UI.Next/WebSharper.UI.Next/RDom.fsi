@@ -72,7 +72,7 @@ val CheckBox<'T when 'T : equality> : ('T -> string) -> list<'T> -> Var<list<'T>
 /// Memoizing collection display.
 val ForEach<'T when 'T : equality> : View<list<'T>> -> ('T -> Tree) -> Tree
 
-val RenderCollection<'T> : ReactiveCollection<'T> -> (ReactiveCollection<'T> -> Var<'T> -> Tree) -> Tree
+val RenderCollection<'T> : ReactiveCollection<'T> -> (ReactiveCollection<'T> -> 'T -> Tree) -> Tree
 
 /// Simple, static attribute
 val StaticAttr : name : string -> value : string -> Attr
