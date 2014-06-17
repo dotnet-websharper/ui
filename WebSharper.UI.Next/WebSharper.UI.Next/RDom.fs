@@ -3,6 +3,7 @@
 open IntelliFactory.WebSharper
 open IntelliFactory.WebSharper.Html
 open IntelliFactory.WebSharper.UI.Next.Reactive
+open IntelliFactory.WebSharper.UI.Next.ReactiveCollection.ReactiveCollection
 
 module RVi = Reactive.View
 module RVa = Reactive.Var
@@ -267,3 +268,18 @@ let ForEach input render =
     input
     |> RVi.Map (List.map mRender >> ConcatTree)
     |> EmbedVar
+
+let RenderCollection<'T> (coll : ReactiveCollection<'T>) (render : ReactiveCollection<'T> -> Var<'T> -> Tree) =
+    // let mRender = memo render
+    // Trigger rendering function on each item in the collection
+    ViewCollection coll
+    |> RVi.Map (fun map ->
+        Map.fold (fun s _ v -> (render coll v) :: s) [] map
+        |> List.rev
+        |> ConcatTree)
+    |> EmbedVar
+    (*
+    coll
+    |> RVi.Map (List.map mRender >> ConcatTree)
+    |> EmbedVar
+    *)

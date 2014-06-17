@@ -3,6 +3,7 @@ module IntelliFactory.WebSharper.UI.Next.RDom
 
 open IntelliFactory.WebSharper
 open IntelliFactory.WebSharper.UI.Next.Reactive
+open IntelliFactory.WebSharper.UI.Next.ReactiveCollection.ReactiveCollection
 
 /// Represents a time-varying attribute list.
 type Attr
@@ -70,6 +71,8 @@ val CheckBox<'T when 'T : equality> : ('T -> string) -> list<'T> -> Var<list<'T>
 
 /// Memoizing collection display.
 val ForEach<'T when 'T : equality> : View<list<'T>> -> ('T -> Tree) -> Tree
+
+val RenderCollection<'T> : ReactiveCollection<'T> -> (ReactiveCollection<'T> -> Var<'T> -> Tree) -> Tree
 
 /// Simple, static attribute
 val StaticAttr : name : string -> value : string -> Attr
