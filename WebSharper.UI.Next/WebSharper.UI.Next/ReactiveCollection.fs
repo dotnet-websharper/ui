@@ -26,18 +26,20 @@ module ReactiveCollection =
 
     // Ideally this would be inside CreateReactiveCollection, but we can't
     // have generic inner functions inside [<JS>] tags...
-    let rec addVars map =
+    let rec addVars coll =
         function
-        | [] -> map
+        | [] -> ()
         | x :: xs ->
-            let map' = Map.add (RVa.GetKey x) x map
-            addVars map' xs
+            AddVar coll x
+            addVars coll xs
 
     let CreateReactiveCollection (vars : Var<'T> list) =
-        let map = addVars (Map.empty) vars
+        let (map : MapTy<'T>) = Map.empty
         let mapVar = RVa.Create map
         let mapView = RVi.Create mapVar
-        { InnerMap = mapVar ; InnerMapView = mapView }
+        let coll = { InnerMap = mapVar ; InnerMapView = mapView }
+        addVars coll vars
+        coll
 
  /// Removes a variable from the reactive collection, triggering a re-render
     let RemoveVar (coll : ReactiveCollection<'T>) (v : Var<'T>) =
