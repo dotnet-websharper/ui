@@ -7,8 +7,10 @@ open IntelliFactory.WebSharper.UI.Next.RDom
 module RVa = IntelliFactory.WebSharper.UI.Next.Reactive.Var
 module RVi = IntelliFactory.WebSharper.UI.Next.Reactive.View
 module RO = IntelliFactory.WebSharper.UI.Next.Reactive.Observation
+module RC = IntelliFactory.WebSharper.UI.Next.ReactiveCollection.ReactiveCollection
 
 open IntelliFactory.WebSharper.UI.Next.Reactive
+open IntelliFactory.WebSharper.UI.Next.ReactiveCollection.ReactiveCollection
 
 [<JavaScript>]
 let el name xs = Element name EmptyAttr (ConcatTree xs) None
@@ -17,10 +19,6 @@ let el name xs = Element name EmptyAttr (ConcatTree xs) None
 module TodoList =
     type TodoItem = { TodoText : string ; Done : bool }
     let mkTodo s = { TodoText = s ; Done = false }
-
-    // RVar and RView for the list of TODO items
-    let rvList = RVa.Create []
-    let rviList = RVi.Create rvList
 
     // Remove an item from the todo list.
     let rec removeItem (item : TodoItem) (lst : TodoItem list) =
@@ -32,42 +30,47 @@ module TodoList =
     // Add an item to the end of the todo list
     let addItem (item : TodoItem) (lst : TodoItem list) = lst @ [item]
 
-    // Render a todo item
-    let renderItem (todo : TodoItem) =
+    (* Experimental *)
+    let renderItemVar (coll : ReactiveCollection<Var<TodoItem>>) (todoVar : Var<TodoItem>) =
+        let view = RVi.Create todoVar
+        RVi.Map
+            (fun todo ->
+                el "div" [
+                    (if (todo.Done) then
+                        el "del" [ StaticText todo.TodoText ]
+                     else
+                        StaticText todo.TodoText)
+
+                    Button "Done" (RVi.Const ())
+                        (fun _ -> RVa.Set todoVar {todo with Done = true})
+
+                    Button "Remove" (RVi.Const ())
+                        (fun _ -> RC.RemoveVar coll todoVar)
+                ]) view |> EmbedVar
+
+    let todoList coll =
         el "div" [
-            el "div" [
-                StaticText todo.TodoText
-                // When the Button is clicked, remove the item from the list
-                // val Button : caption : string -> view : View<'T> -> fn : ('T -> unit) -> Tree
-                Button "Remove" (RVi.Const ())
-                    (fun _ -> let obs = RVi.Observe rviList
-                              RVa.Set rvList (removeItem todo (RO.Value obs)))
-            ]
+            RenderCollection coll renderItemVar
         ]
 
-    let todoList =
-        el "div" [
-            ForEach rviList renderItem
-        ]
-
-    let todoForm =
+    let todoForm coll =
         let rvInput = RVa.Create ""
         let rviInput = RVi.Create rvInput
 
         el "div" [
             StaticText "New entry: "
-            Input <| rvInput
+            Input rvInput
             Button "Submit" rviInput
                 (fun newTodo ->
-                    let lst = RVi.Observe rviList |> RO.Value
-                    addItem (mkTodo newTodo) lst  |> RVa.Set rvList)
-
+                    let rvNewTodo = RVa.Create <| mkTodo newTodo
+                    RC.AddVar coll rvNewTodo)
         ]
 
     let todoExample =
+        let rc = RC.CreateReactiveCollection [] (RVa.GetKey)
         el "div" [
-            todoList
-            todoForm
+            todoList rc
+            todoForm rc
         ]
 
     let main () =

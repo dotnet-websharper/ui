@@ -6,6 +6,7 @@ open System
 open System.Collections.Generic
 open IntelliFactory.WebSharper
 module R = Reactive
+open IntelliFactory.WebSharper.UI.Next.ReactiveCollection.ReactiveCollection
 
 // utilities
 
@@ -408,3 +409,12 @@ let ForEach input render =
     input
     |> R.View.Map (List.map mRender >> Concat)
     |> EmbedView
+
+let RenderCollection<'T> (coll : ReactiveCollection<'T>) (render : ReactiveCollection<'T> -> 'T -> Tree) =
+    // Trigger rendering function on each item in the collection
+    ViewCollection coll
+    |> RVi.Map (fun map ->
+        Map.fold (fun s _ v -> (render coll v) :: s) [] map
+        |> List.rev
+        |> ConcatTree)
+    |> EmbedVar
