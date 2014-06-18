@@ -13,7 +13,7 @@ open IntelliFactory.WebSharper.UI.Next.Reactive
 open IntelliFactory.WebSharper.UI.Next.ReactiveCollection.ReactiveCollection
 
 [<JavaScript>]
-let el name xs = Element name EmptyAttr (ConcatTree xs) None
+let el name xs = Element name [Attrs.Empty] xs
 
 [<JavaScript>]
 module TodoList =
@@ -37,16 +37,16 @@ module TodoList =
             (fun todo ->
                 el "div" [
                     (if (todo.Done) then
-                        el "del" [ StaticText todo.TodoText ]
+                        el "del" [ TextNode todo.TodoText ]
                      else
-                        StaticText todo.TodoText)
+                        TextNode todo.TodoText)
 
-                    Button "Done" (RVi.Const ())
+                    Button "Done"
                         (fun _ -> RVa.Set todoVar {todo with Done = true})
 
-                    Button "Remove" (RVi.Const ())
+                    Button "Remove"
                         (fun _ -> RC.RemoveVar coll todoVar)
-                ]) view |> EmbedVar
+                ]) view |> EmbedView
 
     let todoList coll =
         el "div" [
@@ -58,11 +58,15 @@ module TodoList =
         let rviInput = RVi.Create rvInput
 
         el "div" [
-            StaticText "New entry: "
+            TextNode "New entry: "
             Input rvInput
-            Button "Submit" rviInput
-                (fun newTodo ->
-                    let rvNewTodo = RVa.Create <| mkTodo newTodo
+            Button "Submit"
+                (fun _ ->
+                    let rvNewTodo =
+                        rviInput
+                        |> RVi.Now
+                        |> mkTodo
+                        |> RVa.Create
                     RC.AddVar coll rvNewTodo)
         ]
 

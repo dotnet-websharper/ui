@@ -69,7 +69,6 @@ module PhoneExample =
         ]
 
     let main () =
-        JavaScript.Alert "Hi from Phone Example"
         let defPhone name snip age =
             {
                 Age = age

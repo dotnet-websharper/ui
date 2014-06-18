@@ -6,6 +6,7 @@ open IntelliFactory.WebSharper.Html
 module RD = IntelliFactory.WebSharper.UI.Next.RDom
 module RVa = IntelliFactory.WebSharper.UI.Next.Reactive.Var
 module RVi = IntelliFactory.WebSharper.UI.Next.Reactive.View
+module RO = IntelliFactory.WebSharper.UI.Next.Reactive.Observation
 
 open IntelliFactory.WebSharper.UI.Next.Reactive
 
@@ -48,17 +49,19 @@ module CommentBoxExample =
                          ]
                 // This is a submit Button, based on a view of the above.
                 // The callback specified is an onClick, and triggers an observation of the view
-                RD.Button "Submit" commentView
-                    (fun cmt -> JavaScript.Alert <| cmt.Author + " said: " + cmt.Content
-                                Async.Start <| async { do! CommentServer.AddComment cmt })
+                RD.Button "Submit"
+                    (fun cmt ->
+                        let cmtObs = RVi.Observe commentView
+                        async { do! RO.Value cmtObs |> CommentServer.AddComment }
+                        |> Async.Start)
             ]
         ]
 
     /// A function to render a comment component
     let comment (c : Comment) =
         el "div" [
-            el "h2" [RD.TextField <| RVa.Create c.Author]
-            RD.TextField <| RVa.Create c.Content
+            el "h2" [RD.TextNode c.Author]
+            RD.TextNode c.Content
         ]
 
     /// A function to render a variable list of components
@@ -71,7 +74,7 @@ module CommentBoxExample =
     /// A function to render a comment box, consisting of multiple other components.
     let commentBox commentVar =
         el "div" [
-            RD.TextField <| RVa.Create "Hello, world! I am a CommentBox."
+            RD.TextNode "Hello, world! I am a CommentBox."
             // Composability
             commentList commentVar
             commentForm

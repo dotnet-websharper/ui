@@ -1,5 +1,6 @@
 ﻿module IntelliFactory.WebSharper.UI.Next.ReactiveCollection
 
+open IntelliFactory.WebSharper
 open IntelliFactory.WebSharper.UI.Next.Reactive
 
 /// A collection to be used to efficiently work with collections of time-varying
