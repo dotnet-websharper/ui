@@ -14,6 +14,7 @@ type Action =
     | CheckBox
     | TextBenchmark
     | TodoList
+    | SimpleText
 
 module Controls =
 
@@ -57,6 +58,14 @@ module Controls =
         override __.Body =
             TodoList.TodoList.main () :> _
 
+    [<Sealed>]
+    type EntryPointSimpleText() =
+        inherit Web.Control()
+
+        [<JavaScript>]
+        override __.Body =
+            SimpleTextBox.SimpleTextBox.Main () :> _
+
 module Skin =
     open System.Web
 
@@ -90,6 +99,7 @@ module Site =
             LI ["CheckBox" => ctx.Link CheckBox]
             LI ["TextBenchmark" => ctx.Link TextBenchmark]
             LI ["TodoList" => ctx.Link TodoList]
+            LI ["SimpleText" => ctx.Link SimpleText]
         ]
 
     let page title control =
@@ -111,6 +121,8 @@ module Site =
         page "TextBenchmark" (new Controls.EntryPointTB())
     let TodoPage =
         page "TodoList" (new Controls.EntryPointTodo())
+    let SimpleTextPage =
+        page "SimpleText" (new Controls.EntryPointSimpleText())
 
     let Main =
         Sitelet.Sum [
@@ -119,6 +131,7 @@ module Site =
             Sitelet.Content "/Checkbox" CheckBox CBPage
             Sitelet.Content "/Textbox" TextBenchmark TBPage
             Sitelet.Content "/TodoList" TodoList TodoPage
+            Sitelet.Content "/SimpleText" SimpleText SimpleTextPage
         ]
 
 [<Sealed>]
