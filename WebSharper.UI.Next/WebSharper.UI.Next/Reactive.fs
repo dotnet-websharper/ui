@@ -3,6 +3,19 @@
 open IntelliFactory.WebSharper
 
 [<JavaScript>]
+let mutable varCount = 0
+
+[<JavaScript>]
+let countLock = obj ()
+
+[<JavaScript>]
+let newVarId () =
+    lock countLock <| fun () ->
+        let ret = varCount
+        varCount <- ret + 1
+        ret
+
+[<JavaScript>]
 type IVar<'T> = IVar.IVar<'T>
 
 [<JavaScript>]
@@ -33,13 +46,14 @@ type Var<'T> =
         mutable Depth : int
         mutable Observation : Observation<'T>
         Root : obj
+        Key : int
     }
 
 [<JavaScript>]
 module Var =
 
     let CreateWithDepth v d =
-        { Depth = d; Observation = Observation.Create v; Root = obj () }
+        { Depth = d; Observation = Observation.Create v; Root = obj () ; Key = newVarId ()}
 
     let Create v =
         CreateWithDepth v 0
@@ -61,6 +75,9 @@ module Var =
         lock v.Root <| fun () ->
             v.Observation
 
+    let GetKey v =
+        lock v.Root <| fun () ->
+            v.Key
     let Update var f =
         lock var.Root <| fun () ->
             let o0 = var.Observation
@@ -153,7 +170,9 @@ module View =
         }
         |> Async.Start
 
-    /// Array combinator exposed for efficiency.
+
+
+        /// Array combinator exposed for efficiency.
     let MapArray (f: 'A[] -> 'B) (view: View<'A>[]) : View<'B> =
         let rv = Var.CreateWithDepth (f (Array.map Now view)) (Array.max (Array.map Depth view))
         async {
@@ -169,3 +188,9 @@ module View =
         }
         |> Async.Start
         V rv
+
+[<JavaScript>]
+let FromView (v : View<'T>) =
+    let va = View.Now v |> Var.Create
+    View.Sink (Var.Set va) v
+    va

@@ -2,6 +2,7 @@
 
 open IntelliFactory.WebSharper
 module R = Reactive
+open IntelliFactory.WebSharper.UI.Next.ReactiveCollection.ReactiveCollection
 
 /// Represents a time-varying attribute list.
 type Attr
@@ -72,3 +73,5 @@ val Select<'T when 'T : equality> : ('T -> string) -> list<'T> -> R.Var<'T> -> T
 
 /// Memoizing collection display. TODO: general R.View function/strategy?
 val ForEach<'T when 'T : equality> : R.View<list<'T>> -> ('T -> Tree) -> Tree
+
+val RenderCollection<'T> : ReactiveCollection<'T> -> (ReactiveCollection<'T> -> 'T -> Tree) -> Tree
