@@ -119,6 +119,7 @@
     <Compile Include="TodoList.fs" />
     <None Include="packages.config" />
     <Compile Include="SimpleTextBox.fs" />
+    <Compile Include="MouseChase.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
   <ItemGroup>
