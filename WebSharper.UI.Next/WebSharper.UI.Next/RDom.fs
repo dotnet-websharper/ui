@@ -8,137 +8,131 @@ open IntelliFactory.WebSharper
 module R = Reactive
 open IntelliFactory.WebSharper.UI.Next.ReactiveCollection.ReactiveCollection
 
-// utilities
+(* Utilities *****************************************************************)
+
 type El = Dom.Element
 type Node = Dom.Node
 
-/// Gets the current DOM Document
-let doc =
-    Dom.Document.Current
+/// The current DOM Document.
+let doc = Dom.Document.Current
 
-/// Appends a child node to the given DOM element
+/// Appends a child node to the given DOM element.
 let appendTo (ctx: El) node =
     ctx.AppendChild(node) |> ignore
 
-/// Removes all attributes from the given DOM element
+/// Removes all attributes from the given DOM element.
 let clearAttrs (ctx: El) =
     while ctx.HasAttributes() do
         ctx.RemoveAttributeNode(ctx.Attributes.[0] :?> _) |> ignore
 
-/// Removes all child nodes from the given DOM element
+/// Removes all child nodes from the given DOM element.
 let clear (ctx: El) =
     while ctx.HasChildNodes() do
         ctx.RemoveChild(ctx.FirstChild) |> ignore
 
-/// Creates a new DOM element
+/// Creates a new DOM element.
 let createElement name =
     doc.CreateElement(name)
 
-/// Creates a new DOM text node with the given value
+/// Creates a new DOM text node with the given value.
 let createText s =
     doc.CreateTextNode(s)
 
-/// Creates a new DOM attribute
+/// Creates a new DOM attribute.
 let createAttr name value =
     let a = doc.CreateAttribute(name)
     a.Value <- value
     a
 
-/// Sets the value of the attribute given by `name' to `value' in element `el'
+/// Sets the value of the attribute given by `name` to `value` in element `el`.
 let setAttr (el: El) name value =
     el.SetAttribute(name, value)
 
-/// Union describing position of a DOM node in relation to others in the tree
+/// Position in a `children` list of a DOM Element where a node can be inserted.
 type InsertPos =
     | AtEnd
     | BeforeNode of Dom.Node
 
-/// Inserts a node into the tree, regarding the given InsertPos
+/// Inserts a new child node into the tree under a given `parent` at given `pos`.
 let insertNode (parent: El) pos node =
     match pos with
     | AtEnd -> parent.AppendChild(node) |> ignore
     | BeforeNode marker -> parent.InsertBefore(node, marker) |> ignore
 
-/// Marker.
+/// Dummy used for propagating update-notifications up through the tree.
+/// Update notifications are used to wake up the update agent to push out DOM changes
+/// to the user by actually performing the deferred DOM updates in a batch.
+/// TODO: there might be a better/more light-weight strategy here.
 [<Sealed>]
 type Ver() = class end
 
-// attribute trees
+(* Attribute trees ***********************************************************)
 
-/// Attribute tree
+/// Attribute tree - mutable skeleton, and a dummy channel for
+/// signalling that updates happened on that skeleton.
 type Attr =
     | At of AttrsSkel * R.View<Ver>
 
-/// Attribute skeleton.
-/// A0: At the end of the skeleton
-/// A1: Leaf node
-/// A2: Branch node
+/// Skeleton for a list of Attr - isomorphic to a list of AttrSkel.
 and AttrsSkel =
     | A0
     | A1 of AttrSkel
     | A2 of AttrsSkel * AttrsSkel
 
-/// Data about an attribute:
-/// AttrName: Name of the attribute
-/// AttrDirty: Whether value of the attribute has changed, and needs updating
-/// AttrValue: The value of the attribute
+/// Skeleton for a single Attr. This object is paired up with
+/// a single Attr node in the DOM tree.
 and AttrSkel =
     {
+        /// Name of the attribute, such as "href".
         AttrName : string
+        /// True if AttrValue is different from the value of the
+        /// corresponding DOM attribute value, and the latter needs updating.
         mutable AttrDirty : bool
+        /// Desired value.
         mutable AttrValue : string
     }
 
 module Attrs =
+
     /// Traverses the attribute tree to check whether any attributes are dirty,
-    /// meaning that the attribute tree needs updating
+    /// meaning that the attribute tree needs updating.
     let rec needsUpdate skel =
         match skel with
         | A0 -> false
         | A1 sk -> sk.AttrDirty
         | A2 (a, b) -> needsUpdate a || needsUpdate b
 
-    /// Creates an attribute backed by the given reactive view
     let View name view =
-        // Create information about the new attribute, based on the current
-        // value of the RView
+        // skel for the attribute, based on the current value of the view
         let sk =
             {
                 AttrName = name
                 AttrDirty = true
                 AttrValue = R.View.Now view
             }
-        // Mark that this is a leaf node
         let skel = A1 sk
-        // Define update function which marks attribute as dirty, sets the
-        // new value, and returns a fresh Ver
+        // handle view updates by marking dirty and propagating notification
         let update v =
             sk.AttrDirty <- true
             sk.AttrValue <- v
             Ver()
-        // Finally, put it all together and create the new attribute
         At (skel, R.View.Map update view)
 
-    /// Create an empty attribute
     let Empty =
         At (A0, R.View.Const (Ver()))
 
-    /// Create a static attribute with the given name and value
     let Create name value =
         View name (R.View.Const value)
 
-    /// Appends attribute node a to node b.
+    /// Appends two attribute-list skeletons.
     let append a b =
         match a, b with
-        | A0, x  // Do nothing
-        | x, A0 -> x // Replace the A0 with x
-        | _ -> A2 (a, b) // Otherwise, insert a branch with both
+        | A0, x | x, A0 -> x // optimize: A0 is a left and right unit
+        | _ -> A2 (a, b)
 
-    /// Append one attribute to another
     let Append (At (a, vA)) (At (b, vB)) =
         At (append a b, R.View.Map2 (fun _ _ -> Ver()) vA vB)
 
-    /// Concatenate a list of attributes into one attribute tree
     let Concat xs =
         Array.MapReduce (fun x -> x) Empty Append (Seq.toArray xs)
 
@@ -154,25 +148,25 @@ module Attrs =
             | A2 (a, b) -> loop a; loop b
         loop skel
 
-// element trees
+(* Element and node trees ****************************************************)
 
-/// A tree of reactive elements
+/// Similarly to Attr, a skeleton and an updates channel.
 type Tree =
     | Tr of Skel * R.View<Ver>
-/// Structure of a skeleton
+
+/// Structure of a skeleton.
 and Skel =
-    | S0 // Empty
-    | S2 of Skel * Skel // Concatenation of two elements
-    | SE of ElemSkel // An element node, describing a DOM element
-    | ST of TextSkel // A text node, describing some simple text
-    | SV of VarSkel // A describing a reactive variable
+    | S0 // empty
+    | S2 of Skel * Skel // append
+    | SE of ElemSkel // single element node
+    | ST of TextSkel // single text node
+    | SV of VarSkel // time-varying node list
 
 and ElemSkel =
     {
         AttrsSkel : AttrsSkel
         Children : Skel
         DomElem : El
-        mutable ElemDirty : bool
         mutable NeedsVisit : bool
     }
 
@@ -191,9 +185,8 @@ and VarSkel =
         mutable VarNeedsVisit : bool
     }
 
-/// Embedding dynamic nodes.
 let EmbedView v =
-    // Create initial variable skeleton information
+    // init the skeleton
     let sk =
         {
             BeforeSkel = S0
@@ -202,10 +195,11 @@ let EmbedView v =
             VarNeedsVisit = true
         }
     let skel = SV sk
-    // v is a reactive view of a Tree.
-    // Whenever there's an outer change, we want to mark this node as dirty.
-    // When there's an inner change, we mark that the children are dirty and
-    // should be visited.
+    // `v` is a time-varying tree, which can vary itself (all trees can).
+    // an outer change happens when `v` varies
+    // an inner change happens when current value of `v` varies within itself
+    // on outer change, we mark this node as dirty - its DOM becomes out-of-sync
+    // on inner change, we mark the children as dirty - their DOM is out-of-sync
     let ver =
         v
         |> R.View.Bind (fun (Tr (ske, y)) ->
@@ -219,17 +213,16 @@ let EmbedView v =
                 // to later descend into it
                 sk.VarNeedsVisit <- true
                 ver))
-    Tr (skel, ver) // Finally, return the Var node, backed by the inner /
-                   // outer update view.
+    Tr (skel, ver)
 
 /// Main DOM manipulation routine used in Var nodes: remove old, insert cur.
 let patch (parent: El) pos old cur =
-    // Removal function via reference equality.
+    // safe remove of a node
     let rm (el: Node) =
+        // make sure not to remove already removed nodes
         if Object.ReferenceEquals(el.ParentNode, parent) then
             parent.RemoveChild(el) |> ignore
-
-    // Removes a node from the tree
+    // removes `old` node-list from the tree
     let rec remove sk =
         match sk with
         | S0 -> ()
@@ -237,7 +230,7 @@ let patch (parent: El) pos old cur =
         | SE x -> rm x.DomElem
         | ST x -> rm x.DomText
         | SV x -> remove x.CurrentSkel
-    // Inserts a node into the tree.
+    // inserts `cur` node-list into the tree
     let rec ins sk =
         match sk with
         | S0 -> ()
@@ -248,66 +241,64 @@ let patch (parent: El) pos old cur =
     remove old
     ins cur
 
-/// Descends into Skel and updates dirty nodes.
-let update parent skel =
-    // Gets the position of sk relative to a DOM node
-    let rec posOf sk =
-        match sk with
-        | S0 -> AtEnd
-        | S2 (x, _) -> posOf x
-        | SE x -> BeforeNode x.DomElem
-        | ST x -> BeforeNode x.DomText
-        | SV x -> posOf x.CurrentSkel
-
-    // Update routine. Here we go...
-    let rec upd par skel pos =
+/// Descends into a skeleton and updates dirty nodes.
+let update par skel =
+    // update loop descends right-to-left and keeps track of an insert position
+    let rec upd par skel (pos: InsertPos) =
         match skel with
-        | S0 -> pos // At the end of the tree -- do nothing, return current pos
-        | S2 (a, b) -> upd par a (upd par b pos) // Update both branches
+        | S0 -> pos
+        | S2 (a, b) -> upd par a (upd par b pos)
+        // element node
         | SE e ->
-            // Element node update
-            // If any of the attributes have been updated, propagate these to
-            // this DOM element
+            // fixup attributes
             if Attrs.needsUpdate e.AttrsSkel then
                 Attrs.update e.DomElem e.AttrsSkel
-            // If this node has been marked as requiring visitation, clear that
-            // flag, and update the child nodes
+            // update descendants if needed
             if e.NeedsVisit then
                 e.NeedsVisit <- false
                 upd e.DomElem e.Children AtEnd |> ignore
-            // If the element has been marked as dirty (that is, the element
-            // has changed), reset the dirty flag, and do the required DOM
-            // updates using the Patch function
-            if e.ElemDirty then
-                e.ElemDirty <- false
-                patch e.DomElem AtEnd S0 e.Children
             BeforeNode e.DomElem
-        // For a text node, set the value of the DOM text node, and mark dirty
-        // as false.
+        // text node: sync DOM text node value to current value if dirty
         | ST t ->
             if t.TextDirty then
                 t.DomText.NodeValue <- t.TextValue
                 t.TextDirty <- false
             BeforeNode t.DomText
+        // time-varying node list: might need patching
         | SV v ->
-            // first, update descendants, compute position
-            let nPos =
-                if v.VarNeedsVisit then
-                    v.VarNeedsVisit <- false
-                    upd par v.CurrentSkel pos
-                else
-                    posOf v.CurrentSkel
-            // propagate changes to DOM tree here if needed
             if v.IsDirty then
                 patch par pos v.BeforeSkel v.CurrentSkel
                 v.BeforeSkel <- v.CurrentSkel
                 v.IsDirty <- false
-            nPos
-    upd parent skel AtEnd |> ignore
+            if v.VarNeedsVisit then
+                v.VarNeedsVisit <- false
+                upd par v.CurrentSkel pos
+            else
+                // compute next insertion position
+                let rec posOf sk =
+                    match sk with
+                    | S0 -> pos
+                    | S2 (x, _) -> posOf x
+                    | SE x -> BeforeNode x.DomElem
+                    | ST x -> BeforeNode x.DomText
+                    | SV x -> posOf x.CurrentSkel
+                posOf v.CurrentSkel
+    upd par skel AtEnd |> ignore
+
+/// Append static children DOM nodes to the parent element.
+let appendChildren parent skel =
+    let rec loop parent skel =
+        match skel with
+        | S0 -> ()
+        | S2 (a, b) -> loop parent a; loop parent b
+        | SE e -> appendTo parent e.DomElem
+        | ST e -> appendTo parent e.DomText
+        | SV x -> ()
+    loop parent skel
 
 /// Adds a reactive tree to the given DOM element
-let Run parent tree =
-    let (Tr (skel, ver)) = EmbedView (R.View.Const tree)
+let Run parent (Tr (skel, ver)) =
+    appendChildren parent skel
     R.View.Sink (fun _ -> update parent skel) ver
 
 /// Attempts to find the given DOM element, and if found, adds a reactive tree.
@@ -316,16 +307,16 @@ let RunById id tr =
     | null -> failwith ("invalid id: " + id)
     | el -> Run el tr
 
-/// Element node constructor given an existing El root.
+/// Element node constructor given an existing DOM element root.
 let element (el: El) (At (attrs, attrVer)) (Tr (children, ver)) =
     let sk =
         {
             AttrsSkel = attrs
             Children = children
             DomElem = el
-            ElemDirty = true
             NeedsVisit = true
         }
+    appendChildren el children
     // Make the new SE node
     let skel = SE sk
     // Define the update function

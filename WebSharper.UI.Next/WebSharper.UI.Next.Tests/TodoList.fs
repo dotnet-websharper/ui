@@ -30,25 +30,21 @@ module TodoList =
     // Add an item to the end of the todo list
     let addItem (item : TodoItem) (lst : TodoItem list) = lst @ [item]
 
-    (* Experimental *)
-    let renderItemVar (coll : ReactiveCollection<Var<TodoItem>>) (todoVar : Var<TodoItem>) =
+    let renderItemVar (coll: ReactiveCollection<Var<TodoItem>>) (todoVar: Var<TodoItem>) =
         let view = RVi.Create todoVar
-        RVi.Map
-            (fun todo ->
-                el "div" [
-                    Element "div" [Attrs.Create "Test" "Testing"] [
-                        (if (todo.Done) then
-                            el "del" [ TextNode todo.TodoText ]
-                         else
-                            TextNode todo.TodoText)
-
-                        Button "Done"
-                            (fun _ -> RVa.Set todoVar {todo with Done = true})
-
-                        Button "Remove"
-                            (fun _ -> RC.RemoveVar coll todoVar)
-                    ]
-                ]) view |> EmbedView
+        el "div" [
+            RVi.Create todoVar
+            |> RVi.Map (fun todo ->
+                if todo.Done then
+                    el "del" [ TextNode todo.TodoText ]
+                else
+                    TextNode todo.TodoText)
+            |> EmbedView
+            Button "Done" (fun _ ->
+                RVa.Update todoVar (fun todo -> {todo with Done = true}))
+            Button "Remove" (fun _ ->
+                RC.RemoveVar coll todoVar)
+        ]
 
     let todoList coll =
         el "div" [

@@ -25,9 +25,6 @@ module Attrs =
     /// Constructs a new time-varying attribute.
     val View : name: string -> R.View<string> -> Attr
 
-    /// Empty attribute list.
-    val Empty : Attr
-
 /// Represents a time-varying node list.
 type Tree
 
