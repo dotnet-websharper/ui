@@ -36,16 +36,18 @@ module TodoList =
         RVi.Map
             (fun todo ->
                 el "div" [
-                    (if (todo.Done) then
-                        el "del" [ TextNode todo.TodoText ]
-                     else
-                        TextNode todo.TodoText)
+                    Element "div" [Attrs.Create "Test" "Testing"] [
+                        (if (todo.Done) then
+                            el "del" [ TextNode todo.TodoText ]
+                         else
+                            TextNode todo.TodoText)
 
-                    Button "Done"
-                        (fun _ -> RVa.Set todoVar {todo with Done = true})
+                        Button "Done"
+                            (fun _ -> RVa.Set todoVar {todo with Done = true})
 
-                    Button "Remove"
-                        (fun _ -> RC.RemoveVar coll todoVar)
+                        Button "Remove"
+                            (fun _ -> RC.RemoveVar coll todoVar)
+                    ]
                 ]) view |> EmbedView
 
     let todoList coll =
