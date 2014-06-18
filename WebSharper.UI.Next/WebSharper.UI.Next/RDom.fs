@@ -266,7 +266,6 @@ let update parent skel =
         | S2 (a, b) -> upd par a (upd par b pos) // Update both branches
         | SE e ->
             // Element node update
-            JavaScript.Log("upd", e.DomElem)
             // If any of the attributes have been updated, propagate these to
             // this DOM element
             if Attrs.needsUpdate e.AttrsSkel then
@@ -287,7 +286,6 @@ let update parent skel =
         // as false.
         | ST t ->
             if t.TextDirty then
-                JavaScript.Log("update: text := ", t.TextValue)
                 t.DomText.NodeValue <- t.TextValue
                 t.TextDirty <- false
             BeforeNode t.DomText
@@ -373,7 +371,6 @@ let TextView view =
         }
     let skel = ST sk
     let update v =
-        JavaScript.Log("SetText to ", v)
         sk.TextDirty <- true
         sk.TextValue <- v
         Ver()

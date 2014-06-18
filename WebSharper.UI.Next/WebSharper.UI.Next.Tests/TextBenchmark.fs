@@ -32,12 +32,11 @@ module TextBenchmark =
     let rec componentLoop n prevRView =
         if n >= 0 then
 
-            let rv = FromView (RVi.Map (fun x -> x + 1) prevRView)
-            let rvi = RVi.Create rv
-            let control =
-                let viewStr = RVi.Map (string) prevRView
-                RD.Input (FromView viewStr)
-            control :: componentLoop (n - 1) rvi
+            let varStr = FromView prevRView
+            let viewStr = RVi.Create varStr
+            let viewInt = RVi.Map (fun x -> (tryParseInt x) + 1) viewStr
+            let control = RD.Input varStr
+            control :: componentLoop (n - 1) (RVi.Map string viewInt)
         else []
 
     let main () =
@@ -45,5 +44,5 @@ module TextBenchmark =
         let initView = RVi.Create initVar
         let initViewStr = RVi.Map (string) initView
         let initText = RD.Input (FromView initViewStr)
-        RunById "main" <| Concat (componentLoop 5000 initView)
+        RunById "main" <| Concat (componentLoop 5000 initViewStr)
         Div [ ]
