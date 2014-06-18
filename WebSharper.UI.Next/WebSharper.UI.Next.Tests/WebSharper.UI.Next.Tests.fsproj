@@ -63,7 +63,6 @@
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
-  <Import Project="..\packages\WebSharper.2.5.111.45\build\WebSharper.targets" Condition="Exists('..\packages\WebSharper.2.5.111.45\build\WebSharper.targets')" />
   <ProjectExtensions>
     <VisualStudio>
       <FlavorProperties Guid="{349c5851-65df-11da-9384-00065b846f21}">
@@ -103,6 +102,7 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
+  <Import Project="..\packages\WebSharper.2.5.114.49\build\WebSharper.targets" Condition="Exists('..\packages\WebSharper.2.5.114.49\build\WebSharper.targets')" />
   <ItemGroup>
     <Compile Include="Remoting.fs" />
     <Compile Include="Client.fs" />
@@ -110,7 +110,6 @@
     <Content Include="Web.config" />
     <Content Include="Global.asax" />
     <Content Include="Setup.fsx" />
-    <None Include="packages.config" />
     <Compile Include="PhoneExample.fs" />
     <Compile Include="CommentBoxCommon.fs" />
     <Compile Include="CommentBoxServer.fs" />
@@ -119,6 +118,7 @@
     <Compile Include="TextBenchmark.fs" />
     <Compile Include="TodoList.fs" />
     <Compile Include="Main.fs" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
@@ -126,8 +126,6 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Web" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\WebSharper.UI.Next\WebSharper.UI.Next.fsproj">
       <Name>WebSharper.UI.Next</Name>
       <Project>{085a6f78-50a7-46cf-b040-9853ec580be5}</Project>

@@ -27,7 +27,7 @@ module CheckBoxTest =
         let peopleNameList xs = List.fold (fun acc p -> acc + p.Name + ", ") "" xs
         let rvPNL = RVa.Create ""
         RVi.Sink (fun people -> peopleNameList people |> RVa.Set rvPNL) peopleRVi
-        let lbl = RD.TextField rvPNL
+        let lbl = RVi.Create rvPNL |> RD.TextView
 
-        RD.RunById "main" (ConcatTree [chkBox ; lbl])
+        RD.RunById "main" (Concat [chkBox ; lbl])
         Div [ ]

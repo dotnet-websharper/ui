@@ -413,8 +413,8 @@ let ForEach input render =
 let RenderCollection<'T> (coll : ReactiveCollection<'T>) (render : ReactiveCollection<'T> -> 'T -> Tree) =
     // Trigger rendering function on each item in the collection
     ViewCollection coll
-    |> RVi.Map (fun map ->
+    |> R.View.Map (fun map ->
         Map.fold (fun s _ v -> (render coll v) :: s) [] map
         |> List.rev
-        |> ConcatTree)
-    |> EmbedVar
+        |> Concat)
+    |> EmbedView

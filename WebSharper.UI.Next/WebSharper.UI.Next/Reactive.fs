@@ -170,8 +170,6 @@ module View =
         }
         |> Async.Start
 
-
-
         /// Array combinator exposed for efficiency.
     let MapArray (f: 'A[] -> 'B) (view: View<'A>[]) : View<'B> =
         let rv = Var.CreateWithDepth (f (Array.map Now view)) (Array.max (Array.map Depth view))
@@ -188,9 +186,3 @@ module View =
         }
         |> Async.Start
         V rv
-
-[<JavaScript>]
-let FromView (v : View<'T>) =
-    let va = View.Now v |> Var.Create
-    View.Sink (Var.Set va) v
-    va

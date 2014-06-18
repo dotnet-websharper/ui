@@ -17,6 +17,13 @@ module RD = IntelliFactory.WebSharper.UI.Next.RDom
 // instantaneous eventually, but will need some optimisation.
 [<JavaScript>]
 module TextBenchmark =
+
+    [<JavaScript>]
+    let FromView (v : View<'T>) =
+        let va = View.Now v |> Var.Create
+        View.Sink (Var.Set va) v
+        va
+
     // HACK ALERT, here be dragons
     let tryParseInt s = try
                             Int32.Parse s
@@ -28,14 +35,15 @@ module TextBenchmark =
             let rv = FromView (RVi.Map (fun x -> x + 1) prevRView)
             let rvi = RVi.Create rv
             let control =
-                RD.InputConvert (string)
-                                (tryParseInt) rv // FIXME: better handle non-bijections
+                let viewStr = RVi.Map (string) prevRView
+                RD.Input (FromView viewStr)
             control :: componentLoop (n - 1) rvi
         else []
 
     let main () =
         let initVar = RVa.Create 0
         let initView = RVi.Create initVar
-        let initText = RD.InputConvert (string) (tryParseInt) initVar
-        RunById "main" <| ConcatTree (componentLoop 5000 initView)
+        let initViewStr = RVi.Map (string) initView
+        let initText = RD.Input (FromView initViewStr)
+        RunById "main" <| Concat (componentLoop 5000 initView)
         Div [ ]
