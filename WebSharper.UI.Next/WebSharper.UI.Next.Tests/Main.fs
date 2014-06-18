@@ -15,6 +15,7 @@ type Action =
     | TextBenchmark
     | TodoList
     | SimpleText
+    | MouseChase
 
 module Controls =
 
@@ -66,6 +67,14 @@ module Controls =
         override __.Body =
             SimpleTextBox.SimpleTextBox.Main () :> _
 
+    [<Sealed>]
+    type EntryPointMouseChase() =
+        inherit Web.Control()
+
+        [<JavaScript>]
+        override __.Body =
+            MouseChase.MouseChase.Main () :> _
+
 module Skin =
     open System.Web
 
@@ -100,6 +109,7 @@ module Site =
             LI ["TextBenchmark" => ctx.Link TextBenchmark]
             LI ["TodoList" => ctx.Link TodoList]
             LI ["SimpleText" => ctx.Link SimpleText]
+            LI ["MouseChase" => ctx.Link MouseChase]
         ]
 
     let page title control =
@@ -114,7 +124,7 @@ module Site =
     let PhonePage =
         page "PhoneExample" (new Controls.EntryPointPhone())
     let CommentPage =
-        page "PhoneExample" (new Controls.EntryPointComment())
+        page "CommentBox" (new Controls.EntryPointComment())
     let CBPage =
         page "CheckBox" (new Controls.EntryPointCB())
     let TBPage =
@@ -123,6 +133,8 @@ module Site =
         page "TodoList" (new Controls.EntryPointTodo())
     let SimpleTextPage =
         page "SimpleText" (new Controls.EntryPointSimpleText())
+    let MousePage =
+        page "MouseChase" (new Controls.EntryPointMouseChase())
 
     let Main =
         Sitelet.Sum [
@@ -132,6 +144,7 @@ module Site =
             Sitelet.Content "/Textbox" TextBenchmark TBPage
             Sitelet.Content "/TodoList" TodoList TodoPage
             Sitelet.Content "/SimpleText" SimpleText SimpleTextPage
+            Sitelet.Content "/MouseChase" MouseChase MousePage
         ]
 
 [<Sealed>]
