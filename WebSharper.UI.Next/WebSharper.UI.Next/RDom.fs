@@ -44,7 +44,7 @@ let createAttr name value =
     a.Value <- value
     a
 
-/// Sets the value of the attribute given by `name' to `value' in element `el' 
+/// Sets the value of the attribute given by `name' to `value' in element `el'
 let setAttr (el: El) name value =
     el.SetAttribute(name, value)
 
@@ -110,7 +110,7 @@ module Attrs =
             }
         // Mark that this is a leaf node
         let skel = A1 sk
-        // Define update function which marks attribute as dirty, sets the 
+        // Define update function which marks attribute as dirty, sets the
         // new value, and returns a fresh Ver
         let update v =
             sk.AttrDirty <- true
@@ -131,17 +131,17 @@ module Attrs =
     let append a b =
         match a, b with
         | A0, x  // Do nothing
-        | x, A0-> x // Replace the A0 with x
+        | x, A0 -> x // Replace the A0 with x
         | _ -> A2 (a, b) // Otherwise, insert a branch with both
 
-    /// Append one attribute to another 
+    /// Append one attribute to another
     let Append (At (a, vA)) (At (b, vB)) =
         At (append a b, R.View.Map2 (fun _ _ -> Ver()) vA vB)
 
     /// Concatenate a list of attributes into one attribute tree
     let Concat xs =
         Array.MapReduce (fun x -> x) Empty Append (Seq.toArray xs)
-    
+
     /// Updates a node's attributes, given an attribute tree.
     let update (par: El) skel =
         let rec loop skel =
@@ -219,7 +219,7 @@ let EmbedView v =
                 // to later descend into it
                 sk.VarNeedsVisit <- true
                 ver))
-    Tr (skel, ver) // Finally, return the Var node, backed by the inner / 
+    Tr (skel, ver) // Finally, return the Var node, backed by the inner /
                    // outer update view.
 
 /// Main DOM manipulation routine used in Var nodes: remove old, insert cur.
@@ -270,14 +270,14 @@ let update parent skel =
             // If any of the attributes have been updated, propagate these to
             // this DOM element
             if Attrs.needsUpdate e.AttrsSkel then
-                Attrs.update par e.AttrsSkel
+                Attrs.update e.DomElem e.AttrsSkel
             // If this node has been marked as requiring visitation, clear that
             // flag, and update the child nodes
             if e.NeedsVisit then
                 e.NeedsVisit <- false
                 upd e.DomElem e.Children AtEnd |> ignore
             // If the element has been marked as dirty (that is, the element
-            // has changed), reset the dirty flag, and do the required DOM 
+            // has changed), reset the dirty flag, and do the required DOM
             // updates using the Patch function
             if e.ElemDirty then
                 e.ElemDirty <- false
@@ -343,7 +343,7 @@ let element (el: El) (At (attrs, attrVer)) (Tr (children, ver)) =
 let Empty =
     Tr (S0, R.View.Const (Ver ()))
 
-/// Appends element tree node x to y. 
+/// Appends element tree node x to y.
 let appendSkel x y =
     match x, y with
     | S0, r // Appending S0: do nothing
@@ -356,7 +356,7 @@ let Append (Tr (a, aV)) (Tr (b, bV)) =
 
 // Concatenate multiple trees into one.
 let Concat xs =
-    Array.reduce Append (Seq.toArray xs)
+    Array.fold Append Empty (Seq.toArray xs)
 
 let Element name attr children =
     element (createElement name) (Attrs.Concat attr) (Concat children)
