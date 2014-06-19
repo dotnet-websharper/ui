@@ -43,6 +43,7 @@ module Observation =
 [<JavaScript>]
 type Var<'T> =
     {
+        mutable Current : 'T
         mutable Depth : int
         mutable Observation : Observation<'T>
         Root : obj
@@ -53,7 +54,13 @@ type Var<'T> =
 module Var =
 
     let CreateWithDepth v d =
-        { Depth = d; Observation = Observation.Create v; Root = obj () ; Key = newVarId ()}
+        {
+            Current = v
+            Depth = d
+            Observation = Observation.Create v
+            Root = obj ()
+            Key = newVarId ()
+        }
 
     let Create v =
         CreateWithDepth v 0
@@ -62,6 +69,7 @@ module Var =
         let o1 = Observation.Create value
         let o0 =
             lock var.Root <| fun () ->
+                var.Current <- value
                 let o0 = var.Observation
                 var.Observation <- o1
                 o0
@@ -78,10 +86,17 @@ module Var =
     let GetKey v =
         lock v.Root <| fun () ->
             v.Key
+
+    let Get v =
+        lock v.Root <| fun () ->
+            v.Current
+
     let Update var f =
         lock var.Root <| fun () ->
             let o0 = var.Observation
-            var.Observation <- Observation.Create (f o0.Observed)
+            let v = f var.Current
+            var.Observation <- Observation.Create v
+            var.Current <- v
             o0
         |> Observation.Mark
 
