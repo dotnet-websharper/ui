@@ -58,9 +58,13 @@
     <None Include="App.config" />
     <None Include="packages.config" />
     <Compile Include="Abbrev.fs" />
+    <Compile Include="Diff.fsi" />
+    <Compile Include="Diff.fs" />
     <Compile Include="IVar.fs" />
     <Compile Include="Reactive.fsi" />
     <Compile Include="Reactive.fs" />
+    <Compile Include="BagModel.fsi" />
+    <Compile Include="BagModel.fs" />
     <Compile Include="ReactiveCollection.fsi" />
     <Compile Include="ReactiveCollection.fs" />
     <Compile Include="RDom.fsi" />
