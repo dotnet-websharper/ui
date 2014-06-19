@@ -12,6 +12,7 @@ module Client =
             !+ TodoList.TodoList.Sample
             !+ PhoneExample.PhoneExample.Sample
             !+ CheckBoxTest.CheckBoxTest.Sample
+            !+ MouseChase.MouseChase.Sample
         ]
 
     let Main = All.Show()
