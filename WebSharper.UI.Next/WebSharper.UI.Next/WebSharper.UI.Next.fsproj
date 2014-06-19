@@ -63,6 +63,8 @@
     <Compile Include="IVar.fs" />
     <Compile Include="Reactive.fsi" />
     <Compile Include="Reactive.fs" />
+    <Compile Include="BagModel.fsi" />
+    <Compile Include="BagModel.fs" />
     <Compile Include="ReactiveCollection.fsi" />
     <Compile Include="ReactiveCollection.fs" />
     <Compile Include="RDom.fsi" />
