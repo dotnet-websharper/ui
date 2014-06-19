@@ -17,6 +17,7 @@ module Observation =
 
 module Var =
     val Create : 'T -> Var<'T>
+    val Get : Var<'T> -> 'T
     val Set : Var<'T> -> 'T -> unit
     val GetKey : Var<'T> -> int
     val Update : Var<'T> -> ('T -> 'T) -> unit

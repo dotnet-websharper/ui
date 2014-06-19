@@ -2,78 +2,72 @@
 
 open IntelliFactory.WebSharper
 open IntelliFactory.WebSharper.Html
-
-open IntelliFactory.WebSharper.UI.Next.RDom
-module RVa = IntelliFactory.WebSharper.UI.Next.Reactive.Var
-module RVi = IntelliFactory.WebSharper.UI.Next.Reactive.View
-module RO = IntelliFactory.WebSharper.UI.Next.Reactive.Observation
-module RC = IntelliFactory.WebSharper.UI.Next.ReactiveCollection.ReactiveCollection
-
-open IntelliFactory.WebSharper.UI.Next.Reactive
-open IntelliFactory.WebSharper.UI.Next.ReactiveCollection.ReactiveCollection
-
-[<JavaScript>]
-let el name xs = Element name [Attrs.Empty] xs
+module R = IntelliFactory.WebSharper.UI.Next.Reactive
+module RDom = IntelliFactory.WebSharper.UI.Next.RDom
 
 [<JavaScript>]
 module TodoList =
-    type TodoItem = { TodoText : string ; Done : bool }
-    let mkTodo s = { TodoText = s ; Done = false }
 
-    // Remove an item from the todo list.
-    let rec removeItem (item : TodoItem) (lst : TodoItem list) =
-        match lst with
-        | [] -> []
-        | x :: xs when x = item -> xs
-        | x :: xs -> x :: (removeItem item xs)
+    let el name xs = RDom.Element name [] xs
 
-    // Add an item to the end of the todo list
-    let addItem (item : TodoItem) (lst : TodoItem list) = lst @ [item]
+    type RBag<'T>() =
+        member m.Add(x: 'T) = ()
+        member m.Remove(x: 'T) = ()
 
-    let renderItemVar (coll: ReactiveCollection<Var<TodoItem>>) (todoVar: Var<TodoItem>) =
+    let EmbedBag (bag: RBag<'T>) (render: 'T -> RDom.Tree) : RDom.Tree =
+        failwith "!"
+
+    type TodoItem =
+        {
+            TodoText: string; Done: R.Var<bool>
+        }
+
+        static member Create(s) =
+            { TodoText = s; Done = R.Var.Create false }
+
+    type Model =
+        {
+            Items: RBag<TodoItem>
+        }
+
+        static member Create() =
+            { Items = RBag() }
+
+    let RenderItem m todo =
         el "div" [
-            RVi.Create todoVar
-            |> RVi.Map (fun todo ->
-                if todo.Done then
-                    el "del" [ TextNode todo.TodoText ]
-                else
-                    TextNode todo.TodoText)
-            |> EmbedView
-            Button "Done" (fun _ ->
-                RVa.Update todoVar (fun todo -> {todo with Done = true}))
-            Button "Remove" (fun _ ->
-                RC.RemoveVar coll todoVar)
+            R.View.Create todo.Done
+            |> R.View.Map (fun isDone ->
+                if isDone
+                    then el "del" [ RDom.TextNode todo.TodoText ]
+                    else RDom.TextNode todo.TodoText)
+            |> RDom.EmbedView
+            RDom.Button "Done" (fun _ -> R.Var.Update todo.Done not)
+            RDom.Button "Remove" (fun _ -> m.Items.Remove todo)
         ]
 
-    let todoList coll =
+    let TodoList m =
         el "div" [
-            RenderCollection coll renderItemVar
+            EmbedBag m.Items (RenderItem m)
         ]
 
-    let todoForm coll =
-        let rvInput = RVa.Create ""
-        let rviInput = RVi.Create rvInput
-
+    let TodoForm m =
+        let rvInput = R.Var.Create ""
+        let addTodo () =
+            TodoItem.Create(R.Var.Get rvInput)
+            |> m.Items.Add
         el "div" [
-            TextNode "New entry: "
-            Input rvInput
-            Button "Submit"
-                (fun _ ->
-                    let rvNewTodo =
-                        rviInput
-                        |> RVi.Now
-                        |> mkTodo
-                        |> RVa.Create
-                    RC.AddVar coll rvNewTodo)
+            RDom.TextNode "New entry: "
+            RDom.Input rvInput
+            RDom.Button "Submit" addTodo
         ]
 
-    let todoExample =
-        let rc = RC.CreateReactiveCollection [] (RVa.GetKey)
+    let TodoExample () =
+        let m = Model.Create()
         el "div" [
-            todoList rc
-            todoForm rc
+            TodoList m
+            TodoForm m
         ]
 
-    let main () =
-        RunById "main" todoExample
+    let Main () =
+        RDom.RunById "main" (TodoExample ())
         Div []
