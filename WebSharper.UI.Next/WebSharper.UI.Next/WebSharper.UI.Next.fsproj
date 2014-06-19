@@ -65,6 +65,7 @@
     <Compile Include="ReactiveCollection.fs" />
     <Compile Include="RDom.fsi" />
     <Compile Include="RDom.fs" />
+    <Compile Include="RBag.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
