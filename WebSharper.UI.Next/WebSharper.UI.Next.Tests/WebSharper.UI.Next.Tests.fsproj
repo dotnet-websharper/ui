@@ -102,7 +102,6 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
-  <Import Project="..\packages\WebSharper.2.5.114.49\build\WebSharper.targets" Condition="Exists('..\packages\WebSharper.2.5.114.49\build\WebSharper.targets')" />
   <ItemGroup>
     <Compile Include="Remoting.fs" />
     <Compile Include="Client.fs" />
@@ -117,12 +116,18 @@
     <Compile Include="CheckBoxTest.fs" />
     <Compile Include="TextBenchmark.fs" />
     <Compile Include="TodoList.fs" />
-    <None Include="packages.config" />
     <Compile Include="SimpleTextBox.fs" />
     <Compile Include="MouseChase.fs" />
+    <Compile Include="BarChart.fs" />
+    <None Include="data.tsv" />
     <Compile Include="Main.fs" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="IntelliFactory.WebSharper.D3">
+      <HintPath>..\packages\WebSharper.D3.2.5.0\lib\net40\IntelliFactory.WebSharper.D3.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -134,4 +139,5 @@
       <Private>True</Private>
     </ProjectReference>
   </ItemGroup>
+  <Import Project="..\packages\WebSharper.2.5.114.49\build\WebSharper.targets" Condition="Exists('..\packages\WebSharper.2.5.114.49\build\WebSharper.targets')" />
 </Project>

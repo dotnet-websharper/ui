@@ -16,6 +16,7 @@ type Action =
     | TodoList
     | SimpleText
     | MouseChase
+    | BarChart
 
 module Controls =
 
@@ -75,6 +76,14 @@ module Controls =
         override __.Body =
             MouseChase.MouseChase.Main () :> _
 
+    [<Sealed>]
+    type EntryPointBarChart() =
+        inherit Web.Control()
+
+        [<JavaScript>]
+        override __.Body =
+            BarChart.BarChart.Main () :> _
+
 module Skin =
     open System.Web
 
@@ -110,6 +119,7 @@ module Site =
             LI ["TodoList" => ctx.Link TodoList]
             LI ["SimpleText" => ctx.Link SimpleText]
             LI ["MouseChase" => ctx.Link MouseChase]
+            LI ["BarChart" => ctx.Link BarChart]
         ]
 
     let page title control =
@@ -135,6 +145,8 @@ module Site =
         page "SimpleText" (new Controls.EntryPointSimpleText())
     let MousePage =
         page "MouseChase" (new Controls.EntryPointMouseChase())
+    let BarChartPage =
+        page "BarChart" (new Controls.EntryPointBarChart())
 
     let Main =
         Sitelet.Sum [
@@ -145,6 +157,7 @@ module Site =
             Sitelet.Content "/TodoList" TodoList TodoPage
             Sitelet.Content "/SimpleText" SimpleText SimpleTextPage
             Sitelet.Content "/MouseChase" MouseChase MousePage
+            Sitelet.Content "/BarChart" BarChart BarChartPage
         ]
 
 [<Sealed>]
