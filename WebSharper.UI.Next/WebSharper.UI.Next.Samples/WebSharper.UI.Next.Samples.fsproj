@@ -108,9 +108,10 @@
     <Compile Include="PhoneExample.fs" />
     <Compile Include="SimpleTextBox.fs" />
     <Compile Include="TodoList.fs" />
+    <None Include="Style.css" />
+    <Compile Include="MouseChase.fs" />
     <Compile Include="Client.fs" />
     <Compile Include="Main.fs" />
-    <None Include="Style.css" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
