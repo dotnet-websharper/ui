@@ -23,7 +23,8 @@ module MouseChase =
         let SetupMouseHook () =
             let doc = Dom.Document.Current
             let onMouseMove (evt : Dom.Event) =
-                // Update the RVars for the X and Y positions
+                // Update the RVars for the X and Y positions, from the information
+                // contained within the event.
                 let px = evt?pageX
                 let py = evt?pageY
                 RVa.Set rvX px
@@ -33,18 +34,17 @@ module MouseChase =
 
         let widthAttr = Attrs.Create "width" "200"
         let heightAttr = Attrs.Create "height" "100"
-        let xAttr = Attrs.View "x" (RVi.Map string rviX)
-        let yAttr = Attrs.View "y" (RVi.Map string rviY)
 
-        // Set the position of the box, using the views of our reactive variables
+        // Set the position of the box, using the views of our reactive variables.
         let rviStyle =
+            // Map2 is like Map, but takes two arguments instead of just the one.
             RVi.Map2
                 (fun x y ->
                     "background-color: #b0c4de; position:absolute; left:" + string(x)
                     + "px; top:" + string(y) + "px;") rviX rviY
 
+         // Finally wire everything up and set it in motion!
         let styleAttr = Attrs.View "style" rviStyle
-
         let div xs = Element "div" [] [xs]
 
         let mouseDiv =
