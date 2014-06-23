@@ -105,10 +105,11 @@
     <Compile Include="Samples.fs" />
     <Compile Include="CheckBoxTest.fs" />
     <Compile Include="PhoneExample.fs" />
-    <Compile Include="SimpleTextBox.fs" />
     <Compile Include="TodoList.fs" />
     <None Include="Style.css" />
     <Compile Include="MouseChase.fs" />
+    <Compile Include="Calculator.fs" />
+    <Compile Include="SimpleTextBox.fs" />
     <Compile Include="Client.fs" />
   </ItemGroup>
   <ItemGroup>
