@@ -1,119 +1,145 @@
-﻿module WebSharper.UI.Next.Tests.TodoList
+﻿// $begin{copyright}
+//
+// This file is confidential and proprietary.
+//
+// Copyright (c) IntelliFactory, 2004-2014.
+//
+// All rights reserved.  Reproduction or use in whole or in part is
+// prohibited without the written consent of the copyright holder.
+//-----------------------------------------------------------------
+// $end{copyright}
+
+namespace IntelliFactory.WebSharper.UI.Next
 
 open IntelliFactory.WebSharper
-open IntelliFactory.WebSharper.Html
-
-open IntelliFactory.WebSharper.UI.Next.RDom
-module RVa = IntelliFactory.WebSharper.UI.Next.Reactive.Var
-module RVi = IntelliFactory.WebSharper.UI.Next.Reactive.View
-module RO = IntelliFactory.WebSharper.UI.Next.Reactive.Observation
-module RC = IntelliFactory.WebSharper.UI.Next.ReactiveCollection.ReactiveCollection
-module RD = IntelliFactory.WebSharper.UI.Next.RDom
-
-open IntelliFactory.WebSharper.UI.Next.Reactive
-open IntelliFactory.WebSharper.UI.Next.ReactiveCollection.ReactiveCollection
-
-[<JavaScript>]
-let el name xs = Element name [Attrs.Empty] xs
+open IntelliFactory.WebSharper.UI.Next
 
 [<JavaScript>]
 module TodoList =
 
-    // Our To-do items consist of the item, and a Boolean flag as to whether it
-    // has been done or not.
-    type TodoItem = { TodoText : string ; Done : bool }
-    let mkTodo s = { TodoText = s ; Done = false }
+    [<AutoOpen>]
+    module private Util =
+        let t x = Doc.TextNode x
+        let el name xs = Doc.Element name [] xs
+        let elem name attr xs = Doc.Element name attr xs
+        let ( => ) k v = Attr.Create k v
+        let divc cl rest = elem "div" ["class" => cl] rest
+        let input x = Doc.Input ["class" => "form-control"] x
+        let button name handler = Doc.Button name ["class" => "btn btn-default"] handler
 
-    // This function allows us to render a collection of items.
-    // You'll see the parameters are coll, the collection of variables, and
-    // the variable that is currently being rendered.
-    // The function will return an RDom Tree.
-    let renderItemVar (coll: ReactiveCollection<Var<TodoItem>>) (todoVar: Var<TodoItem>) =
+        let fresh =
+            let c = ref 0
+            fun () ->
+                incr c
+                !c
 
+    // Our Todo items consist of a textual description,
+    // and a bool flag showing if it has been done or not.
+    type TodoItem =
+        {
+            Done : Var<bool>
+            TodoKey : int
+            TodoText : string
+        }
+
+        static member Create s =
+            { TodoKey = fresh (); TodoText = s; Done = Var.Create false }
+
+    let Key item =
+        item.TodoKey
+
+    type ViewModel =
+        {
+            Items : Model<seq<TodoItem>,ResizeArray<TodoItem>>
+        }
+
+    let Create () =
+        let items =
+            ResizeArray()
+            |> Model.Create (fun arr -> arr.ToArray() :> seq<_>)
+        { Items = items }
+
+    /// Adds an item to the collection.
+    let Add m item =
+        m.Items
+        |> Model.Update (fun all -> all.Add(item))
+
+    /// Removes an item from the collection.
+    let Remove m (item: TodoItem) =
+        m.Items
+        |> Model.Update (fun all ->
+            seq { 0 .. all.Count - 1 }
+            |> Seq.filter (fun i -> all.[i].TodoKey = item.TodoKey)
+            |> Seq.toArray
+            |> Array.iter (fun i -> all.RemoveAt(i)))
+
+    /// Renders a collection of items.
+    let RenderItem m todo =
         el "tr" [
             el "td" [
-                // Here, we make a reactive view for the TodoItem we're currently rendering.
-                RVi.Create todoVar
-                // What we do now is we apply a function "inside" the view, which is run
-                // any time the value (todoVar) changes.
-                // What this function does is takes a TodoItem, and if it is done, then adds
-                // a strikethrough element.
-                |> RVi.Map (fun todo ->
-                    if todo.Done then
-                        el "del" [ TextNode todo.TodoText ]
-                    else
-                        TextNode todo.TodoText)
-                // Finally, EmbedView "embeds" this possibly-changing fragment into the tree.
-                // Whenever the value changes, the parts of the tree change automatically.
-                |> EmbedView
+                // Here is a tree fragment that depends on the Done status of the item.
+                View.FromVar todo.Done
+                // Let us render the item differently depending on whether it's done.
+                |> View.Map (fun isDone ->
+                    if isDone
+                        then el "del" [ t todo.TodoText ]
+                        else t todo.TodoText)
+                // Finally, we embed this possibly-changing fragment into the tree.
+                // Whenever the input changes, the parts of the tree change automatically.
+                |> Doc.EmbedView
             ]
 
             el "td" [
                 // Here's a button which specifies that the item has been done,
-                // flipping the "Done" flag to true.
-                // Button makes a button, and takes a callback. The callback here
-                // updates the to-do item, so that it ends up being rendered with a strikethrough instead.
-                Button "Done" (fun _ ->
-                    RVa.Update todoVar (fun todo -> {todo with Done = true }))
+                // flipping the "Done" flag to true using a callback.
+                button "Done" (fun () -> Var.Set todo.Done true)
             ]
 
             el "td" [
                 // This button removes the item from the collection. By removing the item,
                 // the collection will automatically be updated.
-                Button "Remove" (fun _ ->
-                    RC.RemoveVar coll todoVar)
+                button "Remove" (fun _ -> Remove m todo)
             ]
         ]
 
     // A form component to add new TODO items.
-    let todoForm coll =
+    let TodoForm m =
         // We make a variable to contain the new to-do item.
-        let rvInput = RVa.Create ""
+        let rvInput = Var.Create ""
         // ...and a view to inspect it.
-        let rviInput = RVi.Create rvInput
-
-        el "div" [
-            el "div" [
-                TextNode "New entry: "
-            ]
-            el "div" [
+        let rviInput = View.FromVar rvInput
+        el "form" [
+            divc "form-group" [
+                el "label" [t "New entry: "]
                 // Here, we make the Input box, backing it by the reactive variable.
-                Input rvInput
+                input rvInput
             ]
-            el "div" [
-                // Once the user clicks the submit button...
-                Button "Submit"
-                    (fun _ ->
-                        // We construct a new ToDo item
-                        let rvNewTodo =
-                            rviInput
-                            |> RVi.Now // <- using the value of the input box
-                            |> mkTodo
-                            |> RVa.Create // <- and make a new reactive variable.
-                        // This is then added to the collection, which automatically
-                        // updates the DOM.
-                        RC.AddVar coll rvNewTodo)
-            ]
+            // Once the user clicks the submit button...
+            button "Submit" (fun _ ->
+                // We construct a new ToDo item
+                let todo = TodoItem.Create (Var.Get rvInput)
+                // This is then added to the collection, which automatically
+                // updates the presentation.
+                Add m todo)
         ]
 
-    // The todoList component renders the items within a collection, and ensures
-    // that when the collection changes, the changes will be propagated to the DOM.
-    let todoList coll =
-        RenderCollection coll renderItemVar
+    // Embed a time-varying collection of items.
+    let TodoList m =
+        Doc.EmbedBagBy Key (RenderItem m) m.Items.View
 
     // Finally, we put it all together...
-    let todoExample =
-        let rc = RC.CreateReactiveCollection [] (RVa.GetKey)
-        Element "table" [Attrs.Create "class" "table table-hover"] [
+    let TodoExample () =
+        let m = Create ()
+        elem "table" ["class" => "table table-hover"] [
             el "tbody" [
-                todoList rc
-                todoForm rc
+                TodoList m
+                TodoForm m
             ]
         ]
 
     // ...and run it.
     let Main parent =
-       Run parent todoExample
+        Doc.Run parent (TodoExample ())
 
     let Sample =
         Samples.Build()

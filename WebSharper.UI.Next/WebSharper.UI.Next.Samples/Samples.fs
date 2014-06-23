@@ -1,4 +1,15 @@
-﻿namespace WebSharper.UI.Next.Tests
+﻿// $begin{copyright}
+//
+// This file is confidential and proprietary.
+//
+// Copyright (c) IntelliFactory, 2004-2014.
+//
+// All rights reserved.  Reproduction or use in whole or in part is
+// prohibited without the written consent of the copyright holder.
+//-----------------------------------------------------------------
+// $end{copyright}
+
+namespace IntelliFactory.WebSharper.UI.Next
 
 open IntelliFactory.WebSharper
 open IntelliFactory.WebSharper.JQuery
@@ -74,7 +85,7 @@ module Samples =
             Clear sMain
             Clear sSide
             s.Render(sMain)
-            let url = "http://github.com/intellifactory/websharper.threejs/blob/master/Site/" + s.FileName
+            let url = "http://github.com/intellifactory/websharper.ui.next/blob/master/Site/" + s.FileName
             let side =
                 Div [
                     Div []
