@@ -101,7 +101,6 @@
   <ItemGroup>
     <Content Include="index.html" />
     <Content Include="Web.config" />
-    <Content Include="Global.asax" />
     <None Include="packages.config" />
     <Compile Include="Samples.fs" />
     <Compile Include="CheckBoxTest.fs" />
@@ -111,7 +110,6 @@
     <None Include="Style.css" />
     <Compile Include="MouseChase.fs" />
     <Compile Include="Client.fs" />
-    <Compile Include="Main.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

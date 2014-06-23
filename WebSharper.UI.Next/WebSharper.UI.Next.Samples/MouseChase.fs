@@ -1,60 +1,62 @@
-﻿module WebSharper.UI.Next.Tests.MouseChase
+﻿// $begin{copyright}
+//
+// This file is confidential and proprietary.
+//
+// Copyright (c) IntelliFactory, 2004-2014.
+//
+// All rights reserved.  Reproduction or use in whole or in part is
+// prohibited without the written consent of the copyright holder.
+//-----------------------------------------------------------------
+// $end{copyright}
+
+namespace IntelliFactory.WebSharper.UI.Next
 
 open IntelliFactory.WebSharper
-open IntelliFactory.WebSharper.Html
-
 open IntelliFactory.WebSharper.UI.Next
-open IntelliFactory.WebSharper.UI.Next.RDom
-
-module RVa = Reactive.Var
-module RVi = Reactive.View
 
 [<JavaScript>]
 module MouseChase =
+
     let Main parent =
 
         // RVars / views for X and Y co-ords of mouse
-        let rvX = RVa.Create 0
-        let rviX = RVi.Create rvX
-        let rvY = RVa.Create 0
-        let rviY = RVi.Create rvY
+        let rvX = Var.Create 0
+        let rvY = Var.Create 0
 
         // Set up the mouse movement hook on the document
         let SetupMouseHook () =
             let doc = Dom.Document.Current
-            let onMouseMove (evt : Dom.Event) =
+            let onMouseMove (evt: Dom.Event) =
                 // Update the RVars for the X and Y positions
                 let px = evt?pageX
                 let py = evt?pageY
-                RVa.Set rvX px
-                RVa.Set rvY py
+                Var.Set rvX px
+                Var.Set rvY py
+            doc.AddEventListener("mousemove", onMouseMove, false)
 
-            doc.AddEventListener ("mousemove", onMouseMove, false)
+        SetupMouseHook ()
 
-        let widthAttr = Attrs.Create "width" "200"
-        let heightAttr = Attrs.Create "height" "100"
-        let xAttr = Attrs.View "x" (RVi.Map string rviX)
-        let yAttr = Attrs.View "y" (RVi.Map string rviY)
+        let widthAttr = Attr.Create "width" "200"
+        let heightAttr = Attr.Create "height" "100"
+        let xAttr = Attr.View "x" (View.Map string rvX.View)
+        let yAttr = Attr.View "y" (View.Map string rvY.View)
 
         // Set the position of the box, using the views of our reactive variables
         let rviStyle =
-            RVi.Map2
-                (fun x y ->
-                    "background-color: #b0c4de; position:absolute; left:" + string(x)
-                    + "px; top:" + string(y) + "px;") rviX rviY
+            View.Map2 (fun x y ->
+                "background-color: #b0c4de; position:absolute; left:" + string(x+30)
+                    + "px; top:" + string(y+30) + "px;") rvX.View rvY.View
 
-        let styleAttr = Attrs.View "style" rviStyle
-
-        let div xs = Element "div" [] [xs]
+        let styleAttr = Attr.View "style" rviStyle
+        let div xs = Doc.Element "div" [] [xs]
 
         let mouseDiv =
-            Element "div" [styleAttr] [
-                RVi.Map (fun x -> "X: " + string(x)) rviX |> RDom.TextView |> div
-                RVi.Map (fun y -> "Y: " + string(y)) rviY |> RDom.TextView |> div
+            Doc.Element "div" [styleAttr] [
+                View.Map (fun x -> "X: " + string(x)) rvX.View |> Doc.TextView |> div
+                View.Map (fun y -> "Y: " + string(y)) rvY.View |> Doc.TextView |> div
             ]
 
-        SetupMouseHook ()
-        RDom.Run parent mouseDiv
+        Doc.Run parent mouseDiv
 
     let Sample =
         Samples.Build()

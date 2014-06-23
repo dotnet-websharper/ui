@@ -11,7 +11,7 @@
     <AssemblyName>WebSharper.UI.Next</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
+    <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
     <Name>WebSharper.UI.Next</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -55,21 +55,15 @@
   <Import Project="$(FSharpTargetsPath)" />
   <Import Project="..\packages\WebSharper.2.5.114.49\build\WebSharper.targets" Condition="Exists('..\packages\WebSharper.2.5.114.49\build\WebSharper.targets')" />
   <ItemGroup>
-    <None Include="App.config" />
     <None Include="packages.config" />
     <Compile Include="Abbrev.fs" />
+    <Compile Include="HashSetProxy.fs" />
     <Compile Include="Diff.fsi" />
     <Compile Include="Diff.fs" />
-    <Compile Include="IVar.fs" />
     <Compile Include="Reactive.fsi" />
     <Compile Include="Reactive.fs" />
-    <Compile Include="BagModel.fsi" />
-    <Compile Include="BagModel.fs" />
-    <Compile Include="ReactiveCollection.fsi" />
-    <Compile Include="ReactiveCollection.fs" />
-    <Compile Include="RDom.fsi" />
-    <Compile Include="RDom.fs" />
-    <Compile Include="RBag.fs" />
+    <Compile Include="Doc.fsi" />
+    <Compile Include="Doc.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
