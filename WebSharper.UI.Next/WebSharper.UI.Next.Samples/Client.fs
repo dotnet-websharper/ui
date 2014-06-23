@@ -25,6 +25,8 @@ module Client =
             !+ PhoneExample.Sample
             !+ CheckBoxTest.Sample
             !+ MouseChase.Sample
+            !+ Calculator.Sample
         ]
 
-    let Main = All.Show()
+    let Main =
+        All.Show ()
