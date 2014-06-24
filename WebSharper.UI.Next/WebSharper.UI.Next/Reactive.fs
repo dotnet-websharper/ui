@@ -236,6 +236,11 @@ type Var<'T> with
 
     [<JavaScript>]
     member v.View = View.FromVar v
+    
+    [<JavaScript>]
+    member v.Value 
+        with get() = Var.Get v
+        and set value = Var.Set v value 
 
 type Model<'I,'M> =
     | M of Var<'M> * View<'I>
