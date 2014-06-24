@@ -100,6 +100,9 @@ type Var<'T> with
     /// The corresponding view.
     member View : View<'T>
 
+    /// 
+    member Value : 'T with get, set
+
 /// Helper type for coarse-grainde mutable models, with
 /// a mutable type 'M and an immutable type 'I.
 type Model<'I,'M>
