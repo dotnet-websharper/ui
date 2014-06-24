@@ -55,6 +55,9 @@ type View =
     /// Lifting functions.
     static member Map : ('A -> 'B) -> View<'A> -> View<'B>
 
+    /// Lifting async functions.
+    static member MapAsync : ('A -> Async<'B>) -> View<'A> -> View<'B>
+
     /// Treating sequences as bags of items, constructs a transform that
     /// effectively memoizes the function to apply it only to values added at
     /// every new step, and clears the cache for values removed at every step.

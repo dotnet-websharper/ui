@@ -19,6 +19,7 @@ module DocUtil =
     let doc = Document.Current
 
     /// Appends a child node to the given DOM element.
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
     let appendTo (ctx: Element) node =
         ctx.AppendChild(node) |> ignore
 
@@ -33,10 +34,12 @@ module DocUtil =
             ctx.RemoveChild(ctx.FirstChild) |> ignore
 
     /// Creates a new DOM element.
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
     let createElement name =
         doc.CreateElement(name)
 
     /// Creates a new DOM text node with the given value.
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
     let createText s =
         doc.CreateTextNode(s)
 
