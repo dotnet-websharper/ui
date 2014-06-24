@@ -57,8 +57,6 @@
   <ItemGroup>
     <None Include="packages.config" />
     <Compile Include="Abbrev.fs" />
-    <Compile Include="Notation.fsi" />
-    <Compile Include="Notation.fs" />
     <Compile Include="HashSetProxy.fs" />
     <Compile Include="Diff.fsi" />
     <Compile Include="Diff.fs" />
@@ -66,6 +64,8 @@
     <Compile Include="Reactive.fs" />
     <Compile Include="Doc.fsi" />
     <Compile Include="Doc.fs" />
+    <Compile Include="Notation.fsi" />
+    <Compile Include="Notation.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

@@ -27,3 +27,11 @@ module Notation =
     [<JavaScript>]
     let inline decr cell = cell := !cell - 1
        
+    [<JavaScript>]
+    let (|>>) source mapping = View.Map mapping source
+
+    [<JavaScript>]
+    let (>>=) source body = View.Bind body source
+
+    [<JavaScript>]
+    let (<*>) sourceFunc sourceParam = View.Apply sourceFunc sourceParam
