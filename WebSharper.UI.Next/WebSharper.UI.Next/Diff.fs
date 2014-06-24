@@ -19,16 +19,6 @@ module Diff =
         | N
         | C of int * 'T * L<'T>
 
-    let len xs =
-        match xs with
-        | N -> 0
-        | C (l, _, _) -> l
-
-    let nil = N
-
-    let cons x xs =
-        C (len xs + 1, x, xs)
-
     let toArray xs =
         let out = ResizeArray()
         let rec visit xs =
@@ -38,17 +28,29 @@ module Diff =
         visit xs
         out.ToArray()
 
-    let toSeq xs =
-        toArray xs :> seq<_>
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    let len xs =
+        match xs with
+        | N -> 0
+        | C (l, _, _) -> l
 
-    let maxByLen xs ys =
-        if len xs > len ys then xs else ys
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    let nil = N
 
-    let dummy () =
-        C (-1, U, N)
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    let cons x xs = C (len xs + 1, x, xs)
 
-    let isDummy xs =
-        len xs = -1
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    let toSeq xs = toArray xs :> seq<_>
+
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    let maxByLen xs ys = if len xs > len ys then xs else ys
+
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    let dummy () = C (-1, U, N)
+
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    let isDummy xs = len xs = -1
 
     // TODO: optimizations such as removing common prefix/suffix.
     let LongestCommonSubsequence xs ys =
@@ -92,6 +94,7 @@ module Diff =
             DRemoved = bagDiffBy key s1 s2
         }
 
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
     let bagDiff (xs: seq<'T>) (ys: seq<'T>) =
         let s = HashSet(xs)
         s.ExceptWith(ys)
