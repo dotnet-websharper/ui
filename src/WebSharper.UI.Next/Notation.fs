@@ -13,25 +13,43 @@ namespace IntelliFactory.WebSharper.UI.Next
 
 module Notation =
     [<Inline "$o.get_Value()">]
-    let inline (!) (o: ^x) = (^x: (member Value: _ with get) o)
+    let inline (!) (o: ^x) : ^a = (^x: (member Value: ^a with get) o)
 
     [<Inline "void($o.set_Value($v))">]
-    let inline (:=) (o: ^x) v = (^x: (member Value: _ with set) (o, v))
+    let inline (:=) (o: ^x) (v: ^a) = (^x: (member Value: ^a with set) (o, v))
 
-    [<Inline "void($o.set_Value($fn($o.get_Value())))">]
-    let inline (<~) o (fn: 'a -> 'a) = o := fn !o
+    [<JavaScript; Inline>]
+    let inline (<~) (o: ^x) (fn: ^a -> ^a) = o := fn !o
 
-    [<JavaScript>]
-    let inline incr cell = cell := !cell + 1
+    [<JavaScript; Inline>]
+    let inline (+=) (o: ^x) (x: ^b) = o := ((!o: ^a) + x: ^a)
 
-    [<JavaScript>]
-    let inline decr cell = cell := !cell - 1
+    [<JavaScript; Inline>]
+    let inline (-=) (o: ^x) (x: ^b) = o := ((!o: ^a) - x: ^a)
+
+    [<JavaScript; Inline>]
+    let inline ( *=) (o: ^x) (x: ^b) = o := ((!o: ^a) * x: ^a)
+                   
+    [<JavaScript; Inline>]
+    let inline (/=) (o: ^x) (x: ^b) = o := ((!o: ^a) / x: ^a)
+
+    [<JavaScript; Inline>]
+    let inline (%=) (o: ^x) (x: ^b) = o := ((!o: ^a) % x: ^a)
+
+    [<JavaScript; Inline>]
+    let inline incr cell = cell += 1
+
+    [<JavaScript; Inline>]
+    let inline decr cell = cell -= 1
        
-    [<JavaScript>]
-    let (|>>) source mapping = View.Map mapping source
+    [<JavaScript; Inline>]
+    let inline (|>>) source mapping = View.Map mapping source
 
-    [<JavaScript>]
-    let (>>=) source body = View.Bind body source
+    [<JavaScript; Inline>]
+    let inline (>>=) source body = View.Bind body source
 
-    [<JavaScript>]
-    let (<*>) sourceFunc sourceParam = View.Apply sourceFunc sourceParam
+    [<JavaScript; Inline>]
+    let inline (<*>) sourceFunc sourceParam = View.Apply sourceFunc sourceParam
+
+    [<JavaScript; Inline>]
+    let inline (!*) v = View.FromVar v
