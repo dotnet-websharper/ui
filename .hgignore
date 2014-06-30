@@ -8,3 +8,4 @@ packages/
 bin/
 Scripts/
 Content/
+^build/
