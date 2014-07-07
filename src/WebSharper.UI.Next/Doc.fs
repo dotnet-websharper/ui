@@ -10,6 +10,7 @@
 // $end{copyright}
 
 namespace IntelliFactory.WebSharper.UI.Next
+open IntelliFactory.WebSharper.JQuery
 
 [<AutoOpen>]
 [<JavaScript>]
@@ -87,6 +88,8 @@ and AttrSkel =
     {
         /// Name of the attribute, such as "href".
         AttrName : string
+        /// True if this is a style attribute, false if not.
+        IsStyle : bool
         /// True if AttrValue is different from the value of the
         /// corresponding DOM attribute value, and the latter needs updating.
         mutable AttrDirty : bool
@@ -116,21 +119,28 @@ module Attrs =
         let rec loop skel =
             match skel with
             | A0 -> ()
-            | A1 x ->
-                if x.AttrDirty then
-                    x.AttrDirty <- false
-                    par.SetAttribute(x.AttrName, x.AttrValue)
+            // Dirty, and a style element: update with JQuery
+            | A1 x when x.AttrDirty && x.IsStyle ->
+                x.AttrDirty <- false
+                JQuery.Of(par).Css(x.AttrName, x.AttrValue) |> ignore
+            // Dirty, and not a style element: set to new val
+            | A1 x when x.AttrDirty ->
+                x.AttrDirty <- false
+                par.SetAttribute(x.AttrName, x.AttrValue)
+            // Not dirty: do nothing
+            | A1 x -> ()
             | A2 (a, b) -> loop a; loop b
         loop skel
 
 [<JavaScript>]
 type Attr with
 
-    static member View name view =
+    static member ViewInternal name view style =
         // skel for the attribute, based on the current value of the view
         let sk =
             {
                 AttrName = name
+                IsStyle = style
                 AttrDirty = true
                 AttrValue = ""
             }
@@ -141,6 +151,9 @@ type Attr with
             sk.AttrValue <- v
             ()
         At (skel, View.Map update view)
+
+    static member View name view =
+        Attr.ViewInternal name view false
 
     static member Empty =
         At (A0, View.Const ())
@@ -153,6 +166,12 @@ type Attr with
 
     static member Concat xs =
         Array.MapReduce (fun x -> x) Attr.Empty Attr.Append (Seq.toArray xs)
+
+    static member CreateStyle name value =
+        Attr.ViewInternal name (View.Const value) true
+
+    static member ViewStyle name view =
+        Attr.ViewInternal name view true
 
 (* Element and node trees ****************************************************)
 

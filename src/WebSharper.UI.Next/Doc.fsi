@@ -33,6 +33,12 @@ type Attr =
     /// Concatenation on attributes.
     static member Concat : seq<Attr> -> Attr
 
+    /// Creates a static style attribute
+    static member CreateStyle : name: string -> value: string -> Attr
+
+    /// Creates a time-varying style attribute
+    static member ViewStyle : name: string -> View<string> -> Attr
+
 /// Represents a time-varying node or a node list.
 [<Sealed>]
 type Doc =
