@@ -39,6 +39,13 @@ type Attr =
     /// Creates a time-varying style attribute
     static member ViewStyle : name: string -> View<string> -> Attr
 
+    /// Creates a static class attribute
+    static member CreateClass : name: string -> Attr
+
+[<Sealed>]
+type EventHandler =
+    static member CreateHandler : name: string -> callback: (DomEvent -> unit) -> EventHandler
+
 /// Represents a time-varying node or a node list.
 [<Sealed>]
 type Doc =
@@ -50,6 +57,9 @@ type Doc =
 
     /// Constructs a reactive element node.
     static member Element : name: string -> seq<Attr> -> seq<Doc> -> Doc
+
+    /// Constructs a reactive element node.
+    static member ElementWithEvents : name: string -> seq<Attr> -> seq<EventHandler> -> seq<Doc> -> Doc
 
     /// Constructs a static text node, not backed by an RVar.
     static member TextNode : string -> Doc

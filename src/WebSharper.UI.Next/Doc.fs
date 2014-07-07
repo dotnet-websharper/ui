@@ -12,6 +12,18 @@
 namespace IntelliFactory.WebSharper.UI.Next
 open IntelliFactory.WebSharper.JQuery
 
+[<JavaScript>]
+type EventHandler =
+    {
+        Name : string
+        Callback : (DomEvent -> unit)
+    }
+
+[<JavaScript>]
+type EventHandler with
+    static member CreateHandler name cb =
+        { Name = name; Callback = cb }
+
 [<AutoOpen>]
 [<JavaScript>]
 module DocUtil =
@@ -82,14 +94,20 @@ and AttrsSkel =
     | A1 of AttrSkel
     | A2 of AttrsSkel * AttrsSkel
 
+and AttrTy =
+    | Attribute
+    | Style
+    | Class
+
 /// Skeleton for a single Attr. This object is paired up with
 /// a single Attr node in the DOM tree.
 and AttrSkel =
     {
         /// Name of the attribute, such as "href".
         AttrName : string
-        /// True if this is a style attribute, false if not.
-        IsStyle : bool
+        /// Type of the attribute: either a plain old attribute, a style
+        /// attribute, or a class attribute.
+        AttrType : AttrTy
         /// True if AttrValue is different from the value of the
         /// corresponding DOM attribute value, and the latter needs updating.
         mutable AttrDirty : bool
@@ -119,28 +137,30 @@ module Attrs =
         let rec loop skel =
             match skel with
             | A0 -> ()
-            // Dirty, and a style element: update with JQuery
-            | A1 x when x.AttrDirty && x.IsStyle ->
-                x.AttrDirty <- false
-                JQuery.Of(par).Css(x.AttrName, x.AttrValue) |> ignore
-            // Dirty, and not a style element: set to new val
-            | A1 x when x.AttrDirty ->
-                x.AttrDirty <- false
-                par.SetAttribute(x.AttrName, x.AttrValue)
-            // Not dirty: do nothing
-            | A1 x -> ()
+            | A1 x ->
+                if x.AttrDirty then
+                    x.AttrDirty <- false
+                    // We need to perform different operations based on which
+                    // type of attribute we have. If it's a plain old attribute,
+                    // we can just use SetAttribute.
+                    // Style and class attributes are used alongside JQuery.
+                    match x.AttrType with
+                    | Attribute -> par.SetAttribute(x.AttrName, x.AttrValue)
+                    | Style -> JQuery.Of(par).Css(x.AttrName, x.AttrValue) |> ignore
+                    | Class -> JQuery.Of(par).AddClass(x.AttrValue) |> ignore
+
             | A2 (a, b) -> loop a; loop b
         loop skel
 
 [<JavaScript>]
 type Attr with
 
-    static member ViewInternal name view style =
+    static member ViewInternal name view attrTy =
         // skel for the attribute, based on the current value of the view
         let sk =
             {
                 AttrName = name
-                IsStyle = style
+                AttrType = attrTy
                 AttrDirty = true
                 AttrValue = ""
             }
@@ -153,7 +173,7 @@ type Attr with
         At (skel, View.Map update view)
 
     static member View name view =
-        Attr.ViewInternal name view false
+        Attr.ViewInternal name view Attribute
 
     static member Empty =
         At (A0, View.Const ())
@@ -168,10 +188,13 @@ type Attr with
         Array.MapReduce (fun x -> x) Attr.Empty Attr.Append (Seq.toArray xs)
 
     static member CreateStyle name value =
-        Attr.ViewInternal name (View.Const value) true
+        Attr.ViewInternal name (View.Const value) Style
 
     static member ViewStyle name view =
-        Attr.ViewInternal name view true
+        Attr.ViewInternal name view Style
+
+    static member CreateClass name =
+        Attr.ViewInternal "" (View.Const name) Class
 
 (* Element and node trees ****************************************************)
 
@@ -380,6 +403,12 @@ type Doc with
 
     static member Element name attr children =
         Docs.element (createElement name) (Attr.Concat attr) (Doc.Concat children)
+
+    static member ElementWithEvents name attr eventHandlers children =
+        let domElem = createElement name
+        for eh in eventHandlers do
+            domElem.AddEventListener(eh.Name, eh.Callback, false)
+        Docs.element domElem (Attr.Concat attr) (Doc.Concat children)
 
     static member TextView view =
         let v = ""
