@@ -60,6 +60,7 @@
     <Compile Include="Diff.fs" />
     <Compile Include="Reactive.fsi" />
     <Compile Include="Reactive.fs" />
+    <Compile Include="DomUtility.fs" />
     <Compile Include="Doc.fsi" />
     <Compile Include="Doc.fs" />
     <Compile Include="Flow.fsi" />
