@@ -1,12 +1,23 @@
-﻿namespace IntelliFactory.WebSharper.UI.Next
+﻿// $begin{copyright}
+//
+// This file is confidential and proprietary.
+//
+// Copyright (c) IntelliFactory, 2004-2014.
+//
+// All rights reserved.  Reproduction or use in whole or in part is
+// prohibited without the written consent of the copyright holder.
+//-----------------------------------------------------------------
+// $end{copyright}
 
-[<AutoOpen>]
-[<JavaScript>]
-module Flow =
+namespace IntelliFactory.WebSharper.UI.Next
 
-    type Flow<'T> = {
+type Flow<'T> =
+    {
         Render : ('T -> unit) -> Doc
     }
+
+[<JavaScript>]
+module Flow =
 
     // "Unwrap" the value from the flowlet, use it as an argument to the
     // continuation k, and return the value of the applied continuation.
@@ -36,9 +47,9 @@ module Flow =
     let Static doc = { Render = fun k -> doc }
 
     [<Sealed>]
-    type FlowBuilder () =
+    type FlowBuilder() =
         member x.Bind(comp, func) = Bind comp func
         member x.Return(value) = Return value
         member x.ReturnFrom(wrappedVal : Flow<'A>) = wrappedVal
 
-    let flow = new FlowBuilder()
+    let Do = FlowBuilder()
