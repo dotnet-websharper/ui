@@ -22,6 +22,7 @@ module internal Abbrev =
     module A = Core.Attributes
 
     type Dictionary<'K,'V> = Generic.Dictionary<'K,'V>
+    type DirectAttribute = A.DirectAttribute
     type Document = Dom.Document
     type Element = Dom.Element
     type HashSet<'T> = Generic.HashSet<'T>

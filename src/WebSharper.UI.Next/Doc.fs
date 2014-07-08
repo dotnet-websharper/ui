@@ -10,7 +10,10 @@
 // $end{copyright}
 
 namespace IntelliFactory.WebSharper.UI.Next
+
 open IntelliFactory.WebSharper.JQuery
+
+module D = DomUtility
 
 [<JavaScript>]
 type EventHandler =
@@ -23,62 +26,6 @@ type EventHandler =
 type EventHandler with
     static member CreateHandler name cb =
         { Name = name; Callback = cb }
-
-[<AutoOpen>]
-[<JavaScript>]
-module DocUtil =
-
-    /// The current DOM Document.
-    let doc = Document.Current
-
-    /// Appends a child node to the given DOM element.
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
-    let appendTo (ctx: Element) node =
-        ctx.AppendChild(node) |> ignore
-
-    /// Removes all attributes from the given DOM element.
-    let clearAttrs (ctx: Element) =
-        while ctx.HasAttributes() do
-            ctx.RemoveAttributeNode(ctx.Attributes.[0] :?> _) |> ignore
-
-    /// Removes all child nodes from the given DOM element.
-    let clear (ctx: Element) =
-        while ctx.HasChildNodes() do
-            ctx.RemoveChild(ctx.FirstChild) |> ignore
-
-    /// Creates a new DOM element.
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
-    let createElement name =
-        doc.CreateElement(name)
-
-    /// Creates a new DOM text node with the given value.
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
-    let createText s =
-        doc.CreateTextNode(s)
-
-    /// Creates a new DOM attribute.
-    let createAttr name value =
-        let a = doc.CreateAttribute(name)
-        a.Value <- value
-        a
-
-    /// Sets the value of the attribute given by
-    /// `name` to `value` in element `el`.
-    let setAttr (el: Element) name value =
-        el.SetAttribute(name, value)
-
-    /// Position in a `children` list of a DOM Element
-    /// where a node can be inserted.
-    type InsertPos =
-        | AtEnd
-        | BeforeNode of Node
-
-    /// Inserts a new child node into the tree under
-    /// a given `parent` at given `pos`.
-    let insertNode (parent: Element) pos node =
-        match pos with
-        | AtEnd -> parent.AppendChild(node) |> ignore
-        | BeforeNode marker -> parent.InsertBefore(node, marker) |> ignore
 
 (* Attribute trees ***********************************************************)
 
@@ -290,8 +237,8 @@ module Docs =
             match sk with
             | S0 -> ()
             | S2 (x, y) -> ins x; ins y
-            | SE x -> insertNode parent pos x.DomElem
-            | ST x -> insertNode parent pos x.DomText
+            | SE x -> D.InsertNode parent pos x.DomElem
+            | ST x -> D.InsertNode parent pos x.DomText
             | SV x -> ins x.CurrentSkel
         remove old
         ins cur
@@ -299,7 +246,7 @@ module Docs =
     /// Descends into a skeleton and updates dirty nodes.
     let update par skel =
         // update loop descends right-to-left and keeps track of an insert position
-        let rec upd par skel (pos: InsertPos) =
+        let rec upd par skel (pos: D.InsertPos) =
             match skel with
             | S0 -> pos
             | S2 (a, b) -> upd par a (upd par b pos)
@@ -311,14 +258,14 @@ module Docs =
                 // update descendants if needed
                 if e.NeedsVisit then
                     e.NeedsVisit <- false
-                    upd e.DomElem e.Children AtEnd |> ignore
-                BeforeNode e.DomElem
+                    upd e.DomElem e.Children D.AtEnd |> ignore
+                D.BeforeNode e.DomElem
             // text node: sync DOM text node value to current value if dirty
             | ST t ->
                 if t.TextDirty then
                     t.DomText.NodeValue <- t.TextValue
                     t.TextDirty <- false
-                BeforeNode t.DomText
+                D.BeforeNode t.DomText
             // time-varying node list: might need patching
             | SV v ->
                 if v.IsDirty then
@@ -334,11 +281,11 @@ module Docs =
                         match sk with
                         | S0 -> pos
                         | S2 (x, _) -> posOf x
-                        | SE x -> BeforeNode x.DomElem
-                        | ST x -> BeforeNode x.DomText
+                        | SE x -> D.BeforeNode x.DomElem
+                        | ST x -> D.BeforeNode x.DomText
                         | SV x -> posOf x.CurrentSkel
                     posOf v.CurrentSkel
-        upd par skel AtEnd |> ignore
+        upd par skel D.AtEnd |> ignore
 
     /// Append static children DOM nodes to the parent element.
     let appendChildren parent skel =
@@ -346,8 +293,8 @@ module Docs =
             match skel with
             | S0 -> ()
             | S2 (a, b) -> loop parent a; loop parent b
-            | SE e -> appendTo parent e.DomElem
-            | ST e -> appendTo parent e.DomText
+            | SE e -> D.AppendTo parent e.DomElem
+            | ST e -> D.AppendTo parent e.DomText
             | SV x -> ()
         loop parent skel
 
@@ -388,7 +335,7 @@ type Doc with
         View.Sink (fun _ -> Docs.update parent skel) ver
 
     static member RunById id tr =
-        match doc.GetElementById(id) with
+        match D.Doc.GetElementById(id) with
         | null -> failwith ("invalid id: " + id)
         | el -> Doc.Run el tr
 
@@ -402,17 +349,17 @@ type Doc with
         Array.MapReduce (fun x -> x) Doc.Empty Doc.Append (Seq.toArray xs)
 
     static member Element name attr children =
-        Docs.element (createElement name) (Attr.Concat attr) (Doc.Concat children)
+        Docs.element (D.CreateElement name) (Attr.Concat attr) (Doc.Concat children)
 
     static member ElementWithEvents name attr eventHandlers children =
-        let domElem = createElement name
+        let domElem = D.CreateElement name
         for eh in eventHandlers do
             domElem.AddEventListener(eh.Name, eh.Callback, false)
         Docs.element domElem (Attr.Concat attr) (Doc.Concat children)
 
     static member TextView view =
         let v = ""
-        let node = createText v
+        let node = D.CreateText v
         let sk =
             {
                 DomText = node
@@ -442,7 +389,7 @@ type Doc with
   // form helpers
 
     static member Input attr (var: Var<string>) =
-        let el = createElement "input"
+        let el = D.CreateElement "input"
         View.FromVar var
         |> View.Sink (fun v -> el?value <- v)
         let onChange (x: DomEvent) =
@@ -462,7 +409,7 @@ type Doc with
             List.findIndex ((=) x) options
         let setSelectedItem (el: Element) item =
             setIndex el (itemIndex item)
-        let el = createElement "select"
+        let el = D.CreateElement "select"
         let view = View.FromVar current
         view
         |> View.Sink (setSelectedItem el)
@@ -506,7 +453,7 @@ type Doc with
                         Attr.Create "name" uid
                         Attr.Create "value" (string i)
                     ]
-                let el = createElement "input"
+                let el = D.CreateElement "input"
                 initCheck i el
                 let chkElem = Docs.element el (Attr.Concat attrs) Doc.Empty
                 Doc.Element "div" [] [chkElem; t])
@@ -514,7 +461,7 @@ type Doc with
         checkElements
 
     static member Button caption attrs action =
-        let el = createElement "button"
+        let el = D.CreateElement "button"
         el.AddEventListener("click", (fun (ev: DomEvent) ->
             ev.PreventDefault()
             action ()), false)
