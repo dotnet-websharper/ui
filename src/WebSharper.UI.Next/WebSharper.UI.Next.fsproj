@@ -55,6 +55,8 @@
     <Compile Include="Reactive.fs" />
     <Compile Include="Doc.fsi" />
     <Compile Include="Doc.fs" />
+    <Compile Include="Flow.fsi" />
+    <Compile Include="Flow.fs" />
     <Compile Include="Notation.fsi" />
     <Compile Include="Notation.fs" />
   </ItemGroup>
