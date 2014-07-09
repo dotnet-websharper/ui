@@ -110,3 +110,32 @@ module internal Abbrev =
     [<JavaScript>]
     type Slot =
         static member Create key value = Slot(key, value)
+
+    [<JavaScript>]
+    module Async =
+
+        let StartTo comp k =
+            Async.StartWithContinuations (comp, k, ignore, ignore)
+
+        let Schedule f =
+            async { return f () }
+            |> Async.Start
+
+    /// Simple imperative queues optimized for JS.
+    [<Sealed>]
+    type JQueue<'T> = class end
+
+    module JQueue =
+
+        [<Inline "[]">]
+        [<MethodImpl(MethodImplOptions.NoInlining)>]
+        let Create () : JQueue<'T> = U
+
+        [<JavaScript>]
+        [<MethodImpl(MethodImplOptions.NoInlining)>]
+        let Iter (f: 'T -> unit) (q: JQueue<'T>) =
+            Array.iter f (Array.copy (As q))
+
+        [<Direct "$q.push($x)">]
+        [<MethodImpl(MethodImplOptions.NoInlining)>]
+        let Add (x: 'T) (q: JQueue<'T>) = ()

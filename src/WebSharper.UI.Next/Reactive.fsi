@@ -36,6 +36,12 @@ type Var =
     /// Sets the current value.
     static member Set : Var<'T> -> 'T -> unit
 
+    /// Sets the final value (after this, Set/Update are invalid).
+    /// This is rarely needed, but can help solve memory leaks when
+    /// mutliple views are scheduled to wait on a variable that is never
+    /// going to change again.
+    static member SetFinal : Var<'T> -> 'T -> unit
+
     /// Updates the current value.
     static member Update : Var<'T> -> ('T -> 'T) -> unit
 

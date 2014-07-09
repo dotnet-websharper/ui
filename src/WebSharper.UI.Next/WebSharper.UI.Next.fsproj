@@ -58,6 +58,8 @@
     <Compile Include="HashSetProxy.fs" />
     <Compile Include="Diff.fsi" />
     <Compile Include="Diff.fs" />
+    <Compile Include="Snap.fsi" />
+    <Compile Include="Snap.fs" />
     <Compile Include="Reactive.fsi" />
     <Compile Include="Reactive.fs" />
     <Compile Include="DomUtility.fs" />
