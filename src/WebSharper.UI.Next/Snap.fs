@@ -26,7 +26,6 @@ when it will never do so.
 
 State transitions:
 
-    Promised        -> Forever      // MarkForever
     Waiting         -> Forever      // MarkForever
     Waiting         -> Obsolete     // MarkObsolete
     Waiting         -> Ready        // MarkReady
@@ -37,7 +36,6 @@ State transitions:
 type SnapState<'T> =
     | Forever of 'T
     | Obsolete
-    | Promised of JQueue<'T -> unit>
     | Ready of 'T * JQueue<unit -> unit>
     | Waiting of JQueue<'T -> unit> * JQueue<unit -> unit>
 
@@ -81,14 +79,14 @@ module Snap =
 
     let MarkForever sn v =
         match sn.State with
-        | Promised q | Waiting (q, _) ->
+        | Waiting (q, _) ->
             sn.State <- Forever v
             JQueue.Iter (fun k -> k v) q
         | _ -> ()
 
     let MarkObsolete sn =
         match sn.State with
-        | Forever _ | Obsolete | Promised _ -> ()
+        | Forever _ | Obsolete -> ()
         | Ready (_, ks) | Waiting (_, ks) ->
             sn.State <- Obsolete
             JQueue.Iter (fun k -> k ()) ks
@@ -112,7 +110,6 @@ module Snap =
         match snap.State with
         | Forever v -> avail v
         | Obsolete -> obsolete ()
-        | Promised q -> JQueue.Add avail q
         | Ready (v, q) -> JQueue.Add obsolete q; avail v
         | Waiting (q1, q2) -> JQueue.Add avail q1; JQueue.Add obsolete q2
 
