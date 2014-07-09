@@ -391,14 +391,14 @@ type Doc with
 
   // form helpers
     static member InputInternal attr (var : Var<string>) isPassword =
-        let inputTy = if isPassword then "password" else "input"
-        let el = D.CreateElement inputTy
+        let atPwd = if isPassword then Attr.Create "type" "password" else Attr.Empty
+        let el = D.CreateElement "input"
         View.FromVar var
         |> View.Sink (fun v -> el?value <- v)
         let onChange (x: DomEvent) =
             Var.Set var el?value
         el.AddEventListener("input", onChange, false)
-        Docs.element el (Attr.Concat attr) Doc.Empty
+        Docs.element el (Attr.Concat attr |> Attr.Append atPwd) Doc.Empty
 
     static member Input attr (var: Var<string>) =
         Doc.InputInternal attr (var : Var<string>) false
