@@ -11,6 +11,8 @@
 
 namespace IntelliFactory.WebSharper.UI.Next
 
+open IntelliFactory.WebSharper
+
 /// Utility functions for manipulating DOM.
 [<JavaScript>]
 module internal DomUtility =
@@ -38,12 +40,16 @@ module internal DomUtility =
     /// This is for automatically using a namespace on creation.
     /// Not used on name clashes such as <a/>
     let private SvgNames =
-        "circle line svg"
+        let names = obj ()
+        names?circle <- true
+        names?line <- true
+        names?svg <- true
+        names
 
     /// Creates a new DOM element.
     [<MethodImpl(MethodImplOptions.NoInlining)>]
     let CreateElement (name: string) =
-        if SvgNames.Contains name then
+        if As ((?) SvgNames name) then
             Doc.CreateElementNS("http://www.w3.org/2000/svg", name)
         else
             Doc.CreateElement name
