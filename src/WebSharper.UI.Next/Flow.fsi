@@ -27,15 +27,22 @@ module Flow =
         member Return : 'A -> Flow<'A>
         member ReturnFrom : Flow<'A> -> Flow<'A>
 
-    // Composition
+    /// Monadic composition: compose two flowlets, allowing the
+    /// result of one to be used to determine future ones
     val Bind : Flow<'A> -> ('A -> Flow<'B>) -> Flow<'B>
 
+    /// Creates a flowlet from the given value, with an empty rendering function.
     val Return : 'A -> Flow<'A>
 
+    /// Embeds a flowlet into a document.
     val Embed : Flow<'A> -> Doc
 
+    /// Defines a flowlet, given a rendering function taking a continuation
+    /// ('A -> unit).
     val Define : (('A -> unit) -> Doc) -> Flow<'A>
 
+    /// Creates a flowlet from a static document.
     val Static : Doc -> Flow<'A>
 
+    /// Used within computation expressions to construct a new flowlet.
     val Do : FlowBuilder
