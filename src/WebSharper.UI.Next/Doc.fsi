@@ -42,6 +42,9 @@ type Attr =
     /// Creates a static class attribute
     static member CreateClass : name: string -> Attr
 
+    /// Creates a static class attribute
+    static member ViewClass : View<string> -> Attr
+
 [<Sealed>]
 type EventHandler =
     static member CreateHandler : name: string -> callback: (DomEvent -> unit) -> EventHandler
@@ -98,6 +101,9 @@ type Doc =
 
     /// Input box.
     static member Input : seq<Attr> -> Var<string> -> Doc
+
+    /// Password box.
+    static member PasswordBox : seq<Attr> -> Var<string> -> Doc
 
     /// Submit button. Takes a view of reactive components with which it is associated,
     /// and a callback function of what to do with this view once the button is pressed
