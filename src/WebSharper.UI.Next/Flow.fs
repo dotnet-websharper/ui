@@ -11,13 +11,10 @@
 
 namespace IntelliFactory.WebSharper.UI.Next
 
+open IntelliFactory.WebSharper
 type Flow<'T> =
     {
-        Render : ('T -> unit) -> Doc
-        // RVar used only when binding in order to handle rendering.
-        // Stored here to prevent needless Var creation & as an option
-        // since it's unneeded by simple flowlets
-        RenderVar : Var<Doc> option
+        Render : Var<Doc> -> ('T -> unit) -> unit
     }
 
 [<JavaScript>]
@@ -29,34 +26,22 @@ module Flow =
     // Semantically, what we're doing here is running the form (or other
     // input mechanism, but let's stick with thinking about forms), getting
     // the result, and then using this as an input to the continuation.
-    let Bind (m : Flow<'A>) (k : 'A -> Flow<'B>) =
-        let v =
-            match m.RenderVar with
-            | Some v -> v
-            | None -> Var.Create Doc.Empty
+    let Bind m k  =
+        { Render = fun var cont -> m.Render var (fun r -> (k r).Render var cont) }
 
-        { Render = fun cont ->
-            m.Render (fun r ->
-                let next = k r
-                Var.Set v (next.Render cont))
-            |> Var.Set v
-            Doc.EmbedView v.View ;
-          RenderVar = Some v
-        }
+    let Return x =
+        { Render = fun var cont -> cont x }
 
-    let Return (x : 'A) =
-        { Render = fun cont ->
-            cont x
-            Doc.Empty
-          RenderVar = None
-        }
+    let Embed fl =
+        let var = Var.Create Doc.Empty
+        fl.Render var ignore
+        Doc.EmbedView var.View
 
-    let Embed (fl : Flow<'A>) =
-        fl.Render ignore
+    let Define f =
+        { Render = fun var cont -> Var.Set var (f cont) }
 
-    let Define f = { Render = f ; RenderVar = None }
-
-    let Static doc = { Render = (fun k -> doc) ; RenderVar = None}
+    let Static doc =
+        { Render = fun var cont -> var.Value <- doc }
 
     [<Sealed>]
     type FlowBuilder() =
