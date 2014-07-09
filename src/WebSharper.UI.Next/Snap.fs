@@ -120,7 +120,11 @@ module Snap =
         let onObs () = MarkObsolete res
         let onReady x =
             let y = f x
-            When y (MarkDone res y) onObs
+            When y (fun v ->
+                if IsForever y && IsForever snap then
+                    MarkForever res v
+                else
+                    MarkReady res v) onObs
         When snap onReady onObs
         res
 
