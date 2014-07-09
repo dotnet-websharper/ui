@@ -137,11 +137,14 @@ type Attr with
     static member CreateStyle name value =
         Attr.ViewInternal name (View.Const value) Style
 
+    static member CreateClass name =
+        Attr.ViewInternal "" (View.Const name) Class
+
     static member ViewStyle name view =
         Attr.ViewInternal name view Style
 
-    static member CreateClass name =
-        Attr.ViewInternal "" (View.Const name) Class
+    static member ViewClass view =
+        Attr.ViewInternal "" view Class
 
 (* Element and node trees ****************************************************)
 
@@ -387,15 +390,21 @@ type Doc with
         |> Doc.EmbedView
 
   // form helpers
-
-    static member Input attr (var: Var<string>) =
-        let el = D.CreateElement "input"
+    static member InputInternal attr (var : Var<string>) isPassword =
+        let inputTy = if isPassword then "password" else "input"
+        let el = D.CreateElement inputTy
         View.FromVar var
         |> View.Sink (fun v -> el?value <- v)
         let onChange (x: DomEvent) =
             Var.Set var el?value
         el.AddEventListener("input", onChange, false)
         Docs.element el (Attr.Concat attr) Doc.Empty
+
+    static member Input attr (var: Var<string>) =
+        Doc.InputInternal attr (var : Var<string>) false
+
+    static member PasswordBox attr (var: Var<string>) =
+        Doc.InputInternal attr (var : Var<string>) true
 
     static member Select attrs (show: 'T -> string) (options: list<'T>) (current: Var<'T>) =
         let getIndex (el: Element) =
