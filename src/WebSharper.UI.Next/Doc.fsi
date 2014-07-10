@@ -22,8 +22,6 @@ type Attr =
     /// Constructs a new time-varying attribute.
     static member View : name: string -> View<string> -> Attr
 
-    static member Custom : ('T -> unit) -> View<'T> -> Attr
-
   // Note: Empty, Append, Concat define a monoid on Attr.
 
     /// Empty attribute list.
