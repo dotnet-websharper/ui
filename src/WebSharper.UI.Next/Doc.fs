@@ -38,7 +38,7 @@ type Attr =
 /// Skeleton for a list of Attr - isomorphic to a list of AttrSkel.
 and AttrsSkel =
     | A0
-    | A1 of AttrSkel
+    | A1 of Att
     | A2 of AttrsSkel * AttrsSkel
 
 and AttrTy =
@@ -46,6 +46,9 @@ and AttrTy =
     | Style
     | Class
 
+and Att =
+    | DummyAttr
+    | AttSkel of AttrSkel
 /// Skeleton for a single Attr. This object is paired up with
 /// a single Attr node in the DOM tree.
 and AttrSkel =
@@ -70,7 +73,8 @@ module Attrs =
     let rec needsUpdate skel =
         match skel with
         | A0 -> false
-        | A1 sk -> sk.AttrDirty
+        | A1 (AttSkel sk) -> sk.AttrDirty
+        | A1 _ -> false
         | A2 (a, b) -> needsUpdate a || needsUpdate b
 
     /// Appends two attribute-list skeletons.
@@ -84,7 +88,7 @@ module Attrs =
         let rec loop skel =
             match skel with
             | A0 -> ()
-            | A1 x ->
+            | A1 (AttSkel x) ->
                 if x.AttrDirty then
                     x.AttrDirty <- false
                     // We need to perform different operations based on which
@@ -95,7 +99,7 @@ module Attrs =
                     | Attribute -> par.SetAttribute(x.AttrName, x.AttrValue)
                     | Style -> JQuery.Of(par).Css(x.AttrName, x.AttrValue) |> ignore
                     | Class -> JQuery.Of(par).AddClass(x.AttrValue) |> ignore
-
+            | A1 _ -> ()
             | A2 (a, b) -> loop a; loop b
         loop skel
 
@@ -111,7 +115,7 @@ type Attr with
                 AttrDirty = true
                 AttrValue = ""
             }
-        let skel = A1 sk
+        let skel = A1 (AttSkel sk)
         // handle view updates by marking dirty and propagating notification
         let update v =
             sk.AttrDirty <- true
@@ -133,6 +137,9 @@ type Attr with
 
     static member Concat xs =
         Array.MapReduce (fun x -> x) Attr.Empty Attr.Append (Seq.toArray xs)
+
+    static member Custom (f : 'T -> unit) (view : View<'T>) =
+        At (A1 DummyAttr, View.Map f view)
 
     static member CreateStyle name value =
         Attr.ViewInternal name (View.Const value) Style
@@ -320,7 +327,7 @@ module Docs =
         // Create a new tree with the given node.
         // The R.View.Map2 simply marks this node if
         // *either* the contents or the attributes change.
-        Tr (skel, View.Map2 update attrVer ver)
+        Tr (skel, View.Map2 update (View.Map ignore attrVer) ver)
 
     let empty =
         Tr (S0, View.Const ())
@@ -331,6 +338,13 @@ module Docs =
         | S0, r | r, S0 -> r // optimize: S0 is a left and right unit
         | _ -> S2 (x, y)
 
+// Types of input box
+type InputControlType =
+    | InputBox
+    | PasswordBox
+    | TextArea
+
+// form helpers
 type Doc with
 
     static member Run parent (Tr (skel, ver)) =
@@ -389,22 +403,31 @@ type Doc with
         |> View.Map Doc.Concat
         |> Doc.EmbedView
 
-  // form helpers
-    static member InputInternal attr (var : Var<string>) isPassword =
-        let atPwd = if isPassword then Attr.Create "type" "password" else Attr.Empty
-        let el = D.CreateElement "input"
-        View.FromVar var
-        |> View.Sink (fun v -> el?value <- v)
+    static member InputInternal attr (var : Var<string>) inputTy =
+        let (attr', elemTy) =
+            match inputTy with
+            | InputBox -> (Attr.Concat attr, "input")
+            | PasswordBox ->
+                let atPwd = Attr.Create "type" "password"
+                (Attr.Concat attr |> Attr.Append atPwd, "input")
+            | TextArea -> (Attr.Concat attr, "textarea")
+
+        let el = D.CreateElement elemTy
+        let view = View.FromVar var
+        let valAttr = Attr.Custom (fun v -> el?value <- v) view
         let onChange (x: DomEvent) =
             Var.Set var el?value
         el.AddEventListener("input", onChange, false)
-        Docs.element el (Attr.Concat attr |> Attr.Append atPwd) Doc.Empty
+        Docs.element el (Attr.Append attr' valAttr) Doc.Empty
 
     static member Input attr (var: Var<string>) =
-        Doc.InputInternal attr (var : Var<string>) false
+        Doc.InputInternal attr (var : Var<string>) InputBox
 
     static member PasswordBox attr (var: Var<string>) =
-        Doc.InputInternal attr (var : Var<string>) true
+        Doc.InputInternal attr (var : Var<string>) PasswordBox
+
+    static member InputArea attr (var: Var<string>) =
+        Doc.InputInternal attr (var : Var<string>) TextArea
 
     static member Select attrs (show: 'T -> string) (options: list<'T>) (current: Var<'T>) =
         let getIndex (el: Element) =
@@ -419,9 +442,10 @@ type Doc with
         let setSelectedItem (el: Element) item =
             setIndex el (itemIndex item)
         let el = D.CreateElement "select"
-        let view = View.FromVar current
-        view
-        |> View.Sink (setSelectedItem el)
+        let selectedItemAttr =
+            View.FromVar current
+            |> Attr.Custom (setSelectedItem el)
+
         let onChange (x: DomEvent) =
             Var.Set current (getSelectedItem el)
         el.AddEventListener("change", onChange, false)
@@ -431,7 +455,7 @@ type Doc with
                 let t = Doc.TextNode (show o)
                 Doc.Element "option" [Attr.Create "value" (string i)] [t])
             |> Doc.Concat
-        Docs.element el (Attr.Concat attrs) optionElements
+        Docs.element el (Attr.Concat attrs |> Attr.Append selectedItemAttr) optionElements
 
     static member CheckBox (show: 'T -> string) (items: list<'T>) (chk: Var<list<'T>>) =
         // Create RView for the list of checked items
