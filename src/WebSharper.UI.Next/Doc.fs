@@ -11,387 +11,365 @@
 
 namespace IntelliFactory.WebSharper.UI.Next
 
-open IntelliFactory.WebSharper.JQuery
-
-module D = DomUtility
+open IntelliFactory.WebSharper
+module DU = DomUtility
 
 [<JavaScript>]
-type EventHandler =
+type DocNode =
+    | AppendDoc of DocNode * DocNode
+    | ElemDoc of DocElemNode
+    | EmbedDoc of DocEmbedNode
+    | EmptyDoc
+    | TextDoc of DocTextNode
+
+and [<CustomEquality>]
+    [<JavaScript>]
+    [<NoComparison>]
+    DocElemNode =
     {
-        Name : string
-        Callback : (DomEvent -> unit)
+        Attr : Attrs.Dyn
+        Children : DocNode
+        El : Element
+        ElKey : int
     }
 
-[<JavaScript>]
-type EventHandler with
-    static member CreateHandler name cb =
-        { Name = name; Callback = cb }
+    override this.Equals(o: obj) =
+        this.ElKey = (o :?> DocElemNode).ElKey
 
-(* Attribute trees ***********************************************************)
+    override this.GetHashCode() =
+        this.ElKey
 
-/// Attribute tree - mutable skeleton, and a dummy channel for
-/// signalling that updates happened on that skeleton.
-[<JavaScript>]
-type Attr =
-    | At of AttrsSkel * View<unit>
-
-/// Skeleton for a list of Attr - isomorphic to a list of AttrSkel.
-and AttrsSkel =
-    | A0
-    | A1 of Att
-    | A2 of AttrsSkel * AttrsSkel
-
-and AttrTy =
-    | Attribute
-    | Style
-    | Class
-
-and Att =
-    | DummyAttr
-    | AttSkel of AttrSkel
-/// Skeleton for a single Attr. This object is paired up with
-/// a single Attr node in the DOM tree.
-and AttrSkel =
+and DocEmbedNode =
     {
-        /// Name of the attribute, such as "href".
-        AttrName : string
-        /// Type of the attribute: either a plain old attribute, a style
-        /// attribute, or a class attribute.
-        AttrType : AttrTy
-        /// True if AttrValue is different from the value of the
-        /// corresponding DOM attribute value, and the latter needs updating.
-        mutable AttrDirty : bool
-        /// Desired value.
-        mutable AttrValue : string
+        mutable Current : DocNode
+        mutable Dirty : bool
     }
 
-[<JavaScript>]
-module Attrs =
+and DocTextNode =
+    {
+        Text : TextNode
+        mutable Dirty : bool
+        mutable Value : string
+    }
 
-    /// Traverses the attribute tree to check whether any attributes are dirty,
-    /// meaning that the attribute tree needs updating.
-    let rec needsUpdate skel =
-        match skel with
-        | A0 -> false
-        | A1 (AttSkel sk) -> sk.AttrDirty
-        | A1 _ -> false
-        | A2 (a, b) -> needsUpdate a || needsUpdate b
-
-    /// Appends two attribute-list skeletons.
-    let append a b =
-        match a, b with
-        | A0, x | x, A0 -> x // optimize: A0 is a left and right unit
-        | _ -> A2 (a, b)
-
-    /// Updates a node's attributes, given an attribute tree.
-    let update (par: Element) skel =
-        let rec loop skel =
-            match skel with
-            | A0 -> ()
-            | A1 (AttSkel x) ->
-                if x.AttrDirty then
-                    x.AttrDirty <- false
-                    // We need to perform different operations based on which
-                    // type of attribute we have. If it's a plain old attribute,
-                    // we can just use SetAttribute.
-                    // Style and class attributes are used alongside JQuery.
-                    match x.AttrType with
-                    | Attribute -> par.SetAttribute(x.AttrName, x.AttrValue)
-                    | Style -> JQuery.Of(par).Css(x.AttrName, x.AttrValue) |> ignore
-                    | Class -> JQuery.Of(par).AddClass(x.AttrValue) |> ignore
-            | A1 _ -> ()
-            | A2 (a, b) -> loop a; loop b
-        loop skel
-
-[<JavaScript>]
-type Attr with
-
-    static member ViewInternal name view attrTy =
-        // skel for the attribute, based on the current value of the view
-        let sk =
-            {
-                AttrName = name
-                AttrType = attrTy
-                AttrDirty = true
-                AttrValue = ""
-            }
-        let skel = A1 (AttSkel sk)
-        // handle view updates by marking dirty and propagating notification
-        let update v =
-            sk.AttrDirty <- true
-            sk.AttrValue <- v
-            ()
-        At (skel, View.Map update view)
-
-    static member View name view =
-        Attr.ViewInternal name view Attribute
-
-    static member Empty =
-        At (A0, View.Const ())
-
-    static member Create name value =
-        Attr.View name (View.Const value)
-
-    static member Append (At (a, vA)) (At (b, vB)) =
-        At (Attrs.append a b, View.Map2 (fun _ _ -> ()) vA vB)
-
-    static member Concat xs =
-        Array.MapReduce (fun x -> x) Attr.Empty Attr.Append (Seq.toArray xs)
-
-    static member Custom (f : 'T -> unit) (view : View<'T>) =
-        At (A1 DummyAttr, View.Map f view)
-
-    static member CreateStyle name value =
-        Attr.ViewInternal name (View.Const value) Style
-
-    static member CreateClass name =
-        Attr.ViewInternal "" (View.Const name) Class
-
-    static member ViewStyle name view =
-        Attr.ViewInternal name view Style
-
-    static member ViewClass view =
-        Attr.ViewInternal "" view Class
-
-(* Element and node trees ****************************************************)
-
-/// Similarly to Attr, a skeleton and an updates channel.
 [<JavaScript>]
 type Doc =
-    | Tr of Skel * View<unit>
-
-/// Structure of a skeleton.
-and Skel =
-    | S0 // empty
-    | S2 of Skel * Skel // append
-    | SE of ElemSkel // single element node
-    | ST of TextSkel // single text node
-    | SV of VarSkel // time-varying node list
-
-and ElemSkel =
     {
-        AttrsSkel : AttrsSkel
-        Children : Skel
-        DomElem : Element
-        mutable NeedsVisit : bool
+        DocNode : DocNode
+        Updates : View<unit>
     }
-
-and TextSkel =
-    {
-        DomText : TextNode
-        mutable TextDirty : bool
-        mutable TextValue : string
-    }
-
-and VarSkel =
-    {
-        mutable BeforeSkel : Skel
-        mutable CurrentSkel : Skel
-        mutable IsDirty : bool
-        mutable VarNeedsVisit : bool
-    }
-
-[<JavaScript>]
-type Doc with
-
-    static member EmbedView v =
-        // init the skeleton
-        let sk =
-            {
-                BeforeSkel = S0
-                CurrentSkel = S0
-                IsDirty = true
-                VarNeedsVisit = true
-            }
-        let skel = SV sk
-        // `v` is a time-varying tree, which can vary itself (all trees can).
-        // an outer change happens when `v` varies
-        // an inner change happens when current value of `v` varies within itself
-        // on outer change, we mark this node as dirty - its DOM becomes out-of-sync
-        // on inner change, we mark the children as dirty - their DOM is out-of-sync
-        let ver =
-            v
-            |> View.Bind (fun (Tr (ske, y)) ->
-                // outer change: new skel, mark dirty
-                sk.CurrentSkel <- ske
-                sk.IsDirty <- true
-                y
-                |> View.Map (fun ver ->
-                    // inner change: while this node has not changed,
-                    // its children have, and we mark that for the visitor
-                    // to later descend into it
-                    sk.VarNeedsVisit <- true
-                    ver))
-        Tr (skel, ver)
 
 [<JavaScript>]
 module Docs =
 
-    /// Main DOM manipulation routine used in Var nodes: remove old, insert cur.
-    let patch (parent: Element) pos old cur =
-        // safe remove of a node
-        let rm (el: Node) =
-            // make sure not to remove already removed nodes
-            if Object.ReferenceEquals(el.ParentNode, parent) then
-                parent.RemoveChild(el) |> ignore
-        // removes `old` node-list from the tree
-        let rec remove sk =
-            match sk with
-            | S0 -> ()
-            | S2 (x, y) -> remove x; remove y
-            | SE x -> rm x.DomElem
-            | ST x -> rm x.DomText
-            | SV x -> remove x.CurrentSkel
-        // inserts `cur` node-list into the tree
-        let rec ins sk =
-            match sk with
-            | S0 -> ()
-            | S2 (x, y) -> ins x; ins y
-            | SE x -> D.InsertNode parent pos x.DomElem
-            | ST x -> D.InsertNode parent pos x.DomText
-            | SV x -> ins x.CurrentSkel
-        remove old
-        ins cur
+    /// Sets of DOM nodes.
+    type DomNodes =
+        | DomNodes of Node[]
 
-    /// Descends into a skeleton and updates dirty nodes.
-    let update par skel =
-        // update loop descends right-to-left and keeps track of an insert position
-        let rec upd par skel (pos: D.InsertPos) =
-            match skel with
-            | S0 -> pos
-            | S2 (a, b) -> upd par a (upd par b pos)
-            // element node
-            | SE e ->
-                // fixup attributes
-                if Attrs.needsUpdate e.AttrsSkel then
-                    Attrs.update e.DomElem e.AttrsSkel
-                // update descendants if needed
-                if e.NeedsVisit then
-                    e.NeedsVisit <- false
-                    upd e.DomElem e.Children D.AtEnd |> ignore
-                D.BeforeNode e.DomElem
-            // text node: sync DOM text node value to current value if dirty
-            | ST t ->
-                if t.TextDirty then
-                    t.DomText.NodeValue <- t.TextValue
-                    t.TextDirty <- false
-                D.BeforeNode t.DomText
-            // time-varying node list: might need patching
-            | SV v ->
-                if v.IsDirty then
-                    patch par pos v.BeforeSkel v.CurrentSkel
-                    v.BeforeSkel <- v.CurrentSkel
-                    v.IsDirty <- false
-                if v.VarNeedsVisit then
-                    v.VarNeedsVisit <- false
-                    upd par v.CurrentSkel pos
+        /// Actual chidlren of an element.
+        static member Children (elem: Element) =
+            DomNodes (Array.init elem.ChildNodes.Length elem.ChildNodes.Item)
+
+        /// Shallow children of an element node.
+        static member DocChildren node =
+            let q = JQueue.Create ()
+            let rec loop doc =
+                match doc with
+                | AppendDoc (a, b) -> loop a; loop b
+                | EmbedDoc d -> loop d.Current
+                | ElemDoc e -> JQueue.Add (e.El :> Node) q
+                | EmptyDoc -> ()
+                | TextDoc t -> JQueue.Add (t.Text :> Node) q
+            loop node.Children
+            DomNodes (JQueue.ToArray q)
+
+        /// Set difference - currently only using equality O(N^2).
+        /// Can do better? Can store <hash> data on every node?
+        static member Except (DomNodes excluded) (DomNodes included) =
+            included
+            |> Array.filter (fun n ->
+                excluded
+                |> Array.forall (fun k -> not (n ===. k)))
+            |> DomNodes
+
+        /// Iteration.
+        static member Iter f (DomNodes ns) =
+            Array.iter f ns
+
+        /// Iteration.
+        static member FoldBack f (DomNodes ns) z =
+            Array.foldBack f ns z
+
+    /// Inserts a node at position.
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    let InsertNode parent node pos =
+        DU.InsertAt parent pos node
+        DU.BeforeNode node
+
+    /// Inserts a doc at position.
+    let rec InsertDoc parent doc pos =
+        match doc with
+        | AppendDoc (a, b) -> InsertDoc parent a (InsertDoc parent b pos)
+        | ElemDoc e -> InsertNode parent e.El pos
+        | EmbedDoc d -> d.Dirty <- false; InsertDoc parent d.Current pos
+        | EmptyDoc -> pos
+        | TextDoc t -> InsertNode parent t.Text pos
+
+    /// Synchronizes an element with its children (shallow).
+    let DoSyncElement el =
+        let parent = el.El
+        let rec ins doc pos =
+            match doc with
+            | AppendDoc (a, b) -> ins a (ins b pos)
+            | ElemDoc e -> DU.BeforeNode e.El
+            | EmbedDoc d ->
+                if d.Dirty then
+                    d.Dirty <- false
+                    InsertDoc parent d.Current pos
                 else
-                    // compute next insertion position
-                    let rec posOf sk =
-                        match sk with
-                        | S0 -> pos
-                        | S2 (x, _) -> posOf x
-                        | SE x -> D.BeforeNode x.DomElem
-                        | ST x -> D.BeforeNode x.DomText
-                        | SV x -> posOf x.CurrentSkel
-                    posOf v.CurrentSkel
-        upd par skel D.AtEnd |> ignore
+                    ins d.Current pos
+            | EmptyDoc -> pos
+            | TextDoc t -> DU.BeforeNode t.Text
+        let ch = DomNodes.DocChildren el
+        // remove children that are not in the current set
+        DomNodes.Children el.El
+        |> DomNodes.Except ch
+        |> DomNodes.Iter (DU.RemoveNode el.El)
+        // insert current children
+        ins el.Children DU.AtEnd |> ignore
 
-    /// Append static children DOM nodes to the parent element.
-    let appendChildren parent skel =
-        let rec loop parent skel =
-            match skel with
-            | S0 -> ()
-            | S2 (a, b) -> loop parent a; loop parent b
-            | SE e -> D.AppendTo parent e.DomElem
-            | ST e -> D.AppendTo parent e.DomText
-            | SV x -> ()
-        loop parent skel
+    /// Optimized version of DoSyncElement.
+    let SyncElement el =
+        /// Test if any children have changed.
+        let hasDirtyChildren el =
+            let rec dirty doc =
+                match doc with
+                | AppendDoc (a, b) -> dirty a || dirty b
+                | EmbedDoc d -> d.Dirty || dirty d.Current
+                | _ -> false
+            dirty el.Children
+        Attrs.Sync el.El el.Attr
+        if hasDirtyChildren el then
+            DoSyncElement el
 
-    /// Element node constructor given an existing DOM element root.
-    let element (el: Element) (At (attrs, attrVer)) (Tr (children, ver)) =
-        let sk =
-            {
-                AttrsSkel = attrs
-                Children = children
-                DomElem = el
-                NeedsVisit = true
-            }
-        appendChildren el children
-        // Make the new SE node
-        let skel = SE sk
-        // Define the update function
-        let update () () =
-            sk.NeedsVisit <- true
-            ()
-        // Create a new tree with the given node.
-        // The R.View.Map2 simply marks this node if
-        // *either* the contents or the attributes change.
-        Tr (skel, View.Map2 update (View.Map ignore attrVer) ver)
+    /// Links an element to children by inserting them.
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    let LinkElement el children =
+        InsertDoc el children DU.AtEnd |> ignore
 
-    let empty =
-        Tr (S0, View.Const ())
+    /// Synchronizes the document (deep).
+    let Sync doc =
+        let rec sync doc =
+            match doc with
+            | AppendDoc (a, b) -> sync a; sync b
+            | ElemDoc el -> SyncElement el; sync el.Children
+            | EmbedDoc n -> sync n.Current
+            | EmptyDoc -> ()
+            | TextDoc d ->
+                if d.Dirty then
+                    d.Text.NodeValue <- d.Value
+                    d.Dirty <- false
+        sync doc
 
-    /// Appends element tree node x to y.
-    let appendSkel x y =
-        match x, y with
-        | S0, r | r, S0 -> r // optimize: S0 is a left and right unit
-        | _ -> S2 (x, y)
+    /// Synchronizes an element node (deep).
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    let SyncElemNode el =
+        SyncElement el
+        Sync el.Children
 
-// Types of input box
-type InputControlType =
-    | InputBox
-    | PasswordBox
-    | TextArea
+    /// Creates a Doc.
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    let Mk node updates =
+        {
+            DocNode = node
+            Updates = updates
+        }
 
-// form helpers
+    /// A set of node element nodes.
+    type NodeSet =
+        | NodeSet of HashSet<DocElemNode>
+
+        /// Filters out only nodes that have on-remove animations.
+        static member Filter f (NodeSet set) =
+            NodeSet (HashSet.Filter f set)
+
+        /// Finds all node elements in a tree.
+        static member FindAll doc =
+            let q = JQueue.Create ()
+            let rec loop node =
+                match node with
+                | AppendDoc (a, b) -> loop a; loop b
+                | ElemDoc el -> JQueue.Add el q; loop el.Children
+                | EmbedDoc em -> loop em.Current
+                | _ -> ()
+            loop doc
+            NodeSet (HashSet (JQueue.ToArray q))
+
+        /// Set difference.
+        static member Except (NodeSet excluded) (NodeSet included) =
+            NodeSet (included |> HashSet.Except excluded)
+
+        /// Checks if empty.
+        static member IsEmpty (NodeSet ns) =
+            ns.Count = 0
+
+        /// The empty set.
+        static member Empty =
+            NodeSet (HashSet ())
+
+        /// Converts to array.
+        static member ToArray (NodeSet ns) =
+            HashSet.ToArray ns
+
+    /// State of the Doc.Run (updator) proces.
+    type RunState =
+        {
+            mutable PreviousNodes : NodeSet
+            Top : DocElemNode
+        }
+
+    /// Creates an element node.
+    let CreateElemNode el attr children =
+        LinkElement el children
+        {
+            Attr = Attrs.Insert el attr
+            Children = children
+            El = el
+            ElKey = Fresh.Int ()
+        }
+
+    /// Creates a new RunState.
+    let CreateRunState parent doc =
+        {
+            PreviousNodes = NodeSet.Empty
+            Top = CreateElemNode parent Attr.Empty doc
+        }
+
+    /// Performs animation of nodes that animate removal.
+    let AnimateExit st cur =
+        st.PreviousNodes
+        |> NodeSet.Filter (fun n -> Attrs.HasExitAnim n.Attr)
+        |> NodeSet.Except cur
+        |> NodeSet.ToArray
+        |> Array.map (fun n -> Attrs.GetExitAnim n.Attr)
+        |> Anim.Concat
+        |> Anim.Play
+
+    /// Computes the animation for changed nodes.
+    let ComputeChangeAnim cur =
+        cur
+        |> NodeSet.ToArray
+        |> Array.filter (fun n -> Attrs.HasChangeAnim n.Attr)
+        |> Array.map (fun n -> Attrs.GetChangeAnim n.Attr)
+        |> Anim.Concat
+
+    /// Computes the animation for entering nodes.
+    let ComputeEnterAnim st cur =
+        cur
+        |> NodeSet.Filter (fun n -> Attrs.HasEnterAnim n.Attr)
+        |> NodeSet.Except st.PreviousNodes
+        |> NodeSet.ToArray
+        |> Array.map (fun n -> Attrs.GetEnterAnim n.Attr)
+        |> Anim.Concat
+
+    /// The main function: how to perform an animated top-level document update.
+    let PerformAnimatedUpdate st parent doc =
+        async {
+            let cur = NodeSet.FindAll doc
+            do! AnimateExit st cur
+            let change = ComputeChangeAnim cur
+            do SyncElemNode st.Top
+            let enter = ComputeEnterAnim st cur
+            do! Anim.Play (Anim.Append enter change)
+            return st.PreviousNodes <- cur
+        }
+
+    /// EmbedNode constructor.
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    let CreateEmbedNode () =
+        {
+            Current = EmptyDoc
+            Dirty = false
+        }
+
+    /// EmbedNode update (marks dirty).
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    let UpdateEmbedNode node upd =
+        node.Current <- upd
+        node.Dirty <- true
+
+    /// Text node constructor.
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    let CreateTextNode () =
+        {
+            Dirty = false
+            Text = DU.CreateText ""
+            Value = ""
+        }
+
+    /// Text node update (marks dirty).
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    let UpdateTextNode n t =
+        n.Value <- t
+        n.Dirty <- true
+
 type Doc with
 
-    static member Run parent (Tr (skel, ver)) =
-        Docs.appendChildren parent skel
-        View.Sink (fun _ -> Docs.update parent skel) ver
+    static member Append a b =
+        (a.Updates, b.Updates)
+        ||> View.Map2 (fun () () -> ())
+        |> Docs.Mk (AppendDoc (a.DocNode, b.DocNode))
+
+    static member Concat xs =
+        Seq.toArray xs
+        |> Array.MapReduce (fun x -> x) Doc.Empty Doc.Append
+
+    static member Elem name attr children =
+        let node = Docs.CreateElemNode name attr children.DocNode
+        View.Map2 (fun () () -> ()) (Attrs.Updates node.Attr) children.Updates
+        |> Docs.Mk (ElemDoc node)
+
+    static member Element name attr children =
+        let attr = Attr.Concat attr
+        let children = Doc.Concat children
+        Doc.Elem (DU.CreateElement name) attr children
+
+    static member EmbedView view =
+        let node = Docs.CreateEmbedNode ()
+        view
+        |> View.Bind (fun doc ->
+            Docs.UpdateEmbedNode node doc.DocNode
+            doc.Updates)
+        |> View.Map ignore
+        |> Docs.Mk (EmbedDoc node)
+
+    static member TextNode v =
+        Doc.TextView (View.Const v)
+
+    static member TextView txt =
+        let node = Docs.CreateTextNode ()
+        txt
+        |> View.Map (Docs.UpdateTextNode node)
+        |> Docs.Mk (TextDoc node)
+
+    static member Run parent doc =
+        let d = doc.DocNode
+        Docs.LinkElement parent d
+        let st = Docs.CreateRunState parent d
+        let p = Mailbox.StartProcessor (fun () -> Docs.PerformAnimatedUpdate st parent d)
+        View.Sink p doc.Updates
 
     static member RunById id tr =
-        match D.Doc.GetElementById(id) with
+        match DU.Doc.GetElementById(id) with
         | null -> failwith ("invalid id: " + id)
         | el -> Doc.Run el tr
 
     static member Empty =
-        Docs.empty
+        Docs.Mk EmptyDoc (View.Const ())
 
-    static member Append (Tr (a, aV)) (Tr (b, bV)) =
-        Tr (Docs.appendSkel a b, View.Map2 (fun _ _ -> ()) aV bV)
+// Collections ----------------------------------------------------------------
 
-    static member Concat xs =
-        Array.MapReduce (fun x -> x) Doc.Empty Doc.Append (Seq.toArray xs)
-
-    static member Element name attr children =
-        Docs.element (D.CreateElement name) (Attr.Concat attr) (Doc.Concat children)
-
-    static member ElementWithEvents name attr eventHandlers children =
-        let domElem = D.CreateElement name
-        for eh in eventHandlers do
-            domElem.AddEventListener(eh.Name, eh.Callback, false)
-        Docs.element domElem (Attr.Concat attr) (Doc.Concat children)
-
-    static member TextView view =
-        let v = ""
-        let node = D.CreateText v
-        let sk =
-            {
-                DomText = node
-                TextDirty = true
-                TextValue = v
-            }
-        let skel = ST sk
-        let update v =
-            sk.TextDirty <- true
-            sk.TextValue <- v
-            ()
-        Tr (skel, View.Map update view)
-
-    static member TextNode t =
-        Doc.TextView (View.Const t)
+type Doc with
 
     static member EmbedBag render view =
         View.ConvertBag render view
@@ -403,8 +381,18 @@ type Doc with
         |> View.Map Doc.Concat
         |> Doc.EmbedView
 
+// Form helpers ---------------------------------------------------------------
+
+/// Types of input box
+type InputControlType =
+    | InputBox
+    | PasswordBox
+    | TextArea
+
+type Doc with
+
     static member InputInternal attr (var : Var<string>) inputTy =
-        let (attr', elemTy) =
+        let (attrN, elemTy) =
             match inputTy with
             | InputBox -> (Attr.Concat attr, "input")
             | PasswordBox ->
@@ -412,13 +400,13 @@ type Doc with
                 (Attr.Concat attr |> Attr.Append atPwd, "input")
             | TextArea -> (Attr.Concat attr, "textarea")
 
-        let el = D.CreateElement elemTy
+        let el = DU.CreateElement elemTy
         let view = View.FromVar var
-        let valAttr = Attr.Custom (fun v -> el?value <- v) view
+        let valAttr = Attr.DynamicCustom (fun el v -> el?value <- v) view
         let onChange (x: DomEvent) =
             Var.Set var el?value
         el.AddEventListener("input", onChange, false)
-        Docs.element el (Attr.Append attr' valAttr) Doc.Empty
+        Doc.Elem el (Attr.Append attrN valAttr) Doc.Empty
 
     static member Input attr (var: Var<string>) =
         Doc.InputInternal attr (var : Var<string>) InputBox
@@ -441,11 +429,10 @@ type Doc with
             List.findIndex ((=) x) options
         let setSelectedItem (el: Element) item =
             setIndex el (itemIndex item)
-        let el = D.CreateElement "select"
+        let el = DU.CreateElement "select"
         let selectedItemAttr =
             View.FromVar current
-            |> Attr.Custom (setSelectedItem el)
-
+            |> Attr.DynamicCustom setSelectedItem
         let onChange (x: DomEvent) =
             Var.Set current (getSelectedItem el)
         el.AddEventListener("change", onChange, false)
@@ -455,7 +442,7 @@ type Doc with
                 let t = Doc.TextNode (show o)
                 Doc.Element "option" [Attr.Create "value" (string i)] [t])
             |> Doc.Concat
-        Docs.element el (Attr.Concat attrs |> Attr.Append selectedItemAttr) optionElements
+        Doc.Elem el (Attr.Concat attrs |> Attr.Append selectedItemAttr) optionElements
 
     static member CheckBox (show: 'T -> string) (items: list<'T>) (chk: Var<list<'T>>) =
         // Create RView for the list of checked items
@@ -486,16 +473,16 @@ type Doc with
                         Attr.Create "name" uid
                         Attr.Create "value" (string i)
                     ]
-                let el = D.CreateElement "input"
+                let el = DU.CreateElement "input"
                 initCheck i el
-                let chkElem = Docs.element el (Attr.Concat attrs) Doc.Empty
+                let chkElem = Doc.Elem el (Attr.Concat attrs) Doc.Empty
                 Doc.Element "div" [] [chkElem; t])
             |> Doc.Concat
         checkElements
 
     static member Button caption attrs action =
-        let el = D.CreateElement "button"
+        let el = DU.CreateElement "button"
         el.AddEventListener("click", (fun (ev: DomEvent) ->
             ev.PreventDefault()
             action ()), false)
-        Docs.element el (Attr.Concat attrs) (Doc.TextNode caption)
+        Doc.Elem el (Attr.Concat attrs) (Doc.TextNode caption)

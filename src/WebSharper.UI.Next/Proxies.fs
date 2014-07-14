@@ -11,6 +11,13 @@
 
 namespace IntelliFactory.WebSharper.UI.Next
 
+/// TODO: this belongs in WebSharper.
+[<Proxy(typedefof<System.Enum>)>]
+type internal EnumProxy =
+
+    [<Inline "($0 & $1) !== 0">]
+    member p.HasFlag (flag: System.Enum) = false
+
 /// TODO: this can be implemented better and actually belongs in WebSharper proper.
 [<Proxy(typedefof<HashSet<_>>)>]
 type internal HashSetProxy<'T when 'T : equality> [<JavaScript>] (xs: seq<'T>) =
@@ -25,11 +32,18 @@ type internal HashSetProxy<'T when 'T : equality> [<JavaScript>] (xs: seq<'T>) =
         |> Seq.map (fun kv -> kv.Key)
 
     [<JavaScript>]
+    new () = HashSetProxy<'T>(Seq.empty)
+
+    [<JavaScript>]
     member x.CopyTo(arr: 'T[]) =
         let mutable i = 0
         for kv in d :> seq<_> do
             arr.[i] <- kv.Key
             i <- i + 1
+
+    [<JavaScript>]
+    member x.Contains(key: 'T) =
+        d.ContainsKey(key)
 
     [<JavaScript>]
     member x.Count = d.Count

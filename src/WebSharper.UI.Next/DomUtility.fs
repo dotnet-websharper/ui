@@ -12,6 +12,7 @@
 namespace IntelliFactory.WebSharper.UI.Next
 
 open IntelliFactory.WebSharper
+open IntelliFactory.WebSharper.JQuery
 
 /// Utility functions for manipulating DOM.
 [<JavaScript>]
@@ -89,9 +90,38 @@ module internal DomUtility =
         | AtEnd
         | BeforeNode of Node
 
+    /// Current InsertPos of a DOM node.
+    let CurrentPos (node: Node) =
+        match node.NextSibling with
+        | null -> AtEnd
+        | s -> BeforeNode s
+
+    /// Checks if two positions are the same.
+    let SamePos p1 p2 =
+        match p1, p2 with
+        | AtEnd, AtEnd -> true
+        | BeforeNode n1, BeforeNode n2 -> n1 ===. n2
+        | _ -> false
+
     /// Inserts a new child node into the tree under
     /// a given `parent` at given `pos`.
     let InsertNode (parent: Element) pos node =
         match pos with
         | AtEnd -> parent.AppendChild(node) |> ignore
         | BeforeNode marker -> parent.InsertBefore(node, marker) |> ignore
+
+    /// Inserts a new child node into the tree under
+    /// a given `parent` at given `pos`.
+    let InsertAt (parent: Element) (pos: InsertPos) (node: Node) =
+        if node.ParentNode ==. null || not (SamePos (CurrentPos node) pos) then
+            match pos with
+            | AtEnd -> parent.AppendChild(node) |> ignore
+            | BeforeNode marker -> parent.InsertBefore(node, marker) |> ignore
+
+    /// Adds a class.
+    let AddClass (element: Element) (cl: string) =
+        JQuery.Of(element).AddClass(cl) |> ignore
+
+    /// Removes a class.
+    let RemoveClass (element: Element) (cl: string) =
+        JQuery.Of(element).RemoveClass(cl) |> ignore

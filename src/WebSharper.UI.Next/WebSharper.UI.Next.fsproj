@@ -55,7 +55,7 @@
   </Target>
   <ItemGroup>
     <Compile Include="Abbrev.fs" />
-    <Compile Include="HashSetProxy.fs" />
+    <Compile Include="Proxies.fs" />
     <Compile Include="Diff.fsi" />
     <Compile Include="Diff.fs" />
     <Compile Include="Snap.fsi" />
@@ -63,6 +63,9 @@
     <Compile Include="Reactive.fsi" />
     <Compile Include="Reactive.fs" />
     <Compile Include="DomUtility.fs" />
+    <Compile Include="Anim.fs" />
+    <Compile Include="Attr.fsi" />
+    <Compile Include="Attr.fs" />
     <Compile Include="Doc.fsi" />
     <Compile Include="Doc.fs" />
     <Compile Include="Flow.fsi" />
