@@ -72,6 +72,10 @@ module internal Abbrev =
 
         let mutable private counter = 0
 
+        let Int () =
+            counter <- counter + 1
+            counter
+
         let Id () =
             counter <- counter + 1
             "uid" + string counter
@@ -83,6 +87,12 @@ module internal Abbrev =
             let arr = Array.zeroCreate set.Count
             set.CopyTo(arr)
             arr
+
+        let Except (excluded: HashSet<'T>) included =
+            HashSet<'T>(ToArray included |> Array.filter excluded.Contains)
+
+        let Filter (ok: 'T -> bool) (set: HashSet<'T>) =
+            HashSet<'T>(ToArray set |> Array.filter ok)
 
     [<JavaScript>]
     module Dict =
@@ -132,10 +142,43 @@ module internal Abbrev =
         let Create () : JQueue<'T> = U
 
         [<JavaScript>]
+        let Count (q: JQueue<'T>) : int = Array.length (As q)
+
+        [<JavaScript>]
+        let ToArray (q: JQueue<'T>) : 'T[] = Array.copy (As q)
+
+        [<JavaScript>]
         [<MethodImpl(MethodImplOptions.NoInlining)>]
         let Iter (f: 'T -> unit) (q: JQueue<'T>) =
-            Array.iter f (Array.copy (As q))
+            Array.iter f (ToArray q)
 
         [<Direct "$q.push($x)">]
         [<MethodImpl(MethodImplOptions.NoInlining)>]
         let Add (x: 'T) (q: JQueue<'T>) = ()
+
+        [<Direct "$q.shift()">]
+        [<MethodImpl(MethodImplOptions.NoInlining)>]
+        let Dequeue (q: JQueue<'T>) = ()
+
+    [<JavaScript>]
+    module Mailbox =
+
+        /// Simplified MailboxProcessor implementation.
+        let StartProcessor proc =
+            let mail = JQueue.Create ()
+            let isActive = ref false
+            let work =
+                async {
+                    while JQueue.Count mail > 0 do
+                        let msg = JQueue.Dequeue mail
+                        do! proc msg
+                    return isActive := false
+                }
+            let start () =
+                if not !isActive then
+                    isActive := true
+                    Async.Start work
+            let post msg =
+                JQueue.Add msg mail
+                start ()
+            post

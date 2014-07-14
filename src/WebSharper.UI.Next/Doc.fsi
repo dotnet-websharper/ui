@@ -9,49 +9,13 @@
 //-----------------------------------------------------------------
 // $end{copyright}
 
-/// Doc.fs: provides construction of time-varying DOM documents in the browser.
 namespace IntelliFactory.WebSharper.UI.Next
 
-/// Represents a time-varying attribute set.
-[<Sealed>]
-type Attr =
-
-    /// Constructs a simple constant attribute.
-    static member Create : name: string -> value: string -> Attr
-
-    /// Constructs a new time-varying attribute.
-    static member View : name: string -> View<string> -> Attr
-
-  // Note: Empty, Append, Concat define a monoid on Attr.
-
-    /// Empty attribute list.
-    static member Empty : Attr
-
-    /// Append on attributes.
-    static member Append : Attr -> Attr -> Attr
-
-    /// Concatenation on attributes.
-    static member Concat : seq<Attr> -> Attr
-
-    /// Creates a static style attribute
-    static member CreateStyle : name: string -> value: string -> Attr
-
-    /// Creates a time-varying style attribute
-    static member ViewStyle : name: string -> View<string> -> Attr
-
-    /// Creates a static class attribute
-    static member CreateClass : name: string -> Attr
-
-    /// Creates a static class attribute
-    static member ViewClass : View<string> -> Attr
-
-[<Sealed>]
-type EventHandler =
-    static member CreateHandler : name: string -> callback: (DomEvent -> unit) -> EventHandler
-
 /// Represents a time-varying node or a node list.
-[<Sealed>]
-type Doc =
+type Doc
+
+/// Combinators on documents.
+type Doc with
 
   // Construction of basic nodes.
 
@@ -61,22 +25,8 @@ type Doc =
     /// Constructs a reactive element node.
     static member Element : name: string -> seq<Attr> -> seq<Doc> -> Doc
 
-    /// Constructs a reactive element node.
-    static member ElementWithEvents : name: string -> seq<Attr> -> seq<EventHandler> -> seq<Doc> -> Doc
-
-    /// Constructs a static text node, not backed by an RVar.
-    static member TextNode : string -> Doc
-
     /// Constructs a reactive text node.
     static member TextView : View<string> -> Doc
-
-  // Collections.
-
-    /// Uses View.MapBag to embed a time-varying collection.
-    static member EmbedBag<'T when 'T : equality> : ('T -> Doc) -> View<seq<'T>> -> Doc
-
-    /// Doc.EmbedBag with a custom key.
-    static member EmbedBagBy<'T,'K when 'K : equality> : ('T -> 'K) -> ('T -> Doc) -> View<seq<'T>> -> Doc
 
   // Note: Empty, Append, Concat define a monoid on Doc.
 
@@ -89,6 +39,14 @@ type Doc =
     /// Concatenation.
     static member Concat : seq<Doc> -> Doc
 
+  // Collections.
+
+    /// Uses View.MapBag to embed a time-varying collection.
+    static member EmbedBag<'T when 'T : equality> : ('T -> Doc) -> View<seq<'T>> -> Doc
+
+    /// Doc.EmbedBag with a custom key.
+    static member EmbedBagBy<'T,'K when 'K : equality> : ('T -> 'K) -> ('T -> Doc) -> View<seq<'T>> -> Doc
+
   // Main entry-point combinators - use once per app
 
     /// Runs a reactive Doc as contents of the given element.
@@ -96,6 +54,11 @@ type Doc =
 
     /// Same as rn, but looks up the element by ID.
     static member RunById : id: string -> Doc -> unit
+
+  // Special cases
+
+    /// Static variant of TextView.
+    static member TextNode : string -> Doc
 
   // Form helpers
 
