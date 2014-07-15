@@ -23,9 +23,13 @@ module Flow =
     [<Sealed>]
     type FlowBuilder =
         new : unit -> FlowBuilder
+        //member Apply : Flow<'A -> 'B> * Flow<'A> -> Flow<'B>
         member Bind : Flow<'A> * ('A -> Flow<'B>) -> Flow<'B>
         member Return : 'A -> Flow<'A>
         member ReturnFrom : Flow<'A> -> Flow<'A>
+
+    /// Mapping
+    val Map : ('A -> 'B) -> Flow<'A> -> Flow<'B>
 
     /// Monadic composition: compose two flowlets, allowing the
     /// result of one to be used to determine future ones

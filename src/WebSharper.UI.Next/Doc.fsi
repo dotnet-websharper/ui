@@ -117,3 +117,6 @@ type Doc =
 
     /// Select box.
     static member Select<'T when 'T : equality> : seq<Attr> -> ('T -> string) -> list<'T> -> Var<'T> -> Doc
+
+    /// Creates a Doc from a DOM element
+    static member Static : Element -> Doc

@@ -20,6 +20,9 @@ type Flow<'T> =
 [<JavaScript>]
 module Flow =
 
+    let Map f x =
+        { Render = fun var cont -> x.Render var (fun r -> (f r) |> cont) }
+
     // "Unwrap" the value from the flowlet, use it as an argument to the
     // continuation k, and return the value of the applied continuation.
 

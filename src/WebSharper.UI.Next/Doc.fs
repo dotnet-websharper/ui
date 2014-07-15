@@ -368,6 +368,9 @@ type Doc with
     static member Element name attr children =
         Docs.element (D.CreateElement name) (Attr.Concat attr) (Doc.Concat children)
 
+    static member Static (elem : Element) =
+        Docs.element elem Attr.Empty Doc.Empty
+
     static member ElementWithEvents name attr eventHandlers children =
         let domElem = D.CreateElement name
         for eh in eventHandlers do
