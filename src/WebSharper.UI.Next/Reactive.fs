@@ -11,6 +11,8 @@
 
 namespace IntelliFactory.WebSharper.UI.Next
 
+open IntelliFactory.WebSharper
+
 /// Var either holds a Snap or is in Const state.
 type Var<'T> =
     {
@@ -78,7 +80,8 @@ type View =
         V obs
 
     static member Map fn (V observe) =
-        View.CreateLazy (fun () -> observe () |> Snap.Map fn)
+        View.CreateLazy (fun () ->
+            observe () |> Snap.Map fn)
 
     static member Map2 fn (V o1) (V o2) =
         View.CreateLazy (fun () ->
@@ -131,7 +134,8 @@ type View =
     static member Join (V observe : View<View<'T>>) : View<'T> =
         View.CreateLazy (fun () ->
             observe ()
-            |> Snap.Bind (fun (V obs) -> obs ()))
+            |> Snap.Bind (fun (V obs) ->
+                obs ()))
 
     static member Bind fn view =
         View.Join (View.Map fn view)
