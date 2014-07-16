@@ -112,6 +112,9 @@ type Doc =
     /// and a callback function of what to do with this view once the button is pressed
     static member Button : caption: string -> seq<Attr> -> (unit -> unit) -> Doc
 
+    /// Link with a callback, acts just like a button
+    static member Link : caption: string -> seq<Attr> -> (unit -> unit) -> Doc
+
     /// Check Box Group.
     static member CheckBox<'T when 'T : equality> : ('T -> string) -> list<'T> -> Var<list<'T>> -> Doc
 

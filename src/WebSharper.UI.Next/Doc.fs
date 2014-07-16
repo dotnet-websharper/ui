@@ -496,9 +496,16 @@ type Doc with
             |> Doc.Concat
         checkElements
 
-    static member Button caption attrs action =
-        let el = D.CreateElement "button"
+    static member private clickableComponent name caption attrs action =
+        let el = D.CreateElement name
         el.AddEventListener("click", (fun (ev: DomEvent) ->
             ev.PreventDefault()
             action ()), false)
-        Docs.element el (Attr.Concat attrs) (Doc.TextNode caption)
+        Docs.element el attrs (Doc.TextNode caption)
+
+    static member Button caption attrs action =
+        Doc.clickableComponent "button" caption (Attr.Concat attrs) action
+
+    static member Link caption attrs action =
+        let attrs' = Attr.Concat attrs |> Attr.Append (Attr.Create "href" "#")
+        Doc.clickableComponent "a" caption attrs' action
