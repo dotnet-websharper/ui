@@ -43,7 +43,9 @@ module internal DomUtility =
     let private SvgNames =
         let names = obj ()
         names?circle <- true
+        names?g <- true
         names?line <- true
+        names?rect <- true
         names?svg <- true
         names
 
@@ -90,30 +92,22 @@ module internal DomUtility =
         | AtEnd
         | BeforeNode of Node
 
-    /// Current InsertPos of a DOM node.
-    let CurrentPos (node: Node) =
-        match node.NextSibling with
-        | null -> AtEnd
-        | s -> BeforeNode s
-
-    /// Checks if two positions are the same.
-    let SamePos p1 p2 =
-        match p1, p2 with
-        | AtEnd, AtEnd -> true
-        | BeforeNode n1, BeforeNode n2 -> n1 ===. n2
-        | _ -> false
-
-    /// Inserts a new child node into the tree under
-    /// a given `parent` at given `pos`.
-    let InsertNode (parent: Element) pos node =
-        match pos with
-        | AtEnd -> parent.AppendChild(node) |> ignore
-        | BeforeNode marker -> parent.InsertBefore(node, marker) |> ignore
-
     /// Inserts a new child node into the tree under
     /// a given `parent` at given `pos`.
     let InsertAt (parent: Element) (pos: InsertPos) (node: Node) =
-        if node.ParentNode ==. null || not (SamePos (CurrentPos node) pos) then
+        let samePos p1 p2 =
+            match p1, p2 with
+            | AtEnd, AtEnd -> true
+            | BeforeNode n1, BeforeNode n2 -> n1 ===. n2
+            | _ -> false
+        let currentPos (node: Node) =
+            match node.NextSibling with
+            | null -> AtEnd
+            | s -> BeforeNode s
+        let canSkip =
+            node.ParentNode ===. parent
+            && samePos pos (currentPos node)
+        if not canSkip then
             match pos with
             | AtEnd -> parent.AppendChild(node) |> ignore
             | BeforeNode marker -> parent.InsertBefore(node, marker) |> ignore
