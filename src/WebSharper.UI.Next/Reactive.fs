@@ -61,6 +61,13 @@ type Var =
 type View<'T> =
     | V of (unit -> Snap<'T>)
 
+type ViewNode<'A,'B> =
+    {
+        NValue : 'B
+        NVar : Var<'A>
+        NView : View<'A>
+    }
+
 [<JavaScript>]
 [<Sealed>]
 type View =
@@ -91,6 +98,8 @@ type View =
 
     static member MapAsync fn (V observe) =
         View.CreateLazy (fun () -> observe () |> Snap.MapAsync fn)
+
+  // collections --------------------------------------------------------------
 
     static member ConvertBag (fn: 'A -> 'B) (view: View<seq<'A>>) : View<seq<'B>> =
         let values = Dictionary()
@@ -130,6 +139,44 @@ type View =
                 (Seq.toArray (Seq.map conv diff.Added))
             |> Seq.ofArray
         View.Map f view
+
+    static member CreateViewNode (conv: View<'A> -> 'B) (value: 'A) =
+        let var = Var.Create value
+        let view = View.FromVar var
+        {
+            NValue = conv view
+            NVar = var
+            NView = view
+        }
+
+    static member ConvertSeqBy<'A,'B,'K when 'K : equality>
+            (key: 'A -> 'K)
+            (conv: View<'A> -> 'B)
+            (view: View<seq<'A>>) : View<seq<'B>> =
+        // Save history only for t - 1, discard older history.
+        let state = ref (Dictionary())
+        view
+        |> View.Map (fun xs ->
+            let prevState = !state
+            let newState = Dictionary()
+            let result =
+                Seq.toArray xs
+                |> Array.map (fun x ->
+                    let k = key x
+                    let node =
+                        if prevState.ContainsKey k then
+                            let n = prevState.[k]
+                            Var.Set n.NVar x
+                            n
+                        else
+                            View.CreateViewNode conv x
+                    newState.[k] <- node
+                    node.NValue)
+                :> seq<_>
+            state := newState
+            result)
+
+  // More cominators ------------------------------------------------------------
 
     static member Join (V observe : View<View<'T>>) : View<'T> =
         View.CreateLazy (fun () ->
