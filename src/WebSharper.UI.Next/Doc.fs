@@ -334,6 +334,9 @@ type Doc with
         let children = Doc.Concat children
         Doc.Elem (DU.CreateElement name) attr children
 
+    static member Static el =
+        Doc.Elem el Attr.Empty Doc.Empty
+
     static member EmbedView view =
         let node = Docs.CreateEmbedNode ()
         view
@@ -369,8 +372,6 @@ type Doc with
 
 // Collections ----------------------------------------------------------------
 
-type Doc with
-
     static member EmbedBag render view =
         View.ConvertBag render view
         |> View.Map Doc.Concat
@@ -399,7 +400,6 @@ type Doc with
                 let atPwd = Attr.Create "type" "password"
                 (Attr.Concat attr |> Attr.Append atPwd, "input")
             | TextArea -> (Attr.Concat attr, "textarea")
-
         let el = DU.CreateElement elemTy
         let view = View.FromVar var
         let valAttr = Attr.DynamicCustom (fun el v -> el?value <- v) view
@@ -480,9 +480,19 @@ type Doc with
             |> Doc.Concat
         checkElements
 
-    static member Button caption attrs action =
-        let el = DU.CreateElement "button"
+    static member Clickable elem action =
+        let el = DU.CreateElement elem
         el.AddEventListener("click", (fun (ev: DomEvent) ->
             ev.PreventDefault()
             action ()), false)
-        Doc.Elem el (Attr.Concat attrs) (Doc.TextNode caption)
+        el
+
+    static member Button caption attrs action =
+        let attrs = Attr.Concat attrs
+        let el = Doc.Clickable "button" action
+        Doc.Elem el attrs (Doc.TextNode caption)
+
+    static member Link caption attrs action =
+        let attrs = Attr.Concat attrs |> Attr.Append (Attr.Create "href" "#")
+        let el = Doc.Clickable "a" action
+        Doc.Elem el attrs (Doc.TextNode caption)

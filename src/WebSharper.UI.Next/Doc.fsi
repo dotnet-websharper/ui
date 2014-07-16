@@ -19,11 +19,14 @@ type Doc with
 
   // Construction of basic nodes.
 
+    /// Constructs a reactive element node.
+    static member Element : name: string -> seq<Attr> -> seq<Doc> -> Doc
+
     /// Embeds time-varying fragments.
     static member EmbedView : View<Doc> -> Doc
 
-    /// Constructs a reactive element node.
-    static member Element : name: string -> seq<Attr> -> seq<Doc> -> Doc
+    /// Creates a Doc using a given DOM element
+    static member Static : Element -> Doc
 
     /// Constructs a reactive text node.
     static member TextView : View<string> -> Doc
@@ -72,8 +75,11 @@ type Doc with
     static member PasswordBox : seq<Attr> -> Var<string> -> Doc
 
     /// Submit button. Takes a view of reactive components with which it is associated,
-    /// and a callback function of what to do with this view once the button is pressed
+    /// and a callback function of what to do with this view once the button is pressed.
     static member Button : caption: string -> seq<Attr> -> (unit -> unit) -> Doc
+
+    /// Link with a callback, acts just like a button.
+    static member Link : caption: string -> seq<Attr> -> (unit -> unit) -> Doc
 
     /// Check Box Group.
     static member CheckBox<'T when 'T : equality> : ('T -> string) -> list<'T> -> Var<list<'T>> -> Doc
