@@ -72,6 +72,16 @@ type View =
     /// Version of MapBag with custom equality.
     static member ConvertBagBy<'A,'B,'K when 'K : equality> : ('A -> 'K) -> ('A -> 'B) -> View<seq<'A>> -> View<seq<'B>>
 
+    /// Converts a sequence statefully, using a key function to identify inputs,
+    /// creating outputs only as needed, and propagating changes automatically.
+    /// This combinator is stateful, calling it creates a cache object.
+    /// Memory use is proportional to the longest sequence taken by the View.
+    static member ConvertSeqBy<'A,'B,'K when 'K : equality> :
+        key: ('A -> 'K) ->
+        conv: (View<'A> -> 'B) ->
+        view: (View<seq<'A>>) ->
+        View<seq<'B>>
+
     /// Static composition.
     static member Map2 : ('A -> 'B -> 'C) -> View<'A> -> View<'B> -> View<'C>
 
