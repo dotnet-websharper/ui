@@ -11,6 +11,8 @@
 
 namespace IntelliFactory.WebSharper.UI.Next
 
+open IntelliFactory.WebSharper
+
 (*
 
 Snap implements a snapshot of a time-varying value.

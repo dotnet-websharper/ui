@@ -88,8 +88,10 @@ module internal Abbrev =
             set.CopyTo(arr)
             arr
 
-        let Except (excluded: HashSet<'T>) included =
-            HashSet<'T>(ToArray included |> Array.filter excluded.Contains)
+        let Except (excluded: HashSet<'T>) (included: HashSet<'T>) =
+            let set = HashSet<'T>(ToArray included)
+            set.ExceptWith(ToArray excluded)
+            set
 
         let Filter (ok: 'T -> bool) (set: HashSet<'T>) =
             HashSet<'T>(ToArray set |> Array.filter ok)
