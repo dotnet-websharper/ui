@@ -3,7 +3,7 @@
 open IntelliFactory.WebSharper
 open IntelliFactory.WebSharper.Dom
 open IntelliFactory.WebSharper.Html5
-
+open IntelliFactory.WebSharper.UI.Next.Notation
 [<JavaScript>]
 module Router =
 
@@ -11,17 +11,27 @@ module Router =
     type Router<'T> = (string -> 'T)
 
     /// Create a variable which changes with the URL
-    let Install router =
+    let Install ser deser =
 
-        let var = router Window.Self.Location.Hash |> Var.Create
+        let loc (h : string) =
+            if h.Length > 0 then h.Substring(1) else h
+
+        let var = loc Window.Self.Location.Hash |> deser |> Var.Create
 
         let updateFn =
             (fun (evt : Dom.Event) ->
-                let hashRoute = Window.Self.Location.Hash
-                router hashRoute |> Var.Set var
+                let h = Window.Self.Location.Hash
+                let lh = loc h
+                JavaScript.Log <| "updatefn in sink, loc: " + loc h + ", h: " + h
+                deser (loc h) |> Var.Set var
             )
         Window.Self.Onpopstate <- updateFn
         Window.Self.Onhashchange <- updateFn
+
+        View.Sink (fun act ->
+            Window.Self.Location.Hash <- "#" + (ser act)
+        ) !* var
+
         var
 
     /// Stop listening for URL changes
