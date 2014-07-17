@@ -28,42 +28,46 @@ type AnimatedAttrNode<'T>(tr: ITransition<'T>, view: View<'T>, push: Element -> 
     let mutable logical : option<'T> = None // current logical value
     let mutable visible : option<'T> = None // current value pushed to the parent element
     let mutable dirty = true // logical <> visible
-    let update x = logical <- Some x; dirty <- true
-    let updates = view |> View.Map update
+
+    let updates =
+        view
+        |> View.Map (fun x ->
+            logical <- Some x
+            dirty <- true)
+
+    let pushVisible el v =
+        visible <- Some v
+        dirty <- true
+        push el v
 
     let sync p =
         if dirty then
-            match logical with
-            | Some l ->
-                dirty <- false
-                push p l
-                visible <- logical
-            | None -> ()
+            Option.iter (push p) logical
+            visible <- logical
+            dirty <- false
 
     interface IAttrNode with
 
         member a.GetChangeAnim parent =
-            if dirty then
-                match visible, logical with
-                | Some v, Some l ->
-                    tr.AnimateChange v l (push parent)
-                    |> Anim.WhenDone (fun () -> sync parent)
-                | _ ->
-                    sync parent
-                    Anim.Empty
-            else
-                Anim.Empty
+            match visible, logical with
+            | Some v, Some l when dirty -> tr.AnimateChange v l (pushVisible parent)
+            | _ -> Anim.Empty
+            |> Anim.WhenDone (fun () -> sync parent)
 
         member a.GetEnterAnim parent =
-            match logical with
-            | None -> Anim.Empty
-            | Some l -> tr.AnimateEnter l (push parent)
+            match visible, logical with
+            | Some vi, Some lo when dirty -> tr.AnimateChange vi lo (pushVisible parent)
+            | None, Some lo -> tr.AnimateEnter lo (pushVisible parent)
+            | _ -> Anim.Empty
+            |> Anim.WhenDone (fun () -> sync parent)
 
         member a.GetExitAnim parent =
-            match logical with
-            | None -> Anim.Empty
-            | Some l -> tr.AnimateExit l (push parent)
+            match visible with
+            | Some cur -> tr.AnimateExit cur (pushVisible parent)
+            | _ -> Anim.Empty
+            |> Anim.WhenDone (fun () -> dirty <- true; visible <- None)
 
+        /// NOTE: enter animation will fire later and that will sync when done.
         member a.Sync parent = ()
         member a.Changed = updates
 

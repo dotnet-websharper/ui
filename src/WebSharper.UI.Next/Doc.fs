@@ -209,6 +209,10 @@ module Docs =
         static member Except (NodeSet excluded) (NodeSet included) =
             NodeSet (included |> HashSet.Except excluded)
 
+        /// Set intersection.
+        static member Intersect (NodeSet a) (NodeSet b) =
+            NodeSet (HashSet.Intersect a b)
+
         /// Checks if empty.
         static member IsEmpty (NodeSet ns) =
             ns.Count = 0
@@ -256,10 +260,10 @@ module Docs =
         |> Anim.Play
 
     /// Computes the animation for changed nodes.
-    let ComputeChangeAnim cur =
-        cur
+    let ComputeChangeAnim st cur =
+        let relevant = NodeSet.Filter (fun n -> Attrs.HasChangeAnim n.Attr)
+        NodeSet.Intersect (relevant st.PreviousNodes) (relevant cur)
         |> NodeSet.ToArray
-        |> Array.filter (fun n -> Attrs.HasChangeAnim n.Attr)
         |> Array.map (fun n -> Attrs.GetChangeAnim n.Attr)
         |> Anim.Concat
 
@@ -277,8 +281,8 @@ module Docs =
         async {
             let cur = NodeSet.FindAll doc
             do! AnimateExit st cur
-            let change = ComputeChangeAnim cur
             do SyncElemNode st.Top
+            let change = ComputeChangeAnim st cur
             let enter = ComputeEnterAnim st cur
             do! Anim.Play (Anim.Append enter change)
             return st.PreviousNodes <- cur

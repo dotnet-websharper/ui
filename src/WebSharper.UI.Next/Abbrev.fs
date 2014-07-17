@@ -93,6 +93,11 @@ module internal Abbrev =
             set.ExceptWith(ToArray excluded)
             set
 
+        let Intersect (a: HashSet<'T>) (b: HashSet<'T>) =
+            let set = HashSet<'T>(ToArray a)
+            set.IntersectWith(ToArray b)
+            set
+
         let Filter (ok: 'T -> bool) (set: HashSet<'T>) =
             HashSet<'T>(ToArray set |> Array.filter ok)
 

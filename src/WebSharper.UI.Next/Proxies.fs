@@ -53,6 +53,18 @@ type internal HashSetProxy<'T when 'T : equality> [<JavaScript>] (xs: seq<'T>) =
         for x in xs do
             d.Remove(x) |> ignore
 
+    [<JavaScript>]
+    member x.IntersectWith(xs: seq<'T>) =
+        let included = HashSet(xs)
+        let current =
+            let a = Array.zeroCreate x.Count
+            x.CopyTo a
+            a
+        current
+        |> Array.iter (fun x ->
+            if included.Contains(x) |> not then
+                d.Remove(x) |> ignore)
+
     interface IEnumerable with
         member x.GetEnumerator() = seq().GetEnumerator() :> _
 
