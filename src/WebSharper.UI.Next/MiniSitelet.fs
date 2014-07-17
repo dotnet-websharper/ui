@@ -15,25 +15,3 @@ module MiniSitelet =
         View.FromVar model
         |> View.Map (renderWith (Var.Set model))
         |> Doc.EmbedView
-
-    // TODO: MOVE FROM SITELET API TO DOC API
-    let Sync (v: Var<'T>) (deserialise: string -> 'T) =
-        let updateFn =
-            (fun (evt : Dom.Event) ->
-                let hashRoute = Window.Self.Location.Hash
-                deserialise hashRoute |> Var.Set v
-            )
-        Window.Self.Onpopstate <- updateFn
-
-    (*
-            JavaScript.Alert(Window.Self.Location.Hash)
-            hashSerialisation
-            |> Option.iter (fun (hashSerFn, hashDeSerFn) ->
-                let hashRouteAddition = "/" + (hashSerFn act)
-                let newHashRoute = "#" + Window.Self.Location.Hash.Substring(1) + hashRouteAddition
-                Window.Self.Location.Assign newHashRoute)
-                //Window.Self.History.PushState((), newHashRoute))
-                //Window.Self.History.
-  //              Window.Self.Location.Assign newHashRoute)
-
-    *)
