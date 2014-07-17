@@ -47,6 +47,7 @@ module internal DomUtility =
         names?line <- true
         names?rect <- true
         names?svg <- true
+        names?text <- true
         names
 
     /// Creates a new DOM element.
