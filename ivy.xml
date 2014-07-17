@@ -1,0 +1,6 @@
+<ivy-module version="2.0">
+  <info organisation="IntelliFactory" module="websharper.ui.next" revision="0.1" />
+  <dependencies>
+    <dependency name="websharper" rev="latest.integration" />
+  </dependencies>
+</ivy-module>
