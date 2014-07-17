@@ -76,6 +76,8 @@
     <Compile Include="Notation.fs" />
     <Compile Include="MiniSitelet.fsi" />
     <Compile Include="MiniSitelet.fs" />
+    <Compile Include="Router.fsi" />
+    <Compile Include="Router.fs" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
