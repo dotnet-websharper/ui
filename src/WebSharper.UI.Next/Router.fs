@@ -37,4 +37,4 @@ module Router =
     /// Stop listening for URL changes
     let Remove () =
         Window.Self.Onpopstate <- ignore
-        Window.Self.Onhashchange <- ignore 
+        Window.Self.Onhashchange <- ignore

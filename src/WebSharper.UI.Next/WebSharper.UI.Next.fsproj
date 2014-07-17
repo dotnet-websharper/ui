@@ -78,6 +78,7 @@
     <Compile Include="MiniSitelet.fs" />
     <Compile Include="Router.fsi" />
     <Compile Include="Router.fs" />
+    <Content Include="SVG.fs" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

@@ -249,15 +249,14 @@ module Docs =
             Top = CreateElemNode parent Attr.Empty doc
         }
 
-    /// Performs animation of nodes that animate removal.
-    let AnimateExit st cur =
+    /// Computes the animation of nodes that animate removal.
+    let ComputeExitAnim st cur =
         st.PreviousNodes
         |> NodeSet.Filter (fun n -> Attrs.HasExitAnim n.Attr)
         |> NodeSet.Except cur
         |> NodeSet.ToArray
         |> Array.map (fun n -> Attrs.GetExitAnim n.Attr)
         |> Anim.Concat
-        |> Anim.Play
 
     /// Computes the animation for changed nodes.
     let ComputeChangeAnim st cur =
@@ -280,11 +279,12 @@ module Docs =
     let PerformAnimatedUpdate st parent doc =
         async {
             let cur = NodeSet.FindAll doc
-            do! AnimateExit st cur
-            do SyncElemNode st.Top
             let change = ComputeChangeAnim st cur
             let enter = ComputeEnterAnim st cur
-            do! Anim.Play (Anim.Append enter change)
+            let exit = ComputeExitAnim st cur
+            do! Anim.Play (Anim.Append change exit)
+            do SyncElemNode st.Top
+            do! Anim.Play enter
             return st.PreviousNodes <- cur
         }
 

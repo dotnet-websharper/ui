@@ -67,8 +67,9 @@ type AnimatedAttrNode<'T>(tr: ITransition<'T>, view: View<'T>, push: Element -> 
             | _ -> Anim.Empty
             |> Anim.WhenDone (fun () -> dirty <- true; visible <- None)
 
-        /// NOTE: enter animation will fire later and that will sync when done.
+        /// NOTE: enter or change animation will do the sync.
         member a.Sync parent = ()
+
         member a.Changed = updates
 
 [<JavaScript>]
