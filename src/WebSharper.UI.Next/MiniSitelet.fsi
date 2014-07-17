@@ -11,3 +11,7 @@ module MiniSitelet =
     /// Creates a new reactive sitelet given a reactive variable specifying the
     /// current page, and a function which takes a callback and rendering function.
     val Create : Var<'T> -> SiteletRoute<'T> -> Doc
+
+    /// Sets a handler so that the current location in the document is synchronised
+    /// with the URL.
+    val Sync : Var<'T> -> (string -> 'T) -> unit
