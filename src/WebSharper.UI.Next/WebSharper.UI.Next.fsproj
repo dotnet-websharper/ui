@@ -56,17 +56,17 @@
     <Error Condition="!Exists('..\..\..\websharper.ui.next.samples\packages\WebSharper.2.5.118.53\build\WebSharper.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\websharper.ui.next.samples\packages\WebSharper.2.5.118.53\build\WebSharper.targets'))" />
   </Target>
   <ItemGroup>
-    <Compile Include="Abbrev.fs" />
-    <Compile Include="Proxies.fs" />
-    <Compile Include="Diff.fsi" />
-    <Compile Include="Diff.fs" />
+    <Compile Include="Utility\Abbrev.fs" />
+    <Compile Include="Utility\AppendList.fsi" />
+    <Compile Include="Utility\AppendList.fs" />
+    <Compile Include="Utility\DomUtility.fs" />
+    <Compile Include="Utility\Proxies.fs" />
+    <Compile Include="Utility\Diff.fsi" />
+    <Compile Include="Utility\Diff.fs" />
     <Compile Include="Snap.fsi" />
     <Compile Include="Snap.fs" />
     <Compile Include="Reactive.fsi" />
     <Compile Include="Reactive.fs" />
-    <Compile Include="AppendList.fsi" />
-    <Compile Include="AppendList.fs" />
-    <Compile Include="DomUtility.fs" />
     <Compile Include="Animation.fsi" />
     <Compile Include="Animation.fs" />
     <Compile Include="Attr.fsi" />
@@ -83,8 +83,6 @@
     <Compile Include="Router.fs" />
     <Content Include="SVG.fs" />
     <None Include="packages.config" />
-    <Compile Include="Site.fsi" />
-    <Compile Include="Site.fs" />
     <Compile Include="Site2.fs" />
   </ItemGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
