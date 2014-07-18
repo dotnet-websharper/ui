@@ -4,36 +4,59 @@ open IntelliFactory.WebSharper
 open IntelliFactory.WebSharper.Dom
 open IntelliFactory.WebSharper.Html5
 open IntelliFactory.WebSharper.UI.Next.Notation
+
+[<AutoOpen>]
 [<JavaScript>]
 module Router =
 
-    // For now. TODO: Add combinators to make constructing this nicer.
-    type Router<'T> = (string -> 'T)
+    type Router<'T> =
+        {
+            Prefix : string
+            SerialiseFn : ('T -> string)
+            DeserialiseFn : (string -> 'T)
+        }
 
-    /// Create a variable which changes with the URL
-    let Install ser deser =
+    [<Sealed>]
+    [<JavaScript>]
+    type Router =
 
-        let loc (h : string) =
-            if h.Length > 0 then h.Substring(1) else h
+        [<MethodImpl(MethodImplOptions.NoInlining)>]
+        static member Create ser deser =
+            { SerialiseFn = ser ; DeserialiseFn = deser ; Prefix = ""}
 
-        let var = loc Window.Self.Location.Hash |> deser |> Var.Create
+        static member Prefix pref rt = { rt with Prefix = pref }
 
-        let updateFn =
-            (fun (evt : Dom.Event) ->
-                let h = Window.Self.Location.Hash
-                let lh = loc h
-                deser (loc h) |> Var.Set var)
+        static member Serialise router x = router.SerialiseFn x
 
-        Window.Self.Onpopstate <- updateFn
-        Window.Self.Onhashchange <- updateFn
+        static member Deserialise router str = router.DeserialiseFn str
+            //r.Serialise <- ser
+            //r.Deserialise <- deser
 
-        View.Sink (fun act ->
-            Window.Self.Location.Hash <- "#" + (ser act)
-        ) !* var
+        /// Create a variable which changes with the URL
+        static member Install (init: 'T) (rt: Router<'T>) =
 
-        var
+            let loc (h : string) =
+                if h.Length > 0 && h.Substring(1).StartsWith(rt.Prefix) then
+                    Some (h.Substring(1, rt.Prefix.Length))
+                else None
 
-    /// Stop listening for URL changes
-    let Remove () =
-        Window.Self.Onpopstate <- ignore
-        Window.Self.Onhashchange <- ignore
+            let var =
+                match loc Window.Self.Location.Hash with
+                | Some str -> Router.Deserialise rt str |> Var.Create
+                | None -> Var.Create init
+
+            let updateFn =
+                (fun (evt : Dom.Event) ->
+                    let h = Window.Self.Location.Hash
+                    match loc h with
+                    | Some str -> Router.Deserialise rt str |> Var.Set var
+                    | None -> ()
+                )
+            Window.Self.Onpopstate <- (fun evt -> Window.Self.Onpopstate evt ; updateFn evt)
+            Window.Self.Onhashchange <- (fun evt -> Window.Self.Onhashchange evt ; updateFn evt)
+
+            View.Sink (fun act ->
+                Window.Self.Location.Hash <- "#" + rt.Prefix + (Router.Serialise rt act)
+            ) !* var
+
+            var
