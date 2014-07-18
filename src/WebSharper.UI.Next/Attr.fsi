@@ -27,7 +27,7 @@ type Attr with
     static member internal DynamicCustom : set: (Element -> 'T -> unit) -> value: View<'T> -> Attr
 
     /// Animated variant of Create.
-    static member Animated : name: string -> ITransition<'T> -> view: View<'T> -> value: ('T -> string) -> Attr
+    static member Animated : name: string -> Trans<'T> -> view: View<'T> -> value: ('T -> string) -> Attr
 
     /// Sets a style attribute, such as `background-color`.
     static member Style : name: string -> value: string -> Attr
@@ -36,7 +36,7 @@ type Attr with
     static member DynamicStyle : name: string -> value: View<string> -> Attr
 
     /// Animated variant of Style.
-    static member AnimatedStyle : name: string -> ITransition<'T> -> view: View<'T> -> value: ('T -> string) -> Attr
+    static member AnimatedStyle : name: string -> Trans<'T> -> view: View<'T> -> value: ('T -> string) -> Attr
 
     /// Sets an event handler, for a given event such as `click`.
     static member Handler : name: string -> callback: (DomEvent -> unit) -> Attr

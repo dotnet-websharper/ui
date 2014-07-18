@@ -64,8 +64,11 @@
     <Compile Include="Snap.fs" />
     <Compile Include="Reactive.fsi" />
     <Compile Include="Reactive.fs" />
+    <Compile Include="AppendList.fsi" />
+    <Compile Include="AppendList.fs" />
     <Compile Include="DomUtility.fs" />
-    <Compile Include="Anim.fs" />
+    <Compile Include="Animation.fsi" />
+    <Compile Include="Animation.fs" />
     <Compile Include="Attr.fsi" />
     <Compile Include="Attr.fs" />
     <Compile Include="Doc.fsi" />

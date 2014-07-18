@@ -24,7 +24,7 @@ type IAttrNode =
 
 [<JavaScript>]
 [<Sealed>]
-type AnimatedAttrNode<'T>(tr: ITransition<'T>, view: View<'T>, push: Element -> 'T -> unit) =
+type AnimatedAttrNode<'T>(tr: Trans<'T>, view: View<'T>, push: Element -> 'T -> unit) =
     let mutable logical : option<'T> = None // current logical value
     let mutable visible : option<'T> = None // current value pushed to the parent element
     let mutable dirty = true // logical <> visible
@@ -50,20 +50,32 @@ type AnimatedAttrNode<'T>(tr: ITransition<'T>, view: View<'T>, push: Element -> 
 
         member a.GetChangeAnim parent =
             match visible, logical with
-            | Some v, Some l when dirty -> tr.AnimateChange v l (pushVisible parent)
+            | Some v, Some l when dirty ->
+                Trans.AnimateChange tr v l
+                |> Anim.Map (pushVisible parent)
+                |> Anim.Pack
             | _ -> Anim.Empty
             |> Anim.WhenDone (fun () -> sync parent)
 
         member a.GetEnterAnim parent =
             match visible, logical with
-            | Some vi, Some lo when dirty -> tr.AnimateChange vi lo (pushVisible parent)
-            | None, Some lo -> tr.AnimateEnter lo (pushVisible parent)
+            | Some vi, Some lo when dirty ->
+                Trans.AnimateChange tr vi lo
+                |> Anim.Map (pushVisible parent)
+                |> Anim.Pack
+            | None, Some lo ->
+                Trans.AnimateEnter tr lo
+                |> Anim.Map (pushVisible parent)
+                |> Anim.Pack
             | _ -> Anim.Empty
             |> Anim.WhenDone (fun () -> sync parent)
 
         member a.GetExitAnim parent =
             match visible with
-            | Some cur -> tr.AnimateExit cur (pushVisible parent)
+            | Some cur ->
+                Trans.AnimateExit tr cur
+                |> Anim.Map (pushVisible parent)
+                |> Anim.Pack
             | _ -> Anim.Empty
             |> Anim.WhenDone (fun () -> dirty <- true; visible <- None)
 
@@ -183,9 +195,9 @@ module Attrs =
     let Animated tr view set =
         let node = AnimatedAttrNode (tr, view, set)
         let mutable flags = AttrFlags.HasChangeAnim
-        if tr.CanAnimateEnter then
+        if Trans.CanAnimateEnter tr then
             flags <- flags ||| AttrFlags.HasEnterAnim
-        if tr.CanAnimateExit then
+        if Trans.CanAnimateExit tr then
             flags <- flags ||| AttrFlags.HasExitAnim
         Mk flags (A1 node)
 

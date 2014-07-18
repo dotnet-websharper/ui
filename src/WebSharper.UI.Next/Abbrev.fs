@@ -189,3 +189,8 @@ module internal Abbrev =
                 JQueue.Add msg mail
                 start ()
             post
+
+    module AnimationFrame =
+
+        [<Inline "void (window.requestAnimationFrame($fn))">]
+        let Request (fn: double -> unit) = ()

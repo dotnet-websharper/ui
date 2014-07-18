@@ -22,9 +22,8 @@ module Router =
             (fun (evt : Dom.Event) ->
                 let h = Window.Self.Location.Hash
                 let lh = loc h
-                JavaScript.Log <| "updatefn in sink, loc: " + loc h + ", h: " + h
-                deser (loc h) |> Var.Set var
-            )
+                deser (loc h) |> Var.Set var)
+
         Window.Self.Onpopstate <- updateFn
         Window.Self.Onhashchange <- updateFn
 
