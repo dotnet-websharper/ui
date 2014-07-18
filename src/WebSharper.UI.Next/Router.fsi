@@ -1,14 +1,19 @@
 ﻿namespace IntelliFactory.WebSharper.UI.Next
 
+[<AutoOpen>]
 [<JavaScript>]
 module Router =
 
-    // For now. TODO: Add combinators to make constructing this nicer.
+    type Router<'T>
 
-    //type Router<'T> = ('T -> string) -> (string -> 'T)
+    [<Sealed>]
+    type Router =
+        static member Create : ('T -> string) -> (string -> 'T) -> Router<'T>
 
-    /// Create a variable which changes with the URL
-    val Install : ('T -> string) -> (string -> 'T) -> Var<'T>
+        /// Adds an extra layer of
+        static member Prefix : string -> Router<'T> -> Router<'T>
+        static member Serialise : Router<'T> -> 'T -> string
+        static member Deserialise : Router<'T> -> string -> 'T
 
-    /// Stop routing
-    val Remove : unit -> unit
+        /// Create a variable which changes with the URL
+        static member Install : 'T -> Router<'T> -> Var<'T>
