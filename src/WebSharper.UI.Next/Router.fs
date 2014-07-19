@@ -1,62 +1,96 @@
-﻿namespace IntelliFactory.WebSharper.UI.Next
+﻿// $begin{copyright}
+//
+// This file is confidential and proprietary.
+//
+// Copyright (c) IntelliFactory, 2004-2014.
+//
+// All rights reserved.  Reproduction or use in whole or in part is
+// prohibited without the written consent of the copyright holder.
+//-----------------------------------------------------------------
+// $end{copyright}
+
+namespace IntelliFactory.WebSharper.UI.Next
+
+// NOTES: more care is needed when parsing/serializing routes,
+// and better facilities for the user to construct routers. In particular,
+// should be possible to encode arbitrary strings somehow as route fragments,
+// encode numbers, semi-automatically provide bijections, and so on.
 
 open IntelliFactory.WebSharper
 open IntelliFactory.WebSharper.Dom
 open IntelliFactory.WebSharper.Html5
-open IntelliFactory.WebSharper.UI.Next.Notation
 
-[<AutoOpen>]
 [<JavaScript>]
-module Router =
+type RouteFrag =
+    | Frag of string
 
-    type Router<'T> =
-        {
-            Prefix : string
-            SerialiseFn : ('T -> string)
-            DeserialiseFn : (string -> 'T)
-        }
+    static member Create s =
+        Frag s
 
-    [<Sealed>]
-    [<JavaScript>]
-    type Router =
+    static member Text (Frag s) =
+        s
 
-        [<MethodImpl(MethodImplOptions.NoInlining)>]
-        static member Create ser deser =
-            { SerialiseFn = ser ; DeserialiseFn = deser ; Prefix = ""}
+[<JavaScript>]
+type Route =
+    | Route of list<RouteFrag>
 
-        static member Prefix pref rt = { rt with Prefix = pref }
+    static member Append (Route xs) (Route ys) =
+        Route (xs @ ys)
 
-        static member Serialise router x = router.SerialiseFn x
+    static member Create xs =
+        Route (Seq.toList xs)
 
-        static member Deserialise router str = router.DeserialiseFn str
-            //r.Serialise <- ser
-            //r.Deserialise <- deser
+    static member Frags (Route xs) =
+        Seq.ofList xs
 
-        /// Create a variable which changes with the URL
-        static member Install (init: 'T) (rt: Router<'T>) =
+    static member Parse (xs: string) =
+        xs.Split('/')
+        |> Seq.map RouteFrag.Create
+        |> Route.Create
+        |> Some
 
-            let loc (h : string) =
-                if h.Length > 0 && h.Substring(1).StartsWith(rt.Prefix) then
-                    Some (h.Substring(1, rt.Prefix.Length))
-                else None
+    static member ToUrl (Route frags) =
+        frags
+        |> Seq.map (fun (Frag f) -> f)
+        |> String.concat "/"
 
-            let var =
-                match loc Window.Self.Location.Hash with
-                | Some str -> Router.Deserialise rt str |> Var.Create
-                | None -> Var.Create init
+type Router<'T> =
+    {
+        DeserialiseFn : Route -> 'T
+        SerialiseFn : 'T -> Route
+    }
 
-            let updateFn =
-                (fun (evt : Dom.Event) ->
-                    let h = Window.Self.Location.Hash
-                    match loc h with
-                    | Some str -> Router.Deserialise rt str |> Var.Set var
-                    | None -> ()
-                )
-            Window.Self.Onpopstate <- (fun evt -> Window.Self.Onpopstate evt ; updateFn evt)
-            Window.Self.Onhashchange <- (fun evt -> Window.Self.Onhashchange evt ; updateFn evt)
+[<JavaScript>]
+[<Sealed>]
+type Router =
 
-            View.Sink (fun act ->
-                Window.Self.Location.Hash <- "#" + rt.Prefix + (Router.Serialise rt act)
-            ) !* var
+    static member Create ser deser =
+        { SerialiseFn = ser; DeserialiseFn = deser }
 
-            var
+    static member Install rt init =
+        let win = Window.Self
+        let same a b = rt.SerialiseFn a = rt.SerialiseFn b
+        let noHash (s: string) =
+            if s.StartsWith("#") then s.Substring(1) else s
+        let cur () =
+            Route.Parse (noHash win.Location.Hash)
+            |> Option.map rt.DeserialiseFn
+        let loc = defaultArg (cur ()) init
+        let var = Var.Create loc
+        let set value =
+            if not (same var.Value value) then
+                var.Value <- value
+        let onUpdate (evt: Event) = cur () |> Option.iter set
+        win.Onpopstate <- onUpdate
+        win.Onhashchange <- onUpdate
+        var.View
+        |> View.Sink (fun loc ->
+            let ha = Route.ToUrl (rt.SerialiseFn loc)
+            win.Location.Hash <- ha)
+        var
+
+    static member Route rt route =
+        rt.DeserialiseFn route
+
+    static member Link rt v =
+        rt.SerialiseFn v
