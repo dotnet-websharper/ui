@@ -26,6 +26,7 @@ module internal Abbrev =
     type Document = Dom.Document
     type Element = Dom.Element
     type HashSet<'T> = Generic.HashSet<'T>
+    type IComparable = System.IComparable
     type IEnumerable = Collections.IEnumerable
     type IEnumerable<'T> = Generic.IEnumerable<'T>
     type IEqualityComparer<'T> = Generic.IEqualityComparer<'T>

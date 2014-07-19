@@ -63,6 +63,8 @@
     <Compile Include="Utility\Proxies.fs" />
     <Compile Include="Utility\Diff.fsi" />
     <Compile Include="Utility\Diff.fs" />
+    <Compile Include="Utility\Trie.fsi" />
+    <Compile Include="Utility\Trie.fs" />
     <Compile Include="Snap.fsi" />
     <Compile Include="Snap.fs" />
     <Compile Include="Reactive.fsi" />
@@ -82,8 +84,9 @@
     <Compile Include="Router.fsi" />
     <Compile Include="Router.fs" />
     <Content Include="SVG.fs" />
+    <Compile Include="Site.fsi" />
+    <Compile Include="Site.fs" />
     <None Include="packages.config" />
-    <Compile Include="Site2.fs" />
   </ItemGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
 </Project>
