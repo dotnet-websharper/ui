@@ -86,7 +86,8 @@ type Router =
         var.View
         |> View.Sink (fun loc ->
             let ha = Route.ToUrl (rt.SerialiseFn loc)
-            win.Location.Hash <- ha)
+            if noHash win.Location.Hash <> ha then
+                win.Location.Hash <- ha)
         var
 
     static member Route rt route =
