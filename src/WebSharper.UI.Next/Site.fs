@@ -16,8 +16,6 @@ module T = Trie
 
 type SiteContext<'T> =
     {
-        /// Numeric position witin the site trie.
-        Position : int
         /// Local site changes call for changing the route.
         UpdateRoute : Route -> unit
     }
@@ -34,9 +32,9 @@ type SiteBody<'T> =
         SiteValue : 'T
     }
 
-type SitePart<'T> = SiteContext<'T> -> SiteBody<'T>
-type Site<'T> = | S of Trie<RouteFrag,SitePart<'T>>
 type SiteId = | SiteId of int
+type SitePart<'T> = | SP of SiteId * (SiteContext<'T> -> SiteBody<'T>)
+type Site<'T> = | S of option<'T> * Trie<RouteFrag,SitePart<'T>>
 
 [<JavaScript>]
 module Sites =
@@ -45,13 +43,25 @@ module Sites =
     //
     //    globalRoute = currentSite.Prefix ++ currentSite.Route currentSite.State
 
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    let Fresh () =
+        SiteId (Fresh.Int ())
+
     type State<'T> =
         {
             CurrentRoute : Var<Route>
             mutable CurrentSite : int
             mutable Selection : Var<'T>
-            mutable SiteBodies : SiteBody<'T>[]
+            mutable SiteBodies : Dictionary<int,SiteBody<'T>>
         }
+
+    let ComputeSiteBodies trie =
+        let d = Dictionary()
+        trie
+        |> T.ToArray
+        |> Array.iter (fun body ->
+            d.[body.SiteId] <- body)
+        d
 
     /// Set current route if needed.
     let SetCurrentRoute state route =
@@ -77,7 +87,7 @@ module Sites =
             state.CurrentSite <- id
             state.SiteBodies.[id].OnSelect ()
 
-    let Install key (S site) =
+    let Install key (S (va, site)) =
         let mainRouter = Router.Create (fun x -> x) (fun x -> x)
         let currentRoute = Router.Install mainRouter (Route.Create [])
         let state =
@@ -90,21 +100,18 @@ module Sites =
         // Initialize all sub-sites
         let siteTrie =
             site
-            |> T.Mapi (fun i prefix init ->
-                init {
-                    Position = i
-                    UpdateRoute = OnInternalSiteUpdate state (SiteId i) prefix
-                })
-        state.SiteBodies <- T.ToArray siteTrie
+            |> T.Map (fun prefix (SP (id, init)) ->
+                init { UpdateRoute = OnInternalSiteUpdate state id prefix })
+        state.SiteBodies <- ComputeSiteBodies siteTrie
         // Setup handling changes to the currently selected site
         let parseRoute route =
             T.Lookup siteTrie (Route.Frags route)
         let glob =
             match parseRoute currentRoute.Value with
             | T.NotFound ->
-                match state.SiteBodies.Length with
-                | 0 -> failwith "Site.Install fails on empty site"
-                | _ -> state.SiteBodies.[0].SiteValue
+                match va with
+                | None -> failwith "Site.Install fails on empty site"
+                | Some v -> v
                 |> Var.Create
             | T.Found (site, rest) ->
                 state.CurrentSite <- site.SiteId
@@ -130,22 +137,23 @@ module Sites =
 type Site =
 
     static member Define r init render =
-        T.Leaf <| fun ctx ->
-            let key = SiteId ctx.Position
-            let state = Var.Create init
-            let site = render key state
-            state.View
-            |> View.Sink (fun va ->
-                ctx.UpdateRoute (Router.Link r va))
-            {
-                OnRouteChanged = fun route ->
-                    state.Value <- Router.Route r route
-                OnSelect = fun () ->
-                    ctx.UpdateRoute (Router.Link r state.Value)
-                SiteId = ctx.Position
-                SiteValue = site
-            }
-        |> S
+        let state = Var.Create init
+        let ((SiteId id) as key) = Sites.Fresh ()
+        let site = render key state
+        let t =
+            T.Leaf (SP (key, fun ctx ->
+                state.View
+                |> View.Sink (fun va ->
+                    ctx.UpdateRoute (Router.Link r va))
+                {
+                    OnRouteChanged = fun route ->
+                        state.Value <- Router.Route r route
+                    OnSelect = fun () ->
+                        ctx.UpdateRoute (Router.Link r state.Value)
+                    SiteId = id
+                    SiteValue = site
+                }))
+        S (Some site, t)
 
     static member Dir prefix sites =
         Site.Prefix prefix (Site.Merge sites)
@@ -157,11 +165,14 @@ type Site =
         let sites = Seq.toArray sites
         let merged =
             sites
-            |> Seq.map (fun (S t) -> t)
+            |> Seq.map (fun (S (_, t)) -> t)
             |> T.Merge
+        let value =
+            sites
+            |> Seq.tryPick (fun (S (x, _)) -> x)
         match merged with
         | None -> failwith "Invalid Site.Merge: need more prefix disambiguation"
-        | Some t -> S t
+        | Some t -> S (value, t)
 
-    static member Prefix prefix (S tree) =
-        S (T.Prefix (RouteFrag.Create prefix) tree)
+    static member Prefix prefix (S (va, tree)) =
+        S (va, T.Prefix (RouteFrag.Create prefix) tree)
