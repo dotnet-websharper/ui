@@ -98,8 +98,25 @@ module Trie =
         | TrieLeaf x -> TrieLeaf (f loc x)
 
     /// Maps a function.
-    let rec Map f trie =
+    let Map f trie =
         MapLoop [] f trie
+
+    /// Map with a counter.
+    let Mapi f trie =
+        let counter = ref 0
+        let next () =
+            let c = !counter
+            counter := c + 1
+            c
+        Map (fun x -> f (next ()) x) trie
+
+    /// Collects all values.
+    let ToArray trie =
+        // TODO: more efficient than this.
+        let all = JQueue.Create ()
+        Map (fun _ v -> JQueue.Add v all) trie
+        |> ignore
+        JQueue.ToArray all
 
     /// Result of lookup function.
     type LookupResult<'K,'V> =
@@ -123,3 +140,4 @@ module Trie =
     /// Empty trie.
     let Empty<'K,'V when 'K : comparison> : Trie<'K,'V> =
         TrieEmpty
+

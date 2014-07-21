@@ -196,7 +196,7 @@ type View =
             let sn = observe ()
             Snap.When sn act (fun () ->
                 Async.Schedule loop)
-        loop ()
+        Async.Schedule loop
 
     static member Apply fn view =
         View.Map2 (fun f x -> f x) fn view

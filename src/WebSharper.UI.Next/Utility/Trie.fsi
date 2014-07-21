@@ -47,3 +47,9 @@ module internal Trie =
 
     /// Maps a function over a trie.
     val Map : (list<'K> -> 'A -> 'B) -> Trie<'K,'A> -> Trie<'K,'B>
+
+    /// Map with an index.
+    val Mapi : (int -> list<'K> -> 'A -> 'B) -> Trie<'K,'A> -> Trie<'K,'B>
+
+    /// Collects all values.
+    val ToArray : Trie<'K,'V> -> 'V []
