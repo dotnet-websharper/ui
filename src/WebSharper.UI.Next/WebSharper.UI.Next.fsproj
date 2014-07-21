@@ -10,7 +10,7 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
     <Name>WebSharper.UI.Next</Name>
-    <NuGetPackageImportStamp>a3a0ef8a</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>27991ae3</NuGetPackageImportStamp>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\websharper.ui.next.samples\sln\</SolutionDir>
     <RestorePackages>true</RestorePackages>
   </PropertyGroup>
@@ -48,19 +48,19 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
   <Import Project="../../build/net40/IntelliFactory.$(Name).proj" />
-  <Import Project="..\..\..\websharper.ui.next.samples\packages\WebSharper.2.5.118.53\build\WebSharper.targets" Condition="Exists('..\..\..\websharper.ui.next.samples\packages\WebSharper.2.5.118.53\build\WebSharper.targets')" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Import Project="..\..\..\websharper.ui.next.samples\packages\WebSharper.2.5.119.54\build\WebSharper.targets" Condition="Exists('..\..\..\websharper.ui.next.samples\packages\WebSharper.2.5.119.54\build\WebSharper.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\websharper.ui.next.samples\packages\WebSharper.2.5.118.53\build\WebSharper.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\websharper.ui.next.samples\packages\WebSharper.2.5.118.53\build\WebSharper.targets'))" />
+    <Error Condition="!Exists('..\..\..\websharper.ui.next.samples\packages\WebSharper.2.5.119.54\build\WebSharper.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\websharper.ui.next.samples\packages\WebSharper.2.5.119.54\build\WebSharper.targets'))" />
   </Target>
   <ItemGroup>
     <Compile Include="Utility\Abbrev.fs" />
     <Compile Include="Utility\AppendList.fsi" />
     <Compile Include="Utility\AppendList.fs" />
     <Compile Include="Utility\DomUtility.fs" />
-    <Compile Include="Utility\Proxies.fs" />
     <Compile Include="Utility\Diff.fsi" />
     <Compile Include="Utility\Diff.fs" />
     <Compile Include="Utility\Trie.fsi" />
@@ -88,5 +88,4 @@
     <Compile Include="Site.fs" />
     <None Include="packages.config" />
   </ItemGroup>
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
 </Project>
