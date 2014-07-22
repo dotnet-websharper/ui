@@ -49,6 +49,11 @@ type Route =
         |> Route.Create
         |> Some
 
+    static member ToStringList (Route frags) =
+        frags
+        |> Seq.toList
+        |> List.map RouteFrag.Text
+
     static member ToUrl (Route frags) =
         frags
         |> Seq.map (fun (Frag f) -> f)

@@ -79,8 +79,6 @@
     <Compile Include="Flow.fs" />
     <Compile Include="Notation.fsi" />
     <Compile Include="Notation.fs" />
-    <Compile Include="MiniSitelet.fsi" />
-    <Compile Include="MiniSitelet.fs" />
     <Compile Include="Router.fsi" />
     <Compile Include="Router.fs" />
     <Content Include="SVG.fs" />
