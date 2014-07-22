@@ -38,6 +38,9 @@ type Route =
     /// Extracts the fragments.
     static member Frags : Route -> seq<RouteFrag>
 
+    /// Creates a list of strings from the route
+    static member ToStringList : Route -> list<string>
+
     /// "Show" function.
     static member internal ToUrl : Route -> string
 
