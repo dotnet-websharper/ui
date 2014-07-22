@@ -242,3 +242,45 @@ type ViewBuilder =
 
 type View with
     static member Do = B
+
+/// Reactive collections: time-varying collections of time-varying
+/// elements.
+/// Implemented as a specialisation of a model.
+type ReactiveCollection<'T> =
+    {
+        Items : Model<seq<'T>,ResizeArray<'T>>
+        EqFn : ('T -> 'T -> bool)
+    }
+
+[<Sealed; JavaScript>]
+type ReactiveCollection =
+
+    /// Creates a new reactive collection, using the key function provided.
+    static member Create (eqFn: 'T -> 'T -> bool) =
+        let items =
+            ResizeArray()
+            |> Model.Create (fun arr -> arr.ToArray() :> seq<_>)
+        { Items = items ; EqFn = eqFn }
+
+    /// Creates a new reactive collection containing the given elements.
+    static member CreateFrom (eqFn : 'T -> 'T -> bool) (elems: seq<'T>) =
+        let coll = ReactiveCollection.Create eqFn
+        Seq.iter (fun x -> ReactiveCollection.Add coll x) elems
+        coll
+
+    /// Adds an item to the reactive collection.
+    static member Add (coll: ReactiveCollection<'T>) (item: 'T) =
+        coll.Items
+        |> Model.Update (fun all -> all.Add(item))
+
+    /// Removes an item from the reactive collection.
+    static member Remove (coll: ReactiveCollection<'T>) (item: 'T) =
+        coll.Items
+        |> Model.Update (fun all ->
+            seq { 0 .. all.Count - 1 }
+            |> Seq.filter (fun i -> coll.EqFn all.[i] item)
+            |> Seq.toArray
+            |> Array.iter (fun i -> all.RemoveAt(i)))
+
+    static member View (coll: ReactiveCollection<'T>) =
+        coll.Items.View

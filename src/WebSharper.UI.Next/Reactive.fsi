@@ -116,7 +116,7 @@ type Var<'T> with
     /// The corresponding view.
     member View : View<'T>
 
-    /// 
+    ///
     member Value : 'T with get, set
 
 /// Helper type for coarse-grainde mutable models, with
@@ -141,3 +141,26 @@ type Model<'I,'M> with
 
     /// Same as Model.View.
     member View : View<'I>
+
+/// Reactive collections: time-varying collections of time-varying
+/// elements.
+/// Implemented as a specialisation of a model.
+type ReactiveCollection<'T>
+
+[<Sealed>]
+type ReactiveCollection =
+
+    /// Creates a new reactive collection, using the key function provided.
+    static member Create : ('T -> 'T -> bool) -> ReactiveCollection<'T>
+
+    /// Creates a new reactive collection containing the given elements.
+    static member CreateFrom : ('T -> 'T -> bool) -> seq<'T> -> ReactiveCollection<'T>
+
+    /// Adds an item to the reactive collection.
+    static member Add : ReactiveCollection<'T> -> 'T -> unit
+
+    /// Removes an item from the reactive collection.
+    static member Remove : ReactiveCollection<'T> -> 'T -> unit
+
+    /// Gets a reactive view of the collection.
+    static member View : ReactiveCollection<'T> -> View<seq<'T>>
