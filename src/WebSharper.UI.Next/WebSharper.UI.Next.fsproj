@@ -61,8 +61,6 @@
     <Compile Include="Utility\AppendList.fsi" />
     <Compile Include="Utility\AppendList.fs" />
     <Compile Include="Utility\DomUtility.fs" />
-    <Compile Include="Utility\Diff.fsi" />
-    <Compile Include="Utility\Diff.fs" />
     <Compile Include="Utility\Trie.fsi" />
     <Compile Include="Utility\Trie.fs" />
     <Compile Include="Snap.fsi" />
