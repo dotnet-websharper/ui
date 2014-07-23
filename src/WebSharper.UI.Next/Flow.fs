@@ -44,7 +44,7 @@ module Flow =
         { Render = fun var cont -> Var.Set var (f cont) }
 
     let Static doc =
-        { Render = fun var cont -> var.Value <- doc }
+        { Render = fun var cont -> Var.Set var doc ; cont () }
 
     [<Sealed>]
     type FlowBuilder() =
