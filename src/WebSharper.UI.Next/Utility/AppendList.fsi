@@ -34,3 +34,6 @@ module internal AppendList =
 
     /// Flattens to an array.
     val ToArray : T<'T> -> 'T[]
+
+    /// Constructs from an array.
+    val FromArray : 'T[] -> T<'T>

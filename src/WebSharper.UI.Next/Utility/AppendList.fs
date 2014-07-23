@@ -15,6 +15,7 @@ type AppendList<'T> =
     | AL0
     | AL1 of 'T
     | AL2 of AppendList<'T> * AppendList<'T>
+    | AL3 of 'T []
 
 [<JavaScript>]
 module AppendList =
@@ -42,5 +43,12 @@ module AppendList =
             | AL0 -> ()
             | AL1 x -> JQueue.Add x out
             | AL2 (x, y) -> loop x; loop y
+            | AL3 xs -> Array.iter (fun v -> JQueue.Add v out) xs
         loop xs
         JQueue.ToArray out
+
+    let FromArray xs =
+        match Array.length xs with
+        | 0 -> AL0
+        | 1 -> AL1 xs.[0]
+        | _ -> AL3 (Array.copy xs)

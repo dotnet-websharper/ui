@@ -79,11 +79,9 @@
     <Compile Include="Flow.fs" />
     <Compile Include="Notation.fsi" />
     <Compile Include="Notation.fs" />
-    <Compile Include="Router.fsi" />
-    <Compile Include="Router.fs" />
+    <Compile Include="Routing.fsi" />
+    <Compile Include="Routing.fs" />
     <Content Include="SVG.fs" />
-    <Compile Include="Site.fsi" />
-    <Compile Include="Site.fs" />
     <None Include="packages.config" />
   </ItemGroup>
 </Project>
