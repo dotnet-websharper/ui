@@ -46,7 +46,7 @@ module Flow =
     val Define : (('A -> unit) -> Doc) -> Flow<'A>
 
     /// Creates a flowlet from a static document.
-    val Static : Doc -> Flow<'A>
+    val Static : Doc -> Flow<unit>
 
     /// Used within computation expressions to construct a new flowlet.
     val Do : FlowBuilder
