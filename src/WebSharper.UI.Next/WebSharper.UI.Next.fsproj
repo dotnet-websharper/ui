@@ -67,6 +67,8 @@
     <Compile Include="Snap.fs" />
     <Compile Include="Reactive.fsi" />
     <Compile Include="Reactive.fs" />
+    <Compile Include="Models.fsi" />
+    <Compile Include="Models.fs" />
     <Compile Include="Animation.fsi" />
     <Compile Include="Animation.fs" />
     <Compile Include="Attr.fsi" />
