@@ -12,41 +12,40 @@
 /// Flow.fs: experiment in flowlet-style combinators.
 namespace IntelliFactory.WebSharper.UI.Next
 
-/// Quick sketch of Flowlet-style combinators for UI.Next.
-/// The idea behind flowlets is to have mutli-stage applications,
+/// Support for mutli-stage applications,
 /// where the current stage may depend on previous stages.
 type Flow<'T>
 
+/// Computation expression builder for Flow.
+[<Sealed>]
+type FlowBuilder =
+    member Bind : Flow<'A> * ('A -> Flow<'B>) -> Flow<'B>
+    member Return : 'A -> Flow<'A>
+    member ReturnFrom : Flow<'A> -> Flow<'A>
+
 /// Flow functionality.
-module Flow =
+[<Sealed>]
+type Flow =
 
-    [<Sealed>]
-    type FlowBuilder =
-        new : unit -> FlowBuilder
-        //member Apply : Flow<'A -> 'B> * Flow<'A> -> Flow<'B>
-        member Bind : Flow<'A> * ('A -> Flow<'B>) -> Flow<'B>
-        member Return : 'A -> Flow<'A>
-        member ReturnFrom : Flow<'A> -> Flow<'A>
+    /// Mapping.
+    static member Map : ('A -> 'B) -> Flow<'A> -> Flow<'B>
 
-    /// Mapping
-    val Map : ('A -> 'B) -> Flow<'A> -> Flow<'B>
+    /// Monadic composition: compose two flows, allowing the
+    /// result of one to be used to determine future ones.
+    static member Bind : Flow<'A> -> ('A -> Flow<'B>) -> Flow<'B>
 
-    /// Monadic composition: compose two flowlets, allowing the
-    /// result of one to be used to determine future ones
-    val Bind : Flow<'A> -> ('A -> Flow<'B>) -> Flow<'B>
+    /// Creates a flow from the given value, with an empty rendering function.
+    static member Return : 'A -> Flow<'A>
 
-    /// Creates a flowlet from the given value, with an empty rendering function.
-    val Return : 'A -> Flow<'A>
+    /// Embeds a flow into a document, ignoring the result.
+    static member Embed : Flow<'A> -> Doc
 
-    /// Embeds a flowlet into a document.
-    val Embed : Flow<'A> -> Doc
+    /// Defines a flow, given a rendering function taking a continuation
+    /// to invoke when the interaction is done.
+    static member Define : (('A -> unit) -> Doc) -> Flow<'A>
 
-    /// Defines a flowlet, given a rendering function taking a continuation
-    /// ('A -> unit).
-    val Define : (('A -> unit) -> Doc) -> Flow<'A>
+    /// Creates a flow from a static document.
+    static member Static : Doc -> Flow<unit>
 
-    /// Creates a flowlet from a static document.
-    val Static : Doc -> Flow<unit>
-
-    /// Used within computation expressions to construct a new flowlet.
-    val Do : FlowBuilder
+    /// Used within computation expressions to construct a new flow.
+    static member Do : FlowBuilder
