@@ -53,7 +53,7 @@ type View =
     static member Const : 'T -> View<'T>
 
     /// Creation from a Var.
-    static member FromVar: Var<'T> -> View<'T>
+    static member FromVar : Var<'T> -> View<'T>
 
     /// Calls the given sink function repeatedly with the latest view value.
     static member Sink : ('T -> unit) -> View<'T> -> unit
@@ -63,24 +63,6 @@ type View =
 
     /// Lifting async functions.
     static member MapAsync : ('A -> Async<'B>) -> View<'A> -> View<'B>
-
-    /// Treating sequences as bags of items, constructs a transform that
-    /// effectively memoizes the function to apply it only to values added at
-    /// every new step, and clears the cache for values removed at every step.
-    static member ConvertBag<'A,'B when 'A : equality> : ('A -> 'B) -> View<seq<'A>> -> View<seq<'B>>
-
-    /// Version of MapBag with custom equality.
-    static member ConvertBagBy<'A,'B,'K when 'K : equality> : ('A -> 'K) -> ('A -> 'B) -> View<seq<'A>> -> View<seq<'B>>
-
-    /// Converts a sequence statefully, using a key function to identify inputs,
-    /// creating outputs only as needed, and propagating changes automatically.
-    /// This combinator is stateful, calling it creates a cache object.
-    /// Memory use is proportional to the longest sequence taken by the View.
-    static member ConvertSeqBy<'A,'B,'K when 'K : equality> :
-        key: ('A -> 'K) ->
-        conv: (View<'A> -> 'B) ->
-        view: (View<seq<'A>>) ->
-        View<seq<'B>>
 
     /// Static composition.
     static member Map2 : ('A -> 'B -> 'C) -> View<'A> -> View<'B> -> View<'C>
@@ -93,6 +75,29 @@ type View =
 
     /// Dynamic composition.
     static member Bind : ('A -> View<'B>) -> View<'A> -> View<'B>
+
+ // Collection transformations
+
+    /// Starts a process doing stateful conversion with shallow memoization.
+    /// The process remembers inputs from the previous step, and re-uses outputs
+    /// from the previous step when possible instead of calling the converter function.
+    /// Memory use is proportional to the longest sequence taken by the View.
+    static member Convert<'A,'B when 'A : equality> :
+        ('A -> 'B) -> View<seq<'A>> -> View<seq<'B>>
+
+    /// A variant of Convert with custom equality.
+    static member ConvertBy<'A,'B,'K when 'K : equality> :
+        ('A -> 'K) -> ('A -> 'B) -> View<seq<'A>> -> View<seq<'B>>
+
+    /// An extended form of Convert where the conversion function accepts a
+    /// reactive view.  At every step, changes to inputs identified as being
+    /// the same object using equality are propagated via that view.
+    static member ConvertSeq<'A,'B when 'A : equality> :
+        (View<'A> -> 'B) -> View<seq<'A>> -> View<seq<'B>>
+
+    /// A variant of ConvertSeq with custom equality.
+    static member ConvertSeqBy<'A,'B,'K when 'K : equality> :
+        ('A -> 'K) -> (View<'A> -> 'B) -> View<seq<'A>> -> View<seq<'B>>
 
 /// Computation expression builder for views.
 [<Sealed>]

@@ -44,11 +44,23 @@ type Doc with
 
   // Collections.
 
-    /// Uses View.MapBag to embed a time-varying collection.
-    static member EmbedBag<'T when 'T : equality> : ('T -> Doc) -> View<seq<'T>> -> Doc
+    /// Converts a collection to Doc using View.Convert and embeds the concatenated reslut.
+    /// Shorthand for View.Convert f |> View.Map Doc.Concat |> Doc.EmbedView.
+    static member Convert<'T when 'T : equality> :
+        ('T -> Doc) -> View<seq<'T>> -> Doc
 
-    /// Doc.EmbedBag with a custom key.
-    static member EmbedBagBy<'T,'K when 'K : equality> : ('T -> 'K) -> ('T -> Doc) -> View<seq<'T>> -> Doc
+    /// Doc.Convert with a custom key.
+    static member ConvertBy<'T,'K when 'K : equality> :
+        ('T -> 'K) -> ('T -> Doc) -> View<seq<'T>> -> Doc
+
+    /// Converts a collection to Doc using View.ConvertSeq and embeds the concatenated reslut.
+    /// Shorthand for View.ConvertSeq f |> View.Map Doc.Concat |> Doc.EmbedView.
+    static member ConvertSeq<'T when 'T : equality> :
+        (View<'T> -> Doc) -> View<seq<'T>> -> Doc
+
+    /// Doc.ConvertSeq with a custom key.
+    static member ConvertSeqBy<'T,'K when 'K : equality> :
+        ('T -> 'K) -> (View<'T> -> Doc) -> View<seq<'T>> -> Doc
 
   // Main entry-point combinators - use once per app
 

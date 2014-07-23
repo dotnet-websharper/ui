@@ -99,48 +99,34 @@ type View =
     static member MapAsync fn (V observe) =
         View.CreateLazy (fun () -> observe () |> Snap.MapAsync fn)
 
-  // collections --------------------------------------------------------------
+  // Collections --------------------------------------------------------------
 
-    static member ConvertBag (fn: 'A -> 'B) (view: View<seq<'A>>) : View<seq<'B>> =
-        let values = Dictionary()
-        let prev = ref Array.empty
-        let conv x =
-            let y = fn x
-            values.[x] <- y
-            y
-        let f xs =
-            let cur = Seq.toArray xs
-            let diff = Diff.BagDiff !prev cur
-            prev := cur
-            for x in diff.Removed do
-                values.Remove(x) |> ignore
-            let res =
-                Array.append
-                    (Dict.ToValueArray values)
-                    (Seq.toArray (Seq.map conv diff.Added))
-            Seq.ofArray res
-        View.Map f view
+    static member ConvertBy<'A,'B,'K when 'K : equality>
+            (key: 'A -> 'K) (conv: 'A -> 'B) (view: View<seq<'A>>) =
+        // Save history only for t - 1, discard older history.
+        let state = ref (Dictionary())
+        view
+        |> View.Map (fun xs ->
+            let prevState = !state
+            let newState = Dictionary()
+            let result =
+                Seq.toArray xs
+                |> Array.map (fun x ->
+                    let k = key x
+                    let res =
+                        if prevState.ContainsKey k
+                            then prevState.[k]
+                            else conv x
+                    newState.[k] <- res
+                    res)
+                :> seq<_>
+            state := newState
+            result)
 
-    static member ConvertBagBy<'A,'B,'K when 'K : equality> (key: 'A -> 'K) (fn: 'A -> 'B) (view: View<seq<'A>>) : View<seq<'B>> =
-        let values = Dictionary()
-        let prev = ref Array.empty
-        let conv x =
-            let y = fn x
-            values.[key x] <- y
-            y
-        let f xs =
-            let cur = Seq.toArray xs
-            let diff = Diff.BagDiffBy key !prev cur
-            prev := cur
-            for x in diff.Removed do
-                values.Remove(key x) |> ignore
-            Array.append
-                (Dict.ToValueArray values)
-                (Seq.toArray (Seq.map conv diff.Added))
-            |> Seq.ofArray
-        View.Map f view
+    static member Convert conv view =
+        View.ConvertBy (fun x -> x) conv view
 
-    static member CreateViewNode (conv: View<'A> -> 'B) (value: 'A) =
+    static member ConvertSeqNode conv value =
         let var = Var.Create value
         let view = View.FromVar var
         {
@@ -150,9 +136,7 @@ type View =
         }
 
     static member ConvertSeqBy<'A,'B,'K when 'K : equality>
-            (key: 'A -> 'K)
-            (conv: View<'A> -> 'B)
-            (view: View<seq<'A>>) : View<seq<'B>> =
+            (key: 'A -> 'K) (conv: View<'A> -> 'B) (view: View<seq<'A>>) =
         // Save history only for t - 1, discard older history.
         let state = ref (Dictionary())
         view
@@ -169,12 +153,15 @@ type View =
                             Var.Set n.NVar x
                             n
                         else
-                            View.CreateViewNode conv x
+                            View.ConvertSeqNode conv x
                     newState.[k] <- node
                     node.NValue)
                 :> seq<_>
             state := newState
             result)
+
+    static member ConvertSeq conv view =
+        View.ConvertSeqBy (fun x -> x) conv view
 
   // More cominators ------------------------------------------------------------
 

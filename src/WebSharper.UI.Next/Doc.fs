@@ -374,17 +374,24 @@ type Doc with
     static member Empty =
         Docs.Mk EmptyDoc (View.Const ())
 
-// Collections ----------------------------------------------------------------
+  // Collections ----------------------------------------------------------------
 
-    static member EmbedBag render view =
-        View.ConvertBag render view
+    static member Flatten view =
+        view
         |> View.Map Doc.Concat
         |> Doc.EmbedView
 
-    static member EmbedBagBy key render view =
-        View.ConvertBagBy key render view
-        |> View.Map Doc.Concat
-        |> Doc.EmbedView
+    static member Convert render view =
+        View.Convert render view |> Doc.Flatten
+
+    static member ConvertBy key render view =
+        View.ConvertBy key render view |> Doc.Flatten
+
+    static member ConvertSeq render view =
+        View.ConvertSeq render view |> Doc.Flatten
+
+    static member ConvertSeqBy key render view =
+        View.ConvertSeqBy key render view |> Doc.Flatten
 
 // Form helpers ---------------------------------------------------------------
 
