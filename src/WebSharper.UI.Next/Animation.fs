@@ -11,6 +11,8 @@
 
 namespace IntelliFactory.WebSharper.UI.Next
 
+open IntelliFactory.WebSharper
+
 type Time = double
 type NormalizedTime = double
 
@@ -67,6 +69,7 @@ type Animation =
     | Work of Anim<unit>
 
 [<JavaScript>]
+[<Name "An">]
 type Anim =
     | Anim of AppendList<Animation>
 

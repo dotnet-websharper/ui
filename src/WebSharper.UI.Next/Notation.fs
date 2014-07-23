@@ -23,27 +23,6 @@ module Notation =
     let inline ( <~ ) (o: ^x) (fn: ^a -> ^a) = o := fn !o
 
     [<JavaScript; Inline>]
-    let inline ( += ) (o: ^x) (x: ^b) = o := ((!o: ^a) + x: ^a)
-
-    [<JavaScript; Inline>]
-    let inline ( -= ) (o: ^x) (x: ^b) = o := ((!o: ^a) - x: ^a)
-
-    [<JavaScript; Inline>]
-    let inline ( *= ) (o: ^x) (x: ^b) = o := ((!o: ^a) * x: ^a)
-
-    [<JavaScript; Inline>]
-    let inline ( /= ) (o: ^x) (x: ^b) = o := ((!o: ^a) / x: ^a)
-
-    [<JavaScript; Inline>]
-    let inline ( %= ) (o: ^x) (x: ^b) = o := ((!o: ^a) % x: ^a)
-
-    [<JavaScript; Inline>]
-    let inline incr cell = cell += 1
-
-    [<JavaScript; Inline>]
-    let inline decr cell = cell -= 1
-
-    [<JavaScript; Inline>]
     let inline ( |>> ) source mapping = View.Map mapping source
 
     [<JavaScript; Inline>]
@@ -51,6 +30,3 @@ module Notation =
 
     [<JavaScript; Inline>]
     let inline ( <*> ) sourceFunc sourceParam = View.Apply sourceFunc sourceParam
-
-    [<JavaScript; Inline>]
-    let inline ( !* ) v = View.FromVar v
