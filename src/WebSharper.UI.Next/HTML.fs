@@ -3,7 +3,7 @@
 open IntelliFactory.WebSharper
 
 [<JavaScript>]
-module HTML =
+module Html =
     let A ats ch = Doc.Element "a" ats ch
     let Abbr ats ch = Doc.Element "abbr" ats ch
     let Address ats ch = Doc.Element "address" ats ch
