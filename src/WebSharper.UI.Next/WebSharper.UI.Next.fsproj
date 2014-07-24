@@ -77,6 +77,8 @@
     <Compile Include="Doc.fs" />
     <Compile Include="Flow.fsi" />
     <Compile Include="Flow.fs" />
+    <Compile Include="HTML.fsi" />
+    <Compile Include="HTML.fs" />
     <Compile Include="Notation.fsi" />
     <Compile Include="Notation.fs" />
     <Compile Include="Routing.fsi" />
