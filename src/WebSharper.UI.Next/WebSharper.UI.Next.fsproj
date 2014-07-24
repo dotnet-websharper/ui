@@ -85,5 +85,7 @@
     <Compile Include="Routing.fs" />
     <Content Include="SVG.fs" />
     <None Include="packages.config" />
+    <Compile Include="Events.fsi" />
+    <Compile Include="Events.fs" />
   </ItemGroup>
 </Project>
