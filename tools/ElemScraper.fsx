@@ -4,8 +4,8 @@ open System.Text.RegularExpressions
 
 let SVG_URL = "https://developer.mozilla.org/en-US/docs/Web/SVG/Element"
 let HTML_URL = "https://developer.mozilla.org/en-US/docs/Web/HTML/Element"
-let SVG_MATCH = "<li><a href=\"/en-US/docs/Web/SVG/Element/(.*)\" title="
-let HTML_MATCH = "<li><a href=\"/en-US/docs/Web/HTML/Element/(.*)\" title="
+let SVG_MATCH = "<li()?><a href=\"/en-US/docs/Web/SVG/Element/(.*)\" title="
+let HTML_MATCH = "<li( class=\"html5\")?><a href=\"/en-US/docs/Web/HTML/Element/(.*)\" title="
 
 let crawl (url : string) matchStr =
     let client = new WebClient()
@@ -15,7 +15,7 @@ let crawl (url : string) matchStr =
     let coll = matcher.Matches(data)
 
     for x in coll do
-        let name = x.Groups.Item(1).Value
+        let name = x.Groups.Item(2).Value
 
         let capitalise (txt : string) =
             txt.Substring(0, 1).ToUpper() + txt.Substring(1)
