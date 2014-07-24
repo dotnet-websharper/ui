@@ -12,7 +12,6 @@
 namespace IntelliFactory.WebSharper.UI.Next
 
 open IntelliFactory.WebSharper
-open IntelliFactory.WebSharper.JQuery
 module DU = DomUtility
 
 type IAttrNode =
