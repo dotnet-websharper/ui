@@ -22,6 +22,9 @@ type Doc with
     /// Constructs a reactive element node.
     static member Element : name: string -> seq<Attr> -> seq<Doc> -> Doc
 
+    /// Same as Element, but uses SVG namespace.
+    static member SvgElement : name: string -> seq<Attr> -> seq<Doc> -> Doc
+
     /// Embeds time-varying fragments.
     static member EmbedView : View<Doc> -> Doc
 

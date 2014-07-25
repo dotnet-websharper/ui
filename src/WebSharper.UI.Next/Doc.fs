@@ -338,6 +338,11 @@ type Doc with
         let children = Doc.Concat children
         Doc.Elem (DU.CreateElement name) attr children
 
+    static member SvgElement name attr children =
+        let attr = Attr.Concat attr
+        let children = Doc.Concat children
+        Doc.Elem (DU.CreateSvgElement name) attr children
+
     static member Static el =
         Doc.Elem el Attr.Empty Doc.Empty
 

@@ -92,7 +92,7 @@ let patchFile (section: string) (path: string) (newContents: string) =
 let SVG_MATCH = Regex "<li()?><a href=\"/en-US/docs/Web/SVG/Element/(.*)\" title="
 let HTML_MATCH = Regex "<li( class=\"html5\")?><a href=\"/en-US/docs/Web/HTML/Element/(.*)\" title="
 
-let crawl cfg section path (url: string) (matcher: Regex) =
+let crawl cfg section path mk (url: string) (matcher: Regex) =
     let data = loadUrl cfg url
     let coll = matcher.Matches(data)
     use out = new StringWriter()
@@ -102,14 +102,14 @@ let crawl cfg section path (url: string) (matcher: Regex) =
             if name.Length <= 2 then name.ToUpper() else
                 name.Split [| '-' |]
                 |> Array.fold (fun s txt -> s + reCapitalise txt) ""
-        Printf.fprintfn out "        let %s ats ch = Doc.Element \"%s\" ats ch" nameFSharp (name.ToLower())
+        Printf.fprintfn out "        let %s ats ch = Doc.%s \"%s\" ats ch" nameFSharp mk (name.ToLower())
     patchFile section path (out.ToString())
     printfn "patched section %s in %s" section path
 
 let main () =
     let cfg = { UseCache = true }
     let html = __SOURCE_DIRECTORY__ + "/../src/WebSharper.UI.Next/HTML.fs"
-    crawl cfg "Element" html HTML_URL HTML_MATCH
-    crawl cfg "SVG" html SVG_URL SVG_MATCH
+    crawl cfg "Element" html "Element" HTML_URL HTML_MATCH
+    crawl cfg "SVG" html "SvgElement" SVG_URL SVG_MATCH
 
 main ()
