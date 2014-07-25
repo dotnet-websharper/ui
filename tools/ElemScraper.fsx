@@ -1,6 +1,8 @@
 ﻿// Script to scrape the SVG elements from the MDN site
 
 open System
+open System.Collections
+open System.Collections.Generic
 open System.IO
 open System.Net
 open System.Security
@@ -55,11 +57,22 @@ let capitalizations =
         HKern MPath TRef TSpan VKern
     "
 
+/// List of elements exposed as common.
+let commonElements =
+    @"
+        a del div form h1 h2 h3 h4 h5 h6 li label nav p span
+        table tbody thead tr td ul ol
+    "
+
+/// Splits a words-string.
+let getWords xs =
+    Regex.Split(xs, @"\s+")
+    |> Seq.filter ((<>) "")
+
 /// Changes capitalization using "capitalizations" DB.
 let reCapitalise =
     let words =
-        Regex.Split(capitalizations, @"\s+")
-        |> Seq.filter ((<>) "")
+        getWords capitalizations
         |> Seq.map (fun w -> (w.ToLower(), w))
         |> dict
     fun (word: string) ->
@@ -92,10 +105,13 @@ let patchFile (section: string) (path: string) (newContents: string) =
 let SVG_MATCH = Regex "<li()?><a href=\"/en-US/docs/Web/SVG/Element/(.*)\" title="
 let HTML_MATCH = Regex "<li( class=\"html5\")?><a href=\"/en-US/docs/Web/HTML/Element/(.*)\" title="
 
-let crawl cfg section path mk (url: string) (matcher: Regex) =
+let PATH = __SOURCE_DIRECTORY__ + "/../src/WebSharper.UI.Next/HTML.fs"
+
+let crawl cfg section mk (url: string) (matcher: Regex) =
     let data = loadUrl cfg url
     let coll = matcher.Matches(data)
     use out = new StringWriter()
+    let names = Dictionary()
     for x in coll do
         let name = x.Groups.Item(2).Value
         let nameFSharp =
@@ -103,13 +119,25 @@ let crawl cfg section path mk (url: string) (matcher: Regex) =
                 name.Split [| '-' |]
                 |> Array.fold (fun s txt -> s + reCapitalise txt) ""
         Printf.fprintfn out "        let %s ats ch = Doc.%s \"%s\" ats ch" nameFSharp mk (name.ToLower())
-    patchFile section path (out.ToString())
-    printfn "patched section %s in %s" section path
+        names.[name.ToLower()] <- nameFSharp
+    patchFile section PATH (out.ToString())
+    printfn "patched section %s in %s" section PATH
+    names
+
+type Names = IDictionary<string,string>
+
+let generateCommonElements (htmlNames: Names) =
+    use out = new StringWriter()
+    for el in getWords commonElements do
+        let n = htmlNames.[el]
+        fprintfn out "    let %s atr ch = Elem.%s atr ch" n n
+        fprintfn out "    let %s0 ch = Elem.%s [] ch" n n
+    patchFile "Common" PATH (out.ToString())
 
 let main () =
     let cfg = { UseCache = true }
-    let html = __SOURCE_DIRECTORY__ + "/../src/WebSharper.UI.Next/HTML.fs"
-    crawl cfg "Element" html "Element" HTML_URL HTML_MATCH
-    crawl cfg "SVG" html "SvgElement" SVG_URL SVG_MATCH
+    let htmlNames = crawl cfg "Element" "Element" HTML_URL HTML_MATCH
+    let svgNames = crawl cfg "SVG" "SvgElement" SVG_URL SVG_MATCH
+    generateCommonElements htmlNames
 
 main ()
