@@ -36,27 +36,15 @@ module internal DomUtility =
         while ctx.HasChildNodes() do
             ctx.RemoveChild(ctx.FirstChild) |> ignore
 
-    /// Collection of some common element names used by SVG.
-    /// https://developer.mozilla.org/en-US/docs/Web/SVG/Element
-    /// This is for automatically using a namespace on creation.
-    /// Not used on name clashes such as <a/>
-    let private SvgNames =
-        let names = obj ()
-        names?circle <- true
-        names?g <- true
-        names?line <- true
-        names?rect <- true
-        names?svg <- true
-        names?text <- true
-        names
-
     /// Creates a new DOM element.
     [<MethodImpl(MethodImplOptions.NoInlining)>]
     let CreateElement (name: string) =
-        if As ((?) SvgNames name) then
-            Doc.CreateElementNS("http://www.w3.org/2000/svg", name)
-        else
-            Doc.CreateElement name
+        Doc.CreateElement name
+
+    /// Creates an element in the SVG namespace.
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    let CreateSvgElement (name: string) =
+        Doc.CreateElementNS("http://www.w3.org/2000/svg", name)
 
     /// Creates a new DOM text node with the given value.
     [<MethodImpl(MethodImplOptions.NoInlining)>]
