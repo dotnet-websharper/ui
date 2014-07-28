@@ -10,13 +10,22 @@ open System.Security.Cryptography
 open System.Text
 open System.Text.RegularExpressions
 
+/// Configures loading.
 type Config =
     {
         UseCache : bool
     }
 
-let SVG_URL = "https://developer.mozilla.org/en-US/docs/Web/SVG/Element"
-let HTML_URL = "https://developer.mozilla.org/en-US/docs/Web/HTML/Element"
+/// Data source.
+type Source<'T> =
+    {
+        Match : string -> 'T
+        Url : string
+    }
+
+/// Constructs a source.
+let source url m =
+    { Url = url; Match = m }
 
 /// MD5 of a string.
 let md5 (s: string) =
@@ -55,6 +64,14 @@ let capitalizations =
         OptGroup TBody TextArea TFoot THead WBR
 
         HKern MPath TRef TSpan VKern
+
+        AutoComplete AutoFocus AutoPlay AutoSave BgColor
+        ColSpan ContentEditable ContextMenu DirName EncType
+        FormAction HrefLang IsMap ItemProp KeyType MaxLength
+        NoValidate PubDate RadioGroup RowSpan SrcLang TabIndex
+
+        StrokeDashArray StrokeDashOffset StrokeLineCap
+        StrokeLineJoin StrokeMiterLimit To
     "
 
 /// List of elements exposed as common.
@@ -78,7 +95,42 @@ let reCapitalise =
     fun (word: string) ->
         match words.TryGetValue(word.ToLower()) with
         | true, res -> res
-        | _ -> capitalise word
+        | _ -> word
+
+let fsharpName (name: string) =
+    if name.Length <= 2 then name.ToUpper() else
+        name.Split [| '-' |]
+        |> Seq.map capitalise
+        |> String.concat ""
+    |> reCapitalise
+
+type Elem =
+    | Elem of string
+
+type Attr =
+    | Attr of string
+
+let svgSource =
+    let pat = Regex "<li()?><a href=\"/en-US/docs/Web/SVG/Element/(.*)\" title="
+    source "https://developer.mozilla.org/en-US/docs/Web/SVG/Element" <| fun data ->
+        [| for x in pat.Matches(data) -> Elem x.Groups.[2].Value |]
+
+let htmlSource =
+    let pat = Regex "<li( class=\"html5\")?><a href=\"/en-US/docs/Web/HTML/Element/(.*)\" title="
+    source "https://developer.mozilla.org/en-US/docs/Web/HTML/Element" <| fun data ->
+        [| for x in pat.Matches(data) -> Elem x.Groups.[2].Value |]
+
+let svgaSource =
+    let pat = Regex @"<code><a href=""/en-US/docs/Web/SVG/Attribute/([^"":]*)"">"
+    source "https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute" <| fun txt ->
+        [| for m in pat.Matches txt -> Attr m.Groups.[1].Value |]
+        |> Seq.distinct
+        |> Seq.toArray
+
+let htmlaSource =
+    let pat = Regex @"<tr>\s*<td>(.*)</td>"
+    source "https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes" <| fun txt ->
+        [| for m in pat.Matches txt -> Attr m.Groups.[1].Value |]
 
 /// Splits into lines.
 let splitLines (x: string) =
@@ -102,27 +154,7 @@ let patchFile (section: string) (path: string) (newContents: string) =
             (splitLines newContents)
     File.WriteAllLines(path, newText)
 
-let SVG_MATCH = Regex "<li()?><a href=\"/en-US/docs/Web/SVG/Element/(.*)\" title="
-let HTML_MATCH = Regex "<li( class=\"html5\")?><a href=\"/en-US/docs/Web/HTML/Element/(.*)\" title="
-
 let PATH = __SOURCE_DIRECTORY__ + "/../src/WebSharper.UI.Next/HTML.fs"
-
-let crawl cfg section mk (url: string) (matcher: Regex) =
-    let data = loadUrl cfg url
-    let coll = matcher.Matches(data)
-    use out = new StringWriter()
-    let names = Dictionary()
-    for x in coll do
-        let name = x.Groups.Item(2).Value
-        let nameFSharp =
-            if name.Length <= 2 then name.ToUpper() else
-                name.Split [| '-' |]
-                |> Array.fold (fun s txt -> s + reCapitalise txt) ""
-        Printf.fprintfn out "        let %s ats ch = Doc.%s \"%s\" ats ch" nameFSharp mk (name.ToLower())
-        names.[name.ToLower()] <- nameFSharp
-    patchFile section PATH (out.ToString())
-    printfn "patched section %s in %s" section PATH
-    names
 
 type Names = IDictionary<string,string>
 
@@ -130,14 +162,45 @@ let generateCommonElements (htmlNames: Names) =
     use out = new StringWriter()
     for el in getWords commonElements do
         let n = htmlNames.[el]
-        fprintfn out "    let %s atr ch = Elem.%s atr ch" n n
-        fprintfn out "    let %s0 ch = Elem.%s [] ch" n n
+        fprintfn out "    let %s atr ch = Elements.%s atr ch" n n
+        fprintfn out "    let %s0 ch = Elements.%s [] ch" n n
     patchFile "Common" PATH (out.ToString())
+
+let testSource source =
+    loadUrl { UseCache = true } source.Url
+    |> source.Match
+
+let genElems cfg section meth source =
+    let data = loadUrl cfg source.Url
+    let coll = source.Match data
+    use out = new StringWriter()
+    let names = Dictionary()
+    for (Elem name) in coll do
+        let nameFSharp = fsharpName name
+        let raw = name.ToLower()
+        fprintfn out @"        let %s ats ch = %s ""%s"" ats ch" nameFSharp meth raw
+        names.[raw] <- nameFSharp
+    patchFile section PATH (out.ToString())
+    printfn "patched section %s in %s" section PATH
+    names
+
+let genAttrs cfg section (source: Source<Attr[]>) =
+    let data = loadUrl cfg source.Url
+    let coll = source.Match data
+    use out = new StringWriter()
+    for (Attr name) in coll do
+        let nameFSharp = fsharpName name
+        fprintfn out @"        let %s = ""%s""" nameFSharp name
+    patchFile section PATH (out.ToString())
+    printfn "patched section %s in %s" section PATH
 
 let main () =
     let cfg = { UseCache = true }
-    let htmlNames = crawl cfg "Element" "Element" HTML_URL HTML_MATCH
-    let svgNames = crawl cfg "SVG" "SvgElement" SVG_URL SVG_MATCH
+    let p1 = "let %s ats ch = Doc.Element %s ats ch"
+    let htmlNames = genElems cfg "Element" "Doc.Element" htmlSource
+    let svgNames = genElems cfg "SVG" "Doc.SvgElement" svgSource
+    genAttrs cfg "Attr" htmlaSource
+    genAttrs cfg "SVGA" svgaSource
     generateCommonElements htmlNames
 
 main ()
