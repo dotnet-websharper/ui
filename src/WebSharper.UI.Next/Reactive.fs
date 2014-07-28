@@ -201,9 +201,12 @@ type Var<'T> with
 type ViewBuilder =
     | B
 
+    [<JavaScript>]
     member b.Bind(x, f) = View.Bind f x
+
+    [<JavaScript>]
     member b.Return x = View.Const x
 
 type View with
+    [<JavaScript>]
     static member Do = B
-
