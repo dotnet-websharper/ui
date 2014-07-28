@@ -85,10 +85,4 @@
     <Content Include="SVG.fs" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="IntelliFactory.WebSharper.UI.Next">
-      <HintPath>..\..\..\websharper.ui.next.samples\packages\WebSharper.UI.Next.0.1.13.14\lib\net40\IntelliFactory.WebSharper.UI.Next.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-  </ItemGroup>
-</Project>
+  </Project>
