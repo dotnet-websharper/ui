@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>085a6f78-50a7-46cf-b040-9853ec580be5</ProjectGuid>
+    <Name>WebSharper.UI.Next</Name>
+    <WebSharperProject>Library</WebSharperProject>
+    <OutputPath>../build/net40</OutputPath>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <Import Project="../build/net40/$(Name).proj" />
+  <Import Project="../msbuild/FSharp.targets" />
+  <Target Name="Build" />
+  <Target Name="Clean" />
+  <ItemGroup>
+    <Compile Include="Utility\Abbrev.fs" />
+    <Compile Include="Utility\AppendList.fsi" />
+    <Compile Include="Utility\AppendList.fs" />
+    <Compile Include="Utility\DomUtility.fs" />
+    <Compile Include="Utility\Trie.fsi" />
+    <Compile Include="Utility\Trie.fs" />
+    <Compile Include="Snap.fsi" />
+    <Compile Include="Snap.fs" />
+    <Compile Include="Reactive.fsi" />
+    <Compile Include="Reactive.fs" />
+    <Compile Include="Models.fsi" />
+    <Compile Include="Models.fs" />
+    <Compile Include="Animation.fsi" />
+    <Compile Include="Animation.fs" />
+    <Compile Include="Attr.fsi" />
+    <Compile Include="Attr.fs" />
+    <Compile Include="Doc.fsi" />
+    <Compile Include="Doc.fs" />
+    <Compile Include="Flow.fsi" />
+    <Compile Include="Flow.fs" />
+    <Compile Include="HTML.fs" />
+    <Compile Include="Notation.fsi" />
+    <Compile Include="Notation.fs" />
+    <Compile Include="Routing.fsi" />
+    <Compile Include="Routing.fs" />
+    <Content Include="SVG.fs" />
+  </ItemGroup>
+</Project>
