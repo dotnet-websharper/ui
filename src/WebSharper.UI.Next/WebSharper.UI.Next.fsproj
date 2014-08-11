@@ -65,6 +65,8 @@
     <Compile Include="Utility\Trie.fs" />
     <Compile Include="Snap.fsi" />
     <Compile Include="Snap.fs" />
+    <Compile Include="EventStream.fsi" />
+    <Compile Include="EventStream.fs" />
     <Compile Include="Reactive.fsi" />
     <Compile Include="Reactive.fs" />
     <Compile Include="Models.fsi" />
@@ -84,5 +86,7 @@
     <Compile Include="Routing.fs" />
     <Content Include="SVG.fs" />
     <None Include="packages.config" />
+    <Compile Include="Input.fsi" />
+    <Compile Include="Input.fs" />
   </ItemGroup>
-  </Project>
+</Project>
