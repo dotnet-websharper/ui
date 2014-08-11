@@ -1,0 +1,11 @@
+\.suo$
+\~$
+bin/Debug
+bin/Release
+obj/Debug
+obj/Release
+packages/
+bin/
+Scripts/
+Content/
+^build/
