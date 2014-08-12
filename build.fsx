@@ -6,7 +6,7 @@ let bt =
     |> fun bt -> bt.WithFramework(bt.Framework.Net40)
 
 let main =
-    bt.WebSharper.Library("IntelliFactory.WebSharper.UI.Next")
+    bt.WebSharper.Library("WebSharper.UI.Next")
     |> FSharpConfig.BaseDir.Custom "WebSharper.UI.Next"
     |> fun f -> f.SourcesFromProject("WebSharper.UI.Next.fsproj")
     //bt.WebSharper.Library("WebSharper.UI.Next")
