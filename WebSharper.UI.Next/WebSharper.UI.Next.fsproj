@@ -3,14 +3,16 @@
   <PropertyGroup>
     <ProjectGuid>085a6f78-50a7-46cf-b040-9853ec580be5</ProjectGuid>
     <Name>WebSharper.UI.Next</Name>
+    <OutputType>Library</OutputType>
+    <!-- <ProjectTypeGuids>{F2A71F9B-5D33-465A-A702-920D77279786}</ProjectTypeGuids> -->
     <WebSharperProject>Library</WebSharperProject>
     <OutputPath>../build/net40</OutputPath>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <Import Project="../build/net40/$(Name).proj" />
   <Import Project="../msbuild/FSharp.targets" />
-  <Target Name="Build" />
-  <Target Name="Clean" />
+  <Import Project="../packages/WebSharper.2.5.119.54/build/WebSharper.targets" />
   <ItemGroup>
     <Compile Include="Utility\Abbrev.fs" />
     <Compile Include="Utility\AppendList.fsi" />
@@ -20,8 +22,6 @@
     <Compile Include="Utility\Trie.fs" />
     <Compile Include="Snap.fsi" />
     <Compile Include="Snap.fs" />
-    <Compile Include="EventStream.fsi" />
-    <Compile Include="EventStream.fs" />
     <Compile Include="Reactive.fsi" />
     <Compile Include="Reactive.fs" />
     <Compile Include="Models.fsi" />
