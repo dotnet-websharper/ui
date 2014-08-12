@@ -12,7 +12,7 @@
   </PropertyGroup>
   <Import Project="../build/net40/$(Name).proj" />
   <Import Project="../msbuild/FSharp.targets" />
-  <Import Project="../packages/WebSharper.2.5.119.54/build/WebSharper.targets" />
+  <Import Project="../packages/WebSharper.2.5.120.55/build/WebSharper.targets" />
   <ItemGroup>
     <Compile Include="Utility\Abbrev.fs" />
     <Compile Include="Utility\AppendList.fsi" />
