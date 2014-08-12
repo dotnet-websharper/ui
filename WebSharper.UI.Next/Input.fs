@@ -82,8 +82,9 @@ module Input =
             <*> MouseBtnSt.Middle.View
             <*> MouseBtnSt.Right.View
 
-(*
     type Key = int
+
+(*
     let keysPressed = Var.Create []
     let ActivateKeyListener (keyEvt: Dom.Ke) =
         keyEvt
