@@ -20,7 +20,7 @@ module Input =
 
         /// True if the right button is pressed
         static member MiddlePressed : View<bool>
-        (*
+
     [<Sealed>]
     type Keyboard =
 
@@ -31,4 +31,4 @@ module Input =
         static member LastPressed : View<Key>
 
         /// True if the given key is pressed
-        static member IsPressed : Key -> View<bool> *)
+        static member IsPressed : Key -> View<bool>
