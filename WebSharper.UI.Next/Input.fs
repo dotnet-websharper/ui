@@ -32,6 +32,9 @@ module Input =
             Right = Var.Create false
         }
 
+    // Add the button listener if it hasn't been added already.
+    // Button listener adds mousedown and mouseup events, which modify
+    // MouseBtnSt vars.
     let ActivateButtonListener =
         let buttonListener (evt: Dom.MouseEvent) down =
             match evt.Button with
@@ -53,11 +56,11 @@ module Input =
         static member Position =
 
             let onMouseMove (evt: Dom.Event) =
+                // We know this is a mouse event, so safe to downcast
                 let mEvt = evt :?> Dom.MouseEvent
-                // Update the RVars for the X and Y positions, from the information
-                // contained within the event.
                 Var.Set MousePosSt.PosV (mEvt.ClientX, mEvt.ClientY)
 
+            // Add the mouse movement event if it's not there already.
             if not MousePosSt.Active then
                 Dom.Document.Current.AddEventListener("mousemove", onMouseMove, false)
                 MousePosSt.Active <- true
@@ -78,6 +81,7 @@ module Input =
 
         static member MousePressed =
             ActivateButtonListener
+            // True if any button is pressed
             View.Const (fun l m r -> l || m || r)
             <*> MouseBtnSt.Left.View
             <*> MouseBtnSt.Middle.View
@@ -85,6 +89,9 @@ module Input =
 
     type Key = int
 
+
+    // State for keyboard listener: which keys are pressed, whether the listener
+    // is active, and the last key that has been presed
     type KeyListenerSt =
         {
             KeysPressed : Var<Key list>
@@ -101,20 +108,21 @@ module Input =
 
     let ActivateKeyListener =
         if not KeyListenerState.KeyListenerActive then
+            // Using JQuery for cross-compatibility. 
             JQuery.Of(Dom.Document.Current).Keydown(fun el evt ->
                 let keyCode = evt.Which
-                JavaScript.Log <| "DOWN: " + (string keyCode)
                 Var.Set KeyListenerState.LastPressed keyCode
                 Var.Update KeyListenerState.KeysPressed
                     (fun xs ->
+                        // Keydown is called repeatedly (sensible right), so only add
+                        // if it's not already in the list
                         if not (List.exists (fun x -> x = keyCode) xs) then
-                            keyCode :: xs
+                            xs @ [keyCode]
                         else xs)
             ) |> ignore
 
             JQuery.Of(Dom.Document.Current).Keyup(fun el evt ->
                 let keyCode = evt.Which
-                JavaScript.Log <| "UP: " + (string keyCode)
                 Var.Update KeyListenerState.KeysPressed
                     (List.filter (fun x -> x <> keyCode))
             ) |> ignore
