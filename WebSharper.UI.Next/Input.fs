@@ -4,6 +4,7 @@ open IntelliFactory.WebSharper
 open IntelliFactory.WebSharper.Dom
 open IntelliFactory.WebSharper.UI.Next
 open IntelliFactory.WebSharper.UI.Next.Notation
+open IntelliFactory.WebSharper.JQuery
 
 [<JavaScript>]
 module Input =
@@ -84,14 +85,52 @@ module Input =
 
     type Key = int
 
-(*
-    let keysPressed = Var.Create []
-    let ActivateKeyListener (keyEvt: Dom.Ke) =
-        keyEvt
+    type KeyListenerSt =
+        {
+            KeysPressed : Var<Key list>
+            mutable KeyListenerActive : bool
+            LastPressed : Var<Key>
+        }
+
+    let KeyListenerState =
+        {
+            KeysPressed = Var.Create []
+            KeyListenerActive = false
+            LastPressed = Var.Create (-1)
+        }
+
+    let ActivateKeyListener =
+        if not KeyListenerState.KeyListenerActive then
+            JQuery.Of(Dom.Document.Current).Keydown(fun el evt ->
+                let keyCode = evt.Which
+                JavaScript.Log <| "DOWN: " + (string keyCode)
+                Var.Set KeyListenerState.LastPressed keyCode
+                Var.Update KeyListenerState.KeysPressed
+                    (fun xs ->
+                        if not (List.exists (fun x -> x = keyCode) xs) then
+                            keyCode :: xs
+                        else xs)
+            ) |> ignore
+
+            JQuery.Of(Dom.Document.Current).Keyup(fun el evt ->
+                let keyCode = evt.Which
+                JavaScript.Log <| "UP: " + (string keyCode)
+                Var.Update KeyListenerState.KeysPressed
+                    (List.filter (fun x -> x <> keyCode))
+            ) |> ignore
 
     [<Sealed>]
     type Keyboard =
 
         static member KeysPressed =
             ActivateKeyListener
-            *)
+            KeyListenerState.KeysPressed.View
+
+        static member LastPressed =
+            ActivateKeyListener
+            KeyListenerState.LastPressed.View
+
+        static member IsPressed key =
+            ActivateKeyListener
+            View.Map (List.exists (fun x -> x = key))
+                KeyListenerState.KeysPressed.View
