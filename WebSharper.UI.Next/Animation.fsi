@@ -71,6 +71,9 @@ type Anim with
     /// A simple interpolating animation using given easing and duration.
     static member Simple : Interpolation<'T> -> Easing -> dur: Time -> startValue: 'T -> endValue: 'T -> Anim<'T>
 
+    /// A simple interpolating animation using given easing and duration.
+    static member Delayed : Interpolation<'T> -> Easing -> dur: Time -> delay: Time -> startValue: 'T -> endValue: 'T -> Anim<'T>
+
     /// Maps over an animation.
     static member Map : ('A -> 'B) -> Anim<'A> -> Anim<'B>
 
@@ -146,4 +149,3 @@ type Trans =
 
     /// Updates the enter animation.
     static member Exit : ('T -> Anim<'T>) -> Trans<'T> -> Trans<'T>
-

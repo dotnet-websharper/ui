@@ -93,11 +93,14 @@ module Anims =
     let Const v =
         Def 0. (fun t -> v)
 
+    // "Prolongs" an animation to the given time by adding in several
+    // no-ops after the animation finishes.
     let Prolong nextDuration anim =
         let comp = anim.Compute
         let dur = anim.Duration
         let last = lazy anim.Compute anim.Duration
         let compute t = if t >= dur then last.Value else comp t
+
         {
             Compute = compute
             Duration = nextDuration
@@ -140,6 +143,18 @@ type Anim with
             Compute = fun t ->
                 let t = easing.TransformTime (t / dur)
                 inter.Interpolate t x y
+        }
+
+    static member Delayed (inter: Interpolation<'T>) easing dur delay x y =
+        {
+            Duration = dur + delay
+            Compute = fun t ->
+              //  JavaScript.Log <| "T: " + (string t) + ", delay: " + (string delay)
+                if t <= delay then
+                    x
+                else
+                    let normalisedTime = easing.TransformTime ((t - delay) / dur)
+                    inter.Interpolate normalisedTime x y
         }
 
     static member Map f anim =
