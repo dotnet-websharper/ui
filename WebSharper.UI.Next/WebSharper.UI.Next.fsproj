@@ -4,6 +4,7 @@
     <ProjectGuid>085a6f78-50a7-46cf-b040-9853ec580be5</ProjectGuid>
     <Name>WebSharper.UI.Next</Name>
     <WebSharperProject>Library</WebSharperProject>
+    <OutputType>Library</OutputType>
     <OutputPath>../build/net40</OutputPath>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile />

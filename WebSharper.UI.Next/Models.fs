@@ -59,12 +59,21 @@ module ListModels =
     [<Inline "$0.push($1)">]
     let Push (x: 'T[]) (v: 'T) = ()
 
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    [<Inline "$0[$1] = ($2)">]
+    let Set (x: 'T[]) (i: int) (v: 'T) = ()
+
 type ListModel<'K,'T> with
 
     member m.Add item =
         let v = m.Var.Value
         if not (ListModels.Contains m.Key item v) then
             ListModels.Push v item
+            m.Var.Value <- v
+        else
+            let index = Array.findIndex (fun it -> m.Key it = m.Key item) v
+            ListModels.Set v index item
+            //v.[index] <- item
             m.Var.Value <- v
 
     member m.Remove item =
@@ -73,6 +82,9 @@ type ListModel<'K,'T> with
             let keyFn = m.Key
             let k = keyFn item
             m.Var.Value <- Array.filter (fun i -> keyFn i <> k) v
+
+    member m.Iter fn =
+        Array.iter fn m.Var.Value
 
 [<JavaScript>]
 [<Sealed>]

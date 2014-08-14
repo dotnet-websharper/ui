@@ -50,11 +50,14 @@ type ListModel
 
 type ListModel<'Key,'T> with
 
-    /// Adds an item.
+    /// Adds an item. If an item with the given key exists, it is replaced.
     member Add : 'T -> unit
 
     /// Removes an item.
     member Remove : 'T -> unit
+
+    /// Applies a function to each item in the list.
+    member Iter : ('T -> unit) -> unit
 
 type ListModel with
 
