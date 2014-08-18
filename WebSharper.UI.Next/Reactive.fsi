@@ -79,6 +79,9 @@ type View =
     /// Snapshots the second view whenever the first updates
     static member SnapshotOn : View<'A> -> View<'B> -> View<'B>
 
+    /// Only keeps the latest value of the second view when the predicate is true
+    static member UpdateWhile : View<bool> -> View<'A> -> View<'A>
+
  // Collection transformations
 
     /// Starts a process doing stateful conversion with shallow memoization.

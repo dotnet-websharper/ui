@@ -105,6 +105,12 @@ type View =
             let s2 = o2 ()
             Snap.SnapshotOn s1 s2)
 
+    static member UpdateWhile (V o1) (V o2) =
+        View.CreateLazy (fun () ->
+            let s1 = o1 ()
+            let s2 = o2 ()
+            Snap.UpdateWhile s1 s2)
+
   // Collections --------------------------------------------------------------
 
     static member ConvertBy<'A,'B,'K when 'K : equality>
