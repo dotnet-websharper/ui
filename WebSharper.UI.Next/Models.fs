@@ -59,10 +59,6 @@ module ListModels =
     [<Inline "$0.push($1)">]
     let Push (x: 'T[]) (v: 'T) = ()
 
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
-    [<Inline "$0[$1] = ($2)">]
-    let Set (x: 'T[]) (i: int) (v: 'T) = ()
-
 type ListModel<'K,'T> with
 
     member m.Add item =
@@ -72,8 +68,8 @@ type ListModel<'K,'T> with
             m.Var.Value <- v
         else
             let index = Array.findIndex (fun it -> m.Key it = m.Key item) v
-            ListModels.Set v index item
-            //v.[index] <- item
+            //ListModels.Set v index item
+            v.[index] <- item
             m.Var.Value <- v
 
     member m.Remove item =

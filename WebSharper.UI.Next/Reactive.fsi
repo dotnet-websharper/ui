@@ -76,6 +76,9 @@ type View =
     /// Dynamic composition.
     static member Bind : ('A -> View<'B>) -> View<'A> -> View<'B>
 
+    /// Snapshots the second view whenever the first updates
+    static member SnapshotOn : View<'A> -> View<'B> -> View<'B>
+
  // Collection transformations
 
     /// Starts a process doing stateful conversion with shallow memoization.

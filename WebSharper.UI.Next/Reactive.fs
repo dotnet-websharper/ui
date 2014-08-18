@@ -99,6 +99,12 @@ type View =
     static member MapAsync fn (V observe) =
         View.CreateLazy (fun () -> observe () |> Snap.MapAsync fn)
 
+    static member SnapshotOn (V o1) (V o2) =
+        View.CreateLazy (fun () ->
+            let s1 = o1 ()
+            let s2 = o2 ()
+            Snap.SnapshotOn s1 s2)
+
   // Collections --------------------------------------------------------------
 
     static member ConvertBy<'A,'B,'K when 'K : equality>

@@ -45,6 +45,9 @@ module internal Snap =
     /// Maps an async function.
     val MapAsync : ('A -> Async<'B>) -> Snap<'A> -> Snap<'B>
 
+    /// Snapshots when the first value changes
+    val SnapshotOn : Snap<'A> -> Snap<'B> -> Snap<'B>
+
   // eliminators
 
     /// Schedule callbacks on lifecycle events.
