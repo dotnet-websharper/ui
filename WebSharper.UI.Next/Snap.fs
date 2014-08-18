@@ -163,7 +163,7 @@ module Snap =
             When sn2 (fun y -> v2 := Some y; cont ()) obs
             res
 
-    let SnapshotOn sn1 sn2 =
+    let SnapshotOn def sn1 sn2 =
         match sn1.State, sn2.State with
         | _, Forever y -> CreateForever y
         | _ ->
@@ -188,9 +188,17 @@ module Snap =
 
             When sn1 (fun x -> cont ()) obs
             When sn2 (fun y -> upd y) ignore
+
+            match def with
+            | Some init ->
+                v := Some init
+                isInitialised := true
+                MarkReady res init
+            | _ -> ()
+
             res
 
-    let UpdateWhile snPred sn2 =
+    let UpdateWhile def snPred sn2 =
         match snPred.State, sn2.State with
         | Forever true, _ -> sn2
         | _ , Forever y -> CreateForever y
@@ -227,6 +235,13 @@ module Snap =
 
             When snPred (fun x -> v1 := Some x; cont ()) obs
             When sn2 (fun y -> upd y; cont ()) obsVal
+
+            match def with
+            | Some init ->
+                v2 := Some init
+                isInitialised := true
+                MarkReady res init
+            | _ -> ()
             res
 
     let MapAsync fn snap =

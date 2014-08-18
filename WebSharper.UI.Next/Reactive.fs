@@ -90,26 +90,30 @@ type View =
         View.CreateLazy (fun () ->
             observe () |> Snap.Map fn)
 
-    static member Map2 fn (V o1) (V o2) =
+    // Creates a lazy view using a given snap function and 2 views
+    static member private CreateLazy2 snapFn (V o1) (V o2) =
         View.CreateLazy (fun () ->
             let s1 = o1 ()
             let s2 = o2 ()
-            Snap.Map2 fn s1 s2)
+            snapFn s1 s2)
+
+    static member Map2 fn v1 v2 =
+        View.CreateLazy2 (Snap.Map2 fn) v1 v2
 
     static member MapAsync fn (V observe) =
         View.CreateLazy (fun () -> observe () |> Snap.MapAsync fn)
 
-    static member SnapshotOn (V o1) (V o2) =
-        View.CreateLazy (fun () ->
-            let s1 = o1 ()
-            let s2 = o2 ()
-            Snap.SnapshotOn s1 s2)
+    static member SnapshotOn v1 v2 =
+        View.CreateLazy2 (Snap.SnapshotOn None) v1 v2
 
-    static member UpdateWhile (V o1) (V o2) =
-        View.CreateLazy (fun () ->
-            let s1 = o1 ()
-            let s2 = o2 ()
-            Snap.UpdateWhile s1 s2)
+    static member UpdateWhile v1 v2 =
+        View.CreateLazy2 (Snap.UpdateWhile None) v1 v2
+
+    static member SnapshotOnDefault v1 def v2 =
+        View.CreateLazy2 (Snap.SnapshotOn (Some def)) v1 v2
+
+    static member UpdateWhileDefault v1 def v2 =
+        View.CreateLazy2 (Snap.UpdateWhile (Some def)) v1 v2
 
   // Collections --------------------------------------------------------------
 
