@@ -89,7 +89,6 @@ module Input =
 
     type Key = int
 
-
     // State for keyboard listener: which keys are pressed, whether the listener
     // is active, and the last key that has been presed
     type KeyListenerSt =
@@ -108,17 +107,13 @@ module Input =
 
     let ActivateKeyListener =
         if not KeyListenerState.KeyListenerActive then
-            // Using JQuery for cross-compatibility. 
+            // Using JQuery for cross-compatibility.
             JQuery.Of(Dom.Document.Current).Keydown(fun el evt ->
                 let keyCode = evt.Which
                 Var.Set KeyListenerState.LastPressed keyCode
-                Var.Update KeyListenerState.KeysPressed
-                    (fun xs ->
-                        // Keydown is called repeatedly (sensible right), so only add
-                        // if it's not already in the list
-                        if not (List.exists (fun x -> x = keyCode) xs) then
-                            xs @ [keyCode]
-                        else xs)
+                let xs = Var.Get KeyListenerState.KeysPressed
+                if not (List.exists (fun x -> x = keyCode) xs) then
+                    KeyListenerState.KeysPressed.Value <- xs @ [keyCode]
             ) |> ignore
 
             JQuery.Of(Dom.Document.Current).Keyup(fun el evt ->

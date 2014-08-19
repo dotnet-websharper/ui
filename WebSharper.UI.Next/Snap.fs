@@ -163,42 +163,29 @@ module Snap =
             When sn2 (fun y -> v2 := Some y; cont ()) obs
             res
 
-    let SnapshotOn def sn1 sn2 =
+    let SnapshotOn sn1 sn2 =
         match sn1.State, sn2.State with
         | _, Forever y -> CreateForever y
         | _ ->
             let res = Create ()
             let v = ref None
-            let isInitialised = ref false
+            let triggered = ref false
+
             let obs () =
                 v := None
                 MarkObsolete res
 
             let cont () =
-                match !v with
-                | Some y when IsForever sn2 -> MarkForever res y
-                | Some y -> MarkReady res y
-                | _ -> ()
-
-            let upd y =
-                v := Some y
-                if not !isInitialised then
-                    isInitialised := true
-                    MarkReady res y
-
-            When sn1 (fun x -> cont ()) obs
-            When sn2 (fun y -> upd y) ignore
-
-            match def with
-            | Some init ->
-                v := Some init
-                isInitialised := true
-                MarkReady res init
-            | _ -> ()
-
+                if !triggered then
+                    match !v with
+                    | Some y when IsForever sn2 -> MarkForever res y
+                    | Some y -> MarkReady res y
+                    | _ -> ()
+            When sn1 (fun x -> triggered := true; cont ()) obs
+            When sn2 (fun y -> v := Some y; cont ()) ignore
             res
 
-    let UpdateWhile def snPred sn2 =
+    let UpdateWhile snPred sn2 =
         match snPred.State, sn2.State with
         | Forever true, _ -> sn2
         | _ , Forever y -> CreateForever y
@@ -235,13 +222,6 @@ module Snap =
 
             When snPred (fun x -> v1 := Some x; cont ()) obs
             When sn2 (fun y -> upd y; cont ()) obsVal
-
-            match def with
-            | Some init ->
-                v2 := Some init
-                isInitialised := true
-                MarkReady res init
-            | _ -> ()
             res
 
     let MapAsync fn snap =

@@ -46,10 +46,10 @@ module internal Snap =
     val MapAsync : ('A -> Async<'B>) -> Snap<'A> -> Snap<'B>
 
     /// Snapshots when the first value changes
-    val SnapshotOn : 'B option -> Snap<'A> -> Snap<'B> -> Snap<'B>
+    val SnapshotOn : Snap<'A> -> Snap<'B> -> Snap<'B>
 
     /// Updates the second value while the first view is true
-    val UpdateWhile : 'A option -> Snap<bool> -> Snap<'A> -> Snap<'A>
+ //   val UpdateWhile : Snap<bool> -> Snap<'A> -> Snap<'A>
 
   // eliminators
 

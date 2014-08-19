@@ -77,16 +77,16 @@ type View =
     static member Bind : ('A -> View<'B>) -> View<'A> -> View<'B>
 
     /// Snapshots the second view whenever the first updates
-    static member SnapshotOn : View<'A> -> View<'B> -> View<'B>
+    static member SnapshotOn : 'B -> View<'A> -> View<'B> -> View<'B>
 
     /// Snapshots the second view whenever the first updates
-    static member SnapshotOnDefault : View<'A> -> 'B -> View<'B> -> View<'B>
+    //static member SnapshotOnDefault : View<'A> -> 'B -> View<'B> -> View<'B>
 
     /// Only keeps the latest value of the second view when the predicate is true
-    static member UpdateWhile : View<bool> -> View<'A> -> View<'A>
+    //static member UpdateWhile : View<bool> -> View<'A> -> View<'A>
 
     /// Only keeps the latest value of the second view when the predicate is true
-    static member UpdateWhileDefault : View<bool> -> 'A -> View<'A> -> View<'A>
+    //static member UpdateWhileDefault : View<bool> -> 'A -> View<'A> -> View<'A>
 
  // Collection transformations
 
