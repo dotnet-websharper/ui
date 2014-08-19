@@ -103,17 +103,28 @@ type View =
     static member MapAsync fn (V observe) =
         View.CreateLazy (fun () -> observe () |> Snap.MapAsync fn)
 
-    static member SnapshotOn v1 v2 =
-        View.CreateLazy2 (Snap.SnapshotOn None) v1 v2
+    static member SnapshotOn def (V o1) (V o2) =
+        let res = Snap.CreateWithValue def
+        let init = ref false
 
-    static member UpdateWhile v1 v2 =
-        View.CreateLazy2 (Snap.UpdateWhile None) v1 v2
+        let initialised () =
+            if not !init then
+                init := true
+                Snap.MarkObsolete res
 
-    static member SnapshotOnDefault v1 def v2 =
-        View.CreateLazy2 (Snap.SnapshotOn (Some def)) v1 v2
+        let obs () =
+            let s1 = o1 ()
+            let s2 = o2 ()
 
-    static member UpdateWhileDefault v1 def v2 =
-        View.CreateLazy2 (Snap.UpdateWhile (Some def)) v1 v2
+            if !init then
+                // Already initialised, do big grown up SnapshotOn
+                Snap.SnapshotOn s1 s2
+            else
+                let s = Snap.SnapshotOn s1 s2
+                Snap.When s (fun x -> initialised ()) (fun () -> initialised ())
+                res
+
+        View.CreateLazy obs
 
   // Collections --------------------------------------------------------------
 
