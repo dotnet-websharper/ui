@@ -126,7 +126,15 @@ type View =
 
         View.CreateLazy obs
 
-  // Collections --------------------------------------------------------------
+    static member UpdateWhile def v1 v2 =
+        let value = ref def
+        View.Map2 (fun pred v ->
+            if pred then
+                value := v
+            !value
+        ) v1 v2
+
+     // Collections --------------------------------------------------------------
 
     static member ConvertBy<'A,'B,'K when 'K : equality>
             (key: 'A -> 'K) (conv: 'A -> 'B) (view: View<seq<'A>>) =
