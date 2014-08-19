@@ -185,45 +185,6 @@ module Snap =
             When sn2 (fun y -> v := Some y; cont ()) ignore
             res
 
-    let UpdateWhile snPred sn2 =
-        match snPred.State, sn2.State with
-        | Forever true, _ -> sn2
-        | _ , Forever y -> CreateForever y
-        | _ ->
-            let res = Create ()
-            let v1 = ref None
-            let v2 = ref None
-            let isInitialised = ref false
-
-            let obs () =
-                v1 := None
-                v2 := None
-                MarkObsolete res
-
-            let obsVal () =
-                match !v1 with
-                | Some x when x -> obs ()
-                | _ -> ()
-
-            let cont () =
-                match !v1, !v2 with
-                | Some x, Some y when x ->
-                    if IsForever snPred then
-                        MarkForever res y
-                    else
-                        MarkReady res y
-                | _ -> ()
-
-            let upd y =
-                v2 := Some y
-                if not !isInitialised then
-                    isInitialised := true
-                    MarkReady res y
-
-            When snPred (fun x -> v1 := Some x; cont ()) obs
-            When sn2 (fun y -> upd y; cont ()) obsVal
-            res
-
     let MapAsync fn snap =
         let res = Create ()
         When snap
