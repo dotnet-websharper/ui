@@ -121,7 +121,7 @@ type View =
                 Snap.SnapshotOn s1 s2
             else
                 let s = Snap.SnapshotOn s1 s2
-                Snap.When s (fun x -> initialised ()) (fun () -> initialised ())
+                Snap.When s (fun x -> ()) (fun () -> initialised ())
                 res
 
         View.CreateLazy obs
