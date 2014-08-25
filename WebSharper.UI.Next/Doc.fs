@@ -324,10 +324,9 @@ module Docs =
 [<JavaScript>]
 type UINextPagelet (doc) =
     let divId = Fresh.Id ()
-
+    let body = (HTML.Div [HTML.Id divId]).Body :> Dom.Node
     interface IPagelet with
-        member pg.Body =
-            (HTML.Div [HTML.Id divId]).Body :> _
+        member pg.Body = body
         member pg.Render () =
             Doc.RunById divId doc
 
