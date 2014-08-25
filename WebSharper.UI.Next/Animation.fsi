@@ -71,7 +71,7 @@ type Anim with
     /// A simple interpolating animation using given easing and duration.
     static member Simple : Interpolation<'T> -> Easing -> dur: Time -> startValue: 'T -> endValue: 'T -> Anim<'T>
 
-    /// A simple interpolating animation using given easing and duration.
+    /// A simple interpolating animation using given easing and duration, delayed by the given time.
     static member Delayed : Interpolation<'T> -> Easing -> dur: Time -> delay: Time -> startValue: 'T -> endValue: 'T -> Anim<'T>
 
     /// Maps over an animation.

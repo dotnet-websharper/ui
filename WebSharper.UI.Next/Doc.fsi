@@ -11,6 +11,8 @@
 
 namespace IntelliFactory.WebSharper.UI.Next
 
+type IPagelet = IntelliFactory.WebSharper.Html.IPagelet
+
 /// Represents a time-varying node or a node list.
 type Doc
 
@@ -72,6 +74,9 @@ type Doc with
 
     /// Same as rn, but looks up the element by ID.
     static member RunById : id: string -> Doc -> unit
+
+    /// Creates an IPagelet from a Doc, in a Div container.
+    static member AsPagelet : Doc -> IPagelet
 
   // Special cases
 

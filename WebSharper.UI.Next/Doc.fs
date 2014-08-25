@@ -12,7 +12,10 @@
 namespace IntelliFactory.WebSharper.UI.Next
 
 open IntelliFactory.WebSharper
+
 module DU = DomUtility
+type IPagelet = IntelliFactory.WebSharper.Html.IPagelet
+module HTML = IntelliFactory.WebSharper.Html.Default
 
 [<JavaScript>]
 type DocNode =
@@ -317,7 +320,18 @@ module Docs =
         n.Value <- t
         n.Dirty <- true
 
-type Doc with
+// Creates a UI.Next pagelet
+[<JavaScript>]
+type UINextPagelet (doc) =
+    let divId = Fresh.Id ()
+
+    interface IPagelet with
+        member pg.Body =
+            (HTML.Div [HTML.Id divId]).Body :> _
+        member pg.Render () =
+            Doc.RunById divId doc
+
+and Doc with
 
     static member Append a b =
         (a.Updates, b.Updates)
@@ -375,6 +389,9 @@ type Doc with
         match DU.Doc.GetElementById(id) with
         | null -> failwith ("invalid id: " + id)
         | el -> Doc.Run el tr
+
+    static member AsPagelet doc =
+        new UINextPagelet (doc) :> IPagelet
 
     static member Empty =
         Docs.Mk EmptyDoc (View.Const ())
