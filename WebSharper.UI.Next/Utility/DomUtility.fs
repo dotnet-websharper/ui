@@ -57,6 +57,10 @@ module internal DomUtility =
         a.Value <- value
         a
 
+    /// Removes a DOM attribute.
+    let RemoveAttr (el: Element) (attrName: string) =
+        el.RemoveAttribute attrName
+
     /// Sets the value of the attribute given by
     /// `name` to `value` in element `el`.
     let SetAttr (el: Element) name value =

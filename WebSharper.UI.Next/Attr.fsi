@@ -47,6 +47,9 @@ type Attr with
     /// Sets a CSS class when the given view satisfies a predicate.
     static member DynamicClass : name: string -> view: View<'T> -> apply: ('T -> bool) -> Attr
 
+    /// Sets an attribute when a view satisfies a predicate.
+    static member DynamicPred : name: string -> predView: View<bool> -> valView: View<string> -> Attr
+
   // Note: Empty, Append, Concat define a monoid on Attr.
 
     /// Append on attributes.

@@ -45,6 +45,9 @@ type Var =
     /// Updates the current value.
     static member Update : Var<'T> -> ('T -> 'T) -> unit
 
+    /// Gets the unique ID associated with the var.
+    static member GetId  : Var<'T> -> int
+
 /// Static operations on views.
 [<Sealed>]
 type View =

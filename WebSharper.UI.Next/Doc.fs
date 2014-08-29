@@ -476,41 +476,36 @@ type Doc with
             |> Doc.Concat
         Doc.Elem el (Attr.Concat attrs |> Attr.Append selectedItemAttr) optionElements
 
-    static member CheckBox (show: 'T -> string) (items: list<'T>) (chk: Var<list<'T>>) =
+    static member CheckBox attrs (item: 'T) (chk: Var<list<'T>>) =
         // Create RView for the list of checked items
         let rvi = View.FromVar chk
         // Update list of checked items, given an item and whether it's checked or not.
-        let updateList t chkd =
+        let updateList chkd =
             Var.Update chk (fun obs ->
                 let obs =
                     if chkd then
-                        obs @ [t]
+                        obs @ [item]
                     else
-                        List.filter (fun x -> x <> t) obs
+                        List.filter (fun x -> x <> item) obs
                 Seq.distinct obs
                 |> Seq.toList)
-        let initCheck i (el: Element) =
-            let onClick i (x: DomEvent) =
-                let chkd = el?``checked``
-                updateList (List.nth items i) chkd
-            el.AddEventListener("click", onClick i, false)
-        let uid = Fresh.Id ()
-        let checkElements =
-            items
-            |> List.mapi (fun i o ->
-                let t = Doc.TextNode (show o)
-                let attrs =
-                    [
-                        Attr.Create "type" "checkbox"
-                        Attr.Create "name" uid
-                        Attr.Create "value" (string i)
-                    ]
-                let el = DU.CreateElement "input"
-                initCheck i el
-                let chkElem = Doc.Elem el (Attr.Concat attrs) Doc.Empty
-                Doc.Element "div" [] [chkElem; t])
-            |> Doc.Concat
-        checkElements
+        let checkedView = View.Map (List.exists (fun x -> x = item)) rvi
+        let checkedAttr =
+            Attr.DynamicPred "checked" checkedView (View.Const "checked")
+        let attrs =
+            [
+                Attr.Create "type" "checkbox"
+                Attr.Create "name" (Var.GetId chk |> string)
+                Attr.Create "value" (Fresh.Id ())
+                checkedAttr
+            ] @ (List.ofSeq attrs) |> Attr.Concat
+        let el = DU.CreateElement "input"
+        let onClick (x: DomEvent) =
+            let chkd = el?``checked``
+            updateList chkd
+        el.AddEventListener("click", onClick, false)
+
+        Doc.Elem el attrs Doc.Empty
 
     static member Clickable elem action =
         let el = DU.CreateElement elem
@@ -528,3 +523,20 @@ type Doc with
         let attrs = Attr.Concat attrs |> Attr.Append (Attr.Create "href" "#")
         let el = Doc.Clickable "a" action
         Doc.Elem el attrs (Doc.TextNode caption)
+
+    static member Radio attrs value var =
+        // Radio buttons work by taking a common var, which is given a unique ID.
+        // This ID is serialised and used as the name, giving us the "grouping"
+        // behaviour.
+        let el = DU.CreateElement "input"
+        el.AddEventListener("click", (fun (x : DomEvent) -> Var.Set var value), false)
+        let predView = View.Map (fun x -> x = value) var.View
+        let valAttr = Attr.DynamicPred "checked" predView (View.Const "checked")
+        let (==>) k v = Attr.Create k v
+        let attr =
+            [
+                "type" ==> "radio"
+                "name" ==> (Var.GetId var |> string)
+                valAttr
+            ] @ (List.ofSeq attrs) |> Attr.Concat
+        Doc.Elem el attr Doc.Empty

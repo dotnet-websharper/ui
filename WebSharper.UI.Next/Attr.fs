@@ -241,6 +241,15 @@ type Attr with
     static member DynamicClass name view ok =
         Attrs.Dynamic view (fun el v -> if ok v then DU.AddClass el name else DU.RemoveClass el name)
 
+    static member DynamicPred name predView valView =
+        let viewFn el (p, v) =
+            if p then
+                DU.SetAttr el name v
+            else
+                DU.RemoveAttr el name
+        let tupleView = View.Map2 (fun pred value -> (pred, value)) predView valView
+        Attrs.Dynamic tupleView viewFn
+
     static member Append a b =
         Attrs.Mk (a.Flags ||| b.Flags) (Attrs.AppendTree a.Tree b.Tree)
 
