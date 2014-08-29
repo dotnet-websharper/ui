@@ -19,6 +19,7 @@ type Var<'T> =
         mutable Const : bool
         mutable Current : 'T
         mutable Snap : Snap<'T>
+        Id : int
     }
 
 [<JavaScript>]
@@ -31,6 +32,7 @@ type Var =
             Const = false
             Current = v
             Snap = Snap.CreateWithValue v
+            Id = Fresh.Int ()
         }
 
     static member Get var =
@@ -54,6 +56,9 @@ type Var =
 
     static member Update var fn =
         Var.Set var (fn (Var.Get var))
+
+    static member GetId var =
+        var.Id
 
     static member Observe var =
         var.Snap

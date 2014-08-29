@@ -102,7 +102,10 @@ type Doc with
     static member Link : caption: string -> seq<Attr> -> (unit -> unit) -> Doc
 
     /// Check Box Group.
-    static member CheckBox<'T when 'T : equality> : ('T -> string) -> list<'T> -> Var<list<'T>> -> Doc
+    static member CheckBox<'T when 'T : equality> : seq<Attr> -> 'T -> Var<list<'T>> -> Doc
 
     /// Select box.
     static member Select<'T when 'T : equality> : seq<Attr> -> ('T -> string) -> list<'T> -> Var<'T> -> Doc
+
+    /// Radio button.
+    static member Radio<'T when 'T : equality> : seq<Attr> -> 'T -> Var<'T> -> Doc
