@@ -11,8 +11,6 @@
   </PropertyGroup>
   <Import Project="../build/net40/$(Name).proj" />
   <Import Project="../msbuild/FSharp.targets" />
-  <Import Project="../packages/WebSharper.2.5.120.55/build/WebSharper.targets" />
-  <Import Project="..\..\websharper.ui.next.samples\sln\packages\WebSharper.2.5.120.55\build\WebSharper.targets" Condition="Exists('..\..\websharper.ui.next.samples\sln\packages\WebSharper.2.5.120.55\build\WebSharper.targets')" />
   <ItemGroup>
     <Compile Include="Utility\Abbrev.fs" />
     <Compile Include="Utility\AppendList.fsi" />
@@ -42,6 +40,5 @@
     <Content Include="SVG.fs" />
     <Compile Include="Input.fsi" />
     <Compile Include="Input.fs" />
-    <None Include="packages.config" />
   </ItemGroup>
 </Project>
