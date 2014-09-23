@@ -40,5 +40,8 @@
     <Content Include="SVG.fs" />
     <Compile Include="Input.fsi" />
     <Compile Include="Input.fs" />
+    <Compile Include="ProvidedTypes.fsi" />
+    <Compile Include="ProvidedTypes.fs" />
+    <Compile Include="Provider.fs" />
   </ItemGroup>
 </Project>
