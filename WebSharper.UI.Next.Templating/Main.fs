@@ -20,7 +20,7 @@ module public Inlines =
     [<Inline "$func($arg1)($arg2)">]
     let InvokeFunc2 (func: 'a -> 'b -> 'c) (arg1: 'a) (arg2: 'b) = X<'c>
 
-    [<Inline "$func($arg)($arg2)($arg3)">]
+    [<Inline "$func($arg1)($arg2)($arg3)">]
     let InvokeFunc3 (func: 'a -> 'b -> 'c -> 'd) (arg1: 'a) (arg2: 'b) (arg3: 'c) = X<'d>
 
 open Inlines
@@ -122,8 +122,6 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                         let rec createNode isRoot (e: XElement) =
                             match e.Attribute(dataReplace) with
                             | null ->
-                                let name = e.Name.LocalName
-
                                 let nodes = 
                                     match e.Attribute(dataHole) with
                                     | null ->
@@ -144,8 +142,8 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                                             if i > !l then
                                                                 let s = t.[!l .. i - 1]
                                                                 yield <@ InvokeFunc Doc.TextNode s @> 
-                                                                l := i + name.Length + 3
                                                             yield <@ InvokeFunc Doc.TextView %(getTextVar name) @>
+                                                            l := i + name.Length + 3
                                                         if t.Length > !l then
                                                             let s = t.[!l ..]
                                                             yield <@ InvokeFunc Doc.TextNode s @> 
@@ -163,7 +161,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                         |> Seq.filter (fun a -> a.Name <> dataHole) 
                                         |> Seq.map (fun a -> <@ InvokeFunc2 Attr.Create a.Name.LocalName a.Value @>)
                                         |> ExprArray
-                                    <@ InvokeFunc3 Doc.Element name %attrs %nodes @>
+                                    <@ InvokeFunc3 Doc.Element e.Name.LocalName %attrs %nodes @>
 
                             | a -> getDocVar a.Value
                         
