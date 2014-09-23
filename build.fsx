@@ -8,14 +8,24 @@ let bt =
 let main =
     bt.WebSharper.Library("WebSharper.UI.Next")
         .SourcesFromProject()
+
+let tmpl =
+    bt.WebSharper.Library("WebSharper.UI.Next.Templating")
+        .SourcesFromProject()
         .References(fun r ->
             [
+                r.Project main
                 r.Assembly "System.Xml"
                 r.Assembly "System.Xml.Linq"
             ])
 
-let mainNuGet =
+bt.Solution [
+    main
+    tmpl
+
     bt.NuGet.CreatePackage()
+        .Add(main)
+        .Add(tmpl)
         .Configure(fun c ->
             { c with
                 Title = Some "WebSharper.UI.Next"
@@ -23,10 +33,5 @@ let mainNuGet =
                 ProjectUrl = Some "https://github.com/intellifactory/websharper.ui.next"
                 Description = "Next-generation user interface combinators for WebSharper"
                 RequiresLicenseAcceptance = false })
-        .Add(main)
-
-bt.Solution [
-    main
-    mainNuGet
 ]
 |> bt.Dispatch
