@@ -8,6 +8,11 @@ let bt =
 let main =
     bt.WebSharper.Library("WebSharper.UI.Next")
         .SourcesFromProject()
+        .References(fun r ->
+            [
+                r.Assembly "System.Xml"
+                r.Assembly "System.Xml.Linq"
+            ])
 
 let mainNuGet =
     bt.NuGet.CreatePackage()
