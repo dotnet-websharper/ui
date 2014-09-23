@@ -159,9 +159,14 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                     let attrs =
                                         e.Attributes() 
                                         |> Seq.filter (fun a -> a.Name <> dataHole) 
-                                        |> Seq.map (fun a -> <@ InvokeFunc2 Attr.Create a.Name.LocalName a.Value @>)
+                                        |> Seq.map (fun a -> 
+                                            let n = a.Name.LocalName
+                                            let v = a.Value
+                                            <@ InvokeFunc2 Attr.Create n v @>
+                                        )
                                         |> ExprArray
-                                    <@ InvokeFunc3 Doc.Element e.Name.LocalName %attrs %nodes @>
+                                    let n = e.Name.LocalName
+                                    <@ InvokeFunc3 Doc.Element n %attrs %nodes @>
 
                             | a -> getDocVar a.Value
                         
