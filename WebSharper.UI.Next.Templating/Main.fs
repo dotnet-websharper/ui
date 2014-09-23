@@ -13,6 +13,18 @@ open IntelliFactory.WebSharper.UI.Next
 
 open IntelliFactory.WebSharper.UI.Next.Templating.ProvidedTypes
 
+module public Inlines =
+    [<Inline "$func($arg)">]
+    let InvokeFunc (func: 'a -> 'b) (arg: 'a) = X<'b>
+
+    [<Inline "$func($arg1)($arg2)">]
+    let InvokeFunc2 (func: 'a -> 'b -> 'c) (arg1: 'a) (arg2: 'b) = X<'c>
+
+    [<Inline "$func($arg)($arg2)($arg3)">]
+    let InvokeFunc3 (func: 'a -> 'b -> 'c -> 'd) (arg1: 'a) (arg2: 'b) (arg3: 'c) = X<'d>
+
+open Inlines
+
 [<AutoOpen>]
 module internal Utils =
     let ( +/ ) a b = System.IO.Path.Combine(a, b)
@@ -124,19 +136,19 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                                     |> Seq.map (fun m -> m.Groups.[1].Value, m.Index)
                                                     |> List.ofSeq
                                                 if List.isEmpty holes then
-                                                    [ <@ Doc.TextNode t @> ]
+                                                    [ <@ InvokeFunc Doc.TextNode t @> ]
                                                 else
                                                     [
                                                         let l = ref 0
                                                         for name, i in holes do
                                                             if i > !l then
                                                                 let s = t.[!l .. i - 1]
-                                                                yield <@ Doc.TextNode s @> 
+                                                                yield <@ InvokeFunc Doc.TextNode s @> 
                                                                 l := i + name.Length + 3
-                                                            yield <@ Doc.TextView %(getTextVar name) @>
+                                                            yield <@ InvokeFunc Doc.TextView %(getTextVar name) @>
                                                         if t.Length > !l then
                                                             let s = t.[!l ..]
-                                                            yield <@ Doc.TextNode s @> 
+                                                            yield <@ InvokeFunc Doc.TextNode s @> 
                                                     ]   
                                             | _ -> []
                                         ) 
@@ -144,14 +156,14 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                     | a -> <@ [| %(getDocVar a.Value) |] @>  
 
                                 if isRoot then 
-                                    <@ Doc.Concat %nodes @>
+                                    <@ InvokeFunc Doc.Concat %nodes @>
                                 else
                                     let attrs =
                                         e.Attributes() 
                                         |> Seq.filter (fun a -> a.Name <> dataHole) 
-                                        |> Seq.map (fun a -> <@ Attr.Create a.Name.LocalName a.Value @>)
+                                        |> Seq.map (fun a -> <@ InvokeFunc2 Attr.Create a.Name.LocalName a.Value @>)
                                         |> ExprArray
-                                    <@ Doc.Element name %attrs %nodes @>
+                                    <@ InvokeFunc3 Doc.Element name %attrs %nodes @>
 
                             | a -> getDocVar a.Value
                         
