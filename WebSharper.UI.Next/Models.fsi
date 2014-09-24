@@ -44,11 +44,11 @@ type Model<'I,'M> with
 
 /// A helper type for ResizeArray-like observable structures.
 type ListModel<'Key,'T when 'Key : equality>
-
+ 
 /// ListModel combinators.
 type ListModel
 
-type ListModel<'Key,'T> with
+type ListModel<'Key,'T when 'Key : equality> with
 
     /// Adds an item. If an item with the given key exists, it is replaced.
     member Add : 'T -> unit
@@ -56,8 +56,24 @@ type ListModel<'Key,'T> with
     /// Removes an item.
     member Remove : 'T -> unit
 
+    /// Removes an item by its key.
+    member RemoveByKey : 'Key -> unit
+
     /// Applies a function to each item in the list.
     member Iter : ('T -> unit) -> unit
+
+    /// Updates the list with another one.
+    member Set : 'T seq -> unit
+
+    /// Checks if the item specified by its key is in the list.
+    member ContainsKey : 'Key -> bool
+
+    /// Checks if the item specified by its key is in the list.
+    member FindByKey : 'Key -> 'T
+
+    /// Updates an item with the given key with another item computed by the given function.
+    /// If None is computed or the item to be updated is not found, nothing is done.
+    member UpdateBy : ('T -> 'T option) -> 'Key -> unit
 
 type ListModel with
 

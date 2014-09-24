@@ -14,7 +14,7 @@ namespace IntelliFactory.WebSharper.UI.Next
 open IntelliFactory.WebSharper
 
 /// This is an auto-generated module providing HTML5 vocabulary.
-/// See tools/ElemeScraper.fsx for the code-generation logic.
+/// See tools/ElemScraper.fsx for the code-generation logic.
 [<JavaScript>]
 module Html =
 
