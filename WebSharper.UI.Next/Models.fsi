@@ -75,6 +75,9 @@ type ListModel<'Key,'T when 'Key : equality> with
     /// If None is computed or the item to be updated is not found, nothing is done.
     member UpdateBy : ('T -> 'T option) -> 'Key -> unit
 
+    /// Removes all elements of the list.
+    member Clear : unit -> unit
+
 type ListModel with
 
     /// Creates a new instance.

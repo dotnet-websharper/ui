@@ -105,6 +105,9 @@ type ListModel<'K,'T> with
                 v.[index] <- value
                 m.Var.Value <- v
 
+    member m.Clear () =
+        m.Var.Value <- [||]
+
 [<JavaScript>]
 [<Sealed>]
 type ListModel =
