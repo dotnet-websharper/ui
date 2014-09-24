@@ -79,8 +79,31 @@ type ListModel<'K,'T> with
             let k = keyFn item
             m.Var.Value <- Array.filter (fun i -> keyFn i <> k) v
 
+    member m.RemoveByKey key =
+        m.Var.Value <- Array.filter (fun i -> m.Key i <> key) m.Var.Value
+
     member m.Iter fn =
         Array.iter fn m.Var.Value
+
+    member m.Set lst =
+        m.Var.Value <- Array.ofSeq lst
+
+    member m.ContainsKey key =
+        Array.exists (fun it -> m.Key it = key) m.Var.Value
+
+    member m.FindByKey key =
+        Array.find (fun it -> m.Key it = key) m.Var.Value
+
+    member m.UpdateBy fn key =
+        let v = m.Var.Value
+        if m.ContainsKey key then
+            let index = Array.findIndex (fun it -> m.Key it = key) v
+            match fn v.[index] with
+            | None ->
+                m.RemoveByKey key
+            | Some value ->
+                v.[index] <- value
+                m.Var.Value <- v
 
 [<JavaScript>]
 [<Sealed>]

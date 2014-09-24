@@ -28,6 +28,7 @@ bt.Solution [
         .Add(tmpl)
         .Configure(fun c ->
             { c with
+                Authors = [ "IntelliFactory" ]
                 Title = Some "WebSharper.UI.Next"
                 LicenseUrl = Some "http://websharper.com/licensing"
                 ProjectUrl = Some "https://github.com/intellifactory/websharper.ui.next"
