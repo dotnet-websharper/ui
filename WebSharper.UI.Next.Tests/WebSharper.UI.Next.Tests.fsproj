@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{608521d3-89cf-452b-ad62-5fa7eb246e6f}</ProjectGuid>
+    <Name>WebSharper.UI.Next.Tests</Name>
+    <WebSharperProject>Bundle</WebSharperProject>
+    <WebSharperBundleOutputDir>Content</WebSharperBundleOutputDir>
+    <OutputType>Library</OutputType>
+    <OutputPath>bin</OutputPath>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+  </PropertyGroup>
+  <Import Project="../build/net40/$(Name).proj" />
+  <Import Project="../msbuild/FSharp.targets" />
+  <ItemGroup>
+    <Compile Include="Client.fs" />
+    <Compile Include="Main.fs" />
+    <Content Include="index.html" />
+    <Content Include="Web.config" />
+    <Content Include="Global.asax" />
+    <Content Include="template.html" />
+  </ItemGroup>
+</Project>
