@@ -11,6 +11,7 @@ let main =
 
 let tmpl =
     bt.WebSharper.Library("WebSharper.UI.Next.Templating")
+       
         .SourcesFromProject()
         .References(fun r ->
             [
@@ -19,9 +20,19 @@ let tmpl =
                 r.Assembly "System.Xml.Linq"
             ])
 
+let test = 
+    bt.WebSharper.BundleWebsite("WebSharper.UI.Next.Tests")        
+        .SourcesFromProject()
+        .References(fun r ->
+            [
+                r.Project main
+                r.Project tmpl
+            ])
+
 bt.Solution [
     main
     tmpl
+    test
 
     bt.NuGet.CreatePackage()
         .Add(main)
