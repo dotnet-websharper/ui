@@ -1,7 +1,7 @@
 ﻿namespace IntelliFactory.WebSharper.UI.Next
 
 open IntelliFactory.WebSharper
-open IntelliFactory.WebSharper.Dom
+open IntelliFactory.WebSharper.JavaScript
 open IntelliFactory.WebSharper.UI.Next
 open IntelliFactory.WebSharper.UI.Next.Notation
 open IntelliFactory.WebSharper.JQuery
@@ -45,10 +45,10 @@ module Input =
 
         if not MouseBtnSt.Active then
             MouseBtnSt.Active <- true
-            Dom.Document.Current.AddEventListener("mousedown",
-                (fun (evt: DomEvent) -> buttonListener (evt :?> MouseEvent) true), false)
-            Dom.Document.Current.AddEventListener("mouseup",
-                (fun (evt: DomEvent) -> buttonListener (evt :?> MouseEvent) false), false)
+            JS.Document.AddEventListener("mousedown",
+                (fun (evt: DomEvent) -> buttonListener (evt :?> Dom.MouseEvent) true), false)
+            JS.Document.AddEventListener("mouseup",
+                (fun (evt: DomEvent) -> buttonListener (evt :?> Dom.MouseEvent) false), false)
 
     [<Sealed>]
     type Mouse =
@@ -62,7 +62,7 @@ module Input =
 
             // Add the mouse movement event if it's not there already.
             if not MousePosSt.Active then
-                Dom.Document.Current.AddEventListener("mousemove", onMouseMove, false)
+                JS.Document.AddEventListener("mousemove", onMouseMove, false)
                 MousePosSt.Active <- true
 
             View.FromVar MousePosSt.PosV
@@ -108,7 +108,7 @@ module Input =
     let ActivateKeyListener =
         if not KeyListenerState.KeyListenerActive then
             // Using JQuery for cross-compatibility.
-            JQuery.Of(Dom.Document.Current).Keydown(fun el evt ->
+            JQuery.Of(JS.Document).Keydown(fun el evt ->
                 let keyCode = evt.Which
                 Var.Set KeyListenerState.LastPressed keyCode
                 let xs = Var.Get KeyListenerState.KeysPressed
@@ -116,7 +116,7 @@ module Input =
                     KeyListenerState.KeysPressed.Value <- xs @ [keyCode]
             ) |> ignore
 
-            JQuery.Of(Dom.Document.Current).Keyup(fun el evt ->
+            JQuery.Of(JS.Document).Keyup(fun el evt ->
                 let keyCode = evt.Which
                 Var.Update KeyListenerState.KeysPressed
                     (List.filter (fun x -> x <> keyCode))

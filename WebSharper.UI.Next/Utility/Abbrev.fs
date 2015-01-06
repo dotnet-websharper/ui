@@ -24,6 +24,7 @@ open System
 open System.Collections
 open System.Collections.Generic
 open IntelliFactory.WebSharper
+open IntelliFactory.WebSharper.JavaScript
 
 /// Abbreviations and small utilities for this assembly.
 [<AutoOpen>]
