@@ -21,6 +21,7 @@
 namespace IntelliFactory.WebSharper.UI.Next
 
 open IntelliFactory.WebSharper
+open IntelliFactory.WebSharper.JavaScript
 open IntelliFactory.WebSharper.JQuery
 
 /// Utility functions for manipulating DOM.
@@ -28,7 +29,7 @@ open IntelliFactory.WebSharper.JQuery
 module internal DomUtility =
 
     /// The current DOM Document.
-    let Doc = Document.Current
+    let Doc = JS.Document
 
     /// Appends a child node to the given DOM element.
     [<MethodImpl(MethodImplOptions.NoInlining)>]

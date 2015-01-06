@@ -29,6 +29,7 @@ open Microsoft.FSharp.Reflection
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Core.CompilerServices
 open IntelliFactory.WebSharper
+open IntelliFactory.WebSharper.JavaScript
 open IntelliFactory.WebSharper.UI.Next
 
 open IntelliFactory.WebSharper.UI.Next.Templating.ProvidedTypes

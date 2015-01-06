@@ -21,10 +21,11 @@
 namespace IntelliFactory.WebSharper.UI.Next
 
 open IntelliFactory.WebSharper
+open IntelliFactory.WebSharper.JavaScript
 
 module DU = DomUtility
-type IPagelet = IntelliFactory.WebSharper.Html.IPagelet
-module HTML = IntelliFactory.WebSharper.Html.Default
+type Pagelet = IntelliFactory.WebSharper.Html.Client.Pagelet
+module HTML = IntelliFactory.WebSharper.Html.Client.Default
 
 [<JavaScript>]
 type DocNode =
@@ -332,12 +333,12 @@ module Docs =
 // Creates a UI.Next pagelet
 [<JavaScript>]
 type UINextPagelet (doc) =
+    inherit Pagelet()
     let divId = Fresh.Id ()
-    let body = (HTML.Div [HTML.Id divId]).Body :> Dom.Node
-    interface IPagelet with
-        member pg.Body = body
-        member pg.Render () =
-            Doc.RunById divId doc
+    let body = (HTML.Div [HTML.Id divId]).Body
+    override pg.Body = body
+    override pg.Render () =
+        Doc.RunById divId doc
 
 and Doc with
 
@@ -399,7 +400,7 @@ and Doc with
         | el -> Doc.Run el tr
 
     static member AsPagelet doc =
-        new UINextPagelet (doc) :> IPagelet
+        new UINextPagelet (doc) :> Pagelet
 
     static member Empty =
         Docs.Mk EmptyDoc (View.Const ())

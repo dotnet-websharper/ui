@@ -25,8 +25,7 @@ namespace IntelliFactory.WebSharper.UI.Next
 // and so on.
 
 open IntelliFactory.WebSharper
-open IntelliFactory.WebSharper.Dom
-open IntelliFactory.WebSharper.Html5
+open IntelliFactory.WebSharper.JavaScript
 module A = AppendList
 module T = Trie
 
@@ -112,7 +111,7 @@ type Router<'T> =
 module Routing =
 
     let InstallMap (rt: RouteMap<'T>) : Var<'T> =
-        let win = Window.Self
+        let win = JS.Window
         let same a b = rt.Ser a = rt.Ser b
         let cur () =
             Route.ParseHash win.Location.Hash
@@ -122,7 +121,7 @@ module Routing =
         let set value =
             if not (same var.Value value) then
                 var.Value <- value
-        let onUpdate (evt: Event) = set (cur ())
+        let onUpdate (evt: Dom.Event) = set (cur ())
         win.Onpopstate <- onUpdate
         win.Onhashchange <- onUpdate
         var.View

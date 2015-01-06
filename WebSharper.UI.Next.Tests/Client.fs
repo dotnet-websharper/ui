@@ -1,6 +1,7 @@
 namespace WebSharper.UI.Next.Tests
 
 open IntelliFactory.WebSharper
+open IntelliFactory.WebSharper.JavaScript
 
 open IntelliFactory.WebSharper.UI.Next
 open IntelliFactory.WebSharper.UI.Next.Notation
@@ -35,4 +36,4 @@ module Client =
               )
                   
         doc |> Doc.RunById "main"
-        JavaScript.Log("Running JavaScript Entry Point..")
+        Console.Log("Running JavaScript Entry Point..")
