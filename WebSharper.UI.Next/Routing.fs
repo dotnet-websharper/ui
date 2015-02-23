@@ -18,14 +18,14 @@
 //
 // $end{copyright}
 
-namespace IntelliFactory.WebSharper.UI.Next
+namespace WebSharper.UI.Next
 
 // NOTES: need better facilities for the user to construct routers. In particular,
 // should be possible to encode numbers, semi-automatically provide bijections,
 // and so on.
 
-open IntelliFactory.WebSharper
-open IntelliFactory.WebSharper.JavaScript
+open WebSharper
+open WebSharper.JavaScript
 module A = AppendList
 module T = Trie
 

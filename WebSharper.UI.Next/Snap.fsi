@@ -19,7 +19,7 @@
 // $end{copyright}
 
 /// Snap.fs: provide the core abstraction for dataflow and change-propagation.
-namespace IntelliFactory.WebSharper.UI.Next
+namespace WebSharper.UI.Next
 
 /// Represents an observable snapshot of a value.
 type internal Snap<'T>

@@ -19,7 +19,7 @@
 // $end{copyright}
 
 /// Models.fs: support for changing models beyond a simple Var.
-namespace IntelliFactory.WebSharper.UI.Next
+namespace WebSharper.UI.Next
 
 /// Unique keys for equality.
 [<Sealed>]

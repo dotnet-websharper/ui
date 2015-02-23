@@ -18,9 +18,9 @@
 //
 // $end{copyright}
 
-namespace IntelliFactory.WebSharper.UI.Next
+namespace WebSharper.UI.Next
 
-open IntelliFactory.WebSharper
+open WebSharper
 module DU = DomUtility
 
 type IAttrNode =

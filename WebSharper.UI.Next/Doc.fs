@@ -18,14 +18,14 @@
 //
 // $end{copyright}
 
-namespace IntelliFactory.WebSharper.UI.Next
+namespace WebSharper.UI.Next
 
-open IntelliFactory.WebSharper
-open IntelliFactory.WebSharper.JavaScript
+open WebSharper
+open WebSharper.JavaScript
 
 module DU = DomUtility
-type Pagelet = IntelliFactory.WebSharper.Html.Client.Pagelet
-module HTML = IntelliFactory.WebSharper.Html.Client.Default
+type Pagelet = WebSharper.Html.Client.Pagelet
+module HTML = WebSharper.Html.Client.Default
 
 [<JavaScript>]
 type DocNode =

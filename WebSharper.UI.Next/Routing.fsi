@@ -21,7 +21,7 @@
 // Routing.fsi: implements support for client-side routing -
 // parsing and generating URL hashes, and organizing the app
 // around a trie of components.
-namespace IntelliFactory.WebSharper.UI.Next
+namespace WebSharper.UI.Next
 
 /// Composable router or site part.  Has the ability to parse
 /// URL hashes, dispatch to appropriate handler, as well as

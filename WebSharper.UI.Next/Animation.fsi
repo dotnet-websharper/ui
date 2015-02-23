@@ -18,7 +18,7 @@
 //
 // $end{copyright}
 
-namespace IntelliFactory.WebSharper.UI.Next
+namespace WebSharper.UI.Next
 
 /// Time duration in milliseconds.
 type Time = double

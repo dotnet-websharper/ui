@@ -18,7 +18,7 @@
 //
 // $end{copyright}
 
-namespace IntelliFactory.WebSharper.UI.Next.Templating
+namespace WebSharper.UI.Next.Templating
 
 open System
 open System.IO
@@ -28,11 +28,11 @@ open System.Text.RegularExpressions
 open Microsoft.FSharp.Reflection
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Core.CompilerServices
-open IntelliFactory.WebSharper
-open IntelliFactory.WebSharper.JavaScript
-open IntelliFactory.WebSharper.UI.Next
+open WebSharper
+open WebSharper.JavaScript
+open WebSharper.UI.Next
 
-open IntelliFactory.WebSharper.UI.Next.Templating.ProvidedTypes
+open WebSharper.UI.Next.Templating.ProvidedTypes
 
 module public Inlines =
     [<Inline "$func($arg)">]
@@ -71,7 +71,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
             refAssembly <| AssemblyName(args.Name).Name
         )
     
-    let rootNamespace = "IntelliFactory.WebSharper.UI.Next.Templating"
+    let rootNamespace = "WebSharper.UI.Next.Templating"
     let templateTy = ProvidedTypeDefinition(thisAssembly, rootNamespace, "Template", None)
 
     let mutable watcher: FileSystemWatcher = null

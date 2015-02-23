@@ -1,4 +1,4 @@
-﻿namespace IntelliFactory.WebSharper.UI.Next
+﻿namespace WebSharper.UI.Next
 
 module Input =
 

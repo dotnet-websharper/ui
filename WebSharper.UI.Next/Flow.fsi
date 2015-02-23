@@ -19,7 +19,7 @@
 // $end{copyright}
 
 /// Flow.fs: experiment in flowlet-style combinators.
-namespace IntelliFactory.WebSharper.UI.Next
+namespace WebSharper.UI.Next
 
 /// Support for mutli-stage applications,
 /// where the current stage may depend on previous stages.

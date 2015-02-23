@@ -18,11 +18,11 @@
 //
 // $end{copyright}
 
-namespace IntelliFactory.WebSharper.UI.Next
+namespace WebSharper.UI.Next
 
-open IntelliFactory.WebSharper
-open IntelliFactory.WebSharper.JavaScript
-open IntelliFactory.WebSharper.JQuery
+open WebSharper
+open WebSharper.JavaScript
+open WebSharper.JQuery
 
 /// Utility functions for manipulating DOM.
 [<JavaScript>]

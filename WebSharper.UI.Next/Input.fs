@@ -1,10 +1,10 @@
-﻿namespace IntelliFactory.WebSharper.UI.Next
+﻿namespace WebSharper.UI.Next
 
-open IntelliFactory.WebSharper
-open IntelliFactory.WebSharper.JavaScript
-open IntelliFactory.WebSharper.UI.Next
-open IntelliFactory.WebSharper.UI.Next.Notation
-open IntelliFactory.WebSharper.JQuery
+open WebSharper
+open WebSharper.JavaScript
+open WebSharper.UI.Next
+open WebSharper.UI.Next.Notation
+open WebSharper.JQuery
 
 [<JavaScript>]
 module Input =

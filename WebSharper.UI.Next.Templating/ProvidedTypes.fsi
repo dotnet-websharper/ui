@@ -9,7 +9,7 @@
 // This code is a sample for use in conjunction with the F# 3.0 Developer Preview release of September 2011.
 
 
-namespace IntelliFactory.WebSharper.UI.Next.Templating.ProvidedTypes
+namespace WebSharper.UI.Next.Templating.ProvidedTypes
 
 open System
 open System.Reflection

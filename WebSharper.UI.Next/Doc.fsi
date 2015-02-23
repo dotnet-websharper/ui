@@ -18,9 +18,9 @@
 //
 // $end{copyright}
 
-namespace IntelliFactory.WebSharper.UI.Next
+namespace WebSharper.UI.Next
 
-type Pagelet = IntelliFactory.WebSharper.Html.Client.Pagelet
+type Pagelet = WebSharper.Html.Client.Pagelet
 
 /// Represents a time-varying node or a node list.
 type Doc

@@ -18,9 +18,9 @@
 //
 // $end{copyright}
 
-namespace IntelliFactory.WebSharper.UI.Next
+namespace WebSharper.UI.Next
 
-open IntelliFactory.WebSharper
+open WebSharper
 
 /// This is an auto-generated module providing HTML5 vocabulary.
 /// See tools/ElemScraper.fsx for the code-generation logic.

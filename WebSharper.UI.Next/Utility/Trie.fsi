@@ -19,7 +19,7 @@
 // $end{copyright}
 
 // Trie.fs: provides a trie data structure specialised for routing.
-namespace IntelliFactory.WebSharper.UI.Next
+namespace WebSharper.UI.Next
 
 /// Represents a trie from key to value.
 type internal Trie<'K,'V when 'K : comparison>

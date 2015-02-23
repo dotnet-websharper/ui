@@ -23,7 +23,7 @@
 ///
 /// Note: at this point there are no exception semantics, so
 /// please provide only pure (non-throwing) functions to this API.
-namespace IntelliFactory.WebSharper.UI.Next
+namespace WebSharper.UI.Next
 
 /// A time-varying variable that behaves like a ref cell that
 /// can also be observed for changes by independent processes.

@@ -1,11 +1,11 @@
 namespace WebSharper.UI.Next.Tests
 
-open IntelliFactory.WebSharper
-open IntelliFactory.WebSharper.JavaScript
+open WebSharper
+open WebSharper.JavaScript
 
-open IntelliFactory.WebSharper.UI.Next
-open IntelliFactory.WebSharper.UI.Next.Notation
-open IntelliFactory.WebSharper.UI.Next.Templating
+open WebSharper.UI.Next
+open WebSharper.UI.Next.Notation
+open WebSharper.UI.Next.Templating
 
 [<JavaScript>]
 module Client =    

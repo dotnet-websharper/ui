@@ -18,13 +18,13 @@
 //
 // $end{copyright}
 
-namespace IntelliFactory.WebSharper.UI.Next
+namespace WebSharper.UI.Next
 
 open System
 open System.Collections
 open System.Collections.Generic
-open IntelliFactory.WebSharper
-open IntelliFactory.WebSharper.JavaScript
+open WebSharper
+open WebSharper.JavaScript
 
 /// Abbreviations and small utilities for this assembly.
 [<AutoOpen>]
