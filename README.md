@@ -5,7 +5,7 @@ time-varying values. It integrates with DOM and makes it
 simple to construct animated UI in the browser.
 
 * [Examples](http://intellifactory.github.io/websharper.ui.next.samples/)
-* [Example Site Repository](http://github.com/intellifactory/websharper.ui.next.smaples)
+* [Example Site Repository](http://github.com/intellifactory/websharper.ui.next.samples)
 * [API Reference](docs/API.md)
 * [Tutorial](docs/Tutorial.md)
 
