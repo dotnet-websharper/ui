@@ -444,7 +444,7 @@ type Doc with
             | TextArea -> (Attr.Concat attr, "textarea")
         let el = DU.CreateElement elemTy
         let view = View.FromVar var
-        let valAttr = Attr.DynamicCustom (fun el v -> el?value <- v) view
+        let valAttr = Attr.DynamicCustom (fun el v -> if el?value <> v then el?value <- v) view
         let onChange (x: DomEvent) =
             Var.Set var el?value
         el.AddEventListener("input", onChange, false)
