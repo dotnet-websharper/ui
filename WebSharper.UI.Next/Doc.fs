@@ -25,7 +25,8 @@ open WebSharper.JavaScript
 
 module DU = DomUtility
 type Pagelet = WebSharper.Html.Client.Pagelet
-module HTML = WebSharper.Html.Client.Default
+module HTMLTags = WebSharper.Html.Client.Tags
+module HTMLAttr = WebSharper.Html.Client.Attr
 
 [<JavaScript>]
 type DocNode =
@@ -335,7 +336,7 @@ module Docs =
 type UINextPagelet (doc) =
     inherit Pagelet()
     let divId = Fresh.Id ()
-    let body = (HTML.Div [HTML.Id divId]).Body
+    let body = (HTMLTags.Div [HTMLAttr.Id divId]).Body
     override pg.Body = body
     override pg.Render () =
         Doc.RunById divId doc
