@@ -43,6 +43,8 @@ and [<CustomEquality>]
     {
         Attr : Attrs.Dyn
         Children : DocNode
+        [<OptionalField>]
+        Delimiters : (Node * Node) option
         El : Element
         ElKey : int
     }
@@ -67,13 +69,6 @@ and DocTextNode =
     }
 
 [<JavaScript>]
-type Doc =
-    {
-        DocNode : DocNode
-        Updates : View<unit>
-    }
-
-[<JavaScript>]
 module Docs =
 
     /// Sets of DOM nodes.
@@ -81,8 +76,17 @@ module Docs =
         | DomNodes of Node[]
 
         /// Actual chidlren of an element.
-        static member Children (elem: Element) =
-            DomNodes (Array.init elem.ChildNodes.Length elem.ChildNodes.Item)
+        static member Children (elem: Element) (delims: option<Node * Node>) =
+            match delims with
+            | None ->
+                DomNodes (Array.init elem.ChildNodes.Length elem.ChildNodes.Item)
+            | Some (ldelim, rdelim) ->
+                let a = Array<_>()
+                let mutable n = ldelim.NextSibling
+                while n !==. rdelim do
+                    a.Push(n) |> ignore
+                    n <- n.NextSibling
+                DomNodes (As a)
 
         /// Shallow children of an element node.
         static member DocChildren node =
@@ -146,11 +150,15 @@ module Docs =
             | TextDoc t -> DU.BeforeNode t.Text
         let ch = DomNodes.DocChildren el
         // remove children that are not in the current set
-        DomNodes.Children el.El
+        DomNodes.Children el.El el.Delimiters
         |> DomNodes.Except ch
         |> DomNodes.Iter (DU.RemoveNode el.El)
         // insert current children
-        ins el.Children DU.AtEnd |> ignore
+        let pos =
+            match el.Delimiters with
+            | None -> DU.AtEnd
+            | Some (_, rdelim) -> DU.BeforeNode rdelim
+        ins el.Children pos |> ignore
 
     /// Optimized version of DoSyncElement.
     let SyncElement el =
@@ -171,6 +179,11 @@ module Docs =
     let LinkElement el children =
         InsertDoc el children DU.AtEnd |> ignore
 
+    /// Links an element to previous siblings by inserting them.
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    let LinkPrevElement (el: Node) children =
+        InsertDoc (el.ParentNode :?> _) children (DU.BeforeNode el) |> ignore
+
     /// Synchronizes the document (deep).
     let Sync doc =
         let rec sync doc =
@@ -190,14 +203,6 @@ module Docs =
     let SyncElemNode el =
         SyncElement el
         Sync el.Children
-
-    /// Creates a Doc.
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
-    let Mk node updates =
-        {
-            DocNode = node
-            Updates = updates
-        }
 
     /// A set of node element nodes.
     type NodeSet =
@@ -252,6 +257,19 @@ module Docs =
         {
             Attr = Attrs.Insert el attr
             Children = children
+            Delimiters = None
+            El = el
+            ElKey = Fresh.Int ()
+        }
+
+    /// Creates an element node that handles a delimited subset of its children.
+    let CreateDelimitedElemNode (ldelim: Node) (rdelim: Node) attr children =
+        let el = ldelim.ParentNode :?> _
+        LinkPrevElement rdelim children
+        {
+            Attr = Attrs.Insert el attr
+            Children = children
+            Delimiters = Some (ldelim, rdelim)
             El = el
             ElKey = Fresh.Int ()
         }
@@ -261,6 +279,13 @@ module Docs =
         {
             PreviousNodes = NodeSet.Empty
             Top = CreateElemNode parent Attr.Empty doc
+        }
+
+    /// Creates a new RunState for a delimited subset of the children of a node.
+    let CreateDelimitedRunState ldelim rdelim doc =
+        {
+            PreviousNodes = NodeSet.Empty
+            Top = CreateDelimitedElemNode ldelim rdelim Attr.Empty doc
         }
 
     /// Computes the animation of nodes that animate removal.
@@ -290,7 +315,7 @@ module Docs =
         |> Anim.Concat
 
     /// The main function: how to perform an animated top-level document update.
-    let PerformAnimatedUpdate st parent doc =
+    let PerformAnimatedUpdate st doc =
         async {
             let cur = NodeSet.FindAll doc
             let change = ComputeChangeAnim st cur
@@ -341,12 +366,36 @@ type UINextPagelet (doc) =
     override pg.Render () =
         Doc.RunById divId doc
 
-and Doc with
+and [<JavaScript>]
+    Doc =
+    {
+        DocNode : DocNode
+        Updates : View<unit>
+    }
+
+    interface WebSharper.Html.Client.IControlBody with
+
+        member this.ReplaceInDom(elt) =
+            // Insert empty text nodes that will serve as delimiters for the Doc.
+            let ldelim = JS.Document.CreateTextNode ""
+            let rdelim = JS.Document.CreateTextNode ""
+            let parent = elt.ParentNode
+            parent.ReplaceChild(rdelim, elt) |> ignore
+            parent.InsertBefore(ldelim, rdelim) |> ignore
+            Doc.RunBetween ldelim rdelim this
+
+    /// Creates a Doc.
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    static member Mk node updates =
+        {
+            DocNode = node
+            Updates = updates
+        }
 
     static member Append a b =
         (a.Updates, b.Updates)
         ||> View.Map2 (fun () () -> ())
-        |> Docs.Mk (AppendDoc (a.DocNode, b.DocNode))
+        |> Doc.Mk (AppendDoc (a.DocNode, b.DocNode))
 
     static member Concat xs =
         Seq.toArray xs
@@ -355,7 +404,7 @@ and Doc with
     static member Elem name attr children =
         let node = Docs.CreateElemNode name attr children.DocNode
         View.Map2 (fun () () -> ()) (Attrs.Updates node.Attr) children.Updates
-        |> Docs.Mk (ElemDoc node)
+        |> Doc.Mk (ElemDoc node)
 
     static member Element name attr children =
         let attr = Attr.Concat attr
@@ -377,7 +426,7 @@ and Doc with
             Docs.UpdateEmbedNode node doc.DocNode
             doc.Updates)
         |> View.Map ignore
-        |> Docs.Mk (EmbedDoc node)
+        |> Doc.Mk (EmbedDoc node)
 
     static member TextNode v =
         Doc.TextView (View.Const v)
@@ -386,13 +435,20 @@ and Doc with
         let node = Docs.CreateTextNode ()
         txt
         |> View.Map (Docs.UpdateTextNode node)
-        |> Docs.Mk (TextDoc node)
+        |> Doc.Mk (TextDoc node)
 
     static member Run parent doc =
         let d = doc.DocNode
         Docs.LinkElement parent d
         let st = Docs.CreateRunState parent d
-        let p = Mailbox.StartProcessor (fun () -> Docs.PerformAnimatedUpdate st parent d)
+        let p = Mailbox.StartProcessor (fun () -> Docs.PerformAnimatedUpdate st d)
+        View.Sink p doc.Updates
+
+    static member RunBetween ldelim rdelim doc =
+        let d = doc.DocNode
+        Docs.LinkPrevElement rdelim d
+        let st = Docs.CreateDelimitedRunState ldelim rdelim d
+        let p = Mailbox.StartProcessor (fun () -> Docs.PerformAnimatedUpdate st d)
         View.Sink p doc.Updates
 
     static member RunById id tr =
@@ -404,7 +460,7 @@ and Doc with
         new UINextPagelet (doc) :> Pagelet
 
     static member Empty =
-        Docs.Mk EmptyDoc (View.Const ())
+        Doc.Mk EmptyDoc (View.Const ())
 
   // Collections ----------------------------------------------------------------
 

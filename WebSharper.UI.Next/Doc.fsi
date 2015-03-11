@@ -23,7 +23,9 @@ namespace WebSharper.UI.Next
 type Pagelet = WebSharper.Html.Client.Pagelet
 
 /// Represents a time-varying node or a node list.
-type Doc
+[<Sealed>]
+type Doc =
+    interface WebSharper.Html.Client.IControlBody
 
 /// Combinators on documents.
 type Doc with
