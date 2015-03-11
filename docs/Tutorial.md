@@ -10,7 +10,7 @@ introduced to everything you need along the way.
 Probably the very simplest application we could create is one with an
 input box and a label, where the label mirrors the text from the input
 box.  See it [in
-action](http://intellifactory.github.io/websharper.ui.next/#SimpleTextBox).
+action](http://intellifactory.github.io/websharper.ui.next.samples/#samples/samples/SimpleTextBox).
 
 What we need to do firstly is specify a [reactive variable](Var.md),
 which holds the string specified by the input box.
@@ -118,7 +118,7 @@ let viewWordOddEven =
 Finally, we embed these into table rows and hook everything up. This
 is done exactly as before -- we use the views we have created when
 creating the `TextView`s. You can find the source
-[here](https://github.com/intellifactory/websharper.ui.next/blob/master/src/InputTransform.fs).
+[here](https://github.com/intellifactory/websharper.ui.next.samples/blob/master/src/InputTransform.fs).
 
 ## Making a To-Do List Application
 
@@ -403,6 +403,6 @@ And that's that!  To embed the example in a webpage, we can then just
 use [Doc.RunById](Doc.md#RunById) to replace the contents of an
 element with a given ID with the application we have just created. You
 can see this live
-[here](http://intellifactory.github.io/websharper.ui.next/#TodoList)
+[here](http://intellifactory.github.io/websharper.ui.next.samples/#samples/samples/TodoList)
 and find the source
-[here](http://github.com/intellifactory/websharper.ui.next/blob/master/src/TodoList.fs).
+[here](http://github.com/intellifactory/websharper.ui.next.samples/blob/master/src/TodoList.fs).

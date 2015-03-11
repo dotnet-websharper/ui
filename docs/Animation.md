@@ -6,7 +6,7 @@ first-class values. The most common way to use animation is to specify animated
 attributes with [Attr](Attr.md) API, but they can also be scheduled imperatively.
 
 For an example of animation, see the
-[ObjectConstancy](http://intellifactory.github.io/websharper.ui.next/#ObjectConstancy) sample.
+[ObjectConstancy](http://intellifactory.github.io/websharper.ui.next.samples/#samples/samples/ObjectConstancy) sample.
 
 API in detail:
 
