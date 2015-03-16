@@ -102,7 +102,11 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                     if cfg.IsInvalidationSupported then
                         if watcher <> null then 
                             watcher.Dispose()
-                        watcher <- new FileSystemWatcher(Path.GetDirectoryName htmlFile, Path.GetFileName htmlFile, EnableRaisingEvents = true)
+                        watcher <-
+                            new FileSystemWatcher(Path.GetDirectoryName htmlFile, Path.GetFileName htmlFile, 
+                                EnableRaisingEvents = true,
+                                NotifyFilter = (NotifyFilters.LastWrite ||| NotifyFilters.Security)
+                            )
                         watcher.Changed.Add <| fun _ -> 
                             this.Invalidate()
                     
