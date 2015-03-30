@@ -1,4 +1,5 @@
 #load "tools/includes.fsx"
+#r "tools/packages/FsNuGet/lib/net40/FsNuGet.dll"
 open IntelliFactory.Build
 
 let bt =
@@ -11,7 +12,6 @@ let main =
 
 let tmpl =
     bt.WebSharper.Library("WebSharper.UI.Next.Templating")
-       
         .SourcesFromProject()
         .References(fun r ->
             [
@@ -29,6 +29,11 @@ let test =
                 r.Project tmpl
             ])
 
+let wslibdir =
+    sprintf "%s/packages/WebSharper.%s/lib/net40/"
+    <| __SOURCE_DIRECTORY__
+    <| FsNuGet.Package.FindLatestVersion("WebSharper")
+
 bt.Solution [
     main
     tmpl
@@ -37,6 +42,8 @@ bt.Solution [
     bt.NuGet.CreatePackage()
         .Add(main)
         .Add(tmpl)
+        .AddFile(wslibdir + "WebSharper.Main.dll", "lib/net40/WebSharper.Main.dll")
+        .AddFile(wslibdir + "WebSharper.JavaScript.dll", "lib/net40/WebSharper.JavaScript.dll")
         .Configure(fun c ->
             { c with
                 Authors = [ "IntelliFactory" ]
@@ -47,3 +54,4 @@ bt.Solution [
                 RequiresLicenseAcceptance = false })
 ]
 |> bt.Dispatch
+

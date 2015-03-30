@@ -8,4 +8,5 @@ set PATH=%PATH%;%ProgramFiles%\Microsoft SDKs\F#\3.1\Framework\v4.0
 set PATH=%PATH%;%ProgramFiles%\Microsoft SDKs\F#\3.0\Framework\v4.0
 set PATH=%PATH%;tools\NuGet
 nuget install IntelliFactory.Build -nocache -pre -ExcludeVersion -o tools\packages
+nuget install FsNuGet -nocache -pre -ExcludeVersion -o tools\packages
 fsi.exe --exec build.fsx %*
