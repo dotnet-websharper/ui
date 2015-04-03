@@ -30,9 +30,7 @@ let test =
             ])
 
 let wslibdir =
-    sprintf "%s/packages/WebSharper.%s/lib/net40/"
-    <| __SOURCE_DIRECTORY__
-    <| FsNuGet.Package.FindLatestVersion("WebSharper")
+    sprintf "%s/build/net40/" __SOURCE_DIRECTORY__
 
 bt.Solution [
     main
@@ -44,7 +42,7 @@ bt.Solution [
         .Add(tmpl)
         .AddFile(wslibdir + "WebSharper.Main.dll", "lib/net40/WebSharper.Main.dll")
         .AddFile(wslibdir + "WebSharper.JavaScript.dll", "lib/net40/WebSharper.JavaScript.dll")
-        .Configure(fun c ->
+        .Configure(fun c -> 
             { c with
                 Authors = [ "IntelliFactory" ]
                 Title = Some "WebSharper.UI.Next"
