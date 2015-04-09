@@ -98,7 +98,15 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                         watcher.Changed.Add <| fun _ -> 
                             this.Invalidate()
                     
-                    let xml = XDocument.Parse("<body>" + File.ReadAllText htmlFile + "</body>")
+                    let xml =
+                        try // Try to load the file as a whole XML document, ie. single root node with optional DTD.
+                            let xmlDoc = XDocument.Load(htmlFile)
+                            let xml = XElement(xn"wrapper")
+                            xml.Add(xmlDoc.Root)
+                            xml
+                        with :? System.Xml.XmlException ->
+                            // Try to load the file as a XML fragment, ie. potentially several root nodes.
+                            XDocument.Parse("<wrapper>" + File.ReadAllText htmlFile + "</wrapper>").Root
 
                     let innerTemplates =
                         xml.Descendants() |> Seq.choose (fun e -> 
@@ -197,7 +205,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                     for name, e in innerTemplates do
                         ProvidedTypeDefinition(name, None) |>! addTemplateMethod e |> ty.AddMember
 
-                    ty |>! addTemplateMethod xml.Root
+                    ty |>! addTemplateMethod xml
                 | _ -> failwith "Unexpected parameter values")
 
         this.AddNamespace(rootNamespace, [ templateTy ])

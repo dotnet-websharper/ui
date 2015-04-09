@@ -1,5 +1,4 @@
 #load "tools/includes.fsx"
-#r "tools/packages/FsNuGet/lib/net40/FsNuGet.dll"
 open IntelliFactory.Build
 
 let bt =
