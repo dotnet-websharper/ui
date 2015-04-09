@@ -24,6 +24,7 @@ module Client =
  
         let title = View.Const "Starting title"
         let var = Var.Create ""
+        let btnVar = Var.Create ()
  
         let doc =
             MyTemplate.Doc(
@@ -37,7 +38,8 @@ module Client =
                             FontWeight = View.Const "bold")
                     )),
                 MyInput = var,
-                MyInputView = var.View
+                MyInputView = View.SnapshotOn "" btnVar.View var.View,
+                MyCallback = (fun e -> Var.Set btnVar ())
             )
 
         doc |> Doc.RunById "main"

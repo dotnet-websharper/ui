@@ -73,6 +73,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
     let attrTy = typeof<Attr>
     let textTy = typeof<View<string>>
     let stringVarTy = typeof<Var<string>>
+    let callbackTy = typeof<WebSharper.JavaScript.Dom.Event -> unit>
 
     let textHoleRegex = Regex @"\$\{([^\}]+)\}" 
     let dataHole = xn"data-hole"
@@ -80,6 +81,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
     let dataTemplate = xn"data-template"
     let dataChildrenTemplate = xn"data-children-template"
     let dataVar = xn"data-var"
+    let dataEvent = "data-event-"
 
     do
         this.Disposing.Add <| fun _ ->
@@ -155,6 +157,11 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                             vars.Add(v)
                             Expr.Var v |> Expr.Cast
 
+                        let getCallbackVar name : Expr<WebSharper.JavaScript.Dom.Event -> unit> =
+                            let v = Var(name, callbackTy)
+                            vars.Add(v)
+                            Expr.Var v |> Expr.Cast
+
                         let getParts (t: string) =
                             if t = "" then [] else
                             let holes =
@@ -183,28 +190,35 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                 let attrs =
                                     if isRoot then <@ [||] @> else
                                     e.Attributes() 
-                                    |> Seq.filter (fun a -> a.Name <> dataHole && a.Name <> dataVar)
+                                    |> Seq.filter (fun a ->
+                                        a.Name <> dataHole &&
+                                        a.Name <> dataVar)
                                     |> Seq.map (fun a -> 
                                         let n = a.Name.LocalName
-                                        match getParts a.Value with
-                                        | [] -> <@ Attr.Create n "" @>
-                                        | [ TextPart v ] -> <@ Attr.Create n v @>
-                                        | p ->
-                                            let rec collect parts =
-                                                match parts with
-                                                | [ TextHole h ] -> h
-                                                | [ TextHole h; TextPart t ] -> 
-                                                    <@ View.Map (fun s -> s + t) %h @>
-                                                | [ TextPart t; TextHole h ] -> 
-                                                    <@ View.Map (fun s -> t + s) %h @>
-                                                | [ TextPart t1; TextHole h; TextPart t2 ] ->
-                                                    <@ View.Map (fun s -> t1 + s + t2) %h @>
-                                                | TextHole h :: rest ->
-                                                    <@ View.Map2 (fun s1 s2 -> s1 + s2) %h %(collect rest) @>
-                                                | TextPart t :: TextHole h :: rest ->
-                                                    <@ View.Map2 (fun s1 s2 -> t + s1 + s2) %h %(collect rest) @>
-                                                | _ -> failwithf "collecting attribute parts failure" // should not happen
-                                            <@ Attr.Dynamic n %(collect p) @>
+                                        if n.StartsWith dataEvent then
+                                            let eventName = n.[dataEvent.Length..]
+                                            let cbVar = getCallbackVar a.Value
+                                            <@ Attr.Handler eventName %cbVar @>
+                                        else
+                                            match getParts a.Value with
+                                            | [] -> <@ Attr.Create n "" @>
+                                            | [ TextPart v ] -> <@ Attr.Create n v @>
+                                            | p ->
+                                                let rec collect parts =
+                                                    match parts with
+                                                    | [ TextHole h ] -> h
+                                                    | [ TextHole h; TextPart t ] -> 
+                                                        <@ View.Map (fun s -> s + t) %h @>
+                                                    | [ TextPart t; TextHole h ] -> 
+                                                        <@ View.Map (fun s -> t + s) %h @>
+                                                    | [ TextPart t1; TextHole h; TextPart t2 ] ->
+                                                        <@ View.Map (fun s -> t1 + s + t2) %h @>
+                                                    | TextHole h :: rest ->
+                                                        <@ View.Map2 (fun s1 s2 -> s1 + s2) %h %(collect rest) @>
+                                                    | TextPart t :: TextHole h :: rest ->
+                                                        <@ View.Map2 (fun s1 s2 -> t + s1 + s2) %h %(collect rest) @>
+                                                    | _ -> failwithf "collecting attribute parts failure" // should not happen
+                                                <@ Attr.Dynamic n %(collect p) @>
                                     )
                                     |> ExprArray
                                 
