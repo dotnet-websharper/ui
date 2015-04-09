@@ -77,8 +77,14 @@ type ListModel<'Key,'T when 'Key : equality> with
     /// Checks if the item specified by its key is in the list.
     member ContainsKey : 'Key -> bool
 
+    /// Gets a view that checks if the item specified by its key is in the list.
+    member ContainsKeyAsView : 'Key -> View<bool>
+
     /// Checks if the item specified by its key is in the list.
     member FindByKey : 'Key -> 'T
+
+    /// Gets a view that checks if the item specified by its key is in the list.
+    member FindByKeyAsView : 'Key -> View<'T>
 
     /// Updates an item with the given key with another item computed by the given function.
     /// If None is computed or the item to be updated is not found, nothing is done.
@@ -86,6 +92,12 @@ type ListModel<'Key,'T when 'Key : equality> with
 
     /// Removes all elements of the list.
     member Clear : unit -> unit
+
+    /// Gets the number of elements in the list.
+    member Length : int
+
+    /// Gets a view of the number of elements in the list.
+    member LengthAsView : View<int>
 
 type ListModel with
 

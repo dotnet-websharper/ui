@@ -100,8 +100,14 @@ type ListModel<'K,'T> with
     member m.ContainsKey key =
         Array.exists (fun it -> m.Key it = key) m.Var.Value
 
+    member m.ContainsKeyAsView key =
+        m.Var.View |> View.Map (Array.exists (fun it -> m.Key it = key))
+
     member m.FindByKey key =
         Array.find (fun it -> m.Key it = key) m.Var.Value
+
+    member m.FindByKeyAsView key =
+        m.Var.View |> View.Map (Array.find (fun it -> m.Key it = key))
 
     member m.UpdateBy fn key =
         let v = m.Var.Value
@@ -116,6 +122,12 @@ type ListModel<'K,'T> with
 
     member m.Clear () =
         m.Var.Value <- [||]
+
+    member m.Length =
+        m.Var.Value.Length
+
+    member m.LengthAsView =
+        m.Var.View |> View.Map (fun arr -> arr.Length)
 
 [<JavaScript>]
 [<Sealed>]
