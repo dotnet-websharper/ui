@@ -28,28 +28,16 @@ open System.Text.RegularExpressions
 open Microsoft.FSharp.Reflection
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Core.CompilerServices
-open WebSharper
-open WebSharper.JavaScript
 open WebSharper.UI.Next
 
 open WebSharper.UI.Next.Templating.ProvidedTypes
 
-module public Inlines =
-    [<Inline "$func($arg)">]
-    let InvokeFunc (func: 'a -> 'b) (arg: 'a) = X<'b>
-
-    [<Inline "$func($arg1)($arg2)">]
-    let InvokeFunc2 (func: 'a -> 'b -> 'c) (arg1: 'a) (arg2: 'b) = X<'c>
-
-    [<Inline "$func($arg1)($arg2)($arg3)">]
-    let InvokeFunc3 (func: 'a -> 'b -> 'c -> 'd) (arg1: 'a) (arg2: 'b) (arg3: 'c) = X<'d>
-
-open Inlines
-
 [<AutoOpen>]
 module internal Utils =
     let ( +/ ) a b = System.IO.Path.Combine(a, b)
-    
+        
+    let inline ( |>! ) x f = f x; x
+
     let xn n = XName.Get n
 
     let ExprArray (exprs: Expr<'T> seq) : Expr<'T[]> =
@@ -159,19 +147,19 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                                     |> Seq.map (fun m -> m.Groups.[1].Value, m.Index)
                                                     |> List.ofSeq
                                                 if List.isEmpty holes then
-                                                    [ <@ InvokeFunc Doc.TextNode t @> ]
+                                                    [ <@ Doc.TextNode t @> ]
                                                 else
                                                     [
                                                         let l = ref 0
                                                         for name, i in holes do
                                                             if i > !l then
                                                                 let s = t.[!l .. i - 1]
-                                                                yield <@ InvokeFunc Doc.TextNode s @> 
-                                                            yield <@ InvokeFunc Doc.TextView %(getTextVar name) @>
+                                                                yield <@ Doc.TextNode s @> 
+                                                            yield <@ Doc.TextView %(getTextVar name) @>
                                                             l := i + name.Length + 3
                                                         if t.Length > !l then
                                                             let s = t.[!l ..]
-                                                            yield <@ InvokeFunc Doc.TextNode s @> 
+                                                            yield <@ Doc.TextNode s @> 
                                                     ]   
                                             | _ -> []
                                         ) 
@@ -179,7 +167,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                     | a -> <@ [| %(getDocVar a.Value) |] @>  
 
                                 if isRoot then 
-                                    <@ InvokeFunc Doc.Concat %nodes @>
+                                    <@ Doc.Concat %nodes @>
                                 else
                                     let attrs =
                                         e.Attributes() 
@@ -187,11 +175,11 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                         |> Seq.map (fun a -> 
                                             let n = a.Name.LocalName
                                             let v = a.Value
-                                            <@ InvokeFunc2 Attr.Create n v @>
+                                            <@ Attr.Create n v @>
                                         )
                                         |> ExprArray
                                     let n = e.Name.LocalName
-                                    <@ InvokeFunc3 Doc.Element n %attrs %nodes @>
+                                    <@ Doc.Element n %attrs %nodes @>
 
                             | a -> getDocVar a.Value
                         

@@ -40,8 +40,6 @@ bt.Solution [
     bt.NuGet.CreatePackage()
         .Add(main)
         .Add(tmpl)
-        .AddFile(wslibdir + "WebSharper.Main.dll", "lib/net40/WebSharper.Main.dll")
-        .AddFile(wslibdir + "WebSharper.JavaScript.dll", "lib/net40/WebSharper.JavaScript.dll")
         .Configure(fun c -> 
             { c with
                 Authors = [ "IntelliFactory" ]
