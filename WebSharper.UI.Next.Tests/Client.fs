@@ -23,6 +23,7 @@ module Client =
           ]
  
         let title = View.Const "Starting title"
+        let var = Var.Create ""
  
         let doc =
             MyTemplate.Doc(
@@ -34,8 +35,10 @@ module Client =
                             Description = View.Const item.description,
                             FontStyle = View.Const "normal",
                             FontWeight = View.Const "bold")
-                    ))
-              )
-                  
+                    )),
+                MyInput = var,
+                MyInputView = var.View
+            )
+
         doc |> Doc.RunById "main"
         Console.Log("Running JavaScript Entry Point..")

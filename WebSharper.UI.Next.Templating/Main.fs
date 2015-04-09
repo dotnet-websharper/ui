@@ -72,12 +72,14 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
     let docTy = typeof<Doc>
     let attrTy = typeof<Attr>
     let textTy = typeof<View<string>>
+    let stringVarTy = typeof<Var<string>>
 
     let textHoleRegex = Regex @"\$\{([^\}]+)\}" 
     let dataHole = xn"data-hole"
     let dataReplace = xn"data-replace"
     let dataTemplate = xn"data-template"
     let dataChildrenTemplate = xn"data-children-template"
+    let dataVar = xn"data-var"
 
     do
         this.Disposing.Add <| fun _ ->
@@ -148,6 +150,11 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                             vars.Add(v)
                             Expr.Var v |> Expr.Cast
 
+                        let getStringVarVar name : Expr<Var<string>> =
+                            let v = Var(name, stringVarTy)
+                            vars.Add(v)
+                            Expr.Var v |> Expr.Cast
+
                         let getParts (t: string) =
                             if t = "" then [] else
                             let holes =
@@ -176,7 +183,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                 let attrs =
                                     if isRoot then <@ [||] @> else
                                     e.Attributes() 
-                                    |> Seq.filter (fun a -> a.Name <> dataHole) 
+                                    |> Seq.filter (fun a -> a.Name <> dataHole && a.Name <> dataVar)
                                     |> Seq.map (fun a -> 
                                         let n = a.Name.LocalName
                                         match getParts a.Value with
@@ -221,7 +228,16 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                     <@ Doc.Concat %nodes @>
                                 else
                                     let n = e.Name.LocalName
-                                    <@ Doc.Element n %attrs %nodes @>
+                                    match e.Attribute(dataVar) with
+                                    | null -> <@ Doc.Element n %attrs %nodes @>
+                                    | a ->
+                                        if n.ToLower() = "input" then
+                                            let var = getStringVarVar a.Value
+                                            <@ Doc.Input %attrs %var @>
+                                        elif n.ToLower() = "textarea" then
+                                            let var = getStringVarVar a.Value
+                                            <@ Doc.InputArea %attrs %var @>
+                                        else failwithf "data-var attribute \"%s\" on invalid element \"%s\"" a.Value n
 
                             | a -> getDocVar a.Value
                         
