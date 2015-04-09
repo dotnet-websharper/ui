@@ -60,7 +60,7 @@ type Doc with
 
   // Collections.
 
-    /// Converts a collection to Doc using View.Convert and embeds the concatenated reslut.
+    /// Converts a collection to Doc using View.Convert and embeds the concatenated result.
     /// Shorthand for View.Convert f |> View.Map Doc.Concat |> Doc.EmbedView.
     static member Convert<'T when 'T : equality> :
         ('T -> Doc) -> View<seq<'T>> -> Doc
@@ -69,7 +69,7 @@ type Doc with
     static member ConvertBy<'T,'K when 'K : equality> :
         ('T -> 'K) -> ('T -> Doc) -> View<seq<'T>> -> Doc
 
-    /// Converts a collection to Doc using View.ConvertSeq and embeds the concatenated reslut.
+    /// Converts a collection to Doc using View.ConvertSeq and embeds the concatenated result.
     /// Shorthand for View.ConvertSeq f |> View.Map Doc.Concat |> Doc.EmbedView.
     static member ConvertSeq<'T when 'T : equality> :
         (View<'T> -> Doc) -> View<seq<'T>> -> Doc
