@@ -30,7 +30,7 @@ open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Core.CompilerServices
 open WebSharper.UI.Next
 
-open WebSharper.UI.Next.Templating.ProvidedTypes
+open ProviderImplementation.ProvidedTypes
 
 [<AutoOpen>]
 module internal Utils =
@@ -80,6 +80,9 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
     let dataChildrenTemplate = xn"data-children-template"
 
     do
+        this.Disposing.Add <| fun _ ->
+            if watcher <> null then watcher.Dispose()
+
         templateTy.DefineStaticParameters(
             [ProvidedStaticParameter("path", typeof<string>)],
             fun typename pars ->
@@ -92,16 +95,17 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                         else cfg.ResolutionFolder +/ path
 
                     if cfg.IsInvalidationSupported then
-                        if watcher <> null then 
-                            watcher.Dispose()
+                        if watcher <> null then watcher.Dispose()
                         watcher <-
                             new FileSystemWatcher(Path.GetDirectoryName htmlFile, Path.GetFileName htmlFile, 
-                                EnableRaisingEvents = true,
-                                NotifyFilter = (NotifyFilters.LastWrite ||| NotifyFilters.Security)
+                                NotifyFilter = (NotifyFilters.LastWrite ||| NotifyFilters.Security ||| NotifyFilters.FileName)
                             )
-                        watcher.Changed.Add <| fun _ -> 
-                            this.Invalidate()
-                    
+                        watcher.Changed.Add <| fun _ -> this.Invalidate()
+                        watcher.Deleted.Add <| fun _ -> this.Invalidate()
+                        watcher.Renamed.Add <| fun _ -> this.Invalidate()
+                        watcher.Created.Add <| fun _ -> this.Invalidate()
+                        watcher.EnableRaisingEvents <- true
+
                     let xml =
                         try // Try to load the file as a whole XML document, ie. single root node with optional DTD.
                             let xmlDoc = XDocument.Load(htmlFile)
