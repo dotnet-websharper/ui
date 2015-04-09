@@ -28,32 +28,24 @@ open System.Text.RegularExpressions
 open Microsoft.FSharp.Reflection
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Core.CompilerServices
-open WebSharper
-open WebSharper.JavaScript
 open WebSharper.UI.Next
 
-open WebSharper.UI.Next.Templating.ProvidedTypes
-
-module public Inlines =
-    [<Inline "$func($arg)">]
-    let InvokeFunc (func: 'a -> 'b) (arg: 'a) = X<'b>
-
-    [<Inline "$func($arg1)($arg2)">]
-    let InvokeFunc2 (func: 'a -> 'b -> 'c) (arg1: 'a) (arg2: 'b) = X<'c>
-
-    [<Inline "$func($arg1)($arg2)($arg3)">]
-    let InvokeFunc3 (func: 'a -> 'b -> 'c -> 'd) (arg1: 'a) (arg2: 'b) (arg3: 'c) = X<'d>
-
-open Inlines
+open ProviderImplementation.ProvidedTypes
 
 [<AutoOpen>]
 module internal Utils =
     let ( +/ ) a b = System.IO.Path.Combine(a, b)
-    
+        
+    let inline ( |>! ) x f = f x; x
+
     let xn n = XName.Get n
 
     let ExprArray (exprs: Expr<'T> seq) : Expr<'T[]> =
         Expr.NewArray(typeof<'T>, exprs |> Seq.cast |> List.ofSeq) |> Expr.Cast
+
+type StringParts =
+    | TextPart of string
+    | TextHole of Expr<View<string>>
 
 [<TypeProvider>]
 type TemplateProvider(cfg: TypeProviderConfig) as this =
@@ -88,6 +80,9 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
     let dataChildrenTemplate = xn"data-children-template"
 
     do
+        this.Disposing.Add <| fun _ ->
+            if watcher <> null then watcher.Dispose()
+
         templateTy.DefineStaticParameters(
             [ProvidedStaticParameter("path", typeof<string>)],
             fun typename pars ->
@@ -100,16 +95,17 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                         else cfg.ResolutionFolder +/ path
 
                     if cfg.IsInvalidationSupported then
-                        if watcher <> null then 
-                            watcher.Dispose()
+                        if watcher <> null then watcher.Dispose()
                         watcher <-
                             new FileSystemWatcher(Path.GetDirectoryName htmlFile, Path.GetFileName htmlFile, 
-                                EnableRaisingEvents = true,
-                                NotifyFilter = (NotifyFilters.LastWrite ||| NotifyFilters.Security)
+                                NotifyFilter = (NotifyFilters.LastWrite ||| NotifyFilters.Security ||| NotifyFilters.FileName)
                             )
-                        watcher.Changed.Add <| fun _ -> 
-                            this.Invalidate()
-                    
+                        watcher.Changed.Add <| fun _ -> this.Invalidate()
+                        watcher.Deleted.Add <| fun _ -> this.Invalidate()
+                        watcher.Renamed.Add <| fun _ -> this.Invalidate()
+                        watcher.Created.Add <| fun _ -> this.Invalidate()
+                        watcher.EnableRaisingEvents <- true
+
                     let xml =
                         try // Try to load the file as a whole XML document, ie. single root node with optional DTD.
                             let xmlDoc = XDocument.Load(htmlFile)
@@ -152,54 +148,80 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                             vars.Add(v)
                             Expr.Var v |> Expr.Cast
 
+                        let getParts (t: string) =
+                            if t = "" then [] else
+                            let holes =
+                                textHoleRegex.Matches t |> Seq.cast<Match>
+                                |> Seq.map (fun m -> m.Groups.[1].Value, m.Index)
+                                |> List.ofSeq
+                            if List.isEmpty holes then
+                                [ TextPart t ]
+                            else
+                                [
+                                    let l = ref 0
+                                    for name, i in holes do
+                                        if i > !l then
+                                            let s = t.[!l .. i - 1]
+                                            yield TextPart s
+                                        yield TextHole (getTextVar name)
+                                        l := i + name.Length + 3
+                                    if t.Length > !l then
+                                        let s = t.[!l ..]
+                                        yield TextPart s
+                                ]   
+
                         let rec createNode isRoot (e: XElement) =
                             match e.Attribute(dataReplace) with
                             | null ->
+                                let attrs =
+                                    if isRoot then <@ [||] @> else
+                                    e.Attributes() 
+                                    |> Seq.filter (fun a -> a.Name <> dataHole) 
+                                    |> Seq.map (fun a -> 
+                                        let n = a.Name.LocalName
+                                        match getParts a.Value with
+                                        | [] -> <@ Attr.Create n "" @>
+                                        | [ TextPart v ] -> <@ Attr.Create n v @>
+                                        | p ->
+                                            let rec collect parts =
+                                                match parts with
+                                                | [ TextHole h ] -> h
+                                                | [ TextHole h; TextPart t ] -> 
+                                                    <@ View.Map (fun s -> s + t) %h @>
+                                                | [ TextPart t; TextHole h ] -> 
+                                                    <@ View.Map (fun s -> t + s) %h @>
+                                                | [ TextPart t1; TextHole h; TextPart t2 ] ->
+                                                    <@ View.Map (fun s -> t1 + s + t2) %h @>
+                                                | TextHole h :: rest ->
+                                                    <@ View.Map2 (fun s1 s2 -> s1 + s2) %h %(collect rest) @>
+                                                | TextPart t :: TextHole h :: rest ->
+                                                    <@ View.Map2 (fun s1 s2 -> t + s1 + s2) %h %(collect rest) @>
+                                                | _ -> failwithf "collecting attribute parts failure" // should not happen
+                                            <@ Attr.Dynamic n %(collect p) @>
+                                    )
+                                    |> ExprArray
+                                
                                 let nodes = 
                                     match e.Attribute(dataHole) with
                                     | null ->
                                         e.Nodes() |> Seq.collect (function
                                             | :? XElement as n -> [ createNode false n ]
                                             | :? XText as n ->
-                                                let t = n.Value
-                                                let holes =
-                                                    textHoleRegex.Matches t |> Seq.cast<Match>
-                                                    |> Seq.map (fun m -> m.Groups.[1].Value, m.Index)
-                                                    |> List.ofSeq
-                                                if List.isEmpty holes then
-                                                    [ <@ InvokeFunc Doc.TextNode t @> ]
-                                                else
-                                                    [
-                                                        let l = ref 0
-                                                        for name, i in holes do
-                                                            if i > !l then
-                                                                let s = t.[!l .. i - 1]
-                                                                yield <@ InvokeFunc Doc.TextNode s @> 
-                                                            yield <@ InvokeFunc Doc.TextView %(getTextVar name) @>
-                                                            l := i + name.Length + 3
-                                                        if t.Length > !l then
-                                                            let s = t.[!l ..]
-                                                            yield <@ InvokeFunc Doc.TextNode s @> 
-                                                    ]   
+                                                getParts n.Value
+                                                |> List.map (function
+                                                    | TextPart t -> <@ Doc.TextNode t @>
+                                                    | TextHole h -> <@ Doc.TextView %h @>
+                                                )
                                             | _ -> []
                                         ) 
                                         |> ExprArray
                                     | a -> <@ [| %(getDocVar a.Value) |] @>  
 
                                 if isRoot then 
-                                    <@ InvokeFunc Doc.Concat %nodes @>
+                                    <@ Doc.Concat %nodes @>
                                 else
-                                    let attrs =
-                                        e.Attributes() 
-                                        |> Seq.filter (fun a -> a.Name <> dataHole) 
-                                        |> Seq.map (fun a -> 
-                                            let n = a.Name.LocalName
-                                            let v = a.Value
-                                            <@ InvokeFunc2 Attr.Create n v @>
-                                        )
-                                        |> ExprArray
                                     let n = e.Name.LocalName
-                                    <@ InvokeFunc3 Doc.Element n %attrs %nodes @>
+                                    <@ Doc.Element n %attrs %nodes @>
 
                             | a -> getDocVar a.Value
                         
