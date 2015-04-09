@@ -43,6 +43,10 @@ module internal Utils =
     let ExprArray (exprs: Expr<'T> seq) : Expr<'T[]> =
         Expr.NewArray(typeof<'T>, exprs |> Seq.cast |> List.ofSeq) |> Expr.Cast
 
+type StringParts =
+    | TextPart of string
+    | TextHole of Expr<View<string>>
+
 [<TypeProvider>]
 type TemplateProvider(cfg: TypeProviderConfig) as this =
     inherit TypeProviderForNamespaces()
@@ -140,35 +144,70 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                             vars.Add(v)
                             Expr.Var v |> Expr.Cast
 
+                        let getParts (t: string) =
+                            if t = "" then [] else
+                            let holes =
+                                textHoleRegex.Matches t |> Seq.cast<Match>
+                                |> Seq.map (fun m -> m.Groups.[1].Value, m.Index)
+                                |> List.ofSeq
+                            if List.isEmpty holes then
+                                [ TextPart t ]
+                            else
+                                [
+                                    let l = ref 0
+                                    for name, i in holes do
+                                        if i > !l then
+                                            let s = t.[!l .. i - 1]
+                                            yield TextPart s
+                                        yield TextHole (getTextVar name)
+                                        l := i + name.Length + 3
+                                    if t.Length > !l then
+                                        let s = t.[!l ..]
+                                        yield TextPart s
+                                ]   
+
                         let rec createNode isRoot (e: XElement) =
                             match e.Attribute(dataReplace) with
                             | null ->
+                                let attrs =
+                                    if isRoot then <@ [||] @> else
+                                    e.Attributes() 
+                                    |> Seq.filter (fun a -> a.Name <> dataHole) 
+                                    |> Seq.map (fun a -> 
+                                        let n = a.Name.LocalName
+                                        match getParts a.Value with
+                                        | [] -> <@ Attr.Create n "" @>
+                                        | [ TextPart v ] -> <@ Attr.Create n v @>
+                                        | p ->
+                                            let rec collect parts =
+                                                match parts with
+                                                | [ TextHole h ] -> h
+                                                | [ TextHole h; TextPart t ] -> 
+                                                    <@ View.Map (fun s -> s + t) %h @>
+                                                | [ TextPart t; TextHole h ] -> 
+                                                    <@ View.Map (fun s -> t + s) %h @>
+                                                | [ TextPart t1; TextHole h; TextPart t2 ] ->
+                                                    <@ View.Map (fun s -> t1 + s + t2) %h @>
+                                                | TextHole h :: rest ->
+                                                    <@ View.Map2 (fun s1 s2 -> s1 + s2) %h %(collect rest) @>
+                                                | TextPart t :: TextHole h :: rest ->
+                                                    <@ View.Map2 (fun s1 s2 -> t + s1 + s2) %h %(collect rest) @>
+                                                | _ -> failwithf "collecting attribute parts failure" // should not happen
+                                            <@ Attr.Dynamic n %(collect p) @>
+                                    )
+                                    |> ExprArray
+                                
                                 let nodes = 
                                     match e.Attribute(dataHole) with
                                     | null ->
                                         e.Nodes() |> Seq.collect (function
                                             | :? XElement as n -> [ createNode false n ]
                                             | :? XText as n ->
-                                                let t = n.Value
-                                                let holes =
-                                                    textHoleRegex.Matches t |> Seq.cast<Match>
-                                                    |> Seq.map (fun m -> m.Groups.[1].Value, m.Index)
-                                                    |> List.ofSeq
-                                                if List.isEmpty holes then
-                                                    [ <@ Doc.TextNode t @> ]
-                                                else
-                                                    [
-                                                        let l = ref 0
-                                                        for name, i in holes do
-                                                            if i > !l then
-                                                                let s = t.[!l .. i - 1]
-                                                                yield <@ Doc.TextNode s @> 
-                                                            yield <@ Doc.TextView %(getTextVar name) @>
-                                                            l := i + name.Length + 3
-                                                        if t.Length > !l then
-                                                            let s = t.[!l ..]
-                                                            yield <@ Doc.TextNode s @> 
-                                                    ]   
+                                                getParts n.Value
+                                                |> List.map (function
+                                                    | TextPart t -> <@ Doc.TextNode t @>
+                                                    | TextHole h -> <@ Doc.TextView %h @>
+                                                )
                                             | _ -> []
                                         ) 
                                         |> ExprArray
@@ -177,15 +216,6 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                 if isRoot then 
                                     <@ Doc.Concat %nodes @>
                                 else
-                                    let attrs =
-                                        e.Attributes() 
-                                        |> Seq.filter (fun a -> a.Name <> dataHole) 
-                                        |> Seq.map (fun a -> 
-                                            let n = a.Name.LocalName
-                                            let v = a.Value
-                                            <@ Attr.Create n v @>
-                                        )
-                                        |> ExprArray
                                     let n = e.Name.LocalName
                                     <@ Doc.Element n %attrs %nodes @>
 

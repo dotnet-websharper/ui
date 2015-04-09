@@ -31,7 +31,9 @@ module Client =
                     (ListModel.View myItems |> Doc.Convert (fun item ->
                         MyTemplate.ListItem.Doc(
                             Name = View.Const item.name,
-                            Description = View.Const item.description)
+                            Description = View.Const item.description,
+                            FontStyle = View.Const "normal",
+                            FontWeight = View.Const "bold")
                     ))
               )
                   
