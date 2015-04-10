@@ -21,6 +21,7 @@
 namespace WebSharper.UI.Next.Templating
 
 open System
+open System.Collections.Generic
 open System.IO
 open System.Reflection
 open System.Xml.Linq
@@ -43,9 +44,24 @@ module internal Utils =
     let ExprArray (exprs: Expr<'T> seq) : Expr<'T[]> =
         Expr.NewArray(typeof<'T>, exprs |> Seq.cast |> List.ofSeq) |> Expr.Cast
 
-type StringParts =
-    | TextPart of string
-    | TextHole of string
+    type StringParts =
+        | TextPart of string
+        | TextHole of string
+
+    let ViewOf ty = typedefof<View<_>>.MakeGenericType([|ty|])
+    let VarOf ty = typedefof<Var<_>>.MakeGenericType([|ty|])
+
+    [<RequireQualifiedAccess>]
+    type Hole =
+        | Var of valTy: System.Type * hasView: bool
+        | View of valTy: System.Type
+        | Simple of ty: System.Type
+
+        member this.ArgType =
+            match this with
+            | Var (valTy = t) -> VarOf t
+            | View (valTy = t) -> ViewOf t
+            | Simple (ty = t) -> t
 
 [<TypeProvider>]
 type TemplateProvider(cfg: TypeProviderConfig) as this =
@@ -133,12 +149,54 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                         )    
                                         
                     let addTemplateMethod (t: XElement) (toTy: ProvidedTypeDefinition) =                        
-                        let vars = ResizeArray()
+                        let holes = Dictionary()
 
-                        let getVar name : Expr<'T> =
-                            let v = Var(name, typeof<'T>)
-                            vars.Add(v)
-                            Expr.Var v |> Expr.Cast
+                        let getSimpleHole name : Expr<'T> =
+                            match holes.TryGetValue(name) with
+                            | true, _ ->
+                                failwithf "Invalid multiple use of variable name in the same template: %s" name
+                            | false, _ ->
+                                holes.Add(name, Hole.Simple typeof<'T>)
+                            Expr.Var (Var (name, typeof<'T>)) |> Expr.Cast
+
+                        let getVarHole name : Expr<Var<'T>> =
+                            match holes.TryGetValue(name) with
+                            | true, Hole.Var(valTy = valTy) ->
+                                if valTy = typeof<'T> then
+                                    ()
+                                else
+                                    failwithf "Invalid multiple use of variable name for differently typed Vars: %s" name
+                            | true, Hole.View valTy ->
+                                if valTy = typeof<'T> then
+                                    holes.Remove(name) |> ignore
+                                    holes.Add(name, Hole.Var(valTy = typeof<'T>, hasView = true))
+                                else
+                                    failwithf "Invalid multiple use of variable name for differently typed View and Var: %s" name
+                            | true, Hole.Simple _ ->
+                                failwithf "Invalid multiple use of variable name in the same template: %s" name
+                            | false, _ ->
+                                holes.Add(name, Hole.Var(valTy = typeof<'T>, hasView = false))
+                            Expr.Var (Var (name, typeof<Var<'T>>)) |> Expr.Cast
+
+                        let getViewHole name : Expr<View<'T>> =
+                            match holes.TryGetValue(name) with
+                            | true, Hole.Var(valTy = valTy; hasView = hasView) ->
+                                if valTy = typeof<'T> then
+                                    if not hasView then
+                                        holes.Remove(name) |> ignore
+                                        holes.Add(name, Hole.Var(valTy = valTy, hasView = true))
+                                else
+                                    failwithf "Invalid multiple use of variable name for differently typed View and Var: %s" name
+                            | true, Hole.View valTy ->
+                                if valTy = typeof<'T> then
+                                    ()
+                                else
+                                    failwithf "Invalid multiple use of variable name for differently typed Views: %s" name
+                            | true, Hole.Simple vh ->
+                                failwithf "Invalid multiple use of variable name in the same template: %s" name
+                            | false, _ ->
+                                holes.Add(name, Hole.View typeof<'T>)
+                            Expr.Var (Var (name, typeof<View<'T>>)) |> Expr.Cast
 
                         let getParts (t: string) =
                             if t = "" then [] else
@@ -175,8 +233,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                         let n = a.Name.LocalName
                                         if n.StartsWith dataEvent then
                                             let eventName = n.[dataEvent.Length..]
-                                            let cbVar = getVar a.Value
-                                            <@ Attr.Handler eventName %cbVar @>
+                                            <@ Attr.Handler eventName %(getSimpleHole a.Value) @>
                                         else
                                             match getParts a.Value with
                                             | [] -> <@ Attr.Create n "" @>
@@ -184,17 +241,17 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                             | p ->
                                                 let rec collect parts =
                                                     match parts with
-                                                    | [ TextHole h ] -> getVar h
+                                                    | [ TextHole h ] -> getViewHole h
                                                     | [ TextHole h; TextPart t ] -> 
-                                                        <@ View.Map (fun s -> s + t) %(getVar h) @>
+                                                        <@ View.Map (fun s -> s + t) %(getViewHole h) @>
                                                     | [ TextPart t; TextHole h ] -> 
-                                                        <@ View.Map (fun s -> t + s) %(getVar h) @>
+                                                        <@ View.Map (fun s -> t + s) %(getViewHole h) @>
                                                     | [ TextPart t1; TextHole h; TextPart t2 ] ->
-                                                        <@ View.Map (fun s -> t1 + s + t2) %(getVar h) @>
+                                                        <@ View.Map (fun s -> t1 + s + t2) %(getViewHole h) @>
                                                     | TextHole h :: rest ->
-                                                        <@ View.Map2 (fun s1 s2 -> s1 + s2) %(getVar h) %(collect rest) @>
+                                                        <@ View.Map2 (fun s1 s2 -> s1 + s2) %(getViewHole h) %(collect rest) @>
                                                     | TextPart t :: TextHole h :: rest ->
-                                                        <@ View.Map2 (fun s1 s2 -> t + s1 + s2) %(getVar h) %(collect rest) @>
+                                                        <@ View.Map2 (fun s1 s2 -> t + s1 + s2) %(getViewHole h) %(collect rest) @>
                                                     | _ -> failwithf "collecting attribute parts failure" // should not happen
                                                 <@ Attr.Dynamic n %(collect p) @>
                                     )
@@ -209,12 +266,12 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                                 getParts n.Value
                                                 |> List.map (function
                                                     | TextPart t -> <@ Doc.TextNode t @>
-                                                    | TextHole h -> <@ Doc.TextView %(getVar h) @>
+                                                    | TextHole h -> <@ Doc.TextView %(getViewHole h) @>
                                                 )
                                             | _ -> []
                                         ) 
                                         |> ExprArray
-                                    | a -> <@ [| %(getVar a.Value) |] @>  
+                                    | a -> <@ [| %(getSimpleHole a.Value) |] @>
 
                                 if isRoot then 
                                     <@ Doc.Concat %nodes @>
@@ -224,20 +281,37 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                     | null -> <@ Doc.Element n %attrs %nodes @>
                                     | a ->
                                         if n.ToLower() = "input" then
-                                            <@ Doc.Input %attrs %(getVar a.Value) @>
+                                            <@ Doc.Input %attrs %(getVarHole a.Value) @>
                                         elif n.ToLower() = "textarea" then
-                                            <@ Doc.InputArea %attrs %(getVar a.Value) @>
+                                            <@ Doc.InputArea %attrs %(getVarHole a.Value) @>
                                         else failwithf "data-var attribute \"%s\" on invalid element \"%s\"" a.Value n
 
-                            | a -> getVar a.Value
+                            | a -> getSimpleHole a.Value
                         
                         let mainExpr = t |> createNode true
 
-                        let pars = vars |> Seq.map (fun v -> ProvidedParameter(v.Name, v.Type)) |> List.ofSeq
+                        let pars = [ for KeyValue(name, h) in holes -> ProvidedParameter(name, h.ArgType) ]
 
-                        let code holes = 
-                            let varMap = Seq.zip vars holes |> Map.ofSeq
-                            mainExpr.Substitute(fun v -> varMap |> Map.tryFind v)
+                        let code (args: Expr list) =
+                            let varMap = Dictionary()
+                            for KeyValue(name, hole), arg in Seq.zip holes args do
+                                match hole with
+                                | Hole.Simple ty ->
+                                    varMap.Add((name, ty), arg)
+                                | Hole.View valTy ->
+                                    varMap.Add((name, ViewOf valTy), arg)
+                                | Hole.Var(valTy, hasView) ->
+                                    let varTy = VarOf valTy
+                                    varMap.Add((name, varTy), arg)
+                                    if hasView then
+                                        varMap.Add((name, ViewOf valTy),
+                                            Expr.Call(
+                                                typeof<View>.GetMethod("FromVar").MakeGenericMethod([|valTy|]),
+                                                [arg]))
+                            mainExpr.Substitute(fun v ->
+                                match varMap.TryGetValue((v.Name, v.Type)) with
+                                | true, e -> Some e
+                                | false, _ -> None)
                         
                         ProvidedMethod("Doc", pars, typeof<Doc>, IsStaticMethod = true, InvokeCode = code)
                         |> toTy.AddMember
