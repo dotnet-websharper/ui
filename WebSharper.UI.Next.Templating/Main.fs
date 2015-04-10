@@ -45,7 +45,7 @@ module internal Utils =
 
 type StringParts =
     | TextPart of string
-    | TextHole of Expr<View<string>>
+    | TextHole of string
 
 [<TypeProvider>]
 type TemplateProvider(cfg: TypeProviderConfig) as this =
@@ -67,13 +67,6 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
     let templateTy = ProvidedTypeDefinition(thisAssembly, rootNamespace, "Template", None)
 
     let mutable watcher: FileSystemWatcher = null
-
-    let objTy = typeof<obj>
-    let docTy = typeof<Doc>
-    let attrTy = typeof<Attr>
-    let textTy = typeof<View<string>>
-    let stringVarTy = typeof<Var<string>>
-    let callbackTy = typeof<WebSharper.JavaScript.Dom.Event -> unit>
 
     let textHoleRegex = Regex @"\$\{([^\}]+)\}" 
     let dataHole = xn"data-hole"
@@ -142,23 +135,8 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                     let addTemplateMethod (t: XElement) (toTy: ProvidedTypeDefinition) =                        
                         let vars = ResizeArray()
 
-                        let getDocVar name : Expr<Doc> =
-                            let v = Var(name, docTy)
-                            vars.Add(v)
-                            Expr.Var v |> Expr.Cast
-                        
-                        let getTextVar name : Expr<View<string>> =
-                            let v = Var(name, textTy)
-                            vars.Add(v)
-                            Expr.Var v |> Expr.Cast
-
-                        let getStringVarVar name : Expr<Var<string>> =
-                            let v = Var(name, stringVarTy)
-                            vars.Add(v)
-                            Expr.Var v |> Expr.Cast
-
-                        let getCallbackVar name : Expr<WebSharper.JavaScript.Dom.Event -> unit> =
-                            let v = Var(name, callbackTy)
+                        let getVar name : Expr<'T> =
+                            let v = Var(name, typeof<'T>)
                             vars.Add(v)
                             Expr.Var v |> Expr.Cast
 
@@ -177,7 +155,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                         if i > !l then
                                             let s = t.[!l .. i - 1]
                                             yield TextPart s
-                                        yield TextHole (getTextVar name)
+                                        yield TextHole name
                                         l := i + name.Length + 3
                                     if t.Length > !l then
                                         let s = t.[!l ..]
@@ -197,7 +175,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                         let n = a.Name.LocalName
                                         if n.StartsWith dataEvent then
                                             let eventName = n.[dataEvent.Length..]
-                                            let cbVar = getCallbackVar a.Value
+                                            let cbVar = getVar a.Value
                                             <@ Attr.Handler eventName %cbVar @>
                                         else
                                             match getParts a.Value with
@@ -206,17 +184,17 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                             | p ->
                                                 let rec collect parts =
                                                     match parts with
-                                                    | [ TextHole h ] -> h
+                                                    | [ TextHole h ] -> getVar h
                                                     | [ TextHole h; TextPart t ] -> 
-                                                        <@ View.Map (fun s -> s + t) %h @>
+                                                        <@ View.Map (fun s -> s + t) %(getVar h) @>
                                                     | [ TextPart t; TextHole h ] -> 
-                                                        <@ View.Map (fun s -> t + s) %h @>
+                                                        <@ View.Map (fun s -> t + s) %(getVar h) @>
                                                     | [ TextPart t1; TextHole h; TextPart t2 ] ->
-                                                        <@ View.Map (fun s -> t1 + s + t2) %h @>
+                                                        <@ View.Map (fun s -> t1 + s + t2) %(getVar h) @>
                                                     | TextHole h :: rest ->
-                                                        <@ View.Map2 (fun s1 s2 -> s1 + s2) %h %(collect rest) @>
+                                                        <@ View.Map2 (fun s1 s2 -> s1 + s2) %(getVar h) %(collect rest) @>
                                                     | TextPart t :: TextHole h :: rest ->
-                                                        <@ View.Map2 (fun s1 s2 -> t + s1 + s2) %h %(collect rest) @>
+                                                        <@ View.Map2 (fun s1 s2 -> t + s1 + s2) %(getVar h) %(collect rest) @>
                                                     | _ -> failwithf "collecting attribute parts failure" // should not happen
                                                 <@ Attr.Dynamic n %(collect p) @>
                                     )
@@ -231,12 +209,12 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                                 getParts n.Value
                                                 |> List.map (function
                                                     | TextPart t -> <@ Doc.TextNode t @>
-                                                    | TextHole h -> <@ Doc.TextView %h @>
+                                                    | TextHole h -> <@ Doc.TextView %(getVar h) @>
                                                 )
                                             | _ -> []
                                         ) 
                                         |> ExprArray
-                                    | a -> <@ [| %(getDocVar a.Value) |] @>  
+                                    | a -> <@ [| %(getVar a.Value) |] @>  
 
                                 if isRoot then 
                                     <@ Doc.Concat %nodes @>
@@ -246,14 +224,12 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                     | null -> <@ Doc.Element n %attrs %nodes @>
                                     | a ->
                                         if n.ToLower() = "input" then
-                                            let var = getStringVarVar a.Value
-                                            <@ Doc.Input %attrs %var @>
+                                            <@ Doc.Input %attrs %(getVar a.Value) @>
                                         elif n.ToLower() = "textarea" then
-                                            let var = getStringVarVar a.Value
-                                            <@ Doc.InputArea %attrs %var @>
+                                            <@ Doc.InputArea %attrs %(getVar a.Value) @>
                                         else failwithf "data-var attribute \"%s\" on invalid element \"%s\"" a.Value n
 
-                            | a -> getDocVar a.Value
+                            | a -> getVar a.Value
                         
                         let mainExpr = t |> createNode true
 
@@ -263,7 +239,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                             let varMap = Seq.zip vars holes |> Map.ofSeq
                             mainExpr.Substitute(fun v -> varMap |> Map.tryFind v)
                         
-                        ProvidedMethod("Doc", pars, docTy, IsStaticMethod = true, InvokeCode = code)
+                        ProvidedMethod("Doc", pars, typeof<Doc>, IsStaticMethod = true, InvokeCode = code)
                         |> toTy.AddMember
 
                     for name, e in innerTemplates do
