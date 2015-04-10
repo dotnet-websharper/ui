@@ -50,17 +50,20 @@ module internal Utils =
 
     let ViewOf ty = typedefof<View<_>>.MakeGenericType([|ty|])
     let VarOf ty = typedefof<Var<_>>.MakeGenericType([|ty|])
+    let EventTy = typeof<WebSharper.JavaScript.Dom.Event -> unit>
 
     [<RequireQualifiedAccess>]
     type Hole =
         | Var of valTy: System.Type * hasView: bool
         | View of valTy: System.Type
+        | Event
         | Simple of ty: System.Type
 
         member this.ArgType =
             match this with
             | Var (valTy = t) -> VarOf t
             | View (valTy = t) -> ViewOf t
+            | Event -> EventTy
             | Simple (ty = t) -> t
 
 [<TypeProvider>]
@@ -172,7 +175,8 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                     holes.Add(name, Hole.Var(valTy = typeof<'T>, hasView = true))
                                 else
                                     failwithf "Invalid multiple use of variable name for differently typed View and Var: %s" name
-                            | true, Hole.Simple _ ->
+                            | true, Hole.Simple _
+                            | true, Hole.Event ->
                                 failwithf "Invalid multiple use of variable name in the same template: %s" name
                             | false, _ ->
                                 holes.Add(name, Hole.Var(valTy = typeof<'T>, hasView = false))
@@ -192,11 +196,23 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                     ()
                                 else
                                     failwithf "Invalid multiple use of variable name for differently typed Views: %s" name
-                            | true, Hole.Simple vh ->
+                            | true, Hole.Simple _
+                            | true, Hole.Event ->
                                 failwithf "Invalid multiple use of variable name in the same template: %s" name
                             | false, _ ->
                                 holes.Add(name, Hole.View typeof<'T>)
                             Expr.Var (Var (name, typeof<View<'T>>)) |> Expr.Cast
+
+                        let getEventHole name : Expr<WebSharper.JavaScript.Dom.Event -> unit> =
+                            match holes.TryGetValue(name) with
+                            | true, Hole.Event -> ()
+                            | true, Hole.Simple _
+                            | true, Hole.Var _
+                            | true, Hole.View _ ->
+                                failwithf "Invalid multiple use of variable name in the same template: %s" name
+                            | false, _ ->
+                                holes.Add(name, Hole.Event)
+                            Expr.Var (Var (name, EventTy)) |> Expr.Cast
 
                         let getParts (t: string) =
                             if t = "" then [] else
@@ -233,7 +249,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                         let n = a.Name.LocalName
                                         if n.StartsWith dataEvent then
                                             let eventName = n.[dataEvent.Length..]
-                                            <@ Attr.Handler eventName %(getSimpleHole a.Value) @>
+                                            <@ Attr.Handler eventName %(getEventHole a.Value) @>
                                         else
                                             match getParts a.Value with
                                             | [] -> <@ Attr.Create n "" @>
@@ -298,6 +314,8 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                 match hole with
                                 | Hole.Simple ty ->
                                     varMap.Add((name, ty), arg)
+                                | Hole.Event ->
+                                    varMap.Add((name, EventTy), arg)
                                 | Hole.View valTy ->
                                     varMap.Add((name, ViewOf valTy), arg)
                                 | Hole.Var(valTy, hasView) ->
