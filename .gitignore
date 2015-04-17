@@ -2,3 +2,5 @@ build/
 packages/
 *.suo
 WebSharper.UI.Next.Tests/Content/
+bin/
+obj/
