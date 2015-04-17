@@ -112,8 +112,11 @@ type Doc with
     /// Link with a callback, acts just like a button.
     static member Link : caption: string -> seq<Attr> -> (unit -> unit) -> Doc
 
+    /// Check Box.
+    static member CheckBox : seq<Attr> -> Var<bool> -> Doc
+
     /// Check Box Group.
-    static member CheckBox<'T when 'T : equality> : seq<Attr> -> 'T -> Var<list<'T>> -> Doc
+    static member CheckBoxGroup<'T when 'T : equality> : seq<Attr> -> 'T -> Var<list<'T>> -> Doc
 
     /// Select box.
     static member Select<'T when 'T : equality> : seq<Attr> -> ('T -> string) -> list<'T> -> Var<'T> -> Doc

@@ -543,7 +543,19 @@ type Doc with
             |> Doc.Concat
         Doc.Elem el (Attr.Concat attrs |> Attr.Append selectedItemAttr) optionElements
 
-    static member CheckBox attrs (item: 'T) (chk: Var<list<'T>>) =
+    static member CheckBox attrs (chk: Var<bool>) =
+        let el = DU.CreateElement "input"
+        let onClick (x: DomEvent) =
+            Var.Set chk el?``checked``
+        el.AddEventListener("click", onClick, false)
+        let attrs =
+            Attr.Concat [
+                yield! attrs
+                yield Attr.DynamicPred "checked" chk.View (View.Const "checked")
+            ]
+        Doc.Elem el attrs Doc.Empty
+
+    static member CheckBoxGroup attrs (item: 'T) (chk: Var<list<'T>>) =
         // Create RView for the list of checked items
         let rvi = View.FromVar chk
         // Update list of checked items, given an item and whether it's checked or not.
