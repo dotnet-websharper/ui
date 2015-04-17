@@ -308,6 +308,12 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                                 | ("text" | _) as x -> <@ Doc.Input %attrs %(getVarHole a.Value) @>
                                         elif n.ToLower() = "textarea" then
                                             <@ Doc.InputArea %attrs %(getVarHole a.Value) @>
+                                        elif n.ToLower() = "select" then
+                                            <@ Doc.Element "select"
+                                                (Seq.append
+                                                    (Seq.singleton (Attr.Value %(getVarHole a.Value)))
+                                                    %attrs)
+                                                %nodes @>
                                         else failwithf "data-var attribute \"%s\" on invalid element \"%s\"" a.Value n
 
                             | a -> getSimpleHole a.Value
