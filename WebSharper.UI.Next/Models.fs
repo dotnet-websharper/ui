@@ -103,11 +103,29 @@ type ListModel<'K,'T> with
     member m.ContainsKeyAsView key =
         m.Var.View |> View.Map (Array.exists (fun it -> m.Key it = key))
 
+    member m.Find pred =
+        Array.find pred m.Var.Value
+
+    member m.TryFind pred =
+        Array.tryFind pred m.Var.Value
+
+    member m.FindAsView pred =
+        m.Var.View |> View.Map (Array.find pred)
+
+    member m.TryFindAsView pred =
+        m.Var.View |> View.Map (Array.tryFind pred)
+
     member m.FindByKey key =
         Array.find (fun it -> m.Key it = key) m.Var.Value
 
+    member m.TryFindByKey key =
+        Array.tryFind (fun it -> m.Key it = key) m.Var.Value
+
     member m.FindByKeyAsView key =
         m.Var.View |> View.Map (Array.find (fun it -> m.Key it = key))
+
+    member m.TryFindByKeyAsView key =
+        m.Var.View |> View.Map (Array.tryFind (fun it -> m.Key it = key))
 
     member m.UpdateBy fn key =
         let v = m.Var.Value

@@ -80,11 +80,29 @@ type ListModel<'Key,'T when 'Key : equality> with
     /// Gets a view that checks if the item specified by its key is in the list.
     member ContainsKeyAsView : 'Key -> View<bool>
 
+    /// Finds an item in the list that satisfies the given predicate.
+    member Find : ('T -> bool) -> 'T
+
+    /// Finds an item in the list that satisfies the given predicate.
+    member TryFind : ('T -> bool) -> 'T option
+
+    /// Gets a view that finds an item in the list that satisfies the given predicate.
+    member FindAsView : ('T -> bool) -> View<'T>
+
+    /// Gets a view that finds an item in the list that satisfies the given predicate.
+    member TryFindAsView : ('T -> bool) -> View<'T option>
+
     /// Checks if the item specified by its key is in the list.
     member FindByKey : 'Key -> 'T
 
+    /// Checks if the item specified by its key is in the list.
+    member TryFindByKey : 'Key -> 'T option
+
     /// Gets a view that checks if the item specified by its key is in the list.
     member FindByKeyAsView : 'Key -> View<'T>
+
+    /// Gets a view that checks if the item specified by its key is in the list.
+    member TryFindByKeyAsView : 'Key -> View<'T option>
 
     /// Updates an item with the given key with another item computed by the given function.
     /// If None is computed or the item to be updated is not found, nothing is done.
