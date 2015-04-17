@@ -93,6 +93,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
     let dataTemplate = xn"data-template"
     let dataChildrenTemplate = xn"data-children-template"
     let dataVar = xn"data-var"
+    let dataAttr = xn"data-attr"
     let dataEvent = "data-event-"
 
     do
@@ -250,6 +251,8 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                         if n.StartsWith dataEvent then
                                             let eventName = n.[dataEvent.Length..]
                                             <@ Attr.Handler eventName %(getEventHole a.Value) @>
+                                        elif a.Name = dataAttr then
+                                            getSimpleHole a.Value
                                         else
                                             match getParts a.Value with
                                             | [] -> <@ Attr.Create n "" @>
