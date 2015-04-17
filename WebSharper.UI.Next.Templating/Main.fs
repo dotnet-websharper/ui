@@ -300,7 +300,12 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                     | null -> <@ Doc.Element n %attrs %nodes @>
                                     | a ->
                                         if n.ToLower() = "input" then
-                                            <@ Doc.Input %attrs %(getVarHole a.Value) @>
+                                            match e.Attribute(xn"type") with
+                                            | null -> <@ Doc.Input %attrs %(getVarHole a.Value) @>
+                                            | t ->
+                                                match t.Value with
+                                                | "checkbox" -> <@ Doc.CheckBox %attrs %(getVarHole a.Value) @>
+                                                | ("text" | _) as x -> <@ Doc.Input %attrs %(getVarHole a.Value) @>
                                         elif n.ToLower() = "textarea" then
                                             <@ Doc.InputArea %attrs %(getVarHole a.Value) @>
                                         else failwithf "data-var attribute \"%s\" on invalid element \"%s\"" a.Value n
