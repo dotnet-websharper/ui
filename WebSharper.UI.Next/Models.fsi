@@ -65,6 +65,9 @@ type ListModel<'Key,'T when 'Key : equality> with
     /// Removes an item.
     member Remove : 'T -> unit
 
+    /// Removes an item.
+    member RemoveBy : ('T -> bool) -> unit
+
     /// Removes an item by its key.
     member RemoveByKey : 'Key -> unit
 
