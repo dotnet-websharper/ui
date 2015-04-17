@@ -268,3 +268,13 @@ type Attr with
     static member Concat xs =
         Seq.toArray xs
         |> Array.MapReduce (fun x -> x) Attrs.EmptyAttr Attr.Append
+
+    static member Value (var: Var<string>) =
+        let onChange (e: DomEvent) =
+            if e.CurrentTarget?value <> var.Value then
+                Var.Set var e.CurrentTarget?value
+        Attr.Concat [
+            Attr.Handler "change" onChange
+            Attr.Handler "input" onChange
+            Attrs.Dynamic var.View (fun e v -> if v <> e?value then e?value <- v)
+        ]

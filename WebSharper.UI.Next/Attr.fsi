@@ -59,6 +59,9 @@ type Attr with
     /// Sets an attribute when a view satisfies a predicate.
     static member DynamicPred : name: string -> predView: View<bool> -> valView: View<string> -> Attr
 
+    /// Gets and sets the value of the element according to a Var.
+    static member Value : Var<string> -> Attr
+
   // Note: Empty, Append, Concat define a monoid on Attr.
 
     /// Append on attributes.
