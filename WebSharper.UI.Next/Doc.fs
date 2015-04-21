@@ -547,7 +547,7 @@ type Doc with
         let attrs =
             Attr.Concat [
                 yield! attrs
-                yield Attr.DynamicPred "checked" chk.View (View.Const "checked")
+                yield Attr.DynamicProp "checked" chk.View
             ]
         Doc.Elem el attrs Doc.Empty
 
@@ -565,14 +565,12 @@ type Doc with
                 Seq.distinct obs
                 |> Seq.toList)
         let checkedView = View.Map (List.exists (fun x -> x = item)) rvi
-        let checkedAttr =
-            Attr.DynamicPred "checked" checkedView (View.Const "checked")
         let attrs =
             [
                 Attr.Create "type" "checkbox"
                 Attr.Create "name" (Var.GetId chk |> string)
                 Attr.Create "value" (Fresh.Id ())
-                checkedAttr
+                Attr.DynamicProp "checked" checkedView
             ] @ (List.ofSeq attrs) |> Attr.Concat
         let el = DU.CreateElement "input"
         let onClick (x: DomEvent) =
@@ -606,7 +604,7 @@ type Doc with
         let el = DU.CreateElement "input"
         el.AddEventListener("click", (fun (x : DomEvent) -> Var.Set var value), false)
         let predView = View.Map (fun x -> x = value) var.View
-        let valAttr = Attr.DynamicPred "checked" predView (View.Const "checked")
+        let valAttr = Attr.DynamicProp "checked" predView
         let (==>) k v = Attr.Create k v
         let attr =
             [
