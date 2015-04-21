@@ -259,6 +259,10 @@ type Attr with
         let tupleView = View.Map2 (fun pred value -> (pred, value)) predView valView
         Attrs.Dynamic tupleView viewFn
 
+    static member DynamicProp name view =
+        Attrs.Dynamic view (fun el v ->
+            el?(name) <- v)
+
     static member Append a b =
         Attrs.Mk (a.Flags ||| b.Flags) (Attrs.AppendTree a.Tree b.Tree)
 

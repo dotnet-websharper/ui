@@ -32,6 +32,9 @@ type Attr with
     /// Dynamic variant of Create.
     static member Dynamic : name: string -> value: View<string> -> Attr
 
+    /// Dynamically set a property of the DOM element.
+    static member DynamicProp : name: string -> value: View<'T> -> Attr
+
     /// Dynamic with a custom setter.
     static member internal DynamicCustom : set: (Element -> 'T -> unit) -> value: View<'T> -> Attr
 
