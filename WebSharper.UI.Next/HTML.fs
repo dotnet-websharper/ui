@@ -231,8 +231,6 @@ module Html =
     let Track0 ch = Doc.Element "track" [] ch
     let UL ats ch = Doc.Element "ul" ats ch
     let UL0 ch = Doc.Element "ul" [] ch
-    let Var ats ch = Doc.Element "var" ats ch
-    let Var0 ch = Doc.Element "var" [] ch
     let Video ats ch = Doc.Element "video" ats ch
     let Video0 ch = Doc.Element "video" [] ch
     let WBR ats ch = Doc.Element "wbr" ats ch
@@ -412,6 +410,8 @@ module Html =
         let TT0 ch = Doc.Element "tt" [] ch
         let U ats ch = Doc.Element "u" ats ch
         let U0 ch = Doc.Element "u" [] ch
+        let Var ats ch = Doc.Element "var" ats ch
+        let Var0 ch = Doc.Element "var" [] ch
         // }}
 
     /// HTML attributes.
