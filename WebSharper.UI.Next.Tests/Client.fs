@@ -17,11 +17,11 @@ module Client =
 
     let Main =
         let myItems =
-          ListModel.FromSeq [
-            { name = "Item1"; description = "Description of Item1" }
-            { name = "Item2"; description = "Description of Item2" }
-          ]
+          ListModel.FromStorage <| Storage.LocalStorage "Test" None
  
+        let n = Math.Random() * 100. |> int |> string
+        myItems.Add { name = "Item" + n; description = "Description of Item" + n }
+
         let title = View.Const "Starting title"
         let var = Var.Create ""
         let btnVar = Var.Create ()

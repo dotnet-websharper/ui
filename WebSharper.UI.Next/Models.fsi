@@ -51,6 +51,28 @@ type Model<'I,'M> with
     /// Same as Model.View.
     member View : View<'I>
 
+/// Basic store interface. ListModel uses this for operating on the backing array.
+[<Interface>]
+type Storage<'T> =
+    abstract member Add : 'T -> 'T [] -> 'T []
+    abstract member Init : unit -> 'T[]
+    abstract member RemoveIf : ('T -> bool) -> 'T [] -> 'T []
+    abstract member SetAt : int -> 'T -> 'T [] -> 'T []
+    abstract member Set : 'T seq -> 'T []
+
+type Serializer<'T> =
+    {
+        Serialize : 'T -> string
+        Deserialize : string -> 'T
+    }
+
+module Serializer =
+    val Default : Serializer<'T>
+
+module Storage =
+    val InMemory : 'T[] -> Storage<'T>
+    val LocalStorage : string -> Serializer<'T> -> Storage<'T>
+
 /// A helper type for ResizeArray-like observable structures.
 type ListModel<'Key,'T when 'Key : equality>
  
@@ -123,10 +145,12 @@ type ListModel<'Key,'T when 'Key : equality> with
 type ListModel with
 
     /// Creates a new instance.
-    static member Create<'Key,'T when 'Key : equality> : ('T -> 'Key) -> seq<'T> -> ListModel<'Key,'T>
+    static member Create<'Key,'T when 'Key : equality> : ('T -> 'Key) -> Storage<'T> -> ListModel<'Key,'T>
+
+    static member FromStorage<'T when 'T : equality> : Storage<'T> -> ListModel<'T,'T>
 
     /// Creates a new instance using intrinsic equality.
-    static member FromSeq<'T when 'T : equality> : seq<'T> -> ListModel<'T,'T>
+    static member FromSeq<'T when 'T : equality> : 'T seq -> ListModel<'T,'T>
 
     /// Views the current item sequence.
     static member View : ListModel<'Key,'T> -> View<seq<'T>>

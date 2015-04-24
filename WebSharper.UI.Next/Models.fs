@@ -49,12 +49,81 @@ type Model<'I,'M> with
     [<JavaScript>]
     member m.View = Model.View m
 
+type Storage<'T> =
+    abstract member Add: 'T -> 'T [] -> 'T []
+    abstract member Init: unit -> 'T[]
+    abstract member RemoveIf: ('T -> bool) -> 'T [] -> 'T []
+    abstract member SetAt: int -> 'T -> 'T [] -> 'T []
+    abstract member Set: 'T seq -> 'T []
+
+type Serializer<'T> =
+    {
+        Serialize : 'T -> string
+        Deserialize : string -> 'T
+    }
+
+[<JavaScript>]
+module Serializer =
+    open WebSharper
+    open WebSharper.JavaScript
+
+    let Default =
+        {
+            Serialize   = fun e -> Json.Stringify(e)
+            Deserialize = fun e -> As<'T> <| Json.Parse(e)
+        }
+
+[<JavaScript>]
+module Storage =
+    open WebSharper
+    open WebSharper.JavaScript
+
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    [<Inline "$0.push($1)">]
+    let private push (x: 'T[]) (v: 'T) = ()
+    
+    type private ArrayStorage<'T>(init) =
+        interface Storage<'T> with
+            member x.Add i arr = push arr i; arr
+            member x.Init () = init
+            member x.RemoveIf pred arr = Array.filter pred arr
+            member x.SetAt idx elem arr = arr.[idx] <- elem; arr
+            member x.Set coll = Seq.toArray coll
+
+    type private LocalStorageBackend<'T>(id : string, serializer : Serializer<'T>) =
+        let storage = JS.Window.LocalStorage
+        let set (arr : 'T[]) = storage.SetItem(id, arr |> Array.map serializer.Serialize |> Json.Stringify); arr
+        let clear () = storage.RemoveItem(id)
+
+        interface Storage<'T> with
+            member x.Add i arr = push arr i; set arr
+
+            member x.Init () =
+                let item = storage.GetItem(id)
+                if item = null then [||]
+                else 
+                    try
+                        let arr = As<string []> <| Json.Parse(item)
+                        arr |> Array.map serializer.Deserialize
+                    with _ -> [||]
+
+            member x.RemoveIf pred arr = set <| Array.filter pred arr
+            member x.SetAt idx elem arr = arr.[idx] <- elem; set arr
+            member x.Set coll = set <| Seq.toArray coll
+
+    let InMemory init =
+        new ArrayStorage<_>(init) :> Storage<_>
+
+    let LocalStorage id serializer =
+        new LocalStorageBackend<_>(id, serializer) :> Storage<_>
+
 [<JavaScript>]
 type ListModel<'Key,'T when 'Key : equality> =
     {
         Key : 'T -> 'Key
         Var : Var<'T[]>
         View : View<seq<'T>>
+        Storage : Storage<'T>
     }
 
 [<JavaScript>]
@@ -64,41 +133,35 @@ module ListModels =
         let t = keyFn item
         Array.exists (fun it -> keyFn it = t) xs
 
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
-    [<Inline "$0.push($1)">]
-    let Push (x: 'T[]) (v: 'T) = ()
 
 type ListModel<'K,'T> with
 
     member m.Add item =
         let v = m.Var.Value
         if not (ListModels.Contains m.Key item v) then
-            ListModels.Push v item
-            m.Var.Value <- v
+            m.Var.Value <- m.Storage.Add item v
         else
             let index = Array.findIndex (fun it -> m.Key it = m.Key item) v
-            //ListModels.Set v index item
-            v.[index] <- item
-            m.Var.Value <- v
+            m.Var.Value <- m.Storage.SetAt index item v
 
     member m.Remove item =
         let v = m.Var.Value
         if ListModels.Contains m.Key item v then
             let keyFn = m.Key
             let k = keyFn item
-            m.Var.Value <- Array.filter (fun i -> keyFn i <> k) v
+            m.Var.Value <- m.Storage.RemoveIf (fun i -> keyFn i <> k) v
 
     member m.RemoveBy (f: 'T -> bool) =
-        m.Var.Value <- Array.filter (f >> not) m.Var.Value
+        m.Var.Value <- m.Storage.RemoveIf (f >> not) m.Var.Value
 
     member m.RemoveByKey key =
-        m.Var.Value <- Array.filter (fun i -> m.Key i <> key) m.Var.Value
+        m.Var.Value <- m.Storage.RemoveIf (fun i -> m.Key i <> key) m.Var.Value
 
     member m.Iter fn =
         Array.iter fn m.Var.Value
 
     member m.Set lst =
-        m.Var.Value <- Array.ofSeq lst
+        m.Var.Value <- m.Storage.Set lst
 
     member m.ContainsKey key =
         Array.exists (fun it -> m.Key it = key) m.Var.Value
@@ -138,11 +201,10 @@ type ListModel<'K,'T> with
             | None ->
                 m.RemoveByKey key
             | Some value ->
-                v.[index] <- value
-                m.Var.Value <- v
+                m.Var.Value <- m.Storage.SetAt index value v
 
     member m.Clear () =
-        m.Var.Value <- [||]
+        m.Var.Value <- m.Storage.Set Seq.empty
 
     member m.Length =
         m.Var.Value.Length
@@ -155,9 +217,9 @@ type ListModel<'K,'T> with
 type ListModel =
 
     static member Create<'Key,'T when 'Key : equality>
-            (key: 'T -> 'Key) (init: seq<'T>) =
+            (key: 'T -> 'Key) (storage : Storage<'T>) =
         let var =
-            Seq.distinctBy key init
+            Seq.distinctBy key (storage.Init ())
             |> Seq.toArray
             |> Var.Create
         let view = var.View |> View.Map (fun x -> Array.copy x :> seq<_>)
@@ -165,10 +227,14 @@ type ListModel =
             Key = key
             Var = var
             View = view
+            Storage = storage
         }
 
-    static member FromSeq xs =
-        ListModel.Create (fun x -> x) xs
+    static member FromStorage storage =
+        ListModel.Create (fun x -> x) storage
+
+    static member FromSeq init =
+        ListModel.Create (fun x -> x) (Storage.InMemory <| Seq.toArray init)
 
     static member View m =
         m.View
