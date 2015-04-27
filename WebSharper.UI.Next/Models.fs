@@ -54,7 +54,7 @@ type ListModel<'Key,'T when 'Key : equality> =
     {
         Key : 'T -> 'Key
         Var : Var<'T[]>
-        View : View<seq<'T>>
+        view : View<seq<'T>>
     }
 
 [<JavaScript>]
@@ -68,7 +68,10 @@ module ListModels =
     [<Inline "$0.push($1)">]
     let Push (x: 'T[]) (v: 'T) = ()
 
-type ListModel<'K,'T> with
+type ListModel<'Key,'T> with
+
+    [<Inline>]
+    member m.View = m.view
 
     member m.Add item =
         let v = m.Var.Value
@@ -150,6 +153,43 @@ type ListModel<'K,'T> with
     member m.LengthAsView =
         m.Var.View |> View.Map (fun arr -> arr.Length)
 
+    [<Inline>]
+    member m.GetItemPartRef (get: 'T -> 'V) (update: 'T -> 'V -> 'T) (key : 'Key) : IRef<'V> =
+        new RefImpl<'Key, 'T, 'V>(m, key, get, update) :> IRef<'V>
+
+    member m.GetItemRef (key: 'Key) =
+        m.GetItemPartRef id (fun _ -> id) key
+
+and [<JavaScript>] RefImpl<'K, 'T, 'V when 'K : equality>
+        (m: ListModel<'K, 'T>, key: 'K, get: 'T -> 'V, update: 'T -> 'V -> 'T) =
+
+    let id = Fresh.Id()
+
+    interface IRef<'V> with
+
+        member r.Get() =
+            m.FindByKey key |> get
+
+        member r.Set(v) =
+            m.UpdateBy (fun i -> Some (update i v)) key
+
+        member r.Update(f) =
+            m.UpdateBy (fun i -> Some (update i (f (get i)))) key
+
+        member r.UpdateMaybe(f) =
+            m.UpdateBy (fun i ->
+                match f (get i) with
+                | Some v -> update i v
+                | None -> i
+                |> Some) key
+
+        member r.View =
+            m.FindByKeyAsView(key)
+            |> View.Map get
+
+        member r.GetId() =
+            id
+
 [<JavaScript>]
 [<Sealed>]
 type ListModel =
@@ -164,11 +204,11 @@ type ListModel =
         {
             Key = key
             Var = var
-            View = view
+            view = view
         }
 
     static member FromSeq xs =
         ListModel.Create (fun x -> x) xs
 
     static member View m =
-        m.View
+        m.view

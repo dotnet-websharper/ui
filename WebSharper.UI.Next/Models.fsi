@@ -59,6 +59,9 @@ type ListModel
 
 type ListModel<'Key,'T when 'Key : equality> with
 
+    /// Gets a view on all elements in the list.
+    member View : View<seq<'T>>
+
     /// Adds an item. If an item with the given key exists, it is replaced.
     member Add : 'T -> unit
 
@@ -119,6 +122,12 @@ type ListModel<'Key,'T when 'Key : equality> with
 
     /// Gets a view of the number of elements in the list.
     member LengthAsView : View<int>
+
+    /// Gets a reference to an element of the list.
+    member GetItemRef : 'Key -> IRef<'T>
+
+    /// Gets a reference to a part of an element of the list.
+    member GetItemPartRef : get:('T -> 'V) -> update:('T -> 'V -> 'T) -> 'Key -> IRef<'V>
 
 type ListModel with
 
