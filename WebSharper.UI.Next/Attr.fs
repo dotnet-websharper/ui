@@ -273,10 +273,13 @@ type Attr with
         Seq.toArray xs
         |> Array.MapReduce (fun x -> x) Attrs.EmptyAttr Attr.Append
 
-    static member Value (var: Var<string>) =
+    static member Value (var: IRef<string>) =
         let onChange (e: DomEvent) =
-            if e.CurrentTarget?value <> var.Value then
-                Var.Set var e.CurrentTarget?value
+            var.UpdateMaybe(fun v ->
+                if e.CurrentTarget?value <> v then
+                    Some e.CurrentTarget?value
+                else None
+            )
         Attr.Concat [
             Attr.Handler "change" onChange
             Attr.Handler "input" onChange

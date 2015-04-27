@@ -97,13 +97,13 @@ type Doc with
   // Form helpers
 
     /// Input box.
-    static member Input : seq<Attr> -> Var<string> -> Doc
+    static member Input : seq<Attr> -> IRef<string> -> Doc
 
     /// Input box.
-    static member InputArea : seq<Attr> -> Var<string> -> Doc
+    static member InputArea : seq<Attr> -> IRef<string> -> Doc
 
     /// Password box.
-    static member PasswordBox : seq<Attr> -> Var<string> -> Doc
+    static member PasswordBox : seq<Attr> -> IRef<string> -> Doc
 
     /// Submit button. Takes a view of reactive components with which it is associated,
     /// and a callback function of what to do with this view once the button is pressed.
@@ -113,13 +113,13 @@ type Doc with
     static member Link : caption: string -> seq<Attr> -> (unit -> unit) -> Doc
 
     /// Check Box.
-    static member CheckBox : seq<Attr> -> Var<bool> -> Doc
+    static member CheckBox : seq<Attr> -> IRef<bool> -> Doc
 
     /// Check Box Group.
-    static member CheckBoxGroup<'T when 'T : equality> : seq<Attr> -> 'T -> Var<list<'T>> -> Doc
+    static member CheckBoxForList<'T when 'T : equality> : seq<Attr> -> 'T -> IRef<list<'T>> -> Doc
 
     /// Select box.
-    static member Select<'T when 'T : equality> : seq<Attr> -> ('T -> string) -> list<'T> -> Var<'T> -> Doc
+    static member Select<'T when 'T : equality> : seq<Attr> -> ('T -> string) -> list<'T> -> IRef<'T> -> Doc
 
     /// Radio button.
-    static member Radio<'T when 'T : equality> : seq<Attr> -> 'T -> Var<'T> -> Doc
+    static member Radio<'T when 'T : equality> : seq<Attr> -> 'T -> IRef<'T> -> Doc
