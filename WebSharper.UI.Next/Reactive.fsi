@@ -28,8 +28,12 @@ namespace WebSharper.UI.Next
 /// A read-only view on a time-varying value that a can be observed.
 type View<'T>
 
-/// A time-varying variable than can be observed for changes by independent processes.
+/// An abstract time-varying variable than can be observed for changes
+/// by independent processes.
 type IRef<'T> =
+
+    /// Gets the current value.
+    abstract Get : unit -> 'T
 
     /// Sets the current value.
     abstract Set : 'T -> unit
@@ -135,7 +139,7 @@ type View =
 
     /// A variant of ConvertSeq with custom equality.
     static member ConvertSeqBy<'A,'B,'K when 'K : equality> :
-        ('A -> 'K) -> (View<'A> -> 'B) -> View<seq<'A>> -> View<seq<'B>>
+        ('A -> 'K) -> ('K -> View<'A> -> 'B) -> View<seq<'A>> -> View<seq<'B>>
 
 /// Computation expression builder for views.
 [<Sealed>]

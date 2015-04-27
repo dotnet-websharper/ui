@@ -26,6 +26,7 @@ type View<'T> =
     | V of (unit -> Snap<'T>)
 
 type IRef<'T> =
+    abstract Get : unit -> 'T
     abstract Set : 'T -> unit
     abstract Update : ('T -> 'T) -> unit
     abstract UpdateMaybe : ('T -> 'T option) -> unit
@@ -47,6 +48,9 @@ type Var<'T> =
         V (fun () -> Var.Observe this)
 
     interface IRef<'T> with
+
+        member this.Get() =
+            Var.Get this
 
         member this.Set(v) =
             Var.Set this v
@@ -214,7 +218,7 @@ type View =
         }
 
     static member ConvertSeqBy<'A,'B,'K when 'K : equality>
-            (key: 'A -> 'K) (conv: View<'A> -> 'B) (view: View<seq<'A>>) =
+            (key: 'A -> 'K) (conv: 'K -> View<'A> -> 'B) (view: View<seq<'A>>) =
         // Save history only for t - 1, discard older history.
         let state = ref (Dictionary())
         view
@@ -231,7 +235,7 @@ type View =
                             Var.Set n.NVar x
                             n
                         else
-                            View.ConvertSeqNode conv x
+                            View.ConvertSeqNode (conv k) x
                     newState.[k] <- node
                     node.NValue)
                 :> seq<_>
@@ -239,7 +243,7 @@ type View =
             result)
 
     static member ConvertSeq conv view =
-        View.ConvertSeqBy (fun x -> x) conv view
+        View.ConvertSeqBy (fun x -> x) (fun _ -> conv) view
 
   // More cominators ------------------------------------------------------------
 

@@ -76,7 +76,7 @@ type Doc with
 
     /// Doc.ConvertSeq with a custom key.
     static member ConvertSeqBy<'T,'K when 'K : equality> :
-        ('T -> 'K) -> (View<'T> -> Doc) -> View<seq<'T>> -> Doc
+        ('T -> 'K) -> ('K -> View<'T> -> Doc) -> View<seq<'T>> -> Doc
 
   // Main entry-point combinators - use once per app
 
