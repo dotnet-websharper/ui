@@ -22,7 +22,19 @@ namespace WebSharper.UI.Next
 
 open WebSharper
 
+type View<'T> =
+    | V of (unit -> Snap<'T>)
+
+type IRef<'T> =
+    abstract Get : unit -> 'T
+    abstract Set : 'T -> unit
+    abstract Update : ('T -> 'T) -> unit
+    abstract UpdateMaybe : ('T -> 'T option) -> unit
+    abstract View : View<'T>
+    abstract GetId : unit -> string
+
 /// Var either holds a Snap or is in Const state.
+[<JavaScript>]
 type Var<'T> =
     {
         mutable Const : bool
@@ -31,9 +43,33 @@ type Var<'T> =
         Id : int
     }
 
-[<JavaScript>]
-[<Sealed>]
-type Var =
+    [<JavaScript>]
+    member this.View =
+        V (fun () -> Var.Observe this)
+
+    interface IRef<'T> with
+
+        member this.Get() =
+            Var.Get this
+
+        member this.Set(v) =
+            Var.Set this v
+
+        member this.Update(f) =
+            Var.Update this f
+
+        member this.UpdateMaybe(f) =
+            match f (Var.Get this) with
+            | None -> ()
+            | Some v -> Var.Set this v
+
+        member this.View =
+            this.View
+
+        member this.GetId() =
+            "uinref" + string (Var.GetId this)
+
+and [<JavaScript; Sealed>] Var =
 
     [<MethodImpl(MethodImplOptions.NoInlining)>]
     static member Create v =
@@ -72,9 +108,6 @@ type Var =
     static member Observe var =
         var.Snap
 
-type View<'T> =
-    | V of (unit -> Snap<'T>)
-
 type ViewNode<'A,'B> =
     {
         NValue : 'B
@@ -86,8 +119,8 @@ type ViewNode<'A,'B> =
 [<Sealed>]
 type View =
 
-    static member FromVar var =
-        V (fun () -> Var.Observe var)
+    static member FromVar (var: Var<_>) =
+        var.View
 
     static member CreateLazy observe =
         let cur = ref None
@@ -185,7 +218,7 @@ type View =
         }
 
     static member ConvertSeqBy<'A,'B,'K when 'K : equality>
-            (key: 'A -> 'K) (conv: View<'A> -> 'B) (view: View<seq<'A>>) =
+            (key: 'A -> 'K) (conv: 'K -> View<'A> -> 'B) (view: View<seq<'A>>) =
         // Save history only for t - 1, discard older history.
         let state = ref (Dictionary())
         view
@@ -202,7 +235,7 @@ type View =
                             Var.Set n.NVar x
                             n
                         else
-                            View.ConvertSeqNode conv x
+                            View.ConvertSeqNode (conv k) x
                     newState.[k] <- node
                     node.NValue)
                 :> seq<_>
@@ -210,7 +243,7 @@ type View =
             result)
 
     static member ConvertSeq conv view =
-        View.ConvertSeqBy (fun x -> x) conv view
+        View.ConvertSeqBy (fun x -> x) (fun _ -> conv) view
 
   // More cominators ------------------------------------------------------------
 
@@ -238,9 +271,6 @@ type View =
         View.Map2 (fun f x -> f x) fn view
 
 type Var<'T> with
-
-    [<JavaScript>]
-    member v.View = View.FromVar v
 
     [<JavaScript>]
     member v.Value

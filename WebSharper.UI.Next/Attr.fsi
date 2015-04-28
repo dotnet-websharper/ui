@@ -63,7 +63,7 @@ type Attr with
     static member DynamicPred : name: string -> predView: View<bool> -> valView: View<string> -> Attr
 
     /// Gets and sets the value of the element according to a Var.
-    static member Value : Var<string> -> Attr
+    static member Value : IRef<string> -> Attr
 
   // Note: Empty, Append, Concat define a monoid on Attr.
 

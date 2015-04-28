@@ -50,11 +50,11 @@ type Model<'I,'M> with
     member m.View = Model.View m
 
 type Storage<'T> =
-    abstract member Add: 'T -> 'T [] -> 'T []
-    abstract member Init: unit -> 'T[]
-    abstract member RemoveIf: ('T -> bool) -> 'T [] -> 'T []
-    abstract member SetAt: int -> 'T -> 'T [] -> 'T []
-    abstract member Set: 'T seq -> 'T []
+    abstract member Add      : 'T -> 'T[] -> 'T[]
+    abstract member Init     : unit -> 'T[]
+    abstract member RemoveIf : ('T -> bool) -> 'T [] -> 'T[]
+    abstract member SetAt    : int -> 'T -> 'T[] -> 'T[]
+    abstract member Set      : 'T seq -> 'T[]
 
 type Serializer<'T> =
     {
@@ -83,6 +83,7 @@ module Storage =
     let private push (x: 'T[]) (v: 'T) = ()
     
     type private ArrayStorage<'T>(init) =
+
         interface Storage<'T> with
             member x.Add i arr = push arr i; arr
             member x.Init () = init
@@ -92,7 +93,9 @@ module Storage =
 
     type private LocalStorageBackend<'T>(id : string, serializer : Serializer<'T>) =
         let storage = JS.Window.LocalStorage
-        let set (arr : 'T[]) = storage.SetItem(id, arr |> Array.map serializer.Serialize |> Json.Stringify); arr
+        let set (arr : 'T[]) = 
+            storage.SetItem(id, arr |> Array.map serializer.Serialize |> Json.Stringify)
+            arr
         let clear () = storage.RemoveItem(id)
 
         interface Storage<'T> with
@@ -122,8 +125,8 @@ type ListModel<'Key,'T when 'Key : equality> =
     {
         Key : 'T -> 'Key
         Var : Var<'T[]>
-        View : View<seq<'T>>
         Storage : Storage<'T>
+        view : View<seq<'T>>
     }
 
 [<JavaScript>]
@@ -134,7 +137,10 @@ module ListModels =
         Array.exists (fun it -> keyFn it = t) xs
 
 
-type ListModel<'K,'T> with
+type ListModel<'Key,'T> with
+
+    [<Inline>]
+    member m.View = m.view
 
     member m.Add item =
         let v = m.Var.Value
@@ -212,6 +218,43 @@ type ListModel<'K,'T> with
     member m.LengthAsView =
         m.Var.View |> View.Map (fun arr -> arr.Length)
 
+    [<Inline>]
+    member m.GetItemPartRef (get: 'T -> 'V) (update: 'T -> 'V -> 'T) (key : 'Key) : IRef<'V> =
+        new RefImpl<'Key, 'T, 'V>(m, key, get, update) :> IRef<'V>
+
+    member m.GetItemRef (key: 'Key) =
+        m.GetItemPartRef id (fun _ -> id) key
+
+and [<JavaScript>] RefImpl<'K, 'T, 'V when 'K : equality>
+        (m: ListModel<'K, 'T>, key: 'K, get: 'T -> 'V, update: 'T -> 'V -> 'T) =
+
+    let id = Fresh.Id()
+
+    interface IRef<'V> with
+
+        member r.Get() =
+            m.FindByKey key |> get
+
+        member r.Set(v) =
+            m.UpdateBy (fun i -> Some (update i v)) key
+
+        member r.Update(f) =
+            m.UpdateBy (fun i -> Some (update i (f (get i)))) key
+
+        member r.UpdateMaybe(f) =
+            m.UpdateBy (fun i ->
+                match f (get i) with
+                | Some v -> update i v
+                | None -> i
+                |> Some) key
+
+        member r.View =
+            m.FindByKeyAsView(key)
+            |> View.Map get
+
+        member r.GetId() =
+            id
+
 [<JavaScript>]
 [<Sealed>]
 type ListModel =
@@ -229,8 +272,8 @@ type ListModel =
         {
             Key = key
             Var = var
-            View = view
             Storage = storage
+            view = view
         }
 
     static member FromStorage storage =
@@ -240,4 +283,4 @@ type ListModel =
         ListModel.Create (fun x -> x) (Storage.InMemory <| Seq.toArray init)
 
     static member View m =
-        m.View
+        m.view

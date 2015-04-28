@@ -49,19 +49,19 @@ module internal Utils =
         | TextHole of string
 
     let ViewOf ty = typedefof<View<_>>.MakeGenericType([|ty|])
-    let VarOf ty = typedefof<Var<_>>.MakeGenericType([|ty|])
+    let IRefOf ty = typedefof<IRef<_>>.MakeGenericType([|ty|])
     let EventTy = typeof<WebSharper.JavaScript.Dom.Event -> unit>
 
     [<RequireQualifiedAccess>]
     type Hole =
-        | Var of valTy: System.Type * hasView: bool
+        | IRef of valTy: System.Type * hasView: bool
         | View of valTy: System.Type
         | Event
         | Simple of ty: System.Type
 
         member this.ArgType =
             match this with
-            | Var (valTy = t) -> VarOf t
+            | IRef (valTy = t) -> IRefOf t
             | View (valTy = t) -> ViewOf t
             | Event -> EventTy
             | Simple (ty = t) -> t
@@ -163,9 +163,9 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                 holes.Add(name, Hole.Simple typeof<'T>)
                             Expr.Var (Var (name, typeof<'T>)) |> Expr.Cast
 
-                        let getVarHole name : Expr<Var<'T>> =
+                        let getVarHole name : Expr<IRef<'T>> =
                             match holes.TryGetValue(name) with
-                            | true, Hole.Var(valTy = valTy) ->
+                            | true, Hole.IRef(valTy = valTy) ->
                                 if valTy = typeof<'T> then
                                     ()
                                 else
@@ -173,23 +173,23 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                             | true, Hole.View valTy ->
                                 if valTy = typeof<'T> then
                                     holes.Remove(name) |> ignore
-                                    holes.Add(name, Hole.Var(valTy = typeof<'T>, hasView = true))
+                                    holes.Add(name, Hole.IRef(valTy = typeof<'T>, hasView = true))
                                 else
                                     failwithf "Invalid multiple use of variable name for differently typed View and Var: %s" name
                             | true, Hole.Simple _
                             | true, Hole.Event ->
                                 failwithf "Invalid multiple use of variable name in the same template: %s" name
                             | false, _ ->
-                                holes.Add(name, Hole.Var(valTy = typeof<'T>, hasView = false))
-                            Expr.Var (Var (name, typeof<Var<'T>>)) |> Expr.Cast
+                                holes.Add(name, Hole.IRef(valTy = typeof<'T>, hasView = false))
+                            Expr.Var (Var (name, typeof<IRef<'T>>)) |> Expr.Cast
 
                         let getViewHole name : Expr<View<'T>> =
                             match holes.TryGetValue(name) with
-                            | true, Hole.Var(valTy = valTy; hasView = hasView) ->
+                            | true, Hole.IRef(valTy = valTy; hasView = hasView) ->
                                 if valTy = typeof<'T> then
                                     if not hasView then
                                         holes.Remove(name) |> ignore
-                                        holes.Add(name, Hole.Var(valTy = valTy, hasView = true))
+                                        holes.Add(name, Hole.IRef(valTy = valTy, hasView = true))
                                 else
                                     failwithf "Invalid multiple use of variable name for differently typed View and Var: %s" name
                             | true, Hole.View valTy ->
@@ -208,7 +208,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                             match holes.TryGetValue(name) with
                             | true, Hole.Event -> ()
                             | true, Hole.Simple _
-                            | true, Hole.Var _
+                            | true, Hole.IRef _
                             | true, Hole.View _ ->
                                 failwithf "Invalid multiple use of variable name in the same template: %s" name
                             | false, _ ->
@@ -332,8 +332,8 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                     varMap.Add((name, EventTy), arg)
                                 | Hole.View valTy ->
                                     varMap.Add((name, ViewOf valTy), arg)
-                                | Hole.Var(valTy, hasView) ->
-                                    let varTy = VarOf valTy
+                                | Hole.IRef(valTy, hasView) ->
+                                    let varTy = IRefOf valTy
                                     varMap.Add((name, varTy), arg)
                                     if hasView then
                                         varMap.Add((name, ViewOf valTy),
