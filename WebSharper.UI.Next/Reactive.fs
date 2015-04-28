@@ -289,3 +289,36 @@ type ViewBuilder =
 type View with
     [<JavaScript>]
     static member Do = B
+
+[<JavaScript>]
+type RefImpl<'T, 'V>(baseRef: IRef<'T>, get: 'T -> 'V, update: 'T -> 'V -> 'T) =
+
+    let id = Fresh.Id()
+
+    interface IRef<'V> with
+
+        member this.Get() =
+            get (baseRef.Get())
+
+        member this.Set(v) =
+            baseRef.Set(update (baseRef.Get()) v)
+
+        member this.Update(f) =
+            let t = baseRef.Get()
+            baseRef.Set(update t (f (get t)))
+
+        member this.UpdateMaybe(f) =
+            let t = baseRef.Get()
+            f (get t) |> Option.iter (fun v -> baseRef.Set(update t v))
+
+        member this.View =
+            baseRef.View |> View.Map get
+
+        member this.GetId() =
+            id
+
+[<JavaScript>]
+type Var with
+
+    static member GetPartRef (var: Var<_>) get update =
+        new RefImpl<_, _>(var, get, update) :> IRef<_>

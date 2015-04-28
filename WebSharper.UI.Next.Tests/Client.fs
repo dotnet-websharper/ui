@@ -24,8 +24,8 @@ module Client =
                 { name = "John"; description = "He's a cool guy." }
                 { name = "Jack"; description = "I like him too." }
             ]
-        let newItemName = Var.Create ""
-        let newItemDescription = Var.Create ""
+
+        let newItem = Var.Create { name = ""; description = "" }
 
         MyTemplate.Doc(
             Title = View.Const "A bunch of people",
@@ -47,11 +47,10 @@ module Client =
                         RemoveItem = (fun _ -> myItems.RemoveByKey key)
                     )
                 )),
-            NewItemName = newItemName,
-            NewItemDescription = newItemDescription,
+            NewItemName = Var.GetPartRef newItem (fun i -> i.name) (fun i n -> { i with name = n }),
+            NewItemDescription = Var.GetPartRef newItem (fun i -> i.description) (fun i d -> { i with description = d }),
             AddNewItem = (fun _ ->
-                myItems.Add({ name = newItemName.Value; description = newItemDescription.Value })
-                newItemName.Value <- ""
-                newItemDescription.Value <- "")
+                myItems.Add(newItem.Value)
+                newItem.Value <- { name = ""; description = "" })
         )
         |> Doc.RunById "main"

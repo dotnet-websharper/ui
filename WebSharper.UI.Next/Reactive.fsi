@@ -81,6 +81,9 @@ type Var =
     /// Gets the unique ID associated with the var.
     static member GetId  : Var<'T> -> int
 
+    /// Gets a reference to part of a var's value.
+    static member GetPartRef : Var<'T> -> get:('T -> 'V) -> update:('T -> 'V -> 'T) -> IRef<'V>
+
 /// Static operations on views.
 [<Sealed>]
 type View =
