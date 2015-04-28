@@ -132,11 +132,11 @@ type ListModel<'K,'T> with
 
     member m.UpdateBy fn key =
         let v = m.Var.Value
-        if m.ContainsKey key then
-            let index = Array.findIndex (fun it -> m.Key it = key) v
+        match Array.tryFindIndex (fun it -> m.Key it = key) v with
+        | None -> ()
+        | Some index ->
             match fn v.[index] with
-            | None ->
-                m.RemoveByKey key
+            | None -> ()
             | Some value ->
                 v.[index] <- value
                 m.Var.Value <- v
