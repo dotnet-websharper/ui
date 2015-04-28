@@ -38,7 +38,7 @@ module Client =
                         Description = (item |> View.Map (fun i -> i.description)),
                         ToggleEdit = (fun _ -> Var.Update rvIsEditVisible not),
                         EditVisible = (rvIsEditVisible.View |> View.Map (fun v ->
-                            if v then "block" else "none")),
+                            if v then "inline" else "none")),
                         EditButtonText = (rvIsEditVisible.View |> View.Map (fun v ->
                             if v then "Done" else "Edit")),
                         EditBox = (key |> myItems.GetItemPartRef

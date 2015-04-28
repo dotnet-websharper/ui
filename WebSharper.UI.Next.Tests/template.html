@@ -2,10 +2,8 @@
 <ul data-hole="ListContainer">
     <li data-template="ListItem">
         <b>${Name}</b>: ${Description}
+        <input style="display:${EditVisible}" data-var="EditBox" />
         <input type="button" data-event-click="ToggleEdit" value="${EditButtonText}" />
-        <div style="display:${EditVisible}">
-            <input data-var="EditBox" />
-        </div>
         <input type="button" data-event-click="RemoveItem" value="Remove" />
     </li>
 </ul>
