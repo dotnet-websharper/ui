@@ -107,6 +107,10 @@ type ListModel<'Key,'T when 'Key : equality> with
     /// Gets a view that checks if the item specified by its key is in the list.
     member TryFindByKeyAsView : 'Key -> View<'T option>
 
+    /// Updates all items with new items computed by the given function.
+    /// For items for which None is computed, nothing is done.
+    member UpdateAll : ('T -> 'T option) -> unit
+
     /// Updates an item with the given key with another item computed by the given function.
     /// If None is computed or the item to be updated is not found, nothing is done.
     member UpdateBy : ('T -> 'T option) -> 'Key -> unit

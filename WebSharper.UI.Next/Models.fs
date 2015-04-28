@@ -130,6 +130,12 @@ type ListModel<'K,'T> with
     member m.TryFindByKeyAsView key =
         m.Var.View |> View.Map (Array.tryFind (fun it -> m.Key it = key))
 
+    member m.UpdateAll fn =
+        Var.Update m.Var <| fun a ->
+            a |> Array.iteri (fun i x ->
+                fn x |> Option.iter (fun y -> a.[i] <- y))
+            a
+
     member m.UpdateBy fn key =
         let v = m.Var.Value
         match Array.tryFindIndex (fun it -> m.Key it = key) v with
