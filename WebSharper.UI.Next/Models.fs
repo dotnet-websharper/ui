@@ -199,13 +199,19 @@ type ListModel<'Key,'T> with
     member m.TryFindByKeyAsView key =
         m.Var.View |> View.Map (Array.tryFind (fun it -> m.Key it = key))
 
+    member m.UpdateAll fn =
+        Var.Update m.Var <| fun a ->
+            a |> Array.iteri (fun i x ->
+                fn x |> Option.iter (fun y -> a.[i] <- y))
+            a
+
     member m.UpdateBy fn key =
         let v = m.Var.Value
-        if m.ContainsKey key then
-            let index = Array.findIndex (fun it -> m.Key it = key) v
+        match Array.tryFindIndex (fun it -> m.Key it = key) v with
+        | None -> ()
+        | Some index ->
             match fn v.[index] with
-            | None ->
-                m.RemoveByKey key
+            | None -> ()
             | Some value ->
                 m.Var.Value <- m.Storage.SetAt index value v
 
