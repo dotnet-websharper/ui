@@ -17,7 +17,7 @@ module Client =
 
     let Main =
         let myItems =
-          ListModel.FromStorage <| Storage.LocalStorage "Test" None
+          ListModel.FromStorage <| Storage.LocalStorage "Test" Serializer.Default
  
         let n = Math.Random() * 100. |> int |> string
         myItems.Add { name = "Item" + n; description = "Description of Item" + n }

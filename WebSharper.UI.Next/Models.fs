@@ -222,7 +222,10 @@ type ListModel =
             Seq.distinctBy key (storage.Init ())
             |> Seq.toArray
             |> Var.Create
-        let view = var.View |> View.Map (fun x -> Array.copy x :> seq<_>)
+        let view = 
+            var.View |> View.Map (fun x ->
+                storage.Set x |> ignore
+                Array.copy x :> seq<_>)
         {
             Key = key
             Var = var
