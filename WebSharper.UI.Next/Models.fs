@@ -282,11 +282,11 @@ type ListModel =
             view = view
         }
 
-    static member FromStorage storage =
-        ListModel.Create (fun x -> x) storage
+    static member WithStorage storage =
+        ListModel.Create id storage
 
     static member FromSeq init =
-        ListModel.Create (fun x -> x) (Storage.InMemory <| Seq.toArray init)
+        ListModel.Create id (Storage.InMemory <| Seq.toArray init)
 
     static member View m =
         m.view
