@@ -203,7 +203,7 @@ type ListModel<'Key,'T> with
         Var.Update m.Var <| fun a ->
             a |> Array.iteri (fun i x ->
                 fn x |> Option.iter (fun y -> a.[i] <- y))
-            a
+            m.Storage.Set a
 
     member m.UpdateBy fn key =
         let v = m.Var.Value
