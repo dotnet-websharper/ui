@@ -15,6 +15,12 @@ module Client =
 
     type Item = { name: string; description: string }
 
+    let RefTest() = 
+        let num = ref 0
+        [1; 2; 3] |> Seq.iter (fun x -> num := !num + x)
+        if !num <> 6 then
+            failwith "ref operators failing"
+
     let Main =
         let myItems =
           ListModel.FromSeq [
@@ -39,8 +45,11 @@ module Client =
                     )),
                 MyInput = var,
                 MyInputView = View.SnapshotOn "" btnVar.View var.View,
-                MyCallback = (fun e -> Var.Set btnVar ())
+                MyCallback = (fun e -> btnVar := ())
             )
 
         doc |> Doc.RunById "main"
+
+        RefTest()
+        
         Console.Log("Running JavaScript Entry Point..")
