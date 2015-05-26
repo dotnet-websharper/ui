@@ -34,7 +34,13 @@ module Client =
  
         let doc =
             MyTemplate.Doc(
-                Title = title,
+                Title = 
+                    (
+                        Seq.init 11 (fun i -> Var.Create i)
+                        |> Seq.map (fun e -> e.View)
+                        |> View.Sequence
+                        |> View.Map (Seq.length >> string)
+                    ),
                 ListContainer =
                     (ListModel.View myItems |> Doc.Convert (fun item ->
                         MyTemplate.ListItem.Doc(

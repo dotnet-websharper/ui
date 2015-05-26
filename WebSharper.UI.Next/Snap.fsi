@@ -45,6 +45,9 @@ module internal Snap =
     /// Dynamic combination of snaps.
     val Bind : ('A -> Snap<'B>) -> Snap<'A> -> Snap<'B>
 
+    /// Evaluates each action in the sequence and collects the results
+    val Sequence : seq<Snap<'A>> -> Snap<seq<'A>>
+
     /// Maps a function.
     val Map : ('A -> 'B) -> Snap<'A> -> Snap<'B>
 

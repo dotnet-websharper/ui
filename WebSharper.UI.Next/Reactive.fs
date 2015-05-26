@@ -223,6 +223,12 @@ type View =
     static member Bind fn view =
         View.Join (View.Map fn view)
 
+    static member Sequence views =
+        View.CreateLazy(fun () -> 
+            views
+            |> Seq.map (fun (V observe) -> observe ())
+            |> Snap.Sequence)
+
     static member Const x =
         let o = Snap.CreateForever x
         V (fun () -> o)
