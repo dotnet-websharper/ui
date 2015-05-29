@@ -21,6 +21,11 @@ module Client =
         if !num <> 6 then
             failwith "ref operators failing"
 
+    let seq vs =
+        vs
+        |> Seq.fold (View.Map2 (fun a b -> 
+            seq { yield! a; yield b })) (View.Const Seq.empty)
+
     let Main =
         let myItems =
           ListModel.FromSeq [
@@ -28,18 +33,28 @@ module Client =
             { name = "Item2"; description = "Description of Item2" }
           ]
  
-        let title = View.Const "Starting title"
+        let stitle = "Starting titlo"
         let var = Var.Create ""
         let btnVar = Var.Create ()
- 
+
+        let title = 
+            stitle
+            |> Seq.toList
+            |> List.map Var.Create
+
+        async {
+            do! Async.Sleep 1500
+            Var.Set (List.nth title (title.Length - 1)) 'e'
+        } |> Async.Start
+
         let doc =
             MyTemplate.Doc(
                 Title = 
                     (
-                        Seq.init 11 (fun i -> Var.Create i)
-                        |> Seq.map (fun e -> e.View)
+                        title
+                        |> Seq.map View.FromVar
                         |> View.Sequence
-                        |> View.Map (Seq.length >> string)
+                        |> View.Map (fun e -> new string(Seq.toArray e))
                     ),
                 ListContainer =
                     (ListModel.View myItems |> Doc.Convert (fun item ->

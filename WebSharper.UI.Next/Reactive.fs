@@ -224,7 +224,7 @@ type View =
         View.Join (View.Map fn view)
 
     static member Sequence views =
-        View.CreateLazy(fun () -> 
+        View.CreateLazy(fun () ->
             views
             |> Seq.map (fun (V observe) -> observe ())
             |> Snap.Sequence)

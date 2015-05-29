@@ -139,10 +139,10 @@ module Snap =
         When snap onReady onObs
         res
 
-    // more optimal array access and circumvent
+    // more optimal array access for circumventing
     // array bounds check to get JS semantics
     [<MethodImpl(MethodImplOptions.NoInlining)>]
-    [<Inline "void($arr[$i] = $v)">]
+    [<Inline "$arr[$i] = $v">]
     let private setAt (i : int) (v : 'T) (arr : 'T[]) = ()
 
     let Sequence (snaps : seq<Snap<'T>>) =
