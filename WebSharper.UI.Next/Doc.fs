@@ -547,6 +547,7 @@ type Doc with
         let attrs =
             Attr.Concat [
                 yield! attrs
+                yield Attr.Create "type" "checkbox"
                 yield Attr.DynamicProp "checked" chk.View
             ]
         Doc.Elem el attrs Doc.Empty
