@@ -130,6 +130,25 @@ type ViewBuilder =
     /// Same as View.Const.
     member Return : 'T -> View<'T>
 
+    /// Returns the same computation.
+    member ReturnFrom : View<'A> -> View<'A>
+
+    /// Returns the given view. If an exception happens while running the expression
+    /// the result of the handler is returned instead.
+    member TryWith : View<'A> * (exn -> View<'A>) -> View<'A>
+
+    /// Runs the computations with the given finalizer.
+    member TryFinally : View<'A> * (unit -> unit) -> View<'A>
+
+    /// Returns an empty computation.
+    member Zero : unit -> View<unit>
+
+    /// Runs the computations in sequence.
+    member Combine : View<unit> * View<'A> -> View<'A>
+
+    /// Wraps the expression as a function.
+    member Delay : (unit -> View<'A>) -> View<'A>
+
 /// Additions to View combinators.
 type View with
 

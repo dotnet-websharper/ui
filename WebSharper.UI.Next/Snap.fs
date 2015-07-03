@@ -191,6 +191,7 @@ module Snap =
                     else
                         MarkReady res (fn x y)
                 | _ -> ()
+
             When sn1 (fun x -> v1 := Some x; cont ()) obs
             When sn2 (fun y -> v2 := Some y; cont ()) obs
             res

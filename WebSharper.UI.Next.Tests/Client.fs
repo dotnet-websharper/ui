@@ -21,11 +21,6 @@ module Client =
         if !num <> 6 then
             failwith "ref operators failing"
 
-    let seq vs =
-        vs
-        |> Seq.fold (View.Map2 (fun a b -> 
-            seq { yield! a; yield b })) (View.Const Seq.empty)
-
     let Main =
         let myItems =
           ListModel.FromSeq [
@@ -46,6 +41,31 @@ module Client =
             do! Async.Sleep 1500
             Var.Set (List.nth title (title.Length - 1)) 'e'
         } |> Async.Start
+
+        let a = Var.Create 1
+        let b = View.Const 5 |> View.Map (fun e -> failwith "Error" : int)
+
+        let rand = System.Random()
+
+        let s = 
+            Seq.init 10 id
+            |> Seq.map View.Const
+            |> View.Sequence
+
+        View.Do {
+            let! a = a.View
+
+            try Console.Log "trying"
+            finally Console.Log "finally"
+
+            try
+                let! b = b
+                return a * b
+            with ex -> 
+                Console.Log ex.Message
+                return 10
+        }
+        |> View.Sink Console.Log // Sink just for testing
 
         let doc =
             MyTemplate.Doc(

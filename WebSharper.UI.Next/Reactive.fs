@@ -262,6 +262,35 @@ type ViewBuilder =
     [<JavaScript>]
     member b.Return x = View.Const x
 
+    [<JavaScript>]
+    member b.ReturnFrom (x : View<_>) = x
+
+    [<JavaScript>]
+    member b.TryWith(V observe, handle) =
+        View.CreateLazy (fun () ->
+            try observe ()
+            with ex -> 
+                let (V e) = handle ex
+                e ())
+
+    [<JavaScript>]
+    member b.TryFinally(V observe, handle) =
+        View.CreateLazy (fun () ->
+            try observe ()
+            finally handle ())
+
+    [<JavaScript>]
+    member b.Zero() =
+        View.Const ()
+
+    [<JavaScript>]
+    member b.Combine(vu, vn) =
+        View.Bind (fun () -> vn) vu
+
+    [<JavaScript>]
+    member b.Delay(fn : unit -> View<'A>) =
+        fn ()
+
 type View with
     [<JavaScript>]
     static member Do = B
