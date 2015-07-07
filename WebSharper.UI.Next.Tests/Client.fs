@@ -21,11 +21,6 @@ module Client =
         if !num <> 6 then
             failwith "ref operators failing"
 
-    let seq vs =
-        vs
-        |> Seq.fold (View.Map2 (fun a b -> 
-            seq { yield! a; yield b })) (View.Const Seq.empty)
-
     let Main =
         let myItems =
           ListModel.FromSeq [
