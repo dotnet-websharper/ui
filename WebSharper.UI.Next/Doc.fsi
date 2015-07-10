@@ -20,15 +20,10 @@
 
 namespace WebSharper.UI.Next
 
-type Pagelet = WebSharper.Html.Client.Pagelet
-
 /// Represents a time-varying node or a node list.
 [<Sealed>]
 type Doc =
     interface WebSharper.Html.Client.IControlBody
-
-/// Combinators on documents.
-type Doc with
 
   // Construction of basic nodes.
 
@@ -37,15 +32,6 @@ type Doc with
 
     /// Same as Element, but uses SVG namespace.
     static member SvgElement : name: string -> seq<Attr> -> seq<Doc> -> Doc
-
-    /// Embeds time-varying fragments.
-    static member EmbedView : View<Doc> -> Doc
-
-    /// Creates a Doc using a given DOM element
-    static member Static : Element -> Doc
-
-    /// Constructs a reactive text node.
-    static member TextView : View<string> -> Doc
 
   // Note: Empty, Append, Concat define a monoid on Doc.
 
@@ -58,74 +44,102 @@ type Doc with
     /// Concatenation.
     static member Concat : seq<Doc> -> Doc
 
-  // Collections.
-
-    /// Converts a collection to Doc using View.Convert and embeds the concatenated result.
-    /// Shorthand for View.Convert f |> View.Map Doc.Concat |> Doc.EmbedView.
-    static member Convert<'T when 'T : equality> :
-        ('T -> Doc) -> View<seq<'T>> -> Doc
-
-    /// Doc.Convert with a custom key.
-    static member ConvertBy<'T,'K when 'K : equality> :
-        ('T -> 'K) -> ('T -> Doc) -> View<seq<'T>> -> Doc
-
-    /// Converts a collection to Doc using View.ConvertSeq and embeds the concatenated result.
-    /// Shorthand for View.ConvertSeq f |> View.Map Doc.Concat |> Doc.EmbedView.
-    static member ConvertSeq<'T when 'T : equality> :
-        (View<'T> -> Doc) -> View<seq<'T>> -> Doc
-
-    /// Doc.ConvertSeq with a custom key.
-    static member ConvertSeqBy<'T,'K when 'K : equality> :
-        ('T -> 'K) -> (View<'T> -> Doc) -> View<seq<'T>> -> Doc
-
-  // Main entry-point combinators - use once per app
-
-    /// Runs a reactive Doc as contents of the given element.
-    static member Run : Element -> Doc -> unit
-
-    /// Same as rn, but looks up the element by ID.
-    static member RunById : id: string -> Doc -> unit
-
-    /// Creates a Pagelet from a Doc, in a Div container.
-    static member AsPagelet : Doc -> Pagelet
-
   // Special cases
 
     /// Static variant of TextView.
     static member TextNode : string -> Doc
 
+namespace WebSharper.UI.Next.Server
+
+open WebSharper.UI.Next
+
+module Doc =
+
+    val AsElements : Doc -> list<WebSharper.Html.Server.Html.Element>
+
+namespace WebSharper.UI.Next.Client
+
+open WebSharper.UI.Next
+
+module Doc =
+
+  // Construction of basic nodes.
+
+    /// Embeds time-varying fragments.
+    val EmbedView : View<Doc> -> Doc
+
+    /// Creates a Doc using a given DOM element
+    val Static : Element -> Doc
+
+    /// Constructs a reactive text node.
+    val TextView : View<string> -> Doc
+
+  // Collections.
+
+    /// Converts a collection to Doc using View.Convert and embeds the concatenated result.
+    /// Shorthand for View.Convert f |> View.Map Doc.Concat |> Doc.EmbedView.
+    val Convert : ('T -> Doc) -> View<seq<'T>> -> Doc
+        when 'T : equality
+
+    /// Doc.Convert with a custom key.
+    val ConvertBy : ('T -> 'K) -> ('T -> Doc) -> View<seq<'T>> -> Doc
+        when 'K : equality
+
+    /// Converts a collection to Doc using View.ConvertSeq and embeds the concatenated result.
+    /// Shorthand for View.ConvertSeq f |> View.Map Doc.Concat |> Doc.EmbedView.
+    val ConvertSeq : (View<'T> -> Doc) -> View<seq<'T>> -> Doc
+        when 'T : equality
+
+    /// Doc.ConvertSeq with a custom key.
+    val ConvertSeqBy : ('T -> 'K) -> (View<'T> -> Doc) -> View<seq<'T>> -> Doc
+        when 'K : equality
+
+  // Main entry-point combinators - use once per app
+
+    /// Runs a reactive Doc as contents of the given element.
+    val Run : Element -> Doc -> unit
+
+    /// Same as rn, but looks up the element by ID.
+    val RunById : id: string -> Doc -> unit
+
+    /// Creates a Pagelet from a Doc, in a Div container.
+    val AsPagelet : Doc -> WebSharper.Html.Client.Pagelet
+
   // Form helpers
 
     /// Input box.
-    static member Input : seq<Attr> -> Var<string> -> Doc
+    val Input : seq<Attr> -> Var<string> -> Doc
 
     /// Input box with type="number".
-    static member IntInput : seq<Attr> -> Var<int> -> Doc
+    val IntInput : seq<Attr> -> Var<int> -> Doc
 
     /// Input box with type="number".
-    static member FloatInput : seq<Attr> -> Var<float> -> Doc
+    val FloatInput : seq<Attr> -> Var<float> -> Doc
 
     /// Input text area.
-    static member InputArea : seq<Attr> -> Var<string> -> Doc
+    val InputArea : seq<Attr> -> Var<string> -> Doc
 
     /// Password box.
-    static member PasswordBox : seq<Attr> -> Var<string> -> Doc
+    val PasswordBox : seq<Attr> -> Var<string> -> Doc
 
     /// Submit button. Takes a view of reactive components with which it is associated,
     /// and a callback function of what to do with this view once the button is pressed.
-    static member Button : caption: string -> seq<Attr> -> (unit -> unit) -> Doc
+    val Button : caption: string -> seq<Attr> -> (unit -> unit) -> Doc
 
     /// Link with a callback, acts just like a button.
-    static member Link : caption: string -> seq<Attr> -> (unit -> unit) -> Doc
+    val Link : caption: string -> seq<Attr> -> (unit -> unit) -> Doc
 
     /// Check Box.
-    static member CheckBox : seq<Attr> -> Var<bool> -> Doc
+    val CheckBox : seq<Attr> -> Var<bool> -> Doc
 
     /// Check Box Group.
-    static member CheckBoxGroup<'T when 'T : equality> : seq<Attr> -> 'T -> Var<list<'T>> -> Doc
+    val CheckBoxGroup : seq<Attr> -> 'T -> Var<list<'T>> -> Doc
+        when 'T : equality
 
     /// Select box.
-    static member Select<'T when 'T : equality> : seq<Attr> -> ('T -> string) -> list<'T> -> Var<'T> -> Doc
+    val Select : seq<Attr> -> ('T -> string) -> list<'T> -> Var<'T> -> Doc
+        when 'T : equality
 
     /// Radio button.
-    static member Radio<'T when 'T : equality> : seq<Attr> -> 'T -> Var<'T> -> Doc
+    val Radio : seq<Attr> -> 'T -> Var<'T> -> Doc
+        when 'T : equality

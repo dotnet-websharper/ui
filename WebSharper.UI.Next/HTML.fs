@@ -29,682 +29,1000 @@ open WebSharper
 module Html =
 
     // {{ tag normal
-    let A ats ch = Doc.Element "a" ats ch
-    let A0 ch = Doc.Element "a" [] ch
-    let Abbr ats ch = Doc.Element "abbr" ats ch
-    let Abbr0 ch = Doc.Element "abbr" [] ch
-    let Address ats ch = Doc.Element "address" ats ch
-    let Address0 ch = Doc.Element "address" [] ch
-    let Area ats ch = Doc.Element "area" ats ch
-    let Area0 ch = Doc.Element "area" [] ch
-    let Article ats ch = Doc.Element "article" ats ch
-    let Article0 ch = Doc.Element "article" [] ch
-    let Aside ats ch = Doc.Element "aside" ats ch
-    let Aside0 ch = Doc.Element "aside" [] ch
-    let Audio ats ch = Doc.Element "audio" ats ch
-    let Audio0 ch = Doc.Element "audio" [] ch
-    let B ats ch = Doc.Element "b" ats ch
-    let B0 ch = Doc.Element "b" [] ch
-    let Base ats ch = Doc.Element "base" ats ch
-    let Base0 ch = Doc.Element "base" [] ch
-    let BDI ats ch = Doc.Element "bdi" ats ch
-    let BDI0 ch = Doc.Element "bdi" [] ch
-    let BDO ats ch = Doc.Element "bdo" ats ch
-    let BDO0 ch = Doc.Element "bdo" [] ch
-    let BlockQuote ats ch = Doc.Element "blockquote" ats ch
-    let BlockQuote0 ch = Doc.Element "blockquote" [] ch
-    let Body ats ch = Doc.Element "body" ats ch
-    let Body0 ch = Doc.Element "body" [] ch
-    let Br ats ch = Doc.Element "br" ats ch
-    let Br0 ch = Doc.Element "br" [] ch
-    let Button ats ch = Doc.Element "button" ats ch
-    let Button0 ch = Doc.Element "button" [] ch
-    let Canvas ats ch = Doc.Element "canvas" ats ch
-    let Canvas0 ch = Doc.Element "canvas" [] ch
-    let Caption ats ch = Doc.Element "caption" ats ch
-    let Caption0 ch = Doc.Element "caption" [] ch
-    let Cite ats ch = Doc.Element "cite" ats ch
-    let Cite0 ch = Doc.Element "cite" [] ch
-    let Code ats ch = Doc.Element "code" ats ch
-    let Code0 ch = Doc.Element "code" [] ch
-    let Col ats ch = Doc.Element "col" ats ch
-    let Col0 ch = Doc.Element "col" [] ch
-    let ColGroup ats ch = Doc.Element "colgroup" ats ch
-    let ColGroup0 ch = Doc.Element "colgroup" [] ch
-    let Command ats ch = Doc.Element "command" ats ch
-    let Command0 ch = Doc.Element "command" [] ch
-    let DataList ats ch = Doc.Element "datalist" ats ch
-    let DataList0 ch = Doc.Element "datalist" [] ch
-    let DD ats ch = Doc.Element "dd" ats ch
-    let DD0 ch = Doc.Element "dd" [] ch
-    let Del ats ch = Doc.Element "del" ats ch
-    let Del0 ch = Doc.Element "del" [] ch
-    let Details ats ch = Doc.Element "details" ats ch
-    let Details0 ch = Doc.Element "details" [] ch
-    let Dfn ats ch = Doc.Element "dfn" ats ch
-    let Dfn0 ch = Doc.Element "dfn" [] ch
-    let Div ats ch = Doc.Element "div" ats ch
-    let Div0 ch = Doc.Element "div" [] ch
-    let DL ats ch = Doc.Element "dl" ats ch
-    let DL0 ch = Doc.Element "dl" [] ch
-    let DT ats ch = Doc.Element "dt" ats ch
-    let DT0 ch = Doc.Element "dt" [] ch
-    let Em ats ch = Doc.Element "em" ats ch
-    let Em0 ch = Doc.Element "em" [] ch
-    let Embed ats ch = Doc.Element "embed" ats ch
-    let Embed0 ch = Doc.Element "embed" [] ch
-    let FieldSet ats ch = Doc.Element "fieldset" ats ch
-    let FieldSet0 ch = Doc.Element "fieldset" [] ch
-    let FigCaption ats ch = Doc.Element "figcaption" ats ch
-    let FigCaption0 ch = Doc.Element "figcaption" [] ch
-    let Figure ats ch = Doc.Element "figure" ats ch
-    let Figure0 ch = Doc.Element "figure" [] ch
-    let Footer ats ch = Doc.Element "footer" ats ch
-    let Footer0 ch = Doc.Element "footer" [] ch
-    let Form ats ch = Doc.Element "form" ats ch
-    let Form0 ch = Doc.Element "form" [] ch
-    let H1 ats ch = Doc.Element "h1" ats ch
-    let H10 ch = Doc.Element "h1" [] ch
-    let H2 ats ch = Doc.Element "h2" ats ch
-    let H20 ch = Doc.Element "h2" [] ch
-    let H3 ats ch = Doc.Element "h3" ats ch
-    let H30 ch = Doc.Element "h3" [] ch
-    let H4 ats ch = Doc.Element "h4" ats ch
-    let H40 ch = Doc.Element "h4" [] ch
-    let H5 ats ch = Doc.Element "h5" ats ch
-    let H50 ch = Doc.Element "h5" [] ch
-    let H6 ats ch = Doc.Element "h6" ats ch
-    let H60 ch = Doc.Element "h6" [] ch
-    let Head ats ch = Doc.Element "head" ats ch
-    let Head0 ch = Doc.Element "head" [] ch
-    let Header ats ch = Doc.Element "header" ats ch
-    let Header0 ch = Doc.Element "header" [] ch
-    let HGroup ats ch = Doc.Element "hgroup" ats ch
-    let HGroup0 ch = Doc.Element "hgroup" [] ch
-    let HR ats ch = Doc.Element "hr" ats ch
-    let HR0 ch = Doc.Element "hr" [] ch
-    let HTML ats ch = Doc.Element "html" ats ch
-    let HTML0 ch = Doc.Element "html" [] ch
-    let I ats ch = Doc.Element "i" ats ch
-    let I0 ch = Doc.Element "i" [] ch
-    let IFrame ats ch = Doc.Element "iframe" ats ch
-    let IFrame0 ch = Doc.Element "iframe" [] ch
-    let Img ats ch = Doc.Element "img" ats ch
-    let Img0 ch = Doc.Element "img" [] ch
-    let Input ats ch = Doc.Element "input" ats ch
-    let Input0 ch = Doc.Element "input" [] ch
-    let Ins ats ch = Doc.Element "ins" ats ch
-    let Ins0 ch = Doc.Element "ins" [] ch
-    let Kbd ats ch = Doc.Element "kbd" ats ch
-    let Kbd0 ch = Doc.Element "kbd" [] ch
-    let KeyGen ats ch = Doc.Element "keygen" ats ch
-    let KeyGen0 ch = Doc.Element "keygen" [] ch
-    let Label ats ch = Doc.Element "label" ats ch
-    let Label0 ch = Doc.Element "label" [] ch
-    let Legend ats ch = Doc.Element "legend" ats ch
-    let Legend0 ch = Doc.Element "legend" [] ch
-    let LI ats ch = Doc.Element "li" ats ch
-    let LI0 ch = Doc.Element "li" [] ch
-    let Link ats ch = Doc.Element "link" ats ch
-    let Link0 ch = Doc.Element "link" [] ch
-    let Mark ats ch = Doc.Element "mark" ats ch
-    let Mark0 ch = Doc.Element "mark" [] ch
-    let Meta ats ch = Doc.Element "meta" ats ch
-    let Meta0 ch = Doc.Element "meta" [] ch
-    let Meter ats ch = Doc.Element "meter" ats ch
-    let Meter0 ch = Doc.Element "meter" [] ch
-    let Nav ats ch = Doc.Element "nav" ats ch
-    let Nav0 ch = Doc.Element "nav" [] ch
-    let NoFrames ats ch = Doc.Element "noframes" ats ch
-    let NoFrames0 ch = Doc.Element "noframes" [] ch
-    let NoScript ats ch = Doc.Element "noscript" ats ch
-    let NoScript0 ch = Doc.Element "noscript" [] ch
-    let OL ats ch = Doc.Element "ol" ats ch
-    let OL0 ch = Doc.Element "ol" [] ch
-    let OptGroup ats ch = Doc.Element "optgroup" ats ch
-    let OptGroup0 ch = Doc.Element "optgroup" [] ch
-    let Output ats ch = Doc.Element "output" ats ch
-    let Output0 ch = Doc.Element "output" [] ch
-    let P ats ch = Doc.Element "p" ats ch
-    let P0 ch = Doc.Element "p" [] ch
-    let Param ats ch = Doc.Element "param" ats ch
-    let Param0 ch = Doc.Element "param" [] ch
-    let Picture ats ch = Doc.Element "picture" ats ch
-    let Picture0 ch = Doc.Element "picture" [] ch
-    let Pre ats ch = Doc.Element "pre" ats ch
-    let Pre0 ch = Doc.Element "pre" [] ch
-    let Progress ats ch = Doc.Element "progress" ats ch
-    let Progress0 ch = Doc.Element "progress" [] ch
-    let Q ats ch = Doc.Element "q" ats ch
-    let Q0 ch = Doc.Element "q" [] ch
-    let RP ats ch = Doc.Element "rp" ats ch
-    let RP0 ch = Doc.Element "rp" [] ch
-    let RT ats ch = Doc.Element "rt" ats ch
-    let RT0 ch = Doc.Element "rt" [] ch
-    let RTC ats ch = Doc.Element "rtc" ats ch
-    let RTC0 ch = Doc.Element "rtc" [] ch
-    let Ruby ats ch = Doc.Element "ruby" ats ch
-    let Ruby0 ch = Doc.Element "ruby" [] ch
-    let Samp ats ch = Doc.Element "samp" ats ch
-    let Samp0 ch = Doc.Element "samp" [] ch
-    let Script ats ch = Doc.Element "script" ats ch
-    let Script0 ch = Doc.Element "script" [] ch
-    let Section ats ch = Doc.Element "section" ats ch
-    let Section0 ch = Doc.Element "section" [] ch
-    let Select ats ch = Doc.Element "select" ats ch
-    let Select0 ch = Doc.Element "select" [] ch
-    let Shadow ats ch = Doc.Element "shadow" ats ch
-    let Shadow0 ch = Doc.Element "shadow" [] ch
-    let Small ats ch = Doc.Element "small" ats ch
-    let Small0 ch = Doc.Element "small" [] ch
-    let Source ats ch = Doc.Element "source" ats ch
-    let Source0 ch = Doc.Element "source" [] ch
-    let Span ats ch = Doc.Element "span" ats ch
-    let Span0 ch = Doc.Element "span" [] ch
-    let Strong ats ch = Doc.Element "strong" ats ch
-    let Strong0 ch = Doc.Element "strong" [] ch
-    let Sub ats ch = Doc.Element "sub" ats ch
-    let Sub0 ch = Doc.Element "sub" [] ch
-    let Summary ats ch = Doc.Element "summary" ats ch
-    let Summary0 ch = Doc.Element "summary" [] ch
-    let Sup ats ch = Doc.Element "sup" ats ch
-    let Sup0 ch = Doc.Element "sup" [] ch
-    let Table ats ch = Doc.Element "table" ats ch
-    let Table0 ch = Doc.Element "table" [] ch
-    let TBody ats ch = Doc.Element "tbody" ats ch
-    let TBody0 ch = Doc.Element "tbody" [] ch
-    let TD ats ch = Doc.Element "td" ats ch
-    let TD0 ch = Doc.Element "td" [] ch
-    let TextArea ats ch = Doc.Element "textarea" ats ch
-    let TextArea0 ch = Doc.Element "textarea" [] ch
-    let TFoot ats ch = Doc.Element "tfoot" ats ch
-    let TFoot0 ch = Doc.Element "tfoot" [] ch
-    let TH ats ch = Doc.Element "th" ats ch
-    let TH0 ch = Doc.Element "th" [] ch
-    let THead ats ch = Doc.Element "thead" ats ch
-    let THead0 ch = Doc.Element "thead" [] ch
-    let Time ats ch = Doc.Element "time" ats ch
-    let Time0 ch = Doc.Element "time" [] ch
-    let TR ats ch = Doc.Element "tr" ats ch
-    let TR0 ch = Doc.Element "tr" [] ch
-    let Track ats ch = Doc.Element "track" ats ch
-    let Track0 ch = Doc.Element "track" [] ch
-    let UL ats ch = Doc.Element "ul" ats ch
-    let UL0 ch = Doc.Element "ul" [] ch
-    let Video ats ch = Doc.Element "video" ats ch
-    let Video0 ch = Doc.Element "video" [] ch
-    let WBR ats ch = Doc.Element "wbr" ats ch
-    let WBR0 ch = Doc.Element "wbr" [] ch
+    let aAttr ats ch = Doc.Element "a" ats ch
+    let a ch = Doc.Element "a" [||] ch
+    let abbrAttr ats ch = Doc.Element "abbr" ats ch
+    let abbr ch = Doc.Element "abbr" [||] ch
+    let addressAttr ats ch = Doc.Element "address" ats ch
+    let address ch = Doc.Element "address" [||] ch
+    let areaAttr ats ch = Doc.Element "area" ats ch
+    let area ch = Doc.Element "area" [||] ch
+    let articleAttr ats ch = Doc.Element "article" ats ch
+    let article ch = Doc.Element "article" [||] ch
+    let asideAttr ats ch = Doc.Element "aside" ats ch
+    let aside ch = Doc.Element "aside" [||] ch
+    let audioAttr ats ch = Doc.Element "audio" ats ch
+    let audio ch = Doc.Element "audio" [||] ch
+    let bAttr ats ch = Doc.Element "b" ats ch
+    let b ch = Doc.Element "b" [||] ch
+    let baseAttr ats ch = Doc.Element "base" ats ch
+    let ``base`` ch = Doc.Element "base" [||] ch
+    let bdiAttr ats ch = Doc.Element "bdi" ats ch
+    let bdi ch = Doc.Element "bdi" [||] ch
+    let bdoAttr ats ch = Doc.Element "bdo" ats ch
+    let bdo ch = Doc.Element "bdo" [||] ch
+    let blockquoteAttr ats ch = Doc.Element "blockquote" ats ch
+    let blockquote ch = Doc.Element "blockquote" [||] ch
+    let bodyAttr ats ch = Doc.Element "body" ats ch
+    let body ch = Doc.Element "body" [||] ch
+    let brAttr ats ch = Doc.Element "br" ats ch
+    let br ch = Doc.Element "br" [||] ch
+    let buttonAttr ats ch = Doc.Element "button" ats ch
+    let button ch = Doc.Element "button" [||] ch
+    let canvasAttr ats ch = Doc.Element "canvas" ats ch
+    let canvas ch = Doc.Element "canvas" [||] ch
+    let captionAttr ats ch = Doc.Element "caption" ats ch
+    let caption ch = Doc.Element "caption" [||] ch
+    let citeAttr ats ch = Doc.Element "cite" ats ch
+    let cite ch = Doc.Element "cite" [||] ch
+    let codeAttr ats ch = Doc.Element "code" ats ch
+    let code ch = Doc.Element "code" [||] ch
+    let colAttr ats ch = Doc.Element "col" ats ch
+    let col ch = Doc.Element "col" [||] ch
+    let colgroupAttr ats ch = Doc.Element "colgroup" ats ch
+    let colgroup ch = Doc.Element "colgroup" [||] ch
+    let commandAttr ats ch = Doc.Element "command" ats ch
+    let command ch = Doc.Element "command" [||] ch
+    let datalistAttr ats ch = Doc.Element "datalist" ats ch
+    let datalist ch = Doc.Element "datalist" [||] ch
+    let ddAttr ats ch = Doc.Element "dd" ats ch
+    let dd ch = Doc.Element "dd" [||] ch
+    let delAttr ats ch = Doc.Element "del" ats ch
+    let del ch = Doc.Element "del" [||] ch
+    let detailsAttr ats ch = Doc.Element "details" ats ch
+    let details ch = Doc.Element "details" [||] ch
+    let dfnAttr ats ch = Doc.Element "dfn" ats ch
+    let dfn ch = Doc.Element "dfn" [||] ch
+    let divAttr ats ch = Doc.Element "div" ats ch
+    let div ch = Doc.Element "div" [||] ch
+    let dlAttr ats ch = Doc.Element "dl" ats ch
+    let dl ch = Doc.Element "dl" [||] ch
+    let dtAttr ats ch = Doc.Element "dt" ats ch
+    let dt ch = Doc.Element "dt" [||] ch
+    let emAttr ats ch = Doc.Element "em" ats ch
+    let em ch = Doc.Element "em" [||] ch
+    let embedAttr ats ch = Doc.Element "embed" ats ch
+    let embed ch = Doc.Element "embed" [||] ch
+    let fieldsetAttr ats ch = Doc.Element "fieldset" ats ch
+    let fieldset ch = Doc.Element "fieldset" [||] ch
+    let figcaptionAttr ats ch = Doc.Element "figcaption" ats ch
+    let figcaption ch = Doc.Element "figcaption" [||] ch
+    let figureAttr ats ch = Doc.Element "figure" ats ch
+    let figure ch = Doc.Element "figure" [||] ch
+    let footerAttr ats ch = Doc.Element "footer" ats ch
+    let footer ch = Doc.Element "footer" [||] ch
+    let formAttr ats ch = Doc.Element "form" ats ch
+    let form ch = Doc.Element "form" [||] ch
+    let h1Attr ats ch = Doc.Element "h1" ats ch
+    let h1 ch = Doc.Element "h1" [||] ch
+    let h2Attr ats ch = Doc.Element "h2" ats ch
+    let h2 ch = Doc.Element "h2" [||] ch
+    let h3Attr ats ch = Doc.Element "h3" ats ch
+    let h3 ch = Doc.Element "h3" [||] ch
+    let h4Attr ats ch = Doc.Element "h4" ats ch
+    let h4 ch = Doc.Element "h4" [||] ch
+    let h5Attr ats ch = Doc.Element "h5" ats ch
+    let h5 ch = Doc.Element "h5" [||] ch
+    let h6Attr ats ch = Doc.Element "h6" ats ch
+    let h6 ch = Doc.Element "h6" [||] ch
+    let headAttr ats ch = Doc.Element "head" ats ch
+    let head ch = Doc.Element "head" [||] ch
+    let headerAttr ats ch = Doc.Element "header" ats ch
+    let header ch = Doc.Element "header" [||] ch
+    let hgroupAttr ats ch = Doc.Element "hgroup" ats ch
+    let hgroup ch = Doc.Element "hgroup" [||] ch
+    let hrAttr ats ch = Doc.Element "hr" ats ch
+    let hr ch = Doc.Element "hr" [||] ch
+    let htmlAttr ats ch = Doc.Element "html" ats ch
+    let html ch = Doc.Element "html" [||] ch
+    let iAttr ats ch = Doc.Element "i" ats ch
+    let i ch = Doc.Element "i" [||] ch
+    let iframeAttr ats ch = Doc.Element "iframe" ats ch
+    let iframe ch = Doc.Element "iframe" [||] ch
+    let imgAttr ats ch = Doc.Element "img" ats ch
+    let img ch = Doc.Element "img" [||] ch
+    let inputAttr ats ch = Doc.Element "input" ats ch
+    let input ch = Doc.Element "input" [||] ch
+    let insAttr ats ch = Doc.Element "ins" ats ch
+    let ins ch = Doc.Element "ins" [||] ch
+    let kbdAttr ats ch = Doc.Element "kbd" ats ch
+    let kbd ch = Doc.Element "kbd" [||] ch
+    let keygenAttr ats ch = Doc.Element "keygen" ats ch
+    let keygen ch = Doc.Element "keygen" [||] ch
+    let labelAttr ats ch = Doc.Element "label" ats ch
+    let label ch = Doc.Element "label" [||] ch
+    let legendAttr ats ch = Doc.Element "legend" ats ch
+    let legend ch = Doc.Element "legend" [||] ch
+    let liAttr ats ch = Doc.Element "li" ats ch
+    let li ch = Doc.Element "li" [||] ch
+    let linkAttr ats ch = Doc.Element "link" ats ch
+    let link ch = Doc.Element "link" [||] ch
+    let markAttr ats ch = Doc.Element "mark" ats ch
+    let mark ch = Doc.Element "mark" [||] ch
+    let metaAttr ats ch = Doc.Element "meta" ats ch
+    let meta ch = Doc.Element "meta" [||] ch
+    let meterAttr ats ch = Doc.Element "meter" ats ch
+    let meter ch = Doc.Element "meter" [||] ch
+    let navAttr ats ch = Doc.Element "nav" ats ch
+    let nav ch = Doc.Element "nav" [||] ch
+    let noframesAttr ats ch = Doc.Element "noframes" ats ch
+    let noframes ch = Doc.Element "noframes" [||] ch
+    let noscriptAttr ats ch = Doc.Element "noscript" ats ch
+    let noscript ch = Doc.Element "noscript" [||] ch
+    let olAttr ats ch = Doc.Element "ol" ats ch
+    let ol ch = Doc.Element "ol" [||] ch
+    let optgroupAttr ats ch = Doc.Element "optgroup" ats ch
+    let optgroup ch = Doc.Element "optgroup" [||] ch
+    let outputAttr ats ch = Doc.Element "output" ats ch
+    let output ch = Doc.Element "output" [||] ch
+    let pAttr ats ch = Doc.Element "p" ats ch
+    let p ch = Doc.Element "p" [||] ch
+    let paramAttr ats ch = Doc.Element "param" ats ch
+    let param ch = Doc.Element "param" [||] ch
+    let pictureAttr ats ch = Doc.Element "picture" ats ch
+    let picture ch = Doc.Element "picture" [||] ch
+    let preAttr ats ch = Doc.Element "pre" ats ch
+    let pre ch = Doc.Element "pre" [||] ch
+    let progressAttr ats ch = Doc.Element "progress" ats ch
+    let progress ch = Doc.Element "progress" [||] ch
+    let qAttr ats ch = Doc.Element "q" ats ch
+    let q ch = Doc.Element "q" [||] ch
+    let rpAttr ats ch = Doc.Element "rp" ats ch
+    let rp ch = Doc.Element "rp" [||] ch
+    let rtAttr ats ch = Doc.Element "rt" ats ch
+    let rt ch = Doc.Element "rt" [||] ch
+    let rtcAttr ats ch = Doc.Element "rtc" ats ch
+    let rtc ch = Doc.Element "rtc" [||] ch
+    let rubyAttr ats ch = Doc.Element "ruby" ats ch
+    let ruby ch = Doc.Element "ruby" [||] ch
+    let sampAttr ats ch = Doc.Element "samp" ats ch
+    let samp ch = Doc.Element "samp" [||] ch
+    let scriptAttr ats ch = Doc.Element "script" ats ch
+    let script ch = Doc.Element "script" [||] ch
+    let sectionAttr ats ch = Doc.Element "section" ats ch
+    let section ch = Doc.Element "section" [||] ch
+    let selectAttr ats ch = Doc.Element "select" ats ch
+    let select ch = Doc.Element "select" [||] ch
+    let shadowAttr ats ch = Doc.Element "shadow" ats ch
+    let shadow ch = Doc.Element "shadow" [||] ch
+    let smallAttr ats ch = Doc.Element "small" ats ch
+    let small ch = Doc.Element "small" [||] ch
+    let sourceAttr ats ch = Doc.Element "source" ats ch
+    let source ch = Doc.Element "source" [||] ch
+    let spanAttr ats ch = Doc.Element "span" ats ch
+    let span ch = Doc.Element "span" [||] ch
+    let strongAttr ats ch = Doc.Element "strong" ats ch
+    let strong ch = Doc.Element "strong" [||] ch
+    let subAttr ats ch = Doc.Element "sub" ats ch
+    let sub ch = Doc.Element "sub" [||] ch
+    let summaryAttr ats ch = Doc.Element "summary" ats ch
+    let summary ch = Doc.Element "summary" [||] ch
+    let supAttr ats ch = Doc.Element "sup" ats ch
+    let sup ch = Doc.Element "sup" [||] ch
+    let tableAttr ats ch = Doc.Element "table" ats ch
+    let table ch = Doc.Element "table" [||] ch
+    let tbodyAttr ats ch = Doc.Element "tbody" ats ch
+    let tbody ch = Doc.Element "tbody" [||] ch
+    let tdAttr ats ch = Doc.Element "td" ats ch
+    let td ch = Doc.Element "td" [||] ch
+    let textareaAttr ats ch = Doc.Element "textarea" ats ch
+    let textarea ch = Doc.Element "textarea" [||] ch
+    let tfootAttr ats ch = Doc.Element "tfoot" ats ch
+    let tfoot ch = Doc.Element "tfoot" [||] ch
+    let thAttr ats ch = Doc.Element "th" ats ch
+    let th ch = Doc.Element "th" [||] ch
+    let theadAttr ats ch = Doc.Element "thead" ats ch
+    let thead ch = Doc.Element "thead" [||] ch
+    let timeAttr ats ch = Doc.Element "time" ats ch
+    let time ch = Doc.Element "time" [||] ch
+    let trAttr ats ch = Doc.Element "tr" ats ch
+    let tr ch = Doc.Element "tr" [||] ch
+    let trackAttr ats ch = Doc.Element "track" ats ch
+    let track ch = Doc.Element "track" [||] ch
+    let ulAttr ats ch = Doc.Element "ul" ats ch
+    let ul ch = Doc.Element "ul" [||] ch
+    let videoAttr ats ch = Doc.Element "video" ats ch
+    let video ch = Doc.Element "video" [||] ch
+    let wbrAttr ats ch = Doc.Element "wbr" ats ch
+    let wbr ch = Doc.Element "wbr" [||] ch
     // }}
 
+    /// Create an attribute with the given name and value.
+    let attr n v = Attr.Create n v
+    /// Create an attribute with the given name and dynamic value.
+    let attrDyn n v = Client.Attr.Dynamic n v
+
     // {{ attr normal
-    let Accept = "accept"
-    let AcceptCharSet = "accept-charset"
-    let AccessKey = "accesskey"
-    let Align = "align"
-    let Alt = "alt"
-    let AltCode = "altcode"
-    let Archive = "archive"
-    let AutoComplete = "autocomplete"
-    let AutoFocus = "autofocus"
-    let AutoPlay = "autoplay"
-    let AutoSave = "autosave"
-    let Axis = "axis"
-    let Border = "border"
-    let BorderColor = "bordercolor"
-    let Buffered = "buffered"
-    let CellPadding = "cellpadding"
-    let CellSpacing = "cellspacing"
-    let Challenge = "challenge"
-    let Char = "char"
-    let CharOff = "charoff"
-    let CharSet = "charset"
-    let Checked = "checked"
-    let Class = "class"
-    let ClassId = "classid"
-    let CodeBase = "codebase"
-    let CodeType = "codetype"
-    let Cols = "cols"
-    let ColSpan = "colspan"
-    let ContentEditable = "contenteditable"
-    let ContextMenu = "contextmenu"
-    let Coords = "coords"
-    let Declare = "declare"
-    let Default = "default"
-    let Defer = "defer"
-    let Disabled = "disabled"
-    let Download = "download"
-    let Draggable = "draggable"
-    let DropZone = "dropzone"
-    let EncType = "enctype"
-    let For = "for"
-    let FormAction = "formaction"
-    let FormEncType = "formenctype"
-    let FormMethod = "formmethod"
-    let FormNoValidate = "formnovalidate"
-    let FormTarget = "formtarget"
-    let FrameBorder = "frameborder"
-    let Headers = "headers"
-    let Height = "height"
-    let Hidden = "hidden"
-    let High = "high"
-    let HRef = "href"
-    let HRefLang = "hreflang"
-    let HttpEquiv = "http"
-    let Icon = "icon"
-    let Id = "id"
-    let IsMap = "ismap"
-    let ItemProp = "itemprop"
-    let Lang = "lang"
-    let LongDesc = "longdesc"
-    let Loop = "loop"
-    let Low = "low"
-    let Manifest = "manifest"
-    let MarginHeight = "marginheight"
-    let MarginWidth = "marginwidth"
-    let MaxLength = "maxlength"
-    let Media = "media"
-    let Method = "method"
-    let Multiple = "multiple"
-    let Name = "name"
-    let NoHRef = "nohref"
-    let NoResize = "noresize"
-    let NoValidate = "novalidate"
-    let Pattern = "pattern"
-    let Ping = "ping"
-    let PlaceHolder = "placeholder"
-    let Poster = "poster"
-    let Preload = "preload"
-    let Profile = "profile"
-    let PubDate = "pubdate"
-    let RadioGroup = "radiogroup"
-    let ReadOnly = "readonly"
-    let Rel = "rel"
-    let Required = "required"
-    let Rev = "rev"
-    let Reversed = "reversed"
-    let Rows = "rows"
-    let RowSpan = "rowspan"
-    let Rules = "rules"
-    let Sandbox = "sandbox"
-    let Scheme = "scheme"
-    let Scope = "scope"
-    let Scoped = "scoped"
-    let Scrolling = "scrolling"
-    let Seamless = "seamless"
-    let Selected = "selected"
-    let Shape = "shape"
-    let Size = "size"
-    let Sizes = "sizes"
-    let SpellCheck = "spellcheck"
-    let Src = "src"
-    let SrcDoc = "srcdoc"
-    let SrcLang = "srclang"
-    let StandBy = "standby"
-    let Step = "step"
-    let Style = "style"
-    let Subject = "subject"
-    let TabIndex = "tabindex"
-    let Target = "target"
-    let Title = "title"
-    let Type = "type"
-    let UseMap = "usemap"
-    let VAlign = "valign"
-    let Value = "value"
-    let ValueType = "valuetype"
-    let Width = "width"
-    let Wrap = "wrap"
+    [<Literal>]
+    let accept = "accept"
+    [<Literal>]
+    let acceptCharset = "accept-charset"
+    [<Literal>]
+    let accesskey = "accesskey"
+    [<Literal>]
+    let align = "align"
+    [<Literal>]
+    let alt = "alt"
+    [<Literal>]
+    let altcode = "altcode"
+    [<Literal>]
+    let archive = "archive"
+    [<Literal>]
+    let autocomplete = "autocomplete"
+    [<Literal>]
+    let autofocus = "autofocus"
+    [<Literal>]
+    let autoplay = "autoplay"
+    [<Literal>]
+    let autosave = "autosave"
+    [<Literal>]
+    let axis = "axis"
+    [<Literal>]
+    let border = "border"
+    [<Literal>]
+    let bordercolor = "bordercolor"
+    [<Literal>]
+    let buffered = "buffered"
+    [<Literal>]
+    let cellpadding = "cellpadding"
+    [<Literal>]
+    let cellspacing = "cellspacing"
+    [<Literal>]
+    let challenge = "challenge"
+    [<Literal>]
+    let char = "char"
+    [<Literal>]
+    let charoff = "charoff"
+    [<Literal>]
+    let charset = "charset"
+    [<Literal>]
+    let ``checked`` = "checked"
+    [<Literal>]
+    let ``class`` = "class"
+    [<Literal>]
+    let classid = "classid"
+    [<Literal>]
+    let codebase = "codebase"
+    [<Literal>]
+    let codetype = "codetype"
+    [<Literal>]
+    let cols = "cols"
+    [<Literal>]
+    let colspan = "colspan"
+    [<Literal>]
+    let contenteditable = "contenteditable"
+    [<Literal>]
+    let contextmenu = "contextmenu"
+    [<Literal>]
+    let coords = "coords"
+    [<Literal>]
+    let declare = "declare"
+    [<Literal>]
+    let ``default`` = "default"
+    [<Literal>]
+    let defer = "defer"
+    [<Literal>]
+    let disabled = "disabled"
+    [<Literal>]
+    let download = "download"
+    [<Literal>]
+    let draggable = "draggable"
+    [<Literal>]
+    let dropzone = "dropzone"
+    [<Literal>]
+    let enctype = "enctype"
+    [<Literal>]
+    let ``for`` = "for"
+    [<Literal>]
+    let formaction = "formaction"
+    [<Literal>]
+    let formenctype = "formenctype"
+    [<Literal>]
+    let formmethod = "formmethod"
+    [<Literal>]
+    let formnovalidate = "formnovalidate"
+    [<Literal>]
+    let formtarget = "formtarget"
+    [<Literal>]
+    let frameborder = "frameborder"
+    [<Literal>]
+    let headers = "headers"
+    [<Literal>]
+    let height = "height"
+    [<Literal>]
+    let hidden = "hidden"
+    [<Literal>]
+    let high = "high"
+    [<Literal>]
+    let href = "href"
+    [<Literal>]
+    let hreflang = "hreflang"
+    [<Literal>]
+    let http = "http"
+    [<Literal>]
+    let icon = "icon"
+    [<Literal>]
+    let id = "id"
+    [<Literal>]
+    let ismap = "ismap"
+    [<Literal>]
+    let itemprop = "itemprop"
+    [<Literal>]
+    let lang = "lang"
+    [<Literal>]
+    let longdesc = "longdesc"
+    [<Literal>]
+    let loop = "loop"
+    [<Literal>]
+    let low = "low"
+    [<Literal>]
+    let manifest = "manifest"
+    [<Literal>]
+    let marginheight = "marginheight"
+    [<Literal>]
+    let marginwidth = "marginwidth"
+    [<Literal>]
+    let maxlength = "maxlength"
+    [<Literal>]
+    let media = "media"
+    [<Literal>]
+    let ``method`` = "method"
+    [<Literal>]
+    let multiple = "multiple"
+    [<Literal>]
+    let name = "name"
+    [<Literal>]
+    let nohref = "nohref"
+    [<Literal>]
+    let noresize = "noresize"
+    [<Literal>]
+    let novalidate = "novalidate"
+    [<Literal>]
+    let pattern = "pattern"
+    [<Literal>]
+    let ping = "ping"
+    [<Literal>]
+    let placeholder = "placeholder"
+    [<Literal>]
+    let poster = "poster"
+    [<Literal>]
+    let preload = "preload"
+    [<Literal>]
+    let profile = "profile"
+    [<Literal>]
+    let pubdate = "pubdate"
+    [<Literal>]
+    let radiogroup = "radiogroup"
+    [<Literal>]
+    let readonly = "readonly"
+    [<Literal>]
+    let rel = "rel"
+    [<Literal>]
+    let required = "required"
+    [<Literal>]
+    let rev = "rev"
+    [<Literal>]
+    let reversed = "reversed"
+    [<Literal>]
+    let rows = "rows"
+    [<Literal>]
+    let rowspan = "rowspan"
+    [<Literal>]
+    let rules = "rules"
+    [<Literal>]
+    let sandbox = "sandbox"
+    [<Literal>]
+    let scheme = "scheme"
+    [<Literal>]
+    let scope = "scope"
+    [<Literal>]
+    let scoped = "scoped"
+    [<Literal>]
+    let scrolling = "scrolling"
+    [<Literal>]
+    let seamless = "seamless"
+    [<Literal>]
+    let selected = "selected"
+    [<Literal>]
+    let shape = "shape"
+    [<Literal>]
+    let size = "size"
+    [<Literal>]
+    let sizes = "sizes"
+    [<Literal>]
+    let spellcheck = "spellcheck"
+    [<Literal>]
+    let src = "src"
+    [<Literal>]
+    let srcdoc = "srcdoc"
+    [<Literal>]
+    let srclang = "srclang"
+    [<Literal>]
+    let standby = "standby"
+    [<Literal>]
+    let step = "step"
+    [<Literal>]
+    let style = "style"
+    [<Literal>]
+    let subject = "subject"
+    [<Literal>]
+    let tabindex = "tabindex"
+    [<Literal>]
+    let target = "target"
+    [<Literal>]
+    let title = "title"
+    [<Literal>]
+    let ``type`` = "type"
+    [<Literal>]
+    let usemap = "usemap"
+    [<Literal>]
+    let valign = "valign"
+    [<Literal>]
+    let value = "value"
+    [<Literal>]
+    let valuetype = "valuetype"
+    [<Literal>]
+    let width = "width"
+    [<Literal>]
+    let wrap = "wrap"
     // }}
 
     /// HTML5 element functions.
     module Tags =
 
         // {{ tag colliding deprecated
-        let Acronym ats ch = Doc.Element "acronym" ats ch
-        let Acronym0 ch = Doc.Element "acronym" [] ch
-        let Applet ats ch = Doc.Element "applet" ats ch
-        let Applet0 ch = Doc.Element "applet" [] ch
-        let BaseFont ats ch = Doc.Element "basefont" ats ch
-        let BaseFont0 ch = Doc.Element "basefont" [] ch
-        let Big ats ch = Doc.Element "big" ats ch
-        let Big0 ch = Doc.Element "big" [] ch
-        let Center ats ch = Doc.Element "center" ats ch
-        let Center0 ch = Doc.Element "center" [] ch
-        let Content ats ch = Doc.Element "content" ats ch
-        let Content0 ch = Doc.Element "content" [] ch
-        let Data ats ch = Doc.Element "data" ats ch
-        let Data0 ch = Doc.Element "data" [] ch
-        let Dir ats ch = Doc.Element "dir" ats ch
-        let Dir0 ch = Doc.Element "dir" [] ch
-        let Font ats ch = Doc.Element "font" ats ch
-        let Font0 ch = Doc.Element "font" [] ch
-        let Frame ats ch = Doc.Element "frame" ats ch
-        let Frame0 ch = Doc.Element "frame" [] ch
-        let FrameSet ats ch = Doc.Element "frameset" ats ch
-        let FrameSet0 ch = Doc.Element "frameset" [] ch
-        let IsIndex ats ch = Doc.Element "isindex" ats ch
-        let IsIndex0 ch = Doc.Element "isindex" [] ch
-        let Main ats ch = Doc.Element "main" ats ch
-        let Main0 ch = Doc.Element "main" [] ch
-        let Map ats ch = Doc.Element "map" ats ch
-        let Map0 ch = Doc.Element "map" [] ch
-        let Menu ats ch = Doc.Element "menu" ats ch
-        let Menu0 ch = Doc.Element "menu" [] ch
-        let MenuItem ats ch = Doc.Element "menuitem" ats ch
-        let MenuItem0 ch = Doc.Element "menuitem" [] ch
-        let Object ats ch = Doc.Element "object" ats ch
-        let Object0 ch = Doc.Element "object" [] ch
-        let Option ats ch = Doc.Element "option" ats ch
-        let Option0 ch = Doc.Element "option" [] ch
-        let S ats ch = Doc.Element "s" ats ch
-        let S0 ch = Doc.Element "s" [] ch
-        let Strike ats ch = Doc.Element "strike" ats ch
-        let Strike0 ch = Doc.Element "strike" [] ch
-        let Style ats ch = Doc.Element "style" ats ch
-        let Style0 ch = Doc.Element "style" [] ch
-        let Template ats ch = Doc.Element "template" ats ch
-        let Template0 ch = Doc.Element "template" [] ch
-        let Title ats ch = Doc.Element "title" ats ch
-        let Title0 ch = Doc.Element "title" [] ch
-        let TT ats ch = Doc.Element "tt" ats ch
-        let TT0 ch = Doc.Element "tt" [] ch
-        let U ats ch = Doc.Element "u" ats ch
-        let U0 ch = Doc.Element "u" [] ch
-        let Var ats ch = Doc.Element "var" ats ch
-        let Var0 ch = Doc.Element "var" [] ch
+        let acronymAttr ats ch = Doc.Element "acronym" ats ch
+        let acronym ch = Doc.Element "acronym" [||] ch
+        let appletAttr ats ch = Doc.Element "applet" ats ch
+        let applet ch = Doc.Element "applet" [||] ch
+        let basefontAttr ats ch = Doc.Element "basefont" ats ch
+        let basefont ch = Doc.Element "basefont" [||] ch
+        let bigAttr ats ch = Doc.Element "big" ats ch
+        let big ch = Doc.Element "big" [||] ch
+        let centerAttr ats ch = Doc.Element "center" ats ch
+        let center ch = Doc.Element "center" [||] ch
+        let contentAttr ats ch = Doc.Element "content" ats ch
+        let content ch = Doc.Element "content" [||] ch
+        let dataAttr ats ch = Doc.Element "data" ats ch
+        let data ch = Doc.Element "data" [||] ch
+        let dirAttr ats ch = Doc.Element "dir" ats ch
+        let dir ch = Doc.Element "dir" [||] ch
+        let fontAttr ats ch = Doc.Element "font" ats ch
+        let font ch = Doc.Element "font" [||] ch
+        let frameAttr ats ch = Doc.Element "frame" ats ch
+        let frame ch = Doc.Element "frame" [||] ch
+        let framesetAttr ats ch = Doc.Element "frameset" ats ch
+        let frameset ch = Doc.Element "frameset" [||] ch
+        let isindexAttr ats ch = Doc.Element "isindex" ats ch
+        let isindex ch = Doc.Element "isindex" [||] ch
+        let mainAttr ats ch = Doc.Element "main" ats ch
+        let main ch = Doc.Element "main" [||] ch
+        let mapAttr ats ch = Doc.Element "map" ats ch
+        let map ch = Doc.Element "map" [||] ch
+        let menuAttr ats ch = Doc.Element "menu" ats ch
+        let menu ch = Doc.Element "menu" [||] ch
+        let menuitemAttr ats ch = Doc.Element "menuitem" ats ch
+        let menuitem ch = Doc.Element "menuitem" [||] ch
+        let objectAttr ats ch = Doc.Element "object" ats ch
+        let ``object`` ch = Doc.Element "object" [||] ch
+        let optionAttr ats ch = Doc.Element "option" ats ch
+        let option ch = Doc.Element "option" [||] ch
+        let sAttr ats ch = Doc.Element "s" ats ch
+        let s ch = Doc.Element "s" [||] ch
+        let strikeAttr ats ch = Doc.Element "strike" ats ch
+        let strike ch = Doc.Element "strike" [||] ch
+        let styleAttr ats ch = Doc.Element "style" ats ch
+        let style ch = Doc.Element "style" [||] ch
+        let templateAttr ats ch = Doc.Element "template" ats ch
+        let template ch = Doc.Element "template" [||] ch
+        let titleAttr ats ch = Doc.Element "title" ats ch
+        let title ch = Doc.Element "title" [||] ch
+        let ttAttr ats ch = Doc.Element "tt" ats ch
+        let tt ch = Doc.Element "tt" [||] ch
+        let uAttr ats ch = Doc.Element "u" ats ch
+        let u ch = Doc.Element "u" [||] ch
+        let varAttr ats ch = Doc.Element "var" ats ch
+        let var ch = Doc.Element "var" [||] ch
         // }}
 
     /// HTML attributes.
     module Attributes =
 
         // {{ attr colliding deprecated
-        let Action = "action"
-        let Alink = "alink"
-        let Async = "async"
-        let Background = "background"
-        let BgColor = "bgcolor"
-        let Cite = "cite"
-        let Clear = "clear"
-        let Code = "code"
-        let Color = "color"
-        let Compact = "compact"
-        let Content = "content"
-        let Controls = "controls"
-        let Data = "data"
-        let DateTime = "datetime"
-        let Dir = "dir"
-        let Face = "face"
-        let Form = "form"
-        let Frame = "frame"
-        let HSpace = "hspace"
-        let KeyType = "keytype"
-        let Kind = "kind"
-        let Label = "label"
-        let Language = "language"
-        let Link = "link"
-        let List = "list"
-        let Max = "max"
-        let Min = "min"
-        let NoShade = "noshade"
-        let NoWrap = "nowrap"
-        let Object = "object"
-        let Open = "open"
-        let Optimum = "optimum"
-        let Prompt = "prompt"
-        let Span = "span"
-        let Start = "start"
-        let Summary = "summary"
-        let Text = "text"
-        let Version = "version"
-        let VLink = "vlink"
-        let VSpace = "vspace"
+        [<Literal>]
+        let action = "action"
+        [<Literal>]
+        let alink = "alink"
+        [<Literal>]
+        let async = "async"
+        [<Literal>]
+        let background = "background"
+        [<Literal>]
+        let bgcolor = "bgcolor"
+        [<Literal>]
+        let cite = "cite"
+        [<Literal>]
+        let clear = "clear"
+        [<Literal>]
+        let code = "code"
+        [<Literal>]
+        let color = "color"
+        [<Literal>]
+        let compact = "compact"
+        [<Literal>]
+        let content = "content"
+        [<Literal>]
+        let controls = "controls"
+        [<Literal>]
+        let data = "data"
+        [<Literal>]
+        let datetime = "datetime"
+        [<Literal>]
+        let dir = "dir"
+        [<Literal>]
+        let face = "face"
+        [<Literal>]
+        let form = "form"
+        [<Literal>]
+        let frame = "frame"
+        [<Literal>]
+        let hspace = "hspace"
+        [<Literal>]
+        let keytype = "keytype"
+        [<Literal>]
+        let kind = "kind"
+        [<Literal>]
+        let label = "label"
+        [<Literal>]
+        let language = "language"
+        [<Literal>]
+        let link = "link"
+        [<Literal>]
+        let list = "list"
+        [<Literal>]
+        let max = "max"
+        [<Literal>]
+        let min = "min"
+        [<Literal>]
+        let noshade = "noshade"
+        [<Literal>]
+        let nowrap = "nowrap"
+        [<Literal>]
+        let ``object`` = "object"
+        [<Literal>]
+        let ``open`` = "open"
+        [<Literal>]
+        let optimum = "optimum"
+        [<Literal>]
+        let prompt = "prompt"
+        [<Literal>]
+        let span = "span"
+        [<Literal>]
+        let start = "start"
+        [<Literal>]
+        let summary = "summary"
+        [<Literal>]
+        let text = "text"
+        [<Literal>]
+        let version = "version"
+        [<Literal>]
+        let vlink = "vlink"
+        [<Literal>]
+        let vspace = "vspace"
         // }}
 
     /// SVG elements.
     module SvgElements =
 
         // {{ svgtag normal
-        let A ats ch = Doc.SvgElement "a" ats ch
-        let AltGlyph ats ch = Doc.SvgElement "altglyph" ats ch
-        let AltGlyphDef ats ch = Doc.SvgElement "altglyphdef" ats ch
-        let AltGlyphItem ats ch = Doc.SvgElement "altglyphitem" ats ch
-        let Animate ats ch = Doc.SvgElement "animate" ats ch
-        let AnimateColor ats ch = Doc.SvgElement "animatecolor" ats ch
-        let AnimateMotion ats ch = Doc.SvgElement "animatemotion" ats ch
-        let AnimateTransform ats ch = Doc.SvgElement "animatetransform" ats ch
-        let Circle ats ch = Doc.SvgElement "circle" ats ch
-        let ClipPath ats ch = Doc.SvgElement "clippath" ats ch
-        let ColorProfile ats ch = Doc.SvgElement "color" ats ch
-        let Cursor ats ch = Doc.SvgElement "cursor" ats ch
-        let Defs ats ch = Doc.SvgElement "defs" ats ch
-        let Desc ats ch = Doc.SvgElement "desc" ats ch
-        let Ellipse ats ch = Doc.SvgElement "ellipse" ats ch
-        let FeBlend ats ch = Doc.SvgElement "feblend" ats ch
-        let FeColorMatrix ats ch = Doc.SvgElement "fecolormatrix" ats ch
-        let FeComponentTransfer ats ch = Doc.SvgElement "fecomponenttransfer" ats ch
-        let FeComposite ats ch = Doc.SvgElement "fecomposite" ats ch
-        let FeConvolveMatrix ats ch = Doc.SvgElement "feconvolvematrix" ats ch
-        let FeDiffuseLighting ats ch = Doc.SvgElement "fediffuselighting" ats ch
-        let FeDisplacementMap ats ch = Doc.SvgElement "fedisplacementmap" ats ch
-        let FeDistantLight ats ch = Doc.SvgElement "fedistantlight" ats ch
-        let FeFlood ats ch = Doc.SvgElement "feflood" ats ch
-        let FeFuncA ats ch = Doc.SvgElement "fefunca" ats ch
-        let FeFuncB ats ch = Doc.SvgElement "fefuncb" ats ch
-        let FeFuncG ats ch = Doc.SvgElement "fefuncg" ats ch
-        let FeFuncR ats ch = Doc.SvgElement "fefuncr" ats ch
-        let FeGaussianBlur ats ch = Doc.SvgElement "fegaussianblur" ats ch
-        let FeImage ats ch = Doc.SvgElement "feimage" ats ch
-        let FeMerge ats ch = Doc.SvgElement "femerge" ats ch
-        let FeMergeNode ats ch = Doc.SvgElement "femergenode" ats ch
-        let FeMorphology ats ch = Doc.SvgElement "femorphology" ats ch
-        let FeOffset ats ch = Doc.SvgElement "feoffset" ats ch
-        let FePointLight ats ch = Doc.SvgElement "fepointlight" ats ch
-        let FeSpecularLighting ats ch = Doc.SvgElement "fespecularlighting" ats ch
-        let FeSpotLight ats ch = Doc.SvgElement "fespotlight" ats ch
-        let FeTile ats ch = Doc.SvgElement "fetile" ats ch
-        let FeTurbulence ats ch = Doc.SvgElement "feturbulence" ats ch
-        let Filter ats ch = Doc.SvgElement "filter" ats ch
-        let Font ats ch = Doc.SvgElement "font" ats ch
-        let FontFace ats ch = Doc.SvgElement "font" ats ch
-        let FontFaceFormat ats ch = Doc.SvgElement "font" ats ch
-        let FontFaceName ats ch = Doc.SvgElement "font" ats ch
-        let FontFaceSrc ats ch = Doc.SvgElement "font" ats ch
-        let FontFaceUri ats ch = Doc.SvgElement "font" ats ch
-        let ForeignObject ats ch = Doc.SvgElement "foreignobject" ats ch
-        let G ats ch = Doc.SvgElement "g" ats ch
-        let Glyph ats ch = Doc.SvgElement "glyph" ats ch
-        let GlyphRef ats ch = Doc.SvgElement "glyphref" ats ch
-        let HKern ats ch = Doc.SvgElement "hkern" ats ch
-        let Image ats ch = Doc.SvgElement "image" ats ch
-        let Line ats ch = Doc.SvgElement "line" ats ch
-        let LinearGradient ats ch = Doc.SvgElement "lineargradient" ats ch
-        let Marker ats ch = Doc.SvgElement "marker" ats ch
-        let Mask ats ch = Doc.SvgElement "mask" ats ch
-        let Metadata ats ch = Doc.SvgElement "metadata" ats ch
-        let MissingGlyph ats ch = Doc.SvgElement "missing" ats ch
-        let MPath ats ch = Doc.SvgElement "mpath" ats ch
-        let Path ats ch = Doc.SvgElement "path" ats ch
-        let Pattern ats ch = Doc.SvgElement "pattern" ats ch
-        let Polygon ats ch = Doc.SvgElement "polygon" ats ch
-        let Polyline ats ch = Doc.SvgElement "polyline" ats ch
-        let RadialGradient ats ch = Doc.SvgElement "radialgradient" ats ch
-        let Rect ats ch = Doc.SvgElement "rect" ats ch
-        let Script ats ch = Doc.SvgElement "script" ats ch
-        let Set ats ch = Doc.SvgElement "set" ats ch
-        let Stop ats ch = Doc.SvgElement "stop" ats ch
-        let Style ats ch = Doc.SvgElement "style" ats ch
-        let Svg ats ch = Doc.SvgElement "svg" ats ch
-        let Switch ats ch = Doc.SvgElement "switch" ats ch
-        let Symbol ats ch = Doc.SvgElement "symbol" ats ch
-        let Text ats ch = Doc.SvgElement "text" ats ch
-        let TextPath ats ch = Doc.SvgElement "textpath" ats ch
-        let Title ats ch = Doc.SvgElement "title" ats ch
-        let TRef ats ch = Doc.SvgElement "tref" ats ch
-        let TSpan ats ch = Doc.SvgElement "tspan" ats ch
-        let Use ats ch = Doc.SvgElement "use" ats ch
-        let View ats ch = Doc.SvgElement "view" ats ch
-        let VKern ats ch = Doc.SvgElement "vkern" ats ch
+        let a ats ch = Doc.SvgElement "a" ats ch
+        let altglyph ats ch = Doc.SvgElement "altglyph" ats ch
+        let altglyphdef ats ch = Doc.SvgElement "altglyphdef" ats ch
+        let altglyphitem ats ch = Doc.SvgElement "altglyphitem" ats ch
+        let animate ats ch = Doc.SvgElement "animate" ats ch
+        let animatecolor ats ch = Doc.SvgElement "animatecolor" ats ch
+        let animatemotion ats ch = Doc.SvgElement "animatemotion" ats ch
+        let animatetransform ats ch = Doc.SvgElement "animatetransform" ats ch
+        let circle ats ch = Doc.SvgElement "circle" ats ch
+        let clippath ats ch = Doc.SvgElement "clippath" ats ch
+        let colorProfile ats ch = Doc.SvgElement "color-profile" ats ch
+        let cursor ats ch = Doc.SvgElement "cursor" ats ch
+        let defs ats ch = Doc.SvgElement "defs" ats ch
+        let desc ats ch = Doc.SvgElement "desc" ats ch
+        let ellipse ats ch = Doc.SvgElement "ellipse" ats ch
+        let feblend ats ch = Doc.SvgElement "feblend" ats ch
+        let fecolormatrix ats ch = Doc.SvgElement "fecolormatrix" ats ch
+        let fecomponenttransfer ats ch = Doc.SvgElement "fecomponenttransfer" ats ch
+        let fecomposite ats ch = Doc.SvgElement "fecomposite" ats ch
+        let feconvolvematrix ats ch = Doc.SvgElement "feconvolvematrix" ats ch
+        let fediffuselighting ats ch = Doc.SvgElement "fediffuselighting" ats ch
+        let fedisplacementmap ats ch = Doc.SvgElement "fedisplacementmap" ats ch
+        let fedistantlight ats ch = Doc.SvgElement "fedistantlight" ats ch
+        let feflood ats ch = Doc.SvgElement "feflood" ats ch
+        let fefunca ats ch = Doc.SvgElement "fefunca" ats ch
+        let fefuncb ats ch = Doc.SvgElement "fefuncb" ats ch
+        let fefuncg ats ch = Doc.SvgElement "fefuncg" ats ch
+        let fefuncr ats ch = Doc.SvgElement "fefuncr" ats ch
+        let fegaussianblur ats ch = Doc.SvgElement "fegaussianblur" ats ch
+        let feimage ats ch = Doc.SvgElement "feimage" ats ch
+        let femerge ats ch = Doc.SvgElement "femerge" ats ch
+        let femergenode ats ch = Doc.SvgElement "femergenode" ats ch
+        let femorphology ats ch = Doc.SvgElement "femorphology" ats ch
+        let feoffset ats ch = Doc.SvgElement "feoffset" ats ch
+        let fepointlight ats ch = Doc.SvgElement "fepointlight" ats ch
+        let fespecularlighting ats ch = Doc.SvgElement "fespecularlighting" ats ch
+        let fespotlight ats ch = Doc.SvgElement "fespotlight" ats ch
+        let fetile ats ch = Doc.SvgElement "fetile" ats ch
+        let feturbulence ats ch = Doc.SvgElement "feturbulence" ats ch
+        let filter ats ch = Doc.SvgElement "filter" ats ch
+        let font ats ch = Doc.SvgElement "font" ats ch
+        let fontFace ats ch = Doc.SvgElement "font-face" ats ch
+        let fontFaceFormat ats ch = Doc.SvgElement "font-face-format" ats ch
+        let fontFaceName ats ch = Doc.SvgElement "font-face-name" ats ch
+        let fontFaceSrc ats ch = Doc.SvgElement "font-face-src" ats ch
+        let fontFaceUri ats ch = Doc.SvgElement "font-face-uri" ats ch
+        let foreignobject ats ch = Doc.SvgElement "foreignobject" ats ch
+        let g ats ch = Doc.SvgElement "g" ats ch
+        let glyph ats ch = Doc.SvgElement "glyph" ats ch
+        let glyphref ats ch = Doc.SvgElement "glyphref" ats ch
+        let hkern ats ch = Doc.SvgElement "hkern" ats ch
+        let image ats ch = Doc.SvgElement "image" ats ch
+        let line ats ch = Doc.SvgElement "line" ats ch
+        let lineargradient ats ch = Doc.SvgElement "lineargradient" ats ch
+        let marker ats ch = Doc.SvgElement "marker" ats ch
+        let mask ats ch = Doc.SvgElement "mask" ats ch
+        let metadata ats ch = Doc.SvgElement "metadata" ats ch
+        let missingGlyph ats ch = Doc.SvgElement "missing-glyph" ats ch
+        let mpath ats ch = Doc.SvgElement "mpath" ats ch
+        let path ats ch = Doc.SvgElement "path" ats ch
+        let pattern ats ch = Doc.SvgElement "pattern" ats ch
+        let polygon ats ch = Doc.SvgElement "polygon" ats ch
+        let polyline ats ch = Doc.SvgElement "polyline" ats ch
+        let radialgradient ats ch = Doc.SvgElement "radialgradient" ats ch
+        let rect ats ch = Doc.SvgElement "rect" ats ch
+        let script ats ch = Doc.SvgElement "script" ats ch
+        let set ats ch = Doc.SvgElement "set" ats ch
+        let stop ats ch = Doc.SvgElement "stop" ats ch
+        let style ats ch = Doc.SvgElement "style" ats ch
+        let svg ats ch = Doc.SvgElement "svg" ats ch
+        let switch ats ch = Doc.SvgElement "switch" ats ch
+        let symbol ats ch = Doc.SvgElement "symbol" ats ch
+        let text ats ch = Doc.SvgElement "text" ats ch
+        let textpath ats ch = Doc.SvgElement "textpath" ats ch
+        let title ats ch = Doc.SvgElement "title" ats ch
+        let tref ats ch = Doc.SvgElement "tref" ats ch
+        let tspan ats ch = Doc.SvgElement "tspan" ats ch
+        let ``use`` ats ch = Doc.SvgElement "use" ats ch
+        let view ats ch = Doc.SvgElement "view" ats ch
+        let vkern ats ch = Doc.SvgElement "vkern" ats ch
         // }}
 
     /// SVG attributes.
     module SvgAttributes =
 
         // {{ svgattr normal
-        let AccentHeight = "accent-height"
-        let Accumulate = "accumulate"
-        let Additive = "additive"
-        let AlignmentBaseline = "alignment-baseline"
-        let Ascent = "ascent"
-        let AttributeName = "attributeName"
-        let AttributeType = "attributeType"
-        let Azimuth = "azimuth"
-        let BaseFrequency = "baseFrequency"
-        let BaselineShift = "baseline-shift"
-        let Begin = "begin"
-        let Bias = "bias"
-        let CalcMode = "calcMode"
-        let Class = "class"
-        let Clip = "clip"
-        let ClipPath = "clip-path"
-        let ClipPathUnits = "clipPathUnits"
-        let ClipRule = "clip-rule"
-        let Color = "color"
-        let ColorInterpolation = "color-interpolation"
-        let ColorInterpolationFilters = "color-interpolation-filters"
-        let ColorProfile = "color-profile"
-        let ColorRendering = "color-rendering"
-        let ContentScriptType = "contentScriptType"
-        let ContentStyleType = "contentStyleType"
-        let Cursor = "cursor"
-        let CX = "cx"
-        let CY = "cy"
-        let D = "d"
-        let DiffuseConstant = "diffuseConstant"
-        let Direction = "direction"
-        let Display = "display"
-        let Divisor = "divisor"
-        let DominantBaseline = "dominant-baseline"
-        let Dur = "dur"
-        let DX = "dx"
-        let DY = "dy"
-        let EdgeMode = "edgeMode"
-        let Elevation = "elevation"
-        let End = "end"
-        let ExternalResourcesRequired = "externalResourcesRequired"
-        let Fill = "fill"
-        let FillOpacity = "fill-opacity"
-        let FillRule = "fill-rule"
-        let Filter = "filter"
-        let FilterRes = "filterRes"
-        let FilterUnits = "filterUnits"
-        let FloodColor = "flood-color"
-        let FloodOpacity = "flood-opacity"
-        let FontFamily = "font-family"
-        let FontSize = "font-size"
-        let FontSizeAdjust = "font-size-adjust"
-        let FontStretch = "font-stretch"
-        let FontStyle = "font-style"
-        let FontVariant = "font-variant"
-        let FontWeight = "font-weight"
-        let From = "from"
-        let GradientTransform = "gradientTransform"
-        let GradientUnits = "gradientUnits"
-        let Height = "height"
-        let ImageRendering = "image-rendering"
-        let IN = "in"
-        let In2 = "in2"
-        let K1 = "k1"
-        let K2 = "k2"
-        let K3 = "k3"
-        let K4 = "k4"
-        let KernelMatrix = "kernelMatrix"
-        let KernelUnitLength = "kernelUnitLength"
-        let Kerning = "kerning"
-        let KeySplines = "keySplines"
-        let KeyTimes = "keyTimes"
-        let LetterSpacing = "letter-spacing"
-        let LightingColor = "lighting-color"
-        let LimitingConeAngle = "limitingConeAngle"
-        let Local = "local"
-        let MarkerEnd = "marker-end"
-        let MarkerHeight = "markerHeight"
-        let MarkerMid = "marker-mid"
-        let MarkerStart = "marker-start"
-        let MarkerUnits = "markerUnits"
-        let MarkerWidth = "markerWidth"
-        let Mask = "mask"
-        let MaskContentUnits = "maskContentUnits"
-        let MaskUnits = "maskUnits"
-        let Max = "max"
-        let Min = "min"
-        let Mode = "mode"
-        let NumOctaves = "numOctaves"
-        let Opacity = "opacity"
-        let Operator = "operator"
-        let Order = "order"
-        let Overflow = "overflow"
-        let PaintOrder = "paint-order"
-        let PathLength = "pathLength"
-        let PatternContentUnits = "patternContentUnits"
-        let PatternTransform = "patternTransform"
-        let PatternUnits = "patternUnits"
-        let PointerEvents = "pointer-events"
-        let Points = "points"
-        let PointsAtX = "pointsAtX"
-        let PointsAtY = "pointsAtY"
-        let PointsAtZ = "pointsAtZ"
-        let PreserveAlpha = "preserveAlpha"
-        let PreserveAspectRatio = "preserveAspectRatio"
-        let PrimitiveUnits = "primitiveUnits"
-        let R = "r"
-        let Radius = "radius"
-        let RepeatCount = "repeatCount"
-        let RepeatDur = "repeatDur"
-        let RequiredFeatures = "requiredFeatures"
-        let Restart = "restart"
-        let Result = "result"
-        let RX = "rx"
-        let RY = "ry"
-        let Scale = "scale"
-        let Seed = "seed"
-        let ShapeRendering = "shape-rendering"
-        let SpecularConstant = "specularConstant"
-        let SpecularExponent = "specularExponent"
-        let StdDeviation = "stdDeviation"
-        let StitchTiles = "stitchTiles"
-        let StopColor = "stop-color"
-        let StopOpacity = "stop-opacity"
-        let Stroke = "stroke"
-        let StrokeDashArray = "stroke-dasharray"
-        let StrokeDashOffset = "stroke-dashoffset"
-        let StrokeLineCap = "stroke-linecap"
-        let StrokeLineJoin = "stroke-linejoin"
-        let StrokeMiterLimit = "stroke-miterlimit"
-        let StrokeOpacity = "stroke-opacity"
-        let StrokeWidth = "stroke-width"
-        let Style = "style"
-        let SurfaceScale = "surfaceScale"
-        let TargetX = "targetX"
-        let TargetY = "targetY"
-        let TextAnchor = "text-anchor"
-        let TextDecoration = "text-decoration"
-        let TextRendering = "text-rendering"
-        let To = "to"
-        let Transform = "transform"
-        let Type = "type"
-        let Values = "values"
-        let ViewBox = "viewBox"
-        let Visibility = "visibility"
-        let Width = "width"
-        let WordSpacing = "word-spacing"
-        let WritingMode = "writing-mode"
-        let X = "x"
-        let X1 = "x1"
-        let X2 = "x2"
-        let XChannelSelector = "xChannelSelector"
-        let Y = "y"
-        let Y1 = "y1"
-        let Y2 = "y2"
-        let YChannelSelector = "yChannelSelector"
-        let Z = "z"
+        [<Literal>]
+        let accentHeight = "accent-height"
+        [<Literal>]
+        let accumulate = "accumulate"
+        [<Literal>]
+        let additive = "additive"
+        [<Literal>]
+        let alignmentBaseline = "alignment-baseline"
+        [<Literal>]
+        let ascent = "ascent"
+        [<Literal>]
+        let attributeName = "attributeName"
+        [<Literal>]
+        let attributeType = "attributeType"
+        [<Literal>]
+        let azimuth = "azimuth"
+        [<Literal>]
+        let baseFrequency = "baseFrequency"
+        [<Literal>]
+        let baselineShift = "baseline-shift"
+        [<Literal>]
+        let ``begin`` = "begin"
+        [<Literal>]
+        let bias = "bias"
+        [<Literal>]
+        let calcMode = "calcMode"
+        [<Literal>]
+        let ``class`` = "class"
+        [<Literal>]
+        let clip = "clip"
+        [<Literal>]
+        let clipPath = "clip-path"
+        [<Literal>]
+        let clipPathUnits = "clipPathUnits"
+        [<Literal>]
+        let clipRule = "clip-rule"
+        [<Literal>]
+        let color = "color"
+        [<Literal>]
+        let colorInterpolation = "color-interpolation"
+        [<Literal>]
+        let colorInterpolationFilters = "color-interpolation-filters"
+        [<Literal>]
+        let colorProfile = "color-profile"
+        [<Literal>]
+        let colorRendering = "color-rendering"
+        [<Literal>]
+        let contentScriptType = "contentScriptType"
+        [<Literal>]
+        let contentStyleType = "contentStyleType"
+        [<Literal>]
+        let cursor = "cursor"
+        [<Literal>]
+        let cx = "cx"
+        [<Literal>]
+        let cy = "cy"
+        [<Literal>]
+        let d = "d"
+        [<Literal>]
+        let diffuseConstant = "diffuseConstant"
+        [<Literal>]
+        let direction = "direction"
+        [<Literal>]
+        let display = "display"
+        [<Literal>]
+        let divisor = "divisor"
+        [<Literal>]
+        let dominantBaseline = "dominant-baseline"
+        [<Literal>]
+        let dur = "dur"
+        [<Literal>]
+        let dx = "dx"
+        [<Literal>]
+        let dy = "dy"
+        [<Literal>]
+        let edgeMode = "edgeMode"
+        [<Literal>]
+        let elevation = "elevation"
+        [<Literal>]
+        let ``end`` = "end"
+        [<Literal>]
+        let externalResourcesRequired = "externalResourcesRequired"
+        [<Literal>]
+        let fill = "fill"
+        [<Literal>]
+        let fillOpacity = "fill-opacity"
+        [<Literal>]
+        let fillRule = "fill-rule"
+        [<Literal>]
+        let filter = "filter"
+        [<Literal>]
+        let filterRes = "filterRes"
+        [<Literal>]
+        let filterUnits = "filterUnits"
+        [<Literal>]
+        let floodColor = "flood-color"
+        [<Literal>]
+        let floodOpacity = "flood-opacity"
+        [<Literal>]
+        let fontFamily = "font-family"
+        [<Literal>]
+        let fontSize = "font-size"
+        [<Literal>]
+        let fontSizeAdjust = "font-size-adjust"
+        [<Literal>]
+        let fontStretch = "font-stretch"
+        [<Literal>]
+        let fontStyle = "font-style"
+        [<Literal>]
+        let fontVariant = "font-variant"
+        [<Literal>]
+        let fontWeight = "font-weight"
+        [<Literal>]
+        let from = "from"
+        [<Literal>]
+        let gradientTransform = "gradientTransform"
+        [<Literal>]
+        let gradientUnits = "gradientUnits"
+        [<Literal>]
+        let height = "height"
+        [<Literal>]
+        let imageRendering = "image-rendering"
+        [<Literal>]
+        let ``in`` = "in"
+        [<Literal>]
+        let in2 = "in2"
+        [<Literal>]
+        let k1 = "k1"
+        [<Literal>]
+        let k2 = "k2"
+        [<Literal>]
+        let k3 = "k3"
+        [<Literal>]
+        let k4 = "k4"
+        [<Literal>]
+        let kernelMatrix = "kernelMatrix"
+        [<Literal>]
+        let kernelUnitLength = "kernelUnitLength"
+        [<Literal>]
+        let kerning = "kerning"
+        [<Literal>]
+        let keySplines = "keySplines"
+        [<Literal>]
+        let keyTimes = "keyTimes"
+        [<Literal>]
+        let letterSpacing = "letter-spacing"
+        [<Literal>]
+        let lightingColor = "lighting-color"
+        [<Literal>]
+        let limitingConeAngle = "limitingConeAngle"
+        [<Literal>]
+        let local = "local"
+        [<Literal>]
+        let markerEnd = "marker-end"
+        [<Literal>]
+        let markerHeight = "markerHeight"
+        [<Literal>]
+        let markerMid = "marker-mid"
+        [<Literal>]
+        let markerStart = "marker-start"
+        [<Literal>]
+        let markerUnits = "markerUnits"
+        [<Literal>]
+        let markerWidth = "markerWidth"
+        [<Literal>]
+        let mask = "mask"
+        [<Literal>]
+        let maskContentUnits = "maskContentUnits"
+        [<Literal>]
+        let maskUnits = "maskUnits"
+        [<Literal>]
+        let max = "max"
+        [<Literal>]
+        let min = "min"
+        [<Literal>]
+        let mode = "mode"
+        [<Literal>]
+        let numOctaves = "numOctaves"
+        [<Literal>]
+        let opacity = "opacity"
+        [<Literal>]
+        let operator = "operator"
+        [<Literal>]
+        let order = "order"
+        [<Literal>]
+        let overflow = "overflow"
+        [<Literal>]
+        let paintOrder = "paint-order"
+        [<Literal>]
+        let pathLength = "pathLength"
+        [<Literal>]
+        let patternContentUnits = "patternContentUnits"
+        [<Literal>]
+        let patternTransform = "patternTransform"
+        [<Literal>]
+        let patternUnits = "patternUnits"
+        [<Literal>]
+        let pointerEvents = "pointer-events"
+        [<Literal>]
+        let points = "points"
+        [<Literal>]
+        let pointsAtX = "pointsAtX"
+        [<Literal>]
+        let pointsAtY = "pointsAtY"
+        [<Literal>]
+        let pointsAtZ = "pointsAtZ"
+        [<Literal>]
+        let preserveAlpha = "preserveAlpha"
+        [<Literal>]
+        let preserveAspectRatio = "preserveAspectRatio"
+        [<Literal>]
+        let primitiveUnits = "primitiveUnits"
+        [<Literal>]
+        let r = "r"
+        [<Literal>]
+        let radius = "radius"
+        [<Literal>]
+        let repeatCount = "repeatCount"
+        [<Literal>]
+        let repeatDur = "repeatDur"
+        [<Literal>]
+        let requiredFeatures = "requiredFeatures"
+        [<Literal>]
+        let restart = "restart"
+        [<Literal>]
+        let result = "result"
+        [<Literal>]
+        let rx = "rx"
+        [<Literal>]
+        let ry = "ry"
+        [<Literal>]
+        let scale = "scale"
+        [<Literal>]
+        let seed = "seed"
+        [<Literal>]
+        let shapeRendering = "shape-rendering"
+        [<Literal>]
+        let specularConstant = "specularConstant"
+        [<Literal>]
+        let specularExponent = "specularExponent"
+        [<Literal>]
+        let stdDeviation = "stdDeviation"
+        [<Literal>]
+        let stitchTiles = "stitchTiles"
+        [<Literal>]
+        let stopColor = "stop-color"
+        [<Literal>]
+        let stopOpacity = "stop-opacity"
+        [<Literal>]
+        let stroke = "stroke"
+        [<Literal>]
+        let strokeDasharray = "stroke-dasharray"
+        [<Literal>]
+        let strokeDashoffset = "stroke-dashoffset"
+        [<Literal>]
+        let strokeLinecap = "stroke-linecap"
+        [<Literal>]
+        let strokeLinejoin = "stroke-linejoin"
+        [<Literal>]
+        let strokeMiterlimit = "stroke-miterlimit"
+        [<Literal>]
+        let strokeOpacity = "stroke-opacity"
+        [<Literal>]
+        let strokeWidth = "stroke-width"
+        [<Literal>]
+        let style = "style"
+        [<Literal>]
+        let surfaceScale = "surfaceScale"
+        [<Literal>]
+        let targetX = "targetX"
+        [<Literal>]
+        let targetY = "targetY"
+        [<Literal>]
+        let textAnchor = "text-anchor"
+        [<Literal>]
+        let textDecoration = "text-decoration"
+        [<Literal>]
+        let textRendering = "text-rendering"
+        [<Literal>]
+        let ``to`` = "to"
+        [<Literal>]
+        let transform = "transform"
+        [<Literal>]
+        let ``type`` = "type"
+        [<Literal>]
+        let values = "values"
+        [<Literal>]
+        let viewBox = "viewBox"
+        [<Literal>]
+        let visibility = "visibility"
+        [<Literal>]
+        let width = "width"
+        [<Literal>]
+        let wordSpacing = "word-spacing"
+        [<Literal>]
+        let writingMode = "writing-mode"
+        [<Literal>]
+        let x = "x"
+        [<Literal>]
+        let x1 = "x1"
+        [<Literal>]
+        let x2 = "x2"
+        [<Literal>]
+        let xChannelSelector = "xChannelSelector"
+        [<Literal>]
+        let y = "y"
+        [<Literal>]
+        let y1 = "y1"
+        [<Literal>]
+        let y2 = "y2"
+        [<Literal>]
+        let yChannelSelector = "yChannelSelector"
+        [<Literal>]
+        let z = "z"
         // }}

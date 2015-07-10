@@ -24,16 +24,18 @@ module Tags =
     let Parse() =
         File.ReadAllLines(tagsFilePath)
         |> Array.map (fun line ->
-            let [|``type``; status; name; srcname|] = line.Split ','
-            (``type``, (status, (name, srcname))))
+            let [|``type``; status; isKeyword; name; srcname|] = line.Split ','
+            let isKeyword = if isKeyword = "keyword" then true else false
+            (``type``, (status, (isKeyword, name, srcname))))
         |> groupByFst
         |> Seq.map (fun (k, s) -> (k, groupByFst s |> Map.ofSeq))
         |> Map.ofSeq
 
     let start = Regex("^(\s*)// *{{ *([a-z]+)( *([a-z]+))*")
     let finish = Regex("// *}}")
+    let dash = Regex("-([a-z])")
 
-    let RunOn (path: string) (all: Map<string, Map<string, seq<string * string>>>) (f: string -> string -> string -> string[]) =
+    let RunOn (path: string) (all: Map<string, Map<string, seq<bool * string * string>>>) (f: string -> string -> (string * string) -> string -> string[]) =
         if NeedsBuilding tagsFilePath path then
             let e = (File.ReadAllLines(path) :> seq<_>).GetEnumerator()
             let newLines =
@@ -52,9 +54,12 @@ module Tags =
                                         | None -> ()
                                         | Some elts -> yield! elts
                                 }
-                                |> Seq.sortBy (snd >> fun s -> s.ToLower())
-                            for name, srcname in allType do
-                                for l in f ``type`` name srcname do
+                                |> Seq.sortBy (fun (_, _, s) -> s.ToLower())
+                            for isKeyword, name, upname in allType do
+                                let lowname = dash.Replace(name, fun m ->
+                                    m.Groups.[1].Value.ToUpperInvariant())
+                                let lownameEsc = if isKeyword then sprintf "``%s``" lowname else lowname
+                                for l in f ``type`` name (lowname, lownameEsc) upname do
                                     yield indent + l
                             yield e.Current
                 |]
@@ -62,20 +67,22 @@ module Tags =
 
     let Run() =
         let all = Parse()
-        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next", "HTML.fs")) all <| fun ty name srcname ->
+        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next", "HTML.fs")) all <| fun ty name (lowname, lownameEsc) upname ->
             match ty with
             | "tag" ->
                 [|
-                    sprintf """let %s ats ch = Doc.Element "%s" ats ch""" srcname name
-                    sprintf """let %s0 ch = Doc.Element "%s" [] ch""" srcname name
+                    sprintf """let %sAttr ats ch = Doc.Element "%s" ats ch""" lowname name
+                    sprintf """let %s ch = Doc.Element "%s" [||] ch""" lownameEsc name
                 |]
             | "svgtag" ->
                 [|
-                    sprintf """let %s ats ch = Doc.SvgElement "%s" ats ch""" srcname name
+                    sprintf """let %s ats ch = Doc.SvgElement "%s" ats ch""" lownameEsc name
                 |]
-            | _ ->
+            | "attr" | "svgattr" ->
                 [|
-                    sprintf "let %s = \"%s\"" srcname name
+                    "[<Literal>]"
+                    sprintf "let %s = \"%s\"" lownameEsc name
                 |]
+            | ty -> failwithf "unknown type: %s" ty
 
 Tags.Run()

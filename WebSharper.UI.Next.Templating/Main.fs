@@ -30,6 +30,7 @@ open Microsoft.FSharp.Reflection
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Core.CompilerServices
 open WebSharper.UI.Next
+open WebSharper.UI.Next.Client
 
 open ProviderImplementation.ProvidedTypes
 

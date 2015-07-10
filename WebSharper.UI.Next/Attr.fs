@@ -20,7 +20,39 @@
 
 namespace WebSharper.UI.Next
 
+type Attr =
+    | AppendAttr of list<Attr>
+    | SingleAttr of name: string * value: string
+
+    static member Create name value =
+        SingleAttr(name, value)
+
+    static member Append a b =
+        AppendAttr [a; b]
+
+    static member Empty =
+        AppendAttr []
+
+    static member Concat (xs: seq<Attr>) =
+        AppendAttr (List.ofSeq xs)
+
+namespace WebSharper.UI.Next.Server
+
+open WebSharper.UI.Next
+open WebSharper.Html.Server
+
+module Attr =
+
+    let rec AsAttributes attr : list<Attribute> =
+        match attr with
+        | AppendAttr a -> List.collect AsAttributes a
+        | SingleAttr(name, value) -> [{Name = name; Value = value}]
+
+namespace WebSharper.UI.Next.Client
+
 open WebSharper
+open WebSharper.JavaScript
+open WebSharper.UI.Next
 module DU = DomUtility
 
 type IAttrNode =
@@ -117,13 +149,12 @@ type AttrFlags =
     | HasExitAnim = 2
     | HasChangeAnim = 4
 
-[<JavaScript>]
-type Attr =
+[<JavaScript; Proxy(typeof<Attr>)>]
+type AttrProxy =
     {
         Flags : AttrFlags
         Tree : AttrTree
     }
-
 [<JavaScript>]
 module Attrs =
 
@@ -150,7 +181,7 @@ module Attrs =
             d.Sync elem)
 
     /// Inserts static attributes and computes dynamic attributes.
-    let Insert elem tree =
+    let Insert elem (tree: Attr) =
         let nodes = JQueue.Create ()
         let rec loop node =
             match node with
@@ -158,11 +189,11 @@ module Attrs =
             | A1 n -> JQueue.Add n nodes
             | A2 (a, b) -> loop a; loop b
             | A3 mk -> mk elem
-        loop tree.Tree
+        loop (As<AttrProxy> tree).Tree
         let arr = JQueue.ToArray nodes
         {
             DynElem = elem
-            DynFlags = tree.Flags
+            DynFlags = (As<AttrProxy> tree).Flags
             DynNodes = arr
         }
 
@@ -218,67 +249,77 @@ module Attrs =
     let Static attr =
         Mk AttrFlags.Defaults (A3 attr)
 
-type Attr with
 
-    static member Animated name tr view attr =
-        Attrs.Animated tr view (fun el v -> DU.SetAttr el name (attr v))
-
-    static member AnimatedStyle name tr view attr =
-        Attrs.Animated tr view (fun el v -> DU.SetStyle el name (attr v))
-
-    static member Dynamic name view =
-        Attrs.Dynamic view (fun el v -> DU.SetAttr el name v)
-
-    static member DynamicCustom set view =
-        Attrs.Dynamic view set
-
-    static member DynamicStyle name view =
-        Attrs.Dynamic view (fun el v -> DU.SetStyle el name v)
+[<JavaScript>]
+type AttrProxy with
 
     static member Create name value =
-        Attrs.Static (fun el -> DU.SetAttr el name value)
+        As<Attr> (Attrs.Static (fun el -> DU.SetAttr el name value))
 
-    static member Style name value =
-        Attrs.Static (fun el -> DU.SetStyle el name value)
+    static member Append (a: Attr) (b: Attr) =
+        As<Attr> (
+            Attrs.Mk
+                ((As<AttrProxy> a).Flags ||| (As<AttrProxy> b).Flags)
+                (Attrs.AppendTree (As<AttrProxy> a).Tree (As<AttrProxy> b).Tree))
 
-    static member Handler name (callback: DomEvent -> unit) =
-        Attrs.Static (fun el -> el.AddEventListener(name, callback, false))
+    [<Inline>]
+    static member Empty =
+        As<Attr> Attrs.EmptyAttr
 
-    static member Class name =
-        Attrs.Static (fun el -> DU.AddClass el name)
+    static member Concat (xs: seq<Attr>) =
+        Seq.toArray xs
+        |> Array.MapReduce id Attr.Empty Attr.Append
 
-    static member DynamicClass name view ok =
-        Attrs.Dynamic view (fun el v -> if ok v then DU.AddClass el name else DU.RemoveClass el name)
+[<JavaScript>]
+module Attr =
 
-    static member DynamicPred name predView valView =
+    let Style name value =
+        As<Attr> (Attrs.Static (fun el -> DU.SetStyle el name value))
+
+    let Class name =
+        As<Attr> (Attrs.Static (fun el -> DU.AddClass el name))
+
+    let Animated name tr view attr =
+        As<Attr> (Attrs.Animated tr view (fun el v -> DU.SetAttr el name (attr v)))
+
+    let AnimatedStyle name tr view attr =
+        As<Attr> (Attrs.Animated tr view (fun el v -> DU.SetStyle el name (attr v)))
+
+    let Dynamic name view =
+        As<Attr> (Attrs.Dynamic view (fun el v -> DU.SetAttr el name v))
+
+    let DynamicCustom set view =
+        As<Attr> (Attrs.Dynamic view set)
+
+    let DynamicStyle name view =
+        As<Attr> (Attrs.Dynamic view (fun el v -> DU.SetStyle el name v))
+
+    let Handler name (callback: DomEvent -> unit) =
+        As<Attr> (Attrs.Static (fun el -> el.AddEventListener(name, callback, false)))
+
+    let DynamicClass name view ok =
+        As<Attr> (Attrs.Dynamic view (fun el v ->
+            if ok v then DU.AddClass el name else DU.RemoveClass el name))
+
+    let DynamicPred name predView valView =
         let viewFn el (p, v) =
             if p then
                 DU.SetAttr el name v
             else
                 DU.RemoveAttr el name
         let tupleView = View.Map2 (fun pred value -> (pred, value)) predView valView
-        Attrs.Dynamic tupleView viewFn
+        As<Attr> (Attrs.Dynamic tupleView viewFn)
 
-    static member DynamicProp name view =
-        Attrs.Dynamic view (fun el v ->
-            el?(name) <- v)
+    let DynamicProp name view =
+        As<Attr> (Attrs.Dynamic view (fun el v ->
+            el?(name) <- v))
 
-    static member Append a b =
-        Attrs.Mk (a.Flags ||| b.Flags) (Attrs.AppendTree a.Tree b.Tree)
-
-    static member Empty =
-        Attrs.EmptyAttr
-
-    static member Concat xs =
-        Seq.toArray xs
-        |> Array.MapReduce (fun x -> x) Attrs.EmptyAttr Attr.Append
-
-    static member Value (var: Var<'a>) =
+    let Value (var: Var<'a>) =
         let onChange (e: DomEvent) =
             if e.CurrentTarget?value <> var.Value then
                 Var.Set var e.CurrentTarget?value
         Attr.Concat [
-            Attr.Handler "change" onChange
-            Attr.Handler "input" onChange
-            Attrs.Dynamic var.View (fun e v -> if v <> e?value then e?value <- v)
+            Handler "change" onChange
+            Handler "input" onChange
+            As<Attr> (Attrs.Dynamic var.View (fun e v -> if v <> e?value then e?value <- v))
         ]
