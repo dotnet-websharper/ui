@@ -305,7 +305,9 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                             | t ->
                                                 match t.Value with
                                                 | "checkbox" -> <@ Doc.CheckBox %attrs %(getVarHole a.Value) @>
-                                                | ("text" | _) as x -> <@ Doc.Input %attrs %(getVarHole a.Value) @>
+                                                | "number" -> <@ Doc.FloatInput %attrs %(getVarHole a.Value) @>
+                                                | "password" -> <@ Doc.PasswordBox %attrs %(getVarHole a.Value) @>
+                                                | "text" | _ -> <@ Doc.Input %attrs %(getVarHole a.Value) @>
                                         elif n.ToLower() = "textarea" then
                                             <@ Doc.InputArea %attrs %(getVarHole a.Value) @>
                                         elif n.ToLower() = "select" then

@@ -273,7 +273,7 @@ type Attr with
         Seq.toArray xs
         |> Array.MapReduce (fun x -> x) Attrs.EmptyAttr Attr.Append
 
-    static member Value (var: Var<string>) =
+    static member Value (var: Var<'a>) =
         let onChange (e: DomEvent) =
             if e.CurrentTarget?value <> var.Value then
                 Var.Set var e.CurrentTarget?value

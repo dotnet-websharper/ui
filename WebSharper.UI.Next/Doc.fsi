@@ -99,7 +99,13 @@ type Doc with
     /// Input box.
     static member Input : seq<Attr> -> Var<string> -> Doc
 
-    /// Input box.
+    /// Input box with type="number".
+    static member IntInput : seq<Attr> -> Var<int> -> Doc
+
+    /// Input box with type="number".
+    static member FloatInput : seq<Attr> -> Var<float> -> Doc
+
+    /// Input text area.
     static member InputArea : seq<Attr> -> Var<string> -> Doc
 
     /// Password box.

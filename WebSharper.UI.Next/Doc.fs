@@ -485,32 +485,38 @@ and [<JavaScript>]
 
 /// Types of input box
 type InputControlType =
-    | InputBox
-    | PasswordBox
+    | SimpleInputBox
+    | TypedInputBox of ``type``: string
     | TextArea
 
 type Doc with
 
-    static member InputInternal attr (var : Var<string>) inputTy =
+    static member InputInternal attr (var : Var<'a>) inputTy =
         let (attrN, elemTy) =
             match inputTy with
-            | InputBox -> (Attr.Concat attr, "input")
-            | PasswordBox ->
-                let atPwd = Attr.Create "type" "password"
-                (Attr.Concat attr |> Attr.Append atPwd, "input")
+            | SimpleInputBox -> (Attr.Concat attr, "input")
+            | TypedInputBox ``type`` ->
+                let atType = Attr.Create "type" ``type``
+                (Attr.Concat attr |> Attr.Append atType, "input")
             | TextArea -> (Attr.Concat attr, "textarea")
         let el = DU.CreateElement elemTy
         let valAttr = Attr.Value var
         Doc.Elem el (Attr.Append attrN valAttr) Doc.Empty
 
     static member Input attr (var: Var<string>) =
-        Doc.InputInternal attr (var : Var<string>) InputBox
+        Doc.InputInternal attr var SimpleInputBox
 
     static member PasswordBox attr (var: Var<string>) =
-        Doc.InputInternal attr (var : Var<string>) PasswordBox
+        Doc.InputInternal attr var (TypedInputBox "password")
+
+    static member IntInput attr (var: Var<int>) =
+        Doc.InputInternal attr var (TypedInputBox "number")
+
+    static member FloatInput attr (var: Var<float>) =
+        Doc.InputInternal attr var (TypedInputBox "number")
 
     static member InputArea attr (var: Var<string>) =
-        Doc.InputInternal attr (var : Var<string>) TextArea
+        Doc.InputInternal attr var TextArea
 
     static member Select attrs (show: 'T -> string) (options: list<'T>) (current: Var<'T>) =
         let getIndex (el: Element) =
