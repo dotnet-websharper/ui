@@ -28,6 +28,26 @@ open WebSharper
 [<JavaScript>]
 module Html =
 
+    /// Create a text node with constant content.
+    [<Inline>]
+    let text t = Doc.TextNode t
+
+    /// Create a text node with dynamic content.
+    [<Inline>]
+    let textView v = Client.Doc.TextView v
+
+    /// Create an attribute with the given name and value.
+    [<Inline>]
+    let attr n v = Attr.Create n v
+
+    /// Create an attribute with the given name and dynamic value.
+    [<Inline>]
+    let attrView n v = Client.Attr.Dynamic n v
+
+    /// Insert a client-side Doc.
+    [<Inline>]
+    let client q = Doc.ClientSide q
+
     // {{ tag normal
     let aAttr ats ch = Doc.Element "a" ats ch
     let a ch = Doc.Element "a" [||] ch
@@ -236,11 +256,6 @@ module Html =
     let wbrAttr ats ch = Doc.Element "wbr" ats ch
     let wbr ch = Doc.Element "wbr" [||] ch
     // }}
-
-    /// Create an attribute with the given name and value.
-    let attr n v = Attr.Create n v
-    /// Create an attribute with the given name and dynamic value.
-    let attrDyn n v = Client.Attr.Dynamic n v
 
     // {{ attr normal
     [<Literal>]

@@ -21,33 +21,49 @@
 namespace WebSharper.UI.Next
 
 /// Represents a time-varying node or a node list.
-[<Sealed>]
+[<Interface>]
 type Doc =
-    interface WebSharper.Html.Client.IControlBody
+    inherit WebSharper.Html.Client.IControlBody
+    abstract ToDynDoc : DynDoc
 
-  // Construction of basic nodes.
+and [<Sealed>] DynDoc =
+    interface Doc
+
+[<Sealed>]
+type Elt =
+    interface Doc
+
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module Doc =
+
+    open Microsoft.FSharp.Quotations
+    open WebSharper.Html.Client
+
+    // Construction of basic nodes.
 
     /// Constructs a reactive element node.
-    static member Element : name: string -> seq<Attr> -> seq<Doc> -> Doc
+    val Element : name: string -> seq<Attr> -> seq<Doc> -> Doc
 
     /// Same as Element, but uses SVG namespace.
-    static member SvgElement : name: string -> seq<Attr> -> seq<Doc> -> Doc
+    val SvgElement : name: string -> seq<Attr> -> seq<Doc> -> Doc
 
-  // Note: Empty, Append, Concat define a monoid on Doc.
+    // Note: Empty, Append, Concat define a monoid on Doc.
 
     /// Empty tree.
-    static member Empty : Doc
+    val Empty : Doc
 
     /// Append on trees.
-    static member Append : Doc -> Doc -> Doc
+    val Append : Doc -> Doc -> Doc
 
     /// Concatenation.
-    static member Concat : seq<Doc> -> Doc
+    val Concat : seq<Doc> -> Doc
 
-  // Special cases
+    // Special cases
 
     /// Static variant of TextView.
-    static member TextNode : string -> Doc
+    val TextNode : string -> Doc
+
+    val ClientSide : Expr<#IControlBody> -> Doc
 
 namespace WebSharper.UI.Next.Server
 
