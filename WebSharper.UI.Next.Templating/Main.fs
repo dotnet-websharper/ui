@@ -298,25 +298,25 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                 else
                                     let n = e.Name.LocalName
                                     match e.Attribute(dataVar) with
-                                    | null -> <@ Doc.Element n %attrs %nodes @>
+                                    | null -> <@ Doc.Element n %attrs %nodes :> _ @>
                                     | a ->
                                         if n.ToLower() = "input" then
                                             match e.Attribute(xn"type") with
-                                            | null -> <@ Doc.Input %attrs %(getVarHole a.Value) @>
+                                            | null -> <@ Doc.Input %attrs %(getVarHole a.Value) :> _ @>
                                             | t ->
                                                 match t.Value with
-                                                | "checkbox" -> <@ Doc.CheckBox %attrs %(getVarHole a.Value) @>
-                                                | "number" -> <@ Doc.FloatInput %attrs %(getVarHole a.Value) @>
-                                                | "password" -> <@ Doc.PasswordBox %attrs %(getVarHole a.Value) @>
-                                                | "text" | _ -> <@ Doc.Input %attrs %(getVarHole a.Value) @>
+                                                | "checkbox" -> <@ Doc.CheckBox %attrs %(getVarHole a.Value) :> _ @>
+                                                | "number" -> <@ Doc.FloatInput %attrs %(getVarHole a.Value) :> _ @>
+                                                | "password" -> <@ Doc.PasswordBox %attrs %(getVarHole a.Value) :> _ @>
+                                                | "text" | _ -> <@ Doc.Input %attrs %(getVarHole a.Value) :> _ @>
                                         elif n.ToLower() = "textarea" then
-                                            <@ Doc.InputArea %attrs %(getVarHole a.Value) @>
+                                            <@ Doc.InputArea %attrs %(getVarHole a.Value) :> _ @>
                                         elif n.ToLower() = "select" then
                                             <@ Doc.Element "select"
                                                 (Seq.append
                                                     (Seq.singleton (Attr.Value %(getVarHole a.Value)))
                                                     %attrs)
-                                                %nodes @>
+                                                %nodes :> _ @>
                                         else failwithf "data-var attribute \"%s\" on invalid element \"%s\"" a.Value n
 
                             | a -> getSimpleHole a.Value

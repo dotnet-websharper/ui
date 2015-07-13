@@ -42,10 +42,10 @@ module Doc =
     // Construction of basic nodes.
 
     /// Constructs a reactive element node.
-    val Element : name: string -> seq<Attr> -> seq<Doc> -> Doc
+    val Element : name: string -> seq<Attr> -> seq<Doc> -> Elt
 
     /// Same as Element, but uses SVG namespace.
-    val SvgElement : name: string -> seq<Attr> -> seq<Doc> -> Doc
+    val SvgElement : name: string -> seq<Attr> -> seq<Doc> -> Elt
 
     // Note: Empty, Append, Concat define a monoid on Doc.
 
@@ -75,7 +75,15 @@ module Doc =
 
 namespace WebSharper.UI.Next.Client
 
+open WebSharper.JavaScript
 open WebSharper.UI.Next
+
+[<AutoOpen>]
+module EltExtensions =
+
+    type Elt with
+
+        member Dom : Dom.Element
 
 module Doc =
 
@@ -85,7 +93,7 @@ module Doc =
     val EmbedView : View<Doc> -> Doc
 
     /// Creates a Doc using a given DOM element
-    val Static : Element -> Doc
+    val Static : Element -> Elt
 
     /// Constructs a reactive text node.
     val TextView : View<string> -> Doc
@@ -124,38 +132,38 @@ module Doc =
   // Form helpers
 
     /// Input box.
-    val Input : seq<Attr> -> Var<string> -> Doc
+    val Input : seq<Attr> -> Var<string> -> Elt
 
     /// Input box with type="number".
-    val IntInput : seq<Attr> -> Var<int> -> Doc
+    val IntInput : seq<Attr> -> Var<int> -> Elt
 
     /// Input box with type="number".
-    val FloatInput : seq<Attr> -> Var<float> -> Doc
+    val FloatInput : seq<Attr> -> Var<float> -> Elt
 
     /// Input text area.
-    val InputArea : seq<Attr> -> Var<string> -> Doc
+    val InputArea : seq<Attr> -> Var<string> -> Elt
 
     /// Password box.
-    val PasswordBox : seq<Attr> -> Var<string> -> Doc
+    val PasswordBox : seq<Attr> -> Var<string> -> Elt
 
     /// Submit button. Takes a view of reactive components with which it is associated,
     /// and a callback function of what to do with this view once the button is pressed.
-    val Button : caption: string -> seq<Attr> -> (unit -> unit) -> Doc
+    val Button : caption: string -> seq<Attr> -> (unit -> unit) -> Elt
 
     /// Link with a callback, acts just like a button.
-    val Link : caption: string -> seq<Attr> -> (unit -> unit) -> Doc
+    val Link : caption: string -> seq<Attr> -> (unit -> unit) -> Elt
 
     /// Check Box.
-    val CheckBox : seq<Attr> -> Var<bool> -> Doc
+    val CheckBox : seq<Attr> -> Var<bool> -> Elt
 
     /// Check Box Group.
-    val CheckBoxGroup : seq<Attr> -> 'T -> Var<list<'T>> -> Doc
+    val CheckBoxGroup : seq<Attr> -> 'T -> Var<list<'T>> -> Elt
         when 'T : equality
 
     /// Select box.
-    val Select : seq<Attr> -> ('T -> string) -> list<'T> -> Var<'T> -> Doc
+    val Select : seq<Attr> -> ('T -> string) -> list<'T> -> Var<'T> -> Elt
         when 'T : equality
 
     /// Radio button.
-    val Radio : seq<Attr> -> 'T -> Var<'T> -> Doc
+    val Radio : seq<Attr> -> 'T -> Var<'T> -> Elt
         when 'T : equality

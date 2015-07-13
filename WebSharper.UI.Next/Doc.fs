@@ -56,10 +56,10 @@ type Elt(tag: string, attrs: list<Attr>, children: list<Doc>) =
 module Doc =
 
     let Element (tagname: string) (attrs: seq<Attr>) (children: seq<Doc>) =
-        ElemDoc (tagname, List.ofSeq attrs, List.ofSeq children) :> Doc
+        Elt (tagname, List.ofSeq attrs, List.ofSeq children)
 
     let SvgElement (tagname: string) (attrs: seq<Attr>) (children: seq<Doc>) =
-        ElemDoc (tagname, List.ofSeq attrs, List.ofSeq children) :> Doc
+        Elt (tagname, List.ofSeq attrs, List.ofSeq children)
 
     let Empty = EmptyDoc :> Doc
 
@@ -118,6 +118,7 @@ type DocNode =
     | EmbedDoc of DocEmbedNode
     | EmptyDoc
     | TextDoc of DocTextNode
+    | TextNodeDoc of TextNode
 
 and [<CustomEquality>]
     [<JavaScript>]
@@ -179,7 +180,8 @@ module Docs =
                 | AppendDoc (a, b) -> loop a; loop b
                 | EmbedDoc d -> loop d.Current
                 | ElemDoc e -> JQueue.Add (e.El :> Node) q
-                | EmptyDoc -> ()
+                | EmptyDoc
+                | TextNodeDoc _ -> ()
                 | TextDoc t -> JQueue.Add (t.Text :> Node) q
             loop node.Children
             DomNodes (JQueue.ToArray q)
@@ -215,6 +217,7 @@ module Docs =
         | EmbedDoc d -> d.Dirty <- false; InsertDoc parent d.Current pos
         | EmptyDoc -> pos
         | TextDoc t -> InsertNode parent t.Text pos
+        | TextNodeDoc t -> InsertNode parent t pos
 
     /// Synchronizes an element with its children (shallow).
     let DoSyncElement el =
@@ -231,6 +234,7 @@ module Docs =
                     ins d.Current pos
             | EmptyDoc -> pos
             | TextDoc t -> DU.BeforeNode t.Text
+            | TextNodeDoc t -> DU.BeforeNode t
         let ch = DomNodes.DocChildren el
         // remove children that are not in the current set
         DomNodes.Children el.El el.Delimiters
@@ -274,7 +278,8 @@ module Docs =
             | AppendDoc (a, b) -> sync a; sync b
             | ElemDoc el -> SyncElement el; sync el.Children
             | EmbedDoc n -> sync n.Current
-            | EmptyDoc -> ()
+            | EmptyDoc
+            | TextNodeDoc _ -> ()
             | TextDoc d ->
                 if d.Dirty then
                     d.Text.NodeValue <- d.Value
@@ -442,7 +447,9 @@ module Docs =
 type [<JavaScript; Proxy(typeof<Doc>)>]
     DocProxy(docNode, updates) =
 
+    [<Inline "$this.docNode">]
     member this.DocNode = docNode
+    [<Inline "$this.updates">]
     member this.Updates = updates
 
     interface Doc with
@@ -482,10 +489,11 @@ and [<JavaScript; Proxy("WebSharper.UI.Next.DocModule, WebSharper.UI.Next")>] Do
     static member Empty =
         DocExtProxy.Mk EmptyDoc (View.Const ())
 
-    static member Elem name attr (children: Doc) =
-        let node = Docs.CreateElemNode name attr (As<DocProxy> children).DocNode
-        View.Map2 (fun () () -> ()) (Attrs.Updates node.Attr) (As<DocProxy> children).Updates
-        |> DocExtProxy.Mk (ElemDoc node)
+    static member Elem el attr (children: Doc) =
+        let node = Docs.CreateElemNode el attr (As<DocProxy> children).DocNode
+        let v =
+             View.Map2 (fun () () -> ()) (Attrs.Updates node.Attr) (As<DocProxy> children).Updates
+        As<Elt> (EltProxy(ElemDoc node, v, el))
 
     static member Element name attr children =
         let attr = Attr.Concat attr
@@ -497,14 +505,8 @@ and [<JavaScript; Proxy("WebSharper.UI.Next.DocModule, WebSharper.UI.Next")>] Do
         let children = Doc.Concat children
         DocExtProxy.Elem (DU.CreateSvgElement name) attr children
 
-    static member TextView txt =
-        let node = Docs.CreateTextNode ()
-        txt
-        |> View.Map (Docs.UpdateTextNode node)
-        |> DocExtProxy.Mk (TextDoc node)
-
     static member TextNode v =
-        DocExtProxy.TextView (View.Const v)
+        DocExtProxy.Mk (TextNodeDoc (DU.CreateText v)) (View.Const ())
 
     // TODO
     [<Inline>]
@@ -517,17 +519,27 @@ and InputControlType =
     | TypedInputBox of ``type``: string
     | TextArea
 
-[<JavaScript; Proxy(typeof<Elt>)>]
-type EltProxy(docNode, updates, elt: Dom.Element) =
+and [<JavaScript; Proxy(typeof<Elt>)>] EltProxy(docNode, updates, elt: Dom.Element) =
     inherit DocProxy(docNode, updates)
-    member this.Elt = elt
+
+    [<Inline "$0.elt">]
+    member this.Element = elt
+
+[<AutoOpen; JavaScript>]
+module EltExtensions =
+
+    type Elt with
+
+        [<Inline "$0.elt">]
+        member this.Dom =
+            (As<EltProxy> this).Element
 
 [<JavaScript>]
 module Doc =
 
     let Static el =
         let prox = As<DocProxy>(DocExtProxy.Elem el Attr.Empty Doc.Empty)
-        EltProxy(prox.DocNode, prox.Updates, el) :> Doc
+        As<Elt> (EltProxy(prox.DocNode, prox.Updates, el))
 
     let EmbedView (view: View<Doc>) =
         let node = Docs.CreateEmbedNode ()
@@ -563,7 +575,11 @@ module Doc =
         new UINextPagelet (doc) :> Pagelet
 
     [<Inline>]
-    let TextView v = DocExtProxy.TextView v
+    let TextView txt =
+        let node = Docs.CreateTextNode ()
+        txt
+        |> View.Map (Docs.UpdateTextNode node)
+        |> DocExtProxy.Mk (TextDoc node)
 
   // Collections ----------------------------------------------------------------
 
@@ -633,11 +649,12 @@ module Doc =
             Var.Set current (getSelectedItem el)
         el.AddEventListener("change", onChange, false)
         let optionElements =
-            options
-            |> List.mapi (fun i o ->
-                let t = Doc.TextNode (show o)
-                Doc.Element "option" [Attr.Create "value" (string i)] [t])
-            |> Doc.Concat
+            Doc.Concat (
+                options
+                |> List.mapi (fun i o ->
+                    let t = Doc.TextNode (show o)
+                    Doc.Element "option" [Attr.Create "value" (string i)] [t] :> _)
+            )
         DocExtProxy.Elem el (Attr.Concat attrs |> Attr.Append selectedItemAttr) optionElements
 
     let CheckBox attrs (chk: Var<bool>) =
