@@ -22,10 +22,10 @@ namespace WebSharper.UI.Next
 
 type Attr =
     | AppendAttr of list<Attr>
-    | SingleAttr of name: string * value: string
+    | SingleAttr of string * string * option<WebSharper.Html.Client.IRequiresResources>
 
     static member Create name value =
-        SingleAttr(name, value)
+        SingleAttr(name, value, None)
 
     static member Append a b =
         AppendAttr [a; b]
@@ -38,15 +38,70 @@ type Attr =
 
 namespace WebSharper.UI.Next.Server
 
+open Microsoft.FSharp.Quotations
+open Microsoft.FSharp.Quotations.Patterns
 open WebSharper.UI.Next
 open WebSharper.Html.Server
+module M = WebSharper.Core.Metadata
+module P = WebSharper.Core.JavaScript.Packager
+module R = WebSharper.Core.Reflection
 
 module Attr =
 
+    let getLocation (q: Expr) =
+        let (|Val|_|) e : 't option =
+            match e with
+            | Quotations.Patterns.Value(:? 't as v,_) -> Some v
+            | _ -> None
+        let l =
+            q.CustomAttributes |> Seq.tryPick (function
+                | NewTuple [ Val "DebugRange";
+                             NewTuple [ Val (file: string)
+                                        Val (startLine: int)
+                                        Val (startCol: int)
+                                        Val (endLine: int)
+                                        Val (endCol: int) ] ] ->
+                    Some (sprintf "%s: %i.%i-%i.%i" file startLine startCol endLine endCol)
+                | _ -> None)
+        defaultArg l "(no location)"
+
+    let gen = System.Random()
+
+    type Requires(reqs) =
+
+        [<System.NonSerialized>]
+        let reqs = reqs
+
+        interface WebSharper.Html.Client.IRequiresResources with
+            member this.Requires meta = reqs :> seq<_>
+
+    let Handler (event: string) (q: Expr<#WebSharper.JavaScript.Dom.Event -> unit>) =
+        let declType, name, reqs =
+            match q with
+            | Lambda (x1, Call(None, m, [Var x2])) when x1 = x2 ->
+                let rm = R.Method.Parse m
+                rm.DeclaringType, rm.Name, [M.MethodNode rm; M.TypeNode rm.DeclaringType]
+            | _ -> failwithf "Invalid handler function: %A" q
+        let func =
+            match WebSharper.Web.Shared.Metadata.GetAddress declType with
+            | None ->
+                failwithf "Error in Handler at %s: Couldn't find address for method"
+                    (getLocation q)
+            | Some a ->
+                let rec mk acc (a: P.Address) =
+                    let acc = a.LocalName :: acc
+                    match a.Parent with
+                    | None -> acc
+                    | Some p -> mk acc p
+                String.concat "." (mk [name] a)
+        SingleAttr("on" + event, func + "(event)", Some (Requires(reqs) :> _))
+
     let rec AsAttributes attr : list<Attribute> =
         match attr with
-        | AppendAttr a -> List.collect AsAttributes a
-        | SingleAttr(name, value) -> [{Name = name; Value = value}]
+        | AppendAttr a ->
+            List.collect AsAttributes a
+        | SingleAttr(name, value, req) ->
+            [{Name = name; Value = value; Annotation = req}]
 
 namespace WebSharper.UI.Next.Client
 

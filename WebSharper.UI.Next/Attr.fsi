@@ -40,12 +40,16 @@ type Attr =
 
 namespace WebSharper.UI.Next.Server
 
+open Microsoft.FSharp.Quotations
+open WebSharper.JavaScript
 open WebSharper.UI.Next
 open WebSharper.Html.Server
 
 module Attr =
 
     val AsAttributes : Attr -> list<Html.Attribute>
+
+    val Handler : event: string -> callback: (Expr<#Dom.Event -> unit>) -> Attr
 
 namespace WebSharper.UI.Next.Client
 
