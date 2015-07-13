@@ -22,10 +22,10 @@ namespace WebSharper.UI.Next
 
 type Attr =
     | AppendAttr of list<Attr>
-    | SingleAttr of string * string * option<WebSharper.Html.Client.IRequiresResources>
+    | SingleAttr of WebSharper.Html.Server.Html.Attribute
 
     static member Create name value =
-        SingleAttr(name, value, None)
+        SingleAttr { Name = name; Value = value; Annotation = None }
 
     static member Append a b =
         AppendAttr [a; b]
@@ -67,13 +67,15 @@ module Attr =
 
     let gen = System.Random()
 
-    type Requires(reqs) =
+    type Requires(reqs, onGetRequires: M.Info -> unit) =
 
         [<System.NonSerialized>]
         let reqs = reqs
 
         interface WebSharper.Html.Client.IRequiresResources with
-            member this.Requires meta = reqs :> seq<_>
+            member this.Requires meta =
+                onGetRequires meta
+                reqs :> seq<_>
 
     let Handler (event: string) (q: Expr<#WebSharper.JavaScript.Dom.Event -> unit>) =
         let declType, name, reqs =
@@ -82,8 +84,12 @@ module Attr =
                 let rm = R.Method.Parse m
                 rm.DeclaringType, rm.Name, [M.MethodNode rm; M.TypeNode rm.DeclaringType]
             | _ -> failwithf "Invalid handler function: %A" q
-        let func =
-            match WebSharper.Web.Shared.Metadata.GetAddress declType with
+        let rec attr : WebSharper.Html.Server.Html.Attribute =
+            { Name = "on" + event
+              Value = ""
+              Annotation = Some (Requires(reqs, func) :> _) }
+        and func (meta: M.Info) =
+            match meta.GetAddress declType with
             | None ->
                 failwithf "Error in Handler at %s: Couldn't find address for method"
                     (getLocation q)
@@ -93,15 +99,13 @@ module Attr =
                     match a.Parent with
                     | None -> acc
                     | Some p -> mk acc p
-                String.concat "." (mk [name] a)
-        SingleAttr("on" + event, func + "(event)", Some (Requires(reqs) :> _))
+                attr.Value <- String.concat "." (mk [name] a) + "(event)"
+        SingleAttr attr 
 
     let rec AsAttributes attr : list<Attribute> =
         match attr with
-        | AppendAttr a ->
-            List.collect AsAttributes a
-        | SingleAttr(name, value, req) ->
-            [{Name = name; Value = value; Annotation = req}]
+        | AppendAttr a -> List.collect AsAttributes a
+        | SingleAttr a -> [a]
 
 namespace WebSharper.UI.Next.Client
 
