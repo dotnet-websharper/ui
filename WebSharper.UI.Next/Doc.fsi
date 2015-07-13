@@ -85,6 +85,7 @@ module EltExtensions =
 
         member Dom : Dom.Element
 
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Doc =
 
   // Construction of basic nodes.
