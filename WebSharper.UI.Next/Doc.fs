@@ -78,6 +78,8 @@ open WebSharper.UI.Next
 open WebSharper.Html.Server
 
 module Doc =
+    open WebSharper.Sitelets
+    module m = WebSharper.Html.Server.Tags
 
     let rec AsElements (doc: Doc) =
         match doc.ToDynDoc with
@@ -99,6 +101,22 @@ module Doc =
                 | Html.Node.ContentNode e -> e
                 | Html.Node.AttributeNode _ -> failwith "Unexpected attribute"
             [e]
+
+    let rec AsPage (doc: Doc) =
+        let els = AsElements doc
+        // Do we have an HTML document?
+        // 1. <html>...</html>
+        match els with
+        | [Element.TagContent { Name = name }] when name.ToLower() = "html" ->
+            // TODO: compute a Page equivalent
+            { WebSharper.Sitelets.Page.Default with
+                Body = els
+            }
+        // No, so return the fragement as a full document with it as the body
+        | _ ->
+            { WebSharper.Sitelets.Page.Default with
+                Body = []
+            }
 
 namespace WebSharper.UI.Next.Client
 
