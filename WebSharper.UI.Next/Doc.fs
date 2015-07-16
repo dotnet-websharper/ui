@@ -102,21 +102,20 @@ module Doc =
                 | Html.Node.AttributeNode _ -> failwith "Unexpected attribute"
             [e]
 
-    let rec AsPage (doc: Doc) =
+    let rec AsContent (doc: Doc) =
         let els = AsElements doc
         // Do we have an HTML document?
         // 1. <html>...</html>
         match els with
-        | [Element.TagContent { Name = name }] when name.ToLower() = "html" ->
-            // TODO: compute a Page equivalent
-            { WebSharper.Sitelets.Page.Default with
-                Body = els
-            }
+        | [Element.TagContent { Name = name } as e] when name.ToLowerInvariant() = "html" ->
+            let tpl = WebSharper.Sitelets.Content.Template.FromHtmlElement(e)
+            Content.WithTemplate tpl ignore
         // No, so return the fragement as a full document with it as the body
-        | _ ->
-            { WebSharper.Sitelets.Page.Default with
-                Body = []
-            }
+        | els ->
+            Content.PageContent <| fun _ ->
+                { WebSharper.Sitelets.Page.Default with
+                    Body = els
+                }
 
 namespace WebSharper.UI.Next.Client
 
