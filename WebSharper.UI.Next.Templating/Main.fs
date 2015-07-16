@@ -96,6 +96,10 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
     let dataVar = xn"data-var"
     let dataAttr = xn"data-attr"
     let dataEvent = "data-event-"
+    let (|SpecialHole|_|) (a: XAttribute) =
+        match a.Value.ToLowerInvariant() with
+        | "scripts" | "meta" | "styles" -> Some()
+        | _ -> None
 
     do
         this.Disposing.Add <| fun _ ->
@@ -245,8 +249,10 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                     if isRoot then <@ [||] @> else
                                     e.Attributes() 
                                     |> Seq.filter (fun a ->
-                                        a.Name <> dataHole &&
-                                        a.Name <> dataVar)
+                                        if a.Name = dataHole then
+                                            (|SpecialHole|_|) a = Some ()
+                                        else
+                                            a.Name <> dataVar)
                                     |> Seq.map (fun a -> 
                                         let n = a.Name.LocalName
                                         if n.StartsWith dataEvent then
@@ -291,6 +297,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                             | _ -> []
                                         ) 
                                         |> ExprArray
+                                    | SpecialHole -> <@ [||] @>
                                     | a -> <@ [| %(getSimpleHole a.Value) |] @>
 
                                 if isRoot then 
@@ -319,6 +326,10 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                                 %nodes :> _ @>
                                         else failwithf "data-var attribute \"%s\" on invalid element \"%s\"" a.Value n
 
+                            | SpecialHole as a ->
+                                let elName = e.Name.LocalName
+                                let attrValue = a.Value
+                                <@ Doc.Element elName [|Attr.Create "data-replace" attrValue |] [||] :> _ @>
                             | a -> getSimpleHole a.Value
                         
                         let mainExpr = t |> createNode true
