@@ -298,7 +298,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                         ) 
                                         |> ExprArray
                                     | SpecialHole -> <@ [||] @>
-                                    | a -> <@ [| %(getSimpleHole a.Value) |] @>
+                                    | a -> <@ Array.ofSeq %(getSimpleHole a.Value) @>
 
                                 if isRoot then 
                                     <@ Doc.Concat %nodes @>
@@ -330,7 +330,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                 let elName = e.Name.LocalName
                                 let attrValue = a.Value
                                 <@ Doc.Element elName [|Attr.Create "data-replace" attrValue |] [||] :> _ @>
-                            | a -> getSimpleHole a.Value
+                            | a -> <@ Doc.Concat %(getSimpleHole a.Value) @>
                         
                         let mainExpr = t |> createNode true
 

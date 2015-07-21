@@ -31,15 +31,15 @@ module Client =
  
         let doc =
             MyTemplate.Doc(
-                Title = h1Attr [attr style "color: blue"] [Doc.TextView title],
+                Title = [h1Attr [attr style "color: blue"] [Doc.TextView title]],
                 ListContainer =
-                    (ListModel.View myItems |> Doc.Convert (fun item ->
+                    [ListModel.View myItems |> Doc.Convert (fun item ->
                         MyTemplate.ListItem.Doc(
                             Name = View.Const item.name,
                             Description = View.Const item.description,
                             FontStyle = View.Const "normal",
                             FontWeight = View.Const "bold")
-                    )),
+                    )],
                 MyInput = var,
                 MyInputView = View.SnapshotOn "" btnVar.View var.View,
                 MyCallback = (fun e -> btnVar := ())
