@@ -31,11 +31,32 @@ module Tags =
         |> Seq.map (fun (k, s) -> (k, groupByFst s |> Map.ofSeq))
         |> Map.ofSeq
 
-    let start = Regex("^(\s*)// *{{ *([a-z]+)( *([a-z]+))*")
+    let start =
+        Regex("
+            # indentation
+            ^(\s*)
+            # comment and {{ marker
+            //\s*{{\s*
+            # type (tag, attr, event, etc.)
+            ([a-z]+)
+            # categories (normal, deprecated, colliding, event arg type)
+            (?:\s*([a-z]+))*",
+            RegexOptions.IgnorePatternWhitespace)
     let finish = Regex("// *}}")
     let dash = Regex("-([a-z])")
 
-    let RunOn (path: string) (all: Map<string, Map<string, seq<bool * string * string>>>) (f: string -> string -> (string * string) -> string -> string[]) =
+    type Elt =
+        {
+            Type: string        // tag, attr, event, etc.
+            Category: string    // for tag, attr: normal / deprecated / colliding
+                                // for event: the type of event arg
+            Name: string        // javascript name
+            LowName: string     // lowercase name for F# source
+            LowNameEsc: string  // lowercase name for F# source, with ``escapes`` if necessary
+            UpName: string      // uppercase name for F# source
+        }
+
+    let RunOn (path: string) (all: Map<string, Map<string, seq<bool * string * string>>>) (f: Elt -> string[]) =
         if NeedsBuilding tagsFilePath path then
             let e = (File.ReadAllLines(path) :> seq<_>).GetEnumerator()
             let newLines =
@@ -48,18 +69,36 @@ module Tags =
                             let indent = m.Groups.[1].Value
                             let ``type`` = m.Groups.[2].Value
                             let allType =
-                                seq {
-                                    for s in m.Groups.[4].Captures do
-                                        match Map.tryFind s.Value all.[``type``] with
-                                        | None -> ()
-                                        | Some elts -> yield! elts
-                                }
-                                |> Seq.sortBy (fun (_, _, s) -> s.ToLower())
-                            for isKeyword, name, upname in allType do
+                                match m.Groups.[3].Captures |> Seq.cast<Capture> |> Array.ofSeq with
+                                | [||] ->
+                                    seq {
+                                        for KeyValue(category, elts) in all.[``type``] do
+                                            for elt in elts do
+                                                yield category, elt
+                                    }
+                                | categories ->
+                                    seq {
+                                        for s in categories do
+                                            match Map.tryFind s.Value all.[``type``] with
+                                            | None -> ()
+                                            | Some elts ->
+                                                for elt in elts do yield s.Value, elt
+                                    }
+                                |> Seq.sortBy (fun (_, (_, _, s)) -> s.ToLower())
+                            for category, (isKeyword, name, upname) in allType do
                                 let lowname = dash.Replace(name, fun m ->
                                     m.Groups.[1].Value.ToUpperInvariant())
                                 let lownameEsc = if isKeyword then sprintf "``%s``" lowname else lowname
-                                for l in f ``type`` name (lowname, lownameEsc) upname do
+                                let x =
+                                    {
+                                        Type = ``type``
+                                        Category = category
+                                        Name = name
+                                        LowName = lowname
+                                        LowNameEsc = lownameEsc
+                                        UpName = upname
+                                    }
+                                for l in f x do
                                     yield indent + l
                             yield e.Current
                 |]
@@ -67,21 +106,26 @@ module Tags =
 
     let Run() =
         let all = Parse()
-        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next", "HTML.fs")) all <| fun ty name (lowname, lownameEsc) upname ->
-            match ty with
+        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next", "HTML.fs")) all <| fun e ->
+            match e.Type with
             | "tag" ->
                 [|
-                    sprintf """let %sAttr ats ch = Doc.Element "%s" ats ch""" lowname name
-                    sprintf """let %s ch = Doc.Element "%s" [||] ch""" lownameEsc name
+                    sprintf """let %sAttr ats ch = Doc.Element "%s" ats ch""" e.LowName e.Name
+                    sprintf """let %s ch = Doc.Element "%s" [||] ch""" e.LowNameEsc e.Name
                 |]
             | "svgtag" ->
                 [|
-                    sprintf """let %s ats ch = Doc.SvgElement "%s" ats ch""" lownameEsc name
+                    sprintf """let %s ats ch = Doc.SvgElement "%s" ats ch""" e.LowNameEsc e.Name
                 |]
             | "attr" | "svgattr" ->
                 [|
                     "[<Literal>]"
-                    sprintf "let %s = \"%s\"" lownameEsc name
+                    sprintf "let %s = \"%s\"" e.LowNameEsc e.Name
+                |]
+            | "event" ->
+                [|
+                    "[<Inline>]"
+                    sprintf """static member %s (f: JavaScript.Dom.%s -> unit) = Client.Attr.Handler "%s" f""" e.LowNameEsc e.Category e.Name
                 |]
             | ty -> failwithf "unknown type: %s" ty
 

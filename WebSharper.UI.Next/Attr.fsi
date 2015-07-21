@@ -79,7 +79,7 @@ module Attr =
     val AnimatedStyle : name: string -> Trans<'T> -> view: View<'T> -> value: ('T -> string) -> Attr
 
     /// Sets an event handler, for a given event such as `click`.
-    val Handler : name: string -> callback: (DomEvent -> unit) -> Attr
+    val Handler : name: string -> callback: (#DomEvent -> unit) -> Attr
 
     /// Sets a CSS class.
     val Class : name: string -> Attr

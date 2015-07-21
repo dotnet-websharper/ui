@@ -353,8 +353,8 @@ module Attr =
     let DynamicStyle name view =
         As<Attr> (Attrs.Dynamic view (fun el v -> DU.SetStyle el name v))
 
-    let Handler name (callback: DomEvent -> unit) =
-        As<Attr> (Attrs.Static (fun el -> el.AddEventListener(name, callback, false)))
+    let Handler name (callback: #DomEvent -> unit) =
+        As<Attr> (Attrs.Static (fun el -> el.AddEventListener(name, As<DomEvent -> unit> callback, false)))
 
     let DynamicClass name view ok =
         As<Attr> (Attrs.Dynamic view (fun el v ->
