@@ -20,33 +20,13 @@
 
 namespace WebSharper.UI.Next
 
-type Attr =
-    | AppendAttr of list<Attr>
-    | SingleAttr of WebSharper.Html.Server.Html.Attribute
-
-    static member Create name value =
-        SingleAttr { Name = name; Value = value; Annotation = None }
-
-    static member Append a b =
-        AppendAttr [a; b]
-
-    static member Empty =
-        AppendAttr []
-
-    static member Concat (xs: seq<Attr>) =
-        AppendAttr (List.ofSeq xs)
-
-namespace WebSharper.UI.Next.Server
-
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.Patterns
-open WebSharper.UI.Next
-open WebSharper.Html.Server
 module M = WebSharper.Core.Metadata
 module P = WebSharper.Core.JavaScript.Packager
 module R = WebSharper.Core.Reflection
 
-module Attr =
+module private Internal =
 
     let getLocation (q: Expr) =
         let (|Val|_|) e : 't option =
@@ -77,7 +57,23 @@ module Attr =
                 onGetRequires meta
                 reqs :> seq<_>
 
-    let Handler (event: string) (q: Expr<#WebSharper.JavaScript.Dom.Event -> unit>) =
+type Attr =
+    | AppendAttr of list<Attr>
+    | SingleAttr of WebSharper.Html.Server.Html.Attribute
+
+    static member Create name value =
+        SingleAttr { Name = name; Value = value; Annotation = None }
+
+    static member Append a b =
+        AppendAttr [a; b]
+
+    static member Empty =
+        AppendAttr []
+
+    static member Concat (xs: seq<Attr>) =
+        AppendAttr (List.ofSeq xs)
+
+    static member Handler (event: string) (q: Expr<#WebSharper.JavaScript.Dom.Event -> unit>) =
         let declType, name, reqs =
             match q with
             | Lambda (x1, Call(None, m, [Var x2])) when x1 = x2 ->
@@ -87,12 +83,12 @@ module Attr =
         let rec attr : WebSharper.Html.Server.Html.Attribute =
             { Name = "on" + event
               Value = ""
-              Annotation = Some (Requires(reqs, func) :> _) }
+              Annotation = Some (Internal.Requires(reqs, func) :> _) }
         and func (meta: M.Info) =
             match meta.GetAddress declType with
             | None ->
                 failwithf "Error in Handler at %s: Couldn't find address for method"
-                    (getLocation q)
+                    (Internal.getLocation q)
             | Some a ->
                 let rec mk acc (a: P.Address) =
                     let acc = a.LocalName :: acc
@@ -102,6 +98,13 @@ module Attr =
                 attr.Value <- String.concat "." (mk [name] a) + "(event)"
         SingleAttr attr 
 
+namespace WebSharper.UI.Next.Server
+
+open WebSharper.UI.Next
+open WebSharper.Html.Server
+
+module Attr =
+
     let rec AsAttributes attr : list<Attribute> =
         match attr with
         | AppendAttr a -> List.collect AsAttributes a
@@ -109,6 +112,7 @@ module Attr =
 
 namespace WebSharper.UI.Next.Client
 
+open Microsoft.FSharp.Quotations
 open WebSharper
 open WebSharper.JavaScript
 open WebSharper.UI.Next
@@ -328,6 +332,9 @@ type AttrProxy with
     static member Concat (xs: seq<Attr>) =
         Seq.toArray xs
         |> Array.MapReduce id Attr.Empty Attr.Append
+
+    static member Handler (event: string) (q: Expr<#WebSharper.JavaScript.Dom.Event -> unit>) =
+        As<Attr> (Attrs.Static (fun el -> el.AddEventListener(event, As<DomEvent -> unit> q, false)))
 
 [<JavaScript>]
 module Attr =

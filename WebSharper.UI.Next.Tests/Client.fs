@@ -34,7 +34,7 @@ module Client =
                 Title = [
                     h1Attr
                         [ attr style "color: blue"
-                          on.click (fun e -> Console.Log e) ]
+                          on.click <@ fun e -> Console.Log e @> ]
                         [ textView title ]
                 ],
                 ListContainer =

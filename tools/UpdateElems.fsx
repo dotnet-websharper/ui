@@ -125,7 +125,12 @@ module Tags =
             | "event" ->
                 [|
                     "[<Inline>]"
-                    sprintf """static member %s (f: JavaScript.Dom.%s -> unit) = Client.Attr.Handler "%s" f""" e.LowNameEsc e.Category e.Name
+                    sprintf "static member %s" e.LowNameEsc
+                    "  ("
+                    "#if FSHARP40"
+                    "    [<ReflectedDefinition>]"
+                    "#endif"
+                    sprintf """    f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.%s -> unit>) = Attr.Handler "%s" f""" e.Category e.Name
                 |]
             | ty -> failwithf "unknown type: %s" ty
 

@@ -20,6 +20,9 @@
 
 namespace WebSharper.UI.Next
 
+open Microsoft.FSharp.Quotations
+open WebSharper.JavaScript
+
 /// A potentially time-varying or animated attribute list.
 [<Sealed>]
 type Attr =
@@ -38,18 +41,16 @@ type Attr =
     /// Empty attribute list.
     static member Empty : Attr
 
+    static member Handler : event: string -> callback: (Expr<#Dom.Event -> unit>) -> Attr
+
 namespace WebSharper.UI.Next.Server
 
-open Microsoft.FSharp.Quotations
-open WebSharper.JavaScript
 open WebSharper.UI.Next
 open WebSharper.Html.Server
 
 module Attr =
 
     val AsAttributes : Attr -> list<Html.Attribute>
-
-    val Handler : event: string -> callback: (Expr<#Dom.Event -> unit>) -> Attr
 
 namespace WebSharper.UI.Next.Client
 
