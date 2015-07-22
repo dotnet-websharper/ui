@@ -97,7 +97,7 @@ module Doc =
   // Construction of basic nodes.
 
     /// Embeds time-varying fragments.
-    val EmbedView : View<Doc> -> Doc
+    val EmbedView : View<#Doc> -> Doc
 
     /// Creates a Doc using a given DOM element
     val Static : Element -> Elt
@@ -109,20 +109,20 @@ module Doc =
 
     /// Converts a collection to Doc using View.Convert and embeds the concatenated result.
     /// Shorthand for View.Convert f |> View.Map Doc.Concat |> Doc.EmbedView.
-    val Convert : ('T -> Doc) -> View<seq<'T>> -> Doc
+    val Convert : ('T -> #Doc) -> View<seq<'T>> -> Doc
         when 'T : equality
 
     /// Doc.Convert with a custom key.
-    val ConvertBy : ('T -> 'K) -> ('T -> Doc) -> View<seq<'T>> -> Doc
+    val ConvertBy : ('T -> 'K) -> ('T -> #Doc) -> View<seq<'T>> -> Doc
         when 'K : equality
 
     /// Converts a collection to Doc using View.ConvertSeq and embeds the concatenated result.
     /// Shorthand for View.ConvertSeq f |> View.Map Doc.Concat |> Doc.EmbedView.
-    val ConvertSeq : (View<'T> -> Doc) -> View<seq<'T>> -> Doc
+    val ConvertSeq : (View<'T> -> #Doc) -> View<seq<'T>> -> Doc
         when 'T : equality
 
     /// Doc.ConvertSeq with a custom key.
-    val ConvertSeqBy : ('T -> 'K) -> (View<'T> -> Doc) -> View<seq<'T>> -> Doc
+    val ConvertSeqBy : ('T -> 'K) -> (View<'T> -> #Doc) -> View<seq<'T>> -> Doc
         when 'K : equality
 
   // Main entry-point combinators - use once per app

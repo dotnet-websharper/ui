@@ -774,7 +774,7 @@ module Doc =
         Doc'.Static el
 
     [<Inline>]
-    let EmbedView (view: View<Doc>) : Doc =
+    let EmbedView (view: View<#Doc>) : Doc =
         As (Doc'.EmbedView (As view))
 
     [<Inline>]
@@ -796,19 +796,19 @@ module Doc =
   // Collections ----------------------------------------------------------------
 
     [<Inline>]
-    let Convert (render: 'T -> Doc) (view: View<seq<'T>>) : Doc =
+    let Convert (render: 'T -> #Doc) (view: View<seq<'T>>) : Doc =
         As (Doc'.Convert (As render) view)
 
     [<Inline>]
-    let ConvertBy (key: 'T -> 'K) (render: 'T -> Doc) (view: View<seq<'T>>) : Doc =
+    let ConvertBy (key: 'T -> 'K) (render: 'T -> #Doc) (view: View<seq<'T>>) : Doc =
         As (Doc'.ConvertBy key (As render) view)
 
     [<Inline>]
-    let ConvertSeq (render: View<'T> -> Doc) (view: View<seq<'T>>) : Doc =
+    let ConvertSeq (render: View<'T> -> #Doc) (view: View<seq<'T>>) : Doc =
         As (Doc'.ConvertSeq (As render) view)
 
     [<Inline>]
-    let ConvertSeqBy (key: 'T -> 'K) (render: View<'T> -> Doc) (view: View<seq<'T>>) : Doc =
+    let ConvertSeqBy (key: 'T -> 'K) (render: View<'T> -> #Doc) (view: View<seq<'T>>) : Doc =
         As (Doc'.ConvertSeqBy key (As render) view)
 
   // Form helpers ---------------------------------------------------------------
