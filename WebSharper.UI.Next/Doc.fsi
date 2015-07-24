@@ -77,7 +77,7 @@ module Doc =
 
     /// Converts a `Doc` to a sitelet Page.
     /// `Doc` values that correspond to HTML fragements are converted to full documents.
-    val AsContent : Doc -> WebSharper.Sitelets.Content<'T>
+    val AsContent : Doc -> Async<WebSharper.Sitelets.Content<'T>>
 
 namespace WebSharper.UI.Next.Client
 

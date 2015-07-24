@@ -112,10 +112,7 @@ module Doc =
             Content.WithTemplate tpl ignore
         // No, so return the fragement as a full document with it as the body
         | els ->
-            Content.PageContent <| fun _ ->
-                { WebSharper.Sitelets.Page.Default with
-                    Body = els
-                }
+            Content.Page(Body = els)
 
 namespace WebSharper.UI.Next.Client
 
