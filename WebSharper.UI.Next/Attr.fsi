@@ -41,7 +41,7 @@ type Attr =
     /// Empty attribute list.
     static member Empty : Attr
 
-    static member Handler : event: string -> callback: (Expr<#Dom.Event -> unit>) -> Attr
+    static member Handler : event: string -> callback: (Expr<Dom.Element -> #Dom.Event -> unit>) -> Attr
 
 namespace WebSharper.UI.Next.Server
 

@@ -130,7 +130,7 @@ module Tags =
                     "#if FSHARP40"
                     "    [<ReflectedDefinition>]"
                     "#endif"
-                    sprintf """    f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.%s -> unit>) = Attr.Handler "%s" f""" e.Category e.Name
+                    sprintf """    f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.%s -> unit>) = Attr.Handler "%s" f""" e.Category e.Name
                 |]
             | ty -> failwithf "unknown type: %s" ty
 

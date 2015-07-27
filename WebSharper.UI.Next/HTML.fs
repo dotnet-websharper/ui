@@ -731,973 +731,973 @@ module Html =
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.UIEvent -> unit>) = Attr.Handler "abort" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.UIEvent -> unit>) = Attr.Handler "abort" f
         [<Inline>]
         static member afterprint
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "afterprint" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "afterprint" f
         [<Inline>]
         static member animationend
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "animationend" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "animationend" f
         [<Inline>]
         static member animationiteration
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "animationiteration" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "animationiteration" f
         [<Inline>]
         static member animationstart
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "animationstart" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "animationstart" f
         [<Inline>]
         static member audioprocess
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "audioprocess" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "audioprocess" f
         [<Inline>]
         static member beforeprint
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "beforeprint" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "beforeprint" f
         [<Inline>]
         static member beforeunload
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "beforeunload" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "beforeunload" f
         [<Inline>]
         static member beginEvent
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "beginEvent" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "beginEvent" f
         [<Inline>]
         static member blocked
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "blocked" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "blocked" f
         [<Inline>]
         static member blur
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.FocusEvent -> unit>) = Attr.Handler "blur" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.FocusEvent -> unit>) = Attr.Handler "blur" f
         [<Inline>]
         static member cached
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "cached" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "cached" f
         [<Inline>]
         static member canplay
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "canplay" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "canplay" f
         [<Inline>]
         static member canplaythrough
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "canplaythrough" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "canplaythrough" f
         [<Inline>]
         static member change
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "change" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "change" f
         [<Inline>]
         static member chargingchange
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "chargingchange" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "chargingchange" f
         [<Inline>]
         static member chargingtimechange
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "chargingtimechange" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "chargingtimechange" f
         [<Inline>]
         static member checking
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "checking" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "checking" f
         [<Inline>]
         static member click
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "click" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "click" f
         [<Inline>]
         static member close
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "close" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "close" f
         [<Inline>]
         static member complete
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "complete" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "complete" f
         [<Inline>]
         static member compositionend
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.CompositionEvent -> unit>) = Attr.Handler "compositionend" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.CompositionEvent -> unit>) = Attr.Handler "compositionend" f
         [<Inline>]
         static member compositionstart
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.CompositionEvent -> unit>) = Attr.Handler "compositionstart" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.CompositionEvent -> unit>) = Attr.Handler "compositionstart" f
         [<Inline>]
         static member compositionupdate
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.CompositionEvent -> unit>) = Attr.Handler "compositionupdate" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.CompositionEvent -> unit>) = Attr.Handler "compositionupdate" f
         [<Inline>]
         static member contextmenu
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "contextmenu" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "contextmenu" f
         [<Inline>]
         static member copy
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "copy" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "copy" f
         [<Inline>]
         static member cut
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "cut" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "cut" f
         [<Inline>]
         static member dblclick
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "dblclick" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "dblclick" f
         [<Inline>]
         static member devicelight
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "devicelight" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "devicelight" f
         [<Inline>]
         static member devicemotion
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "devicemotion" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "devicemotion" f
         [<Inline>]
         static member deviceorientation
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "deviceorientation" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "deviceorientation" f
         [<Inline>]
         static member deviceproximity
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "deviceproximity" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "deviceproximity" f
         [<Inline>]
         static member dischargingtimechange
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "dischargingtimechange" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "dischargingtimechange" f
         [<Inline>]
         static member DOMActivate
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.UIEvent -> unit>) = Attr.Handler "DOMActivate" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.UIEvent -> unit>) = Attr.Handler "DOMActivate" f
         [<Inline>]
         static member DOMAttributeNameChanged
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "DOMAttributeNameChanged" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "DOMAttributeNameChanged" f
         [<Inline>]
         static member DOMAttrModified
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.MutationEvent -> unit>) = Attr.Handler "DOMAttrModified" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MutationEvent -> unit>) = Attr.Handler "DOMAttrModified" f
         [<Inline>]
         static member DOMCharacterDataModified
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.MutationEvent -> unit>) = Attr.Handler "DOMCharacterDataModified" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MutationEvent -> unit>) = Attr.Handler "DOMCharacterDataModified" f
         [<Inline>]
         static member DOMContentLoaded
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "DOMContentLoaded" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "DOMContentLoaded" f
         [<Inline>]
         static member DOMElementNameChanged
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "DOMElementNameChanged" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "DOMElementNameChanged" f
         [<Inline>]
         static member DOMNodeInserted
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.MutationEvent -> unit>) = Attr.Handler "DOMNodeInserted" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MutationEvent -> unit>) = Attr.Handler "DOMNodeInserted" f
         [<Inline>]
         static member DOMNodeInsertedIntoDocument
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.MutationEvent -> unit>) = Attr.Handler "DOMNodeInsertedIntoDocument" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MutationEvent -> unit>) = Attr.Handler "DOMNodeInsertedIntoDocument" f
         [<Inline>]
         static member DOMNodeRemoved
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.MutationEvent -> unit>) = Attr.Handler "DOMNodeRemoved" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MutationEvent -> unit>) = Attr.Handler "DOMNodeRemoved" f
         [<Inline>]
         static member DOMNodeRemovedFromDocument
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.MutationEvent -> unit>) = Attr.Handler "DOMNodeRemovedFromDocument" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MutationEvent -> unit>) = Attr.Handler "DOMNodeRemovedFromDocument" f
         [<Inline>]
         static member DOMSubtreeModified
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.MutationEvent -> unit>) = Attr.Handler "DOMSubtreeModified" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MutationEvent -> unit>) = Attr.Handler "DOMSubtreeModified" f
         [<Inline>]
         static member downloading
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "downloading" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "downloading" f
         [<Inline>]
         static member drag
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "drag" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "drag" f
         [<Inline>]
         static member dragend
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "dragend" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "dragend" f
         [<Inline>]
         static member dragenter
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "dragenter" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "dragenter" f
         [<Inline>]
         static member dragleave
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "dragleave" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "dragleave" f
         [<Inline>]
         static member dragover
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "dragover" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "dragover" f
         [<Inline>]
         static member dragstart
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "dragstart" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "dragstart" f
         [<Inline>]
         static member drop
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "drop" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "drop" f
         [<Inline>]
         static member durationchange
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "durationchange" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "durationchange" f
         [<Inline>]
         static member emptied
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "emptied" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "emptied" f
         [<Inline>]
         static member ended
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "ended" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "ended" f
         [<Inline>]
         static member endEvent
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "endEvent" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "endEvent" f
         [<Inline>]
         static member error
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "error" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "error" f
         [<Inline>]
         static member focus
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.FocusEvent -> unit>) = Attr.Handler "focus" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.FocusEvent -> unit>) = Attr.Handler "focus" f
         [<Inline>]
         static member fullscreenchange
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "fullscreenchange" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "fullscreenchange" f
         [<Inline>]
         static member fullscreenerror
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "fullscreenerror" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "fullscreenerror" f
         [<Inline>]
         static member gamepadconnected
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "gamepadconnected" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "gamepadconnected" f
         [<Inline>]
         static member gamepaddisconnected
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "gamepaddisconnected" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "gamepaddisconnected" f
         [<Inline>]
         static member hashchange
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "hashchange" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "hashchange" f
         [<Inline>]
         static member input
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "input" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "input" f
         [<Inline>]
         static member invalid
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "invalid" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "invalid" f
         [<Inline>]
         static member keydown
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.KeyboardEvent -> unit>) = Attr.Handler "keydown" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.KeyboardEvent -> unit>) = Attr.Handler "keydown" f
         [<Inline>]
         static member keypress
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.KeyboardEvent -> unit>) = Attr.Handler "keypress" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.KeyboardEvent -> unit>) = Attr.Handler "keypress" f
         [<Inline>]
         static member keyup
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.KeyboardEvent -> unit>) = Attr.Handler "keyup" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.KeyboardEvent -> unit>) = Attr.Handler "keyup" f
         [<Inline>]
         static member languagechange
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "languagechange" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "languagechange" f
         [<Inline>]
         static member levelchange
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "levelchange" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "levelchange" f
         [<Inline>]
         static member load
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.UIEvent -> unit>) = Attr.Handler "load" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.UIEvent -> unit>) = Attr.Handler "load" f
         [<Inline>]
         static member loadeddata
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "loadeddata" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "loadeddata" f
         [<Inline>]
         static member loadedmetadata
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "loadedmetadata" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "loadedmetadata" f
         [<Inline>]
         static member loadend
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "loadend" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "loadend" f
         [<Inline>]
         static member loadstart
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "loadstart" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "loadstart" f
         [<Inline>]
         static member message
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "message" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "message" f
         [<Inline>]
         static member mousedown
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "mousedown" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "mousedown" f
         [<Inline>]
         static member mouseenter
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "mouseenter" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "mouseenter" f
         [<Inline>]
         static member mouseleave
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "mouseleave" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "mouseleave" f
         [<Inline>]
         static member mousemove
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "mousemove" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "mousemove" f
         [<Inline>]
         static member mouseout
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "mouseout" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "mouseout" f
         [<Inline>]
         static member mouseover
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "mouseover" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "mouseover" f
         [<Inline>]
         static member mouseup
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "mouseup" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "mouseup" f
         [<Inline>]
         static member noupdate
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "noupdate" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "noupdate" f
         [<Inline>]
         static member obsolete
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "obsolete" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "obsolete" f
         [<Inline>]
         static member offline
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "offline" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "offline" f
         [<Inline>]
         static member online
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "online" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "online" f
         [<Inline>]
         static member ``open``
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "open" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "open" f
         [<Inline>]
         static member orientationchange
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "orientationchange" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "orientationchange" f
         [<Inline>]
         static member pagehide
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "pagehide" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "pagehide" f
         [<Inline>]
         static member pageshow
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "pageshow" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "pageshow" f
         [<Inline>]
         static member paste
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "paste" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "paste" f
         [<Inline>]
         static member pause
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "pause" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "pause" f
         [<Inline>]
         static member play
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "play" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "play" f
         [<Inline>]
         static member playing
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "playing" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "playing" f
         [<Inline>]
         static member pointerlockchange
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "pointerlockchange" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "pointerlockchange" f
         [<Inline>]
         static member pointerlockerror
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "pointerlockerror" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "pointerlockerror" f
         [<Inline>]
         static member popstate
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "popstate" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "popstate" f
         [<Inline>]
         static member progress
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "progress" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "progress" f
         [<Inline>]
         static member ratechange
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "ratechange" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "ratechange" f
         [<Inline>]
         static member readystatechange
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "readystatechange" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "readystatechange" f
         [<Inline>]
         static member repeatEvent
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "repeatEvent" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "repeatEvent" f
         [<Inline>]
         static member reset
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "reset" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "reset" f
         [<Inline>]
         static member resize
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.UIEvent -> unit>) = Attr.Handler "resize" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.UIEvent -> unit>) = Attr.Handler "resize" f
         [<Inline>]
         static member scroll
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.UIEvent -> unit>) = Attr.Handler "scroll" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.UIEvent -> unit>) = Attr.Handler "scroll" f
         [<Inline>]
         static member seeked
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "seeked" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "seeked" f
         [<Inline>]
         static member seeking
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "seeking" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "seeking" f
         [<Inline>]
         static member select
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.UIEvent -> unit>) = Attr.Handler "select" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.UIEvent -> unit>) = Attr.Handler "select" f
         [<Inline>]
         static member show
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "show" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "show" f
         [<Inline>]
         static member stalled
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "stalled" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "stalled" f
         [<Inline>]
         static member storage
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "storage" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "storage" f
         [<Inline>]
         static member submit
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "submit" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "submit" f
         [<Inline>]
         static member success
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "success" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "success" f
         [<Inline>]
         static member suspend
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "suspend" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "suspend" f
         [<Inline>]
         static member SVGAbort
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "SVGAbort" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "SVGAbort" f
         [<Inline>]
         static member SVGError
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "SVGError" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "SVGError" f
         [<Inline>]
         static member SVGLoad
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "SVGLoad" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "SVGLoad" f
         [<Inline>]
         static member SVGResize
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "SVGResize" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "SVGResize" f
         [<Inline>]
         static member SVGScroll
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "SVGScroll" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "SVGScroll" f
         [<Inline>]
         static member SVGUnload
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "SVGUnload" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "SVGUnload" f
         [<Inline>]
         static member SVGZoom
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "SVGZoom" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "SVGZoom" f
         [<Inline>]
         static member timeout
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "timeout" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "timeout" f
         [<Inline>]
         static member timeupdate
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "timeupdate" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "timeupdate" f
         [<Inline>]
         static member touchcancel
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "touchcancel" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "touchcancel" f
         [<Inline>]
         static member touchend
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "touchend" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "touchend" f
         [<Inline>]
         static member touchenter
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "touchenter" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "touchenter" f
         [<Inline>]
         static member touchleave
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "touchleave" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "touchleave" f
         [<Inline>]
         static member touchmove
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "touchmove" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "touchmove" f
         [<Inline>]
         static member touchstart
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "touchstart" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "touchstart" f
         [<Inline>]
         static member transitionend
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "transitionend" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "transitionend" f
         [<Inline>]
         static member unload
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.UIEvent -> unit>) = Attr.Handler "unload" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.UIEvent -> unit>) = Attr.Handler "unload" f
         [<Inline>]
         static member updateready
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "updateready" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "updateready" f
         [<Inline>]
         static member upgradeneeded
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "upgradeneeded" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "upgradeneeded" f
         [<Inline>]
         static member userproximity
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "userproximity" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "userproximity" f
         [<Inline>]
         static member versionchange
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "versionchange" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "versionchange" f
         [<Inline>]
         static member visibilitychange
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "visibilitychange" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "visibilitychange" f
         [<Inline>]
         static member volumechange
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "volumechange" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "volumechange" f
         [<Inline>]
         static member waiting
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Event -> unit>) = Attr.Handler "waiting" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "waiting" f
         [<Inline>]
         static member wheel
           (
         #if FSHARP40
             [<ReflectedDefinition>]
         #endif
-            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.WheelEvent -> unit>) = Attr.Handler "wheel" f
+            f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.WheelEvent -> unit>) = Attr.Handler "wheel" f
         // }}
 
     /// SVG attributes.

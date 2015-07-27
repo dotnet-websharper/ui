@@ -73,7 +73,7 @@ type Attr =
     static member Concat (xs: seq<Attr>) =
         AppendAttr (List.ofSeq xs)
 
-    static member Handler (event: string) (q: Expr<#WebSharper.JavaScript.Dom.Event -> unit>) =
+    static member Handler (event: string) (q: Expr<WebSharper.JavaScript.Dom.Element -> #WebSharper.JavaScript.Dom.Event -> unit>) =
         let declType, name, reqs =
             match q with
             | Lambda (x1, Call(None, m, [Var x2])) when x1 = x2 ->
