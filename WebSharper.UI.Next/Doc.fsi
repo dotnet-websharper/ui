@@ -89,10 +89,16 @@ module EltExtensions =
 
     type Elt with
 
+        /// Get the underlying DOM element.
         member Dom : Dom.Element
 
+        /// Add an event handler.
         member On : event: string -> callback: (Dom.Element -> Dom.Event -> unit) -> unit
 
+        /// Add the given doc as first child(ren) of this element.
+        member Prepend : Doc -> unit
+
+        /// Add the given doc as last child(ren) of this element.
         member Append : Doc -> unit
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]

@@ -735,6 +735,17 @@ and [<JavaScript; Proxy(typeof<Elt>); CompiledName "Elt">]
         rvUpdates.Value <- View.Map2 (fun () () -> ()) rvUpdates.Value doc.Updates
         Docs.InsertDoc elt doc.DocNode DU.AtEnd |> ignore
 
+    [<Name "Prepend">]
+    member this.Prepend'(doc: Doc') =
+        let e = this.DocElemNode
+        e.Children <- AppendDoc(doc.DocNode, e.Children)
+        rvUpdates.Value <- View.Map2 (fun () () -> ()) rvUpdates.Value doc.Updates
+        let pos =
+            match elt.FirstChild with
+            | null -> DU.AtEnd
+            | n -> DU.BeforeNode n
+        Docs.InsertDoc elt doc.DocNode pos |> ignore
+
 // Creates a UI.Next pagelet
 and [<JavaScript>] UINextPagelet (doc: Doc') =
     inherit Pagelet()
@@ -756,6 +767,10 @@ module EltExtensions =
         [<Inline>]
         member this.Append(doc: Doc) =
             (As<Elt'> this).Append'(As<Doc'> doc)
+
+        [<Inline>]
+        member this.Prepend(doc: Doc) =
+            (As<Elt'> this).Prepend'(As<Doc'> doc)
 
         [<Inline>]
         member this.On event cb =
