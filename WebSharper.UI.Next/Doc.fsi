@@ -91,6 +91,8 @@ module EltExtensions =
 
         member Dom : Dom.Element
 
+        member On : event: string -> callback: (Dom.Element -> Dom.Event -> unit) -> unit
+
         member Append : Doc -> unit
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]

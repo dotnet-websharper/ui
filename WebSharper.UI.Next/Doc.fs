@@ -719,6 +719,10 @@ and [<JavaScript; Proxy(typeof<Elt>); CompiledName "Elt">]
     [<Inline "$0.elt">]
     member this.Element = elt
 
+    [<Name "On">]
+    member this.on (ev: string, cb: Dom.Element -> Dom.Event -> unit) =
+        elt.AddEventListener(ev, cb elt, false)
+
     member private this.DocElemNode =
         match docNode with
         | ElemDoc e -> e
@@ -752,6 +756,10 @@ module EltExtensions =
         [<Inline>]
         member this.Append(doc: Doc) =
             (As<Elt'> this).Append'(As<Doc'> doc)
+
+        [<Inline>]
+        member this.On event cb =
+            (As<Elt'> this).on(event, cb)
 
 [<JavaScript; Proxy("WebSharper.UI.Next.DocModule, WebSharper.UI.Next")>]
 type DocExtProxy =
