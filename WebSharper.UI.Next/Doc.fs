@@ -502,10 +502,9 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
         with [<MethodImpl(MethodImplOptions.NoInlining)>] get () =
             Doc'.Mk EmptyDoc (View.Const ())
 
+    [<Inline>]
     static member Elem el attr (children: Doc') =
-        let node = Docs.CreateElemNode el attr children.DocNode
-        let v = View.Map2 (fun () () -> ()) (Attrs.Updates node.Attr) children.Updates
-        As<Elt> (Elt'.New(ElemDoc node, v, el))
+        As<Elt> (Elt'.New(el, attr, children))
 
     static member Element name attr children =
         let attr = Attr.Concat attr
@@ -708,13 +707,15 @@ and InputControlType =
     | TextArea
 
 and [<JavaScript; Proxy(typeof<Elt>); CompiledName "Elt">]
-    Elt'(docNode, updates, elt: Dom.Element, rvUpdates: Var<View<unit>>) =
+    Elt'(docNode, updates, elt: Dom.Element, rvUpdates: Var<View<unit>>, attrUpdates) =
     inherit Doc'(docNode, updates)
 
-    static member internal New(docNode, updates, elt) =
-        let rvUpdates = Var.Create (View.Const())
-        let updates = View.Bind (View.Map2 (fun () () -> ()) updates) rvUpdates.View
-        new Elt'(docNode, updates, elt, rvUpdates)
+    static member internal New(el: Dom.Element, attr: Attr, children: Doc') =
+        let node = Docs.CreateElemNode el attr children.DocNode
+        let rvUpdates = Var.Create children.Updates
+        let attrUpdates = Attrs.Updates node.Attr
+        let updates = View.Bind (View.Map2 (fun () () -> ()) attrUpdates) rvUpdates.View
+        new Elt'(ElemDoc node, updates, el, rvUpdates, attrUpdates)
 
     [<Inline "$0.elt">]
     member this.Element = elt
@@ -746,6 +747,12 @@ and [<JavaScript; Proxy(typeof<Elt>); CompiledName "Elt">]
             | n -> DU.BeforeNode n
         Docs.InsertDoc elt doc.DocNode pos |> ignore
 
+    [<Name "Clear">]
+    member this.Clear'() =
+        this.DocElemNode.Children <- EmptyDoc
+        rvUpdates.Value <- View.Const()
+        while (elt.HasChildNodes()) do elt.RemoveChild(elt.FirstChild) |> ignore
+
 // Creates a UI.Next pagelet
 and [<JavaScript>] UINextPagelet (doc: Doc') =
     inherit Pagelet()
@@ -771,6 +778,10 @@ module EltExtensions =
         [<Inline>]
         member this.Prepend(doc: Doc) =
             (As<Elt'> this).Prepend'(As<Doc'> doc)
+
+        [<Inline>]
+        member this.Clear() =
+            (As<Elt'> this).Clear'()
 
         [<Inline>]
         member this.On event cb =

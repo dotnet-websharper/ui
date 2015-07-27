@@ -101,6 +101,9 @@ module EltExtensions =
         /// Add the given doc as last child(ren) of this element.
         member Append : Doc -> unit
 
+        /// Remove all children from the element.
+        member Clear : unit -> unit
+
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Doc =
 
