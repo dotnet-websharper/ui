@@ -140,7 +140,7 @@ and [<CustomEquality>]
     DocElemNode =
     {
         Attr : Attrs.Dyn
-        Children : DocNode
+        mutable Children : DocNode
         [<OptionalField>]
         Delimiters : (Node * Node) option
         El : Element
@@ -505,7 +505,7 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
     static member Elem el attr (children: Doc') =
         let node = Docs.CreateElemNode el attr children.DocNode
         let v = View.Map2 (fun () () -> ()) (Attrs.Updates node.Attr) children.Updates
-        As<Elt> (Elt'(ElemDoc node, v, el))
+        As<Elt> (Elt'.New(ElemDoc node, v, el))
 
     static member Element name attr children =
         let attr = Attr.Concat attr
@@ -708,11 +708,28 @@ and InputControlType =
     | TextArea
 
 and [<JavaScript; Proxy(typeof<Elt>); CompiledName "Elt">]
-    Elt'(docNode, updates, elt: Dom.Element) =
+    Elt'(docNode, updates, elt: Dom.Element, rvUpdates: Var<View<unit>>) =
     inherit Doc'(docNode, updates)
+
+    static member internal New(docNode, updates, elt) =
+        let rvUpdates = Var.Create (View.Const())
+        let updates = View.Bind (View.Map2 (fun () () -> ()) updates) rvUpdates.View
+        new Elt'(docNode, updates, elt, rvUpdates)
 
     [<Inline "$0.elt">]
     member this.Element = elt
+
+    member private this.DocElemNode =
+        match docNode with
+        | ElemDoc e -> e
+        | _ -> failwith "Elt: Invalid docNode"
+
+    [<Name "Append">]
+    member this.Append'(doc: Doc') =
+        let e = this.DocElemNode
+        e.Children <- AppendDoc(e.Children, doc.DocNode)
+        rvUpdates.Value <- View.Map2 (fun () () -> ()) rvUpdates.Value doc.Updates
+        Docs.InsertDoc elt doc.DocNode DU.AtEnd |> ignore
 
 // Creates a UI.Next pagelet
 and [<JavaScript>] UINextPagelet (doc: Doc') =
@@ -731,6 +748,10 @@ module EltExtensions =
         [<Inline "$0.elt">]
         member this.Dom =
             (As<Elt'> this).Element
+
+        [<Inline>]
+        member this.Append(doc: Doc) =
+            (As<Elt'> this).Append'(As<Doc'> doc)
 
 [<JavaScript; Proxy("WebSharper.UI.Next.DocModule, WebSharper.UI.Next")>]
 type DocExtProxy =

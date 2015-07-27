@@ -91,6 +91,8 @@ module EltExtensions =
 
         member Dom : Dom.Element
 
+        member Append : Doc -> unit
+
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Doc =
 
