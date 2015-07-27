@@ -789,15 +789,8 @@ and [<JavaScript; Proxy(typeof<Elt>); CompiledName "Elt">]
     member this.GetProperty'(name: string) : 'T =
         elt?(name)
 
-    [<Inline "$this.elt.className += ' ' + $cls">]
-    member this.addClass(cls: string) = X<unit>
-
-    [<Name "AddClass">]
-    member this.AddClass'(cls: string) =
-        this.addClass cls
-
-    [<Inline "$this.elt.className += ' ' + $cls">]
-    member this.removeClass(cls: string) = X<unit>
+    [<Name "AddClass"; Direct "$this.elt.className += ' ' + $cls">]
+    member this.AddClass'(cls: string) = X<unit>
 
     [<Name "RemoveClass">]
     member this.RemoveClass'(cls: string) =
