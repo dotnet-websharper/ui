@@ -76,7 +76,7 @@ type Attr =
     static member Handler (event: string) (q: Expr<WebSharper.JavaScript.Dom.Element -> #WebSharper.JavaScript.Dom.Event -> unit>) =
         let declType, name, reqs =
             match q with
-            | Lambda (x1, Call(None, m, [Var x2])) when x1 = x2 ->
+            | Lambda (x1, Lambda (y1, Call(None, m, [Var x2; Var y2]))) when x1 = x2 && y1 = y2 ->
                 let rm = R.Method.Parse m
                 rm.DeclaringType, rm.Name, [M.MethodNode rm; M.TypeNode rm.DeclaringType]
             | _ -> failwithf "Invalid handler function: %A" q
@@ -95,7 +95,7 @@ type Attr =
                     match a.Parent with
                     | None -> acc
                     | Some p -> mk acc p
-                attr.Value <- String.concat "." (mk [name] a) + "(event)"
+                attr.Value <- String.concat "." (mk [name] a) + "(this, event)"
         SingleAttr attr 
 
 namespace WebSharper.UI.Next.Server
@@ -333,8 +333,8 @@ type AttrProxy with
         Seq.toArray xs
         |> Array.MapReduce id Attr.Empty Attr.Append
 
-    static member Handler (event: string) (q: Expr<#WebSharper.JavaScript.Dom.Event -> unit>) =
-        As<Attr> (Attrs.Static (fun el -> el.AddEventListener(event, As<DomEvent -> unit> q, false)))
+    static member Handler (event: string) (q: Expr<Element -> #DomEvent-> unit>) =
+        As<Attr> (Attrs.Static (fun el -> el.AddEventListener(event, (As<Element -> DomEvent -> unit> q) el, false)))
 
 [<JavaScript>]
 module Attr =
@@ -360,8 +360,8 @@ module Attr =
     let DynamicStyle name view =
         As<Attr> (Attrs.Dynamic view (fun el v -> DU.SetStyle el name v))
 
-    let Handler name (callback: #DomEvent -> unit) =
-        As<Attr> (Attrs.Static (fun el -> el.AddEventListener(name, As<DomEvent -> unit> callback, false)))
+    let Handler name (callback: Element -> #DomEvent -> unit) =
+        As<Attr> (Attrs.Static (fun el -> el.AddEventListener(name, As<DomEvent -> unit> (callback el), false)))
 
     let DynamicClass name view ok =
         As<Attr> (Attrs.Dynamic view (fun el v ->
@@ -381,9 +381,9 @@ module Attr =
             el?(name) <- v))
 
     let Value (var: Var<'a>) =
-        let onChange (e: DomEvent) =
-            if e.CurrentTarget?value <> var.Value then
-                Var.Set var e.CurrentTarget?value
+        let onChange (el: Element) (e: DomEvent) =
+            if el?value <> var.Value then
+                Var.Set var el?value
         Attr.Concat [
             Handler "change" onChange
             Handler "input" onChange

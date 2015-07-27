@@ -51,7 +51,7 @@ module internal Utils =
 
     let ViewOf ty = typedefof<View<_>>.MakeGenericType([|ty|])
     let VarOf ty = typedefof<Var<_>>.MakeGenericType([|ty|])
-    let EventTy = typeof<WebSharper.JavaScript.Dom.Event -> unit>
+    let EventTy = typeof<WebSharper.JavaScript.Dom.Element -> WebSharper.JavaScript.Dom.Event -> unit>
 
     [<RequireQualifiedAccess>]
     type Hole =
@@ -209,7 +209,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                 holes.Add(name, Hole.View typeof<'T>)
                             Expr.Var (Var (name, typeof<View<'T>>)) |> Expr.Cast
 
-                        let getEventHole name : Expr<WebSharper.JavaScript.Dom.Event -> unit> =
+                        let getEventHole name : Expr<WebSharper.JavaScript.Dom.Element -> WebSharper.JavaScript.Dom.Event -> unit> =
                             match holes.TryGetValue(name) with
                             | true, Hole.Event -> ()
                             | true, Hole.Simple _

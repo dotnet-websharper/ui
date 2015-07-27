@@ -34,7 +34,7 @@ module Client =
                 Title = [
                     h1Attr
                         [ attr style "color: blue"
-                          on.click <@ fun e -> Console.Log e @> ]
+                          on.click <@ fun el ev -> Console.Log ev @> ]
                         [ textView title ]
                 ],
                 ListContainer =
@@ -47,7 +47,7 @@ module Client =
                     ) ],
                 MyInput = var,
                 MyInputView = View.SnapshotOn "" btnVar.View var.View,
-                MyCallback = (fun e -> btnVar := ())
+                MyCallback = (fun el ev -> btnVar := ())
             )
 
         doc |> Doc.RunById "main"
