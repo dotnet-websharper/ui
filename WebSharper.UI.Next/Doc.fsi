@@ -104,6 +104,45 @@ module EltExtensions =
         /// Remove all children from the element.
         member Clear : unit -> unit
 
+        /// Get the HTML string for this element in its current state.
+        member Html : string
+
+        /// Get the element's id.
+        member Id : string
+
+        /// Get the element's current value.
+        member Value : string
+
+        /// Get the given attribute's value.
+        member GetAttribute : name: string -> string
+
+        /// Set the given attribute's value.
+        member SetAttribute : name: string * value: string -> unit
+
+        /// Checks whether the element has the given attribute.
+        member HasAttribute : name: string -> bool
+
+        /// Unsets the given attribute.
+        member RemoveAttribute : name: string -> unit
+
+        /// Get the given property's value.
+        member GetProperty : name: string -> 'T
+
+        /// Set the given property's value.
+        member SetProperty : name: string * value: 'T -> unit
+
+        /// Add a CSS class to the element.
+        member AddClass : ``class``: string -> unit
+
+        /// Remove a CSS class from the element.
+        member RemoveClass : ``class``: string -> unit
+
+        /// Checks whether the element has a CSS class.
+        member HasClass : ``class``: string -> bool
+
+        /// Sets an inline style.
+        member SetStyle : name: string * value: string -> unit
+
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Doc =
 

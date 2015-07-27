@@ -753,6 +753,67 @@ and [<JavaScript; Proxy(typeof<Elt>); CompiledName "Elt">]
         rvUpdates.Value <- View.Const()
         while (elt.HasChildNodes()) do elt.RemoveChild(elt.FirstChild) |> ignore
 
+    [<Name "Html">]
+    member this.Html'() : string =
+        elt?outerHTML
+
+    [<Name "Id">]
+    member this.Id'() : string =
+        elt?id
+
+    [<Name "Value">]
+    member this.Value'() : string =
+        elt?value
+
+    [<Name "SetAttribute">]
+    member this.SetAttribute'(name: string, value: string) =
+        elt.SetAttribute(name, value)
+
+    [<Name "GetAttribute">]
+    member this.GetAttribute'(name) =
+        elt.GetAttribute(name)
+
+    [<Name "HasAttribute">]
+    member this.HasAttribute'(name) =
+        elt.HasAttribute(name)
+
+    [<Name "RemoveAttribute">]
+    member this.RemoveAttribute'(name) =
+        elt.RemoveAttribute(name)
+
+    [<Name "SetProperty">]
+    member this.SetProperty'(name: string, value: 'T) =
+        elt?(name) <- value
+
+    [<Name "GetProperty">]
+    member this.GetProperty'(name: string) : 'T =
+        elt?(name)
+
+    [<Inline "$this.elt.className += ' ' + $cls">]
+    member this.addClass(cls: string) = X<unit>
+
+    [<Name "AddClass">]
+    member this.AddClass'(cls: string) =
+        this.addClass cls
+
+    [<Inline "$this.elt.className += ' ' + $cls">]
+    member this.removeClass(cls: string) = X<unit>
+
+    [<Name "RemoveClass">]
+    member this.RemoveClass'(cls: string) =
+        elt?className <-
+            (elt?className: String).Replace(
+                new RegExp(@"(\s|^)" + cls + @"(\s|$)"),
+                " ")
+
+    [<Name "HasClass">]
+    member this.HasClass'(cls: string) =
+        (new RegExp(@"(\s|^)" + cls + @"(\s|$)")).Test(elt?className)
+
+    [<Name "SetStyle">]
+    member this.SetStyle'(style: string, value: string) =
+        elt?style?(style) <- value
+
 // Creates a UI.Next pagelet
 and [<JavaScript>] UINextPagelet (doc: Doc') =
     inherit Pagelet()
@@ -786,6 +847,58 @@ module EltExtensions =
         [<Inline>]
         member this.On event cb =
             (As<Elt'> this).on(event, cb)
+
+        [<Inline>]
+        member this.Html =
+            (As<Elt'> this).Html'()
+
+        [<Inline>]
+        member this.Id =
+            (As<Elt'> this).Id'()
+
+        [<Inline>]
+        member this.Value =
+            (As<Elt'> this).Value'()
+
+        [<Inline>]
+        member this.SetAttribute(name, value) =
+            (As<Elt'> this).SetAttribute'(name, value)
+
+        [<Inline>]
+        member this.GetAttribute(name) =
+            (As<Elt'> this).GetAttribute'(name)
+
+        [<Inline>]
+        member this.HasAttribute(name) =
+            (As<Elt'> this).HasAttribute'(name)
+
+        [<Inline>]
+        member this.RemoveAttribute(name) =
+            (As<Elt'> this).RemoveAttribute'(name)
+
+        [<Inline>]
+        member this.SetProperty(name, value) =
+            (As<Elt'> this).SetProperty'(name, value)
+
+        [<Inline>]
+        member this.GetProperty(name) =
+            (As<Elt'> this).GetProperty'(name)
+
+        [<Inline>]
+        member this.AddClass(cls) =
+            (As<Elt'> this).AddClass'(cls)
+
+        [<Inline>]
+        member this.RemoveClass(cls) =
+            (As<Elt'> this).RemoveClass'(cls)
+
+        [<Inline>]
+        member this.HasClass(cls) =
+            (As<Elt'> this).HasClass'(cls)
+
+        [<Inline>]
+        member this.SetStyle(name, value) =
+            (As<Elt'> this).SetStyle'(name, value)
 
 [<JavaScript; Proxy("WebSharper.UI.Next.DocModule, WebSharper.UI.Next")>]
 type DocExtProxy =
