@@ -33,9 +33,10 @@ module Client =
             MyTemplate.Doc(
                 Title = [
                     h1Attr
-                        [ attr style "color: blue"
-                          on.click <@ fun el ev -> Console.Log ev @> ]
-                        [ textView title ]
+                      [ attr.style "color: blue"
+                        attr.``class`` (var.View, View.Const true)
+                        on.click (fun el ev -> Console.Log ev) ]
+                      [ textView title ]
                 ],
                 ListContainer =
                     [ ListModel.View myItems |> Doc.Convert (fun item ->

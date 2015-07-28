@@ -33,6 +33,7 @@
     <Compile Include="Flow.fsi" />
     <Compile Include="Flow.fs" />
     <Compile Include="HTML.fs" />
+    <Compile Include="HTML.Client.fs" />
     <Compile Include="Notation.fsi" />
     <Compile Include="Notation.fs" />
     <Compile Include="Routing.fsi" />

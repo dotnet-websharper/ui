@@ -110,14 +110,22 @@ module Tags =
             match e.Type with
             | "tag" ->
                 [|
+                    "[<JavaScript; Inline>]"
                     sprintf """let %sAttr ats ch = Doc.Element "%s" ats ch""" e.LowName e.Name
+                    "[<JavaScript; Inline>]"
                     sprintf """let %s ch = Doc.Element "%s" [||] ch""" e.LowNameEsc e.Name
                 |]
             | "svgtag" ->
                 [|
+                    "[<JavaScript; Inline>]"
                     sprintf """let %s ats ch = Doc.SvgElement "%s" ats ch""" e.LowNameEsc e.Name
                 |]
-            | "attr" | "svgattr" ->
+            | "attr" ->
+                [|
+                    "[<JavaScript; Inline>]"
+                    sprintf "static member %s(value) = Attr.Create \"%s\" value" e.LowNameEsc e.Name
+                |]
+            | "svgattr" ->
                 [|
                     "[<Literal>]"
                     sprintf "let %s = \"%s\"" e.LowNameEsc e.Name
@@ -125,13 +133,24 @@ module Tags =
             | "event" ->
                 [|
                     "[<Inline>]"
-                    sprintf "static member %s" e.LowNameEsc
-                    "  ("
-                    "#if FSHARP40"
-                    "    [<ReflectedDefinition>]"
-                    "#endif"
-                    sprintf """    f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.%s -> unit>) = Attr.Handler "%s" f""" e.Category e.Name
+                    sprintf """static member %s (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.%s -> unit>) = Attr.Handler "%s" f""" e.LowNameEsc e.Category e.Name
                 |]
             | ty -> failwithf "unknown type: %s" ty
+        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next", "HTML.Client.fs")) all <| fun e ->
+            match e.Type with
+            | "attr" ->
+                [|
+                    "[<JavaScript; Inline>]"
+                    sprintf "static member %s(view) = Client.Attr.Dynamic \"%s\" view" e.LowNameEsc e.Name
+                    "[<JavaScript; Inline>]"
+                    sprintf "static member %s(view, pred) = Client.Attr.DynamicPred \"%s\" pred view" e.LowNameEsc e.Name
+                    "[<JavaScript; Inline>]"
+                    sprintf "static member %s(view, convert, trans) = Client.Attr.Animated \"%s\" trans view convert" e.LowNameEsc e.Name
+                |]
+            | "event" ->
+                [|
+                    "[<JavaScript; Inline>]"
+                    sprintf """static member %s (f: Dom.Element -> Dom.%s -> unit) = Client.Attr.Handler "%s" f""" e.LowNameEsc e.Category e.Name
+                |]
 
 Tags.Run()
