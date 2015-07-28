@@ -141,11 +141,11 @@ module Tags =
             | "attr" ->
                 [|
                     "[<JavaScript; Inline>]"
-                    sprintf "static member %s(view) = Client.Attr.Dynamic \"%s\" view" e.LowNameEsc e.Name
+                    sprintf "static member %sDyn view = Client.Attr.Dynamic \"%s\" view" e.LowName e.Name
                     "[<JavaScript; Inline>]"
-                    sprintf "static member %s(view, pred) = Client.Attr.DynamicPred \"%s\" pred view" e.LowNameEsc e.Name
+                    sprintf "static member %sDynPred view pred = Client.Attr.DynamicPred \"%s\" pred view" e.LowName e.Name
                     "[<JavaScript; Inline>]"
-                    sprintf "static member %s(view, convert, trans) = Client.Attr.Animated \"%s\" trans view convert" e.LowNameEsc e.Name
+                    sprintf "static member %sAnim view convert trans = Client.Attr.Animated \"%s\" trans view convert" e.LowName e.Name
                 |]
             | "event" ->
                 [|

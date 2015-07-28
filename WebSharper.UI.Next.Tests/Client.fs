@@ -34,7 +34,7 @@ module Client =
                 Title = [
                     h1Attr
                       [ attr.style "color: blue"
-                        attr.``class`` (var.View, View.Const true)
+                        attr.classDynPred var.View (View.Const true)
                         on.click (fun el ev -> Console.Log ev) ]
                       [ textView title ]
                 ],

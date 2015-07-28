@@ -1,4 +1,4 @@
-﻿// $begin{copyright}
+// $begin{copyright}
 //
 // This file is part of WebSharper
 //
@@ -30,941 +30,941 @@ module HtmlExtensions =
     type Html.attr with
         // {{ attr normal colliding deprecated
         [<JavaScript; Inline>]
-        static member accept(view) = Client.Attr.Dynamic "accept" view
+        static member acceptDyn view = Client.Attr.Dynamic "accept" view
         [<JavaScript; Inline>]
-        static member accept(view, pred) = Client.Attr.DynamicPred "accept" pred view
+        static member acceptDynPred view pred = Client.Attr.DynamicPred "accept" pred view
         [<JavaScript; Inline>]
-        static member accept(view, convert, trans) = Client.Attr.Animated "accept" trans view convert
+        static member acceptAnim view convert trans = Client.Attr.Animated "accept" trans view convert
         [<JavaScript; Inline>]
-        static member acceptCharset(view) = Client.Attr.Dynamic "accept-charset" view
+        static member acceptCharsetDyn view = Client.Attr.Dynamic "accept-charset" view
         [<JavaScript; Inline>]
-        static member acceptCharset(view, pred) = Client.Attr.DynamicPred "accept-charset" pred view
+        static member acceptCharsetDynPred view pred = Client.Attr.DynamicPred "accept-charset" pred view
         [<JavaScript; Inline>]
-        static member acceptCharset(view, convert, trans) = Client.Attr.Animated "accept-charset" trans view convert
+        static member acceptCharsetAnim view convert trans = Client.Attr.Animated "accept-charset" trans view convert
         [<JavaScript; Inline>]
-        static member accesskey(view) = Client.Attr.Dynamic "accesskey" view
+        static member accesskeyDyn view = Client.Attr.Dynamic "accesskey" view
         [<JavaScript; Inline>]
-        static member accesskey(view, pred) = Client.Attr.DynamicPred "accesskey" pred view
+        static member accesskeyDynPred view pred = Client.Attr.DynamicPred "accesskey" pred view
         [<JavaScript; Inline>]
-        static member accesskey(view, convert, trans) = Client.Attr.Animated "accesskey" trans view convert
+        static member accesskeyAnim view convert trans = Client.Attr.Animated "accesskey" trans view convert
         [<JavaScript; Inline>]
-        static member action(view) = Client.Attr.Dynamic "action" view
+        static member actionDyn view = Client.Attr.Dynamic "action" view
         [<JavaScript; Inline>]
-        static member action(view, pred) = Client.Attr.DynamicPred "action" pred view
+        static member actionDynPred view pred = Client.Attr.DynamicPred "action" pred view
         [<JavaScript; Inline>]
-        static member action(view, convert, trans) = Client.Attr.Animated "action" trans view convert
+        static member actionAnim view convert trans = Client.Attr.Animated "action" trans view convert
         [<JavaScript; Inline>]
-        static member align(view) = Client.Attr.Dynamic "align" view
+        static member alignDyn view = Client.Attr.Dynamic "align" view
         [<JavaScript; Inline>]
-        static member align(view, pred) = Client.Attr.DynamicPred "align" pred view
+        static member alignDynPred view pred = Client.Attr.DynamicPred "align" pred view
         [<JavaScript; Inline>]
-        static member align(view, convert, trans) = Client.Attr.Animated "align" trans view convert
+        static member alignAnim view convert trans = Client.Attr.Animated "align" trans view convert
         [<JavaScript; Inline>]
-        static member alink(view) = Client.Attr.Dynamic "alink" view
+        static member alinkDyn view = Client.Attr.Dynamic "alink" view
         [<JavaScript; Inline>]
-        static member alink(view, pred) = Client.Attr.DynamicPred "alink" pred view
+        static member alinkDynPred view pred = Client.Attr.DynamicPred "alink" pred view
         [<JavaScript; Inline>]
-        static member alink(view, convert, trans) = Client.Attr.Animated "alink" trans view convert
+        static member alinkAnim view convert trans = Client.Attr.Animated "alink" trans view convert
         [<JavaScript; Inline>]
-        static member alt(view) = Client.Attr.Dynamic "alt" view
+        static member altDyn view = Client.Attr.Dynamic "alt" view
         [<JavaScript; Inline>]
-        static member alt(view, pred) = Client.Attr.DynamicPred "alt" pred view
+        static member altDynPred view pred = Client.Attr.DynamicPred "alt" pred view
         [<JavaScript; Inline>]
-        static member alt(view, convert, trans) = Client.Attr.Animated "alt" trans view convert
+        static member altAnim view convert trans = Client.Attr.Animated "alt" trans view convert
         [<JavaScript; Inline>]
-        static member altcode(view) = Client.Attr.Dynamic "altcode" view
+        static member altcodeDyn view = Client.Attr.Dynamic "altcode" view
         [<JavaScript; Inline>]
-        static member altcode(view, pred) = Client.Attr.DynamicPred "altcode" pred view
+        static member altcodeDynPred view pred = Client.Attr.DynamicPred "altcode" pred view
         [<JavaScript; Inline>]
-        static member altcode(view, convert, trans) = Client.Attr.Animated "altcode" trans view convert
+        static member altcodeAnim view convert trans = Client.Attr.Animated "altcode" trans view convert
         [<JavaScript; Inline>]
-        static member archive(view) = Client.Attr.Dynamic "archive" view
+        static member archiveDyn view = Client.Attr.Dynamic "archive" view
         [<JavaScript; Inline>]
-        static member archive(view, pred) = Client.Attr.DynamicPred "archive" pred view
+        static member archiveDynPred view pred = Client.Attr.DynamicPred "archive" pred view
         [<JavaScript; Inline>]
-        static member archive(view, convert, trans) = Client.Attr.Animated "archive" trans view convert
+        static member archiveAnim view convert trans = Client.Attr.Animated "archive" trans view convert
         [<JavaScript; Inline>]
-        static member async(view) = Client.Attr.Dynamic "async" view
+        static member asyncDyn view = Client.Attr.Dynamic "async" view
         [<JavaScript; Inline>]
-        static member async(view, pred) = Client.Attr.DynamicPred "async" pred view
+        static member asyncDynPred view pred = Client.Attr.DynamicPred "async" pred view
         [<JavaScript; Inline>]
-        static member async(view, convert, trans) = Client.Attr.Animated "async" trans view convert
+        static member asyncAnim view convert trans = Client.Attr.Animated "async" trans view convert
         [<JavaScript; Inline>]
-        static member autocomplete(view) = Client.Attr.Dynamic "autocomplete" view
+        static member autocompleteDyn view = Client.Attr.Dynamic "autocomplete" view
         [<JavaScript; Inline>]
-        static member autocomplete(view, pred) = Client.Attr.DynamicPred "autocomplete" pred view
+        static member autocompleteDynPred view pred = Client.Attr.DynamicPred "autocomplete" pred view
         [<JavaScript; Inline>]
-        static member autocomplete(view, convert, trans) = Client.Attr.Animated "autocomplete" trans view convert
+        static member autocompleteAnim view convert trans = Client.Attr.Animated "autocomplete" trans view convert
         [<JavaScript; Inline>]
-        static member autofocus(view) = Client.Attr.Dynamic "autofocus" view
+        static member autofocusDyn view = Client.Attr.Dynamic "autofocus" view
         [<JavaScript; Inline>]
-        static member autofocus(view, pred) = Client.Attr.DynamicPred "autofocus" pred view
+        static member autofocusDynPred view pred = Client.Attr.DynamicPred "autofocus" pred view
         [<JavaScript; Inline>]
-        static member autofocus(view, convert, trans) = Client.Attr.Animated "autofocus" trans view convert
+        static member autofocusAnim view convert trans = Client.Attr.Animated "autofocus" trans view convert
         [<JavaScript; Inline>]
-        static member autoplay(view) = Client.Attr.Dynamic "autoplay" view
+        static member autoplayDyn view = Client.Attr.Dynamic "autoplay" view
         [<JavaScript; Inline>]
-        static member autoplay(view, pred) = Client.Attr.DynamicPred "autoplay" pred view
+        static member autoplayDynPred view pred = Client.Attr.DynamicPred "autoplay" pred view
         [<JavaScript; Inline>]
-        static member autoplay(view, convert, trans) = Client.Attr.Animated "autoplay" trans view convert
+        static member autoplayAnim view convert trans = Client.Attr.Animated "autoplay" trans view convert
         [<JavaScript; Inline>]
-        static member autosave(view) = Client.Attr.Dynamic "autosave" view
+        static member autosaveDyn view = Client.Attr.Dynamic "autosave" view
         [<JavaScript; Inline>]
-        static member autosave(view, pred) = Client.Attr.DynamicPred "autosave" pred view
+        static member autosaveDynPred view pred = Client.Attr.DynamicPred "autosave" pred view
         [<JavaScript; Inline>]
-        static member autosave(view, convert, trans) = Client.Attr.Animated "autosave" trans view convert
+        static member autosaveAnim view convert trans = Client.Attr.Animated "autosave" trans view convert
         [<JavaScript; Inline>]
-        static member axis(view) = Client.Attr.Dynamic "axis" view
+        static member axisDyn view = Client.Attr.Dynamic "axis" view
         [<JavaScript; Inline>]
-        static member axis(view, pred) = Client.Attr.DynamicPred "axis" pred view
+        static member axisDynPred view pred = Client.Attr.DynamicPred "axis" pred view
         [<JavaScript; Inline>]
-        static member axis(view, convert, trans) = Client.Attr.Animated "axis" trans view convert
+        static member axisAnim view convert trans = Client.Attr.Animated "axis" trans view convert
         [<JavaScript; Inline>]
-        static member background(view) = Client.Attr.Dynamic "background" view
+        static member backgroundDyn view = Client.Attr.Dynamic "background" view
         [<JavaScript; Inline>]
-        static member background(view, pred) = Client.Attr.DynamicPred "background" pred view
+        static member backgroundDynPred view pred = Client.Attr.DynamicPred "background" pred view
         [<JavaScript; Inline>]
-        static member background(view, convert, trans) = Client.Attr.Animated "background" trans view convert
+        static member backgroundAnim view convert trans = Client.Attr.Animated "background" trans view convert
         [<JavaScript; Inline>]
-        static member bgcolor(view) = Client.Attr.Dynamic "bgcolor" view
+        static member bgcolorDyn view = Client.Attr.Dynamic "bgcolor" view
         [<JavaScript; Inline>]
-        static member bgcolor(view, pred) = Client.Attr.DynamicPred "bgcolor" pred view
+        static member bgcolorDynPred view pred = Client.Attr.DynamicPred "bgcolor" pred view
         [<JavaScript; Inline>]
-        static member bgcolor(view, convert, trans) = Client.Attr.Animated "bgcolor" trans view convert
+        static member bgcolorAnim view convert trans = Client.Attr.Animated "bgcolor" trans view convert
         [<JavaScript; Inline>]
-        static member border(view) = Client.Attr.Dynamic "border" view
+        static member borderDyn view = Client.Attr.Dynamic "border" view
         [<JavaScript; Inline>]
-        static member border(view, pred) = Client.Attr.DynamicPred "border" pred view
+        static member borderDynPred view pred = Client.Attr.DynamicPred "border" pred view
         [<JavaScript; Inline>]
-        static member border(view, convert, trans) = Client.Attr.Animated "border" trans view convert
+        static member borderAnim view convert trans = Client.Attr.Animated "border" trans view convert
         [<JavaScript; Inline>]
-        static member bordercolor(view) = Client.Attr.Dynamic "bordercolor" view
+        static member bordercolorDyn view = Client.Attr.Dynamic "bordercolor" view
         [<JavaScript; Inline>]
-        static member bordercolor(view, pred) = Client.Attr.DynamicPred "bordercolor" pred view
+        static member bordercolorDynPred view pred = Client.Attr.DynamicPred "bordercolor" pred view
         [<JavaScript; Inline>]
-        static member bordercolor(view, convert, trans) = Client.Attr.Animated "bordercolor" trans view convert
+        static member bordercolorAnim view convert trans = Client.Attr.Animated "bordercolor" trans view convert
         [<JavaScript; Inline>]
-        static member buffered(view) = Client.Attr.Dynamic "buffered" view
+        static member bufferedDyn view = Client.Attr.Dynamic "buffered" view
         [<JavaScript; Inline>]
-        static member buffered(view, pred) = Client.Attr.DynamicPred "buffered" pred view
+        static member bufferedDynPred view pred = Client.Attr.DynamicPred "buffered" pred view
         [<JavaScript; Inline>]
-        static member buffered(view, convert, trans) = Client.Attr.Animated "buffered" trans view convert
+        static member bufferedAnim view convert trans = Client.Attr.Animated "buffered" trans view convert
         [<JavaScript; Inline>]
-        static member cellpadding(view) = Client.Attr.Dynamic "cellpadding" view
+        static member cellpaddingDyn view = Client.Attr.Dynamic "cellpadding" view
         [<JavaScript; Inline>]
-        static member cellpadding(view, pred) = Client.Attr.DynamicPred "cellpadding" pred view
+        static member cellpaddingDynPred view pred = Client.Attr.DynamicPred "cellpadding" pred view
         [<JavaScript; Inline>]
-        static member cellpadding(view, convert, trans) = Client.Attr.Animated "cellpadding" trans view convert
+        static member cellpaddingAnim view convert trans = Client.Attr.Animated "cellpadding" trans view convert
         [<JavaScript; Inline>]
-        static member cellspacing(view) = Client.Attr.Dynamic "cellspacing" view
+        static member cellspacingDyn view = Client.Attr.Dynamic "cellspacing" view
         [<JavaScript; Inline>]
-        static member cellspacing(view, pred) = Client.Attr.DynamicPred "cellspacing" pred view
+        static member cellspacingDynPred view pred = Client.Attr.DynamicPred "cellspacing" pred view
         [<JavaScript; Inline>]
-        static member cellspacing(view, convert, trans) = Client.Attr.Animated "cellspacing" trans view convert
+        static member cellspacingAnim view convert trans = Client.Attr.Animated "cellspacing" trans view convert
         [<JavaScript; Inline>]
-        static member challenge(view) = Client.Attr.Dynamic "challenge" view
+        static member challengeDyn view = Client.Attr.Dynamic "challenge" view
         [<JavaScript; Inline>]
-        static member challenge(view, pred) = Client.Attr.DynamicPred "challenge" pred view
+        static member challengeDynPred view pred = Client.Attr.DynamicPred "challenge" pred view
         [<JavaScript; Inline>]
-        static member challenge(view, convert, trans) = Client.Attr.Animated "challenge" trans view convert
+        static member challengeAnim view convert trans = Client.Attr.Animated "challenge" trans view convert
         [<JavaScript; Inline>]
-        static member char(view) = Client.Attr.Dynamic "char" view
+        static member charDyn view = Client.Attr.Dynamic "char" view
         [<JavaScript; Inline>]
-        static member char(view, pred) = Client.Attr.DynamicPred "char" pred view
+        static member charDynPred view pred = Client.Attr.DynamicPred "char" pred view
         [<JavaScript; Inline>]
-        static member char(view, convert, trans) = Client.Attr.Animated "char" trans view convert
+        static member charAnim view convert trans = Client.Attr.Animated "char" trans view convert
         [<JavaScript; Inline>]
-        static member charoff(view) = Client.Attr.Dynamic "charoff" view
+        static member charoffDyn view = Client.Attr.Dynamic "charoff" view
         [<JavaScript; Inline>]
-        static member charoff(view, pred) = Client.Attr.DynamicPred "charoff" pred view
+        static member charoffDynPred view pred = Client.Attr.DynamicPred "charoff" pred view
         [<JavaScript; Inline>]
-        static member charoff(view, convert, trans) = Client.Attr.Animated "charoff" trans view convert
+        static member charoffAnim view convert trans = Client.Attr.Animated "charoff" trans view convert
         [<JavaScript; Inline>]
-        static member charset(view) = Client.Attr.Dynamic "charset" view
+        static member charsetDyn view = Client.Attr.Dynamic "charset" view
         [<JavaScript; Inline>]
-        static member charset(view, pred) = Client.Attr.DynamicPred "charset" pred view
+        static member charsetDynPred view pred = Client.Attr.DynamicPred "charset" pred view
         [<JavaScript; Inline>]
-        static member charset(view, convert, trans) = Client.Attr.Animated "charset" trans view convert
+        static member charsetAnim view convert trans = Client.Attr.Animated "charset" trans view convert
         [<JavaScript; Inline>]
-        static member ``checked``(view) = Client.Attr.Dynamic "checked" view
+        static member checkedDyn view = Client.Attr.Dynamic "checked" view
         [<JavaScript; Inline>]
-        static member ``checked``(view, pred) = Client.Attr.DynamicPred "checked" pred view
+        static member checkedDynPred view pred = Client.Attr.DynamicPred "checked" pred view
         [<JavaScript; Inline>]
-        static member ``checked``(view, convert, trans) = Client.Attr.Animated "checked" trans view convert
+        static member checkedAnim view convert trans = Client.Attr.Animated "checked" trans view convert
         [<JavaScript; Inline>]
-        static member cite(view) = Client.Attr.Dynamic "cite" view
+        static member citeDyn view = Client.Attr.Dynamic "cite" view
         [<JavaScript; Inline>]
-        static member cite(view, pred) = Client.Attr.DynamicPred "cite" pred view
+        static member citeDynPred view pred = Client.Attr.DynamicPred "cite" pred view
         [<JavaScript; Inline>]
-        static member cite(view, convert, trans) = Client.Attr.Animated "cite" trans view convert
+        static member citeAnim view convert trans = Client.Attr.Animated "cite" trans view convert
         [<JavaScript; Inline>]
-        static member ``class``(view) = Client.Attr.Dynamic "class" view
+        static member classDyn view = Client.Attr.Dynamic "class" view
         [<JavaScript; Inline>]
-        static member ``class``(view, pred) = Client.Attr.DynamicPred "class" pred view
+        static member classDynPred view pred = Client.Attr.DynamicPred "class" pred view
         [<JavaScript; Inline>]
-        static member ``class``(view, convert, trans) = Client.Attr.Animated "class" trans view convert
+        static member classAnim view convert trans = Client.Attr.Animated "class" trans view convert
         [<JavaScript; Inline>]
-        static member classid(view) = Client.Attr.Dynamic "classid" view
+        static member classidDyn view = Client.Attr.Dynamic "classid" view
         [<JavaScript; Inline>]
-        static member classid(view, pred) = Client.Attr.DynamicPred "classid" pred view
+        static member classidDynPred view pred = Client.Attr.DynamicPred "classid" pred view
         [<JavaScript; Inline>]
-        static member classid(view, convert, trans) = Client.Attr.Animated "classid" trans view convert
+        static member classidAnim view convert trans = Client.Attr.Animated "classid" trans view convert
         [<JavaScript; Inline>]
-        static member clear(view) = Client.Attr.Dynamic "clear" view
+        static member clearDyn view = Client.Attr.Dynamic "clear" view
         [<JavaScript; Inline>]
-        static member clear(view, pred) = Client.Attr.DynamicPred "clear" pred view
+        static member clearDynPred view pred = Client.Attr.DynamicPred "clear" pred view
         [<JavaScript; Inline>]
-        static member clear(view, convert, trans) = Client.Attr.Animated "clear" trans view convert
+        static member clearAnim view convert trans = Client.Attr.Animated "clear" trans view convert
         [<JavaScript; Inline>]
-        static member code(view) = Client.Attr.Dynamic "code" view
+        static member codeDyn view = Client.Attr.Dynamic "code" view
         [<JavaScript; Inline>]
-        static member code(view, pred) = Client.Attr.DynamicPred "code" pred view
+        static member codeDynPred view pred = Client.Attr.DynamicPred "code" pred view
         [<JavaScript; Inline>]
-        static member code(view, convert, trans) = Client.Attr.Animated "code" trans view convert
+        static member codeAnim view convert trans = Client.Attr.Animated "code" trans view convert
         [<JavaScript; Inline>]
-        static member codebase(view) = Client.Attr.Dynamic "codebase" view
+        static member codebaseDyn view = Client.Attr.Dynamic "codebase" view
         [<JavaScript; Inline>]
-        static member codebase(view, pred) = Client.Attr.DynamicPred "codebase" pred view
+        static member codebaseDynPred view pred = Client.Attr.DynamicPred "codebase" pred view
         [<JavaScript; Inline>]
-        static member codebase(view, convert, trans) = Client.Attr.Animated "codebase" trans view convert
+        static member codebaseAnim view convert trans = Client.Attr.Animated "codebase" trans view convert
         [<JavaScript; Inline>]
-        static member codetype(view) = Client.Attr.Dynamic "codetype" view
+        static member codetypeDyn view = Client.Attr.Dynamic "codetype" view
         [<JavaScript; Inline>]
-        static member codetype(view, pred) = Client.Attr.DynamicPred "codetype" pred view
+        static member codetypeDynPred view pred = Client.Attr.DynamicPred "codetype" pred view
         [<JavaScript; Inline>]
-        static member codetype(view, convert, trans) = Client.Attr.Animated "codetype" trans view convert
+        static member codetypeAnim view convert trans = Client.Attr.Animated "codetype" trans view convert
         [<JavaScript; Inline>]
-        static member color(view) = Client.Attr.Dynamic "color" view
+        static member colorDyn view = Client.Attr.Dynamic "color" view
         [<JavaScript; Inline>]
-        static member color(view, pred) = Client.Attr.DynamicPred "color" pred view
+        static member colorDynPred view pred = Client.Attr.DynamicPred "color" pred view
         [<JavaScript; Inline>]
-        static member color(view, convert, trans) = Client.Attr.Animated "color" trans view convert
+        static member colorAnim view convert trans = Client.Attr.Animated "color" trans view convert
         [<JavaScript; Inline>]
-        static member cols(view) = Client.Attr.Dynamic "cols" view
+        static member colsDyn view = Client.Attr.Dynamic "cols" view
         [<JavaScript; Inline>]
-        static member cols(view, pred) = Client.Attr.DynamicPred "cols" pred view
+        static member colsDynPred view pred = Client.Attr.DynamicPred "cols" pred view
         [<JavaScript; Inline>]
-        static member cols(view, convert, trans) = Client.Attr.Animated "cols" trans view convert
+        static member colsAnim view convert trans = Client.Attr.Animated "cols" trans view convert
         [<JavaScript; Inline>]
-        static member colspan(view) = Client.Attr.Dynamic "colspan" view
+        static member colspanDyn view = Client.Attr.Dynamic "colspan" view
         [<JavaScript; Inline>]
-        static member colspan(view, pred) = Client.Attr.DynamicPred "colspan" pred view
+        static member colspanDynPred view pred = Client.Attr.DynamicPred "colspan" pred view
         [<JavaScript; Inline>]
-        static member colspan(view, convert, trans) = Client.Attr.Animated "colspan" trans view convert
+        static member colspanAnim view convert trans = Client.Attr.Animated "colspan" trans view convert
         [<JavaScript; Inline>]
-        static member compact(view) = Client.Attr.Dynamic "compact" view
+        static member compactDyn view = Client.Attr.Dynamic "compact" view
         [<JavaScript; Inline>]
-        static member compact(view, pred) = Client.Attr.DynamicPred "compact" pred view
+        static member compactDynPred view pred = Client.Attr.DynamicPred "compact" pred view
         [<JavaScript; Inline>]
-        static member compact(view, convert, trans) = Client.Attr.Animated "compact" trans view convert
+        static member compactAnim view convert trans = Client.Attr.Animated "compact" trans view convert
         [<JavaScript; Inline>]
-        static member content(view) = Client.Attr.Dynamic "content" view
+        static member contentDyn view = Client.Attr.Dynamic "content" view
         [<JavaScript; Inline>]
-        static member content(view, pred) = Client.Attr.DynamicPred "content" pred view
+        static member contentDynPred view pred = Client.Attr.DynamicPred "content" pred view
         [<JavaScript; Inline>]
-        static member content(view, convert, trans) = Client.Attr.Animated "content" trans view convert
+        static member contentAnim view convert trans = Client.Attr.Animated "content" trans view convert
         [<JavaScript; Inline>]
-        static member contenteditable(view) = Client.Attr.Dynamic "contenteditable" view
+        static member contenteditableDyn view = Client.Attr.Dynamic "contenteditable" view
         [<JavaScript; Inline>]
-        static member contenteditable(view, pred) = Client.Attr.DynamicPred "contenteditable" pred view
+        static member contenteditableDynPred view pred = Client.Attr.DynamicPred "contenteditable" pred view
         [<JavaScript; Inline>]
-        static member contenteditable(view, convert, trans) = Client.Attr.Animated "contenteditable" trans view convert
+        static member contenteditableAnim view convert trans = Client.Attr.Animated "contenteditable" trans view convert
         [<JavaScript; Inline>]
-        static member contextmenu(view) = Client.Attr.Dynamic "contextmenu" view
+        static member contextmenuDyn view = Client.Attr.Dynamic "contextmenu" view
         [<JavaScript; Inline>]
-        static member contextmenu(view, pred) = Client.Attr.DynamicPred "contextmenu" pred view
+        static member contextmenuDynPred view pred = Client.Attr.DynamicPred "contextmenu" pred view
         [<JavaScript; Inline>]
-        static member contextmenu(view, convert, trans) = Client.Attr.Animated "contextmenu" trans view convert
+        static member contextmenuAnim view convert trans = Client.Attr.Animated "contextmenu" trans view convert
         [<JavaScript; Inline>]
-        static member controls(view) = Client.Attr.Dynamic "controls" view
+        static member controlsDyn view = Client.Attr.Dynamic "controls" view
         [<JavaScript; Inline>]
-        static member controls(view, pred) = Client.Attr.DynamicPred "controls" pred view
+        static member controlsDynPred view pred = Client.Attr.DynamicPred "controls" pred view
         [<JavaScript; Inline>]
-        static member controls(view, convert, trans) = Client.Attr.Animated "controls" trans view convert
+        static member controlsAnim view convert trans = Client.Attr.Animated "controls" trans view convert
         [<JavaScript; Inline>]
-        static member coords(view) = Client.Attr.Dynamic "coords" view
+        static member coordsDyn view = Client.Attr.Dynamic "coords" view
         [<JavaScript; Inline>]
-        static member coords(view, pred) = Client.Attr.DynamicPred "coords" pred view
+        static member coordsDynPred view pred = Client.Attr.DynamicPred "coords" pred view
         [<JavaScript; Inline>]
-        static member coords(view, convert, trans) = Client.Attr.Animated "coords" trans view convert
+        static member coordsAnim view convert trans = Client.Attr.Animated "coords" trans view convert
         [<JavaScript; Inline>]
-        static member data(view) = Client.Attr.Dynamic "data" view
+        static member dataDyn view = Client.Attr.Dynamic "data" view
         [<JavaScript; Inline>]
-        static member data(view, pred) = Client.Attr.DynamicPred "data" pred view
+        static member dataDynPred view pred = Client.Attr.DynamicPred "data" pred view
         [<JavaScript; Inline>]
-        static member data(view, convert, trans) = Client.Attr.Animated "data" trans view convert
+        static member dataAnim view convert trans = Client.Attr.Animated "data" trans view convert
         [<JavaScript; Inline>]
-        static member datetime(view) = Client.Attr.Dynamic "datetime" view
+        static member datetimeDyn view = Client.Attr.Dynamic "datetime" view
         [<JavaScript; Inline>]
-        static member datetime(view, pred) = Client.Attr.DynamicPred "datetime" pred view
+        static member datetimeDynPred view pred = Client.Attr.DynamicPred "datetime" pred view
         [<JavaScript; Inline>]
-        static member datetime(view, convert, trans) = Client.Attr.Animated "datetime" trans view convert
+        static member datetimeAnim view convert trans = Client.Attr.Animated "datetime" trans view convert
         [<JavaScript; Inline>]
-        static member declare(view) = Client.Attr.Dynamic "declare" view
+        static member declareDyn view = Client.Attr.Dynamic "declare" view
         [<JavaScript; Inline>]
-        static member declare(view, pred) = Client.Attr.DynamicPred "declare" pred view
+        static member declareDynPred view pred = Client.Attr.DynamicPred "declare" pred view
         [<JavaScript; Inline>]
-        static member declare(view, convert, trans) = Client.Attr.Animated "declare" trans view convert
+        static member declareAnim view convert trans = Client.Attr.Animated "declare" trans view convert
         [<JavaScript; Inline>]
-        static member ``default``(view) = Client.Attr.Dynamic "default" view
+        static member defaultDyn view = Client.Attr.Dynamic "default" view
         [<JavaScript; Inline>]
-        static member ``default``(view, pred) = Client.Attr.DynamicPred "default" pred view
+        static member defaultDynPred view pred = Client.Attr.DynamicPred "default" pred view
         [<JavaScript; Inline>]
-        static member ``default``(view, convert, trans) = Client.Attr.Animated "default" trans view convert
+        static member defaultAnim view convert trans = Client.Attr.Animated "default" trans view convert
         [<JavaScript; Inline>]
-        static member defer(view) = Client.Attr.Dynamic "defer" view
+        static member deferDyn view = Client.Attr.Dynamic "defer" view
         [<JavaScript; Inline>]
-        static member defer(view, pred) = Client.Attr.DynamicPred "defer" pred view
+        static member deferDynPred view pred = Client.Attr.DynamicPred "defer" pred view
         [<JavaScript; Inline>]
-        static member defer(view, convert, trans) = Client.Attr.Animated "defer" trans view convert
+        static member deferAnim view convert trans = Client.Attr.Animated "defer" trans view convert
         [<JavaScript; Inline>]
-        static member dir(view) = Client.Attr.Dynamic "dir" view
+        static member dirDyn view = Client.Attr.Dynamic "dir" view
         [<JavaScript; Inline>]
-        static member dir(view, pred) = Client.Attr.DynamicPred "dir" pred view
+        static member dirDynPred view pred = Client.Attr.DynamicPred "dir" pred view
         [<JavaScript; Inline>]
-        static member dir(view, convert, trans) = Client.Attr.Animated "dir" trans view convert
+        static member dirAnim view convert trans = Client.Attr.Animated "dir" trans view convert
         [<JavaScript; Inline>]
-        static member disabled(view) = Client.Attr.Dynamic "disabled" view
+        static member disabledDyn view = Client.Attr.Dynamic "disabled" view
         [<JavaScript; Inline>]
-        static member disabled(view, pred) = Client.Attr.DynamicPred "disabled" pred view
+        static member disabledDynPred view pred = Client.Attr.DynamicPred "disabled" pred view
         [<JavaScript; Inline>]
-        static member disabled(view, convert, trans) = Client.Attr.Animated "disabled" trans view convert
+        static member disabledAnim view convert trans = Client.Attr.Animated "disabled" trans view convert
         [<JavaScript; Inline>]
-        static member download(view) = Client.Attr.Dynamic "download" view
+        static member downloadDyn view = Client.Attr.Dynamic "download" view
         [<JavaScript; Inline>]
-        static member download(view, pred) = Client.Attr.DynamicPred "download" pred view
+        static member downloadDynPred view pred = Client.Attr.DynamicPred "download" pred view
         [<JavaScript; Inline>]
-        static member download(view, convert, trans) = Client.Attr.Animated "download" trans view convert
+        static member downloadAnim view convert trans = Client.Attr.Animated "download" trans view convert
         [<JavaScript; Inline>]
-        static member draggable(view) = Client.Attr.Dynamic "draggable" view
+        static member draggableDyn view = Client.Attr.Dynamic "draggable" view
         [<JavaScript; Inline>]
-        static member draggable(view, pred) = Client.Attr.DynamicPred "draggable" pred view
+        static member draggableDynPred view pred = Client.Attr.DynamicPred "draggable" pred view
         [<JavaScript; Inline>]
-        static member draggable(view, convert, trans) = Client.Attr.Animated "draggable" trans view convert
+        static member draggableAnim view convert trans = Client.Attr.Animated "draggable" trans view convert
         [<JavaScript; Inline>]
-        static member dropzone(view) = Client.Attr.Dynamic "dropzone" view
+        static member dropzoneDyn view = Client.Attr.Dynamic "dropzone" view
         [<JavaScript; Inline>]
-        static member dropzone(view, pred) = Client.Attr.DynamicPred "dropzone" pred view
+        static member dropzoneDynPred view pred = Client.Attr.DynamicPred "dropzone" pred view
         [<JavaScript; Inline>]
-        static member dropzone(view, convert, trans) = Client.Attr.Animated "dropzone" trans view convert
+        static member dropzoneAnim view convert trans = Client.Attr.Animated "dropzone" trans view convert
         [<JavaScript; Inline>]
-        static member enctype(view) = Client.Attr.Dynamic "enctype" view
+        static member enctypeDyn view = Client.Attr.Dynamic "enctype" view
         [<JavaScript; Inline>]
-        static member enctype(view, pred) = Client.Attr.DynamicPred "enctype" pred view
+        static member enctypeDynPred view pred = Client.Attr.DynamicPred "enctype" pred view
         [<JavaScript; Inline>]
-        static member enctype(view, convert, trans) = Client.Attr.Animated "enctype" trans view convert
+        static member enctypeAnim view convert trans = Client.Attr.Animated "enctype" trans view convert
         [<JavaScript; Inline>]
-        static member face(view) = Client.Attr.Dynamic "face" view
+        static member faceDyn view = Client.Attr.Dynamic "face" view
         [<JavaScript; Inline>]
-        static member face(view, pred) = Client.Attr.DynamicPred "face" pred view
+        static member faceDynPred view pred = Client.Attr.DynamicPred "face" pred view
         [<JavaScript; Inline>]
-        static member face(view, convert, trans) = Client.Attr.Animated "face" trans view convert
+        static member faceAnim view convert trans = Client.Attr.Animated "face" trans view convert
         [<JavaScript; Inline>]
-        static member ``for``(view) = Client.Attr.Dynamic "for" view
+        static member forDyn view = Client.Attr.Dynamic "for" view
         [<JavaScript; Inline>]
-        static member ``for``(view, pred) = Client.Attr.DynamicPred "for" pred view
+        static member forDynPred view pred = Client.Attr.DynamicPred "for" pred view
         [<JavaScript; Inline>]
-        static member ``for``(view, convert, trans) = Client.Attr.Animated "for" trans view convert
+        static member forAnim view convert trans = Client.Attr.Animated "for" trans view convert
         [<JavaScript; Inline>]
-        static member form(view) = Client.Attr.Dynamic "form" view
+        static member formDyn view = Client.Attr.Dynamic "form" view
         [<JavaScript; Inline>]
-        static member form(view, pred) = Client.Attr.DynamicPred "form" pred view
+        static member formDynPred view pred = Client.Attr.DynamicPred "form" pred view
         [<JavaScript; Inline>]
-        static member form(view, convert, trans) = Client.Attr.Animated "form" trans view convert
+        static member formAnim view convert trans = Client.Attr.Animated "form" trans view convert
         [<JavaScript; Inline>]
-        static member formaction(view) = Client.Attr.Dynamic "formaction" view
+        static member formactionDyn view = Client.Attr.Dynamic "formaction" view
         [<JavaScript; Inline>]
-        static member formaction(view, pred) = Client.Attr.DynamicPred "formaction" pred view
+        static member formactionDynPred view pred = Client.Attr.DynamicPred "formaction" pred view
         [<JavaScript; Inline>]
-        static member formaction(view, convert, trans) = Client.Attr.Animated "formaction" trans view convert
+        static member formactionAnim view convert trans = Client.Attr.Animated "formaction" trans view convert
         [<JavaScript; Inline>]
-        static member formenctype(view) = Client.Attr.Dynamic "formenctype" view
+        static member formenctypeDyn view = Client.Attr.Dynamic "formenctype" view
         [<JavaScript; Inline>]
-        static member formenctype(view, pred) = Client.Attr.DynamicPred "formenctype" pred view
+        static member formenctypeDynPred view pred = Client.Attr.DynamicPred "formenctype" pred view
         [<JavaScript; Inline>]
-        static member formenctype(view, convert, trans) = Client.Attr.Animated "formenctype" trans view convert
+        static member formenctypeAnim view convert trans = Client.Attr.Animated "formenctype" trans view convert
         [<JavaScript; Inline>]
-        static member formmethod(view) = Client.Attr.Dynamic "formmethod" view
+        static member formmethodDyn view = Client.Attr.Dynamic "formmethod" view
         [<JavaScript; Inline>]
-        static member formmethod(view, pred) = Client.Attr.DynamicPred "formmethod" pred view
+        static member formmethodDynPred view pred = Client.Attr.DynamicPred "formmethod" pred view
         [<JavaScript; Inline>]
-        static member formmethod(view, convert, trans) = Client.Attr.Animated "formmethod" trans view convert
+        static member formmethodAnim view convert trans = Client.Attr.Animated "formmethod" trans view convert
         [<JavaScript; Inline>]
-        static member formnovalidate(view) = Client.Attr.Dynamic "formnovalidate" view
+        static member formnovalidateDyn view = Client.Attr.Dynamic "formnovalidate" view
         [<JavaScript; Inline>]
-        static member formnovalidate(view, pred) = Client.Attr.DynamicPred "formnovalidate" pred view
+        static member formnovalidateDynPred view pred = Client.Attr.DynamicPred "formnovalidate" pred view
         [<JavaScript; Inline>]
-        static member formnovalidate(view, convert, trans) = Client.Attr.Animated "formnovalidate" trans view convert
+        static member formnovalidateAnim view convert trans = Client.Attr.Animated "formnovalidate" trans view convert
         [<JavaScript; Inline>]
-        static member formtarget(view) = Client.Attr.Dynamic "formtarget" view
+        static member formtargetDyn view = Client.Attr.Dynamic "formtarget" view
         [<JavaScript; Inline>]
-        static member formtarget(view, pred) = Client.Attr.DynamicPred "formtarget" pred view
+        static member formtargetDynPred view pred = Client.Attr.DynamicPred "formtarget" pred view
         [<JavaScript; Inline>]
-        static member formtarget(view, convert, trans) = Client.Attr.Animated "formtarget" trans view convert
+        static member formtargetAnim view convert trans = Client.Attr.Animated "formtarget" trans view convert
         [<JavaScript; Inline>]
-        static member frame(view) = Client.Attr.Dynamic "frame" view
+        static member frameDyn view = Client.Attr.Dynamic "frame" view
         [<JavaScript; Inline>]
-        static member frame(view, pred) = Client.Attr.DynamicPred "frame" pred view
+        static member frameDynPred view pred = Client.Attr.DynamicPred "frame" pred view
         [<JavaScript; Inline>]
-        static member frame(view, convert, trans) = Client.Attr.Animated "frame" trans view convert
+        static member frameAnim view convert trans = Client.Attr.Animated "frame" trans view convert
         [<JavaScript; Inline>]
-        static member frameborder(view) = Client.Attr.Dynamic "frameborder" view
+        static member frameborderDyn view = Client.Attr.Dynamic "frameborder" view
         [<JavaScript; Inline>]
-        static member frameborder(view, pred) = Client.Attr.DynamicPred "frameborder" pred view
+        static member frameborderDynPred view pred = Client.Attr.DynamicPred "frameborder" pred view
         [<JavaScript; Inline>]
-        static member frameborder(view, convert, trans) = Client.Attr.Animated "frameborder" trans view convert
+        static member frameborderAnim view convert trans = Client.Attr.Animated "frameborder" trans view convert
         [<JavaScript; Inline>]
-        static member headers(view) = Client.Attr.Dynamic "headers" view
+        static member headersDyn view = Client.Attr.Dynamic "headers" view
         [<JavaScript; Inline>]
-        static member headers(view, pred) = Client.Attr.DynamicPred "headers" pred view
+        static member headersDynPred view pred = Client.Attr.DynamicPred "headers" pred view
         [<JavaScript; Inline>]
-        static member headers(view, convert, trans) = Client.Attr.Animated "headers" trans view convert
+        static member headersAnim view convert trans = Client.Attr.Animated "headers" trans view convert
         [<JavaScript; Inline>]
-        static member height(view) = Client.Attr.Dynamic "height" view
+        static member heightDyn view = Client.Attr.Dynamic "height" view
         [<JavaScript; Inline>]
-        static member height(view, pred) = Client.Attr.DynamicPred "height" pred view
+        static member heightDynPred view pred = Client.Attr.DynamicPred "height" pred view
         [<JavaScript; Inline>]
-        static member height(view, convert, trans) = Client.Attr.Animated "height" trans view convert
+        static member heightAnim view convert trans = Client.Attr.Animated "height" trans view convert
         [<JavaScript; Inline>]
-        static member hidden(view) = Client.Attr.Dynamic "hidden" view
+        static member hiddenDyn view = Client.Attr.Dynamic "hidden" view
         [<JavaScript; Inline>]
-        static member hidden(view, pred) = Client.Attr.DynamicPred "hidden" pred view
+        static member hiddenDynPred view pred = Client.Attr.DynamicPred "hidden" pred view
         [<JavaScript; Inline>]
-        static member hidden(view, convert, trans) = Client.Attr.Animated "hidden" trans view convert
+        static member hiddenAnim view convert trans = Client.Attr.Animated "hidden" trans view convert
         [<JavaScript; Inline>]
-        static member high(view) = Client.Attr.Dynamic "high" view
+        static member highDyn view = Client.Attr.Dynamic "high" view
         [<JavaScript; Inline>]
-        static member high(view, pred) = Client.Attr.DynamicPred "high" pred view
+        static member highDynPred view pred = Client.Attr.DynamicPred "high" pred view
         [<JavaScript; Inline>]
-        static member high(view, convert, trans) = Client.Attr.Animated "high" trans view convert
+        static member highAnim view convert trans = Client.Attr.Animated "high" trans view convert
         [<JavaScript; Inline>]
-        static member href(view) = Client.Attr.Dynamic "href" view
+        static member hrefDyn view = Client.Attr.Dynamic "href" view
         [<JavaScript; Inline>]
-        static member href(view, pred) = Client.Attr.DynamicPred "href" pred view
+        static member hrefDynPred view pred = Client.Attr.DynamicPred "href" pred view
         [<JavaScript; Inline>]
-        static member href(view, convert, trans) = Client.Attr.Animated "href" trans view convert
+        static member hrefAnim view convert trans = Client.Attr.Animated "href" trans view convert
         [<JavaScript; Inline>]
-        static member hreflang(view) = Client.Attr.Dynamic "hreflang" view
+        static member hreflangDyn view = Client.Attr.Dynamic "hreflang" view
         [<JavaScript; Inline>]
-        static member hreflang(view, pred) = Client.Attr.DynamicPred "hreflang" pred view
+        static member hreflangDynPred view pred = Client.Attr.DynamicPred "hreflang" pred view
         [<JavaScript; Inline>]
-        static member hreflang(view, convert, trans) = Client.Attr.Animated "hreflang" trans view convert
+        static member hreflangAnim view convert trans = Client.Attr.Animated "hreflang" trans view convert
         [<JavaScript; Inline>]
-        static member hspace(view) = Client.Attr.Dynamic "hspace" view
+        static member hspaceDyn view = Client.Attr.Dynamic "hspace" view
         [<JavaScript; Inline>]
-        static member hspace(view, pred) = Client.Attr.DynamicPred "hspace" pred view
+        static member hspaceDynPred view pred = Client.Attr.DynamicPred "hspace" pred view
         [<JavaScript; Inline>]
-        static member hspace(view, convert, trans) = Client.Attr.Animated "hspace" trans view convert
+        static member hspaceAnim view convert trans = Client.Attr.Animated "hspace" trans view convert
         [<JavaScript; Inline>]
-        static member http(view) = Client.Attr.Dynamic "http" view
+        static member httpDyn view = Client.Attr.Dynamic "http" view
         [<JavaScript; Inline>]
-        static member http(view, pred) = Client.Attr.DynamicPred "http" pred view
+        static member httpDynPred view pred = Client.Attr.DynamicPred "http" pred view
         [<JavaScript; Inline>]
-        static member http(view, convert, trans) = Client.Attr.Animated "http" trans view convert
+        static member httpAnim view convert trans = Client.Attr.Animated "http" trans view convert
         [<JavaScript; Inline>]
-        static member icon(view) = Client.Attr.Dynamic "icon" view
+        static member iconDyn view = Client.Attr.Dynamic "icon" view
         [<JavaScript; Inline>]
-        static member icon(view, pred) = Client.Attr.DynamicPred "icon" pred view
+        static member iconDynPred view pred = Client.Attr.DynamicPred "icon" pred view
         [<JavaScript; Inline>]
-        static member icon(view, convert, trans) = Client.Attr.Animated "icon" trans view convert
+        static member iconAnim view convert trans = Client.Attr.Animated "icon" trans view convert
         [<JavaScript; Inline>]
-        static member id(view) = Client.Attr.Dynamic "id" view
+        static member idDyn view = Client.Attr.Dynamic "id" view
         [<JavaScript; Inline>]
-        static member id(view, pred) = Client.Attr.DynamicPred "id" pred view
+        static member idDynPred view pred = Client.Attr.DynamicPred "id" pred view
         [<JavaScript; Inline>]
-        static member id(view, convert, trans) = Client.Attr.Animated "id" trans view convert
+        static member idAnim view convert trans = Client.Attr.Animated "id" trans view convert
         [<JavaScript; Inline>]
-        static member ismap(view) = Client.Attr.Dynamic "ismap" view
+        static member ismapDyn view = Client.Attr.Dynamic "ismap" view
         [<JavaScript; Inline>]
-        static member ismap(view, pred) = Client.Attr.DynamicPred "ismap" pred view
+        static member ismapDynPred view pred = Client.Attr.DynamicPred "ismap" pred view
         [<JavaScript; Inline>]
-        static member ismap(view, convert, trans) = Client.Attr.Animated "ismap" trans view convert
+        static member ismapAnim view convert trans = Client.Attr.Animated "ismap" trans view convert
         [<JavaScript; Inline>]
-        static member itemprop(view) = Client.Attr.Dynamic "itemprop" view
+        static member itempropDyn view = Client.Attr.Dynamic "itemprop" view
         [<JavaScript; Inline>]
-        static member itemprop(view, pred) = Client.Attr.DynamicPred "itemprop" pred view
+        static member itempropDynPred view pred = Client.Attr.DynamicPred "itemprop" pred view
         [<JavaScript; Inline>]
-        static member itemprop(view, convert, trans) = Client.Attr.Animated "itemprop" trans view convert
+        static member itempropAnim view convert trans = Client.Attr.Animated "itemprop" trans view convert
         [<JavaScript; Inline>]
-        static member keytype(view) = Client.Attr.Dynamic "keytype" view
+        static member keytypeDyn view = Client.Attr.Dynamic "keytype" view
         [<JavaScript; Inline>]
-        static member keytype(view, pred) = Client.Attr.DynamicPred "keytype" pred view
+        static member keytypeDynPred view pred = Client.Attr.DynamicPred "keytype" pred view
         [<JavaScript; Inline>]
-        static member keytype(view, convert, trans) = Client.Attr.Animated "keytype" trans view convert
+        static member keytypeAnim view convert trans = Client.Attr.Animated "keytype" trans view convert
         [<JavaScript; Inline>]
-        static member kind(view) = Client.Attr.Dynamic "kind" view
+        static member kindDyn view = Client.Attr.Dynamic "kind" view
         [<JavaScript; Inline>]
-        static member kind(view, pred) = Client.Attr.DynamicPred "kind" pred view
+        static member kindDynPred view pred = Client.Attr.DynamicPred "kind" pred view
         [<JavaScript; Inline>]
-        static member kind(view, convert, trans) = Client.Attr.Animated "kind" trans view convert
+        static member kindAnim view convert trans = Client.Attr.Animated "kind" trans view convert
         [<JavaScript; Inline>]
-        static member label(view) = Client.Attr.Dynamic "label" view
+        static member labelDyn view = Client.Attr.Dynamic "label" view
         [<JavaScript; Inline>]
-        static member label(view, pred) = Client.Attr.DynamicPred "label" pred view
+        static member labelDynPred view pred = Client.Attr.DynamicPred "label" pred view
         [<JavaScript; Inline>]
-        static member label(view, convert, trans) = Client.Attr.Animated "label" trans view convert
+        static member labelAnim view convert trans = Client.Attr.Animated "label" trans view convert
         [<JavaScript; Inline>]
-        static member lang(view) = Client.Attr.Dynamic "lang" view
+        static member langDyn view = Client.Attr.Dynamic "lang" view
         [<JavaScript; Inline>]
-        static member lang(view, pred) = Client.Attr.DynamicPred "lang" pred view
+        static member langDynPred view pred = Client.Attr.DynamicPred "lang" pred view
         [<JavaScript; Inline>]
-        static member lang(view, convert, trans) = Client.Attr.Animated "lang" trans view convert
+        static member langAnim view convert trans = Client.Attr.Animated "lang" trans view convert
         [<JavaScript; Inline>]
-        static member language(view) = Client.Attr.Dynamic "language" view
+        static member languageDyn view = Client.Attr.Dynamic "language" view
         [<JavaScript; Inline>]
-        static member language(view, pred) = Client.Attr.DynamicPred "language" pred view
+        static member languageDynPred view pred = Client.Attr.DynamicPred "language" pred view
         [<JavaScript; Inline>]
-        static member language(view, convert, trans) = Client.Attr.Animated "language" trans view convert
+        static member languageAnim view convert trans = Client.Attr.Animated "language" trans view convert
         [<JavaScript; Inline>]
-        static member link(view) = Client.Attr.Dynamic "link" view
+        static member linkDyn view = Client.Attr.Dynamic "link" view
         [<JavaScript; Inline>]
-        static member link(view, pred) = Client.Attr.DynamicPred "link" pred view
+        static member linkDynPred view pred = Client.Attr.DynamicPred "link" pred view
         [<JavaScript; Inline>]
-        static member link(view, convert, trans) = Client.Attr.Animated "link" trans view convert
+        static member linkAnim view convert trans = Client.Attr.Animated "link" trans view convert
         [<JavaScript; Inline>]
-        static member list(view) = Client.Attr.Dynamic "list" view
+        static member listDyn view = Client.Attr.Dynamic "list" view
         [<JavaScript; Inline>]
-        static member list(view, pred) = Client.Attr.DynamicPred "list" pred view
+        static member listDynPred view pred = Client.Attr.DynamicPred "list" pred view
         [<JavaScript; Inline>]
-        static member list(view, convert, trans) = Client.Attr.Animated "list" trans view convert
+        static member listAnim view convert trans = Client.Attr.Animated "list" trans view convert
         [<JavaScript; Inline>]
-        static member longdesc(view) = Client.Attr.Dynamic "longdesc" view
+        static member longdescDyn view = Client.Attr.Dynamic "longdesc" view
         [<JavaScript; Inline>]
-        static member longdesc(view, pred) = Client.Attr.DynamicPred "longdesc" pred view
+        static member longdescDynPred view pred = Client.Attr.DynamicPred "longdesc" pred view
         [<JavaScript; Inline>]
-        static member longdesc(view, convert, trans) = Client.Attr.Animated "longdesc" trans view convert
+        static member longdescAnim view convert trans = Client.Attr.Animated "longdesc" trans view convert
         [<JavaScript; Inline>]
-        static member loop(view) = Client.Attr.Dynamic "loop" view
+        static member loopDyn view = Client.Attr.Dynamic "loop" view
         [<JavaScript; Inline>]
-        static member loop(view, pred) = Client.Attr.DynamicPred "loop" pred view
+        static member loopDynPred view pred = Client.Attr.DynamicPred "loop" pred view
         [<JavaScript; Inline>]
-        static member loop(view, convert, trans) = Client.Attr.Animated "loop" trans view convert
+        static member loopAnim view convert trans = Client.Attr.Animated "loop" trans view convert
         [<JavaScript; Inline>]
-        static member low(view) = Client.Attr.Dynamic "low" view
+        static member lowDyn view = Client.Attr.Dynamic "low" view
         [<JavaScript; Inline>]
-        static member low(view, pred) = Client.Attr.DynamicPred "low" pred view
+        static member lowDynPred view pred = Client.Attr.DynamicPred "low" pred view
         [<JavaScript; Inline>]
-        static member low(view, convert, trans) = Client.Attr.Animated "low" trans view convert
+        static member lowAnim view convert trans = Client.Attr.Animated "low" trans view convert
         [<JavaScript; Inline>]
-        static member manifest(view) = Client.Attr.Dynamic "manifest" view
+        static member manifestDyn view = Client.Attr.Dynamic "manifest" view
         [<JavaScript; Inline>]
-        static member manifest(view, pred) = Client.Attr.DynamicPred "manifest" pred view
+        static member manifestDynPred view pred = Client.Attr.DynamicPred "manifest" pred view
         [<JavaScript; Inline>]
-        static member manifest(view, convert, trans) = Client.Attr.Animated "manifest" trans view convert
+        static member manifestAnim view convert trans = Client.Attr.Animated "manifest" trans view convert
         [<JavaScript; Inline>]
-        static member marginheight(view) = Client.Attr.Dynamic "marginheight" view
+        static member marginheightDyn view = Client.Attr.Dynamic "marginheight" view
         [<JavaScript; Inline>]
-        static member marginheight(view, pred) = Client.Attr.DynamicPred "marginheight" pred view
+        static member marginheightDynPred view pred = Client.Attr.DynamicPred "marginheight" pred view
         [<JavaScript; Inline>]
-        static member marginheight(view, convert, trans) = Client.Attr.Animated "marginheight" trans view convert
+        static member marginheightAnim view convert trans = Client.Attr.Animated "marginheight" trans view convert
         [<JavaScript; Inline>]
-        static member marginwidth(view) = Client.Attr.Dynamic "marginwidth" view
+        static member marginwidthDyn view = Client.Attr.Dynamic "marginwidth" view
         [<JavaScript; Inline>]
-        static member marginwidth(view, pred) = Client.Attr.DynamicPred "marginwidth" pred view
+        static member marginwidthDynPred view pred = Client.Attr.DynamicPred "marginwidth" pred view
         [<JavaScript; Inline>]
-        static member marginwidth(view, convert, trans) = Client.Attr.Animated "marginwidth" trans view convert
+        static member marginwidthAnim view convert trans = Client.Attr.Animated "marginwidth" trans view convert
         [<JavaScript; Inline>]
-        static member max(view) = Client.Attr.Dynamic "max" view
+        static member maxDyn view = Client.Attr.Dynamic "max" view
         [<JavaScript; Inline>]
-        static member max(view, pred) = Client.Attr.DynamicPred "max" pred view
+        static member maxDynPred view pred = Client.Attr.DynamicPred "max" pred view
         [<JavaScript; Inline>]
-        static member max(view, convert, trans) = Client.Attr.Animated "max" trans view convert
+        static member maxAnim view convert trans = Client.Attr.Animated "max" trans view convert
         [<JavaScript; Inline>]
-        static member maxlength(view) = Client.Attr.Dynamic "maxlength" view
+        static member maxlengthDyn view = Client.Attr.Dynamic "maxlength" view
         [<JavaScript; Inline>]
-        static member maxlength(view, pred) = Client.Attr.DynamicPred "maxlength" pred view
+        static member maxlengthDynPred view pred = Client.Attr.DynamicPred "maxlength" pred view
         [<JavaScript; Inline>]
-        static member maxlength(view, convert, trans) = Client.Attr.Animated "maxlength" trans view convert
+        static member maxlengthAnim view convert trans = Client.Attr.Animated "maxlength" trans view convert
         [<JavaScript; Inline>]
-        static member media(view) = Client.Attr.Dynamic "media" view
+        static member mediaDyn view = Client.Attr.Dynamic "media" view
         [<JavaScript; Inline>]
-        static member media(view, pred) = Client.Attr.DynamicPred "media" pred view
+        static member mediaDynPred view pred = Client.Attr.DynamicPred "media" pred view
         [<JavaScript; Inline>]
-        static member media(view, convert, trans) = Client.Attr.Animated "media" trans view convert
+        static member mediaAnim view convert trans = Client.Attr.Animated "media" trans view convert
         [<JavaScript; Inline>]
-        static member ``method``(view) = Client.Attr.Dynamic "method" view
+        static member methodDyn view = Client.Attr.Dynamic "method" view
         [<JavaScript; Inline>]
-        static member ``method``(view, pred) = Client.Attr.DynamicPred "method" pred view
+        static member methodDynPred view pred = Client.Attr.DynamicPred "method" pred view
         [<JavaScript; Inline>]
-        static member ``method``(view, convert, trans) = Client.Attr.Animated "method" trans view convert
+        static member methodAnim view convert trans = Client.Attr.Animated "method" trans view convert
         [<JavaScript; Inline>]
-        static member min(view) = Client.Attr.Dynamic "min" view
+        static member minDyn view = Client.Attr.Dynamic "min" view
         [<JavaScript; Inline>]
-        static member min(view, pred) = Client.Attr.DynamicPred "min" pred view
+        static member minDynPred view pred = Client.Attr.DynamicPred "min" pred view
         [<JavaScript; Inline>]
-        static member min(view, convert, trans) = Client.Attr.Animated "min" trans view convert
+        static member minAnim view convert trans = Client.Attr.Animated "min" trans view convert
         [<JavaScript; Inline>]
-        static member multiple(view) = Client.Attr.Dynamic "multiple" view
+        static member multipleDyn view = Client.Attr.Dynamic "multiple" view
         [<JavaScript; Inline>]
-        static member multiple(view, pred) = Client.Attr.DynamicPred "multiple" pred view
+        static member multipleDynPred view pred = Client.Attr.DynamicPred "multiple" pred view
         [<JavaScript; Inline>]
-        static member multiple(view, convert, trans) = Client.Attr.Animated "multiple" trans view convert
+        static member multipleAnim view convert trans = Client.Attr.Animated "multiple" trans view convert
         [<JavaScript; Inline>]
-        static member name(view) = Client.Attr.Dynamic "name" view
+        static member nameDyn view = Client.Attr.Dynamic "name" view
         [<JavaScript; Inline>]
-        static member name(view, pred) = Client.Attr.DynamicPred "name" pred view
+        static member nameDynPred view pred = Client.Attr.DynamicPred "name" pred view
         [<JavaScript; Inline>]
-        static member name(view, convert, trans) = Client.Attr.Animated "name" trans view convert
+        static member nameAnim view convert trans = Client.Attr.Animated "name" trans view convert
         [<JavaScript; Inline>]
-        static member nohref(view) = Client.Attr.Dynamic "nohref" view
+        static member nohrefDyn view = Client.Attr.Dynamic "nohref" view
         [<JavaScript; Inline>]
-        static member nohref(view, pred) = Client.Attr.DynamicPred "nohref" pred view
+        static member nohrefDynPred view pred = Client.Attr.DynamicPred "nohref" pred view
         [<JavaScript; Inline>]
-        static member nohref(view, convert, trans) = Client.Attr.Animated "nohref" trans view convert
+        static member nohrefAnim view convert trans = Client.Attr.Animated "nohref" trans view convert
         [<JavaScript; Inline>]
-        static member noresize(view) = Client.Attr.Dynamic "noresize" view
+        static member noresizeDyn view = Client.Attr.Dynamic "noresize" view
         [<JavaScript; Inline>]
-        static member noresize(view, pred) = Client.Attr.DynamicPred "noresize" pred view
+        static member noresizeDynPred view pred = Client.Attr.DynamicPred "noresize" pred view
         [<JavaScript; Inline>]
-        static member noresize(view, convert, trans) = Client.Attr.Animated "noresize" trans view convert
+        static member noresizeAnim view convert trans = Client.Attr.Animated "noresize" trans view convert
         [<JavaScript; Inline>]
-        static member noshade(view) = Client.Attr.Dynamic "noshade" view
+        static member noshadeDyn view = Client.Attr.Dynamic "noshade" view
         [<JavaScript; Inline>]
-        static member noshade(view, pred) = Client.Attr.DynamicPred "noshade" pred view
+        static member noshadeDynPred view pred = Client.Attr.DynamicPred "noshade" pred view
         [<JavaScript; Inline>]
-        static member noshade(view, convert, trans) = Client.Attr.Animated "noshade" trans view convert
+        static member noshadeAnim view convert trans = Client.Attr.Animated "noshade" trans view convert
         [<JavaScript; Inline>]
-        static member novalidate(view) = Client.Attr.Dynamic "novalidate" view
+        static member novalidateDyn view = Client.Attr.Dynamic "novalidate" view
         [<JavaScript; Inline>]
-        static member novalidate(view, pred) = Client.Attr.DynamicPred "novalidate" pred view
+        static member novalidateDynPred view pred = Client.Attr.DynamicPred "novalidate" pred view
         [<JavaScript; Inline>]
-        static member novalidate(view, convert, trans) = Client.Attr.Animated "novalidate" trans view convert
+        static member novalidateAnim view convert trans = Client.Attr.Animated "novalidate" trans view convert
         [<JavaScript; Inline>]
-        static member nowrap(view) = Client.Attr.Dynamic "nowrap" view
+        static member nowrapDyn view = Client.Attr.Dynamic "nowrap" view
         [<JavaScript; Inline>]
-        static member nowrap(view, pred) = Client.Attr.DynamicPred "nowrap" pred view
+        static member nowrapDynPred view pred = Client.Attr.DynamicPred "nowrap" pred view
         [<JavaScript; Inline>]
-        static member nowrap(view, convert, trans) = Client.Attr.Animated "nowrap" trans view convert
+        static member nowrapAnim view convert trans = Client.Attr.Animated "nowrap" trans view convert
         [<JavaScript; Inline>]
-        static member ``object``(view) = Client.Attr.Dynamic "object" view
+        static member objectDyn view = Client.Attr.Dynamic "object" view
         [<JavaScript; Inline>]
-        static member ``object``(view, pred) = Client.Attr.DynamicPred "object" pred view
+        static member objectDynPred view pred = Client.Attr.DynamicPred "object" pred view
         [<JavaScript; Inline>]
-        static member ``object``(view, convert, trans) = Client.Attr.Animated "object" trans view convert
+        static member objectAnim view convert trans = Client.Attr.Animated "object" trans view convert
         [<JavaScript; Inline>]
-        static member ``open``(view) = Client.Attr.Dynamic "open" view
+        static member openDyn view = Client.Attr.Dynamic "open" view
         [<JavaScript; Inline>]
-        static member ``open``(view, pred) = Client.Attr.DynamicPred "open" pred view
+        static member openDynPred view pred = Client.Attr.DynamicPred "open" pred view
         [<JavaScript; Inline>]
-        static member ``open``(view, convert, trans) = Client.Attr.Animated "open" trans view convert
+        static member openAnim view convert trans = Client.Attr.Animated "open" trans view convert
         [<JavaScript; Inline>]
-        static member optimum(view) = Client.Attr.Dynamic "optimum" view
+        static member optimumDyn view = Client.Attr.Dynamic "optimum" view
         [<JavaScript; Inline>]
-        static member optimum(view, pred) = Client.Attr.DynamicPred "optimum" pred view
+        static member optimumDynPred view pred = Client.Attr.DynamicPred "optimum" pred view
         [<JavaScript; Inline>]
-        static member optimum(view, convert, trans) = Client.Attr.Animated "optimum" trans view convert
+        static member optimumAnim view convert trans = Client.Attr.Animated "optimum" trans view convert
         [<JavaScript; Inline>]
-        static member pattern(view) = Client.Attr.Dynamic "pattern" view
+        static member patternDyn view = Client.Attr.Dynamic "pattern" view
         [<JavaScript; Inline>]
-        static member pattern(view, pred) = Client.Attr.DynamicPred "pattern" pred view
+        static member patternDynPred view pred = Client.Attr.DynamicPred "pattern" pred view
         [<JavaScript; Inline>]
-        static member pattern(view, convert, trans) = Client.Attr.Animated "pattern" trans view convert
+        static member patternAnim view convert trans = Client.Attr.Animated "pattern" trans view convert
         [<JavaScript; Inline>]
-        static member ping(view) = Client.Attr.Dynamic "ping" view
+        static member pingDyn view = Client.Attr.Dynamic "ping" view
         [<JavaScript; Inline>]
-        static member ping(view, pred) = Client.Attr.DynamicPred "ping" pred view
+        static member pingDynPred view pred = Client.Attr.DynamicPred "ping" pred view
         [<JavaScript; Inline>]
-        static member ping(view, convert, trans) = Client.Attr.Animated "ping" trans view convert
+        static member pingAnim view convert trans = Client.Attr.Animated "ping" trans view convert
         [<JavaScript; Inline>]
-        static member placeholder(view) = Client.Attr.Dynamic "placeholder" view
+        static member placeholderDyn view = Client.Attr.Dynamic "placeholder" view
         [<JavaScript; Inline>]
-        static member placeholder(view, pred) = Client.Attr.DynamicPred "placeholder" pred view
+        static member placeholderDynPred view pred = Client.Attr.DynamicPred "placeholder" pred view
         [<JavaScript; Inline>]
-        static member placeholder(view, convert, trans) = Client.Attr.Animated "placeholder" trans view convert
+        static member placeholderAnim view convert trans = Client.Attr.Animated "placeholder" trans view convert
         [<JavaScript; Inline>]
-        static member poster(view) = Client.Attr.Dynamic "poster" view
+        static member posterDyn view = Client.Attr.Dynamic "poster" view
         [<JavaScript; Inline>]
-        static member poster(view, pred) = Client.Attr.DynamicPred "poster" pred view
+        static member posterDynPred view pred = Client.Attr.DynamicPred "poster" pred view
         [<JavaScript; Inline>]
-        static member poster(view, convert, trans) = Client.Attr.Animated "poster" trans view convert
+        static member posterAnim view convert trans = Client.Attr.Animated "poster" trans view convert
         [<JavaScript; Inline>]
-        static member preload(view) = Client.Attr.Dynamic "preload" view
+        static member preloadDyn view = Client.Attr.Dynamic "preload" view
         [<JavaScript; Inline>]
-        static member preload(view, pred) = Client.Attr.DynamicPred "preload" pred view
+        static member preloadDynPred view pred = Client.Attr.DynamicPred "preload" pred view
         [<JavaScript; Inline>]
-        static member preload(view, convert, trans) = Client.Attr.Animated "preload" trans view convert
+        static member preloadAnim view convert trans = Client.Attr.Animated "preload" trans view convert
         [<JavaScript; Inline>]
-        static member profile(view) = Client.Attr.Dynamic "profile" view
+        static member profileDyn view = Client.Attr.Dynamic "profile" view
         [<JavaScript; Inline>]
-        static member profile(view, pred) = Client.Attr.DynamicPred "profile" pred view
+        static member profileDynPred view pred = Client.Attr.DynamicPred "profile" pred view
         [<JavaScript; Inline>]
-        static member profile(view, convert, trans) = Client.Attr.Animated "profile" trans view convert
+        static member profileAnim view convert trans = Client.Attr.Animated "profile" trans view convert
         [<JavaScript; Inline>]
-        static member prompt(view) = Client.Attr.Dynamic "prompt" view
+        static member promptDyn view = Client.Attr.Dynamic "prompt" view
         [<JavaScript; Inline>]
-        static member prompt(view, pred) = Client.Attr.DynamicPred "prompt" pred view
+        static member promptDynPred view pred = Client.Attr.DynamicPred "prompt" pred view
         [<JavaScript; Inline>]
-        static member prompt(view, convert, trans) = Client.Attr.Animated "prompt" trans view convert
+        static member promptAnim view convert trans = Client.Attr.Animated "prompt" trans view convert
         [<JavaScript; Inline>]
-        static member pubdate(view) = Client.Attr.Dynamic "pubdate" view
+        static member pubdateDyn view = Client.Attr.Dynamic "pubdate" view
         [<JavaScript; Inline>]
-        static member pubdate(view, pred) = Client.Attr.DynamicPred "pubdate" pred view
+        static member pubdateDynPred view pred = Client.Attr.DynamicPred "pubdate" pred view
         [<JavaScript; Inline>]
-        static member pubdate(view, convert, trans) = Client.Attr.Animated "pubdate" trans view convert
+        static member pubdateAnim view convert trans = Client.Attr.Animated "pubdate" trans view convert
         [<JavaScript; Inline>]
-        static member radiogroup(view) = Client.Attr.Dynamic "radiogroup" view
+        static member radiogroupDyn view = Client.Attr.Dynamic "radiogroup" view
         [<JavaScript; Inline>]
-        static member radiogroup(view, pred) = Client.Attr.DynamicPred "radiogroup" pred view
+        static member radiogroupDynPred view pred = Client.Attr.DynamicPred "radiogroup" pred view
         [<JavaScript; Inline>]
-        static member radiogroup(view, convert, trans) = Client.Attr.Animated "radiogroup" trans view convert
+        static member radiogroupAnim view convert trans = Client.Attr.Animated "radiogroup" trans view convert
         [<JavaScript; Inline>]
-        static member readonly(view) = Client.Attr.Dynamic "readonly" view
+        static member readonlyDyn view = Client.Attr.Dynamic "readonly" view
         [<JavaScript; Inline>]
-        static member readonly(view, pred) = Client.Attr.DynamicPred "readonly" pred view
+        static member readonlyDynPred view pred = Client.Attr.DynamicPred "readonly" pred view
         [<JavaScript; Inline>]
-        static member readonly(view, convert, trans) = Client.Attr.Animated "readonly" trans view convert
+        static member readonlyAnim view convert trans = Client.Attr.Animated "readonly" trans view convert
         [<JavaScript; Inline>]
-        static member rel(view) = Client.Attr.Dynamic "rel" view
+        static member relDyn view = Client.Attr.Dynamic "rel" view
         [<JavaScript; Inline>]
-        static member rel(view, pred) = Client.Attr.DynamicPred "rel" pred view
+        static member relDynPred view pred = Client.Attr.DynamicPred "rel" pred view
         [<JavaScript; Inline>]
-        static member rel(view, convert, trans) = Client.Attr.Animated "rel" trans view convert
+        static member relAnim view convert trans = Client.Attr.Animated "rel" trans view convert
         [<JavaScript; Inline>]
-        static member required(view) = Client.Attr.Dynamic "required" view
+        static member requiredDyn view = Client.Attr.Dynamic "required" view
         [<JavaScript; Inline>]
-        static member required(view, pred) = Client.Attr.DynamicPred "required" pred view
+        static member requiredDynPred view pred = Client.Attr.DynamicPred "required" pred view
         [<JavaScript; Inline>]
-        static member required(view, convert, trans) = Client.Attr.Animated "required" trans view convert
+        static member requiredAnim view convert trans = Client.Attr.Animated "required" trans view convert
         [<JavaScript; Inline>]
-        static member rev(view) = Client.Attr.Dynamic "rev" view
+        static member revDyn view = Client.Attr.Dynamic "rev" view
         [<JavaScript; Inline>]
-        static member rev(view, pred) = Client.Attr.DynamicPred "rev" pred view
+        static member revDynPred view pred = Client.Attr.DynamicPred "rev" pred view
         [<JavaScript; Inline>]
-        static member rev(view, convert, trans) = Client.Attr.Animated "rev" trans view convert
+        static member revAnim view convert trans = Client.Attr.Animated "rev" trans view convert
         [<JavaScript; Inline>]
-        static member reversed(view) = Client.Attr.Dynamic "reversed" view
+        static member reversedDyn view = Client.Attr.Dynamic "reversed" view
         [<JavaScript; Inline>]
-        static member reversed(view, pred) = Client.Attr.DynamicPred "reversed" pred view
+        static member reversedDynPred view pred = Client.Attr.DynamicPred "reversed" pred view
         [<JavaScript; Inline>]
-        static member reversed(view, convert, trans) = Client.Attr.Animated "reversed" trans view convert
+        static member reversedAnim view convert trans = Client.Attr.Animated "reversed" trans view convert
         [<JavaScript; Inline>]
-        static member rows(view) = Client.Attr.Dynamic "rows" view
+        static member rowsDyn view = Client.Attr.Dynamic "rows" view
         [<JavaScript; Inline>]
-        static member rows(view, pred) = Client.Attr.DynamicPred "rows" pred view
+        static member rowsDynPred view pred = Client.Attr.DynamicPred "rows" pred view
         [<JavaScript; Inline>]
-        static member rows(view, convert, trans) = Client.Attr.Animated "rows" trans view convert
+        static member rowsAnim view convert trans = Client.Attr.Animated "rows" trans view convert
         [<JavaScript; Inline>]
-        static member rowspan(view) = Client.Attr.Dynamic "rowspan" view
+        static member rowspanDyn view = Client.Attr.Dynamic "rowspan" view
         [<JavaScript; Inline>]
-        static member rowspan(view, pred) = Client.Attr.DynamicPred "rowspan" pred view
+        static member rowspanDynPred view pred = Client.Attr.DynamicPred "rowspan" pred view
         [<JavaScript; Inline>]
-        static member rowspan(view, convert, trans) = Client.Attr.Animated "rowspan" trans view convert
+        static member rowspanAnim view convert trans = Client.Attr.Animated "rowspan" trans view convert
         [<JavaScript; Inline>]
-        static member rules(view) = Client.Attr.Dynamic "rules" view
+        static member rulesDyn view = Client.Attr.Dynamic "rules" view
         [<JavaScript; Inline>]
-        static member rules(view, pred) = Client.Attr.DynamicPred "rules" pred view
+        static member rulesDynPred view pred = Client.Attr.DynamicPred "rules" pred view
         [<JavaScript; Inline>]
-        static member rules(view, convert, trans) = Client.Attr.Animated "rules" trans view convert
+        static member rulesAnim view convert trans = Client.Attr.Animated "rules" trans view convert
         [<JavaScript; Inline>]
-        static member sandbox(view) = Client.Attr.Dynamic "sandbox" view
+        static member sandboxDyn view = Client.Attr.Dynamic "sandbox" view
         [<JavaScript; Inline>]
-        static member sandbox(view, pred) = Client.Attr.DynamicPred "sandbox" pred view
+        static member sandboxDynPred view pred = Client.Attr.DynamicPred "sandbox" pred view
         [<JavaScript; Inline>]
-        static member sandbox(view, convert, trans) = Client.Attr.Animated "sandbox" trans view convert
+        static member sandboxAnim view convert trans = Client.Attr.Animated "sandbox" trans view convert
         [<JavaScript; Inline>]
-        static member scheme(view) = Client.Attr.Dynamic "scheme" view
+        static member schemeDyn view = Client.Attr.Dynamic "scheme" view
         [<JavaScript; Inline>]
-        static member scheme(view, pred) = Client.Attr.DynamicPred "scheme" pred view
+        static member schemeDynPred view pred = Client.Attr.DynamicPred "scheme" pred view
         [<JavaScript; Inline>]
-        static member scheme(view, convert, trans) = Client.Attr.Animated "scheme" trans view convert
+        static member schemeAnim view convert trans = Client.Attr.Animated "scheme" trans view convert
         [<JavaScript; Inline>]
-        static member scope(view) = Client.Attr.Dynamic "scope" view
+        static member scopeDyn view = Client.Attr.Dynamic "scope" view
         [<JavaScript; Inline>]
-        static member scope(view, pred) = Client.Attr.DynamicPred "scope" pred view
+        static member scopeDynPred view pred = Client.Attr.DynamicPred "scope" pred view
         [<JavaScript; Inline>]
-        static member scope(view, convert, trans) = Client.Attr.Animated "scope" trans view convert
+        static member scopeAnim view convert trans = Client.Attr.Animated "scope" trans view convert
         [<JavaScript; Inline>]
-        static member scoped(view) = Client.Attr.Dynamic "scoped" view
+        static member scopedDyn view = Client.Attr.Dynamic "scoped" view
         [<JavaScript; Inline>]
-        static member scoped(view, pred) = Client.Attr.DynamicPred "scoped" pred view
+        static member scopedDynPred view pred = Client.Attr.DynamicPred "scoped" pred view
         [<JavaScript; Inline>]
-        static member scoped(view, convert, trans) = Client.Attr.Animated "scoped" trans view convert
+        static member scopedAnim view convert trans = Client.Attr.Animated "scoped" trans view convert
         [<JavaScript; Inline>]
-        static member scrolling(view) = Client.Attr.Dynamic "scrolling" view
+        static member scrollingDyn view = Client.Attr.Dynamic "scrolling" view
         [<JavaScript; Inline>]
-        static member scrolling(view, pred) = Client.Attr.DynamicPred "scrolling" pred view
+        static member scrollingDynPred view pred = Client.Attr.DynamicPred "scrolling" pred view
         [<JavaScript; Inline>]
-        static member scrolling(view, convert, trans) = Client.Attr.Animated "scrolling" trans view convert
+        static member scrollingAnim view convert trans = Client.Attr.Animated "scrolling" trans view convert
         [<JavaScript; Inline>]
-        static member seamless(view) = Client.Attr.Dynamic "seamless" view
+        static member seamlessDyn view = Client.Attr.Dynamic "seamless" view
         [<JavaScript; Inline>]
-        static member seamless(view, pred) = Client.Attr.DynamicPred "seamless" pred view
+        static member seamlessDynPred view pred = Client.Attr.DynamicPred "seamless" pred view
         [<JavaScript; Inline>]
-        static member seamless(view, convert, trans) = Client.Attr.Animated "seamless" trans view convert
+        static member seamlessAnim view convert trans = Client.Attr.Animated "seamless" trans view convert
         [<JavaScript; Inline>]
-        static member selected(view) = Client.Attr.Dynamic "selected" view
+        static member selectedDyn view = Client.Attr.Dynamic "selected" view
         [<JavaScript; Inline>]
-        static member selected(view, pred) = Client.Attr.DynamicPred "selected" pred view
+        static member selectedDynPred view pred = Client.Attr.DynamicPred "selected" pred view
         [<JavaScript; Inline>]
-        static member selected(view, convert, trans) = Client.Attr.Animated "selected" trans view convert
+        static member selectedAnim view convert trans = Client.Attr.Animated "selected" trans view convert
         [<JavaScript; Inline>]
-        static member shape(view) = Client.Attr.Dynamic "shape" view
+        static member shapeDyn view = Client.Attr.Dynamic "shape" view
         [<JavaScript; Inline>]
-        static member shape(view, pred) = Client.Attr.DynamicPred "shape" pred view
+        static member shapeDynPred view pred = Client.Attr.DynamicPred "shape" pred view
         [<JavaScript; Inline>]
-        static member shape(view, convert, trans) = Client.Attr.Animated "shape" trans view convert
+        static member shapeAnim view convert trans = Client.Attr.Animated "shape" trans view convert
         [<JavaScript; Inline>]
-        static member size(view) = Client.Attr.Dynamic "size" view
+        static member sizeDyn view = Client.Attr.Dynamic "size" view
         [<JavaScript; Inline>]
-        static member size(view, pred) = Client.Attr.DynamicPred "size" pred view
+        static member sizeDynPred view pred = Client.Attr.DynamicPred "size" pred view
         [<JavaScript; Inline>]
-        static member size(view, convert, trans) = Client.Attr.Animated "size" trans view convert
+        static member sizeAnim view convert trans = Client.Attr.Animated "size" trans view convert
         [<JavaScript; Inline>]
-        static member sizes(view) = Client.Attr.Dynamic "sizes" view
+        static member sizesDyn view = Client.Attr.Dynamic "sizes" view
         [<JavaScript; Inline>]
-        static member sizes(view, pred) = Client.Attr.DynamicPred "sizes" pred view
+        static member sizesDynPred view pred = Client.Attr.DynamicPred "sizes" pred view
         [<JavaScript; Inline>]
-        static member sizes(view, convert, trans) = Client.Attr.Animated "sizes" trans view convert
+        static member sizesAnim view convert trans = Client.Attr.Animated "sizes" trans view convert
         [<JavaScript; Inline>]
-        static member span(view) = Client.Attr.Dynamic "span" view
+        static member spanDyn view = Client.Attr.Dynamic "span" view
         [<JavaScript; Inline>]
-        static member span(view, pred) = Client.Attr.DynamicPred "span" pred view
+        static member spanDynPred view pred = Client.Attr.DynamicPred "span" pred view
         [<JavaScript; Inline>]
-        static member span(view, convert, trans) = Client.Attr.Animated "span" trans view convert
+        static member spanAnim view convert trans = Client.Attr.Animated "span" trans view convert
         [<JavaScript; Inline>]
-        static member spellcheck(view) = Client.Attr.Dynamic "spellcheck" view
+        static member spellcheckDyn view = Client.Attr.Dynamic "spellcheck" view
         [<JavaScript; Inline>]
-        static member spellcheck(view, pred) = Client.Attr.DynamicPred "spellcheck" pred view
+        static member spellcheckDynPred view pred = Client.Attr.DynamicPred "spellcheck" pred view
         [<JavaScript; Inline>]
-        static member spellcheck(view, convert, trans) = Client.Attr.Animated "spellcheck" trans view convert
+        static member spellcheckAnim view convert trans = Client.Attr.Animated "spellcheck" trans view convert
         [<JavaScript; Inline>]
-        static member src(view) = Client.Attr.Dynamic "src" view
+        static member srcDyn view = Client.Attr.Dynamic "src" view
         [<JavaScript; Inline>]
-        static member src(view, pred) = Client.Attr.DynamicPred "src" pred view
+        static member srcDynPred view pred = Client.Attr.DynamicPred "src" pred view
         [<JavaScript; Inline>]
-        static member src(view, convert, trans) = Client.Attr.Animated "src" trans view convert
+        static member srcAnim view convert trans = Client.Attr.Animated "src" trans view convert
         [<JavaScript; Inline>]
-        static member srcdoc(view) = Client.Attr.Dynamic "srcdoc" view
+        static member srcdocDyn view = Client.Attr.Dynamic "srcdoc" view
         [<JavaScript; Inline>]
-        static member srcdoc(view, pred) = Client.Attr.DynamicPred "srcdoc" pred view
+        static member srcdocDynPred view pred = Client.Attr.DynamicPred "srcdoc" pred view
         [<JavaScript; Inline>]
-        static member srcdoc(view, convert, trans) = Client.Attr.Animated "srcdoc" trans view convert
+        static member srcdocAnim view convert trans = Client.Attr.Animated "srcdoc" trans view convert
         [<JavaScript; Inline>]
-        static member srclang(view) = Client.Attr.Dynamic "srclang" view
+        static member srclangDyn view = Client.Attr.Dynamic "srclang" view
         [<JavaScript; Inline>]
-        static member srclang(view, pred) = Client.Attr.DynamicPred "srclang" pred view
+        static member srclangDynPred view pred = Client.Attr.DynamicPred "srclang" pred view
         [<JavaScript; Inline>]
-        static member srclang(view, convert, trans) = Client.Attr.Animated "srclang" trans view convert
+        static member srclangAnim view convert trans = Client.Attr.Animated "srclang" trans view convert
         [<JavaScript; Inline>]
-        static member standby(view) = Client.Attr.Dynamic "standby" view
+        static member standbyDyn view = Client.Attr.Dynamic "standby" view
         [<JavaScript; Inline>]
-        static member standby(view, pred) = Client.Attr.DynamicPred "standby" pred view
+        static member standbyDynPred view pred = Client.Attr.DynamicPred "standby" pred view
         [<JavaScript; Inline>]
-        static member standby(view, convert, trans) = Client.Attr.Animated "standby" trans view convert
+        static member standbyAnim view convert trans = Client.Attr.Animated "standby" trans view convert
         [<JavaScript; Inline>]
-        static member start(view) = Client.Attr.Dynamic "start" view
+        static member startDyn view = Client.Attr.Dynamic "start" view
         [<JavaScript; Inline>]
-        static member start(view, pred) = Client.Attr.DynamicPred "start" pred view
+        static member startDynPred view pred = Client.Attr.DynamicPred "start" pred view
         [<JavaScript; Inline>]
-        static member start(view, convert, trans) = Client.Attr.Animated "start" trans view convert
+        static member startAnim view convert trans = Client.Attr.Animated "start" trans view convert
         [<JavaScript; Inline>]
-        static member step(view) = Client.Attr.Dynamic "step" view
+        static member stepDyn view = Client.Attr.Dynamic "step" view
         [<JavaScript; Inline>]
-        static member step(view, pred) = Client.Attr.DynamicPred "step" pred view
+        static member stepDynPred view pred = Client.Attr.DynamicPred "step" pred view
         [<JavaScript; Inline>]
-        static member step(view, convert, trans) = Client.Attr.Animated "step" trans view convert
+        static member stepAnim view convert trans = Client.Attr.Animated "step" trans view convert
         [<JavaScript; Inline>]
-        static member style(view) = Client.Attr.Dynamic "style" view
+        static member styleDyn view = Client.Attr.Dynamic "style" view
         [<JavaScript; Inline>]
-        static member style(view, pred) = Client.Attr.DynamicPred "style" pred view
+        static member styleDynPred view pred = Client.Attr.DynamicPred "style" pred view
         [<JavaScript; Inline>]
-        static member style(view, convert, trans) = Client.Attr.Animated "style" trans view convert
+        static member styleAnim view convert trans = Client.Attr.Animated "style" trans view convert
         [<JavaScript; Inline>]
-        static member subject(view) = Client.Attr.Dynamic "subject" view
+        static member subjectDyn view = Client.Attr.Dynamic "subject" view
         [<JavaScript; Inline>]
-        static member subject(view, pred) = Client.Attr.DynamicPred "subject" pred view
+        static member subjectDynPred view pred = Client.Attr.DynamicPred "subject" pred view
         [<JavaScript; Inline>]
-        static member subject(view, convert, trans) = Client.Attr.Animated "subject" trans view convert
+        static member subjectAnim view convert trans = Client.Attr.Animated "subject" trans view convert
         [<JavaScript; Inline>]
-        static member summary(view) = Client.Attr.Dynamic "summary" view
+        static member summaryDyn view = Client.Attr.Dynamic "summary" view
         [<JavaScript; Inline>]
-        static member summary(view, pred) = Client.Attr.DynamicPred "summary" pred view
+        static member summaryDynPred view pred = Client.Attr.DynamicPred "summary" pred view
         [<JavaScript; Inline>]
-        static member summary(view, convert, trans) = Client.Attr.Animated "summary" trans view convert
+        static member summaryAnim view convert trans = Client.Attr.Animated "summary" trans view convert
         [<JavaScript; Inline>]
-        static member tabindex(view) = Client.Attr.Dynamic "tabindex" view
+        static member tabindexDyn view = Client.Attr.Dynamic "tabindex" view
         [<JavaScript; Inline>]
-        static member tabindex(view, pred) = Client.Attr.DynamicPred "tabindex" pred view
+        static member tabindexDynPred view pred = Client.Attr.DynamicPred "tabindex" pred view
         [<JavaScript; Inline>]
-        static member tabindex(view, convert, trans) = Client.Attr.Animated "tabindex" trans view convert
+        static member tabindexAnim view convert trans = Client.Attr.Animated "tabindex" trans view convert
         [<JavaScript; Inline>]
-        static member target(view) = Client.Attr.Dynamic "target" view
+        static member targetDyn view = Client.Attr.Dynamic "target" view
         [<JavaScript; Inline>]
-        static member target(view, pred) = Client.Attr.DynamicPred "target" pred view
+        static member targetDynPred view pred = Client.Attr.DynamicPred "target" pred view
         [<JavaScript; Inline>]
-        static member target(view, convert, trans) = Client.Attr.Animated "target" trans view convert
+        static member targetAnim view convert trans = Client.Attr.Animated "target" trans view convert
         [<JavaScript; Inline>]
-        static member text(view) = Client.Attr.Dynamic "text" view
+        static member textDyn view = Client.Attr.Dynamic "text" view
         [<JavaScript; Inline>]
-        static member text(view, pred) = Client.Attr.DynamicPred "text" pred view
+        static member textDynPred view pred = Client.Attr.DynamicPred "text" pred view
         [<JavaScript; Inline>]
-        static member text(view, convert, trans) = Client.Attr.Animated "text" trans view convert
+        static member textAnim view convert trans = Client.Attr.Animated "text" trans view convert
         [<JavaScript; Inline>]
-        static member title(view) = Client.Attr.Dynamic "title" view
+        static member titleDyn view = Client.Attr.Dynamic "title" view
         [<JavaScript; Inline>]
-        static member title(view, pred) = Client.Attr.DynamicPred "title" pred view
+        static member titleDynPred view pred = Client.Attr.DynamicPred "title" pred view
         [<JavaScript; Inline>]
-        static member title(view, convert, trans) = Client.Attr.Animated "title" trans view convert
+        static member titleAnim view convert trans = Client.Attr.Animated "title" trans view convert
         [<JavaScript; Inline>]
-        static member ``type``(view) = Client.Attr.Dynamic "type" view
+        static member typeDyn view = Client.Attr.Dynamic "type" view
         [<JavaScript; Inline>]
-        static member ``type``(view, pred) = Client.Attr.DynamicPred "type" pred view
+        static member typeDynPred view pred = Client.Attr.DynamicPred "type" pred view
         [<JavaScript; Inline>]
-        static member ``type``(view, convert, trans) = Client.Attr.Animated "type" trans view convert
+        static member typeAnim view convert trans = Client.Attr.Animated "type" trans view convert
         [<JavaScript; Inline>]
-        static member usemap(view) = Client.Attr.Dynamic "usemap" view
+        static member usemapDyn view = Client.Attr.Dynamic "usemap" view
         [<JavaScript; Inline>]
-        static member usemap(view, pred) = Client.Attr.DynamicPred "usemap" pred view
+        static member usemapDynPred view pred = Client.Attr.DynamicPred "usemap" pred view
         [<JavaScript; Inline>]
-        static member usemap(view, convert, trans) = Client.Attr.Animated "usemap" trans view convert
+        static member usemapAnim view convert trans = Client.Attr.Animated "usemap" trans view convert
         [<JavaScript; Inline>]
-        static member valign(view) = Client.Attr.Dynamic "valign" view
+        static member valignDyn view = Client.Attr.Dynamic "valign" view
         [<JavaScript; Inline>]
-        static member valign(view, pred) = Client.Attr.DynamicPred "valign" pred view
+        static member valignDynPred view pred = Client.Attr.DynamicPred "valign" pred view
         [<JavaScript; Inline>]
-        static member valign(view, convert, trans) = Client.Attr.Animated "valign" trans view convert
+        static member valignAnim view convert trans = Client.Attr.Animated "valign" trans view convert
         [<JavaScript; Inline>]
-        static member value(view) = Client.Attr.Dynamic "value" view
+        static member valueDyn view = Client.Attr.Dynamic "value" view
         [<JavaScript; Inline>]
-        static member value(view, pred) = Client.Attr.DynamicPred "value" pred view
+        static member valueDynPred view pred = Client.Attr.DynamicPred "value" pred view
         [<JavaScript; Inline>]
-        static member value(view, convert, trans) = Client.Attr.Animated "value" trans view convert
+        static member valueAnim view convert trans = Client.Attr.Animated "value" trans view convert
         [<JavaScript; Inline>]
-        static member valuetype(view) = Client.Attr.Dynamic "valuetype" view
+        static member valuetypeDyn view = Client.Attr.Dynamic "valuetype" view
         [<JavaScript; Inline>]
-        static member valuetype(view, pred) = Client.Attr.DynamicPred "valuetype" pred view
+        static member valuetypeDynPred view pred = Client.Attr.DynamicPred "valuetype" pred view
         [<JavaScript; Inline>]
-        static member valuetype(view, convert, trans) = Client.Attr.Animated "valuetype" trans view convert
+        static member valuetypeAnim view convert trans = Client.Attr.Animated "valuetype" trans view convert
         [<JavaScript; Inline>]
-        static member version(view) = Client.Attr.Dynamic "version" view
+        static member versionDyn view = Client.Attr.Dynamic "version" view
         [<JavaScript; Inline>]
-        static member version(view, pred) = Client.Attr.DynamicPred "version" pred view
+        static member versionDynPred view pred = Client.Attr.DynamicPred "version" pred view
         [<JavaScript; Inline>]
-        static member version(view, convert, trans) = Client.Attr.Animated "version" trans view convert
+        static member versionAnim view convert trans = Client.Attr.Animated "version" trans view convert
         [<JavaScript; Inline>]
-        static member vlink(view) = Client.Attr.Dynamic "vlink" view
+        static member vlinkDyn view = Client.Attr.Dynamic "vlink" view
         [<JavaScript; Inline>]
-        static member vlink(view, pred) = Client.Attr.DynamicPred "vlink" pred view
+        static member vlinkDynPred view pred = Client.Attr.DynamicPred "vlink" pred view
         [<JavaScript; Inline>]
-        static member vlink(view, convert, trans) = Client.Attr.Animated "vlink" trans view convert
+        static member vlinkAnim view convert trans = Client.Attr.Animated "vlink" trans view convert
         [<JavaScript; Inline>]
-        static member vspace(view) = Client.Attr.Dynamic "vspace" view
+        static member vspaceDyn view = Client.Attr.Dynamic "vspace" view
         [<JavaScript; Inline>]
-        static member vspace(view, pred) = Client.Attr.DynamicPred "vspace" pred view
+        static member vspaceDynPred view pred = Client.Attr.DynamicPred "vspace" pred view
         [<JavaScript; Inline>]
-        static member vspace(view, convert, trans) = Client.Attr.Animated "vspace" trans view convert
+        static member vspaceAnim view convert trans = Client.Attr.Animated "vspace" trans view convert
         [<JavaScript; Inline>]
-        static member width(view) = Client.Attr.Dynamic "width" view
+        static member widthDyn view = Client.Attr.Dynamic "width" view
         [<JavaScript; Inline>]
-        static member width(view, pred) = Client.Attr.DynamicPred "width" pred view
+        static member widthDynPred view pred = Client.Attr.DynamicPred "width" pred view
         [<JavaScript; Inline>]
-        static member width(view, convert, trans) = Client.Attr.Animated "width" trans view convert
+        static member widthAnim view convert trans = Client.Attr.Animated "width" trans view convert
         [<JavaScript; Inline>]
-        static member wrap(view) = Client.Attr.Dynamic "wrap" view
+        static member wrapDyn view = Client.Attr.Dynamic "wrap" view
         [<JavaScript; Inline>]
-        static member wrap(view, pred) = Client.Attr.DynamicPred "wrap" pred view
+        static member wrapDynPred view pred = Client.Attr.DynamicPred "wrap" pred view
         [<JavaScript; Inline>]
-        static member wrap(view, convert, trans) = Client.Attr.Animated "wrap" trans view convert
+        static member wrapAnim view convert trans = Client.Attr.Animated "wrap" trans view convert
         // }}
 
     type Html.on with
