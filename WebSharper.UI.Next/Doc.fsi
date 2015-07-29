@@ -110,8 +110,11 @@ module EltExtensions =
         /// Get the element's id.
         member Id : string
 
-        /// Get the element's current value.
-        member Value : string
+        /// Get or set the element's current value.
+        member Value : string with get, set
+
+        /// Get or set the element's text content.
+        member Text : string with get, set
 
         /// Get the given attribute's value.
         member GetAttribute : name: string -> string

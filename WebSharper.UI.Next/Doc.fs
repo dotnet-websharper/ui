@@ -761,9 +761,23 @@ and [<JavaScript; Proxy(typeof<Elt>); CompiledName "Elt">]
     member this.Id'() : string =
         elt?id
 
-    [<Name "Value">]
-    member this.Value'() : string =
+    [<Name "GetValue">]
+    member this.GetValue() : string =
         elt?value
+
+    [<Name "SetValue">]
+    member this.SetValue(v: string) : unit =
+        elt?value <- v
+
+    [<Name "GetText">]
+    member this.GetText() : string =
+        elt.TextContent
+
+    [<Name "SetText">]
+    member this.SetText(v: string) : unit =
+        this.DocElemNode.Children <- EmptyDoc
+        rvUpdates.Value <- View.Const()
+        elt.TextContent <- v
 
     [<Name "SetAttribute">]
     member this.SetAttribute'(name: string, value: string) =
@@ -849,9 +863,13 @@ module EltExtensions =
         member this.Id =
             (As<Elt'> this).Id'()
 
-        [<Inline>]
-        member this.Value =
-            (As<Elt'> this).Value'()
+        member this.Value
+            with [<Inline>] get() = (As<Elt'> this).GetValue()
+            and [<Inline>] set v = (As<Elt'> this).SetValue(v)
+
+        member this.Text
+            with [<Inline>] get() = (As<Elt'> this).GetText()
+            and [<Inline>] set v = (As<Elt'> this).SetText(v)
 
         [<Inline>]
         member this.SetAttribute(name, value) =
