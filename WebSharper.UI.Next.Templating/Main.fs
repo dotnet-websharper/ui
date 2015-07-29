@@ -43,11 +43,12 @@ module internal Utils =
     let xn n = XName.Get n
 
     let ExprArray (exprs: Expr<'T> seq) : Expr<'T[]> =
-        Expr.NewArray(typeof<'T>, exprs |> Seq.cast |> List.ofSeq) |> Expr.Cast
+        Expr.NewArray(typeof<'T>, [ for e in exprs -> e.Raw ]) |> Expr.Cast
 
     type StringParts =
         | TextPart of string
         | TextHole of string
+        | TextViewHole of string
 
     let ViewOf ty = typedefof<View<_>>.MakeGenericType([|ty|])
     let VarOf ty = typedefof<Var<_>>.MakeGenericType([|ty|])
@@ -88,7 +89,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
 
     let mutable watcher: FileSystemWatcher = null
 
-    let textHoleRegex = Regex @"\$\{([^\}]+)\}" 
+    let textHoleRegex = Regex @"\$(!?)\{([^\}]+)\}" 
     let dataHole = xn"data-hole"
     let dataReplace = xn"data-replace"
     let dataTemplate = xn"data-template"
@@ -224,19 +225,20 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                             if t = "" then [] else
                             let holes =
                                 textHoleRegex.Matches t |> Seq.cast<Match>
-                                |> Seq.map (fun m -> m.Groups.[1].Value, m.Index)
+                                |> Seq.map (fun m ->
+                                    m.Groups.[1].Value <> "", m.Groups.[2].Value, m.Index)
                                 |> List.ofSeq
                             if List.isEmpty holes then
                                 [ TextPart t ]
                             else
                                 [
                                     let l = ref 0
-                                    for name, i in holes do
+                                    for isView, name, i in holes do
                                         if i > !l then
                                             let s = t.[!l .. i - 1]
                                             yield TextPart s
-                                        yield TextHole name
-                                        l := i + name.Length + 3
+                                        yield (if isView then TextViewHole else TextHole) name
+                                        l := i + name.Length + if isView then 4 else 3
                                     if t.Length > !l then
                                         let s = t.[!l ..]
                                         yield TextPart s
@@ -261,25 +263,39 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                         elif a.Name = dataAttr then
                                             getSimpleHole a.Value
                                         else
-                                            match getParts a.Value with
+                                            let parts = getParts a.Value
+                                            let rec groupTextPartsAndTextHoles cur l =
+                                                let toStringRev l =
+                                                    match l with
+                                                    | [] -> <@ "" @>
+                                                    | [e] -> e
+                                                    | [e2; e1] -> <@ %e1 + %e2 @>
+                                                    | es -> <@ System.String.Concat %(ExprArray (List.rev es)) @>
+                                                    |> Choice1Of2
+                                                match l with
+                                                | [] -> [toStringRev cur]
+                                                | TextPart t :: rest -> groupTextPartsAndTextHoles (<@ t @> :: cur) rest
+                                                | TextHole h :: rest -> groupTextPartsAndTextHoles (getSimpleHole h :: cur) rest
+                                                | TextViewHole h :: rest -> toStringRev cur :: Choice2Of2 (getViewHole h : Expr<View<string>>) :: groupTextPartsAndTextHoles [] rest
+                                            match groupTextPartsAndTextHoles [] parts with
                                             | [] -> <@ Attr.Create n "" @>
-                                            | [ TextPart v ] -> <@ Attr.Create n v @>
-                                            | p ->
+                                            | [Choice1Of2 s] -> <@ Attr.Create n %s @>
+                                            | parts ->
                                                 let rec collect parts =
                                                     match parts with
-                                                    | [ TextHole h ] -> getViewHole h
-                                                    | [ TextHole h; TextPart t ] -> 
-                                                        <@ View.Map (fun s -> s + t) %(getViewHole h) @>
-                                                    | [ TextPart t; TextHole h ] -> 
-                                                        <@ View.Map (fun s -> t + s) %(getViewHole h) @>
-                                                    | [ TextPart t1; TextHole h; TextPart t2 ] ->
-                                                        <@ View.Map (fun s -> t1 + s + t2) %(getViewHole h) @>
-                                                    | TextHole h :: rest ->
-                                                        <@ View.Map2 (fun s1 s2 -> s1 + s2) %(getViewHole h) %(collect rest) @>
-                                                    | TextPart t :: TextHole h :: rest ->
-                                                        <@ View.Map2 (fun s1 s2 -> t + s1 + s2) %(getViewHole h) %(collect rest) @>
+                                                    | [ Choice2Of2 h ] -> h
+                                                    | [ Choice2Of2 h; Choice1Of2 t ] -> 
+                                                        <@ View.Map (fun s -> s + %t) %h @>
+                                                    | [ Choice1Of2 t; Choice2Of2 h ] -> 
+                                                        <@ View.Map (fun s -> %t + s) %h @>
+                                                    | [ Choice1Of2 t1; Choice2Of2 h; Choice1Of2 t2 ] ->
+                                                        <@ View.Map (fun s -> %t1 + s + %t2) %h @>
+                                                    | Choice2Of2 h :: rest ->
+                                                        <@ View.Map2 (fun s1 s2 -> s1 + s2) %h %(collect rest) @>
+                                                    | Choice1Of2 t :: Choice2Of2 h :: rest ->
+                                                        <@ View.Map2 (fun s1 s2 -> %t + s1 + s2) %h %(collect rest) @>
                                                     | _ -> failwithf "collecting attribute parts failure" // should not happen
-                                                <@ Attr.Dynamic n %(collect p) @>
+                                                <@ Attr.Dynamic n %(collect parts) @>
                                     )
                                     |> ExprArray
                                 
@@ -292,7 +308,8 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                                 getParts n.Value
                                                 |> List.map (function
                                                     | TextPart t -> <@ Doc.TextNode t @>
-                                                    | TextHole h -> <@ Doc.TextView %(getViewHole h) @>
+                                                    | TextHole h -> <@ Doc.TextNode %(getSimpleHole h) @>
+                                                    | TextViewHole h -> <@ Doc.TextView %(getViewHole h) @>
                                                 )
                                             | _ -> []
                                         ) 
