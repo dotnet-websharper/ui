@@ -78,7 +78,6 @@ open WebSharper.UI.Next
 open WebSharper.Html.Server
 
 module Doc =
-    open WebSharper.Sitelets
     module m = WebSharper.Html.Server.Tags
 
     let rec AsElements (doc: Doc) =
@@ -102,8 +101,12 @@ module Doc =
                 | Html.Node.AttributeNode _ -> failwith "Unexpected attribute"
             [e]
 
+[<AutoOpen>]
+module Extensions =
+    open WebSharper.Sitelets
+
     let rec AsContent (doc: Doc) =
-        let els = AsElements doc
+        let els = Doc.AsElements doc
         // Do we have an HTML document?
         // 1. <html>...</html>
         match els with
@@ -113,6 +116,10 @@ module Doc =
         // No, so return the fragement as a full document with it as the body
         | els ->
             Content.Page(Body = els)
+
+    type Content<'Action> with
+        static member Doc doc : Async<Content<'Action>> =
+            AsContent doc
 
 namespace WebSharper.UI.Next.Client
 
