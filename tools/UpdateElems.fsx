@@ -132,8 +132,8 @@ module Tags =
             | "svgattr" ->
                 [|
                     sprintf "/// Create an SVG attribute \"%s\" with the given value." e.Name
-                    "[<Literal>]"
-                    sprintf "let %s = \"%s\"" e.LowNameEsc e.Name
+                    "[<JavaScript; Inline>]"
+                    sprintf "let %s value = Attr.Create \"%s\" value" e.LowNameEsc e.Name
                 |]
             | "event" ->
                 [|

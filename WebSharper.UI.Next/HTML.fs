@@ -2112,474 +2112,474 @@ module Html =
 
         // {{ svgattr normal
         /// Create an SVG attribute "accent-height" with the given value.
-        [<Literal>]
-        let accentHeight = "accent-height"
+        [<JavaScript; Inline>]
+        let accentHeight value = Attr.Create "accent-height" value
         /// Create an SVG attribute "accumulate" with the given value.
-        [<Literal>]
-        let accumulate = "accumulate"
+        [<JavaScript; Inline>]
+        let accumulate value = Attr.Create "accumulate" value
         /// Create an SVG attribute "additive" with the given value.
-        [<Literal>]
-        let additive = "additive"
+        [<JavaScript; Inline>]
+        let additive value = Attr.Create "additive" value
         /// Create an SVG attribute "alignment-baseline" with the given value.
-        [<Literal>]
-        let alignmentBaseline = "alignment-baseline"
+        [<JavaScript; Inline>]
+        let alignmentBaseline value = Attr.Create "alignment-baseline" value
         /// Create an SVG attribute "ascent" with the given value.
-        [<Literal>]
-        let ascent = "ascent"
+        [<JavaScript; Inline>]
+        let ascent value = Attr.Create "ascent" value
         /// Create an SVG attribute "attributeName" with the given value.
-        [<Literal>]
-        let attributeName = "attributeName"
+        [<JavaScript; Inline>]
+        let attributeName value = Attr.Create "attributeName" value
         /// Create an SVG attribute "attributeType" with the given value.
-        [<Literal>]
-        let attributeType = "attributeType"
+        [<JavaScript; Inline>]
+        let attributeType value = Attr.Create "attributeType" value
         /// Create an SVG attribute "azimuth" with the given value.
-        [<Literal>]
-        let azimuth = "azimuth"
+        [<JavaScript; Inline>]
+        let azimuth value = Attr.Create "azimuth" value
         /// Create an SVG attribute "baseFrequency" with the given value.
-        [<Literal>]
-        let baseFrequency = "baseFrequency"
+        [<JavaScript; Inline>]
+        let baseFrequency value = Attr.Create "baseFrequency" value
         /// Create an SVG attribute "baseline-shift" with the given value.
-        [<Literal>]
-        let baselineShift = "baseline-shift"
+        [<JavaScript; Inline>]
+        let baselineShift value = Attr.Create "baseline-shift" value
         /// Create an SVG attribute "begin" with the given value.
-        [<Literal>]
-        let ``begin`` = "begin"
+        [<JavaScript; Inline>]
+        let ``begin`` value = Attr.Create "begin" value
         /// Create an SVG attribute "bias" with the given value.
-        [<Literal>]
-        let bias = "bias"
+        [<JavaScript; Inline>]
+        let bias value = Attr.Create "bias" value
         /// Create an SVG attribute "calcMode" with the given value.
-        [<Literal>]
-        let calcMode = "calcMode"
+        [<JavaScript; Inline>]
+        let calcMode value = Attr.Create "calcMode" value
         /// Create an SVG attribute "class" with the given value.
-        [<Literal>]
-        let ``class`` = "class"
+        [<JavaScript; Inline>]
+        let ``class`` value = Attr.Create "class" value
         /// Create an SVG attribute "clip" with the given value.
-        [<Literal>]
-        let clip = "clip"
+        [<JavaScript; Inline>]
+        let clip value = Attr.Create "clip" value
         /// Create an SVG attribute "clip-path" with the given value.
-        [<Literal>]
-        let clipPath = "clip-path"
+        [<JavaScript; Inline>]
+        let clipPath value = Attr.Create "clip-path" value
         /// Create an SVG attribute "clipPathUnits" with the given value.
-        [<Literal>]
-        let clipPathUnits = "clipPathUnits"
+        [<JavaScript; Inline>]
+        let clipPathUnits value = Attr.Create "clipPathUnits" value
         /// Create an SVG attribute "clip-rule" with the given value.
-        [<Literal>]
-        let clipRule = "clip-rule"
+        [<JavaScript; Inline>]
+        let clipRule value = Attr.Create "clip-rule" value
         /// Create an SVG attribute "color" with the given value.
-        [<Literal>]
-        let color = "color"
+        [<JavaScript; Inline>]
+        let color value = Attr.Create "color" value
         /// Create an SVG attribute "color-interpolation" with the given value.
-        [<Literal>]
-        let colorInterpolation = "color-interpolation"
+        [<JavaScript; Inline>]
+        let colorInterpolation value = Attr.Create "color-interpolation" value
         /// Create an SVG attribute "color-interpolation-filters" with the given value.
-        [<Literal>]
-        let colorInterpolationFilters = "color-interpolation-filters"
+        [<JavaScript; Inline>]
+        let colorInterpolationFilters value = Attr.Create "color-interpolation-filters" value
         /// Create an SVG attribute "color-profile" with the given value.
-        [<Literal>]
-        let colorProfile = "color-profile"
+        [<JavaScript; Inline>]
+        let colorProfile value = Attr.Create "color-profile" value
         /// Create an SVG attribute "color-rendering" with the given value.
-        [<Literal>]
-        let colorRendering = "color-rendering"
+        [<JavaScript; Inline>]
+        let colorRendering value = Attr.Create "color-rendering" value
         /// Create an SVG attribute "contentScriptType" with the given value.
-        [<Literal>]
-        let contentScriptType = "contentScriptType"
+        [<JavaScript; Inline>]
+        let contentScriptType value = Attr.Create "contentScriptType" value
         /// Create an SVG attribute "contentStyleType" with the given value.
-        [<Literal>]
-        let contentStyleType = "contentStyleType"
+        [<JavaScript; Inline>]
+        let contentStyleType value = Attr.Create "contentStyleType" value
         /// Create an SVG attribute "cursor" with the given value.
-        [<Literal>]
-        let cursor = "cursor"
+        [<JavaScript; Inline>]
+        let cursor value = Attr.Create "cursor" value
         /// Create an SVG attribute "cx" with the given value.
-        [<Literal>]
-        let cx = "cx"
+        [<JavaScript; Inline>]
+        let cx value = Attr.Create "cx" value
         /// Create an SVG attribute "cy" with the given value.
-        [<Literal>]
-        let cy = "cy"
+        [<JavaScript; Inline>]
+        let cy value = Attr.Create "cy" value
         /// Create an SVG attribute "d" with the given value.
-        [<Literal>]
-        let d = "d"
+        [<JavaScript; Inline>]
+        let d value = Attr.Create "d" value
         /// Create an SVG attribute "diffuseConstant" with the given value.
-        [<Literal>]
-        let diffuseConstant = "diffuseConstant"
+        [<JavaScript; Inline>]
+        let diffuseConstant value = Attr.Create "diffuseConstant" value
         /// Create an SVG attribute "direction" with the given value.
-        [<Literal>]
-        let direction = "direction"
+        [<JavaScript; Inline>]
+        let direction value = Attr.Create "direction" value
         /// Create an SVG attribute "display" with the given value.
-        [<Literal>]
-        let display = "display"
+        [<JavaScript; Inline>]
+        let display value = Attr.Create "display" value
         /// Create an SVG attribute "divisor" with the given value.
-        [<Literal>]
-        let divisor = "divisor"
+        [<JavaScript; Inline>]
+        let divisor value = Attr.Create "divisor" value
         /// Create an SVG attribute "dominant-baseline" with the given value.
-        [<Literal>]
-        let dominantBaseline = "dominant-baseline"
+        [<JavaScript; Inline>]
+        let dominantBaseline value = Attr.Create "dominant-baseline" value
         /// Create an SVG attribute "dur" with the given value.
-        [<Literal>]
-        let dur = "dur"
+        [<JavaScript; Inline>]
+        let dur value = Attr.Create "dur" value
         /// Create an SVG attribute "dx" with the given value.
-        [<Literal>]
-        let dx = "dx"
+        [<JavaScript; Inline>]
+        let dx value = Attr.Create "dx" value
         /// Create an SVG attribute "dy" with the given value.
-        [<Literal>]
-        let dy = "dy"
+        [<JavaScript; Inline>]
+        let dy value = Attr.Create "dy" value
         /// Create an SVG attribute "edgeMode" with the given value.
-        [<Literal>]
-        let edgeMode = "edgeMode"
+        [<JavaScript; Inline>]
+        let edgeMode value = Attr.Create "edgeMode" value
         /// Create an SVG attribute "elevation" with the given value.
-        [<Literal>]
-        let elevation = "elevation"
+        [<JavaScript; Inline>]
+        let elevation value = Attr.Create "elevation" value
         /// Create an SVG attribute "end" with the given value.
-        [<Literal>]
-        let ``end`` = "end"
+        [<JavaScript; Inline>]
+        let ``end`` value = Attr.Create "end" value
         /// Create an SVG attribute "externalResourcesRequired" with the given value.
-        [<Literal>]
-        let externalResourcesRequired = "externalResourcesRequired"
+        [<JavaScript; Inline>]
+        let externalResourcesRequired value = Attr.Create "externalResourcesRequired" value
         /// Create an SVG attribute "fill" with the given value.
-        [<Literal>]
-        let fill = "fill"
+        [<JavaScript; Inline>]
+        let fill value = Attr.Create "fill" value
         /// Create an SVG attribute "fill-opacity" with the given value.
-        [<Literal>]
-        let fillOpacity = "fill-opacity"
+        [<JavaScript; Inline>]
+        let fillOpacity value = Attr.Create "fill-opacity" value
         /// Create an SVG attribute "fill-rule" with the given value.
-        [<Literal>]
-        let fillRule = "fill-rule"
+        [<JavaScript; Inline>]
+        let fillRule value = Attr.Create "fill-rule" value
         /// Create an SVG attribute "filter" with the given value.
-        [<Literal>]
-        let filter = "filter"
+        [<JavaScript; Inline>]
+        let filter value = Attr.Create "filter" value
         /// Create an SVG attribute "filterRes" with the given value.
-        [<Literal>]
-        let filterRes = "filterRes"
+        [<JavaScript; Inline>]
+        let filterRes value = Attr.Create "filterRes" value
         /// Create an SVG attribute "filterUnits" with the given value.
-        [<Literal>]
-        let filterUnits = "filterUnits"
+        [<JavaScript; Inline>]
+        let filterUnits value = Attr.Create "filterUnits" value
         /// Create an SVG attribute "flood-color" with the given value.
-        [<Literal>]
-        let floodColor = "flood-color"
+        [<JavaScript; Inline>]
+        let floodColor value = Attr.Create "flood-color" value
         /// Create an SVG attribute "flood-opacity" with the given value.
-        [<Literal>]
-        let floodOpacity = "flood-opacity"
+        [<JavaScript; Inline>]
+        let floodOpacity value = Attr.Create "flood-opacity" value
         /// Create an SVG attribute "font-family" with the given value.
-        [<Literal>]
-        let fontFamily = "font-family"
+        [<JavaScript; Inline>]
+        let fontFamily value = Attr.Create "font-family" value
         /// Create an SVG attribute "font-size" with the given value.
-        [<Literal>]
-        let fontSize = "font-size"
+        [<JavaScript; Inline>]
+        let fontSize value = Attr.Create "font-size" value
         /// Create an SVG attribute "font-size-adjust" with the given value.
-        [<Literal>]
-        let fontSizeAdjust = "font-size-adjust"
+        [<JavaScript; Inline>]
+        let fontSizeAdjust value = Attr.Create "font-size-adjust" value
         /// Create an SVG attribute "font-stretch" with the given value.
-        [<Literal>]
-        let fontStretch = "font-stretch"
+        [<JavaScript; Inline>]
+        let fontStretch value = Attr.Create "font-stretch" value
         /// Create an SVG attribute "font-style" with the given value.
-        [<Literal>]
-        let fontStyle = "font-style"
+        [<JavaScript; Inline>]
+        let fontStyle value = Attr.Create "font-style" value
         /// Create an SVG attribute "font-variant" with the given value.
-        [<Literal>]
-        let fontVariant = "font-variant"
+        [<JavaScript; Inline>]
+        let fontVariant value = Attr.Create "font-variant" value
         /// Create an SVG attribute "font-weight" with the given value.
-        [<Literal>]
-        let fontWeight = "font-weight"
+        [<JavaScript; Inline>]
+        let fontWeight value = Attr.Create "font-weight" value
         /// Create an SVG attribute "from" with the given value.
-        [<Literal>]
-        let from = "from"
+        [<JavaScript; Inline>]
+        let from value = Attr.Create "from" value
         /// Create an SVG attribute "gradientTransform" with the given value.
-        [<Literal>]
-        let gradientTransform = "gradientTransform"
+        [<JavaScript; Inline>]
+        let gradientTransform value = Attr.Create "gradientTransform" value
         /// Create an SVG attribute "gradientUnits" with the given value.
-        [<Literal>]
-        let gradientUnits = "gradientUnits"
+        [<JavaScript; Inline>]
+        let gradientUnits value = Attr.Create "gradientUnits" value
         /// Create an SVG attribute "height" with the given value.
-        [<Literal>]
-        let height = "height"
+        [<JavaScript; Inline>]
+        let height value = Attr.Create "height" value
         /// Create an SVG attribute "image-rendering" with the given value.
-        [<Literal>]
-        let imageRendering = "image-rendering"
+        [<JavaScript; Inline>]
+        let imageRendering value = Attr.Create "image-rendering" value
         /// Create an SVG attribute "in" with the given value.
-        [<Literal>]
-        let ``in`` = "in"
+        [<JavaScript; Inline>]
+        let ``in`` value = Attr.Create "in" value
         /// Create an SVG attribute "in2" with the given value.
-        [<Literal>]
-        let in2 = "in2"
+        [<JavaScript; Inline>]
+        let in2 value = Attr.Create "in2" value
         /// Create an SVG attribute "k1" with the given value.
-        [<Literal>]
-        let k1 = "k1"
+        [<JavaScript; Inline>]
+        let k1 value = Attr.Create "k1" value
         /// Create an SVG attribute "k2" with the given value.
-        [<Literal>]
-        let k2 = "k2"
+        [<JavaScript; Inline>]
+        let k2 value = Attr.Create "k2" value
         /// Create an SVG attribute "k3" with the given value.
-        [<Literal>]
-        let k3 = "k3"
+        [<JavaScript; Inline>]
+        let k3 value = Attr.Create "k3" value
         /// Create an SVG attribute "k4" with the given value.
-        [<Literal>]
-        let k4 = "k4"
+        [<JavaScript; Inline>]
+        let k4 value = Attr.Create "k4" value
         /// Create an SVG attribute "kernelMatrix" with the given value.
-        [<Literal>]
-        let kernelMatrix = "kernelMatrix"
+        [<JavaScript; Inline>]
+        let kernelMatrix value = Attr.Create "kernelMatrix" value
         /// Create an SVG attribute "kernelUnitLength" with the given value.
-        [<Literal>]
-        let kernelUnitLength = "kernelUnitLength"
+        [<JavaScript; Inline>]
+        let kernelUnitLength value = Attr.Create "kernelUnitLength" value
         /// Create an SVG attribute "kerning" with the given value.
-        [<Literal>]
-        let kerning = "kerning"
+        [<JavaScript; Inline>]
+        let kerning value = Attr.Create "kerning" value
         /// Create an SVG attribute "keySplines" with the given value.
-        [<Literal>]
-        let keySplines = "keySplines"
+        [<JavaScript; Inline>]
+        let keySplines value = Attr.Create "keySplines" value
         /// Create an SVG attribute "keyTimes" with the given value.
-        [<Literal>]
-        let keyTimes = "keyTimes"
+        [<JavaScript; Inline>]
+        let keyTimes value = Attr.Create "keyTimes" value
         /// Create an SVG attribute "letter-spacing" with the given value.
-        [<Literal>]
-        let letterSpacing = "letter-spacing"
+        [<JavaScript; Inline>]
+        let letterSpacing value = Attr.Create "letter-spacing" value
         /// Create an SVG attribute "lighting-color" with the given value.
-        [<Literal>]
-        let lightingColor = "lighting-color"
+        [<JavaScript; Inline>]
+        let lightingColor value = Attr.Create "lighting-color" value
         /// Create an SVG attribute "limitingConeAngle" with the given value.
-        [<Literal>]
-        let limitingConeAngle = "limitingConeAngle"
+        [<JavaScript; Inline>]
+        let limitingConeAngle value = Attr.Create "limitingConeAngle" value
         /// Create an SVG attribute "local" with the given value.
-        [<Literal>]
-        let local = "local"
+        [<JavaScript; Inline>]
+        let local value = Attr.Create "local" value
         /// Create an SVG attribute "marker-end" with the given value.
-        [<Literal>]
-        let markerEnd = "marker-end"
+        [<JavaScript; Inline>]
+        let markerEnd value = Attr.Create "marker-end" value
         /// Create an SVG attribute "markerHeight" with the given value.
-        [<Literal>]
-        let markerHeight = "markerHeight"
+        [<JavaScript; Inline>]
+        let markerHeight value = Attr.Create "markerHeight" value
         /// Create an SVG attribute "marker-mid" with the given value.
-        [<Literal>]
-        let markerMid = "marker-mid"
+        [<JavaScript; Inline>]
+        let markerMid value = Attr.Create "marker-mid" value
         /// Create an SVG attribute "marker-start" with the given value.
-        [<Literal>]
-        let markerStart = "marker-start"
+        [<JavaScript; Inline>]
+        let markerStart value = Attr.Create "marker-start" value
         /// Create an SVG attribute "markerUnits" with the given value.
-        [<Literal>]
-        let markerUnits = "markerUnits"
+        [<JavaScript; Inline>]
+        let markerUnits value = Attr.Create "markerUnits" value
         /// Create an SVG attribute "markerWidth" with the given value.
-        [<Literal>]
-        let markerWidth = "markerWidth"
+        [<JavaScript; Inline>]
+        let markerWidth value = Attr.Create "markerWidth" value
         /// Create an SVG attribute "mask" with the given value.
-        [<Literal>]
-        let mask = "mask"
+        [<JavaScript; Inline>]
+        let mask value = Attr.Create "mask" value
         /// Create an SVG attribute "maskContentUnits" with the given value.
-        [<Literal>]
-        let maskContentUnits = "maskContentUnits"
+        [<JavaScript; Inline>]
+        let maskContentUnits value = Attr.Create "maskContentUnits" value
         /// Create an SVG attribute "maskUnits" with the given value.
-        [<Literal>]
-        let maskUnits = "maskUnits"
+        [<JavaScript; Inline>]
+        let maskUnits value = Attr.Create "maskUnits" value
         /// Create an SVG attribute "max" with the given value.
-        [<Literal>]
-        let max = "max"
+        [<JavaScript; Inline>]
+        let max value = Attr.Create "max" value
         /// Create an SVG attribute "min" with the given value.
-        [<Literal>]
-        let min = "min"
+        [<JavaScript; Inline>]
+        let min value = Attr.Create "min" value
         /// Create an SVG attribute "mode" with the given value.
-        [<Literal>]
-        let mode = "mode"
+        [<JavaScript; Inline>]
+        let mode value = Attr.Create "mode" value
         /// Create an SVG attribute "numOctaves" with the given value.
-        [<Literal>]
-        let numOctaves = "numOctaves"
+        [<JavaScript; Inline>]
+        let numOctaves value = Attr.Create "numOctaves" value
         /// Create an SVG attribute "opacity" with the given value.
-        [<Literal>]
-        let opacity = "opacity"
+        [<JavaScript; Inline>]
+        let opacity value = Attr.Create "opacity" value
         /// Create an SVG attribute "operator" with the given value.
-        [<Literal>]
-        let operator = "operator"
+        [<JavaScript; Inline>]
+        let operator value = Attr.Create "operator" value
         /// Create an SVG attribute "order" with the given value.
-        [<Literal>]
-        let order = "order"
+        [<JavaScript; Inline>]
+        let order value = Attr.Create "order" value
         /// Create an SVG attribute "overflow" with the given value.
-        [<Literal>]
-        let overflow = "overflow"
+        [<JavaScript; Inline>]
+        let overflow value = Attr.Create "overflow" value
         /// Create an SVG attribute "paint-order" with the given value.
-        [<Literal>]
-        let paintOrder = "paint-order"
+        [<JavaScript; Inline>]
+        let paintOrder value = Attr.Create "paint-order" value
         /// Create an SVG attribute "pathLength" with the given value.
-        [<Literal>]
-        let pathLength = "pathLength"
+        [<JavaScript; Inline>]
+        let pathLength value = Attr.Create "pathLength" value
         /// Create an SVG attribute "patternContentUnits" with the given value.
-        [<Literal>]
-        let patternContentUnits = "patternContentUnits"
+        [<JavaScript; Inline>]
+        let patternContentUnits value = Attr.Create "patternContentUnits" value
         /// Create an SVG attribute "patternTransform" with the given value.
-        [<Literal>]
-        let patternTransform = "patternTransform"
+        [<JavaScript; Inline>]
+        let patternTransform value = Attr.Create "patternTransform" value
         /// Create an SVG attribute "patternUnits" with the given value.
-        [<Literal>]
-        let patternUnits = "patternUnits"
+        [<JavaScript; Inline>]
+        let patternUnits value = Attr.Create "patternUnits" value
         /// Create an SVG attribute "pointer-events" with the given value.
-        [<Literal>]
-        let pointerEvents = "pointer-events"
+        [<JavaScript; Inline>]
+        let pointerEvents value = Attr.Create "pointer-events" value
         /// Create an SVG attribute "points" with the given value.
-        [<Literal>]
-        let points = "points"
+        [<JavaScript; Inline>]
+        let points value = Attr.Create "points" value
         /// Create an SVG attribute "pointsAtX" with the given value.
-        [<Literal>]
-        let pointsAtX = "pointsAtX"
+        [<JavaScript; Inline>]
+        let pointsAtX value = Attr.Create "pointsAtX" value
         /// Create an SVG attribute "pointsAtY" with the given value.
-        [<Literal>]
-        let pointsAtY = "pointsAtY"
+        [<JavaScript; Inline>]
+        let pointsAtY value = Attr.Create "pointsAtY" value
         /// Create an SVG attribute "pointsAtZ" with the given value.
-        [<Literal>]
-        let pointsAtZ = "pointsAtZ"
+        [<JavaScript; Inline>]
+        let pointsAtZ value = Attr.Create "pointsAtZ" value
         /// Create an SVG attribute "preserveAlpha" with the given value.
-        [<Literal>]
-        let preserveAlpha = "preserveAlpha"
+        [<JavaScript; Inline>]
+        let preserveAlpha value = Attr.Create "preserveAlpha" value
         /// Create an SVG attribute "preserveAspectRatio" with the given value.
-        [<Literal>]
-        let preserveAspectRatio = "preserveAspectRatio"
+        [<JavaScript; Inline>]
+        let preserveAspectRatio value = Attr.Create "preserveAspectRatio" value
         /// Create an SVG attribute "primitiveUnits" with the given value.
-        [<Literal>]
-        let primitiveUnits = "primitiveUnits"
+        [<JavaScript; Inline>]
+        let primitiveUnits value = Attr.Create "primitiveUnits" value
         /// Create an SVG attribute "r" with the given value.
-        [<Literal>]
-        let r = "r"
+        [<JavaScript; Inline>]
+        let r value = Attr.Create "r" value
         /// Create an SVG attribute "radius" with the given value.
-        [<Literal>]
-        let radius = "radius"
+        [<JavaScript; Inline>]
+        let radius value = Attr.Create "radius" value
         /// Create an SVG attribute "repeatCount" with the given value.
-        [<Literal>]
-        let repeatCount = "repeatCount"
+        [<JavaScript; Inline>]
+        let repeatCount value = Attr.Create "repeatCount" value
         /// Create an SVG attribute "repeatDur" with the given value.
-        [<Literal>]
-        let repeatDur = "repeatDur"
+        [<JavaScript; Inline>]
+        let repeatDur value = Attr.Create "repeatDur" value
         /// Create an SVG attribute "requiredFeatures" with the given value.
-        [<Literal>]
-        let requiredFeatures = "requiredFeatures"
+        [<JavaScript; Inline>]
+        let requiredFeatures value = Attr.Create "requiredFeatures" value
         /// Create an SVG attribute "restart" with the given value.
-        [<Literal>]
-        let restart = "restart"
+        [<JavaScript; Inline>]
+        let restart value = Attr.Create "restart" value
         /// Create an SVG attribute "result" with the given value.
-        [<Literal>]
-        let result = "result"
+        [<JavaScript; Inline>]
+        let result value = Attr.Create "result" value
         /// Create an SVG attribute "rx" with the given value.
-        [<Literal>]
-        let rx = "rx"
+        [<JavaScript; Inline>]
+        let rx value = Attr.Create "rx" value
         /// Create an SVG attribute "ry" with the given value.
-        [<Literal>]
-        let ry = "ry"
+        [<JavaScript; Inline>]
+        let ry value = Attr.Create "ry" value
         /// Create an SVG attribute "scale" with the given value.
-        [<Literal>]
-        let scale = "scale"
+        [<JavaScript; Inline>]
+        let scale value = Attr.Create "scale" value
         /// Create an SVG attribute "seed" with the given value.
-        [<Literal>]
-        let seed = "seed"
+        [<JavaScript; Inline>]
+        let seed value = Attr.Create "seed" value
         /// Create an SVG attribute "shape-rendering" with the given value.
-        [<Literal>]
-        let shapeRendering = "shape-rendering"
+        [<JavaScript; Inline>]
+        let shapeRendering value = Attr.Create "shape-rendering" value
         /// Create an SVG attribute "specularConstant" with the given value.
-        [<Literal>]
-        let specularConstant = "specularConstant"
+        [<JavaScript; Inline>]
+        let specularConstant value = Attr.Create "specularConstant" value
         /// Create an SVG attribute "specularExponent" with the given value.
-        [<Literal>]
-        let specularExponent = "specularExponent"
+        [<JavaScript; Inline>]
+        let specularExponent value = Attr.Create "specularExponent" value
         /// Create an SVG attribute "stdDeviation" with the given value.
-        [<Literal>]
-        let stdDeviation = "stdDeviation"
+        [<JavaScript; Inline>]
+        let stdDeviation value = Attr.Create "stdDeviation" value
         /// Create an SVG attribute "stitchTiles" with the given value.
-        [<Literal>]
-        let stitchTiles = "stitchTiles"
+        [<JavaScript; Inline>]
+        let stitchTiles value = Attr.Create "stitchTiles" value
         /// Create an SVG attribute "stop-color" with the given value.
-        [<Literal>]
-        let stopColor = "stop-color"
+        [<JavaScript; Inline>]
+        let stopColor value = Attr.Create "stop-color" value
         /// Create an SVG attribute "stop-opacity" with the given value.
-        [<Literal>]
-        let stopOpacity = "stop-opacity"
+        [<JavaScript; Inline>]
+        let stopOpacity value = Attr.Create "stop-opacity" value
         /// Create an SVG attribute "stroke" with the given value.
-        [<Literal>]
-        let stroke = "stroke"
+        [<JavaScript; Inline>]
+        let stroke value = Attr.Create "stroke" value
         /// Create an SVG attribute "stroke-dasharray" with the given value.
-        [<Literal>]
-        let strokeDasharray = "stroke-dasharray"
+        [<JavaScript; Inline>]
+        let strokeDasharray value = Attr.Create "stroke-dasharray" value
         /// Create an SVG attribute "stroke-dashoffset" with the given value.
-        [<Literal>]
-        let strokeDashoffset = "stroke-dashoffset"
+        [<JavaScript; Inline>]
+        let strokeDashoffset value = Attr.Create "stroke-dashoffset" value
         /// Create an SVG attribute "stroke-linecap" with the given value.
-        [<Literal>]
-        let strokeLinecap = "stroke-linecap"
+        [<JavaScript; Inline>]
+        let strokeLinecap value = Attr.Create "stroke-linecap" value
         /// Create an SVG attribute "stroke-linejoin" with the given value.
-        [<Literal>]
-        let strokeLinejoin = "stroke-linejoin"
+        [<JavaScript; Inline>]
+        let strokeLinejoin value = Attr.Create "stroke-linejoin" value
         /// Create an SVG attribute "stroke-miterlimit" with the given value.
-        [<Literal>]
-        let strokeMiterlimit = "stroke-miterlimit"
+        [<JavaScript; Inline>]
+        let strokeMiterlimit value = Attr.Create "stroke-miterlimit" value
         /// Create an SVG attribute "stroke-opacity" with the given value.
-        [<Literal>]
-        let strokeOpacity = "stroke-opacity"
+        [<JavaScript; Inline>]
+        let strokeOpacity value = Attr.Create "stroke-opacity" value
         /// Create an SVG attribute "stroke-width" with the given value.
-        [<Literal>]
-        let strokeWidth = "stroke-width"
+        [<JavaScript; Inline>]
+        let strokeWidth value = Attr.Create "stroke-width" value
         /// Create an SVG attribute "style" with the given value.
-        [<Literal>]
-        let style = "style"
+        [<JavaScript; Inline>]
+        let style value = Attr.Create "style" value
         /// Create an SVG attribute "surfaceScale" with the given value.
-        [<Literal>]
-        let surfaceScale = "surfaceScale"
+        [<JavaScript; Inline>]
+        let surfaceScale value = Attr.Create "surfaceScale" value
         /// Create an SVG attribute "targetX" with the given value.
-        [<Literal>]
-        let targetX = "targetX"
+        [<JavaScript; Inline>]
+        let targetX value = Attr.Create "targetX" value
         /// Create an SVG attribute "targetY" with the given value.
-        [<Literal>]
-        let targetY = "targetY"
+        [<JavaScript; Inline>]
+        let targetY value = Attr.Create "targetY" value
         /// Create an SVG attribute "text-anchor" with the given value.
-        [<Literal>]
-        let textAnchor = "text-anchor"
+        [<JavaScript; Inline>]
+        let textAnchor value = Attr.Create "text-anchor" value
         /// Create an SVG attribute "text-decoration" with the given value.
-        [<Literal>]
-        let textDecoration = "text-decoration"
+        [<JavaScript; Inline>]
+        let textDecoration value = Attr.Create "text-decoration" value
         /// Create an SVG attribute "text-rendering" with the given value.
-        [<Literal>]
-        let textRendering = "text-rendering"
+        [<JavaScript; Inline>]
+        let textRendering value = Attr.Create "text-rendering" value
         /// Create an SVG attribute "to" with the given value.
-        [<Literal>]
-        let ``to`` = "to"
+        [<JavaScript; Inline>]
+        let ``to`` value = Attr.Create "to" value
         /// Create an SVG attribute "transform" with the given value.
-        [<Literal>]
-        let transform = "transform"
+        [<JavaScript; Inline>]
+        let transform value = Attr.Create "transform" value
         /// Create an SVG attribute "type" with the given value.
-        [<Literal>]
-        let ``type`` = "type"
+        [<JavaScript; Inline>]
+        let ``type`` value = Attr.Create "type" value
         /// Create an SVG attribute "values" with the given value.
-        [<Literal>]
-        let values = "values"
+        [<JavaScript; Inline>]
+        let values value = Attr.Create "values" value
         /// Create an SVG attribute "viewBox" with the given value.
-        [<Literal>]
-        let viewBox = "viewBox"
+        [<JavaScript; Inline>]
+        let viewBox value = Attr.Create "viewBox" value
         /// Create an SVG attribute "visibility" with the given value.
-        [<Literal>]
-        let visibility = "visibility"
+        [<JavaScript; Inline>]
+        let visibility value = Attr.Create "visibility" value
         /// Create an SVG attribute "width" with the given value.
-        [<Literal>]
-        let width = "width"
+        [<JavaScript; Inline>]
+        let width value = Attr.Create "width" value
         /// Create an SVG attribute "word-spacing" with the given value.
-        [<Literal>]
-        let wordSpacing = "word-spacing"
+        [<JavaScript; Inline>]
+        let wordSpacing value = Attr.Create "word-spacing" value
         /// Create an SVG attribute "writing-mode" with the given value.
-        [<Literal>]
-        let writingMode = "writing-mode"
+        [<JavaScript; Inline>]
+        let writingMode value = Attr.Create "writing-mode" value
         /// Create an SVG attribute "x" with the given value.
-        [<Literal>]
-        let x = "x"
+        [<JavaScript; Inline>]
+        let x value = Attr.Create "x" value
         /// Create an SVG attribute "x1" with the given value.
-        [<Literal>]
-        let x1 = "x1"
+        [<JavaScript; Inline>]
+        let x1 value = Attr.Create "x1" value
         /// Create an SVG attribute "x2" with the given value.
-        [<Literal>]
-        let x2 = "x2"
+        [<JavaScript; Inline>]
+        let x2 value = Attr.Create "x2" value
         /// Create an SVG attribute "xChannelSelector" with the given value.
-        [<Literal>]
-        let xChannelSelector = "xChannelSelector"
+        [<JavaScript; Inline>]
+        let xChannelSelector value = Attr.Create "xChannelSelector" value
         /// Create an SVG attribute "y" with the given value.
-        [<Literal>]
-        let y = "y"
+        [<JavaScript; Inline>]
+        let y value = Attr.Create "y" value
         /// Create an SVG attribute "y1" with the given value.
-        [<Literal>]
-        let y1 = "y1"
+        [<JavaScript; Inline>]
+        let y1 value = Attr.Create "y1" value
         /// Create an SVG attribute "y2" with the given value.
-        [<Literal>]
-        let y2 = "y2"
+        [<JavaScript; Inline>]
+        let y2 value = Attr.Create "y2" value
         /// Create an SVG attribute "yChannelSelector" with the given value.
-        [<Literal>]
-        let yChannelSelector = "yChannelSelector"
+        [<JavaScript; Inline>]
+        let yChannelSelector value = Attr.Create "yChannelSelector" value
         /// Create an SVG attribute "z" with the given value.
-        [<Literal>]
-        let z = "z"
+        [<JavaScript; Inline>]
+        let z value = Attr.Create "z" value
         // }}
