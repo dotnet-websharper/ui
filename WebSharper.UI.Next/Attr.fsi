@@ -41,6 +41,8 @@ type Attr =
     /// Empty attribute list.
     static member Empty : Attr
 
+    /// Sets an event handler, for a given event such as `click`.
+    /// When called on the server side, the handler must be a top-level function or a static member.
     static member Handler : event: string -> callback: (Expr<Dom.Element -> #Dom.Event -> unit>) -> Attr
 
 namespace WebSharper.UI.Next.Server

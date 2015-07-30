@@ -110,28 +110,35 @@ module Tags =
             match e.Type with
             | "tag" ->
                 [|
+                    sprintf "/// Create an HTML element <%s> with attributes and children." e.Name
                     "[<JavaScript; Inline>]"
                     sprintf """let %sAttr ats ch = Doc.Element "%s" ats ch""" e.LowName e.Name
+                    sprintf "/// Create an HTML element <%s> with children." e.Name
                     "[<JavaScript; Inline>]"
                     sprintf """let %s ch = Doc.Element "%s" [||] ch""" e.LowNameEsc e.Name
                 |]
             | "svgtag" ->
                 [|
+                    sprintf "/// Create an SVG element <%s> with attributes and children." e.Name
                     "[<JavaScript; Inline>]"
                     sprintf """let %s ats ch = Doc.SvgElement "%s" ats ch""" e.LowNameEsc e.Name
                 |]
             | "attr" ->
                 [|
+                    sprintf "/// Create an HTML attribute \"%s\" with the given value." e.Name
                     "[<JavaScript; Inline>]"
-                    sprintf "static member %s(value) = Attr.Create \"%s\" value" e.LowNameEsc e.Name
+                    sprintf "static member %s value = Attr.Create \"%s\" value" e.LowNameEsc e.Name
                 |]
             | "svgattr" ->
                 [|
+                    sprintf "/// Create an SVG attribute \"%s\" with the given value." e.Name
                     "[<Literal>]"
                     sprintf "let %s = \"%s\"" e.LowNameEsc e.Name
                 |]
             | "event" ->
                 [|
+                    sprintf "/// Create a handler for the event \"%s\"." e.Name
+                    "/// When called on the server side, the handler must be a top-level function or a static member."
                     "[<Inline>]"
                     sprintf """static member %s (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.%s -> unit>) = Attr.Handler "%s" f""" e.LowNameEsc e.Category e.Name
                 |]
@@ -140,15 +147,19 @@ module Tags =
             match e.Type with
             | "attr" ->
                 [|
+                    sprintf "/// Create an HTML attribute \"%s\" with the given reactive value." e.Name
                     "[<JavaScript; Inline>]"
                     sprintf "static member %sDyn view = Client.Attr.Dynamic \"%s\" view" e.LowName e.Name
+                    sprintf "/// `%s v p` sets an HTML attribute \"%s\" with reactive value v when p is true, and unsets it when p is false." e.LowName e.Name
                     "[<JavaScript; Inline>]"
                     sprintf "static member %sDynPred view pred = Client.Attr.DynamicPred \"%s\" pred view" e.LowName e.Name
+                    sprintf "/// Create an animated HTML attribute \"%s\" whose value is computed from the given reactive view." e.Name
                     "[<JavaScript; Inline>]"
                     sprintf "static member %sAnim view convert trans = Client.Attr.Animated \"%s\" trans view convert" e.LowName e.Name
                 |]
             | "event" ->
                 [|
+                    sprintf "/// Create a handler for the event \"%s\"." e.Name
                     "[<JavaScript; Inline>]"
                     sprintf """static member %s (f: Dom.Element -> Dom.%s -> unit) = Client.Attr.Handler "%s" f""" e.LowNameEsc e.Category e.Name
                 |]
