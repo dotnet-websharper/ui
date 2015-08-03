@@ -121,6 +121,20 @@ module Extensions =
         static member Doc doc : Async<Content<'Action>> =
             AsContent doc
 
+        static member Doc (?Body: #seq<Doc>, ?Head: #seq<Doc>, ?Title: string, ?Doctype: string) =
+            Content.Page(
+                Body =
+                    (match Body with
+                    | Some h -> Seq.collect Doc.AsElements h
+                    | None -> Seq.empty),
+                ?Doctype = Doctype,
+                Head =
+                    (match Head with
+                    | Some h -> Seq.collect Doc.AsElements h
+                    | None -> Seq.empty),
+                ?Title = Title
+            )
+
 namespace WebSharper.UI.Next.Client
 
 open WebSharper

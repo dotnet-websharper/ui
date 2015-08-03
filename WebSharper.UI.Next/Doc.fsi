@@ -84,6 +84,14 @@ module Extensions =
         /// `Doc` values that correspond to HTML fragements are converted to full documents.
         static member Doc : Doc -> Async<Content<'Action>>
 
+        /// Creates an HTML page response from `Doc`s.
+        static member Doc
+            : ?Body: #seq<Doc>
+            * ?Head: #seq<Doc>
+            * ?Title: string
+            * ?Doctype: string
+            -> Async<Content<'EndPoint>>
+
 namespace WebSharper.UI.Next.Client
 
 open WebSharper.JavaScript
