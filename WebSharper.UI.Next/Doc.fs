@@ -609,7 +609,7 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
 
     static member IntInput attr (var: Var<int>) =
         let parseInt s =
-            let pd = JS.ParseInt(s)
+            let pd = JS.ParseInt(s, 10)
             if JS.IsNaN pd then None
             else Some pd
         Doc'.InputInternal attr (Attr.CustomValue var string parseInt) (TypedInputBox "number")
