@@ -706,10 +706,20 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
         let el = Doc'.Clickable "button" action
         Doc'.Elem el attrs (As (Doc.TextNode caption))
 
+    static member ButtonView caption attrs view action =
+        let evAttr = Attr.HandlerView "click" view (fun _ _ -> action)
+        let attrs = Attr.Concat (Seq.append [|evAttr|] attrs)
+        Doc'.Elem (DU.CreateElement "button") attrs (As (Doc.TextNode caption))
+
     static member Link caption attrs action =
         let attrs = Attr.Concat attrs |> Attr.Append (Attr.Create "href" "#")
         let el = Doc'.Clickable "a" action
         Doc'.Elem el attrs (As (Doc.TextNode caption))
+
+    static member LinkView caption attrs view action =
+        let evAttr = Attr.HandlerView "click" view (fun _ _ -> action)
+        let attrs = Attr.Concat (Seq.append [|evAttr; Attr.Create "href" "#"|] attrs)
+        Doc'.Elem (DU.CreateElement "a") attrs (As (Doc.TextNode caption))
 
     static member Radio attrs value var =
         // Radio buttons work by taking a common var, which is given a unique ID.
@@ -1054,8 +1064,16 @@ module Doc =
         Doc'.Button caption attrs action
 
     [<Inline>]
+    let ButtonView caption attrs view action =
+        Doc'.ButtonView caption attrs view action
+
+    [<Inline>]
     let Link caption attrs action =
         Doc'.Link caption attrs action
+
+    [<Inline>]
+    let LinkView caption attrs view action =
+        Doc'.LinkView caption attrs view action
 
     [<Inline>]
     let Radio attrs value var =

@@ -84,6 +84,9 @@ module Attr =
     /// Sets an event handler, for a given event such as `click`.
     val Handler : name: string -> callback: (Element -> #DomEvent -> unit) -> Attr
 
+    /// Sets an event handler, for a given event such as `click`.
+    val HandlerView : name: string -> view: View<'T> -> callback: (Element -> #DomEvent -> 'T -> unit) -> Attr
+
     /// Sets a CSS class.
     val Class : name: string -> Attr
 

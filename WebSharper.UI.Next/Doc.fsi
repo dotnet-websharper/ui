@@ -221,12 +221,19 @@ module Doc =
     /// Password box.
     val PasswordBox : seq<Attr> -> Var<string> -> Elt
 
-    /// Submit button. Takes a view of reactive components with which it is associated,
-    /// and a callback function of what to do with this view once the button is pressed.
+    /// Submit button. Calls the callback function when the button is pressed.
     val Button : caption: string -> seq<Attr> -> (unit -> unit) -> Elt
 
-    /// Link with a callback, acts just like a button.
+    /// Submit button. Takes a view of reactive components with which it is associated,
+    /// and a callback function of what to do with this view once the button is pressed.
+    val ButtonView : caption: string -> seq<Attr> -> View<'T> -> ('T-> unit) -> Elt
+
+    /// Hyperlink. Calls the callback function when the link is clicked.
     val Link : caption: string -> seq<Attr> -> (unit -> unit) -> Elt
+
+    /// Hyperlink. Takes a view of reactive components with which it is associated,
+    /// and a callback function of what to do with this view once the link is clicked.
+    val LinkView : caption: string -> seq<Attr> -> View<'T> -> ('T -> unit) -> Elt
 
     /// Check Box.
     val CheckBox : seq<Attr> -> Var<bool> -> Elt

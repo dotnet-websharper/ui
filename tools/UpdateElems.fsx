@@ -162,6 +162,9 @@ module Tags =
                     sprintf "/// Create a handler for the event \"%s\"." e.Name
                     "[<JavaScript; Inline>]"
                     sprintf """static member %s (f: Dom.Element -> Dom.%s -> unit) = Client.Attr.Handler "%s" f""" e.LowNameEsc e.Category e.Name
+                    sprintf "/// Create a handler for the event \"%s\" which also receives the value of a view at the time of the event." e.Name
+                    "[<JavaScript; Inline>]"
+                    sprintf """static member %sView (view: View<'T>) (f: Dom.Element -> Dom.%s -> 'T -> unit) = Client.Attr.HandlerView "%s" view f""" e.LowName e.Category e.Name
                 |]
 
 Tags.Run()
