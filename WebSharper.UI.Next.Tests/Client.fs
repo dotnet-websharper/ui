@@ -16,21 +16,29 @@ module Client =
 
     type MyTemplate = Template<TemplateHtmlPath> 
 
-    type Item = { name: string; description: string }
+    type Item = { id : int; name: string; description: string }
 
     let Main =
         let myItems =
-          ListModel.FromSeq [
-            { name = "Item1"; description = "Description of Item1" }
-            { name = "Item2"; description = "Description of Item2" }
+          ListModel.Create (fun e -> e.id) [
+            { id = 1; name = "Item1"; description = "Description of Item1" }
+            { id = 2; name = "Item2"; description = "Description of Item2" }
           ]
  
         let title = View.Const "Starting title"
         let var = Var.Create ""
         let btnVar = Var.Create ()
+
+        let newName = Var.Create ""
+        let newId = Var.Create 0
  
         let doc =
             MyTemplate.Doc(
+                NewName = newName,
+                NewId = [
+                    Doc.IntInput [] newId
+                ],
+                NewItem = (fun e v -> myItems.Add { id = newId.Value; name = newName.Value; description = ""}),
                 Title = [
                     h1Attr
                       [ attr.style "color: blue"

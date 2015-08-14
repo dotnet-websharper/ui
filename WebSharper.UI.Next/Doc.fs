@@ -590,7 +590,7 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
     static member ConvertSeqBy key render view =
         View.ConvertSeqBy key render view |> Doc'.Flatten
 
-    static member InputInternal attr (var : Var<'a>) inputTy =
+    static member InputInternal attr (value : Attr) inputTy =
         let (attrN, elemTy) =
             match inputTy with
             | SimpleInputBox -> (Attr.Concat attr, "input")
@@ -599,23 +599,30 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
                 (Attr.Concat attr |> Attr.Append atType, "input")
             | TextArea -> (Attr.Concat attr, "textarea")
         let el = DU.CreateElement elemTy
-        let valAttr = Attr.Value var
-        Doc'.Elem el (Attr.Append attrN valAttr) Doc'.Empty
+        Doc'.Elem el (Attr.Append attrN value) Doc'.Empty
 
     static member Input attr (var: Var<string>) =
-        Doc'.InputInternal attr (var : Var<string>) SimpleInputBox
+        Doc'.InputInternal attr (Attr.Value var) SimpleInputBox
 
     static member PasswordBox attr (var: Var<string>) =
-        Doc'.InputInternal attr var (TypedInputBox "password")
+        Doc'.InputInternal attr (Attr.Value var) (TypedInputBox "password")
 
     static member IntInput attr (var: Var<int>) =
-        Doc'.InputInternal attr var (TypedInputBox "number")
+        let parseInt s =
+            let pd = JS.ParseInt(s, 10)
+            if JS.IsNaN pd then None
+            else Some pd
+        Doc'.InputInternal attr (Attr.CustomValue var string parseInt) (TypedInputBox "number")
 
     static member FloatInput attr (var: Var<float>) =
-        Doc'.InputInternal attr var (TypedInputBox "number")
+        let parseFloat s =
+            let pd = JS.ParseFloat(s)
+            if JS.IsNaN pd then None
+            else Some pd
+        Doc'.InputInternal attr (Attr.CustomValue var string parseFloat) (TypedInputBox "number")
 
     static member InputArea attr (var: Var<string>) =
-        Doc'.InputInternal attr (var : Var<string>) TextArea
+        Doc'.InputInternal attr (Attr.Value var) TextArea
 
     static member Select attrs (show: 'T -> string) (options: list<'T>) (current: Var<'T>) =
         let getIndex (el: Element) =
