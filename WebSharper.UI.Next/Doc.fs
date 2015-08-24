@@ -759,8 +759,9 @@ and [<JavaScript; Proxy(typeof<Elt>); CompiledName "Elt">]
     member this.Element = elt
 
     [<Name "On">]
-    member this.on (ev: string, cb: Dom.Element -> Dom.Event -> unit) =
-        elt.AddEventListener(ev, cb elt, false)
+    member this.on (ev: string, cb: Dom.Element -> #Dom.Event -> unit) =
+        elt.AddEventListener(ev, As<Dom.Event -> unit> (cb elt), false)
+        this
 
     member private this.DocElemNode =
         match docNode with
@@ -890,8 +891,289 @@ module EltExtensions =
             (As<Elt'> this).Clear'()
 
         [<Inline>]
-        member this.On event cb =
-            (As<Elt'> this).on(event, cb)
+        member this.On(event, cb: Dom.Element -> Dom.Event -> unit) =
+            As<Elt> ((As<Elt'> this).on(event, cb))
+
+        // {{ event
+        [<Inline>]
+        member this.OnAbort(cb: Dom.Element -> Dom.UIEvent -> unit) = As<Elt> ((As<Elt'> this).on("abort", cb))
+        [<Inline>]
+        member this.OnAfterPrint(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("afterprint", cb))
+        [<Inline>]
+        member this.OnAnimationEnd(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("animationend", cb))
+        [<Inline>]
+        member this.OnAnimationIteration(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("animationiteration", cb))
+        [<Inline>]
+        member this.OnAnimationStart(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("animationstart", cb))
+        [<Inline>]
+        member this.OnAudioProcess(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("audioprocess", cb))
+        [<Inline>]
+        member this.OnBeforePrint(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("beforeprint", cb))
+        [<Inline>]
+        member this.OnBeforeUnload(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("beforeunload", cb))
+        [<Inline>]
+        member this.OnBeginEvent(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("beginEvent", cb))
+        [<Inline>]
+        member this.OnBlocked(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("blocked", cb))
+        [<Inline>]
+        member this.OnBlur(cb: Dom.Element -> Dom.FocusEvent -> unit) = As<Elt> ((As<Elt'> this).on("blur", cb))
+        [<Inline>]
+        member this.OnCached(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("cached", cb))
+        [<Inline>]
+        member this.OnCanPlay(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("canplay", cb))
+        [<Inline>]
+        member this.OnCanPlayThrough(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("canplaythrough", cb))
+        [<Inline>]
+        member this.OnChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("change", cb))
+        [<Inline>]
+        member this.OnChargingChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("chargingchange", cb))
+        [<Inline>]
+        member this.OnChargingTimeChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("chargingtimechange", cb))
+        [<Inline>]
+        member this.OnChecking(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("checking", cb))
+        [<Inline>]
+        member this.OnClick(cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("click", cb))
+        [<Inline>]
+        member this.OnClose(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("close", cb))
+        [<Inline>]
+        member this.OnComplete(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("complete", cb))
+        [<Inline>]
+        member this.OnCompositionEnd(cb: Dom.Element -> Dom.CompositionEvent -> unit) = As<Elt> ((As<Elt'> this).on("compositionend", cb))
+        [<Inline>]
+        member this.OnCompositionStart(cb: Dom.Element -> Dom.CompositionEvent -> unit) = As<Elt> ((As<Elt'> this).on("compositionstart", cb))
+        [<Inline>]
+        member this.OnCompositionUpdate(cb: Dom.Element -> Dom.CompositionEvent -> unit) = As<Elt> ((As<Elt'> this).on("compositionupdate", cb))
+        [<Inline>]
+        member this.OnContextMenu(cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("contextmenu", cb))
+        [<Inline>]
+        member this.OnCopy(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("copy", cb))
+        [<Inline>]
+        member this.OnCut(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("cut", cb))
+        [<Inline>]
+        member this.OnDblClick(cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("dblclick", cb))
+        [<Inline>]
+        member this.OnDeviceLight(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("devicelight", cb))
+        [<Inline>]
+        member this.OnDeviceMotion(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("devicemotion", cb))
+        [<Inline>]
+        member this.OnDeviceOrientation(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("deviceorientation", cb))
+        [<Inline>]
+        member this.OnDeviceProximity(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("deviceproximity", cb))
+        [<Inline>]
+        member this.OnDischargingTimeChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("dischargingtimechange", cb))
+        [<Inline>]
+        member this.OnDOMActivate(cb: Dom.Element -> Dom.UIEvent -> unit) = As<Elt> ((As<Elt'> this).on("DOMActivate", cb))
+        [<Inline>]
+        member this.OnDOMAttributeNameChanged(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("DOMAttributeNameChanged", cb))
+        [<Inline>]
+        member this.OnDOMAttrModified(cb: Dom.Element -> Dom.MutationEvent -> unit) = As<Elt> ((As<Elt'> this).on("DOMAttrModified", cb))
+        [<Inline>]
+        member this.OnDOMCharacterDataModified(cb: Dom.Element -> Dom.MutationEvent -> unit) = As<Elt> ((As<Elt'> this).on("DOMCharacterDataModified", cb))
+        [<Inline>]
+        member this.OnDOMContentLoaded(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("DOMContentLoaded", cb))
+        [<Inline>]
+        member this.OnDOMElementNameChanged(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("DOMElementNameChanged", cb))
+        [<Inline>]
+        member this.OnDOMNodeInserted(cb: Dom.Element -> Dom.MutationEvent -> unit) = As<Elt> ((As<Elt'> this).on("DOMNodeInserted", cb))
+        [<Inline>]
+        member this.OnDOMNodeInsertedIntoDocument(cb: Dom.Element -> Dom.MutationEvent -> unit) = As<Elt> ((As<Elt'> this).on("DOMNodeInsertedIntoDocument", cb))
+        [<Inline>]
+        member this.OnDOMNodeRemoved(cb: Dom.Element -> Dom.MutationEvent -> unit) = As<Elt> ((As<Elt'> this).on("DOMNodeRemoved", cb))
+        [<Inline>]
+        member this.OnDOMNodeRemovedFromDocument(cb: Dom.Element -> Dom.MutationEvent -> unit) = As<Elt> ((As<Elt'> this).on("DOMNodeRemovedFromDocument", cb))
+        [<Inline>]
+        member this.OnDOMSubtreeModified(cb: Dom.Element -> Dom.MutationEvent -> unit) = As<Elt> ((As<Elt'> this).on("DOMSubtreeModified", cb))
+        [<Inline>]
+        member this.OnDownloading(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("downloading", cb))
+        [<Inline>]
+        member this.OnDrag(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("drag", cb))
+        [<Inline>]
+        member this.OnDragEnd(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("dragend", cb))
+        [<Inline>]
+        member this.OnDragEnter(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("dragenter", cb))
+        [<Inline>]
+        member this.OnDragLeave(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("dragleave", cb))
+        [<Inline>]
+        member this.OnDragOver(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("dragover", cb))
+        [<Inline>]
+        member this.OnDragStart(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("dragstart", cb))
+        [<Inline>]
+        member this.OnDrop(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("drop", cb))
+        [<Inline>]
+        member this.OnDurationChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("durationchange", cb))
+        [<Inline>]
+        member this.OnEmptied(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("emptied", cb))
+        [<Inline>]
+        member this.OnEnded(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("ended", cb))
+        [<Inline>]
+        member this.OnEndEvent(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("endEvent", cb))
+        [<Inline>]
+        member this.OnError(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("error", cb))
+        [<Inline>]
+        member this.OnFocus(cb: Dom.Element -> Dom.FocusEvent -> unit) = As<Elt> ((As<Elt'> this).on("focus", cb))
+        [<Inline>]
+        member this.OnFullScreenChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("fullscreenchange", cb))
+        [<Inline>]
+        member this.OnFullScreenError(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("fullscreenerror", cb))
+        [<Inline>]
+        member this.OnGamepadConnected(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("gamepadconnected", cb))
+        [<Inline>]
+        member this.OnGamepadDisconnected(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("gamepaddisconnected", cb))
+        [<Inline>]
+        member this.OnHashChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("hashchange", cb))
+        [<Inline>]
+        member this.OnInput(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("input", cb))
+        [<Inline>]
+        member this.OnInvalid(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("invalid", cb))
+        [<Inline>]
+        member this.OnKeyDown(cb: Dom.Element -> Dom.KeyboardEvent -> unit) = As<Elt> ((As<Elt'> this).on("keydown", cb))
+        [<Inline>]
+        member this.OnKeyPress(cb: Dom.Element -> Dom.KeyboardEvent -> unit) = As<Elt> ((As<Elt'> this).on("keypress", cb))
+        [<Inline>]
+        member this.OnkeyUp(cb: Dom.Element -> Dom.KeyboardEvent -> unit) = As<Elt> ((As<Elt'> this).on("keyup", cb))
+        [<Inline>]
+        member this.OnLanguageChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("languagechange", cb))
+        [<Inline>]
+        member this.OnLevelChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("levelchange", cb))
+        [<Inline>]
+        member this.OnLoad(cb: Dom.Element -> Dom.UIEvent -> unit) = As<Elt> ((As<Elt'> this).on("load", cb))
+        [<Inline>]
+        member this.OnLoadedData(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("loadeddata", cb))
+        [<Inline>]
+        member this.OnLoadedMetadata(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("loadedmetadata", cb))
+        [<Inline>]
+        member this.OnLoadEnd(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("loadend", cb))
+        [<Inline>]
+        member this.OnLoadStart(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("loadstart", cb))
+        [<Inline>]
+        member this.OnMessage(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("message", cb))
+        [<Inline>]
+        member this.OnMouseDown(cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("mousedown", cb))
+        [<Inline>]
+        member this.OnMouseEnter(cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("mouseenter", cb))
+        [<Inline>]
+        member this.OnMouseLeave(cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("mouseleave", cb))
+        [<Inline>]
+        member this.OnMouseMove(cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("mousemove", cb))
+        [<Inline>]
+        member this.OnMouseOut(cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("mouseout", cb))
+        [<Inline>]
+        member this.OnMouseOver(cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("mouseover", cb))
+        [<Inline>]
+        member this.OnMouseUp(cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("mouseup", cb))
+        [<Inline>]
+        member this.OnNoUpdate(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("noupdate", cb))
+        [<Inline>]
+        member this.OnObsolete(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("obsolete", cb))
+        [<Inline>]
+        member this.OnOffline(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("offline", cb))
+        [<Inline>]
+        member this.OnOnline(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("online", cb))
+        [<Inline>]
+        member this.OnOpen(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("open", cb))
+        [<Inline>]
+        member this.OnOrientationChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("orientationchange", cb))
+        [<Inline>]
+        member this.OnPageHide(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("pagehide", cb))
+        [<Inline>]
+        member this.OnPageShow(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("pageshow", cb))
+        [<Inline>]
+        member this.OnPaste(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("paste", cb))
+        [<Inline>]
+        member this.OnPause(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("pause", cb))
+        [<Inline>]
+        member this.OnPlay(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("play", cb))
+        [<Inline>]
+        member this.OnPlaying(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("playing", cb))
+        [<Inline>]
+        member this.OnPointerLockChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("pointerlockchange", cb))
+        [<Inline>]
+        member this.OnPointerLockError(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("pointerlockerror", cb))
+        [<Inline>]
+        member this.OnPopState(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("popstate", cb))
+        [<Inline>]
+        member this.OnProgress(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("progress", cb))
+        [<Inline>]
+        member this.OnRateChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("ratechange", cb))
+        [<Inline>]
+        member this.OnReadyStateChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("readystatechange", cb))
+        [<Inline>]
+        member this.OnRepeatEvent(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("repeatEvent", cb))
+        [<Inline>]
+        member this.OnReset(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("reset", cb))
+        [<Inline>]
+        member this.OnResize(cb: Dom.Element -> Dom.UIEvent -> unit) = As<Elt> ((As<Elt'> this).on("resize", cb))
+        [<Inline>]
+        member this.OnScroll(cb: Dom.Element -> Dom.UIEvent -> unit) = As<Elt> ((As<Elt'> this).on("scroll", cb))
+        [<Inline>]
+        member this.OnSeeked(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("seeked", cb))
+        [<Inline>]
+        member this.OnSeeking(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("seeking", cb))
+        [<Inline>]
+        member this.OnSelect(cb: Dom.Element -> Dom.UIEvent -> unit) = As<Elt> ((As<Elt'> this).on("select", cb))
+        [<Inline>]
+        member this.OnShow(cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("show", cb))
+        [<Inline>]
+        member this.OnStalled(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("stalled", cb))
+        [<Inline>]
+        member this.OnStorage(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("storage", cb))
+        [<Inline>]
+        member this.OnSubmit(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("submit", cb))
+        [<Inline>]
+        member this.OnSuccess(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("success", cb))
+        [<Inline>]
+        member this.OnSuspend(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("suspend", cb))
+        [<Inline>]
+        member this.OnSVGAbort(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("SVGAbort", cb))
+        [<Inline>]
+        member this.OnSVGError(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("SVGError", cb))
+        [<Inline>]
+        member this.OnSVGLoad(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("SVGLoad", cb))
+        [<Inline>]
+        member this.OnSVGResize(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("SVGResize", cb))
+        [<Inline>]
+        member this.OnSVGScroll(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("SVGScroll", cb))
+        [<Inline>]
+        member this.OnSVGUnload(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("SVGUnload", cb))
+        [<Inline>]
+        member this.OnSVGZoom(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("SVGZoom", cb))
+        [<Inline>]
+        member this.OnTimeOut(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("timeout", cb))
+        [<Inline>]
+        member this.OnTimeUpdate(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("timeupdate", cb))
+        [<Inline>]
+        member this.OnTouchCancel(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("touchcancel", cb))
+        [<Inline>]
+        member this.OnTouchEnd(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("touchend", cb))
+        [<Inline>]
+        member this.OnTouchEnter(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("touchenter", cb))
+        [<Inline>]
+        member this.OnTouchLeave(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("touchleave", cb))
+        [<Inline>]
+        member this.OnTouchMove(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("touchmove", cb))
+        [<Inline>]
+        member this.OnTouchStart(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("touchstart", cb))
+        [<Inline>]
+        member this.OnTransitionEnd(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("transitionend", cb))
+        [<Inline>]
+        member this.OnUnload(cb: Dom.Element -> Dom.UIEvent -> unit) = As<Elt> ((As<Elt'> this).on("unload", cb))
+        [<Inline>]
+        member this.OnUpdateReady(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("updateready", cb))
+        [<Inline>]
+        member this.OnUpgradeNeeded(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("upgradeneeded", cb))
+        [<Inline>]
+        member this.OnUserProximity(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("userproximity", cb))
+        [<Inline>]
+        member this.OnVersionChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("versionchange", cb))
+        [<Inline>]
+        member this.OnVisibilityChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("visibilitychange", cb))
+        [<Inline>]
+        member this.OnVolumeChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("volumechange", cb))
+        [<Inline>]
+        member this.OnWaiting(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("waiting", cb))
+        [<Inline>]
+        member this.OnWheel(cb: Dom.Element -> Dom.WheelEvent -> unit) = As<Elt> ((As<Elt'> this).on("wheel", cb))
+        // }}
 
         [<Inline>]
         member this.Html =

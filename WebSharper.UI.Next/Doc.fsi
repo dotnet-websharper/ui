@@ -106,7 +106,288 @@ module EltExtensions =
         member Dom : Dom.Element
 
         /// Add an event handler.
-        member On : event: string -> callback: (Dom.Element -> Dom.Event -> unit) -> unit
+        member On : event: string * callback: (Dom.Element -> Dom.Event -> unit) -> Elt
+
+        // {{ event
+        /// Add a handler for the event "abort".
+        member OnAbort : cb: (Dom.Element -> Dom.UIEvent -> unit) -> Elt
+        /// Add a handler for the event "afterprint".
+        member OnAfterPrint : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "animationend".
+        member OnAnimationEnd : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "animationiteration".
+        member OnAnimationIteration : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "animationstart".
+        member OnAnimationStart : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "audioprocess".
+        member OnAudioProcess : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "beforeprint".
+        member OnBeforePrint : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "beforeunload".
+        member OnBeforeUnload : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "beginEvent".
+        member OnBeginEvent : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "blocked".
+        member OnBlocked : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "blur".
+        member OnBlur : cb: (Dom.Element -> Dom.FocusEvent -> unit) -> Elt
+        /// Add a handler for the event "cached".
+        member OnCached : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "canplay".
+        member OnCanPlay : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "canplaythrough".
+        member OnCanPlayThrough : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "change".
+        member OnChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "chargingchange".
+        member OnChargingChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "chargingtimechange".
+        member OnChargingTimeChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "checking".
+        member OnChecking : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "click".
+        member OnClick : cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
+        /// Add a handler for the event "close".
+        member OnClose : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "complete".
+        member OnComplete : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "compositionend".
+        member OnCompositionEnd : cb: (Dom.Element -> Dom.CompositionEvent -> unit) -> Elt
+        /// Add a handler for the event "compositionstart".
+        member OnCompositionStart : cb: (Dom.Element -> Dom.CompositionEvent -> unit) -> Elt
+        /// Add a handler for the event "compositionupdate".
+        member OnCompositionUpdate : cb: (Dom.Element -> Dom.CompositionEvent -> unit) -> Elt
+        /// Add a handler for the event "contextmenu".
+        member OnContextMenu : cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
+        /// Add a handler for the event "copy".
+        member OnCopy : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "cut".
+        member OnCut : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "dblclick".
+        member OnDblClick : cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
+        /// Add a handler for the event "devicelight".
+        member OnDeviceLight : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "devicemotion".
+        member OnDeviceMotion : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "deviceorientation".
+        member OnDeviceOrientation : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "deviceproximity".
+        member OnDeviceProximity : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "dischargingtimechange".
+        member OnDischargingTimeChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "DOMActivate".
+        member OnDOMActivate : cb: (Dom.Element -> Dom.UIEvent -> unit) -> Elt
+        /// Add a handler for the event "DOMAttributeNameChanged".
+        member OnDOMAttributeNameChanged : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "DOMAttrModified".
+        member OnDOMAttrModified : cb: (Dom.Element -> Dom.MutationEvent -> unit) -> Elt
+        /// Add a handler for the event "DOMCharacterDataModified".
+        member OnDOMCharacterDataModified : cb: (Dom.Element -> Dom.MutationEvent -> unit) -> Elt
+        /// Add a handler for the event "DOMContentLoaded".
+        member OnDOMContentLoaded : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "DOMElementNameChanged".
+        member OnDOMElementNameChanged : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "DOMNodeInserted".
+        member OnDOMNodeInserted : cb: (Dom.Element -> Dom.MutationEvent -> unit) -> Elt
+        /// Add a handler for the event "DOMNodeInsertedIntoDocument".
+        member OnDOMNodeInsertedIntoDocument : cb: (Dom.Element -> Dom.MutationEvent -> unit) -> Elt
+        /// Add a handler for the event "DOMNodeRemoved".
+        member OnDOMNodeRemoved : cb: (Dom.Element -> Dom.MutationEvent -> unit) -> Elt
+        /// Add a handler for the event "DOMNodeRemovedFromDocument".
+        member OnDOMNodeRemovedFromDocument : cb: (Dom.Element -> Dom.MutationEvent -> unit) -> Elt
+        /// Add a handler for the event "DOMSubtreeModified".
+        member OnDOMSubtreeModified : cb: (Dom.Element -> Dom.MutationEvent -> unit) -> Elt
+        /// Add a handler for the event "downloading".
+        member OnDownloading : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "drag".
+        member OnDrag : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "dragend".
+        member OnDragEnd : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "dragenter".
+        member OnDragEnter : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "dragleave".
+        member OnDragLeave : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "dragover".
+        member OnDragOver : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "dragstart".
+        member OnDragStart : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "drop".
+        member OnDrop : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "durationchange".
+        member OnDurationChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "emptied".
+        member OnEmptied : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "ended".
+        member OnEnded : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "endEvent".
+        member OnEndEvent : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "error".
+        member OnError : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "focus".
+        member OnFocus : cb: (Dom.Element -> Dom.FocusEvent -> unit) -> Elt
+        /// Add a handler for the event "fullscreenchange".
+        member OnFullScreenChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "fullscreenerror".
+        member OnFullScreenError : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "gamepadconnected".
+        member OnGamepadConnected : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "gamepaddisconnected".
+        member OnGamepadDisconnected : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "hashchange".
+        member OnHashChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "input".
+        member OnInput : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "invalid".
+        member OnInvalid : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "keydown".
+        member OnKeyDown : cb: (Dom.Element -> Dom.KeyboardEvent -> unit) -> Elt
+        /// Add a handler for the event "keypress".
+        member OnKeyPress : cb: (Dom.Element -> Dom.KeyboardEvent -> unit) -> Elt
+        /// Add a handler for the event "keyup".
+        member OnkeyUp : cb: (Dom.Element -> Dom.KeyboardEvent -> unit) -> Elt
+        /// Add a handler for the event "languagechange".
+        member OnLanguageChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "levelchange".
+        member OnLevelChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "load".
+        member OnLoad : cb: (Dom.Element -> Dom.UIEvent -> unit) -> Elt
+        /// Add a handler for the event "loadeddata".
+        member OnLoadedData : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "loadedmetadata".
+        member OnLoadedMetadata : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "loadend".
+        member OnLoadEnd : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "loadstart".
+        member OnLoadStart : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "message".
+        member OnMessage : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "mousedown".
+        member OnMouseDown : cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
+        /// Add a handler for the event "mouseenter".
+        member OnMouseEnter : cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
+        /// Add a handler for the event "mouseleave".
+        member OnMouseLeave : cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
+        /// Add a handler for the event "mousemove".
+        member OnMouseMove : cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
+        /// Add a handler for the event "mouseout".
+        member OnMouseOut : cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
+        /// Add a handler for the event "mouseover".
+        member OnMouseOver : cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
+        /// Add a handler for the event "mouseup".
+        member OnMouseUp : cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
+        /// Add a handler for the event "noupdate".
+        member OnNoUpdate : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "obsolete".
+        member OnObsolete : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "offline".
+        member OnOffline : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "online".
+        member OnOnline : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "open".
+        member OnOpen : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "orientationchange".
+        member OnOrientationChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "pagehide".
+        member OnPageHide : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "pageshow".
+        member OnPageShow : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "paste".
+        member OnPaste : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "pause".
+        member OnPause : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "play".
+        member OnPlay : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "playing".
+        member OnPlaying : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "pointerlockchange".
+        member OnPointerLockChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "pointerlockerror".
+        member OnPointerLockError : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "popstate".
+        member OnPopState : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "progress".
+        member OnProgress : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "ratechange".
+        member OnRateChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "readystatechange".
+        member OnReadyStateChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "repeatEvent".
+        member OnRepeatEvent : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "reset".
+        member OnReset : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "resize".
+        member OnResize : cb: (Dom.Element -> Dom.UIEvent -> unit) -> Elt
+        /// Add a handler for the event "scroll".
+        member OnScroll : cb: (Dom.Element -> Dom.UIEvent -> unit) -> Elt
+        /// Add a handler for the event "seeked".
+        member OnSeeked : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "seeking".
+        member OnSeeking : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "select".
+        member OnSelect : cb: (Dom.Element -> Dom.UIEvent -> unit) -> Elt
+        /// Add a handler for the event "show".
+        member OnShow : cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
+        /// Add a handler for the event "stalled".
+        member OnStalled : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "storage".
+        member OnStorage : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "submit".
+        member OnSubmit : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "success".
+        member OnSuccess : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "suspend".
+        member OnSuspend : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "SVGAbort".
+        member OnSVGAbort : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "SVGError".
+        member OnSVGError : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "SVGLoad".
+        member OnSVGLoad : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "SVGResize".
+        member OnSVGResize : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "SVGScroll".
+        member OnSVGScroll : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "SVGUnload".
+        member OnSVGUnload : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "SVGZoom".
+        member OnSVGZoom : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "timeout".
+        member OnTimeOut : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "timeupdate".
+        member OnTimeUpdate : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "touchcancel".
+        member OnTouchCancel : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "touchend".
+        member OnTouchEnd : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "touchenter".
+        member OnTouchEnter : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "touchleave".
+        member OnTouchLeave : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "touchmove".
+        member OnTouchMove : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "touchstart".
+        member OnTouchStart : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "transitionend".
+        member OnTransitionEnd : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "unload".
+        member OnUnload : cb: (Dom.Element -> Dom.UIEvent -> unit) -> Elt
+        /// Add a handler for the event "updateready".
+        member OnUpdateReady : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "upgradeneeded".
+        member OnUpgradeNeeded : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "userproximity".
+        member OnUserProximity : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "versionchange".
+        member OnVersionChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "visibilitychange".
+        member OnVisibilityChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "volumechange".
+        member OnVolumeChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "waiting".
+        member OnWaiting : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+        /// Add a handler for the event "wheel".
+        member OnWheel : cb: (Dom.Element -> Dom.WheelEvent -> unit) -> Elt
+        // }}
 
         /// Add the given doc as first child(ren) of this element.
         member Prepend : Doc -> unit
