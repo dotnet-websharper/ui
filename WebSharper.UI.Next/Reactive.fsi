@@ -141,3 +141,29 @@ type Var<'T> with
 
     /// Gets or sets the current value.
     member Value : 'T with get, set
+
+/// A special type of View whose value is only updated when Trigger is called.
+[<Sealed>]
+type Submitter<'T> =
+
+    /// Get the output view of the submitter.
+    member View : View<'T>
+
+    /// Trigger the submitter, ie. cause its output view
+    /// to get the same value as its input view.
+    member Trigger : unit -> unit
+
+[<Sealed>]
+type Submitter =
+
+    /// Create a Submitter from the given input view.
+    /// Initially, the output view has the value init,
+    /// until the Submitter is triggered for the first time.
+    static member Create : input: View<'T> -> init: 'T -> Submitter<'T>
+
+    /// Get the output view of a submitter.
+    static member View : Submitter<'T> -> View<'T>
+
+    /// Trigger a submitter, ie. cause its output view
+    /// to get the same value as its input view.
+    static member Trigger : Submitter<'T> -> unit

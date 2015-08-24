@@ -259,3 +259,24 @@ type ViewBuilder =
 type View with
     [<JavaScript>]
     static member Do = B
+
+[<Sealed; JavaScript>]
+type Submitter<'T> (input: View<'T>, init: 'T) =
+    let var = Var.Create ()
+    let view = View.SnapshotOn init var.View input
+
+    member this.View = view
+
+    member this.Trigger() = var.Value <- ()
+
+[<Sealed; JavaScript>]
+type Submitter =
+
+    static member Create input init =
+        Submitter<_>(input, init)
+
+    static member View (s: Submitter<_>) =
+        s.View
+
+    static member Trigger (s: Submitter<_>) =
+        s.Trigger()
