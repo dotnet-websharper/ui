@@ -153,6 +153,9 @@ type Submitter<'T> =
     /// to get the same value as its input view.
     member Trigger : unit -> unit
 
+    /// Get the input view of the submitter.
+    member Input : View<'T>
+
 [<Sealed>]
 type Submitter =
 
@@ -167,3 +170,6 @@ type Submitter =
     /// Trigger a submitter, ie. cause its output view
     /// to get the same value as its input view.
     static member Trigger : Submitter<'T> -> unit
+
+    /// Get the input view of a submitter.
+    static member Input : Submitter<'T> -> View<'T>

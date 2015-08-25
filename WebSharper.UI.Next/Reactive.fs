@@ -269,6 +269,8 @@ type Submitter<'T> (input: View<'T>, init: 'T) =
 
     member this.Trigger() = var.Value <- ()
 
+    member this.Input = input
+
 [<Sealed; JavaScript>]
 type Submitter =
 
@@ -280,3 +282,6 @@ type Submitter =
 
     static member Trigger (s: Submitter<_>) =
         s.Trigger()
+
+    static member Input (s: Submitter<_>) =
+        s.Input
