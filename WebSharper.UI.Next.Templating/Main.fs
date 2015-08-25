@@ -68,6 +68,15 @@ module internal Utils =
             | Event -> EventTy
             | Simple (ty = t) -> t
 
+    type XElement with
+        member this.AnyAttributeOf([<ParamArray>] names: XName[]) =
+            (null, names)
+            ||> Array.fold (fun a n ->
+                match a with
+                | null -> this.Attribute(n)
+                | a -> a
+            )
+
 [<TypeProvider>]
 type TemplateProvider(cfg: TypeProviderConfig) as this =
     inherit TypeProviderForNamespaces()
@@ -145,18 +154,24 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                             | null ->
                                 match e.Attribute(dataChildrenTemplate) with
                                 | null -> None
-                                | a -> Some (a.Value, false, e)
-                            | a -> 
-                                let name = a.Value 
-                                a.Remove()
-                                Some (name, true, e)
+                                | a -> Some (e, a, false)
+                            | a -> Some (e, a, true)
                         )
                         |> List.ofSeq
-                        |> List.map (fun (name, wrap, e) ->
-                            e.Remove()
-                            name,
-                            if wrap then XElement(xn"body", e) else e
-                        )    
+                        |> List.map (fun (e, a, wrap) ->
+                            let name = a.Value
+                            a.Remove()
+                            let e =
+                                match e.AnyAttributeOf(dataReplace, dataHole) with
+                                | null ->
+                                    e.Remove()
+                                    e
+                                | a ->
+                                    let e = XElement(e)
+                                    e.Attribute(a.Name).Remove()
+                                    e
+                            name, if wrap then XElement(xn"body", e) else e
+                        )
                                         
                     let addTemplateMethod (t: XElement) (toTy: ProvidedTypeDefinition) =                        
                         let holes = Dictionary()
