@@ -239,21 +239,29 @@ type View =
 
 type Var<'T> with
 
-    [<JavaScript>]
+    [<JavaScript; Inline>]
     member v.View = View.FromVar v
 
     [<JavaScript>]
     member v.Value
-        with get () = Var.Get v
-        and set value = Var.Set v value
+        with [<Inline>] get () = Var.Get v
+        and [<Inline>] set value = Var.Set v value
+
+type View<'T> with
+
+    [<JavaScript; Inline>]
+    member v.Map f = View.Map f v
+
+    [<JavaScript; Inline>]
+    member v.Bind f = View.Bind f v
 
 type ViewBuilder =
     | B
 
-    [<JavaScript>]
+    [<JavaScript; Inline>]
     member b.Bind(x, f) = View.Bind f x
 
-    [<JavaScript>]
+    [<JavaScript; Inline>]
     member b.Return x = View.Const x
 
 type View with

@@ -142,6 +142,15 @@ type Var<'T> with
     /// Gets or sets the current value.
     member Value : 'T with get, set
 
+/// More members on View.
+type View<'T> with
+
+    /// Lifting functions.
+    member Map : ('T -> 'B) -> View<'B>
+
+    /// Dynamic composition.
+    member Bind : ('T -> View<'B>) -> View<'B>
+
 /// A special type of View whose value is only updated when Trigger is called.
 [<Sealed>]
 type Submitter<'T> =
