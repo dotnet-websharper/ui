@@ -23,29 +23,104 @@ type ListModel =
 Represents a time-varying list-like collection.  The key type is made a parameter
 to simplify working with equality.
 
-<a href="#Add" name="Add">#</a> m.**Add** `'T -> unit`
+<a href="#Add" name="Add">#</a> m.**Add** : `'T -> unit`
 
 Adds an item to the model.
 
-<a href="#Remove" name="Remove">#</a> m.**Remove** `'T -> unit`
+<a href="#Remove" name="Remove">#</a> m.**Remove** : `'T -> unit`
 
 Removes an item from the model.
 
-<a href="#Create" name="Create">#</a> ListModel.**Create** `('T -> 'Key) -> seq<'T> -> ListModel<'Key,'T>`
+<a href="#RemoveBy" name="RemoveBy">#</a> m.**RemoveBy** : `('T -> bool) -> unit`
+
+Removes all items from the model that match a condition.
+
+<a href="#RemoveByKey" name="RemoveByKey">#</a> m.**RemoveByKey** : `'Key -> unit`
+
+Removes the item from the model that has the given key.
+
+<a href="#Iter" name="Iter">#</a> m.**Iter** : `'T -> unit`
+
+Applies a function to each item in the model.
+
+<a href="#Set" name="Set">#</a> m.**Set** : `seq<'T> -> unit`
+
+Entirely replaces the list with a new one.
+
+<a href="#ContainsKey" name="ContainsKey">#</a> m.**ContainsKey** : `'Key -> bool`
+
+Checks if the model contains an item with the given key.
+
+<a href="#ContainsKeyAsView" name="ContainsKeyAsView">#</a> m.**ContainsKeyAsView** : `'Key -> View<bool>`
+
+Gets a view that checks if the model contains an item with the given key.
+
+<a href="#Find" name="Find">#</a> m.**Find** : `('T -> bool) -> 'T`
+
+Finds an item in the list that satisfies the given predicate. Throws an exception if there is none.
+
+<a href="#TryFind" name="TryFind">#</a> m.**TryFind** : `('T -> bool) -> option<'T>`
+
+Finds an item in the list that satisfies the given predicate. Returns None if there is none.
+
+<a href="#FindAsView" name="FindAsView">#</a> m.**FindAsView** : `('T -> bool) -> View<'T>`
+
+Gets a view that finds an item in the list that satisfies the given predicate. Throws an exception if there is none.
+
+<a href="#TryFindAsView" name="TryFindAsView">#</a> m.**TryFindAsView** : `('T -> bool) -> View<option<'T>>`
+
+Gets a view that finds an item in the list that satisfies the given predicate. Returns None if there is none.
+
+<a href="#FindByKey" name="FindByKey">#</a> m.**FindByKey** : `'Key -> 'T`
+
+Finds the item in the list with the given key. Throws an exception if there is none.
+
+<a href="#TryFindByKey" name="TryFindByKey">#</a> m.**TryFindByKey** : `'Key -> option<'T>`
+
+Finds the item in the list with the given key. Returns None if there is none.
+
+<a href="#FindByKeyAsView" name="FindByKeyAsView">#</a> m.**FindByKeyAsView** : `'Key -> View<'T>`
+
+Gets a view that finds the item in the list with the given key. Throws an exception if there is none.
+
+<a href="#TryFindByKeyAsView" name="TryFindByKeyAsView">#</a> m.**TryFindByKeyAsView** : `'Key -> View<option<'T>>`
+
+Gets a view that finds the item in the list with the given key. Returns None if there is none.
+
+<a href="#UpdateAll" name="UpdateAll">#</a> m.**UpdateAll** : `('T -> 'T option) -> unit`
+
+Updates all items with new items computed by the given function.
+For items for which None is computed, nothing is done.
+
+<a href="#UpdateBy" name="UpdateBy">#</a> m.**UpdateBy** : `('T -> 'T option) -> 'Key -> unit`
+
+Updates an item with the given key with another item computed by the given function.
+If None is computed or the item to be updated is not found, nothing is done.
+
+<a href="#Clear" name="Clear">#</a> m.**Clear** : `unit -> unit`
+
+Removes all elements of the list.
+
+<a href="#Length" name="Length">#</a> m.**Length** : `int`
+
+Gets the number of elements in the list.
+
+<a href="#LengthAsView" name="LengthAsView">#</a> m.**LengthAsView** : `View<int>`
+
+Gets a view of the number of elements in the list.
+
+<a href="#Create" name="Create">#</a> ListModel.**Create** : `('T -> 'Key) -> seq<'T> -> ListModel<'Key,'T>`
 
 Creates a new model with a given key function and initial items.
 
-<a href="#FromSeq" name="FromSeq">#</a> ListModel.**FromSeq** `seq<'T> -> ListModel<'T,'T>`
+<a href="#FromSeq" name="FromSeq">#</a> ListModel.**FromSeq** : `seq<'T> -> ListModel<'T,'T>`
 
 Creates a new model from an initial sequence, using intrinsic equality.
 
-<a href="#View" name="View">#</a> ListModel.**View** `ListModel<'K,'T> -> View<seq<'T>>`
+<a href="#View" name="View">#</a> ListModel.**View** : `ListModel<'K,'T> -> View<seq<'T>>`
 
 Returns a [View](View.md) on the model.
 
+<a href="#Key" name="Key">#</a> ListModel.**Key** : `ListModel<'K,'T> -> ('T -> 'Key)`
 
-
-
-
-
-
+Retrieve the function that determines the key of an item.

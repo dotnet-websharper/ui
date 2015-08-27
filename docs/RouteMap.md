@@ -23,7 +23,7 @@ type RouteMap =
 
 A bijection between an URL route and a value of the given type.
 
-<a href="#Install" name="Install">#</a> RouteMap.**Install** `RouteMap<'T> -> Var<'T>`
+<a href="#Install" name="Install">#</a> RouteMap.**Install** : `RouteMap<'T> -> Var<'T>`
 
 Installs a map to observe and modify the browser's current hash route (`document.location.hash`).
 This should be called once per application, as the current URL is a shared resource.
