@@ -552,6 +552,9 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
         |> View.Map ignore
         |> Doc'.Mk (EmbedDoc node)
 
+    static member BindView (f: 'T -> Doc') (view: View<'T>) =
+        Doc'.EmbedView (View.Map f view)
+
     static member Run parent (doc: Doc') =
         let d = doc.DocNode
         Docs.LinkElement parent d
@@ -1272,6 +1275,10 @@ module Doc =
     [<Inline>]
     let EmbedView (view: View<#Doc>) : Doc =
         As (Doc'.EmbedView (As view))
+
+    [<Inline>]
+    let BindView (f: 'T -> #Doc) (view: View<'T>) : Doc =
+        As (Doc'.BindView (As f) view)
 
     [<Inline>]
     let Run parent (doc: Doc) =

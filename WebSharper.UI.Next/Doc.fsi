@@ -448,6 +448,10 @@ module Doc =
     /// Embeds time-varying fragments.
     val EmbedView : View<#Doc> -> Doc
 
+    /// Embeds time-varying fragments.
+    /// Equivalent to View.Map followed by Doc.EmbedView.
+    val BindView : ('T -> #Doc) -> View<'T> -> Doc
+
     /// Creates a Doc using a given DOM element
     val Static : Element -> Elt
 
