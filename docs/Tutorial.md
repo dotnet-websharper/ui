@@ -38,34 +38,33 @@ let inputField = Doc.Input [] rvText
 We also want a label which displays the input.  Notice that we can get
 a view of the variable using the `.View` member.  This gives a value
 of type `View<string>` of `rvText`, which is accepted by
-`Doc.TextView` function to build a DOM text node tied to the view.
+`textView` function to build a DOM text node tied to the view.
 
 ```fsharp
-let label = Doc.TextView rvText.View
+let label = textView rvText.View
 ```
 
 Now, `label` is of type [Doc](Doc.md), yet still refers to a
 time-changing variable.  This means that once it is part of the bigger
 tree, whenever `rvText` changes, so will this node.  Finally, we wrap
 it all up in a couple of `<div/>` elements, and then run it in a
-`<div/>` called `#main`.  In the code below, `divc` is a function to
-create a `<div/>` with the given class name, and `el` is a shortcut
-function for `Doc.Element` without any attributes.
+`<div/>` called `#main`.
 
 ```fsharp
 open IntelliFactory.WebSharper
 open IntelliFactory.WebSharper.UI.Next
 open IntelliFactory.WebSharper.UI.Next.Html
+open IntelliFactory.WebSharper.UI.Next.Client
 
 let Main () =
   let rvText = Var.Create ""
   let inputField = Doc.Input [] rvText
-  let label = Doc.TextView rvText.View
+  let label = textView rvText.View
   let copyTheInput =
-    divc "panel-default" [
-      divc "panel-body" [
-        Div0 [inputField]
-        Div0 [label]
+    divAttr [attr.``class`` "panel-default"] [
+      divAttr [attr.``class`` "panel-body"] [
+        div [inputField]
+        div [label]
       ]
     ]
   Doc.RunById "main" copyTheInput
@@ -117,7 +116,7 @@ let viewWordOddEven =
 
 Finally, we embed these into table rows and hook everything up. This
 is done exactly as before -- we use the views we have created when
-creating the `TextView`s. You can find the source
+creating the `textView`s. You can find the source
 [here](https://github.com/intellifactory/websharper.ui.next.samples/blob/master/src/InputTransform.fs).
 
 ## Making a To-Do List Application
@@ -209,14 +208,12 @@ of the parameters, and also because typing the names can be a tad
 repetitive, it is often useful to create some convenience functions.
 
 ```fsharp
-/// Text node
-let txt t = Doc.TextNode t
-
 /// Input box backed by a variable x
-let input x = Doc.Input ["class" ==> "form-control"] x
+let input x = Doc.Input [attr.``class`` "form-control"] x
 
 /// Button with a given caption and handler
-let button name handler = Doc.Button name ["class" ==> "btn btn-default"] handler
+let button name handler =
+  Doc.Button name [attr.``class`` "btn btn-default"] handler
 ```
 
 ##### Rendering an Item
@@ -228,15 +225,15 @@ Here is an outline of our `RenderItem` function, which takes a
 
 /// Renders an item.
 let RenderItem coll todo =
-  TR0 [
-    TD0 [
+  tr [
+    td [
       // TODO: Render the text of the TodoItem here. If it's already
       // been marked as done, there should be a strikethrough.
     ]
-    TD0 [
+    td [
       // TODO: A button which marks the item as done.
     ]
-    TD0 [
+    td [
       // TODO: A button which deletes the item from the collection
     ]
   ]
@@ -246,15 +243,15 @@ Let us start with rendering the `TodoItem` text. Whenever we render an
 item, we want to have a strikethrough if the `Done` Var is set to
 true. In order to do this, we can use the `View.Map` function to
 create a `View<Doc>`, and then flatten this out to a `Doc` using
-`EmbedView`.  Here is what we need to do:
+`Doc.EmbedView`.  Or equivalently, we can do these two steps in one with
+`Doc.BindView`.  Here is what we need to do:
 
 ```fsharp
 todo.Done.View
-|> View.Map (fun isDone ->
+|> Doc.BindView (fun isDone ->
     if isDone
-        then Del [] [ txt todo.TodoText ]
-        else txt todo.TodoText)
-|> Doc.EmbedView
+        then del [text todo.TodoText] :> Doc
+        else text todo.TodoText)
 ```
 
 To start off with, we create a `View` of the `Done` Var.  This allows
@@ -263,7 +260,9 @@ a view, we can use the `View.Map` combinator to look at the value, and
 create an appropriate rendering.  In this function, `isDone` is of
 type `bool`, and if this is true, then we create a strikethrough
 effect using the `del` element. If not, then the text is just
-displayed without alteration.
+displayed without alteration. The `del` element needs to be upcast
+using `:> Doc` because its actual type is `Elt`, a subtype of `Doc`
+that represents docs that are known to be comprised of a single element.
 
 The result of the `View.Map` is therefore a `View<Doc>` -- which we
 can flatten out using `Doc.EmbedView`.
@@ -275,7 +274,7 @@ functions are really easy!
 Marking a to-do item as done:
 
 ```fsharp
-button "Done" (fun () -> Var.Set todo.Done true)
+button "Done" (fun () -> todo.Done.Value <- true)
 ```
 
 All we do here is set the 'Done' `Var` to true in the callback. We do
@@ -285,7 +284,7 @@ means that any DOM updates will happen automatically.
 Removing a to-do item from the list:
 
 ```fsharp
-button "Remove" (fun _ -> m.Items.Remove todo)
+button "Remove" (fun () -> m.Items.Remove todo)
 ```
 
 This is just as easy: we just call `Remove` with the collection and
@@ -298,26 +297,26 @@ So now our rendering function looks like this:
 
 /// Renders a TodoItem
 let RenderItem (m: Model) (todo: TodoItem) : Doc =
-  TR0 [
-    TD0 [
+  tr [
+    td [
       todo.Done.View
       |> View.Map (fun isDone ->
         if isDone
-          then Del [] [ txt todo.TodoText ]
-          else txt todo.TodoText)
+          then del [text todo.TodoText] :> Doc
+          else text todo.TodoText)
       // Finally, we embed this possibly-changing fragment into the tree.
       // Whenever the input changes, the parts of the tree change automatically.
       |> Doc.EmbedView
     ]
-    TD0 [
+    td [
       // Here's a button which specifies that the item has been done,
       // flipping the "Done" flag to true using a callback.
-      button "Done" (fun () -> Var.Set todo.Done true)
+      button "Done" (fun () -> todo.Done.Value <- true)
     ]
-    TD0 [
+    td [
       // This button removes the item from the collection. By removing the item,
       // the collection will automatically be updated.
-      button "Remove" (fun _ -> ReactiveCollection.Remove m todo)
+      button "Remove" (fun _ -> m.Items.Remove m todo)
     ]
   ]
 ```
@@ -330,14 +329,15 @@ collection changes, or the collection itself changes, the changes
 should be reflected in the DOM.  This is simply done using the
 [Doc.ConvertBy](Doc.md#ConvertBy) function.
 
-This takes a key function (in our case, just `(fun x -> x.Key)`), a
+This takes a key function (we can pass `(fun x -> x.Key)`, or just
+retrieve the key function used for the ListModel with `.Key`), a
 rendering function, and a view of a collection.  Now, tying this
 together is done as follows:
 
 ```fsharp
 let TodoList m =
-  ListModel.View m.Items
-  |> Doc.ConvertBy (fun m -> m.Key) (RenderItem m)
+  m.Items.View
+  |> Doc.ConvertBy m.Items.Key (RenderItem m)
 ```
 
 This gives us a `Doc`, which we can embed as normal. That is it -- we
@@ -356,16 +356,16 @@ function:
 let TodoForm m =
   // We make a variable to contain the new to-do item.
   let rvInput = Var.Create ""
-  Form0 [
-    divc "form-group" [
-      Label [] [txt "New entry: "]
+  form [
+    divAttr attr.``class`` "form-group"] [
+      label [text "New entry: "]
       // Here, we make the Input box, backing it by the reactive variable.
       input rvInput
     ]
     // Once the user clicks the submit button...
     button "Submit" (fun _ ->
-      // We construct a new ToDo item
-      let todo = TodoItem.Create (Var.Get rvInput)
+      // We construct a new to-do item
+      let todo = TodoItem.Create rvInput.Value
       // This is then added to the collection, which automatically
       // updates the presentation.
       m.Items.Add todo)
@@ -391,8 +391,8 @@ monoidal structure.  This means composing everything is done as so:
 ```fsharp
 let TodoExample () : Doc =
   let m = CreateModel ()
-  Table ["class" ==> "table table-hover"] [
-    TBody0 [
+  tableAttr [attr.``class`` "table table-hover"] [
+    tbody [
       TodoList m
       TodoForm m
     ]
