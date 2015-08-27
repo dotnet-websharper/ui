@@ -26,3 +26,4 @@
   * [Input](Input.md) - Views of the mouse and keyboard
 * Misc
   * [Notation](Notation.md)
+  * [Client vs Server](ClientServer.md) - a discussion of client-side and server-side functionality

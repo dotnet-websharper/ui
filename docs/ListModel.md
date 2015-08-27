@@ -11,11 +11,31 @@ namespace IntelliFactory.WebSharper.UI.Next
 type ListModel<'Key,'T when 'Key : equality> =
     member Add : 'T -> unit
     member Remove : 'T -> unit
+    member RemoveBy : ('T -> bool) -> unit
+    member RemoveByKey : 'Key -> unit
+    member Iter : ('T -> unit) -> unit
+    member Set : seq<'T> -> unit
+    member ContainsKey : 'Key -> bool
+    member ContainsKeyAsView : 'Key -> View<bool>
+    member Find : ('T -> bool) -> 'T
+    member TryFind : ('T -> bool) -> 'T option
+    member FindAsView : ('T -> bool) -> View<'T>
+    member TryFindAsView : ('T -> bool) -> View<'T option>
+    member FindByKey : 'Key -> 'T
+    member TryFindByKey : 'Key -> 'T option
+    member FindByKeyAsView : 'Key -> View<'T>
+    member TryFindByKeyAsView : 'Key -> View<'T option>
+    member UpdateAll : ('T -> 'T option) -> unit
+    member UpdateBy : ('T -> 'T option) -> 'Key -> unit
+    member Clear : unit -> unit
+    member Length : int
+    member LengthAsView : View<int>
 
 type ListModel =
     static member Create<'Key,'T when 'Key : equality> : ('T -> 'Key) -> seq<'T> -> ListModel<'Key,'T>
     static member FromSeq<'T when 'T : equality> : seq<'T> -> ListModel<'T,'T>
     static member View : ListModel<'Key,'T> -> View<seq<'T>>
+    static member Key : ListModel<'Key, 'T> -> ('T -> 'Key)
 ```
 
 <a href="#ListModel" name="ListModel">#</a> **ListModel** `type ListModel<'K,'T>`
@@ -39,7 +59,7 @@ Removes all items from the model that match a condition.
 
 Removes the item from the model that has the given key.
 
-<a href="#Iter" name="Iter">#</a> m.**Iter** : `'T -> unit`
+<a href="#Iter" name="Iter">#</a> m.**Iter** : `('T -> unit) -> unit`
 
 Applies a function to each item in the model.
 
