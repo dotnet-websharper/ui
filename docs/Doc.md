@@ -12,6 +12,9 @@ the any document is only used at once place in the parent document.
 
 The type `Elt` represents a `Doc` that is statically known to be comprised of a single element. It may of course contain time-varying children and/or attributes. The purpose of this more specific type is to provide a set of properties and methods listed below, that only make sense or can only be implemented efficiently for a single element.
 
+Docs can be constructed either by using one of the methods below, or from an
+HTML file using the [templating engine](Templates.md).
+
 Some of the methods below are only available in JavaScript-compiled
 code and require the namespace `WebSharper.UI.Next.Client` to be
 opened. See [here](ClientServer.md) for a discussion of client-side
