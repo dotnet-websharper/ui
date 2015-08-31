@@ -36,10 +36,12 @@ module Notation =
                 match q with
                 | Q.CallModule (c, [ o ]) ->
                     let t = c.Generics.Head.DeclaringType
-                    if t.AssemblyName.Name = "FSharp.Core" && t.Name = "FSharpRef`1" then
-                        C.FieldGet (tr o, !~(C.Integer 0L))        
-                    else
-                        C.Call(tr o,  !~(C.String "get_Value"), [])    
+                    Q.PropertyGet(
+                        {
+                            Generics = c.Generics
+                            Entity = R.Property.Parse (t.Load().GetProperty "Value")
+                        }, [o])
+                    |> tr
                 | _ -> failwith "GetValueMacro error"
 
     [<Sealed>]
@@ -49,11 +51,13 @@ module Notation =
                 match q with
                 | Q.CallModule (c, [ o; v ]) ->
                     let t = c.Generics.Head.DeclaringType
-                    if t.AssemblyName.Name = "FSharp.Core" && t.Name = "FSharpRef`1" then
-                        C.FieldSet (tr o, !~(C.Integer 0L), tr v)        
-                    else
-                        C.Call(tr o,  !~(C.String "set_Value"), [tr v])    
-                | _ -> failwith "GetValueMacro error"
+                    Q.PropertySet(
+                        {
+                            Generics = c.Generics
+                            Entity = R.Property.Parse (t.Load().GetProperty "Value")
+                        }, [o; v])
+                    |> tr
+                | _ -> failwith "SetValueMacro error"
 
     [<Macro(typeof<GetValueMacro>)>]
     let inline ( ! ) (o: ^x) : ^a = (^x: (member Value: ^a with get) o)
