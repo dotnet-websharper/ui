@@ -16,47 +16,54 @@ module Client =
 
     type MyTemplate = Template<TemplateHtmlPath> 
 
-    type Item = { id : int; name: string; description: string }
+    type Item =
+        { id : Key; name: string; description: string }
+        static member Key x = x.id
 
     let Main =
         let myItems =
           ListModel.Create (fun e -> e.id) [
-            { id = 1; name = "Item1"; description = "Description of Item1" }
-            { id = 2; name = "Item2"; description = "Description of Item2" }
+            { id = Key.Fresh(); name = "Item1"; description = "Description of Item1" }
+            { id = Key.Fresh(); name = "Item2"; description = "Description of Item2" }
           ]
  
         let title = View.Const "Starting title"
         let var = Var.Create ""
-        let btnVar = Var.Create ()
+        let btnSub = Submitter.Create var.View ""
 
         let newName = Var.Create ""
-        let newId = Var.Create 0
  
         let doc =
             MyTemplate.Doc(
                 NewName = newName,
-                NewId = [
-                    Doc.IntInput [] newId
-                ],
-                NewItem = (fun e v -> myItems.Add { id = newId.Value; name = newName.Value; description = ""}),
+                NewItem = (fun e v -> myItems.Add { id = Key.Fresh(); name = newName.Value; description = ""}),
                 Title = [
-                    h1Attr
-                      [ attr.style "color: blue"
+                    h1Attr [
+                        attr.style "color: blue"
                         attr.classDynPred var.View (View.Const true)
-                        on.click (fun el ev -> Console.Log ev) ]
-                      [ textView title ]
+                        on.click (fun el ev -> Console.Log ev)
+                    ] [textView title]
                 ],
-                ListContainer =
-                    [ ListModel.View myItems |> Doc.Convert (fun item ->
+                ListContainer = [
+                    myItems.View |> Doc.ConvertSeqBy Item.Key (fun key item ->
                         MyTemplate.ListItem.Doc(
-                            Name = item.name,
-                            Description = item.description,
+                            Name = item.Map(fun i -> i.name),
+                            Description = myItems.LensInto (fun i -> i.description) (fun i d -> { i with description = d }) key,
                             FontStyle = "italic",
                             FontWeight = "bold")
-                    ) ],
+                    )
+                ],
+                ListView = [
+                    myItems.View |> Doc.ConvertSeqBy Item.Key (fun key item ->
+                        MyTemplate.ListViewItem.Doc(
+                            Name = item.Map(fun i -> i.name),
+                            Description = item.Map(fun i -> i.description)
+                        )
+                    )
+                ],
                 MyInput = var,
-                MyInputView = View.SnapshotOn "" btnVar.View var.View,
-                MyCallback = (fun el ev -> btnVar := ())
+                MyInputView = btnSub.View,
+                MyCallback = (fun el ev -> btnSub.Trigger ())
             )
 
         doc |> Doc.RunById "main"

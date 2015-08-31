@@ -393,11 +393,12 @@ module Attr =
         As<Attr> (Attrs.Dynamic view ignore (fun el v ->
             el?(name) <- v))
 
-    let CustomValue (var: Var<'a>) (toString : 'a -> string) (fromString : string -> 'a option) =
+    let CustomValue (var: IRef<'a>) (toString : 'a -> string) (fromString : string -> 'a option) =
         let onChange (el: Element) (e: DomEvent) =
-            if el?value <> var.Value then
-                fromString el?value
-                |> Option.iter (Var.Set var)
+            var.UpdateMaybe(fun v ->
+                if el?value <> v then
+                    fromString el?value
+                else None)
         Attr.Concat [
             Handler "change" onChange
             Handler "input" onChange
@@ -406,5 +407,5 @@ module Attr =
                         if vl <> e?value then e?value <- vl))
         ]
 
-    let Value (var: Var<string>) =
+    let Value (var: IRef<string>) =
         CustomValue var id (id >> Some)

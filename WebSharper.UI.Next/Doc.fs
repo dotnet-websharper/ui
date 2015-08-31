@@ -604,30 +604,30 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
         let el = DU.CreateElement elemTy
         Doc'.Elem el (Attr.Append attrN value) Doc'.Empty
 
-    static member Input attr (var: Var<string>) =
+    static member Input attr (var: IRef<string>) =
         Doc'.InputInternal attr (Attr.Value var) SimpleInputBox
 
-    static member PasswordBox attr (var: Var<string>) =
+    static member PasswordBox attr (var: IRef<string>) =
         Doc'.InputInternal attr (Attr.Value var) (TypedInputBox "password")
 
-    static member IntInput attr (var: Var<int>) =
+    static member IntInput attr (var: IRef<int>) =
         let parseInt s =
             let pd = JS.ParseInt(s, 10)
             if JS.IsNaN pd then None
             else Some pd
         Doc'.InputInternal attr (Attr.CustomValue var string parseInt) (TypedInputBox "number")
 
-    static member FloatInput attr (var: Var<float>) =
+    static member FloatInput attr (var: IRef<float>) =
         let parseFloat s =
             let pd = JS.ParseFloat(s)
             if JS.IsNaN pd then None
             else Some pd
         Doc'.InputInternal attr (Attr.CustomValue var string parseFloat) (TypedInputBox "number")
 
-    static member InputArea attr (var: Var<string>) =
+    static member InputArea attr (var: IRef<string>) =
         Doc'.InputInternal attr (Attr.Value var) TextArea
 
-    static member Select attrs (show: 'T -> string) (options: list<'T>) (current: Var<'T>) =
+    static member Select attrs (show: 'T -> string) (options: list<'T>) (current: IRef<'T>) =
         let getIndex (el: Element) =
             el?selectedIndex : int
         let setIndex (el: Element) (i: int) =
@@ -641,10 +641,10 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
             setIndex el (itemIndex item)
         let el = DU.CreateElement "select"
         let selectedItemAttr =
-            View.FromVar current
+            current.View
             |> Attr.DynamicCustom setSelectedItem
         let onChange (x: DomEvent) =
-            Var.Set current (getSelectedItem el)
+            current.Set (getSelectedItem el)
         el.AddEventListener("change", onChange, false)
         let optionElements =
             Doc.Concat (
@@ -655,10 +655,10 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
             )
         Doc'.Elem el (Attr.Concat attrs |> Attr.Append selectedItemAttr) (As optionElements)
 
-    static member CheckBox attrs (chk: Var<bool>) =
+    static member CheckBox attrs (chk: IRef<bool>) =
         let el = DU.CreateElement "input"
         let onClick (x: DomEvent) =
-            Var.Set chk el?``checked``
+            chk.Set el?``checked``
         el.AddEventListener("click", onClick, false)
         let attrs =
             Attr.Concat [
@@ -668,12 +668,12 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
             ]
         Doc'.Elem el attrs Doc'.Empty
 
-    static member CheckBoxGroup attrs (item: 'T) (chk: Var<list<'T>>) =
+    static member CheckBoxGroup attrs (item: 'T) (chk: IRef<list<'T>>) =
         // Create RView for the list of checked items
-        let rvi = View.FromVar chk
+        let rvi = chk.View
         // Update list of checked items, given an item and whether it's checked or not.
         let updateList chkd =
-            Var.Update chk (fun obs ->
+            chk.Update (fun obs ->
                 let obs =
                     if chkd then
                         obs @ [item]
@@ -685,7 +685,7 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
         let attrs =
             [
                 Attr.Create "type" "checkbox"
-                Attr.Create "name" (Var.GetId chk |> string)
+                Attr.Create "name" chk.Id
                 Attr.Create "value" (Fresh.Id ())
                 Attr.DynamicProp "checked" checkedView
             ] @ (List.ofSeq attrs) |> Attr.Concat
@@ -724,19 +724,19 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
         let attrs = Attr.Concat (Seq.append [|evAttr; Attr.Create "href" "#"|] attrs)
         Doc'.Elem (DU.CreateElement "a") attrs (As (Doc.TextNode caption))
 
-    static member Radio attrs value var =
+    static member Radio attrs value (var: IRef<_>) =
         // Radio buttons work by taking a common var, which is given a unique ID.
         // This ID is serialised and used as the name, giving us the "grouping"
         // behaviour.
         let el = DU.CreateElement "input"
-        el.AddEventListener("click", (fun (x : DomEvent) -> Var.Set var value), false)
+        el.AddEventListener("click", (fun (x : DomEvent) -> var.Set value), false)
         let predView = View.Map (fun x -> x = value) var.View
         let valAttr = Attr.DynamicProp "checked" predView
         let (==>) k v = Attr.Create k v
         let attr =
             [
                 "type" ==> "radio"
-                "name" ==> (Var.GetId var |> string)
+                "name" ==> var.Id
                 valAttr
             ] @ (List.ofSeq attrs) |> Attr.Concat
         Doc'.Elem el attr Doc'.Empty
@@ -1311,7 +1311,7 @@ module Doc =
         As (Doc'.ConvertSeq (As render) view)
 
     [<Inline>]
-    let ConvertSeqBy (key: 'T -> 'K) (render: View<'T> -> #Doc) (view: View<seq<'T>>) : Doc =
+    let ConvertSeqBy (key: 'T -> 'K) (render: 'K -> View<'T> -> #Doc) (view: View<seq<'T>>) : Doc =
         As (Doc'.ConvertSeqBy key (As render) view)
 
   // Form helpers ---------------------------------------------------------------

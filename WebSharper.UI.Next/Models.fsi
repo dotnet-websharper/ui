@@ -130,6 +130,12 @@ type ListModel<'Key,'T when 'Key : equality> with
     /// Gets a view of the number of elements in the list.
     member LengthAsView : View<int>
 
+    /// Gets a reference to an element of the list.
+    member Lens : 'Key -> IRef<'T>
+
+    /// Gets a reference to a part of an element of the list.
+    member LensInto : get:('T -> 'V) -> update:('T -> 'V -> 'T) -> 'Key -> IRef<'V>
+
 type ListModel with
 
     /// Creates a new instance.

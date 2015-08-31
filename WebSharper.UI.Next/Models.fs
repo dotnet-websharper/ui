@@ -162,6 +162,40 @@ type ListModel<'K,'T> with
     member m.LengthAsView =
         m.Var.View |> View.Map (fun arr -> arr.Length)
 
+    [<Inline>]
+    member m.LensInto (get: 'T -> 'V) (update: 'T -> 'V -> 'T) (key : 'Key) : IRef<'V> =
+        new RefImpl<'Key, 'T, 'V>(m, key, get, update) :> IRef<'V>
+
+    member m.Lens (key: 'Key) =
+        m.LensInto id (fun _ -> id) key
+
+and [<JavaScript>]
+    RefImpl<'K, 'T, 'V when 'K : equality>
+        (m: ListModel<'K, 'T>, key: 'K, get: 'T -> 'V, update: 'T -> 'V -> 'T) =
+
+    let id = Fresh.Id()
+
+    interface IRef<'V> with
+
+        member r.Get() =
+            m.FindByKey key |> get
+
+        member r.Set(v) =
+            m.UpdateBy (fun i -> Some (update i v)) key
+
+        member r.Update(f) =
+            m.UpdateBy (fun i -> Some (update i (f (get i)))) key
+
+        member r.UpdateMaybe(f) =
+            m.UpdateBy (fun i -> f (get i) |> Option.map (update i)) key
+
+        member r.View =
+            m.FindByKeyAsView(key)
+            |> View.Map get
+
+        member r.Id =
+            id
+
 [<JavaScript>]
 [<Sealed>]
 type ListModel =

@@ -97,10 +97,10 @@ module Attr =
     val DynamicPred : name: string -> predView: View<bool> -> valView: View<string> -> Attr
 
     /// Gets and sets the value of the element according to a Var.
-    val CustomValue : Var<'a> -> ('a -> string) -> (string -> 'a option) -> Attr when 'a : equality
+    val CustomValue : IRef<'a> -> ('a -> string) -> (string -> 'a option) -> Attr when 'a : equality
 
     /// Gets and sets the value of the element according to a Var.
-    val Value : Var<string> -> Attr
+    val Value : IRef<string> -> Attr
 
 /// Internals used in Doc.
 module internal Attrs =

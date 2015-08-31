@@ -475,7 +475,7 @@ module Doc =
         when 'T : equality
 
     /// Doc.ConvertSeq with a custom key.
-    val ConvertSeqBy : ('T -> 'K) -> (View<'T> -> #Doc) -> View<seq<'T>> -> Doc
+    val ConvertSeqBy : ('T -> 'K) -> ('K -> View<'T> -> #Doc) -> View<seq<'T>> -> Doc
         when 'K : equality
 
   // Main entry-point combinators - use once per app
@@ -492,19 +492,19 @@ module Doc =
   // Form helpers
 
     /// Input box.
-    val Input : seq<Attr> -> Var<string> -> Elt
+    val Input : seq<Attr> -> IRef<string> -> Elt
 
     /// Input box with type="number".
-    val IntInput : seq<Attr> -> Var<int> -> Elt
+    val IntInput : seq<Attr> -> IRef<int> -> Elt
 
     /// Input box with type="number".
-    val FloatInput : seq<Attr> -> Var<float> -> Elt
+    val FloatInput : seq<Attr> -> IRef<float> -> Elt
 
     /// Input text area.
-    val InputArea : seq<Attr> -> Var<string> -> Elt
+    val InputArea : seq<Attr> -> IRef<string> -> Elt
 
     /// Password box.
-    val PasswordBox : seq<Attr> -> Var<string> -> Elt
+    val PasswordBox : seq<Attr> -> IRef<string> -> Elt
 
     /// Submit button. Calls the callback function when the button is pressed.
     val Button : caption: string -> seq<Attr> -> (unit -> unit) -> Elt
@@ -521,16 +521,16 @@ module Doc =
     val LinkView : caption: string -> seq<Attr> -> View<'T> -> ('T -> unit) -> Elt
 
     /// Check Box.
-    val CheckBox : seq<Attr> -> Var<bool> -> Elt
+    val CheckBox : seq<Attr> -> IRef<bool> -> Elt
 
     /// Check Box Group.
-    val CheckBoxGroup : seq<Attr> -> 'T -> Var<list<'T>> -> Elt
+    val CheckBoxGroup : seq<Attr> -> 'T -> IRef<list<'T>> -> Elt
         when 'T : equality
 
     /// Select box.
-    val Select : seq<Attr> -> ('T -> string) -> list<'T> -> Var<'T> -> Elt
+    val Select : seq<Attr> -> ('T -> string) -> list<'T> -> IRef<'T> -> Elt
         when 'T : equality
 
     /// Radio button.
-    val Radio : seq<Attr> -> 'T -> Var<'T> -> Elt
+    val Radio : seq<Attr> -> 'T -> IRef<'T> -> Elt
         when 'T : equality
