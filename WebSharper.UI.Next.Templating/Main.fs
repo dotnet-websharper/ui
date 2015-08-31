@@ -383,9 +383,9 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                     varMap.Add((name, irefTy), arg)
                                     if hasView then
                                         varMap.Add((name, ViewOf valTy),
-                                            Expr.Call(
+                                            Expr.Call(arg,
                                                 irefTy.GetProperty("View").GetGetMethod(),
-                                                [arg]))
+                                                []))
                             mainExpr.Substitute(fun v ->
                                 match varMap.TryGetValue((v.Name, v.Type)) with
                                 | true, e -> Some e

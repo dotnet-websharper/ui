@@ -224,7 +224,7 @@ type View =
                             Var.Set n.NVar x
                             n
                         else
-                            View.ConvertSeqNode (conv k) x
+                            View.ConvertSeqNode (fun v -> conv k v) x
                     newState.[k] <- node
                     node.NValue)
                 :> seq<_>
@@ -232,7 +232,7 @@ type View =
             result)
 
     static member ConvertSeq conv view =
-        View.ConvertSeqBy (fun x -> x) (fun _ -> conv) view
+        View.ConvertSeqBy (fun x -> x) (fun _ v -> conv v) view
 
   // More cominators ------------------------------------------------------------
 

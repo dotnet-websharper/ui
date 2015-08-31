@@ -591,7 +591,7 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
         View.ConvertSeq render view |> Doc'.Flatten
 
     static member ConvertSeqBy key render view =
-        View.ConvertSeqBy key render view |> Doc'.Flatten
+        View.ConvertSeqBy key (As render) view |> Doc'.Flatten
 
     static member InputInternal attr (value : Attr) inputTy =
         let (attrN, elemTy) =
@@ -1312,7 +1312,7 @@ module Doc =
 
     [<Inline>]
     let ConvertSeqBy (key: 'T -> 'K) (render: 'K -> View<'T> -> #Doc) (view: View<seq<'T>>) : Doc =
-        As (Doc'.ConvertSeqBy key (As render) view)
+        As (Doc'.ConvertSeqBy key render view)
 
   // Form helpers ---------------------------------------------------------------
 
