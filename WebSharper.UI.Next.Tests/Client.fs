@@ -26,17 +26,17 @@ module Client =
             { id = Key.Fresh(); name = "Item1"; description = "Description of Item1" }
             { id = Key.Fresh(); name = "Item2"; description = "Description of Item2" }
           ]
+        let newName = Var.Create ""
+        let itemsSub = Submitter.Create myItems.View Seq.empty
  
         let title = View.Const "Starting title"
         let var = Var.Create ""
         let btnSub = Submitter.Create var.View ""
-
-        let newName = Var.Create ""
  
         let doc =
             MyTemplate.Doc(
                 NewName = newName,
-                NewItem = (fun e v -> myItems.Add { id = Key.Fresh(); name = newName.Value; description = ""}),
+                NewItem = (fun e v -> myItems.Add { id = Key.Fresh(); name = newName.Value; description = "" }),
                 Title = [
                     h1Attr [
                         attr.style "color: blue"
@@ -53,8 +53,9 @@ module Client =
                             FontWeight = "bold")
                     )
                 ],
+                SubmitItems = (fun el ev -> itemsSub.Trigger ()),
                 ListView = [
-                    myItems.View |> Doc.ConvertSeqBy Item.Key (fun key item ->
+                    itemsSub.View |> Doc.ConvertSeqBy Item.Key (fun key item ->
                         MyTemplate.ListViewItem.Doc(
                             Name = item.Map(fun i -> i.name),
                             Description = item.Map(fun i -> i.description)

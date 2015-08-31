@@ -5,18 +5,18 @@
     </li>
 </ul>
 <div>
-    <div>
+    <p>
         <input data-var="NewName" placeholder="Name" />
-        <button data-event-click="NewItem">Add</button>
-    </div>
-    <input data-var="MyInput" placeholder="Type here" />
-    <hr />
+        <button data-event-click="NewItem">Add item</button>
+    </p>
+    <p><button data-event-click="SubmitItems">Submit items</button></p>
     <table>
         <tbody data-hole="ListView" data-children-template="ListViewItem">
             <tr><td>$!{Name}</td><td>$!{Description}</td></tr>
         </tbody>
     </table>
     <hr />
+    <input data-var="MyInput" placeholder="Type here" />
     <button data-event-click="MyCallback">Click me!</button>
     <div>You said: $!{MyInputView}</div>
 </div>
