@@ -62,6 +62,9 @@ type ListModel<'Key,'T when 'Key : equality> with
     /// Same as ListModel.View.
     member View : View<seq<'T>>
 
+    /// Get or set the current items.
+    member Value : seq<'T> with get, set
+
     /// Get the key retrieval function.
     member Key : ('T -> 'Key)
 

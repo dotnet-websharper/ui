@@ -169,6 +169,10 @@ type ListModel<'K,'T> with
     member m.Lens (key: 'Key) =
         m.LensInto id (fun _ -> id) key
 
+    member m.Value
+        with [<Inline>] get () = m.Var.Value :> seq<_>
+        and [<Inline>] set v = m.Var.Value <- Array.ofSeq v
+
 and [<JavaScript>]
     RefImpl<'K, 'T, 'V when 'K : equality>
         (m: ListModel<'K, 'T>, key: 'K, get: 'T -> 'V, update: 'T -> 'V -> 'T) =
