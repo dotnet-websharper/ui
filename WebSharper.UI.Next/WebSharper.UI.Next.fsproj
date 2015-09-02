@@ -30,6 +30,10 @@
     <Compile Include="Attr.fs" />
     <Compile Include="Doc.fsi" />
     <Compile Include="Doc.fs" />
+    <Compile Include="Doc.Server.fsi" />
+    <Compile Include="Doc.Server.fs" />
+    <Compile Include="Doc.Client.fsi" />
+    <Compile Include="Doc.Client.fs" />
     <Compile Include="Flow.fsi" />
     <Compile Include="Flow.fs" />
     <Compile Include="HTML.fs" />
