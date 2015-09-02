@@ -299,10 +299,6 @@ type Var<'T> with
         with [<Inline>] get () = Var.Get v
         and [<Inline>] set value = Var.Set v value
 
-    [<JavaScript; Inline>]
-    member var.Lens get update =
-        Var.Lens var get update
-
 [<AutoOpen>]
 module IRefExtension =
 

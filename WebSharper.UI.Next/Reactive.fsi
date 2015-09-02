@@ -168,9 +168,6 @@ type Var<'T> with
     /// Gets or sets the current value.
     member Value : 'T with get, set
 
-    /// Gets a reference to part of a var's value.
-    member Lens : get: ('T -> 'V) -> update: ('T -> 'V -> 'T) -> IRef<'V>
-
 [<AutoOpen>]
 module IRefExtension =
 
