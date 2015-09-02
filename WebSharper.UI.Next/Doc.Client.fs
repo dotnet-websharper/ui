@@ -625,10 +625,13 @@ and [<JavaScript; Proxy(typeof<Elt>); CompiledName "Elt">]
     [<Inline "$0.elt">]
     member this.Element = elt
 
-    [<Name "On">]
     member this.on (ev: string, cb: Dom.Element -> #Dom.Event -> unit) =
         elt.AddEventListener(ev, As<Dom.Event -> unit> (cb elt), false)
         this
+
+    [<Name "On"; Inline>]
+    member this.onExpr (ev: string, cb: Microsoft.FSharp.Quotations.Expr<Dom.Element -> #Dom.Event -> unit>) =
+        this.on (ev, As<_ -> _ -> _> cb)
 
     member private this.DocElemNode =
         match docNode with

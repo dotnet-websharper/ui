@@ -80,15 +80,15 @@ type Attr =
                 let rm = R.Method.Parse m
                 rm.DeclaringType, rm.Name, [M.MethodNode rm; M.TypeNode rm.DeclaringType]
             | _ -> failwithf "Invalid handler function: %A" q
+        let loc = Internal.getLocation q
         let rec attr : WebSharper.Html.Server.Html.Attribute =
             { Name = "on" + event
-              Value = ""
+              Value = sprintf "console.log('Failed to generate event handler for %s')" loc
               Annotation = Some (Internal.Requires(reqs, func) :> _) }
         and func (meta: M.Info) =
             match meta.GetAddress declType with
             | None ->
-                failwithf "Error in Handler at %s: Couldn't find address for method"
-                    (Internal.getLocation q)
+                failwithf "Error in Handler at %s: Couldn't find address for method" loc
             | Some a ->
                 let rec mk acc (a: P.Address) =
                     let acc = a.LocalName :: acc

@@ -58,7 +58,7 @@ module Extensions =
         match els with
         | [Element.TagContent { Name = name } as e] when name.ToLowerInvariant() = "html" ->
             let tpl = WebSharper.Sitelets.Content.Template.FromHtmlElement(e)
-            Content.WithTemplate tpl ignore
+            Content.WithTemplate tpl ()
         // No, so return the fragement as a full document with it as the body
         | els ->
             Content.Page(Body = els)

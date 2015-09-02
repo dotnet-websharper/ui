@@ -47,14 +47,23 @@ module Tags =
 
     type Elt =
         {
-            Type: string        // tag, attr, event, etc.
-            Category: string    // for tag, attr: normal / deprecated / colliding
-                                // for event: the type of event arg
-            Name: string        // javascript name
-            LowName: string     // lowercase name for F# source
-            LowNameEsc: string  // lowercase name for F# source, with ``escapes`` if necessary
-            UpName: string      // uppercase name for F# source
+            /// tag, attr, event, etc.
+            Type: string
+            /// for tag, attr: normal / deprecated / colliding
+            Category: string
+            /// for event: the type of event arg
+            /// javascript name
+            Name: string
+            /// lowercase name for F# source
+            LowName: string
+            /// lowercase name for F# source, with ``escapes`` if necessary
+            LowNameEsc: string
+            /// PascalCase name for F# source
+            PascalName: string
         }
+        /// camelCase name for F# source
+        member this.CamelName =
+            string(this.PascalName.[0]).ToLowerInvariant() + this.PascalName.[1..]
 
     let RunOn (path: string) (all: Map<string, Map<string, seq<bool * string * string>>>) (f: Elt -> string[]) =
         if NeedsBuilding tagsFilePath path then
@@ -96,7 +105,7 @@ module Tags =
                                         Name = name
                                         LowName = lowname
                                         LowNameEsc = lownameEsc
-                                        UpName = upname
+                                        PascalName = upname
                                     }
                                 for l in f x do
                                     yield indent + l
@@ -166,19 +175,34 @@ module Tags =
                     "[<JavaScript; Inline>]"
                     sprintf """static member %sView (view: View<'T>) (f: Dom.Element -> Dom.%s -> 'T -> unit) = Client.Attr.HandlerView "%s" view f""" e.LowName e.Category e.Name
                 |]
+        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next", "Doc.fs")) all <| fun e ->
+            match e.Type with
+            | "event" ->
+                [|
+                    "[<JavaScript; Inline>]"
+                    sprintf "member this.On%s(cb: Expr<Dom.Element -> Dom.%s -> unit>) = this.On(\"%s\", cb)" e.PascalName e.Category e.Name
+                |]
+        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next", "Doc.fsi")) all <| fun e ->
+            match e.Type with
+            | "event" ->
+                [|
+                    sprintf "/// Add a handler for the event \"%s\"." e.Name
+                    "/// When called on the server side, the handler must be a top-level function or a static member."
+                    sprintf "member On%s : cb: Expr<Dom.Element -> Dom.%s -> unit> -> Elt" e.PascalName e.Category
+                |]
         RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next", "Doc.Client.fs")) all <| fun e ->
             match e.Type with
             | "event" ->
                 [|
                     "[<Inline>]"
-                    sprintf "member this.On%s(cb: Dom.Element -> Dom.%s -> unit) = As<Elt> ((As<Elt'> this).on(\"%s\", cb))" e.UpName e.Category e.Name
+                    sprintf "member this.On%s(cb: Dom.Element -> Dom.%s -> unit) = As<Elt> ((As<Elt'> this).on(\"%s\", cb))" e.PascalName e.Category e.Name
                 |]
         RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next", "Doc.Client.fsi")) all <| fun e ->
             match e.Type with
             | "event" ->
                 [|
                     sprintf "/// Add a handler for the event \"%s\"." e.Name
-                    sprintf "member On%s : cb: (Dom.Element -> Dom.%s -> unit) -> Elt" e.UpName e.Category
+                    sprintf "member On%s : cb: (Dom.Element -> Dom.%s -> unit) -> Elt" e.PascalName e.Category
                 |]
 
 Tags.Run()
