@@ -68,6 +68,10 @@ module Tags =
             else
                 this.PascalName
 
+        member this.CamelNameEsc =
+            let s = this.CamelName
+            if s = this.LowName then this.LowNameEsc else s
+
     let RunOn (path: string) (all: Map<string, Map<string, seq<bool * string * string>>>) (f: Elt -> string[]) =
         if NeedsBuilding tagsFilePath path then
             let e = (File.ReadAllLines(path) :> seq<_>).GetEnumerator()
@@ -173,7 +177,7 @@ module Tags =
                 [|
                     sprintf "/// Create a handler for the event \"%s\"." e.Name
                     "[<JavaScript; Inline>]"
-                    sprintf """static member %s (f: Dom.Element -> Dom.%s -> unit) = Client.Attr.Handler "%s" f""" e.CamelName e.Category e.Name
+                    sprintf """static member %s (f: Dom.Element -> Dom.%s -> unit) = Client.Attr.Handler "%s" f""" e.CamelNameEsc e.Category e.Name
                     sprintf "/// Create a handler for the event \"%s\" which also receives the value of a view at the time of the event." e.Name
                     "[<JavaScript; Inline>]"
                     sprintf """static member %sView (view: View<'T>) (f: Dom.Element -> Dom.%s -> 'T -> unit) = Client.Attr.HandlerView "%s" view f""" e.CamelName e.Category e.Name

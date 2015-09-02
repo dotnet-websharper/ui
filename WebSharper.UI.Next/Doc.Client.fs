@@ -1,4 +1,4 @@
-﻿
+
 namespace WebSharper.UI.Next.Client
 
 open WebSharper

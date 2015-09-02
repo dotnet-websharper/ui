@@ -1961,7 +1961,7 @@ module HtmlExtensions =
         static member onlineView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "online" view f
         /// Create a handler for the event "open".
         [<JavaScript; Inline>]
-        static member open (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "open" f
+        static member ``open`` (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "open" f
         /// Create a handler for the event "open" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
         static member openView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "open" view f
