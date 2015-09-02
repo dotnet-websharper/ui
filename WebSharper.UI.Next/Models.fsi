@@ -28,7 +28,7 @@ type Key =
     /// Constructs a fresh key.
     static member Fresh : unit -> Key
 
-/// Helper type for coarse-grainde mutable models, with
+/// Helper type for coarse-grained mutable models, with
 /// a mutable type 'M and an immutable type 'I.
 type Model<'I,'M>
 
@@ -58,6 +58,15 @@ type ListModel<'Key,'T when 'Key : equality>
 type ListModel
 
 type ListModel<'Key,'T when 'Key : equality> with
+
+    /// Same as ListModel.View.
+    member View : View<seq<'T>>
+
+    /// Get or set the current items.
+    member Value : seq<'T> with get, set
+
+    /// Get the key retrieval function.
+    member Key : ('T -> 'Key)
 
     /// Adds an item. If an item with the given key exists, it is replaced.
     member Add : 'T -> unit
@@ -107,6 +116,10 @@ type ListModel<'Key,'T when 'Key : equality> with
     /// Gets a view that checks if the item specified by its key is in the list.
     member TryFindByKeyAsView : 'Key -> View<'T option>
 
+    /// Updates all items with new items computed by the given function.
+    /// For items for which None is computed, nothing is done.
+    member UpdateAll : ('T -> 'T option) -> unit
+
     /// Updates an item with the given key with another item computed by the given function.
     /// If None is computed or the item to be updated is not found, nothing is done.
     member UpdateBy : ('T -> 'T option) -> 'Key -> unit
@@ -120,6 +133,12 @@ type ListModel<'Key,'T when 'Key : equality> with
     /// Gets a view of the number of elements in the list.
     member LengthAsView : View<int>
 
+    /// Gets a reference to an element of the list.
+    member Lens : 'Key -> IRef<'T>
+
+    /// Gets a reference to a part of an element of the list.
+    member LensInto : get:('T -> 'V) -> update:('T -> 'V -> 'T) -> 'Key -> IRef<'V>
+
 type ListModel with
 
     /// Creates a new instance.
@@ -130,3 +149,6 @@ type ListModel with
 
     /// Views the current item sequence.
     static member View : ListModel<'Key,'T> -> View<seq<'T>>
+
+    /// Get the key retrieval function.
+    static member Key : ListModel<'Key, 'T> -> ('T -> 'Key)

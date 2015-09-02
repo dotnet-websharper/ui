@@ -25,12 +25,35 @@
 /// please provide only pure (non-throwing) functions to this API.
 namespace WebSharper.UI.Next
 
+/// An abstract time-varying variable than can be observed for changes
+/// by independent processes.
+type IRef<'T> =
+
+    /// Gets the current value.
+    abstract Get : unit -> 'T
+
+    /// Sets the current value.
+    abstract Set : 'T -> unit
+
+    /// Updates the current value.
+    abstract Update : ('T -> 'T) -> unit
+
+    /// Maybe updates the current value.
+    abstract UpdateMaybe : ('T -> 'T option) -> unit
+
+    /// Gets a view that observes changes on this variable.
+    abstract View : View<'T>
+
+    /// Gets the unique ID associated with the variable.
+    abstract Id : string
+
 /// A time-varying variable that behaves like a ref cell that
 /// can also be observed for changes by independent processes.
-type Var<'T>
+and [<Sealed>] Var<'T> =
+    interface IRef<'T>
 
 /// A read-only view on a time-varying value that a can be observed.
-type View<'T>
+and View<'T>
 
 /// Static operations on variables.
 [<Sealed>]
@@ -56,6 +79,9 @@ type Var =
 
     /// Gets the unique ID associated with the var.
     static member GetId  : Var<'T> -> int
+
+    /// Gets a reference to part of a var's value.
+    static member Lens : IRef<'T> -> get: ('T -> 'V) -> update: ('T -> 'V -> 'T) -> IRef<'V>
 
 /// Static operations on views.
 [<Sealed>]
@@ -115,7 +141,7 @@ type View =
 
     /// A variant of ConvertSeq with custom equality.
     static member ConvertSeqBy<'A,'B,'K when 'K : equality> :
-        ('A -> 'K) -> (View<'A> -> 'B) -> View<seq<'A>> -> View<seq<'B>>
+        ('A -> 'K) -> ('K -> View<'A> -> 'B) -> View<seq<'A>> -> View<seq<'B>>
 
 /// Computation expression builder for views.
 [<Sealed>]
@@ -141,3 +167,55 @@ type Var<'T> with
 
     /// Gets or sets the current value.
     member Value : 'T with get, set
+
+    /// Gets a reference to part of a var's value.
+    member Lens : get: ('T -> 'V) -> update: ('T -> 'V -> 'T) -> IRef<'V>
+
+[<AutoOpen>]
+module IRefExtension =
+
+    type IRef<'T> with
+
+        /// Gets a reference to part of a var's value.
+        member Lens : get: ('T -> 'V) -> update: ('T -> 'V -> 'T) -> IRef<'V>
+
+/// More members on View.
+type View<'T> with
+
+    /// Lifting functions.
+    member Map : ('T -> 'B) -> View<'B>
+
+    /// Dynamic composition.
+    member Bind : ('T -> View<'B>) -> View<'B>
+
+/// A special type of View whose value is only updated when Trigger is called.
+[<Sealed>]
+type Submitter<'T> =
+
+    /// Get the output view of the submitter.
+    member View : View<'T>
+
+    /// Trigger the submitter, ie. cause its output view
+    /// to get the same value as its input view.
+    member Trigger : unit -> unit
+
+    /// Get the input view of the submitter.
+    member Input : View<'T>
+
+[<Sealed>]
+type Submitter =
+
+    /// Create a Submitter from the given input view.
+    /// Initially, the output view has the value init,
+    /// until the Submitter is triggered for the first time.
+    static member Create : input: View<'T> -> init: 'T -> Submitter<'T>
+
+    /// Get the output view of a submitter.
+    static member View : Submitter<'T> -> View<'T>
+
+    /// Trigger a submitter, ie. cause its output view
+    /// to get the same value as its input view.
+    static member Trigger : Submitter<'T> -> unit
+
+    /// Get the input view of a submitter.
+    static member Input : Submitter<'T> -> View<'T>

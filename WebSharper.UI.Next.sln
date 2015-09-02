@@ -14,6 +14,11 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebSharper.UI.Next.Templati
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebSharper.UI.Next.Tests", "WebSharper.UI.Next.Tests\WebSharper.UI.Next.Tests.fsproj", "{608521D3-89CF-452B-AD62-5FA7EB246E6F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{2A2EF6F0-10CA-47BC-B490-FC9174DE28D2}"
+	ProjectSection(SolutionItems) = preProject
+		tools\UpdateElems.fsx = tools\UpdateElems.fsx
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,5 +40,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2A2EF6F0-10CA-47BC-B490-FC9174DE28D2} = {D5BE120F-C833-4082-B132-A75B5AE366DF}
 	EndGlobalSection
 EndGlobal

@@ -1,11 +1,22 @@
-<h1>${Title}</h1>
+<h1 data-replace="Title"></h1>
 <ul data-hole="ListContainer">
     <li data-template="ListItem">
-        <span style="font-style: ${FontStyle}; font-weight: ${FontWeight}">${Name}</span>: ${Description}
+        <span style="font-style: ${FontStyle}; font-weight: ${FontWeight}">$!{Name}</span>: <input data-var="Description" />
     </li>
 </ul>
 <div>
+    <p>
+        <input data-var="NewName" placeholder="Name" />
+        <button data-event-click="NewItem">Add item</button>
+    </p>
+    <p><button data-event-click="SubmitItems">Submit items</button></p>
+    <table>
+        <tbody data-hole="ListView" data-children-template="ListViewItem">
+            <tr><td>$!{Name}</td><td>$!{Description}</td></tr>
+        </tbody>
+    </table>
+    <hr />
     <input data-var="MyInput" placeholder="Type here" />
     <button data-event-click="MyCallback">Click me!</button>
-    <div>You said: ${MyInputView}</div>
+    <div>You said: $!{MyInputView}</div>
 </div>
