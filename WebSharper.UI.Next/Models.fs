@@ -89,7 +89,7 @@ type ListModel<'K,'T> with
             m.Var.Value <- Array.filter (fun i -> keyFn i <> k) v
 
     member m.RemoveBy (f: 'T -> bool) =
-        m.Var.Value <- Array.filter f m.Var.Value
+        m.Var.Value <- Array.filter (f >> not) m.Var.Value
 
     member m.RemoveByKey key =
         m.Var.Value <- Array.filter (fun i -> m.Key i <> key) m.Var.Value
