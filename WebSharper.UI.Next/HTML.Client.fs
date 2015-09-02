@@ -1445,46 +1445,46 @@ module HtmlExtensions =
         static member abortView (view: View<'T>) (f: Dom.Element -> Dom.UIEvent -> 'T -> unit) = Client.Attr.HandlerView "abort" view f
         /// Create a handler for the event "afterprint".
         [<JavaScript; Inline>]
-        static member afterprint (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "afterprint" f
+        static member afterPrint (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "afterprint" f
         /// Create a handler for the event "afterprint" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member afterprintView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "afterprint" view f
+        static member afterPrintView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "afterprint" view f
         /// Create a handler for the event "animationend".
         [<JavaScript; Inline>]
-        static member animationend (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "animationend" f
+        static member animationEnd (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "animationend" f
         /// Create a handler for the event "animationend" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member animationendView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "animationend" view f
+        static member animationEndView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "animationend" view f
         /// Create a handler for the event "animationiteration".
         [<JavaScript; Inline>]
-        static member animationiteration (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "animationiteration" f
+        static member animationIteration (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "animationiteration" f
         /// Create a handler for the event "animationiteration" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member animationiterationView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "animationiteration" view f
+        static member animationIterationView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "animationiteration" view f
         /// Create a handler for the event "animationstart".
         [<JavaScript; Inline>]
-        static member animationstart (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "animationstart" f
+        static member animationStart (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "animationstart" f
         /// Create a handler for the event "animationstart" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member animationstartView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "animationstart" view f
+        static member animationStartView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "animationstart" view f
         /// Create a handler for the event "audioprocess".
         [<JavaScript; Inline>]
-        static member audioprocess (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "audioprocess" f
+        static member audioProcess (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "audioprocess" f
         /// Create a handler for the event "audioprocess" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member audioprocessView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "audioprocess" view f
+        static member audioProcessView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "audioprocess" view f
         /// Create a handler for the event "beforeprint".
         [<JavaScript; Inline>]
-        static member beforeprint (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "beforeprint" f
+        static member beforePrint (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "beforeprint" f
         /// Create a handler for the event "beforeprint" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member beforeprintView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "beforeprint" view f
+        static member beforePrintView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "beforeprint" view f
         /// Create a handler for the event "beforeunload".
         [<JavaScript; Inline>]
-        static member beforeunload (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "beforeunload" f
+        static member beforeUnload (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "beforeunload" f
         /// Create a handler for the event "beforeunload" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member beforeunloadView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "beforeunload" view f
+        static member beforeUnloadView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "beforeunload" view f
         /// Create a handler for the event "beginEvent".
         [<JavaScript; Inline>]
         static member beginEvent (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "beginEvent" f
@@ -1511,16 +1511,16 @@ module HtmlExtensions =
         static member cachedView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "cached" view f
         /// Create a handler for the event "canplay".
         [<JavaScript; Inline>]
-        static member canplay (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "canplay" f
+        static member canPlay (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "canplay" f
         /// Create a handler for the event "canplay" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member canplayView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "canplay" view f
+        static member canPlayView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "canplay" view f
         /// Create a handler for the event "canplaythrough".
         [<JavaScript; Inline>]
-        static member canplaythrough (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "canplaythrough" f
+        static member canPlayThrough (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "canplaythrough" f
         /// Create a handler for the event "canplaythrough" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member canplaythroughView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "canplaythrough" view f
+        static member canPlayThroughView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "canplaythrough" view f
         /// Create a handler for the event "change".
         [<JavaScript; Inline>]
         static member change (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "change" f
@@ -1529,16 +1529,16 @@ module HtmlExtensions =
         static member changeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "change" view f
         /// Create a handler for the event "chargingchange".
         [<JavaScript; Inline>]
-        static member chargingchange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "chargingchange" f
+        static member chargingChange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "chargingchange" f
         /// Create a handler for the event "chargingchange" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member chargingchangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "chargingchange" view f
+        static member chargingChangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "chargingchange" view f
         /// Create a handler for the event "chargingtimechange".
         [<JavaScript; Inline>]
-        static member chargingtimechange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "chargingtimechange" f
+        static member chargingTimeChange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "chargingtimechange" f
         /// Create a handler for the event "chargingtimechange" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member chargingtimechangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "chargingtimechange" view f
+        static member chargingTimeChangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "chargingtimechange" view f
         /// Create a handler for the event "checking".
         [<JavaScript; Inline>]
         static member checking (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "checking" f
@@ -1565,28 +1565,28 @@ module HtmlExtensions =
         static member completeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "complete" view f
         /// Create a handler for the event "compositionend".
         [<JavaScript; Inline>]
-        static member compositionend (f: Dom.Element -> Dom.CompositionEvent -> unit) = Client.Attr.Handler "compositionend" f
+        static member compositionEnd (f: Dom.Element -> Dom.CompositionEvent -> unit) = Client.Attr.Handler "compositionend" f
         /// Create a handler for the event "compositionend" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member compositionendView (view: View<'T>) (f: Dom.Element -> Dom.CompositionEvent -> 'T -> unit) = Client.Attr.HandlerView "compositionend" view f
+        static member compositionEndView (view: View<'T>) (f: Dom.Element -> Dom.CompositionEvent -> 'T -> unit) = Client.Attr.HandlerView "compositionend" view f
         /// Create a handler for the event "compositionstart".
         [<JavaScript; Inline>]
-        static member compositionstart (f: Dom.Element -> Dom.CompositionEvent -> unit) = Client.Attr.Handler "compositionstart" f
+        static member compositionStart (f: Dom.Element -> Dom.CompositionEvent -> unit) = Client.Attr.Handler "compositionstart" f
         /// Create a handler for the event "compositionstart" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member compositionstartView (view: View<'T>) (f: Dom.Element -> Dom.CompositionEvent -> 'T -> unit) = Client.Attr.HandlerView "compositionstart" view f
+        static member compositionStartView (view: View<'T>) (f: Dom.Element -> Dom.CompositionEvent -> 'T -> unit) = Client.Attr.HandlerView "compositionstart" view f
         /// Create a handler for the event "compositionupdate".
         [<JavaScript; Inline>]
-        static member compositionupdate (f: Dom.Element -> Dom.CompositionEvent -> unit) = Client.Attr.Handler "compositionupdate" f
+        static member compositionUpdate (f: Dom.Element -> Dom.CompositionEvent -> unit) = Client.Attr.Handler "compositionupdate" f
         /// Create a handler for the event "compositionupdate" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member compositionupdateView (view: View<'T>) (f: Dom.Element -> Dom.CompositionEvent -> 'T -> unit) = Client.Attr.HandlerView "compositionupdate" view f
+        static member compositionUpdateView (view: View<'T>) (f: Dom.Element -> Dom.CompositionEvent -> 'T -> unit) = Client.Attr.HandlerView "compositionupdate" view f
         /// Create a handler for the event "contextmenu".
         [<JavaScript; Inline>]
-        static member contextmenu (f: Dom.Element -> Dom.MouseEvent -> unit) = Client.Attr.Handler "contextmenu" f
+        static member contextMenu (f: Dom.Element -> Dom.MouseEvent -> unit) = Client.Attr.Handler "contextmenu" f
         /// Create a handler for the event "contextmenu" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member contextmenuView (view: View<'T>) (f: Dom.Element -> Dom.MouseEvent -> 'T -> unit) = Client.Attr.HandlerView "contextmenu" view f
+        static member contextMenuView (view: View<'T>) (f: Dom.Element -> Dom.MouseEvent -> 'T -> unit) = Client.Attr.HandlerView "contextmenu" view f
         /// Create a handler for the event "copy".
         [<JavaScript; Inline>]
         static member copy (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "copy" f
@@ -1601,40 +1601,40 @@ module HtmlExtensions =
         static member cutView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "cut" view f
         /// Create a handler for the event "dblclick".
         [<JavaScript; Inline>]
-        static member dblclick (f: Dom.Element -> Dom.MouseEvent -> unit) = Client.Attr.Handler "dblclick" f
+        static member dblClick (f: Dom.Element -> Dom.MouseEvent -> unit) = Client.Attr.Handler "dblclick" f
         /// Create a handler for the event "dblclick" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member dblclickView (view: View<'T>) (f: Dom.Element -> Dom.MouseEvent -> 'T -> unit) = Client.Attr.HandlerView "dblclick" view f
+        static member dblClickView (view: View<'T>) (f: Dom.Element -> Dom.MouseEvent -> 'T -> unit) = Client.Attr.HandlerView "dblclick" view f
         /// Create a handler for the event "devicelight".
         [<JavaScript; Inline>]
-        static member devicelight (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "devicelight" f
+        static member deviceLight (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "devicelight" f
         /// Create a handler for the event "devicelight" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member devicelightView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "devicelight" view f
+        static member deviceLightView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "devicelight" view f
         /// Create a handler for the event "devicemotion".
         [<JavaScript; Inline>]
-        static member devicemotion (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "devicemotion" f
+        static member deviceMotion (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "devicemotion" f
         /// Create a handler for the event "devicemotion" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member devicemotionView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "devicemotion" view f
+        static member deviceMotionView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "devicemotion" view f
         /// Create a handler for the event "deviceorientation".
         [<JavaScript; Inline>]
-        static member deviceorientation (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "deviceorientation" f
+        static member deviceOrientation (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "deviceorientation" f
         /// Create a handler for the event "deviceorientation" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member deviceorientationView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "deviceorientation" view f
+        static member deviceOrientationView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "deviceorientation" view f
         /// Create a handler for the event "deviceproximity".
         [<JavaScript; Inline>]
-        static member deviceproximity (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "deviceproximity" f
+        static member deviceProximity (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "deviceproximity" f
         /// Create a handler for the event "deviceproximity" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member deviceproximityView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "deviceproximity" view f
+        static member deviceProximityView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "deviceproximity" view f
         /// Create a handler for the event "dischargingtimechange".
         [<JavaScript; Inline>]
-        static member dischargingtimechange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "dischargingtimechange" f
+        static member dischargingTimeChange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "dischargingtimechange" f
         /// Create a handler for the event "dischargingtimechange" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member dischargingtimechangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "dischargingtimechange" view f
+        static member dischargingTimeChangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "dischargingtimechange" view f
         /// Create a handler for the event "DOMActivate".
         [<JavaScript; Inline>]
         static member DOMActivate (f: Dom.Element -> Dom.UIEvent -> unit) = Client.Attr.Handler "DOMActivate" f
@@ -1715,34 +1715,34 @@ module HtmlExtensions =
         static member dragView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "drag" view f
         /// Create a handler for the event "dragend".
         [<JavaScript; Inline>]
-        static member dragend (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "dragend" f
+        static member dragEnd (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "dragend" f
         /// Create a handler for the event "dragend" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member dragendView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "dragend" view f
+        static member dragEndView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "dragend" view f
         /// Create a handler for the event "dragenter".
         [<JavaScript; Inline>]
-        static member dragenter (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "dragenter" f
+        static member dragEnter (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "dragenter" f
         /// Create a handler for the event "dragenter" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member dragenterView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "dragenter" view f
+        static member dragEnterView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "dragenter" view f
         /// Create a handler for the event "dragleave".
         [<JavaScript; Inline>]
-        static member dragleave (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "dragleave" f
+        static member dragLeave (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "dragleave" f
         /// Create a handler for the event "dragleave" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member dragleaveView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "dragleave" view f
+        static member dragLeaveView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "dragleave" view f
         /// Create a handler for the event "dragover".
         [<JavaScript; Inline>]
-        static member dragover (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "dragover" f
+        static member dragOver (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "dragover" f
         /// Create a handler for the event "dragover" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member dragoverView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "dragover" view f
+        static member dragOverView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "dragover" view f
         /// Create a handler for the event "dragstart".
         [<JavaScript; Inline>]
-        static member dragstart (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "dragstart" f
+        static member dragStart (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "dragstart" f
         /// Create a handler for the event "dragstart" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member dragstartView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "dragstart" view f
+        static member dragStartView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "dragstart" view f
         /// Create a handler for the event "drop".
         [<JavaScript; Inline>]
         static member drop (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "drop" f
@@ -1751,10 +1751,10 @@ module HtmlExtensions =
         static member dropView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "drop" view f
         /// Create a handler for the event "durationchange".
         [<JavaScript; Inline>]
-        static member durationchange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "durationchange" f
+        static member durationChange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "durationchange" f
         /// Create a handler for the event "durationchange" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member durationchangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "durationchange" view f
+        static member durationChangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "durationchange" view f
         /// Create a handler for the event "emptied".
         [<JavaScript; Inline>]
         static member emptied (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "emptied" f
@@ -1787,34 +1787,34 @@ module HtmlExtensions =
         static member focusView (view: View<'T>) (f: Dom.Element -> Dom.FocusEvent -> 'T -> unit) = Client.Attr.HandlerView "focus" view f
         /// Create a handler for the event "fullscreenchange".
         [<JavaScript; Inline>]
-        static member fullscreenchange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "fullscreenchange" f
+        static member fullScreenChange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "fullscreenchange" f
         /// Create a handler for the event "fullscreenchange" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member fullscreenchangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "fullscreenchange" view f
+        static member fullScreenChangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "fullscreenchange" view f
         /// Create a handler for the event "fullscreenerror".
         [<JavaScript; Inline>]
-        static member fullscreenerror (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "fullscreenerror" f
+        static member fullScreenError (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "fullscreenerror" f
         /// Create a handler for the event "fullscreenerror" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member fullscreenerrorView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "fullscreenerror" view f
+        static member fullScreenErrorView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "fullscreenerror" view f
         /// Create a handler for the event "gamepadconnected".
         [<JavaScript; Inline>]
-        static member gamepadconnected (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "gamepadconnected" f
+        static member gamepadConnected (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "gamepadconnected" f
         /// Create a handler for the event "gamepadconnected" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member gamepadconnectedView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "gamepadconnected" view f
+        static member gamepadConnectedView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "gamepadconnected" view f
         /// Create a handler for the event "gamepaddisconnected".
         [<JavaScript; Inline>]
-        static member gamepaddisconnected (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "gamepaddisconnected" f
+        static member gamepadDisconnected (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "gamepaddisconnected" f
         /// Create a handler for the event "gamepaddisconnected" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member gamepaddisconnectedView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "gamepaddisconnected" view f
+        static member gamepadDisconnectedView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "gamepaddisconnected" view f
         /// Create a handler for the event "hashchange".
         [<JavaScript; Inline>]
-        static member hashchange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "hashchange" f
+        static member hashChange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "hashchange" f
         /// Create a handler for the event "hashchange" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member hashchangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "hashchange" view f
+        static member hashChangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "hashchange" view f
         /// Create a handler for the event "input".
         [<JavaScript; Inline>]
         static member input (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "input" f
@@ -1829,34 +1829,34 @@ module HtmlExtensions =
         static member invalidView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "invalid" view f
         /// Create a handler for the event "keydown".
         [<JavaScript; Inline>]
-        static member keydown (f: Dom.Element -> Dom.KeyboardEvent -> unit) = Client.Attr.Handler "keydown" f
+        static member keyDown (f: Dom.Element -> Dom.KeyboardEvent -> unit) = Client.Attr.Handler "keydown" f
         /// Create a handler for the event "keydown" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member keydownView (view: View<'T>) (f: Dom.Element -> Dom.KeyboardEvent -> 'T -> unit) = Client.Attr.HandlerView "keydown" view f
+        static member keyDownView (view: View<'T>) (f: Dom.Element -> Dom.KeyboardEvent -> 'T -> unit) = Client.Attr.HandlerView "keydown" view f
         /// Create a handler for the event "keypress".
         [<JavaScript; Inline>]
-        static member keypress (f: Dom.Element -> Dom.KeyboardEvent -> unit) = Client.Attr.Handler "keypress" f
+        static member keyPress (f: Dom.Element -> Dom.KeyboardEvent -> unit) = Client.Attr.Handler "keypress" f
         /// Create a handler for the event "keypress" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member keypressView (view: View<'T>) (f: Dom.Element -> Dom.KeyboardEvent -> 'T -> unit) = Client.Attr.HandlerView "keypress" view f
+        static member keyPressView (view: View<'T>) (f: Dom.Element -> Dom.KeyboardEvent -> 'T -> unit) = Client.Attr.HandlerView "keypress" view f
         /// Create a handler for the event "keyup".
         [<JavaScript; Inline>]
-        static member keyup (f: Dom.Element -> Dom.KeyboardEvent -> unit) = Client.Attr.Handler "keyup" f
+        static member keyUp (f: Dom.Element -> Dom.KeyboardEvent -> unit) = Client.Attr.Handler "keyup" f
         /// Create a handler for the event "keyup" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member keyupView (view: View<'T>) (f: Dom.Element -> Dom.KeyboardEvent -> 'T -> unit) = Client.Attr.HandlerView "keyup" view f
+        static member keyUpView (view: View<'T>) (f: Dom.Element -> Dom.KeyboardEvent -> 'T -> unit) = Client.Attr.HandlerView "keyup" view f
         /// Create a handler for the event "languagechange".
         [<JavaScript; Inline>]
-        static member languagechange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "languagechange" f
+        static member languageChange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "languagechange" f
         /// Create a handler for the event "languagechange" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member languagechangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "languagechange" view f
+        static member languageChangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "languagechange" view f
         /// Create a handler for the event "levelchange".
         [<JavaScript; Inline>]
-        static member levelchange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "levelchange" f
+        static member levelChange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "levelchange" f
         /// Create a handler for the event "levelchange" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member levelchangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "levelchange" view f
+        static member levelChangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "levelchange" view f
         /// Create a handler for the event "load".
         [<JavaScript; Inline>]
         static member load (f: Dom.Element -> Dom.UIEvent -> unit) = Client.Attr.Handler "load" f
@@ -1865,28 +1865,28 @@ module HtmlExtensions =
         static member loadView (view: View<'T>) (f: Dom.Element -> Dom.UIEvent -> 'T -> unit) = Client.Attr.HandlerView "load" view f
         /// Create a handler for the event "loadeddata".
         [<JavaScript; Inline>]
-        static member loadeddata (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "loadeddata" f
+        static member loadedData (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "loadeddata" f
         /// Create a handler for the event "loadeddata" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member loadeddataView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "loadeddata" view f
+        static member loadedDataView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "loadeddata" view f
         /// Create a handler for the event "loadedmetadata".
         [<JavaScript; Inline>]
-        static member loadedmetadata (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "loadedmetadata" f
+        static member loadedMetadata (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "loadedmetadata" f
         /// Create a handler for the event "loadedmetadata" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member loadedmetadataView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "loadedmetadata" view f
+        static member loadedMetadataView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "loadedmetadata" view f
         /// Create a handler for the event "loadend".
         [<JavaScript; Inline>]
-        static member loadend (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "loadend" f
+        static member loadEnd (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "loadend" f
         /// Create a handler for the event "loadend" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member loadendView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "loadend" view f
+        static member loadEndView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "loadend" view f
         /// Create a handler for the event "loadstart".
         [<JavaScript; Inline>]
-        static member loadstart (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "loadstart" f
+        static member loadStart (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "loadstart" f
         /// Create a handler for the event "loadstart" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member loadstartView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "loadstart" view f
+        static member loadStartView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "loadstart" view f
         /// Create a handler for the event "message".
         [<JavaScript; Inline>]
         static member message (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "message" f
@@ -1895,52 +1895,52 @@ module HtmlExtensions =
         static member messageView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "message" view f
         /// Create a handler for the event "mousedown".
         [<JavaScript; Inline>]
-        static member mousedown (f: Dom.Element -> Dom.MouseEvent -> unit) = Client.Attr.Handler "mousedown" f
+        static member mouseDown (f: Dom.Element -> Dom.MouseEvent -> unit) = Client.Attr.Handler "mousedown" f
         /// Create a handler for the event "mousedown" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member mousedownView (view: View<'T>) (f: Dom.Element -> Dom.MouseEvent -> 'T -> unit) = Client.Attr.HandlerView "mousedown" view f
+        static member mouseDownView (view: View<'T>) (f: Dom.Element -> Dom.MouseEvent -> 'T -> unit) = Client.Attr.HandlerView "mousedown" view f
         /// Create a handler for the event "mouseenter".
         [<JavaScript; Inline>]
-        static member mouseenter (f: Dom.Element -> Dom.MouseEvent -> unit) = Client.Attr.Handler "mouseenter" f
+        static member mouseEnter (f: Dom.Element -> Dom.MouseEvent -> unit) = Client.Attr.Handler "mouseenter" f
         /// Create a handler for the event "mouseenter" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member mouseenterView (view: View<'T>) (f: Dom.Element -> Dom.MouseEvent -> 'T -> unit) = Client.Attr.HandlerView "mouseenter" view f
+        static member mouseEnterView (view: View<'T>) (f: Dom.Element -> Dom.MouseEvent -> 'T -> unit) = Client.Attr.HandlerView "mouseenter" view f
         /// Create a handler for the event "mouseleave".
         [<JavaScript; Inline>]
-        static member mouseleave (f: Dom.Element -> Dom.MouseEvent -> unit) = Client.Attr.Handler "mouseleave" f
+        static member mouseLeave (f: Dom.Element -> Dom.MouseEvent -> unit) = Client.Attr.Handler "mouseleave" f
         /// Create a handler for the event "mouseleave" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member mouseleaveView (view: View<'T>) (f: Dom.Element -> Dom.MouseEvent -> 'T -> unit) = Client.Attr.HandlerView "mouseleave" view f
+        static member mouseLeaveView (view: View<'T>) (f: Dom.Element -> Dom.MouseEvent -> 'T -> unit) = Client.Attr.HandlerView "mouseleave" view f
         /// Create a handler for the event "mousemove".
         [<JavaScript; Inline>]
-        static member mousemove (f: Dom.Element -> Dom.MouseEvent -> unit) = Client.Attr.Handler "mousemove" f
+        static member mouseMove (f: Dom.Element -> Dom.MouseEvent -> unit) = Client.Attr.Handler "mousemove" f
         /// Create a handler for the event "mousemove" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member mousemoveView (view: View<'T>) (f: Dom.Element -> Dom.MouseEvent -> 'T -> unit) = Client.Attr.HandlerView "mousemove" view f
+        static member mouseMoveView (view: View<'T>) (f: Dom.Element -> Dom.MouseEvent -> 'T -> unit) = Client.Attr.HandlerView "mousemove" view f
         /// Create a handler for the event "mouseout".
         [<JavaScript; Inline>]
-        static member mouseout (f: Dom.Element -> Dom.MouseEvent -> unit) = Client.Attr.Handler "mouseout" f
+        static member mouseOut (f: Dom.Element -> Dom.MouseEvent -> unit) = Client.Attr.Handler "mouseout" f
         /// Create a handler for the event "mouseout" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member mouseoutView (view: View<'T>) (f: Dom.Element -> Dom.MouseEvent -> 'T -> unit) = Client.Attr.HandlerView "mouseout" view f
+        static member mouseOutView (view: View<'T>) (f: Dom.Element -> Dom.MouseEvent -> 'T -> unit) = Client.Attr.HandlerView "mouseout" view f
         /// Create a handler for the event "mouseover".
         [<JavaScript; Inline>]
-        static member mouseover (f: Dom.Element -> Dom.MouseEvent -> unit) = Client.Attr.Handler "mouseover" f
+        static member mouseOver (f: Dom.Element -> Dom.MouseEvent -> unit) = Client.Attr.Handler "mouseover" f
         /// Create a handler for the event "mouseover" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member mouseoverView (view: View<'T>) (f: Dom.Element -> Dom.MouseEvent -> 'T -> unit) = Client.Attr.HandlerView "mouseover" view f
+        static member mouseOverView (view: View<'T>) (f: Dom.Element -> Dom.MouseEvent -> 'T -> unit) = Client.Attr.HandlerView "mouseover" view f
         /// Create a handler for the event "mouseup".
         [<JavaScript; Inline>]
-        static member mouseup (f: Dom.Element -> Dom.MouseEvent -> unit) = Client.Attr.Handler "mouseup" f
+        static member mouseUp (f: Dom.Element -> Dom.MouseEvent -> unit) = Client.Attr.Handler "mouseup" f
         /// Create a handler for the event "mouseup" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member mouseupView (view: View<'T>) (f: Dom.Element -> Dom.MouseEvent -> 'T -> unit) = Client.Attr.HandlerView "mouseup" view f
+        static member mouseUpView (view: View<'T>) (f: Dom.Element -> Dom.MouseEvent -> 'T -> unit) = Client.Attr.HandlerView "mouseup" view f
         /// Create a handler for the event "noupdate".
         [<JavaScript; Inline>]
-        static member noupdate (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "noupdate" f
+        static member noUpdate (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "noupdate" f
         /// Create a handler for the event "noupdate" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member noupdateView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "noupdate" view f
+        static member noUpdateView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "noupdate" view f
         /// Create a handler for the event "obsolete".
         [<JavaScript; Inline>]
         static member obsolete (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "obsolete" f
@@ -1961,28 +1961,28 @@ module HtmlExtensions =
         static member onlineView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "online" view f
         /// Create a handler for the event "open".
         [<JavaScript; Inline>]
-        static member ``open`` (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "open" f
+        static member open (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "open" f
         /// Create a handler for the event "open" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
         static member openView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "open" view f
         /// Create a handler for the event "orientationchange".
         [<JavaScript; Inline>]
-        static member orientationchange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "orientationchange" f
+        static member orientationChange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "orientationchange" f
         /// Create a handler for the event "orientationchange" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member orientationchangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "orientationchange" view f
+        static member orientationChangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "orientationchange" view f
         /// Create a handler for the event "pagehide".
         [<JavaScript; Inline>]
-        static member pagehide (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "pagehide" f
+        static member pageHide (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "pagehide" f
         /// Create a handler for the event "pagehide" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member pagehideView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "pagehide" view f
+        static member pageHideView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "pagehide" view f
         /// Create a handler for the event "pageshow".
         [<JavaScript; Inline>]
-        static member pageshow (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "pageshow" f
+        static member pageShow (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "pageshow" f
         /// Create a handler for the event "pageshow" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member pageshowView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "pageshow" view f
+        static member pageShowView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "pageshow" view f
         /// Create a handler for the event "paste".
         [<JavaScript; Inline>]
         static member paste (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "paste" f
@@ -2009,22 +2009,22 @@ module HtmlExtensions =
         static member playingView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "playing" view f
         /// Create a handler for the event "pointerlockchange".
         [<JavaScript; Inline>]
-        static member pointerlockchange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "pointerlockchange" f
+        static member pointerLockChange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "pointerlockchange" f
         /// Create a handler for the event "pointerlockchange" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member pointerlockchangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "pointerlockchange" view f
+        static member pointerLockChangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "pointerlockchange" view f
         /// Create a handler for the event "pointerlockerror".
         [<JavaScript; Inline>]
-        static member pointerlockerror (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "pointerlockerror" f
+        static member pointerLockError (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "pointerlockerror" f
         /// Create a handler for the event "pointerlockerror" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member pointerlockerrorView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "pointerlockerror" view f
+        static member pointerLockErrorView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "pointerlockerror" view f
         /// Create a handler for the event "popstate".
         [<JavaScript; Inline>]
-        static member popstate (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "popstate" f
+        static member popState (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "popstate" f
         /// Create a handler for the event "popstate" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member popstateView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "popstate" view f
+        static member popStateView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "popstate" view f
         /// Create a handler for the event "progress".
         [<JavaScript; Inline>]
         static member progress (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "progress" f
@@ -2033,16 +2033,16 @@ module HtmlExtensions =
         static member progressView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "progress" view f
         /// Create a handler for the event "ratechange".
         [<JavaScript; Inline>]
-        static member ratechange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "ratechange" f
+        static member rateChange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "ratechange" f
         /// Create a handler for the event "ratechange" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member ratechangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "ratechange" view f
+        static member rateChangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "ratechange" view f
         /// Create a handler for the event "readystatechange".
         [<JavaScript; Inline>]
-        static member readystatechange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "readystatechange" f
+        static member readyStateChange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "readystatechange" f
         /// Create a handler for the event "readystatechange" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member readystatechangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "readystatechange" view f
+        static member readyStateChangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "readystatechange" view f
         /// Create a handler for the event "repeatEvent".
         [<JavaScript; Inline>]
         static member repeatEvent (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "repeatEvent" f
@@ -2165,58 +2165,58 @@ module HtmlExtensions =
         static member SVGZoomView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "SVGZoom" view f
         /// Create a handler for the event "timeout".
         [<JavaScript; Inline>]
-        static member timeout (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "timeout" f
+        static member timeOut (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "timeout" f
         /// Create a handler for the event "timeout" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member timeoutView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "timeout" view f
+        static member timeOutView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "timeout" view f
         /// Create a handler for the event "timeupdate".
         [<JavaScript; Inline>]
-        static member timeupdate (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "timeupdate" f
+        static member timeUpdate (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "timeupdate" f
         /// Create a handler for the event "timeupdate" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member timeupdateView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "timeupdate" view f
+        static member timeUpdateView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "timeupdate" view f
         /// Create a handler for the event "touchcancel".
         [<JavaScript; Inline>]
-        static member touchcancel (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "touchcancel" f
+        static member touchCancel (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "touchcancel" f
         /// Create a handler for the event "touchcancel" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member touchcancelView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "touchcancel" view f
+        static member touchCancelView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "touchcancel" view f
         /// Create a handler for the event "touchend".
         [<JavaScript; Inline>]
-        static member touchend (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "touchend" f
+        static member touchEnd (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "touchend" f
         /// Create a handler for the event "touchend" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member touchendView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "touchend" view f
+        static member touchEndView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "touchend" view f
         /// Create a handler for the event "touchenter".
         [<JavaScript; Inline>]
-        static member touchenter (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "touchenter" f
+        static member touchEnter (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "touchenter" f
         /// Create a handler for the event "touchenter" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member touchenterView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "touchenter" view f
+        static member touchEnterView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "touchenter" view f
         /// Create a handler for the event "touchleave".
         [<JavaScript; Inline>]
-        static member touchleave (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "touchleave" f
+        static member touchLeave (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "touchleave" f
         /// Create a handler for the event "touchleave" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member touchleaveView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "touchleave" view f
+        static member touchLeaveView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "touchleave" view f
         /// Create a handler for the event "touchmove".
         [<JavaScript; Inline>]
-        static member touchmove (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "touchmove" f
+        static member touchMove (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "touchmove" f
         /// Create a handler for the event "touchmove" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member touchmoveView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "touchmove" view f
+        static member touchMoveView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "touchmove" view f
         /// Create a handler for the event "touchstart".
         [<JavaScript; Inline>]
-        static member touchstart (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "touchstart" f
+        static member touchStart (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "touchstart" f
         /// Create a handler for the event "touchstart" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member touchstartView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "touchstart" view f
+        static member touchStartView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "touchstart" view f
         /// Create a handler for the event "transitionend".
         [<JavaScript; Inline>]
-        static member transitionend (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "transitionend" f
+        static member transitionEnd (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "transitionend" f
         /// Create a handler for the event "transitionend" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member transitionendView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "transitionend" view f
+        static member transitionEndView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "transitionend" view f
         /// Create a handler for the event "unload".
         [<JavaScript; Inline>]
         static member unload (f: Dom.Element -> Dom.UIEvent -> unit) = Client.Attr.Handler "unload" f
@@ -2225,40 +2225,40 @@ module HtmlExtensions =
         static member unloadView (view: View<'T>) (f: Dom.Element -> Dom.UIEvent -> 'T -> unit) = Client.Attr.HandlerView "unload" view f
         /// Create a handler for the event "updateready".
         [<JavaScript; Inline>]
-        static member updateready (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "updateready" f
+        static member updateReady (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "updateready" f
         /// Create a handler for the event "updateready" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member updatereadyView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "updateready" view f
+        static member updateReadyView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "updateready" view f
         /// Create a handler for the event "upgradeneeded".
         [<JavaScript; Inline>]
-        static member upgradeneeded (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "upgradeneeded" f
+        static member upgradeNeeded (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "upgradeneeded" f
         /// Create a handler for the event "upgradeneeded" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member upgradeneededView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "upgradeneeded" view f
+        static member upgradeNeededView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "upgradeneeded" view f
         /// Create a handler for the event "userproximity".
         [<JavaScript; Inline>]
-        static member userproximity (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "userproximity" f
+        static member userProximity (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "userproximity" f
         /// Create a handler for the event "userproximity" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member userproximityView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "userproximity" view f
+        static member userProximityView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "userproximity" view f
         /// Create a handler for the event "versionchange".
         [<JavaScript; Inline>]
-        static member versionchange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "versionchange" f
+        static member versionChange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "versionchange" f
         /// Create a handler for the event "versionchange" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member versionchangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "versionchange" view f
+        static member versionChangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "versionchange" view f
         /// Create a handler for the event "visibilitychange".
         [<JavaScript; Inline>]
-        static member visibilitychange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "visibilitychange" f
+        static member visibilityChange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "visibilitychange" f
         /// Create a handler for the event "visibilitychange" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member visibilitychangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "visibilitychange" view f
+        static member visibilityChangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "visibilitychange" view f
         /// Create a handler for the event "volumechange".
         [<JavaScript; Inline>]
-        static member volumechange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "volumechange" f
+        static member volumeChange (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "volumechange" f
         /// Create a handler for the event "volumechange" which also receives the value of a view at the time of the event.
         [<JavaScript; Inline>]
-        static member volumechangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "volumechange" view f
+        static member volumeChangeView (view: View<'T>) (f: Dom.Element -> Dom.Event -> 'T -> unit) = Client.Attr.HandlerView "volumechange" view f
         /// Create a handler for the event "waiting".
         [<JavaScript; Inline>]
         static member waiting (f: Dom.Element -> Dom.Event -> unit) = Client.Attr.Handler "waiting" f

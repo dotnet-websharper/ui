@@ -63,7 +63,10 @@ module Tags =
         }
         /// camelCase name for F# source
         member this.CamelName =
-            string(this.PascalName.[0]).ToLowerInvariant() + this.PascalName.[1..]
+            if System.Char.IsLower this.LowName.[0] then
+                string(this.PascalName.[0]).ToLowerInvariant() + this.PascalName.[1..]
+            else
+                this.PascalName
 
     let RunOn (path: string) (all: Map<string, Map<string, seq<bool * string * string>>>) (f: Elt -> string[]) =
         if NeedsBuilding tagsFilePath path then
@@ -170,10 +173,10 @@ module Tags =
                 [|
                     sprintf "/// Create a handler for the event \"%s\"." e.Name
                     "[<JavaScript; Inline>]"
-                    sprintf """static member %s (f: Dom.Element -> Dom.%s -> unit) = Client.Attr.Handler "%s" f""" e.LowNameEsc e.Category e.Name
+                    sprintf """static member %s (f: Dom.Element -> Dom.%s -> unit) = Client.Attr.Handler "%s" f""" e.CamelName e.Category e.Name
                     sprintf "/// Create a handler for the event \"%s\" which also receives the value of a view at the time of the event." e.Name
                     "[<JavaScript; Inline>]"
-                    sprintf """static member %sView (view: View<'T>) (f: Dom.Element -> Dom.%s -> 'T -> unit) = Client.Attr.HandlerView "%s" view f""" e.LowName e.Category e.Name
+                    sprintf """static member %sView (view: View<'T>) (f: Dom.Element -> Dom.%s -> 'T -> unit) = Client.Attr.HandlerView "%s" view f""" e.CamelName e.Category e.Name
                 |]
         RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next", "Doc.fs")) all <| fun e ->
             match e.Type with
