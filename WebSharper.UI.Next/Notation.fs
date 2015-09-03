@@ -20,12 +20,49 @@
 
 namespace WebSharper.UI.Next
 
+open WebSharper
+
+module M = WebSharper.Core.Macros
+module Q = WebSharper.Core.Quotations
+module R = WebSharper.Core.Reflection
+module C = WebSharper.Core.JavaScript.Core
+
 module Notation =
 
-    [<Inline "$o.get_Value()">]
+    [<Sealed>]
+    type GetValueMacro() =
+        interface M.IMacro with
+            member this.Translate(q, tr) =
+                match q with
+                | Q.CallModule (c, [ o ]) ->
+                    let t = c.Generics.Head.DeclaringType
+                    Q.PropertyGet(
+                        {
+                            Generics = c.Generics
+                            Entity = R.Property.Parse (t.Load().GetProperty "Value")
+                        }, [o])
+                    |> tr
+                | _ -> failwith "GetValueMacro error"
+
+    [<Sealed>]
+    type SetValueMacro() =
+        interface M.IMacro with
+            member this.Translate(q, tr) =
+                match q with
+                | Q.CallModule (c, [ o; v ]) ->
+                    let t = c.Generics.Head.DeclaringType
+                    Q.PropertySet(
+                        {
+                            Generics = c.Generics
+                            Entity = R.Property.Parse (t.Load().GetProperty "Value")
+                        }, [o; v])
+                    |> tr
+                | _ -> failwith "SetValueMacro error"
+
+    [<Macro(typeof<GetValueMacro>)>]
     let inline ( ! ) (o: ^x) : ^a = (^x: (member Value: ^a with get) o)
 
-    [<Inline "void($o.set_Value($v))">]
+    [<Macro(typeof<SetValueMacro>)>]
     let inline ( := ) (o: ^x) (v: ^a) = (^x: (member Value: ^a with set) (o, v))
 
     [<JavaScript; Inline>]

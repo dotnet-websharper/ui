@@ -30,6 +30,7 @@ open Microsoft.FSharp.Reflection
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Core.CompilerServices
 open WebSharper.UI.Next
+open WebSharper.UI.Next.Client
 
 open ProviderImplementation.ProvidedTypes
 
@@ -42,15 +43,16 @@ module internal Utils =
     let xn n = XName.Get n
 
     let ExprArray (exprs: Expr<'T> seq) : Expr<'T[]> =
-        Expr.NewArray(typeof<'T>, exprs |> Seq.cast |> List.ofSeq) |> Expr.Cast
+        Expr.NewArray(typeof<'T>, [ for e in exprs -> e.Raw ]) |> Expr.Cast
 
     type StringParts =
         | TextPart of string
         | TextHole of string
+        | TextViewHole of string
 
     let ViewOf ty = typedefof<View<_>>.MakeGenericType([|ty|])
     let IRefOf ty = typedefof<IRef<_>>.MakeGenericType([|ty|])
-    let EventTy = typeof<WebSharper.JavaScript.Dom.Event -> unit>
+    let EventTy = typeof<WebSharper.JavaScript.Dom.Element -> WebSharper.JavaScript.Dom.Event -> unit>
 
     [<RequireQualifiedAccess>]
     type Hole =
@@ -65,6 +67,15 @@ module internal Utils =
             | View (valTy = t) -> ViewOf t
             | Event -> EventTy
             | Simple (ty = t) -> t
+
+    type XElement with
+        member this.AnyAttributeOf([<ParamArray>] names: XName[]) =
+            (null, names)
+            ||> Array.fold (fun a n ->
+                match a with
+                | null -> this.Attribute(n)
+                | a -> a
+            )
 
 [<TypeProvider>]
 type TemplateProvider(cfg: TypeProviderConfig) as this =
@@ -87,7 +98,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
 
     let mutable watcher: FileSystemWatcher = null
 
-    let textHoleRegex = Regex @"\$\{([^\}]+)\}" 
+    let textHoleRegex = Regex @"\$(!?)\{([^\}]+)\}" 
     let dataHole = xn"data-hole"
     let dataReplace = xn"data-replace"
     let dataTemplate = xn"data-template"
@@ -95,6 +106,10 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
     let dataVar = xn"data-var"
     let dataAttr = xn"data-attr"
     let dataEvent = "data-event-"
+    let (|SpecialHole|_|) (a: XAttribute) =
+        match a.Value.ToLowerInvariant() with
+        | "scripts" | "meta" | "styles" -> Some()
+        | _ -> None
 
     do
         this.Disposing.Add <| fun _ ->
@@ -139,18 +154,24 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                             | null ->
                                 match e.Attribute(dataChildrenTemplate) with
                                 | null -> None
-                                | a -> Some (a.Value, false, e)
-                            | a -> 
-                                let name = a.Value 
-                                a.Remove()
-                                Some (name, true, e)
+                                | a -> Some (e, a, false)
+                            | a -> Some (e, a, true)
                         )
                         |> List.ofSeq
-                        |> List.map (fun (name, wrap, e) ->
-                            e.Remove()
-                            name,
-                            if wrap then XElement(xn"body", e) else e
-                        )    
+                        |> List.map (fun (e, a, wrap) ->
+                            let name = a.Value
+                            a.Remove()
+                            let e =
+                                match e.AnyAttributeOf(dataReplace, dataHole) with
+                                | null ->
+                                    e.Remove()
+                                    e
+                                | a ->
+                                    let e = XElement(e)
+                                    e.Attribute(a.Name).Remove()
+                                    e
+                            name, if wrap then XElement(xn"body", e) else e
+                        )
                                         
                     let addTemplateMethod (t: XElement) (toTy: ProvidedTypeDefinition) =                        
                         let holes = Dictionary()
@@ -204,7 +225,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                 holes.Add(name, Hole.View typeof<'T>)
                             Expr.Var (Var (name, typeof<View<'T>>)) |> Expr.Cast
 
-                        let getEventHole name : Expr<WebSharper.JavaScript.Dom.Event -> unit> =
+                        let getEventHole name : Expr<WebSharper.JavaScript.Dom.Element -> WebSharper.JavaScript.Dom.Event -> unit> =
                             match holes.TryGetValue(name) with
                             | true, Hole.Event -> ()
                             | true, Hole.Simple _
@@ -219,19 +240,20 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                             if t = "" then [] else
                             let holes =
                                 textHoleRegex.Matches t |> Seq.cast<Match>
-                                |> Seq.map (fun m -> m.Groups.[1].Value, m.Index)
+                                |> Seq.map (fun m ->
+                                    m.Groups.[1].Value <> "", m.Groups.[2].Value, m.Index)
                                 |> List.ofSeq
                             if List.isEmpty holes then
                                 [ TextPart t ]
                             else
                                 [
                                     let l = ref 0
-                                    for name, i in holes do
+                                    for isView, name, i in holes do
                                         if i > !l then
                                             let s = t.[!l .. i - 1]
                                             yield TextPart s
-                                        yield TextHole name
-                                        l := i + name.Length + 3
+                                        yield (if isView then TextViewHole else TextHole) name
+                                        l := i + name.Length + if isView then 4 else 3
                                     if t.Length > !l then
                                         let s = t.[!l ..]
                                         yield TextPart s
@@ -244,8 +266,10 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                     if isRoot then <@ [||] @> else
                                     e.Attributes() 
                                     |> Seq.filter (fun a ->
-                                        a.Name <> dataHole &&
-                                        a.Name <> dataVar)
+                                        if a.Name = dataHole then
+                                            (|SpecialHole|_|) a = Some ()
+                                        else
+                                            a.Name <> dataVar)
                                     |> Seq.map (fun a -> 
                                         let n = a.Name.LocalName
                                         if n.StartsWith dataEvent then
@@ -254,25 +278,39 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                         elif a.Name = dataAttr then
                                             getSimpleHole a.Value
                                         else
-                                            match getParts a.Value with
+                                            let parts = getParts a.Value
+                                            let rec groupTextPartsAndTextHoles cur l =
+                                                let toStringRev l =
+                                                    match l with
+                                                    | [] -> <@ "" @>
+                                                    | [e] -> e
+                                                    | [e2; e1] -> <@ %e1 + %e2 @>
+                                                    | es -> <@ System.String.Concat %(ExprArray (List.rev es)) @>
+                                                    |> Choice1Of2
+                                                match l with
+                                                | [] -> [toStringRev cur]
+                                                | TextPart t :: rest -> groupTextPartsAndTextHoles (<@ t @> :: cur) rest
+                                                | TextHole h :: rest -> groupTextPartsAndTextHoles (getSimpleHole h :: cur) rest
+                                                | TextViewHole h :: rest -> toStringRev cur :: Choice2Of2 (getViewHole h : Expr<View<string>>) :: groupTextPartsAndTextHoles [] rest
+                                            match groupTextPartsAndTextHoles [] parts with
                                             | [] -> <@ Attr.Create n "" @>
-                                            | [ TextPart v ] -> <@ Attr.Create n v @>
-                                            | p ->
+                                            | [Choice1Of2 s] -> <@ Attr.Create n %s @>
+                                            | parts ->
                                                 let rec collect parts =
                                                     match parts with
-                                                    | [ TextHole h ] -> getViewHole h
-                                                    | [ TextHole h; TextPart t ] -> 
-                                                        <@ View.Map (fun s -> s + t) %(getViewHole h) @>
-                                                    | [ TextPart t; TextHole h ] -> 
-                                                        <@ View.Map (fun s -> t + s) %(getViewHole h) @>
-                                                    | [ TextPart t1; TextHole h; TextPart t2 ] ->
-                                                        <@ View.Map (fun s -> t1 + s + t2) %(getViewHole h) @>
-                                                    | TextHole h :: rest ->
-                                                        <@ View.Map2 (fun s1 s2 -> s1 + s2) %(getViewHole h) %(collect rest) @>
-                                                    | TextPart t :: TextHole h :: rest ->
-                                                        <@ View.Map2 (fun s1 s2 -> t + s1 + s2) %(getViewHole h) %(collect rest) @>
+                                                    | [ Choice2Of2 h ] -> h
+                                                    | [ Choice2Of2 h; Choice1Of2 t ] -> 
+                                                        <@ View.Map (fun s -> s + %t) %h @>
+                                                    | [ Choice1Of2 t; Choice2Of2 h ] -> 
+                                                        <@ View.Map (fun s -> %t + s) %h @>
+                                                    | [ Choice1Of2 t1; Choice2Of2 h; Choice1Of2 t2 ] ->
+                                                        <@ View.Map (fun s -> %t1 + s + %t2) %h @>
+                                                    | Choice2Of2 h :: rest ->
+                                                        <@ View.Map2 (fun s1 s2 -> s1 + s2) %h %(collect rest) @>
+                                                    | Choice1Of2 t :: Choice2Of2 h :: rest ->
+                                                        <@ View.Map2 (fun s1 s2 -> %t + s1 + s2) %h %(collect rest) @>
                                                     | _ -> failwithf "collecting attribute parts failure" // should not happen
-                                                <@ Attr.Dynamic n %(collect p) @>
+                                                <@ Attr.Dynamic n %(collect parts) @>
                                     )
                                     |> ExprArray
                                 
@@ -285,38 +323,46 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                                 getParts n.Value
                                                 |> List.map (function
                                                     | TextPart t -> <@ Doc.TextNode t @>
-                                                    | TextHole h -> <@ Doc.TextView %(getViewHole h) @>
+                                                    | TextHole h -> <@ Doc.TextNode %(getSimpleHole h) @>
+                                                    | TextViewHole h -> <@ Doc.TextView %(getViewHole h) @>
                                                 )
                                             | _ -> []
                                         ) 
                                         |> ExprArray
-                                    | a -> <@ [| %(getSimpleHole a.Value) |] @>
+                                    | SpecialHole -> <@ [||] @>
+                                    | a -> <@ Array.ofSeq %(getSimpleHole a.Value) @>
 
                                 if isRoot then 
                                     <@ Doc.Concat %nodes @>
                                 else
                                     let n = e.Name.LocalName
                                     match e.Attribute(dataVar) with
-                                    | null -> <@ Doc.Element n %attrs %nodes @>
+                                    | null -> <@ Doc.Element n %attrs %nodes :> _ @>
                                     | a ->
                                         if n.ToLower() = "input" then
                                             match e.Attribute(xn"type") with
-                                            | null -> <@ Doc.Input %attrs %(getVarHole a.Value) @>
+                                            | null -> <@ Doc.Input %attrs %(getVarHole a.Value) :> _ @>
                                             | t ->
                                                 match t.Value with
-                                                | "checkbox" -> <@ Doc.CheckBox %attrs %(getVarHole a.Value) @>
-                                                | ("text" | _) as x -> <@ Doc.Input %attrs %(getVarHole a.Value) @>
+                                                | "checkbox" -> <@ Doc.CheckBox %attrs %(getVarHole a.Value) :> _ @>
+                                                | "number" -> <@ Doc.FloatInput %attrs %(getVarHole a.Value) :> _ @>
+                                                | "password" -> <@ Doc.PasswordBox %attrs %(getVarHole a.Value) :> _ @>
+                                                | "text" | _ -> <@ Doc.Input %attrs %(getVarHole a.Value) :> _ @>
                                         elif n.ToLower() = "textarea" then
-                                            <@ Doc.InputArea %attrs %(getVarHole a.Value) @>
+                                            <@ Doc.InputArea %attrs %(getVarHole a.Value) :> _ @>
                                         elif n.ToLower() = "select" then
                                             <@ Doc.Element "select"
                                                 (Seq.append
                                                     (Seq.singleton (Attr.Value %(getVarHole a.Value)))
                                                     %attrs)
-                                                %nodes @>
+                                                %nodes :> _ @>
                                         else failwithf "data-var attribute \"%s\" on invalid element \"%s\"" a.Value n
 
-                            | a -> getSimpleHole a.Value
+                            | SpecialHole as a ->
+                                let elName = e.Name.LocalName
+                                let attrValue = a.Value
+                                <@ Doc.Element elName [|Attr.Create "data-replace" attrValue |] [||] :> _ @>
+                            | a -> <@ Doc.Concat %(getSimpleHole a.Value) @>
                         
                         let mainExpr = t |> createNode true
 
@@ -333,13 +379,13 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                 | Hole.View valTy ->
                                     varMap.Add((name, ViewOf valTy), arg)
                                 | Hole.IRef(valTy, hasView) ->
-                                    let varTy = IRefOf valTy
-                                    varMap.Add((name, varTy), arg)
+                                    let irefTy = IRefOf valTy
+                                    varMap.Add((name, irefTy), arg)
                                     if hasView then
                                         varMap.Add((name, ViewOf valTy),
-                                            Expr.Call(
-                                                typeof<View>.GetMethod("FromVar").MakeGenericMethod([|valTy|]),
-                                                [arg]))
+                                            Expr.Call(arg,
+                                                irefTy.GetProperty("View").GetGetMethod(),
+                                                []))
                             mainExpr.Substitute(fun v ->
                                 match varMap.TryGetValue((v.Name, v.Type)) with
                                 | true, e -> Some e

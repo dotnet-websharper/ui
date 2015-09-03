@@ -12,6 +12,6 @@ type Key =
 
 Represents a unique identifier.
 
-<a href="#Fresh" name="Fresh">#</a> Key.**Fresh** `unit -> Key`
+<a href="#Fresh" name="Fresh">#</a> Key.**Fresh** : `unit -> Key`
 
 Creates a fresh unique identifier.

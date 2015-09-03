@@ -20,6 +20,8 @@
 
 namespace WebSharper.UI.Next
 
+open WebSharper.UI.Next.Client
+
 type Flow<'T> =
     {
         Render : Var<Doc> -> ('T -> unit) -> unit

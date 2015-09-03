@@ -22,16 +22,26 @@ namespace WebSharper.UI.Next
 
 open WebSharper
 
+<<<<<<< HEAD
 type View<'T> =
     | V of (unit -> Snap<'T>)
 
+=======
+>>>>>>> upstream/master
 type IRef<'T> =
     abstract Get : unit -> 'T
     abstract Set : 'T -> unit
     abstract Update : ('T -> 'T) -> unit
     abstract UpdateMaybe : ('T -> 'T option) -> unit
     abstract View : View<'T>
+<<<<<<< HEAD
     abstract GetId : unit -> string
+=======
+    abstract Id : string
+
+and View<'T> =
+    | V of (unit -> Snap<'T>)
+>>>>>>> upstream/master
 
 /// Var either holds a Snap or is in Const state.
 [<JavaScript>]
@@ -43,11 +53,15 @@ type Var<'T> =
         Id : int
     }
 
+<<<<<<< HEAD
     [<JavaScript>]
+=======
+>>>>>>> upstream/master
     member this.View =
         V (fun () -> Var.Observe this)
 
     interface IRef<'T> with
+<<<<<<< HEAD
 
         member this.Get() =
             Var.Get this
@@ -68,6 +82,17 @@ type Var<'T> =
 
         member this.GetId() =
             "uinref" + string (Var.GetId this)
+=======
+        member this.Get() = Var.Get this
+        member this.Set v = Var.Set this v
+        member this.Update f = Var.Update this f
+        member this.UpdateMaybe f =
+            match f (Var.Get this) with
+            | None -> ()
+            | Some v -> Var.Set this v
+        member this.View = this.View
+        member this.Id = "uinref" + string (Var.GetId this)
+>>>>>>> upstream/master
 
 and [<JavaScript; Sealed>] Var =
 
@@ -119,7 +144,12 @@ type ViewNode<'A,'B> =
 [<Sealed>]
 type View =
 
+<<<<<<< HEAD
     static member FromVar (var: Var<_>) =
+=======
+    [<Inline>]
+    static member FromVar (var: Var<'T>) =
+>>>>>>> upstream/master
         var.View
 
     static member CreateLazy observe =
@@ -235,7 +265,11 @@ type View =
                             Var.Set n.NVar x
                             n
                         else
+<<<<<<< HEAD
                             View.ConvertSeqNode (conv k) x
+=======
+                            View.ConvertSeqNode (fun v -> conv k v) x
+>>>>>>> upstream/master
                     newState.[k] <- node
                     node.NValue)
                 :> seq<_>
@@ -243,7 +277,11 @@ type View =
             result)
 
     static member ConvertSeq conv view =
+<<<<<<< HEAD
         View.ConvertSeqBy (fun x -> x) (fun _ -> conv) view
+=======
+        View.ConvertSeqBy (fun x -> x) (fun _ v -> conv v) view
+>>>>>>> upstream/master
 
   // More cominators ------------------------------------------------------------
 
@@ -270,22 +308,101 @@ type View =
     static member Apply fn view =
         View.Map2 (fun f x -> f x) fn view
 
+[<JavaScript>]
+type RefImpl<'T, 'V>(baseRef: IRef<'T>, get: 'T -> 'V, update: 'T -> 'V -> 'T) =
+
+    let id = Fresh.Id()
+
+    interface IRef<'V> with
+
+        member this.Get() =
+            get (baseRef.Get())
+
+        member this.Set(v) =
+            baseRef.Set(update (baseRef.Get()) v)
+
+        member this.Update(f) =
+            let t = baseRef.Get()
+            baseRef.Set(update t (f (get t)))
+
+        member this.UpdateMaybe(f) =
+            let t = baseRef.Get()
+            f (get t) |> Option.iter (fun v -> baseRef.Set(update t v))
+
+        member this.View =
+            baseRef.View |> View.Map get
+
+        member this.Id =
+            id
+
+type Var with
+
+    [<JavaScript>]
+<<<<<<< HEAD
+=======
+    static member Lens (iref: IRef<_>) get update =
+        new RefImpl<_, _>(iref, get, update) :> IRef<_>
+
 type Var<'T> with
 
     [<JavaScript>]
+>>>>>>> upstream/master
     member v.Value
-        with get () = Var.Get v
-        and set value = Var.Set v value
+        with [<Inline>] get () = Var.Get v
+        and [<Inline>] set value = Var.Set v value
+
+[<AutoOpen>]
+module IRefExtension =
+
+    type IRef<'T> with
+
+        [<JavaScript; Inline>]
+        member iref.Lens get update =
+            Var.Lens iref get update
+
+type View<'T> with
+
+    [<JavaScript; Inline>]
+    member v.Map f = View.Map f v
+
+    [<JavaScript; Inline>]
+    member v.Bind f = View.Bind f v
 
 type ViewBuilder =
     | B
 
-    [<JavaScript>]
+    [<JavaScript; Inline>]
     member b.Bind(x, f) = View.Bind f x
 
-    [<JavaScript>]
+    [<JavaScript; Inline>]
     member b.Return x = View.Const x
 
 type View with
     [<JavaScript>]
     static member Do = B
+
+[<Sealed; JavaScript>]
+type Submitter<'T> (input: View<'T>, init: 'T) =
+    let var = Var.Create ()
+    let view = View.SnapshotOn init var.View input
+
+    member this.View = view
+
+    member this.Trigger() = var.Value <- ()
+
+    member this.Input = input
+
+[<Sealed; JavaScript>]
+type Submitter =
+
+    static member Create input init =
+        Submitter<_>(input, init)
+
+    static member View (s: Submitter<_>) =
+        s.View
+
+    static member Trigger (s: Submitter<_>) =
+        s.Trigger()
+
+    static member Input (s: Submitter<_>) =
+        s.Input

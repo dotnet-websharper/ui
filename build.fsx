@@ -2,8 +2,9 @@
 open IntelliFactory.Build
 
 let bt =
-    BuildTool().PackageId("WebSharper.UI.Next", "3.0")
-    |> fun bt -> bt.WithFramework(bt.Framework.Net40)
+    BuildTool().PackageId("WebSharper.UI.Next")
+        .VersionFrom("WebSharper")
+        .WithFramework(fun fw -> fw.Net40)
 
 let main =
     bt.WebSharper.Library("WebSharper.UI.Next")

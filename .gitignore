@@ -4,3 +4,4 @@ packages/
 WebSharper.UI.Next.Tests/Content/
 bin/
 obj/
+.vs/
