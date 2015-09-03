@@ -1436,6 +1436,10 @@ module HtmlExtensions =
         // }}
 
     type Html.on with
+        /// Adds a callback to be called after the element has been inserted in the DOM.
+        /// The callback is guaranteed to be called only once, even if the element is moved or removed and reinserted.
+        [<JavaScript; Inline>]
+        static member afterRender (f: Dom.Element -> unit) = Client.Attr.OnAfterRender f
         // {{ event
         /// Create a handler for the event "abort".
         [<JavaScript; Inline>]

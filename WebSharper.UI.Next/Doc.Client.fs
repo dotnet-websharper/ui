@@ -246,26 +246,28 @@ module Docs =
     /// Creates an element node.
     let CreateElemNode el attr children =
         LinkElement el children
+        let attr = Attrs.Insert el attr
         {
-            Attr = Attrs.Insert el attr
+            Attr = attr
             Children = children
             Delimiters = None
             El = el
             ElKey = Fresh.Int ()
-            Render = None
+            Render = Attrs.GetOnAfterRender attr
         }
 
     /// Creates an element node that handles a delimited subset of its children.
     let CreateDelimitedElemNode (ldelim: Node) (rdelim: Node) attr children =
         let el = ldelim.ParentNode :?> _
         LinkPrevElement rdelim children
+        let attr = Attrs.Insert el attr
         {
-            Attr = Attrs.Insert el attr
+            Attr = attr
             Children = children
             Delimiters = Some (ldelim, rdelim)
             El = el
             ElKey = Fresh.Int ()
-            Render = None
+            Render = Attrs.GetOnAfterRender attr
         }
 
     /// Creates a new RunState.
@@ -778,6 +780,7 @@ module EltExtensions =
         member this.On(event, cb: Dom.Element -> Dom.Event -> unit) =
             As<Elt> ((As<Elt'> this).on(event, cb))
 
+        [<Inline>]
         member this.OnAfterRender(cb: Dom.Element -> unit) =
             As<Elt> ((As<Elt'> this).OnAfterRender(cb))
 

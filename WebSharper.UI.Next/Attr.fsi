@@ -87,6 +87,10 @@ module Attr =
     /// Sets an event handler, for a given event such as `click`.
     val HandlerView : name: string -> view: View<'T> -> callback: (Element -> #DomEvent -> 'T -> unit) -> Attr
 
+    /// Adds a callback to be called after the element has been inserted in the DOM.
+    /// The callback is guaranteed to be called only once, even if the element is moved or removed and reinserted.
+    val OnAfterRender : callback: (Element -> unit) -> Attr
+
     /// Sets a CSS class.
     val Class : name: string -> Attr
 
@@ -136,3 +140,6 @@ module internal Attrs =
 
     /// Animate exit transition.
     val GetExitAnim : Dyn -> Anim
+
+    /// Get OnAfterRender callback, if any.
+    val GetOnAfterRender : Dyn -> option<Element -> unit>

@@ -208,7 +208,8 @@ type AttrTree =
     | A0
     | A1 of IAttrNode
     | A2 of AttrTree * AttrTree
-    | A3 of (Element -> unit)
+    | A3 of init: (Element -> unit)
+    | A4 of onAfterRender: (Element -> unit)
 
 type AttrFlags =
     | Defaults = 0
@@ -230,6 +231,8 @@ module Attrs =
             DynElem : Element
             DynFlags : AttrFlags
             DynNodes : IAttrNode []
+            [<OptionalField>]
+            OnAfterRender : option<Element -> unit>
         }
 
     let HasChangeAnim attr =
@@ -250,18 +253,23 @@ module Attrs =
     /// Inserts static attributes and computes dynamic attributes.
     let Insert elem (tree: Attr) =
         let nodes = JQueue.Create ()
+        let oar = JQueue.Create()
         let rec loop node =
             match node with
             | A0 -> ()
             | A1 n -> n.Init elem; JQueue.Add n nodes
             | A2 (a, b) -> loop a; loop b
             | A3 mk -> mk elem
+            | A4 cb -> JQueue.Add cb oar
         loop (As<AttrProxy> tree).Tree
         let arr = JQueue.ToArray nodes
         {
             DynElem = elem
             DynFlags = (As<AttrProxy> tree).Flags
             DynNodes = arr
+            OnAfterRender =
+                if JQueue.Count oar = 0 then None else
+                Some (fun el -> JQueue.Iter (fun f -> f el) oar)
         }
 
     let Updates dyn =
@@ -282,6 +290,10 @@ module Attrs =
 
     let GetChangeAnim dyn =
         GetAnim dyn (fun n -> n.GetChangeAnim)
+
+    [<Inline>]
+    let GetOnAfterRender dyn =
+        dyn.OnAfterRender
 
     let AppendTree a b =
         match a, b with
@@ -375,6 +387,9 @@ module Attr =
         let cb (el: Element) (x: 'T) =
             el?(id) <- x
         As<Attr> (Attrs.Dynamic view init cb)
+
+    let OnAfterRender (callback: Element -> unit) =
+        As<Attr> (Attrs.Mk AttrFlags.Defaults (A4 callback))
 
     let DynamicClass name view ok =
         As<Attr> (Attrs.Dynamic view ignore (fun el v ->
