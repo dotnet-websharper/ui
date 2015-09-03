@@ -30,6 +30,8 @@ and [<CustomEquality>]
         Delimiters : (Node * Node) option
         El : Element
         ElKey : int
+        [<OptionalField>]
+        mutable Render : option<Dom.Element -> unit>
     }
 
     override this.Equals(o: obj) =
@@ -159,6 +161,9 @@ module Docs =
         Attrs.Sync el.El el.Attr
         if hasDirtyChildren el then
             DoSyncElement el
+        match el.Render with
+        | None -> ()
+        | Some f -> f el.El; el.Render <- None
 
     /// Links an element to children by inserting them.
     [<MethodImpl(MethodImplOptions.NoInlining)>]
@@ -247,6 +252,7 @@ module Docs =
             Delimiters = None
             El = el
             ElKey = Fresh.Int ()
+            Render = None
         }
 
     /// Creates an element node that handles a delimited subset of its children.
@@ -259,6 +265,7 @@ module Docs =
             Delimiters = Some (ldelim, rdelim)
             El = el
             ElKey = Fresh.Int ()
+            Render = None
         }
 
     /// Creates a new RunState.
@@ -633,6 +640,13 @@ and [<JavaScript; Proxy(typeof<Elt>); CompiledName "Elt">]
     member this.onExpr (ev: string, cb: Microsoft.FSharp.Quotations.Expr<Dom.Element -> #Dom.Event -> unit>) =
         this.on (ev, As<_ -> _ -> _> cb)
 
+    member this.OnAfterRender (cb: Dom.Element -> unit) =
+        this.DocElemNode.Render <-
+            match this.DocElemNode.Render with
+            | None -> Some cb
+            | Some f -> Some (fun el -> f el; cb el)
+        this
+
     member private this.DocElemNode =
         match docNode with
         | ElemDoc e -> e
@@ -763,6 +777,9 @@ module EltExtensions =
         [<Inline>]
         member this.On(event, cb: Dom.Element -> Dom.Event -> unit) =
             As<Elt> ((As<Elt'> this).on(event, cb))
+
+        member this.OnAfterRender(cb: Dom.Element -> unit) =
+            As<Elt> ((As<Elt'> this).OnAfterRender(cb))
 
         // {{ event
         [<Inline>]

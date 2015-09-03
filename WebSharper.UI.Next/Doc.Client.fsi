@@ -34,6 +34,9 @@ module EltExtensions =
         /// Add an event handler.
         member On : event: string * callback: (Dom.Element -> Dom.Event -> unit) -> Elt
 
+        /// Add a callback to be called after the element has been inserted into the DOM.
+        member OnAfterRender : callback: (Dom.Element -> unit) -> Elt
+
         // {{ event
         /// Add a handler for the event "abort".
         member OnAbort : cb: (Dom.Element -> Dom.UIEvent -> unit) -> Elt
