@@ -25,8 +25,6 @@
 /// please provide only pure (non-throwing) functions to this API.
 namespace WebSharper.UI.Next
 
-<<<<<<< HEAD
-=======
 /// An abstract time-varying variable than can be observed for changes
 /// by independent processes.
 type IRef<'T> =
@@ -54,37 +52,8 @@ type IRef<'T> =
 and [<Sealed>] Var<'T> =
     interface IRef<'T>
 
->>>>>>> upstream/master
 /// A read-only view on a time-varying value that a can be observed.
 and View<'T>
-
-/// An abstract time-varying variable than can be observed for changes
-/// by independent processes.
-type IRef<'T> =
-
-    /// Gets the current value.
-    abstract Get : unit -> 'T
-
-    /// Sets the current value.
-    abstract Set : 'T -> unit
-
-    /// Updates the current value.
-    abstract Update : ('T -> 'T) -> unit
-
-    /// Maybe updates the current value.
-    abstract UpdateMaybe : ('T -> 'T option) -> unit
-
-    /// Gets a view that observes changes on this variable.
-    abstract View : View<'T>
-
-    /// Gets the unique ID associated with the variable.
-    abstract GetId : unit -> string
-
-/// A time-varying variable that behaves like a ref cell that
-/// can also be observed for changes by independent processes.
-[<Sealed>]
-type Var<'T> =
-    interface IRef<'T>
 
 /// Static operations on variables.
 [<Sealed>]

@@ -22,26 +22,16 @@ namespace WebSharper.UI.Next
 
 open WebSharper
 
-<<<<<<< HEAD
-type View<'T> =
-    | V of (unit -> Snap<'T>)
-
-=======
->>>>>>> upstream/master
 type IRef<'T> =
     abstract Get : unit -> 'T
     abstract Set : 'T -> unit
     abstract Update : ('T -> 'T) -> unit
     abstract UpdateMaybe : ('T -> 'T option) -> unit
     abstract View : View<'T>
-<<<<<<< HEAD
-    abstract GetId : unit -> string
-=======
     abstract Id : string
 
 and View<'T> =
     | V of (unit -> Snap<'T>)
->>>>>>> upstream/master
 
 /// Var either holds a Snap or is in Const state.
 [<JavaScript>]
@@ -53,36 +43,10 @@ type Var<'T> =
         Id : int
     }
 
-<<<<<<< HEAD
-    [<JavaScript>]
-=======
->>>>>>> upstream/master
     member this.View =
         V (fun () -> Var.Observe this)
 
     interface IRef<'T> with
-<<<<<<< HEAD
-
-        member this.Get() =
-            Var.Get this
-
-        member this.Set(v) =
-            Var.Set this v
-
-        member this.Update(f) =
-            Var.Update this f
-
-        member this.UpdateMaybe(f) =
-            match f (Var.Get this) with
-            | None -> ()
-            | Some v -> Var.Set this v
-
-        member this.View =
-            this.View
-
-        member this.GetId() =
-            "uinref" + string (Var.GetId this)
-=======
         member this.Get() = Var.Get this
         member this.Set v = Var.Set this v
         member this.Update f = Var.Update this f
@@ -92,7 +56,6 @@ type Var<'T> =
             | Some v -> Var.Set this v
         member this.View = this.View
         member this.Id = "uinref" + string (Var.GetId this)
->>>>>>> upstream/master
 
 and [<JavaScript; Sealed>] Var =
 
@@ -144,12 +107,8 @@ type ViewNode<'A,'B> =
 [<Sealed>]
 type View =
 
-<<<<<<< HEAD
-    static member FromVar (var: Var<_>) =
-=======
     [<Inline>]
     static member FromVar (var: Var<'T>) =
->>>>>>> upstream/master
         var.View
 
     static member CreateLazy observe =
@@ -265,11 +224,7 @@ type View =
                             Var.Set n.NVar x
                             n
                         else
-<<<<<<< HEAD
-                            View.ConvertSeqNode (conv k) x
-=======
                             View.ConvertSeqNode (fun v -> conv k v) x
->>>>>>> upstream/master
                     newState.[k] <- node
                     node.NValue)
                 :> seq<_>
@@ -277,11 +232,7 @@ type View =
             result)
 
     static member ConvertSeq conv view =
-<<<<<<< HEAD
-        View.ConvertSeqBy (fun x -> x) (fun _ -> conv) view
-=======
         View.ConvertSeqBy (fun x -> x) (fun _ v -> conv v) view
->>>>>>> upstream/master
 
   // More cominators ------------------------------------------------------------
 
@@ -338,15 +289,12 @@ type RefImpl<'T, 'V>(baseRef: IRef<'T>, get: 'T -> 'V, update: 'T -> 'V -> 'T) =
 type Var with
 
     [<JavaScript>]
-<<<<<<< HEAD
-=======
     static member Lens (iref: IRef<_>) get update =
         new RefImpl<_, _>(iref, get, update) :> IRef<_>
 
 type Var<'T> with
 
     [<JavaScript>]
->>>>>>> upstream/master
     member v.Value
         with [<Inline>] get () = Var.Get v
         and [<Inline>] set value = Var.Set v value

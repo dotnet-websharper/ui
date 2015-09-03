@@ -492,71 +492,11 @@ module Doc =
     val Append : Doc -> Doc -> Doc
 
     /// Concatenation.
-<<<<<<< HEAD
-    static member Concat : seq<Doc> -> Doc
-
-  // Collections.
-
-    /// Converts a collection to Doc using View.Convert and embeds the concatenated result.
-    /// Shorthand for View.Convert f |> View.Map Doc.Concat |> Doc.EmbedView.
-    static member Convert<'T when 'T : equality> :
-        ('T -> Doc) -> View<seq<'T>> -> Doc
-
-    /// Doc.Convert with a custom key.
-    static member ConvertBy<'T,'K when 'K : equality> :
-        ('T -> 'K) -> ('T -> Doc) -> View<seq<'T>> -> Doc
-
-    /// Converts a collection to Doc using View.ConvertSeq and embeds the concatenated result.
-    /// Shorthand for View.ConvertSeq f |> View.Map Doc.Concat |> Doc.EmbedView.
-    static member ConvertSeq<'T when 'T : equality> :
-        (View<'T> -> Doc) -> View<seq<'T>> -> Doc
-
-    /// Doc.ConvertSeq with a custom key.
-    static member ConvertSeqBy<'T,'K when 'K : equality> :
-        ('T -> 'K) -> ('K -> View<'T> -> Doc) -> View<seq<'T>> -> Doc
-
-  // Main entry-point combinators - use once per app
-=======
     val Concat : seq<Doc> -> Doc
->>>>>>> upstream/master
 
     // Special cases
 
     /// Static variant of TextView.
-<<<<<<< HEAD
-    static member TextNode : string -> Doc
-
-  // Form helpers
-
-    /// Input box.
-    static member Input : seq<Attr> -> IRef<string> -> Doc
-
-    /// Input box.
-    static member InputArea : seq<Attr> -> IRef<string> -> Doc
-
-    /// Password box.
-    static member PasswordBox : seq<Attr> -> IRef<string> -> Doc
-
-    /// Submit button. Takes a view of reactive components with which it is associated,
-    /// and a callback function of what to do with this view once the button is pressed.
-    static member Button : caption: string -> seq<Attr> -> (unit -> unit) -> Doc
-
-    /// Link with a callback, acts just like a button.
-    static member Link : caption: string -> seq<Attr> -> (unit -> unit) -> Doc
-
-    /// Check Box.
-    static member CheckBox : seq<Attr> -> IRef<bool> -> Doc
-
-    /// Check Box Group.
-    static member CheckBoxForList<'T when 'T : equality> : seq<Attr> -> 'T -> IRef<list<'T>> -> Doc
-
-    /// Select box.
-    static member Select<'T when 'T : equality> : seq<Attr> -> ('T -> string) -> list<'T> -> IRef<'T> -> Doc
-
-    /// Radio button.
-    static member Radio<'T when 'T : equality> : seq<Attr> -> 'T -> IRef<'T> -> Doc
-=======
     val TextNode : string -> Doc
 
     val ClientSide : Expr<#IControlBody> -> Doc
->>>>>>> upstream/master

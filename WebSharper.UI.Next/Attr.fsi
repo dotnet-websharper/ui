@@ -97,13 +97,7 @@ module Attr =
     val DynamicPred : name: string -> predView: View<bool> -> valView: View<string> -> Attr
 
     /// Gets and sets the value of the element according to a Var.
-<<<<<<< HEAD
-    static member Value : IRef<string> -> Attr
-
-  // Note: Empty, Append, Concat define a monoid on Attr.
-=======
     val CustomValue : IRef<'a> -> ('a -> string) -> (string -> 'a option) -> Attr when 'a : equality
->>>>>>> upstream/master
 
     /// Gets and sets the value of the element according to a Var.
     val Value : IRef<string> -> Attr

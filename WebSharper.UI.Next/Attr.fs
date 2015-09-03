@@ -387,31 +387,6 @@ module Attr =
             else
                 DU.RemoveAttr el name
         let tupleView = View.Map2 (fun pred value -> (pred, value)) predView valView
-<<<<<<< HEAD
-        Attrs.Dynamic tupleView viewFn
-
-    static member DynamicProp name view =
-        Attrs.Dynamic view (fun el v ->
-            el?(name) <- v)
-
-    static member Append a b =
-        Attrs.Mk (a.Flags ||| b.Flags) (Attrs.AppendTree a.Tree b.Tree)
-
-    static member Empty =
-        Attrs.EmptyAttr
-
-    static member Concat xs =
-        Seq.toArray xs
-        |> Array.MapReduce (fun x -> x) Attrs.EmptyAttr Attr.Append
-
-    static member Value (var: IRef<string>) =
-        let onChange (e: DomEvent) =
-            var.UpdateMaybe(fun v ->
-                if e.CurrentTarget?value <> v then
-                    Some e.CurrentTarget?value
-                else None
-            )
-=======
         As<Attr> (Attrs.Dynamic tupleView ignore viewFn)
 
     let DynamicProp name view =
@@ -424,7 +399,6 @@ module Attr =
                 if el?value <> v then
                     fromString el?value
                 else None)
->>>>>>> upstream/master
         Attr.Concat [
             Handler "change" onChange
             Handler "input" onChange

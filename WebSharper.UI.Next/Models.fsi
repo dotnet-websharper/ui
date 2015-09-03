@@ -81,11 +81,6 @@ type ListModel
 
 type ListModel<'Key,'T when 'Key : equality> with
 
-<<<<<<< HEAD
-    /// Gets a view on all elements in the list.
-    member View : View<seq<'T>>
-
-=======
     /// Same as ListModel.View.
     member View : View<seq<'T>>
 
@@ -95,7 +90,6 @@ type ListModel<'Key,'T when 'Key : equality> with
     /// Get the key retrieval function.
     member Key : ('T -> 'Key)
 
->>>>>>> upstream/master
     /// Adds an item. If an item with the given key exists, it is replaced.
     member Add : 'T -> unit
 
@@ -162,17 +156,10 @@ type ListModel<'Key,'T when 'Key : equality> with
     member LengthAsView : View<int>
 
     /// Gets a reference to an element of the list.
-<<<<<<< HEAD
-    member GetItemRef : 'Key -> IRef<'T>
-
-    /// Gets a reference to a part of an element of the list.
-    member GetItemPartRef : get:('T -> 'V) -> update:('T -> 'V -> 'T) -> 'Key -> IRef<'V>
-=======
     member Lens : 'Key -> IRef<'T>
 
     /// Gets a reference to a part of an element of the list.
     member LensInto : get:('T -> 'V) -> update:('T -> 'V -> 'T) -> 'Key -> IRef<'V>
->>>>>>> upstream/master
 
 type ListModel with
 
