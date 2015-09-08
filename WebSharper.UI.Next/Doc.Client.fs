@@ -484,17 +484,22 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
         Doc'.InputInternal attr (Attr.Value var) (TypedInputBox "password")
 
     static member IntInput attr (var: IRef<int>) =
-        let parseInt s =
-            let pd = JS.ParseInt(s, 10)
+        let parseInt (s: string) =
+            if String.isBlank s then Some 0 else
+            let pd : int = JS.Plus s
             if JS.IsNaN pd then None
-            else Some pd
+            elif pd ===. (pd >>. 0) then Some pd
+            else None
+        let attr = if var.Get() = 0 then Seq.append [|Attr.Create "value" "0"|] attr else attr
         Doc'.InputInternal attr (Attr.CustomValue var string parseInt) (TypedInputBox "number")
 
     static member FloatInput attr (var: IRef<float>) =
-        let parseFloat s =
-            let pd = JS.ParseFloat(s)
+        let parseFloat (s: string) =
+            if String.isBlank s then Some 0. else
+            let pd : float = JS.Plus s
             if JS.IsNaN pd then None
             else Some pd
+        let attr = if var.Get() = 0. then Seq.append [|Attr.Create "value" "0"|] attr else attr
         Doc'.InputInternal attr (Attr.CustomValue var string parseFloat) (TypedInputBox "number")
 
     static member InputArea attr (var: IRef<string>) =
