@@ -28,6 +28,17 @@ open WebSharper.UI.Next
 module HtmlExtensions =
 
     type Html.attr with
+
+        /// Create an HTML attribute "data-name" with the given reactive value.
+        [<JavaScript; Inline>]
+        static member ``dataDyn-`` name view = Client.Attr.Dynamic ("data-" + name) view
+        /// `dataDynPred- v p` sets an HTML attribute "data-name" with reactive value v when p is true, and unsets it when p is false.
+        [<JavaScript; Inline>]
+        static member ``dataDynPred-`` name view pred = Client.Attr.DynamicPred ("data-" + name) view pred
+        /// Create an animated HTML attribute "data-name" whose value is computed from the given reactive view.
+        [<JavaScript; Inline>]
+        static member ``dataAnim-`` name view convert trans = Client.Attr.Animated ("data-" + name) trans view convert
+
         // {{ attr normal colliding deprecated
         /// Create an HTML attribute "accept" with the given reactive value.
         [<JavaScript; Inline>]

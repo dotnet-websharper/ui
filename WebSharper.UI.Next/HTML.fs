@@ -1073,7 +1073,11 @@ module Html =
 
     [<JavaScript>]
     type attr private () =
-        do ()
+
+        /// Create an HTML attribute "data-name" with the given value.
+        [<JavaScript; Inline>]
+        static member ``data-`` name value = Attr.Create ("data-" + name) value
+
         // {{ attr normal colliding deprecated
         /// Create an HTML attribute "accept" with the given value.
         [<JavaScript; Inline>]
