@@ -369,6 +369,13 @@ module EltExtensions =
         /// Sets an inline style.
         member SetStyle : name: string * value: string -> unit
 
+type CheckedInput<'T> =
+    | Valid of value: 'T * inputText: string
+    | Invalid of inputText: string
+    | Blank of inputText: string
+
+    member Input : string
+
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Doc =
 
@@ -424,10 +431,26 @@ module Doc =
     val Input : seq<Attr> -> IRef<string> -> Elt
 
     /// Input box with type="number".
-    val IntInput : seq<Attr> -> IRef<int> -> Elt
+    /// For validation to work properly in Internet Explorer 9 and older,
+    /// needs to be inside a <form> with Attr.ValidateForm.
+    val IntInput : seq<Attr> -> IRef<CheckedInput<int>> -> Elt
 
     /// Input box with type="number".
-    val FloatInput : seq<Attr> -> IRef<float> -> Elt
+    /// If the input box is blank, the value is set to 0.
+    /// If the input is not parseable as an int, the value is unchanged from its last valid value.
+    /// It is advised to use IntInput instead for better user experience.
+    val IntInputUnchecked : seq<Attr> -> IRef<int> -> Elt
+
+    /// Input box with type="number".
+    /// For validation to work properly in Internet Explorer 9 and older,
+    /// needs to be inside a <form> with Attr.ValidateForm.
+    val FloatInput : seq<Attr> -> IRef<CheckedInput<float>> -> Elt
+
+    /// Input box with type="number".
+    /// If the input box is blank, the value is set to 0.
+    /// If the input is not parseable as a float, the value is unchanged from its last valid value.
+    /// It is advised to use FloatInput instead for better user experience.
+    val FloatInputUnchecked : seq<Attr> -> IRef<float> -> Elt
 
     /// Input text area.
     val InputArea : seq<Attr> -> IRef<string> -> Elt

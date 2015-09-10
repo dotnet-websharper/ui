@@ -352,6 +352,18 @@ module Docs =
         n.Value <- t
         n.Dirty <- true
 
+[<JavaScript>]
+type CheckedInput<'T> =
+    | Valid of value: 'T * inputText: string
+    | Invalid of inputText: string
+    | Blank of inputText: string
+
+    member this.Input =
+        match this with
+        | Valid (_, x)
+        | Invalid x
+        | Blank x -> x
+
 // We implement the Doc class proxy, the Doc module proxy and the Client.Doc module proxy
 // all in this so that it all neatly looks like Doc.* in javascript.
 type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
@@ -466,44 +478,81 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
     static member ConvertSeqBy key render view =
         View.ConvertSeqBy key (As render) view |> Doc'.Flatten
 
-    static member InputInternal attr (value : Attr) inputTy =
-        let (attrN, elemTy) =
-            match inputTy with
-            | SimpleInputBox -> (Attr.Concat attr, "input")
-            | TypedInputBox ``type`` ->
-                let atType = Attr.Create "type" ``type``
-                (Attr.Concat attr |> Attr.Append atType, "input")
-            | TextArea -> (Attr.Concat attr, "textarea")
+    static member InputInternal elemTy attr =
         let el = DU.CreateElement elemTy
-        Doc'.Elem el (Attr.Append attrN value) Doc'.Empty
+        Doc'.Elem el (Attr.Concat (attr el)) Doc'.Empty
 
     static member Input attr (var: IRef<string>) =
-        Doc'.InputInternal attr (Attr.Value var) SimpleInputBox
+        Doc'.InputInternal "input" (fun _ ->
+            Seq.append attr [| Attr.Value var |])
 
     static member PasswordBox attr (var: IRef<string>) =
-        Doc'.InputInternal attr (Attr.Value var) (TypedInputBox "password")
+        Doc'.InputInternal "input" (fun _ ->
+            Seq.append attr [|
+                Attr.Value var
+                Attr.Create "type" "password"
+            |])
 
-    static member IntInput attr (var: IRef<int>) =
+    static member IntInputUnchecked attr (var: IRef<int>) =
         let parseInt (s: string) =
             if String.isBlank s then Some 0 else
             let pd : int = JS.Plus s
-            if JS.IsNaN pd then None
-            elif pd ===. (pd >>. 0) then Some pd
-            else None
-        let attr = if var.Get() = 0 then Seq.append [|Attr.Create "value" "0"|] attr else attr
-        Doc'.InputInternal attr (Attr.CustomValue var string parseInt) (TypedInputBox "number")
+            if pd !==. (pd >>. 0) then None else Some pd
+        Doc'.InputInternal "input" (fun _ ->
+            Seq.append attr [|
+                (if var.Get() = 0 then Attr.Create "value" "0" else Attr.Empty)
+                Attr.CustomValue var string parseInt
+                Attr.Create "type" "number"
+                Attr.Create "step" "1"
+            |])
 
-    static member FloatInput attr (var: IRef<float>) =
+    [<Inline "$e.checkValidity?$e.checkValidity():true">]
+    static member CheckValidity (e: Dom.Element) = X<bool>
+
+    static member IntInput attr (var: IRef<CheckedInput<int>>) =
+        let parseCheckedInt (el: Dom.Element) (s: string) : option<CheckedInput<int>> =
+            if String.isBlank s then
+                if Doc'.CheckValidity el then Blank s else Invalid s
+            else
+                let i = JS.Plus s
+                if JS.IsNaN i then Invalid s else Valid (i, s)
+            |> Some
+        Doc'.InputInternal "input" (fun el ->
+            Seq.append attr [|
+                Attr.CustomValue var (fun i -> i.Input) (parseCheckedInt el)
+                Attr.Create "type" "number"
+                Attr.Create "step" "1"
+            |])
+
+    static member FloatInputUnchecked attr (var: IRef<float>) =
         let parseFloat (s: string) =
             if String.isBlank s then Some 0. else
             let pd : float = JS.Plus s
-            if JS.IsNaN pd then None
-            else Some pd
-        let attr = if var.Get() = 0. then Seq.append [|Attr.Create "value" "0"|] attr else attr
-        Doc'.InputInternal attr (Attr.CustomValue var string parseFloat) (TypedInputBox "number")
+            if JS.IsNaN pd then None else Some pd
+        Doc'.InputInternal "input" (fun _ ->
+            Seq.append attr [|
+                (if var.Get() = 0. then Attr.Create "value" "0" else Attr.Empty)
+                Attr.CustomValue var string parseFloat
+                Attr.Create "type" "number"
+            |])
+
+    static member FloatInput attr (var: IRef<CheckedInput<float>>) =
+        let parseCheckedFloat (el: Dom.Element) (s: string) : option<CheckedInput<float>> =
+            if String.isBlank s then
+                if Doc'.CheckValidity el then Blank s else Invalid s
+            else
+                let i = JS.Plus s
+                if JS.IsNaN i then Invalid s else Valid (i, s)
+            |> Some
+        Doc'.InputInternal "input" (fun el ->
+            Seq.append attr [|
+                Attr.CustomValue var (fun i -> i.Input) (parseCheckedFloat el)
+                Attr.Create "type" "number"
+            |])
 
     static member InputArea attr (var: IRef<string>) =
-        Doc'.InputInternal attr (Attr.Value var) TextArea
+        Doc'.InputInternal "textarea" (fun _ ->
+            Seq.append attr [| Attr.Value var |])
 
     static member Select attrs (show: 'T -> string) (options: list<'T>) (current: IRef<'T>) =
         let getIndex (el: Element) =
@@ -618,12 +667,6 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
                 valAttr
             ] @ (List.ofSeq attrs) |> Attr.Concat
         Doc'.Elem el attr Doc'.Empty
-
-/// Types of input box
-and InputControlType =
-    | SimpleInputBox
-    | TypedInputBox of ``type``: string
-    | TextArea
 
 and [<JavaScript; Proxy(typeof<Elt>); CompiledName "Elt">]
     Elt'(docNode, updates, elt: Dom.Element, rvUpdates: Var<View<unit>>, attrUpdates) =
@@ -1221,8 +1264,16 @@ module Doc =
         Doc'.IntInput attr var
 
     [<Inline>]
+    let IntInputUnchecked attr var =
+        Doc'.IntInputUnchecked attr var
+
+    [<Inline>]
     let FloatInput attr var =
         Doc'.FloatInput attr var
+
+    [<Inline>]
+    let FloatInputUnchecked attr var =
+        Doc'.FloatInputUnchecked attr var
 
     [<Inline>]
     let InputArea attr var =

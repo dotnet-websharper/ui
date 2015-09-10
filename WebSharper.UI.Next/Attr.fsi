@@ -106,6 +106,10 @@ module Attr =
     /// Gets and sets the value of the element according to a Var.
     val Value : IRef<string> -> Attr
 
+    /// Add this attribute to any <form> element that contains validation
+    /// (including Doc.IntInput and Doc.FloatInput) for compatibility in Internet Explorer 9 and older.
+    val ValidateForm : Attr
+
 /// Internals used in Doc.
 module internal Attrs =
 

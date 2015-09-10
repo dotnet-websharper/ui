@@ -104,12 +104,21 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
     let dataTemplate = xn"data-template"
     let dataChildrenTemplate = xn"data-children-template"
     let dataVar = xn"data-var"
+    let dataVarUnchecked = xn"data-var-unchecked"
     let dataAttr = xn"data-attr"
     let dataEvent = "data-event-"
     let (|SpecialHole|_|) (a: XAttribute) =
         match a.Value.ToLowerInvariant() with
         | "scripts" | "meta" | "styles" -> Some()
         | _ -> None
+
+    let (|NoVar|Var|VarUnchecked|) (e: XElement) =
+        match e.Attribute(dataVar) with
+        | null ->
+            match e.Attribute(dataVarUnchecked) with
+            | null -> NoVar
+            | a -> VarUnchecked a.Value
+        | a -> Var a.Value
 
     do
         this.Disposing.Add <| fun _ ->
@@ -269,7 +278,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                         if a.Name = dataHole then
                                             (|SpecialHole|_|) a = Some ()
                                         else
-                                            a.Name <> dataVar)
+                                            a.Name <> dataVar && a.Name <> dataVarUnchecked)
                                     |> Seq.map (fun a -> 
                                         let n = a.Name.LocalName
                                         if n.StartsWith dataEvent then
@@ -336,27 +345,33 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                     <@ Doc.Concat %nodes @>
                                 else
                                     let n = e.Name.LocalName
-                                    match e.Attribute(dataVar) with
-                                    | null -> <@ Doc.Element n %attrs %nodes :> _ @>
-                                    | a ->
+                                    let var a unchecked =
                                         if n.ToLower() = "input" then
                                             match e.Attribute(xn"type") with
-                                            | null -> <@ Doc.Input %attrs %(getVarHole a.Value) :> _ @>
+                                            | null -> <@ Doc.Input %attrs %(getVarHole a) :> Doc @>
                                             | t ->
                                                 match t.Value with
-                                                | "checkbox" -> <@ Doc.CheckBox %attrs %(getVarHole a.Value) :> _ @>
-                                                | "number" -> <@ Doc.FloatInput %attrs %(getVarHole a.Value) :> _ @>
-                                                | "password" -> <@ Doc.PasswordBox %attrs %(getVarHole a.Value) :> _ @>
-                                                | "text" | _ -> <@ Doc.Input %attrs %(getVarHole a.Value) :> _ @>
+                                                | "checkbox" -> <@ Doc.CheckBox %attrs %(getVarHole a) :> _ @>
+                                                | "number" ->
+                                                    if unchecked then
+                                                        <@ Doc.FloatInputUnchecked %attrs %(getVarHole a) :> _ @>
+                                                    else
+                                                        <@ Doc.FloatInput %attrs %(getVarHole a) :> _ @>
+                                                | "password" -> <@ Doc.PasswordBox %attrs %(getVarHole a) :> _ @>
+                                                | "text" | _ -> <@ Doc.Input %attrs %(getVarHole a) :> _ @>
                                         elif n.ToLower() = "textarea" then
-                                            <@ Doc.InputArea %attrs %(getVarHole a.Value) :> _ @>
+                                            <@ Doc.InputArea %attrs %(getVarHole a) :> _ @>
                                         elif n.ToLower() = "select" then
                                             <@ Doc.Element "select"
                                                 (Seq.append
-                                                    (Seq.singleton (Attr.Value %(getVarHole a.Value)))
+                                                    (Seq.singleton (Attr.Value %(getVarHole a)))
                                                     %attrs)
                                                 %nodes :> _ @>
-                                        else failwithf "data-var attribute \"%s\" on invalid element \"%s\"" a.Value n
+                                        else failwithf "data-var attribute \"%s\" on invalid element \"%s\"" a n
+                                    match e with
+                                    | NoVar -> <@ Doc.Element n %attrs %nodes :> _ @>
+                                    | Var a -> var a false
+                                    | VarUnchecked a -> var a true
 
                             | SpecialHole as a ->
                                 let elName = e.Name.LocalName

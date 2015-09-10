@@ -96,7 +96,7 @@ type Attr =
                     | None -> acc
                     | Some p -> mk acc p
                 attr.Value <- String.concat "." (mk [name] a) + "(this, event)"
-        SingleAttr attr 
+        SingleAttr attr
 
 namespace WebSharper.UI.Next.Server
 
@@ -417,6 +417,7 @@ module Attr =
         Attr.Concat [
             Handler "change" onChange
             Handler "input" onChange
+            Handler "keyup" onChange
             As<Attr> (Attrs.Dynamic var.View ignore (fun e v ->
                         match fromString e?value with
                         | Some x when x = v -> ()
@@ -425,3 +426,6 @@ module Attr =
 
     let Value (var: IRef<string>) =
         CustomValue var id (id >> Some)
+
+    let ValidateForm =
+        OnAfterRender Resources.H5F.Setup
