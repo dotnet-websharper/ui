@@ -582,6 +582,12 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
             )
         Doc'.Elem el (Attr.Concat attrs |> Attr.Append selectedItemAttr) (As optionElements)
 
+    static member SelectOptional attrs noneText show options current =
+        Doc'.Select attrs
+            (function None -> noneText | Some x -> show x)
+            (None :: List.map Some options)
+            current
+
     static member CheckBox attrs (chk: IRef<bool>) =
         let el = DU.CreateElement "input"
         let onClick (x: DomEvent) =
@@ -1282,6 +1288,10 @@ module Doc =
     [<Inline>]
     let Select attrs show options current =
         Doc'.Select attrs show options current
+
+    [<Inline>]
+    let SelectOptional attrs noneText show options current =
+        Doc'.SelectOptional attrs noneText show options current
 
     [<Inline>]
     let CheckBox attrs chk =

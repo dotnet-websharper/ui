@@ -480,7 +480,11 @@ module Doc =
         when 'T : equality
 
     /// Select box.
-    val Select : seq<Attr> -> ('T -> string) -> list<'T> -> IRef<'T> -> Elt
+    val Select : seq<Attr> -> optionText: ('T -> string) -> options: list<'T> -> IRef<'T> -> Elt
+        when 'T : equality
+
+    /// Select box where the first option returns None.
+    val SelectOptional : seq<Attr> -> noneText: string -> optionText: ('T -> string) -> options: list<'T> -> IRef<option<'T>> -> Elt
         when 'T : equality
 
     /// Radio button.
