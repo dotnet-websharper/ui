@@ -147,6 +147,16 @@ module Snap =
             When sn (fn >> MarkDone res sn) (fun () -> MarkObsolete res)
             res
 
+    let MapCached prev fn sn =
+        let fn x =
+            match !prev with
+            | Some (x', y) when x = x' -> y
+            | _ ->
+                let y = fn x
+                prev := Some (x, y)
+                y
+        Map fn sn
+
     let Map2 fn sn1 sn2 =
         match sn1.State, sn2.State with
         | Forever x, Forever y -> CreateForever (fn x y) // optimization
