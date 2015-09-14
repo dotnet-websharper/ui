@@ -554,16 +554,17 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
         Doc'.InputInternal "textarea" (fun _ ->
             Seq.append attr [| Attr.Value var |])
 
-    static member Select attrs (show: 'T -> string) (options: list<'T>) (current: IRef<'T>) =
+    static member SelectDyn attrs (show: 'T -> string) (vOptions: View<list<'T>>) (current: IRef<'T>) =
+        let options = ref []
         let getIndex (el: Element) =
             el?selectedIndex : int
         let setIndex (el: Element) (i: int) =
             el?selectedIndex <- i
         let getSelectedItem el =
             let i = getIndex el
-            options.[i]
+            (!options).[i]
         let itemIndex x =
-            List.findIndex ((=) x) options
+            List.findIndex ((=) x) !options
         let setSelectedItem (el: Element) item =
             setIndex el (itemIndex item)
         let el = DU.CreateElement "select"
@@ -571,21 +572,39 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
             current.View
             |> Attr.DynamicCustom setSelectedItem
         let onChange (x: DomEvent) =
-            current.Set (getSelectedItem el)
+            current.UpdateMaybe(fun x ->
+                let y = getSelectedItem el
+                if x = y then None else Some y
+            )
         el.AddEventListener("change", onChange, false)
         let optionElements =
-            Doc.Concat (
-                options
-                |> List.mapi (fun i o ->
-                    let t = Doc.TextNode (show o)
-                    Doc.Element "option" [Attr.Create "value" (string i)] [t] :> _)
+            vOptions
+            |> View.Map (fun l ->
+                options := l
+                l |> Seq.mapi (fun i x -> i, x)
+            )
+            |> Doc'.Convert (fun (i, o) ->
+                let t = Doc.TextNode (show o)
+                As<Doc'> (
+                    Doc.Element "option" [
+                        Attr.Create "value" (string i)
+                    ] [t])
             )
         Doc'.Elem el (Attr.Concat attrs |> Attr.Append selectedItemAttr) (As optionElements)
+
+    static member Select attrs show options current =
+        Doc'.SelectDyn attrs show (View.Const options) current
 
     static member SelectOptional attrs noneText show options current =
         Doc'.Select attrs
             (function None -> noneText | Some x -> show x)
             (None :: List.map Some options)
+            current
+
+    static member SelectDynOptional attrs noneText show vOptions current =
+        Doc'.SelectDyn attrs
+            (function None -> noneText | Some x -> show x)
+            (vOptions |> View.Map (fun options -> None :: List.map Some options))
             current
 
     static member CheckBox attrs (chk: IRef<bool>) =
@@ -1290,8 +1309,16 @@ module Doc =
         Doc'.Select attrs show options current
 
     [<Inline>]
+    let SelectDyn attrs show options current =
+        Doc'.SelectDyn attrs show options current
+
+    [<Inline>]
     let SelectOptional attrs noneText show options current =
         Doc'.SelectOptional attrs noneText show options current
+
+    [<Inline>]
+    let SelectDynOptional attrs noneText show options current =
+        Doc'.SelectDynOptional attrs noneText show options current
 
     [<Inline>]
     let CheckBox attrs chk =

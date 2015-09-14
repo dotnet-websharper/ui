@@ -483,8 +483,16 @@ module Doc =
     val Select : seq<Attr> -> optionText: ('T -> string) -> options: list<'T> -> IRef<'T> -> Elt
         when 'T : equality
 
+    /// Select box with time-varying option list.
+    val SelectDyn : seq<Attr> -> optionText: ('T -> string) -> options: View<list<'T>> -> IRef<'T> -> Elt
+        when 'T : equality
+
     /// Select box where the first option returns None.
     val SelectOptional : seq<Attr> -> noneText: string -> optionText: ('T -> string) -> options: list<'T> -> IRef<option<'T>> -> Elt
+        when 'T : equality
+
+    /// Select box with time-varying option list where the first option returns None.
+    val SelectDynOptional : seq<Attr> -> noneText: string -> optionText: ('T -> string) -> options: View<list<'T>> -> IRef<option<'T>> -> Elt
         when 'T : equality
 
     /// Radio button.
