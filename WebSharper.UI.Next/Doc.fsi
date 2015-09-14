@@ -36,6 +36,7 @@ and DynDoc =
     | ElemDoc of tag: string * attrs: list<Attr> * children: list<Doc>
     | EmptyDoc
     | TextDoc of string
+    | VerbatimDoc of string
     | ClientSideDoc of Expr<IControlBody>
 
     interface Doc
@@ -499,4 +500,8 @@ module Doc =
     /// Static variant of TextView.
     val TextNode : string -> Doc
 
+    /// Client-side control.
     val ClientSide : Expr<#IControlBody> -> Doc
+
+    /// Verbatim HTML.
+    val Verbatim : string -> Doc

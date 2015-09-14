@@ -40,6 +40,7 @@ module Doc =
             ]
         | EmptyDoc -> []
         | TextDoc t -> [Html.TextContent t]
+        | VerbatimDoc t -> [Html.VerbatimContent t]
         | ClientSideDoc q ->
             let e =
                 match (WebSharper.WebExtensions.ClientSide q :> Html.INode).Node with

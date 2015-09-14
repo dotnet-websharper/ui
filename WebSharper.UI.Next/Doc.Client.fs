@@ -1,4 +1,3 @@
-
 namespace WebSharper.UI.Next.Client
 
 open WebSharper
@@ -427,6 +426,16 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
 
     static member Static el : Elt =
         Doc'.Elem el Attr.Empty Doc'.Empty
+
+    static member Verbatim html =
+        let a =
+            match JQuery.JQuery.ParseHTML html with
+            | null -> [||]
+            | a -> a
+        let elem e = ElemDoc (Docs.CreateElemNode e Attr.Empty EmptyDoc)
+        let append x y = AppendDoc (x, y)
+        let es = Array.MapReduce elem EmptyDoc append a
+        Doc'.Mk es (View.Const ())
 
     static member EmbedView (view: View<Doc'>) =
         let node = Docs.CreateEmbedNode ()
@@ -1224,6 +1233,10 @@ type DocExtProxy =
     [<Inline>]
     static member ClientSide (expr: Microsoft.FSharp.Quotations.Expr<#WebSharper.Html.Client.IControlBody>) =
         As<Doc> expr
+
+    [<Inline>]
+    static member Verbatim (html: string) : Doc =
+        As (Doc'.Verbatim html)
 
 [<JavaScript; CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Doc =

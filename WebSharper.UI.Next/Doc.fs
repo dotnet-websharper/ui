@@ -35,6 +35,7 @@ and DynDoc =
     | ElemDoc of tag: string * attrs: list<Attr> * children: list<Doc>
     | EmptyDoc
     | TextDoc of string
+    | VerbatimDoc of string
     | ClientSideDoc of Expr<Html.Client.IControlBody>
 
     interface Doc with
@@ -355,3 +356,5 @@ module Doc =
 
     let ClientSide (expr: Expr<#Html.Client.IControlBody>) =
         ClientSideDoc <@ %expr :> Html.Client.IControlBody @> :> Doc
+
+    let Verbatim t = VerbatimDoc t :> Doc
