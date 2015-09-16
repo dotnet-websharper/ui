@@ -408,21 +408,33 @@ module Attr =
         As<Attr> (Attrs.Dynamic view ignore (fun el v ->
             el?(name) <- v))
 
-    let CustomValue (var: IRef<'a>) (toString : 'a -> string) (fromString : string -> 'a option) =
+    let CustomVar (var: IRef<'a>) (set: Element -> 'a -> unit) (get: Element -> 'a option) =
         let onChange (el: Element) (e: DomEvent) =
             var.UpdateMaybe(fun v ->
-                match fromString el?value with
+                match get el with
                 | Some x as o when x <> v -> o
                 | _ -> None)
+        let set e v =
+            match get e with
+            | Some x when x = v -> ()
+            | _ -> set e v
         Attr.Concat [
             Handler "change" onChange
             Handler "input" onChange
             Handler "keyup" onChange
-            As<Attr> (Attrs.Dynamic var.View ignore (fun e v ->
-                        match fromString e?value with
-                        | Some x when x = v -> ()
-                        | _ -> e?value <- toString v))
+            DynamicCustom set var.View
         ]
+
+    let CustomValue (var: IRef<'a>) (toString : 'a -> string) (fromString : string -> 'a option) =
+        CustomVar var (fun e v -> e?value <- toString v) (fun e -> fromString e?value)
+
+    let ContentEditableText (var: IRef<string>) =
+        CustomVar var (fun e v -> e.TextContent <- v) (fun e -> Some e.TextContent)
+        |> Attr.Append (Attr.Create "contenteditable" "true")
+
+    let ContentEditableHtml (var: IRef<string>) =
+        CustomVar var (fun e v -> e?innerHTML <- v) (fun e -> Some e?innerHTML)
+        |> Attr.Append (Attr.Create "contenteditable" "true")
 
     let Value (var: IRef<string>) =
         CustomValue var id (id >> Some)

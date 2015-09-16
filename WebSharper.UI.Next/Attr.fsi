@@ -67,7 +67,7 @@ module Attr =
     val DynamicProp : name: string -> value: View<'T> -> Attr
 
     /// Dynamic with a custom setter.
-    val internal DynamicCustom : set: (Element -> 'T -> unit) -> value: View<'T> -> Attr
+    val DynamicCustom : set: (Element -> 'T -> unit) -> value: View<'T> -> Attr
 
     /// Animated variant of Create.
     val Animated : name: string -> Trans<'T> -> view: View<'T> -> value: ('T -> string) -> Attr
@@ -102,6 +102,15 @@ module Attr =
 
     /// Gets and sets the value of the element according to a Var.
     val CustomValue : IRef<'a> -> ('a -> string) -> (string -> 'a option) -> Attr when 'a : equality
+
+    /// Gets and sets custom properties on the element according to a Var.
+    val CustomVar : IRef<'a> -> set: (Element -> 'a -> unit) -> get: (Element -> 'a option) -> Attr when 'a : equality
+
+    /// Make the element's content editable and bind its text content to a Var.
+    val ContentEditableText : IRef<string> -> Attr
+
+    /// Make the element's content editable and bind its HTML content to a Var.
+    val ContentEditableHtml : IRef<string> -> Attr
 
     /// Gets and sets the value of the element according to a Var.
     val Value : IRef<string> -> Attr
