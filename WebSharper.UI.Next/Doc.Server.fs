@@ -26,6 +26,9 @@ open WebSharper.Html.Server
 module Doc =
     module m = WebSharper.Html.Server.Tags
 
+    let WebControl c =
+        WebControlDoc c :> Doc
+
     let rec AsElements (doc: Doc) =
         match doc.ToDynDoc with
         | AppendDoc docs -> List.collect AsElements docs
@@ -41,9 +44,9 @@ module Doc =
         | EmptyDoc -> []
         | TextDoc t -> [Html.TextContent t]
         | VerbatimDoc t -> [Html.VerbatimContent t]
-        | ClientSideDoc q ->
+        | WebControlDoc c ->
             let e =
-                match (WebSharper.WebExtensions.ClientSide q :> Html.INode).Node with
+                match (c :> Html.INode).Node with
                 | Html.Node.ContentNode e -> e
                 | Html.Node.AttributeNode _ -> failwith "Unexpected attribute"
             [e]

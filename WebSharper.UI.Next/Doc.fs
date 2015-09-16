@@ -36,7 +36,7 @@ and DynDoc =
     | EmptyDoc
     | TextDoc of string
     | VerbatimDoc of string
-    | ClientSideDoc of Expr<Html.Client.IControlBody>
+    | WebControlDoc of Web.Control
 
     interface Doc with
         member this.ToDynDoc = this
@@ -355,6 +355,6 @@ module Doc =
     let TextNode t = TextDoc t :> Doc
 
     let ClientSide (expr: Expr<#Html.Client.IControlBody>) =
-        ClientSideDoc <@ %expr :> Html.Client.IControlBody @> :> Doc
+        WebControlDoc (new Web.InlineControl<_>(<@ %expr :> Html.Client.IControlBody @>)) :> Doc
 
     let Verbatim t = VerbatimDoc t :> Doc

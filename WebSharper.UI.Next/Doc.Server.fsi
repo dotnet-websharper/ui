@@ -25,6 +25,9 @@ open WebSharper.UI.Next
 module Doc =
     open WebSharper.Html.Server
 
+    /// Converts a WebSharper web control to a Doc.
+    val WebControl : WebSharper.Web.Control -> Doc
+
     /// Converts a `Doc` to a list of sitelet elements.
     val AsElements : Doc -> list<Html.Element>
 

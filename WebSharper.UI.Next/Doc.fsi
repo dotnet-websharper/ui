@@ -21,6 +21,7 @@
 namespace WebSharper.UI.Next
 
 open Microsoft.FSharp.Quotations
+open WebSharper
 open WebSharper.Html.Client
 open WebSharper.JavaScript
 
@@ -37,7 +38,7 @@ and DynDoc =
     | EmptyDoc
     | TextDoc of string
     | VerbatimDoc of string
-    | ClientSideDoc of Expr<IControlBody>
+    | WebControlDoc of Web.Control
 
     interface Doc
     interface IControlBody
