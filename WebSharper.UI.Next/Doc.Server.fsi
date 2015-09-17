@@ -20,6 +20,7 @@
 
 namespace WebSharper.UI.Next.Server
 
+open System
 open WebSharper.UI.Next
 
 module Doc =
@@ -34,8 +35,10 @@ module Doc =
 [<AutoOpen>]
 module Extensions =
     open WebSharper.Sitelets
+    open WebSharper.Sitelets.Content
 
     type Content<'Action> with
+
         /// Converts a `Doc` to a sitelet Page.
         /// `Doc` values that correspond to HTML fragements are converted to full documents.
         static member Doc : Doc -> Async<Content<'Action>>
@@ -48,3 +51,20 @@ module Extensions =
             * ?Doctype: string
             -> Async<Content<'EndPoint>>
 
+    type Template<'T> with
+
+        /// <summary>Adds a doc-valued hole accessible in the
+        /// template via the <c>data-hole="name"</c> attribute.</summary>
+        member With : hole: string * def: Func<'T, #seq<#Doc>> -> Template<'T>
+
+        /// <summary>Adds a doc-valued hole accessible in the
+        /// template via the <c>data-hole="name"</c> attribute.</summary>
+        member With : hole: string * def: Func<'T, Async<#seq<#Doc>>> -> Template<'T>
+
+        /// <summary>Adds a doc-valued hole accessible in the
+        /// template via the <c>data-hole="name"</c> attribute.</summary>
+        member With : hole: string * def: Func<'T, #Doc> -> Template<'T>
+
+        /// <summary>Adds a doc-valued hole accessible in the
+        /// template via the <c>data-hole="name"</c> attribute.</summary>
+        member With : hole: string * def: Func<'T, Async<#Doc>> -> Template<'T>

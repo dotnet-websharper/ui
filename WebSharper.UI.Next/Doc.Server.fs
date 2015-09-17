@@ -20,6 +20,7 @@
 
 namespace WebSharper.UI.Next.Server
 
+open System
 open WebSharper.UI.Next
 open WebSharper.Html.Server
 
@@ -54,6 +55,7 @@ module Doc =
 [<AutoOpen>]
 module Extensions =
     open WebSharper.Sitelets
+    open WebSharper.Sitelets.Content
 
     let rec AsContent (doc: Doc) =
         let els = Doc.AsElements doc
@@ -61,7 +63,7 @@ module Extensions =
         // 1. <html>...</html>
         match els with
         | [Element.TagContent { Name = name } as e] when name.ToLowerInvariant() = "html" ->
-            let tpl = WebSharper.Sitelets.Content.Template.FromHtmlElement(e)
+            let tpl = Template.FromHtmlElement(e)
             Content.WithTemplate tpl ()
         // No, so return the fragement as a full document with it as the body
         | els ->
@@ -85,3 +87,22 @@ module Extensions =
                 ?Title = Title
             )
 
+    type Template<'T> with
+        member this.With (hole: string, def: Func<'T, #seq<#Doc>>) =
+            this.With(hole, fun x -> Doc.AsElements (Doc.Concat (Seq.cast (def.Invoke(x)))))
+
+        member this.With (hole: string, def: Func<'T, Async<#seq<#Doc>>>) =
+            this.With(hole, fun x ->
+                async {
+                    let! docs = def.Invoke(x)
+                    return Doc.AsElements (Doc.Concat (Seq.cast docs))
+                })
+
+        member this.With (hole: string, def: Func<'T, #Doc>) =
+            this.With(hole, fun x -> Doc.AsElements (def.Invoke(x)))
+
+        member this.With (hole: string, def: Func<'T, Async<#Doc>>) =
+            this.With(hole, fun x -> async {
+                let! doc = def.Invoke(x)
+                return Doc.AsElements doc
+            })
