@@ -840,6 +840,20 @@ and [<JavaScript>] UINextPagelet (doc: Doc') =
 [<AutoOpen; JavaScript>]
 module EltExtensions =
 
+    type Doc with
+
+        [<Inline>]
+        member this.RunById(id) =
+            Doc'.RunById id (As<Doc'> this)
+
+        [<Inline>]
+        member this.Run(elt) =
+            Doc'.Run elt (As<Doc'> this)
+
+        [<Inline>]
+        member this.AsPagelet =
+            Doc'.AsPagelet (As<Doc'> this)
+
     type Elt with
 
         [<Inline "$0.elt">]

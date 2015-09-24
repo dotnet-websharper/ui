@@ -26,6 +26,17 @@ open WebSharper.UI.Next
 [<AutoOpen>]
 module EltExtensions =
 
+    type Doc with
+
+        /// Runs a reactive Doc as contents of the given element.
+        member Run : Element -> unit
+
+        /// Same as Run, but looks up the element by ID.
+        member RunById : id: string -> unit
+
+        /// Creates a Pagelet from a Doc, in a Div container.
+        member AsPagelet : WebSharper.Html.Client.Pagelet
+
     type Elt with
 
         /// Get the underlying DOM element.
@@ -419,7 +430,7 @@ module Doc =
     /// Runs a reactive Doc as contents of the given element.
     val Run : Element -> Doc -> unit
 
-    /// Same as rn, but looks up the element by ID.
+    /// Same as Run, but looks up the element by ID.
     val RunById : id: string -> Doc -> unit
 
     /// Creates a Pagelet from a Doc, in a Div container.
