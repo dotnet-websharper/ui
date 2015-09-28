@@ -40,10 +40,24 @@ module Extensions =
     type Content<'Action> with
 
         /// Converts a `Doc` to a sitelet Page.
-        /// `Doc` values that correspond to HTML fragements are converted to full documents.
+        /// `Doc` values that correspond to HTML fragments are converted to full documents.
+        static member Page : Doc -> Async<Content<'Action>>
+
+        /// Creates an HTML page response from `Doc`s.
+        static member Page
+            : ?Body: #seq<Doc>
+            * ?Head: #seq<Doc>
+            * ?Title: string
+            * ?Doctype: string
+            -> Async<Content<'EndPoint>>
+
+        /// Converts a `Doc` to a sitelet Page.
+        /// `Doc` values that correspond to HTML fragments are converted to full documents.
+        [<Obsolete "Use Content.Page(...) instead">]
         static member Doc : Doc -> Async<Content<'Action>>
 
         /// Creates an HTML page response from `Doc`s.
+        [<Obsolete "Use Content.Page(...) instead">]
         static member Doc
             : ?Body: #seq<Doc>
             * ?Head: #seq<Doc>

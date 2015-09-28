@@ -70,10 +70,10 @@ module Extensions =
             Content.Page(Body = els)
 
     type Content<'Action> with
-        static member Doc doc : Async<Content<'Action>> =
+        static member Page doc : Async<Content<'Action>> =
             AsContent doc
 
-        static member Doc (?Body: #seq<Doc>, ?Head: #seq<Doc>, ?Title: string, ?Doctype: string) =
+        static member Page (?Body: #seq<Doc>, ?Head: #seq<Doc>, ?Title: string, ?Doctype: string) =
             Content.Page(
                 Body =
                     (match Body with
@@ -86,6 +86,14 @@ module Extensions =
                     | None -> Seq.empty),
                 ?Title = Title
             )
+
+        [<Obsolete "Use Content.Page(...) instead">]
+        static member Doc (doc: Doc) : Async<Content<'Action>> =
+            Content.Page doc
+
+        [<Obsolete "Use Content.Page(...) instead">]
+        static member Doc (?Body: #seq<Doc>, ?Head: #seq<Doc>, ?Title: string, ?Doctype: string) =
+            Content.Page(?Body=Body, ?Head=Head, ?Title=Title, ?Doctype=Doctype)
 
     type Template<'T> with
         member this.With (hole: string, def: Func<'T, #seq<#Doc>>) =
