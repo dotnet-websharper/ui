@@ -45,8 +45,8 @@ module Extensions =
 
         /// Creates an HTML page response from `Doc`s.
         static member Page
-            : ?Body: #seq<Doc>
-            * ?Head: #seq<Doc>
+            : ?Body: #seq<#Doc>
+            * ?Head: #seq<#Doc>
             * ?Title: string
             * ?Doctype: string
             -> Async<Content<'EndPoint>>
@@ -59,8 +59,8 @@ module Extensions =
         /// Creates an HTML page response from `Doc`s.
         [<Obsolete "Use Content.Page(...) instead">]
         static member Doc
-            : ?Body: #seq<Doc>
-            * ?Head: #seq<Doc>
+            : ?Body: #seq<#Doc>
+            * ?Head: #seq<#Doc>
             * ?Title: string
             * ?Doctype: string
             -> Async<Content<'EndPoint>>

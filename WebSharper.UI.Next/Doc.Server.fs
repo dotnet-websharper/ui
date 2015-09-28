@@ -73,7 +73,7 @@ module Extensions =
         static member Page doc : Async<Content<'Action>> =
             AsContent doc
 
-        static member Page (?Body: #seq<Doc>, ?Head: #seq<Doc>, ?Title: string, ?Doctype: string) =
+        static member Page (?Body: #seq<#Doc>, ?Head: #seq<#Doc>, ?Title: string, ?Doctype: string) =
             Content.Page(
                 Body =
                     (match Body with
@@ -92,7 +92,7 @@ module Extensions =
             Content.Page doc
 
         [<Obsolete "Use Content.Page(...) instead">]
-        static member Doc (?Body: #seq<Doc>, ?Head: #seq<Doc>, ?Title: string, ?Doctype: string) =
+        static member Doc (?Body: #seq<#Doc>, ?Head: #seq<#Doc>, ?Title: string, ?Doctype: string) =
             Content.Page(?Body=Body, ?Head=Head, ?Title=Title, ?Doctype=Doctype)
 
     type Template<'T> with
