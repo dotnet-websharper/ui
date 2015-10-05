@@ -48,7 +48,7 @@ and DynDoc =
         member this.Write(meta, w, ?res) =
             match this with
             | AppendDoc docs ->
-                docs |> List.iter (fun d -> (d :> INode).Write(meta, w))
+                docs |> List.iter (fun d -> d.Write(meta, w, ?res = res))
             | ElemDoc elt ->
                 (elt :> Doc).Write(meta, w, ?res = res)
             | EmptyDoc -> ()
@@ -63,7 +63,7 @@ and DynDoc =
         member this.IsAttribute = false
 
         member this.Write(meta, w) =
-            (this :> Doc).Write(meta, w)
+            (this :> Doc).Write(meta, w, ?res = None)
 
     interface IRequiresResources with
         member this.Encode(meta, json) =
@@ -112,14 +112,14 @@ and [<Sealed>] Elt(tag: string, attrs: list<Attr>, children: list<Doc>) =
                     w.Write(HtmlTextWriter.SelfClosingTagEnd)
                 else
                     w.Write(HtmlTextWriter.TagRightChar)
-                    children |> List.iter (fun e -> (e :> INode).Write(meta, w))
+                    children |> List.iter (fun e -> e.Write(meta, w, ?res = res))
                     w.WriteEndTag(tag)
 
     interface INode with
         member this.IsAttribute = false
 
         member this.Write(meta, w) =
-            (this :> Doc).Write(meta, w)
+            (this :> Doc).Write(meta, w, ?res = None)
 
     interface IRequiresResources with
         member this.Encode(meta, json) =

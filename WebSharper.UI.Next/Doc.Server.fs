@@ -36,20 +36,18 @@ module Extensions =
     type Content<'Action> with
 
         static member Page (doc: Doc) : Async<Content<'Action>> =
-            Content.CustomContentAsync <| fun ctx -> async {
+            Content.FromContext <| fun ctx ->
                 let env = Env.Create ctx
                 let res = env.GetSeparateResourcesAndScripts [doc]
-                return {
-                    Status = Http.Status.Ok
-                    Headers = [Http.Header.Custom "Content-Type" "text/html; charset=utf-8"]
+                Content.Custom(
+                    Status = Http.Status.Ok,
+                    Headers = [Http.Header.Custom "Content-Type" "text/html; charset=utf-8"],
                     WriteBody = fun s ->
                         use w = new System.IO.StreamWriter(s)
                         use w = new System.Web.UI.HtmlTextWriter(w)
                         w.WriteLine("<!DOCTYPE html>")
                         doc.Write(ctx.Metadata, w, res)
-                }
-            }
-            |> async.Return
+                )
 
         static member Doc (doc: Doc) : Async<Content<'Action>> =
             Content<'Action>.Page doc
