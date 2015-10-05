@@ -31,6 +31,7 @@ type Doc =
     inherit Web.INode
     abstract ToDynDoc : DynDoc
     abstract Write : Core.Metadata.Info * System.Web.UI.HtmlTextWriter * ?res: Sitelets.Content.RenderedResources -> unit
+    abstract HasNonScriptSpecialTags : bool
 
 and DynDoc =
     internal

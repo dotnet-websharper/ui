@@ -36,9 +36,14 @@ module Extensions =
     type Content<'Action> with
 
         static member Page (doc: Doc) : Async<Content<'Action>> =
+            let hasNonScriptSpecialTags = doc.HasNonScriptSpecialTags
             Content.FromContext <| fun ctx ->
                 let env = Env.Create ctx
-                let res = env.GetSeparateResourcesAndScripts [doc]
+                let res =
+                    if hasNonScriptSpecialTags then
+                        env.GetSeparateResourcesAndScripts [doc]
+                    else
+                        { Scripts = env.GetResourcesAndScripts [doc]; Styles = ""; Meta = "" }
                 Content.Custom(
                     Status = Http.Status.Ok,
                     Headers = [Http.Header.Custom "Content-Type" "text/html; charset=utf-8"],

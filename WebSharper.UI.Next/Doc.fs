@@ -30,6 +30,7 @@ open WebSharper.JavaScript
 type Doc =
     abstract ToDynDoc : DynDoc
     abstract Write : Core.Metadata.Info * HtmlTextWriter * ?res: Sitelets.Content.RenderedResources -> unit
+    abstract HasNonScriptSpecialTags : bool
 
     inherit IControlBody
 
@@ -55,6 +56,13 @@ and DynDoc =
             | TextDoc t -> w.WriteEncodedText(t)
             | VerbatimDoc t -> w.Write(t)
             | INodeDoc d -> d.Write(meta, w)
+        member this.HasNonScriptSpecialTags =
+            match this with
+            | AppendDoc docs ->
+                docs |> List.exists (fun d -> d.HasNonScriptSpecialTags)
+            | ElemDoc elt ->
+                (elt :> Doc).HasNonScriptSpecialTags
+            | _ -> false
 
     interface IControlBody with
         member this.ReplaceInDom (node: Dom.Node) = X<unit>
@@ -68,12 +76,14 @@ and DynDoc =
     interface IRequiresResources with
         member this.Encode(meta, json) =
             match this with
-            | INodeDoc c -> (c :> IRequiresResources).Encode(meta, json)
+            | AppendDoc docs -> docs |> List.collect (fun d -> d.Encode(meta, json))
+            | INodeDoc c -> c.Encode(meta, json)
             | ElemDoc elt -> (elt :> IRequiresResources).Encode(meta, json)
             | _ -> []
 
         member this.Requires =
             match this with
+            | AppendDoc docs -> docs |> Seq.collect (fun d -> d.Requires)
             | INodeDoc c -> (c :> IRequiresResources).Requires
             | ElemDoc elt -> (elt :> IRequiresResources).Requires
             | _ -> Seq.empty
@@ -114,6 +124,15 @@ and [<Sealed>] Elt(tag: string, attrs: list<Attr>, children: list<Doc>) =
                     w.Write(HtmlTextWriter.TagRightChar)
                     children |> List.iter (fun e -> e.Write(meta, w, ?res = res))
                     w.WriteEndTag(tag)
+
+        member this.HasNonScriptSpecialTags =
+            let rec testAttr = function
+                | Attr.AppendAttr attrs -> List.exists testAttr attrs
+                | Attr.SingleAttr (("data-replace" | "data-hole"), ("styles" | "meta")) -> true
+                | Attr.SingleAttr _
+                | Attr.DepAttr _ -> false
+            (attrs |> List.exists testAttr)
+            || (children |> List.exists (fun d -> d.HasNonScriptSpecialTags))
 
     interface INode with
         member this.IsAttribute = false
