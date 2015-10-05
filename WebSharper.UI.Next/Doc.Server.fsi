@@ -24,13 +24,9 @@ open System
 open WebSharper.UI.Next
 
 module Doc =
-    open WebSharper.Html.Server
 
     /// Converts a WebSharper web control to a Doc.
     val WebControl : WebSharper.Web.Control -> Doc
-
-    /// Converts a `Doc` to a list of sitelet elements.
-    val AsElements : Doc -> list<Html.Element>
 
 [<AutoOpen>]
 module Extensions =
@@ -41,30 +37,9 @@ module Extensions =
 
         /// Converts a `Doc` to a sitelet Page.
         /// `Doc` values that correspond to HTML fragements are converted to full documents.
+        static member Page : Doc -> Async<Content<'Action>>
+
+        /// Converts a `Doc` to a sitelet Page.
+        /// `Doc` values that correspond to HTML fragements are converted to full documents.
+        [<Obsolete "Use Content.Page(...) instead">]
         static member Doc : Doc -> Async<Content<'Action>>
-
-        /// Creates an HTML page response from `Doc`s.
-        static member Doc
-            : ?Body: #seq<Doc>
-            * ?Head: #seq<Doc>
-            * ?Title: string
-            * ?Doctype: string
-            -> Async<Content<'EndPoint>>
-
-    type Template<'T> with
-
-        /// <summary>Adds a doc-valued hole accessible in the
-        /// template via the <c>data-hole="name"</c> attribute.</summary>
-        member With : hole: string * def: Func<'T, #seq<#Doc>> -> Template<'T>
-
-        /// <summary>Adds a doc-valued hole accessible in the
-        /// template via the <c>data-hole="name"</c> attribute.</summary>
-        member With : hole: string * def: Func<'T, Async<#seq<#Doc>>> -> Template<'T>
-
-        /// <summary>Adds a doc-valued hole accessible in the
-        /// template via the <c>data-hole="name"</c> attribute.</summary>
-        member With : hole: string * def: Func<'T, #Doc> -> Template<'T>
-
-        /// <summary>Adds a doc-valued hole accessible in the
-        /// template via the <c>data-hole="name"</c> attribute.</summary>
-        member With : hole: string * def: Func<'T, Async<#Doc>> -> Template<'T>

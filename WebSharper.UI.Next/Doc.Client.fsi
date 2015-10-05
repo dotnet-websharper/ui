@@ -34,9 +34,6 @@ module EltExtensions =
         /// Same as Run, but looks up the element by ID.
         member RunById : id: string -> unit
 
-        /// Creates a Pagelet from a Doc, in a Div container.
-        member AsPagelet : WebSharper.Html.Client.Pagelet
-
     type Elt with
 
         /// Get the underlying DOM element.
@@ -432,9 +429,6 @@ module Doc =
 
     /// Same as Run, but looks up the element by ID.
     val RunById : id: string -> Doc -> unit
-
-    /// Creates a Pagelet from a Doc, in a Div container.
-    val AsPagelet : Doc -> WebSharper.Html.Client.Pagelet
 
   // Form helpers
 

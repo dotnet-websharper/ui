@@ -54,6 +54,9 @@ module internal Snap =
     /// Combines two snaps.
     val Map2 : ('A -> 'B -> 'C) -> Snap<'A> -> Snap<'B> -> Snap<'C>
 
+    /// Combines three snaps.
+    val Map3 : ('A -> 'B -> 'C -> 'D) -> Snap<'A> -> Snap<'B> -> Snap<'C> -> Snap<'D>
+
     /// Maps an async function.
     val MapAsync : ('A -> Async<'B>) -> Snap<'A> -> Snap<'B>
 

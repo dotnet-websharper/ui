@@ -5,9 +5,6 @@ open WebSharper.JavaScript
 open WebSharper.UI.Next
 
 module DU = DomUtility
-type Pagelet = WebSharper.Html.Client.Pagelet
-module HTMLTags = WebSharper.Html.Client.Tags
-module HTMLAttr = WebSharper.Html.Client.Attr
 
 [<JavaScript>]
 type DocNode =
@@ -375,8 +372,13 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
 
     interface Doc with
         member this.ToDynDoc = Unchecked.defaultof<_>
+        member this.Write(_, _) = ()
+        member this.Write(_, _, _) = ()
+        member this.IsAttribute = false
+        member this.Encode(_, _) = []
+        member this.Requires = Seq.empty
 
-    interface WebSharper.Html.Client.IControlBody with
+    interface IControlBody with
 
         member this.ReplaceInDom(elt) =
             // Insert empty text nodes that will serve as delimiters for the Doc.
@@ -460,9 +462,6 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
         match DU.Doc.GetElementById(id) with
         | null -> failwith ("invalid id: " + id)
         | el -> Doc'.Run el tr
-
-    static member AsPagelet doc =
-        new UINextPagelet (doc) :> Pagelet
 
     static member TextView txt =
         let node = Docs.CreateTextNode ()
@@ -828,15 +827,6 @@ and [<JavaScript; Proxy(typeof<Elt>); CompiledName "Elt">]
     member this.SetStyle'(style: string, value: string) =
         elt?style?(style) <- value
 
-// Creates a UI.Next pagelet
-and [<JavaScript>] UINextPagelet (doc: Doc') =
-    inherit Pagelet()
-    let divId = Fresh.Id ()
-    let body = (HTMLTags.Div [HTMLAttr.Id divId]).Body
-    override pg.Body = body
-    override pg.Render () =
-        Doc'.RunById divId doc
-
 [<AutoOpen; JavaScript>]
 module EltExtensions =
 
@@ -849,10 +839,6 @@ module EltExtensions =
         [<Inline>]
         member this.Run(elt) =
             Doc'.Run elt (As<Doc'> this)
-
-        [<Inline>]
-        member this.AsPagelet =
-            Doc'.AsPagelet (As<Doc'> this)
 
     type Elt with
 
@@ -1245,7 +1231,7 @@ type DocExtProxy =
 
     // TODO: what if it's not a Doc but (eg) an Html.Client.Element ?
     [<Inline>]
-    static member ClientSide (expr: Microsoft.FSharp.Quotations.Expr<#WebSharper.Html.Client.IControlBody>) =
+    static member ClientSide (expr: Microsoft.FSharp.Quotations.Expr<#IControlBody>) =
         As<Doc> expr
 
     [<Inline>]
@@ -1274,10 +1260,6 @@ module Doc =
     [<Inline>]
     let RunById id (tr: Doc) =
         Doc'.RunById id (As tr)
-
-    [<Inline>]
-    let AsPagelet (doc: Doc) =
-        Doc'.AsPagelet (As doc)
 
     [<Inline>]
     let TextView txt : Doc =

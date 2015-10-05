@@ -22,10 +22,18 @@ namespace WebSharper.UI.Next
 
 open Microsoft.FSharp.Quotations
 open WebSharper.JavaScript
+module M = WebSharper.Core.Metadata
 
 /// A potentially time-varying or animated attribute list.
-[<Sealed>]
 type Attr =
+    internal
+    | AppendAttr of list<Attr>
+    | SingleAttr of string * string
+    | DepAttr of string * (M.Info -> string) * seq<M.Node>
+
+    interface WebSharper.IRequiresResources
+
+    member internal Write : M.Info * System.Web.UI.HtmlTextWriter * bool -> unit
 
     /// Sets a basic DOM attribute, such as `id` to a text value.
     static member Create : name: string -> value: string -> Attr
@@ -44,15 +52,6 @@ type Attr =
     /// Sets an event handler, for a given event such as `click`.
     /// When called on the server side, the handler must be a top-level function or a static member.
     static member Handler : event: string -> callback: (Expr<Dom.Element -> #Dom.Event -> unit>) -> Attr
-
-namespace WebSharper.UI.Next.Server
-
-open WebSharper.UI.Next
-open WebSharper.Html.Server
-
-module Attr =
-
-    val AsAttributes : Attr -> list<Html.Attribute>
 
 namespace WebSharper.UI.Next.Client
 

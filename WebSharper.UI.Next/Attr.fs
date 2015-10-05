@@ -20,8 +20,11 @@
 
 namespace WebSharper.UI.Next
 
+open System.Web.UI
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.Patterns
+open WebSharper
+open WebSharper.JavaScript
 module M = WebSharper.Core.Metadata
 module P = WebSharper.Core.JavaScript.Packager
 module R = WebSharper.Core.Reflection
@@ -47,22 +50,36 @@ module private Internal =
 
     let gen = System.Random()
 
-    type Requires(reqs, onGetRequires: M.Info -> unit) =
-
-        [<System.NonSerialized>]
-        let reqs = reqs
-
-        interface WebSharper.Html.Client.IRequiresResources with
-            member this.Requires meta =
-                onGetRequires meta
-                reqs :> seq<_>
-
 type Attr =
     | AppendAttr of list<Attr>
-    | SingleAttr of WebSharper.Html.Server.Html.Attribute
+    | SingleAttr of string * string
+    | DepAttr of string * (M.Info -> string) * seq<M.Node>
+
+    member this.Write(meta, w: HtmlTextWriter, removeDataHole) =
+        match this with
+        | AppendAttr attrs ->
+            attrs |> List.iter (fun a ->
+                a.Write(meta, w, removeDataHole))
+        | SingleAttr (n, v) ->
+            if not (removeDataHole && n = "data-hole") then
+                w.WriteAttribute(n, v)
+        | DepAttr (n, v, _) ->
+            w.WriteAttribute(n, v meta)
+
+    interface IRequiresResources with
+
+        member this.Requires =
+            match this with
+            | AppendAttr attrs ->
+                attrs |> Seq.collect (fun a -> (a :> IRequiresResources).Requires)
+            | DepAttr (_, _, reqs) -> reqs
+            | _ -> Seq.empty
+
+        member this.Encode (meta, json) =
+            []
 
     static member Create name value =
-        SingleAttr { Name = name; Value = value; Annotation = None }
+        SingleAttr (name, value)
 
     static member Append a b =
         AppendAttr [a; b]
@@ -73,7 +90,7 @@ type Attr =
     static member Concat (xs: seq<Attr>) =
         AppendAttr (List.ofSeq xs)
 
-    static member Handler (event: string) (q: Expr<WebSharper.JavaScript.Dom.Element -> #WebSharper.JavaScript.Dom.Event -> unit>) =
+    static member Handler (event: string) (q: Expr<Dom.Element -> #Dom.Event -> unit>) =
         let declType, name, reqs =
             match q with
             | Lambda (x1, Lambda (y1, Call(None, m, [Var x2; Var y2]))) when x1 = x2 && y1 = y2 ->
@@ -81,34 +98,24 @@ type Attr =
                 rm.DeclaringType, rm.Name, [M.MethodNode rm; M.TypeNode rm.DeclaringType]
             | _ -> failwithf "Invalid handler function: %A" q
         let loc = Internal.getLocation q
-        let rec attr : WebSharper.Html.Server.Html.Attribute =
-            { Name = "on" + event
-              Value = sprintf "console.log('Failed to generate event handler for %s')" loc
-              Annotation = Some (Internal.Requires(reqs, func) :> _) }
-        and func (meta: M.Info) =
-            match meta.GetAddress declType with
+        let value = ref None
+        let func (meta: M.Info) =
+            match !value with
             | None ->
-                failwithf "Error in Handler at %s: Couldn't find address for method" loc
-            | Some a ->
-                let rec mk acc (a: P.Address) =
-                    let acc = a.LocalName :: acc
-                    match a.Parent with
-                    | None -> acc
-                    | Some p -> mk acc p
-                attr.Value <- String.concat "." (mk [name] a) + "(this, event)"
-        SingleAttr attr
-
-namespace WebSharper.UI.Next.Server
-
-open WebSharper.UI.Next
-open WebSharper.Html.Server
-
-module Attr =
-
-    let rec AsAttributes attr : list<Attribute> =
-        match attr with
-        | AppendAttr a -> List.collect AsAttributes a
-        | SingleAttr a -> [a]
+                match meta.GetAddress declType with
+                | None ->
+                    failwithf "Error in Handler at %s: Couldn't find address for method" loc
+                | Some a ->
+                    let rec mk acc (a: P.Address) =
+                        let acc = a.LocalName :: acc
+                        match a.Parent with
+                        | None -> acc
+                        | Some p -> mk acc p
+                    let s = String.concat "." (mk [name] a) + "(this, event)"
+                    value := Some s
+                    s
+            | Some v -> v
+        DepAttr ("on" + event, func, reqs)
 
 namespace WebSharper.UI.Next.Client
 
