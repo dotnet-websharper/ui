@@ -25,8 +25,8 @@ open WebSharper.UI.Next
 
 module Doc =
 
-    let WebControl (c: WebSharper.Web.Control) =
-        INodeDoc (c :> WebSharper.Web.INode) :> Doc
+    let WebControl (c: WebSharper.Web.INode) =
+        INodeDoc c :> Doc
 
 [<AutoOpen>]
 module Extensions =

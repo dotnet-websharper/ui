@@ -25,8 +25,8 @@ open WebSharper.UI.Next
 
 module Doc =
 
-    /// Converts a WebSharper web control to a Doc.
-    val WebControl : WebSharper.Web.Control -> Doc
+    /// Converts a WebSharper INode to a Doc.
+    val WebControl : WebSharper.Web.INode -> Doc
 
 [<AutoOpen>]
 module Extensions =
