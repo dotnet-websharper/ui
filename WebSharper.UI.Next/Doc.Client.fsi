@@ -427,8 +427,32 @@ module Doc =
     /// Runs a reactive Doc as contents of the given element.
     val Run : Element -> Doc -> unit
 
-    /// Same as Run, but looks up the element by ID.
+    /// Runs a reactive Doc as contents of the element with the given ID.
     val RunById : id: string -> Doc -> unit
+
+    /// Runs a reactive Doc as first child(ren) of the given element.
+    val RunPrepend : Element -> Doc -> unit
+
+    /// Runs a reactive Doc as first child(ren) of the element with the given ID.
+    val RunPrependById : string -> Doc -> unit
+
+    /// Runs a reactive Doc as last child(ren) of the given element.
+    val RunAppend : Element -> Doc -> unit
+
+    /// Runs a reactive Doc as last child(ren) of the element with the given ID.
+    val RunAppendById : string -> Doc -> unit
+
+    /// Runs a reactive Doc as previous sibling(s) of the given element.
+    val RunBefore : Dom.Node -> Doc -> unit
+
+    /// Runs a reactive Doc as previous sibling(s) of the element with the given ID.
+    val RunBeforeById : string -> Doc -> unit
+
+    /// Runs a reactive Doc as next sibling(s) of the given element.
+    val RunAfter : Dom.Node -> Doc -> unit
+
+    /// Runs a reactive Doc as next sibling(s) of the element with the given ID.
+    val RunAfterById : string -> Doc -> unit
 
   // Form helpers
 

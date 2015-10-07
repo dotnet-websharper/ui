@@ -384,15 +384,9 @@ type [<Proxy(typeof<Doc>); CompiledName "Doc">]
         [<JavaScript>]
         member this.ReplaceInDom(elt) =
             // Insert empty text nodes that will serve as delimiters for the Doc.
-            let ldelim = JS.Document.CreateTextNode ""
             let rdelim = JS.Document.CreateTextNode ""
-            let parent = elt.ParentNode
-            parent.ReplaceChild(rdelim, elt) |> ignore
-            parent.InsertBefore(ldelim, rdelim) |> ignore
-            Docs.LinkPrevElement rdelim docNode
-            let st = Docs.CreateDelimitedRunState ldelim rdelim docNode
-            let p = Mailbox.StartProcessor (fun () -> Docs.PerformAnimatedUpdate st docNode)
-            View.Sink p updates
+            elt.ParentNode.ReplaceChild(rdelim, elt) |> ignore
+            Doc'.RunBefore rdelim this
 
     [<JavaScript; MethodImpl(MethodImplOptions.NoInlining)>]
     static member Mk node updates =
@@ -462,6 +456,61 @@ type [<Proxy(typeof<Doc>); CompiledName "Doc">]
     [<JavaScript>]
     static member BindView (f: 'T -> Doc') (view: View<'T>) =
         Doc'.EmbedView (View.Map f view)
+
+    [<JavaScript>]
+    static member RunBetween ldelim rdelim (doc: Doc') =
+        Docs.LinkPrevElement rdelim doc.DocNode
+        let st = Docs.CreateDelimitedRunState ldelim rdelim doc.DocNode
+        let p = Mailbox.StartProcessor (fun () -> Docs.PerformAnimatedUpdate st doc.DocNode)
+        View.Sink p doc.Updates
+
+    [<JavaScript>]
+    static member RunBefore (rdelim: Dom.Node) (doc: Doc') =
+        let ldelim = JS.Document.CreateTextNode("")
+        rdelim.ParentNode.InsertBefore(ldelim, rdelim) |> ignore
+        Doc'.RunBetween ldelim rdelim doc
+
+    [<JavaScript>]
+    static member RunBeforeById id doc =
+        match DU.Doc.GetElementById(id) with
+        | null -> failwith ("invalid id: " + id)
+        | el -> Doc'.RunBefore el doc
+
+    [<JavaScript>]
+    static member RunAfter (ldelim : Dom.Node) (doc: Doc') =
+        let rdelim = JS.Document.CreateTextNode("")
+        ldelim.ParentNode.InsertBefore(rdelim, ldelim.NextSibling) |> ignore
+        Doc'.RunBetween ldelim rdelim doc
+
+    [<JavaScript>]
+    static member RunAfterById id doc =
+        match DU.Doc.GetElementById(id) with
+        | null -> failwith ("invalid id: " + id)
+        | el -> Doc'.RunAfter el doc
+
+    [<JavaScript>]
+    static member RunAppend (parent: Dom.Element) (doc: Doc') =
+        let rdelim = JS.Document.CreateTextNode ""
+        parent.AppendChild(rdelim) |> ignore
+        Doc'.RunBefore rdelim doc
+
+    [<JavaScript>]
+    static member RunAppendById id doc =
+        match DU.Doc.GetElementById(id) with
+        | null -> failwith ("invalid id: " + id)
+        | el -> Doc'.RunAppend el doc
+
+    [<JavaScript>]
+    static member RunPrepend (parent: Dom.Element) (doc: Doc') =
+        let rdelim = JS.Document.CreateTextNode ""
+        parent.InsertBefore(rdelim, parent.FirstChild) |> ignore
+        Doc'.RunBefore rdelim doc
+
+    [<JavaScript>]
+    static member RunPrependById id doc =
+        match DU.Doc.GetElementById(id) with
+        | null -> failwith ("invalid id: " + id)
+        | el -> Doc'.RunPrepend el doc
 
     [<JavaScript>]
     static member Run parent (doc: Doc') =
@@ -1300,6 +1349,38 @@ module Doc =
     [<Inline>]
     let RunById id (tr: Doc) =
         Doc'.RunById id (As tr)
+
+    [<Inline>]
+    let RunBefore parent (doc: Doc) =
+        Doc'.RunBefore parent (As doc)
+
+    [<Inline>]
+    let RunBeforeById id (tr: Doc) =
+        Doc'.RunBeforeById id (As tr)
+
+    [<Inline>]
+    let RunAfter parent (doc: Doc) =
+        Doc'.RunAfter parent (As doc)
+
+    [<Inline>]
+    let RunAfterById id (tr: Doc) =
+        Doc'.RunAfterById id (As tr)
+
+    [<Inline>]
+    let RunAppend parent (doc: Doc) =
+        Doc'.RunAppend parent (As doc)
+
+    [<Inline>]
+    let RunAppendById id (tr: Doc) =
+        Doc'.RunAppendById id (As tr)
+
+    [<Inline>]
+    let RunPrepend parent (doc: Doc) =
+        Doc'.RunPrepend parent (As doc)
+
+    [<Inline>]
+    let RunPrependById id (tr: Doc) =
+        Doc'.RunPrependById id (As tr)
 
     [<Inline>]
     let TextView txt : Doc =
