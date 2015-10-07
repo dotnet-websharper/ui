@@ -37,6 +37,8 @@ open ProviderImplementation.ProvidedTypes
 [<AutoOpen>]
 module internal Utils =
     let ( +/ ) a b = System.IO.Path.Combine(a, b)
+
+    let isNull = function null -> true | _ -> false
         
     let inline ( |>! ) x f = f x; x
 
@@ -156,6 +158,12 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                         with :? System.Xml.XmlException ->
                             // Try to load the file as a XML fragment, ie. potentially several root nodes.
                             XDocument.Parse("<wrapper>" + File.ReadAllText htmlFile + "</wrapper>").Root
+
+                    let isSingleElt =
+                        let firstNode = xml.FirstNode
+                        isNull firstNode.NextNode &&
+                        firstNode.NodeType = Xml.XmlNodeType.Element &&
+                        isNull ((firstNode :?> XElement).Attribute(dataReplace))
 
                     let innerTemplates =
                         xml.Descendants() |> Seq.choose (fun e -> 
@@ -408,6 +416,10 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                         
                         ProvidedMethod("Doc", pars, typeof<Doc>, IsStaticMethod = true, InvokeCode = code)
                         |> toTy.AddMember
+                        if isSingleElt then
+                            ProvidedMethod("Elt", pars, typeof<Elt>, IsStaticMethod = true,
+                                InvokeCode = fun args -> <@@ (%%code args : Doc) :?> Elt @@>)
+                            |> toTy.AddMember
 
                     for name, e in innerTemplates do
                         ProvidedTypeDefinition(name, None) |>! addTemplateMethod e |> ty.AddMember
