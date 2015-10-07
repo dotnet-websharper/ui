@@ -151,13 +151,13 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
 
                     let xml =
                         try // Try to load the file as a whole XML document, ie. single root node with optional DTD.
-                            let xmlDoc = XDocument.Load(htmlFile)
+                            let xmlDoc = XDocument.Load(htmlFile, LoadOptions.PreserveWhitespace)
                             let xml = XElement(xn"wrapper")
                             xml.Add(xmlDoc.Root)
                             xml
                         with :? System.Xml.XmlException ->
                             // Try to load the file as a XML fragment, ie. potentially several root nodes.
-                            XDocument.Parse("<wrapper>" + File.ReadAllText htmlFile + "</wrapper>").Root
+                            XDocument.Parse("<wrapper>" + File.ReadAllText htmlFile + "</wrapper>", LoadOptions.PreserveWhitespace).Root
 
                     let isSingleElt =
                         let firstNode = xml.FirstNode
