@@ -428,7 +428,7 @@ module Attr =
         Attr.Concat [
             Handler "change" onChange
             Handler "input" onChange
-            Handler "keyup" onChange
+            Handler "keypress" onChange
             DynamicCustom set var.View
         ]
 
