@@ -26,6 +26,28 @@ open System.Collections.Generic
 open WebSharper
 open WebSharper.JavaScript
 
+module Array =
+
+    [<JavaScript>]
+    let MapReduce (f: 'A -> 'B) (z: 'B) (re: 'B -> 'B -> 'B) (a: 'A[]) : 'B =
+        let rec loop off len =
+            match len with
+            | n when n <= 0 -> z
+            | 1 when off >= 0 && off < a.Length ->
+                f a.[off]
+            | n ->
+                let l2 = len / 2
+                let a = loop off l2
+                let b = loop (off + l2) (len - l2)
+                re a b
+        loop 0 a.Length
+
+module internal String =
+
+    [<JavaScript>]
+    let isBlank s =
+        String.forall Char.IsWhiteSpace s
+
 /// Abbreviations and small utilities for this assembly.
 [<AutoOpen>]
 module internal Abbrev =
@@ -61,22 +83,6 @@ module internal Abbrev =
 
     [<Inline; JavaScript>]
     let ( ?<- ) (x: obj) (y: string) (z: obj) = ( ?<- ) x y z
-
-    module Array =
-
-        [<JavaScript>]
-        let MapReduce (f: 'A -> 'B) (z: 'B) (re: 'B -> 'B -> 'B) (a: 'A[]) : 'B =
-            let rec loop off len =
-                match len with
-                | n when n <= 0 -> z
-                | 1 when off >= 0 && off < a.Length ->
-                    f a.[off]
-                | n ->
-                    let l2 = len / 2
-                    let a = loop off l2
-                    let b = loop (off + l2) (len - l2)
-                    re a b
-            loop 0 a.Length
 
     [<JavaScript>]
     module Fresh =
@@ -200,8 +206,3 @@ module internal Abbrev =
                 JQueue.Add msg mail
                 start ()
             post
-
-    module AnimationFrame =
-
-        [<Inline "void (window.requestAnimationFrame($fn))">]
-        let Request (fn: double -> unit) = ()

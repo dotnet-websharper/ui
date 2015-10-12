@@ -170,6 +170,16 @@ module Snap =
             When sn (fn >> MarkDone res sn) (fun () -> MarkObsolete res)
             res
 
+    let MapCached prev fn sn =
+        let fn x =
+            match !prev with
+            | Some (x', y) when x = x' -> y
+            | _ ->
+                let y = fn x
+                prev := Some (x, y)
+                y
+        Map fn sn
+
     let Map2 fn sn1 sn2 =
         match sn1.State, sn2.State with
         | Forever x, Forever y -> CreateForever (fn x y) // optimization
@@ -193,6 +203,38 @@ module Snap =
                 | _ -> ()
             When sn1 (fun x -> v1 := Some x; cont ()) obs
             When sn2 (fun y -> v2 := Some y; cont ()) obs
+            res
+
+    let Map3 fn sn1 sn2 sn3 =
+        match sn1.State, sn2.State, sn3.State with
+        | Forever x, Forever y, Forever z -> CreateForever (fn x y z)
+        | Forever x, Forever y, _         -> Map (fun z -> fn x y z) sn3
+        | Forever x, _,         Forever z -> Map (fun y -> fn x y z) sn2
+        | Forever x, _,         _         -> Map2 (fun y z -> fn x y z) sn2 sn3
+        | _,         Forever y, Forever z -> Map (fun x -> fn x y z) sn1
+        | _,         Forever y, _         -> Map2 (fun x z -> fn x y z) sn1 sn3
+        | _,         _,         Forever z -> Map2 (fun x y -> fn x y z) sn1 sn2
+        | _,         _,         _         ->
+            let res = Create ()
+            let v1 = ref None
+            let v2 = ref None
+            let v3 = ref None
+            let obs () =
+                v1 := None
+                v2 := None
+                v3 := None
+                MarkObsolete res
+            let cont () =
+                match !v1, !v2, !v3 with
+                | Some x, Some y, Some z ->
+                    if IsForever sn1 && IsForever sn2 && IsForever sn3 then
+                        MarkForever res (fn x y z)
+                    else
+                        MarkReady res (fn x y z)
+                | _ -> ()
+            When sn1 (fun x -> v1 := Some x; cont ()) obs
+            When sn2 (fun y -> v2 := Some y; cont ()) obs
+            When sn3 (fun z -> v3 := Some z; cont ()) obs
             res
 
     let SnapshotOn sn1 sn2 =

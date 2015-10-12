@@ -20,50 +20,23 @@
 
 namespace WebSharper.UI.Next
 
-/// A potentially time-varying or animated attribute list.
-type Attr
+open Microsoft.FSharp.Quotations
+open WebSharper.JavaScript
+module M = WebSharper.Core.Metadata
 
-/// Attr combinators.
-type Attr with
+/// A potentially time-varying or animated attribute list.
+type Attr =
+    internal
+    | AppendAttr of list<Attr>
+    | SingleAttr of string * string
+    | DepAttr of string * (M.Info -> string) * seq<M.Node>
+
+    interface WebSharper.IRequiresResources
+
+    member internal Write : M.Info * System.Web.UI.HtmlTextWriter * bool -> unit
 
     /// Sets a basic DOM attribute, such as `id` to a text value.
     static member Create : name: string -> value: string -> Attr
-
-    /// Dynamic variant of Create.
-    static member Dynamic : name: string -> value: View<string> -> Attr
-
-    /// Dynamically set a property of the DOM element.
-    static member DynamicProp : name: string -> value: View<'T> -> Attr
-
-    /// Dynamic with a custom setter.
-    static member internal DynamicCustom : set: (Element -> 'T -> unit) -> value: View<'T> -> Attr
-
-    /// Animated variant of Create.
-    static member Animated : name: string -> Trans<'T> -> view: View<'T> -> value: ('T -> string) -> Attr
-
-    /// Sets a style attribute, such as `background-color`.
-    static member Style : name: string -> value: string -> Attr
-
-    /// Dynamic variant of Style.
-    static member DynamicStyle : name: string -> value: View<string> -> Attr
-
-    /// Animated variant of Style.
-    static member AnimatedStyle : name: string -> Trans<'T> -> view: View<'T> -> value: ('T -> string) -> Attr
-
-    /// Sets an event handler, for a given event such as `click`.
-    static member Handler : name: string -> callback: (DomEvent -> unit) -> Attr
-
-    /// Sets a CSS class.
-    static member Class : name: string -> Attr
-
-    /// Sets a CSS class when the given view satisfies a predicate.
-    static member DynamicClass : name: string -> view: View<'T> -> apply: ('T -> bool) -> Attr
-
-    /// Sets an attribute when a view satisfies a predicate.
-    static member DynamicPred : name: string -> predView: View<bool> -> valView: View<string> -> Attr
-
-    /// Gets and sets the value of the element according to a Var.
-    static member Value : Var<string> -> Attr
 
   // Note: Empty, Append, Concat define a monoid on Attr.
 
@@ -75,6 +48,75 @@ type Attr with
 
     /// Empty attribute list.
     static member Empty : Attr
+
+    /// Sets an event handler, for a given event such as `click`.
+    /// When called on the server side, the handler must be a top-level function or a static member.
+    static member Handler : event: string -> callback: (Expr<Dom.Element -> #Dom.Event -> unit>) -> Attr
+
+namespace WebSharper.UI.Next.Client
+
+open WebSharper.UI.Next
+
+module Attr =
+
+    /// Dynamic variant of Create.
+    val Dynamic : name: string -> value: View<string> -> Attr
+
+    /// Dynamically set a property of the DOM element.
+    val DynamicProp : name: string -> value: View<'T> -> Attr
+
+    /// Dynamic with a custom setter.
+    val DynamicCustom : set: (Element -> 'T -> unit) -> value: View<'T> -> Attr
+
+    /// Animated variant of Create.
+    val Animated : name: string -> Trans<'T> -> view: View<'T> -> value: ('T -> string) -> Attr
+
+    /// Sets a style attribute, such as `background-color`.
+    val Style : name: string -> value: string -> Attr
+
+    /// Dynamic variant of Style.
+    val DynamicStyle : name: string -> value: View<string> -> Attr
+
+    /// Animated variant of Style.
+    val AnimatedStyle : name: string -> Trans<'T> -> view: View<'T> -> value: ('T -> string) -> Attr
+
+    /// Sets an event handler, for a given event such as `click`.
+    val Handler : name: string -> callback: (Element -> #DomEvent -> unit) -> Attr
+
+    /// Sets an event handler, for a given event such as `click`.
+    val HandlerView : name: string -> view: View<'T> -> callback: (Element -> #DomEvent -> 'T -> unit) -> Attr
+
+    /// Adds a callback to be called after the element has been inserted in the DOM.
+    /// The callback is guaranteed to be called only once, even if the element is moved or removed and reinserted.
+    val OnAfterRender : callback: (Element -> unit) -> Attr
+
+    /// Sets a CSS class.
+    val Class : name: string -> Attr
+
+    /// Sets a CSS class when the given view satisfies a predicate.
+    val DynamicClass : name: string -> view: View<'T> -> apply: ('T -> bool) -> Attr
+
+    /// Sets an attribute when a view satisfies a predicate.
+    val DynamicPred : name: string -> predView: View<bool> -> valView: View<string> -> Attr
+
+    /// Gets and sets the value of the element according to a Var.
+    val CustomValue : IRef<'a> -> ('a -> string) -> (string -> 'a option) -> Attr when 'a : equality
+
+    /// Gets and sets custom properties on the element according to a Var.
+    val CustomVar : IRef<'a> -> set: (Element -> 'a -> unit) -> get: (Element -> 'a option) -> Attr when 'a : equality
+
+    /// Make the element's content editable and bind its text content to a Var.
+    val ContentEditableText : IRef<string> -> Attr
+
+    /// Make the element's content editable and bind its HTML content to a Var.
+    val ContentEditableHtml : IRef<string> -> Attr
+
+    /// Gets and sets the value of the element according to a Var.
+    val Value : IRef<string> -> Attr
+
+    /// Add this attribute to any <form> element that contains validation
+    /// (including Doc.IntInput and Doc.FloatInput) for compatibility in Internet Explorer 9 and older.
+    val ValidateForm : Attr
 
 /// Internals used in Doc.
 module internal Attrs =
@@ -110,3 +152,6 @@ module internal Attrs =
 
     /// Animate exit transition.
     val GetExitAnim : Dyn -> Anim
+
+    /// Get OnAfterRender callback, if any.
+    val GetOnAfterRender : Dyn -> option<Element -> unit>

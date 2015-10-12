@@ -52,9 +52,9 @@ type Model<'I,'M> with
 [<JavaScript>]
 type ListModel<'Key,'T when 'Key : equality> =
     {
-        Key : 'T -> 'Key
+        key : 'T -> 'Key
         Var : Var<'T[]>
-        View : View<seq<'T>>
+        view : View<seq<'T>>
     }
 
 [<JavaScript>]
@@ -70,21 +70,27 @@ module ListModels =
 
 type ListModel<'K,'T> with
 
+    [<Inline>]
+    member m.View = m.view
+
+    [<Inline>]
+    member m.Key = m.key
+
     member m.Add item =
         let v = m.Var.Value
-        if not (ListModels.Contains m.Key item v) then
+        if not (ListModels.Contains m.key item v) then
             ListModels.Push v item
             m.Var.Value <- v
         else
-            let index = Array.findIndex (fun it -> m.Key it = m.Key item) v
+            let index = Array.findIndex (fun it -> m.key it = m.key item) v
             //ListModels.Set v index item
             v.[index] <- item
             m.Var.Value <- v
 
     member m.Remove item =
         let v = m.Var.Value
-        if ListModels.Contains m.Key item v then
-            let keyFn = m.Key
+        if ListModels.Contains m.key item v then
+            let keyFn = m.key
             let k = keyFn item
             m.Var.Value <- Array.filter (fun i -> keyFn i <> k) v
 
@@ -92,7 +98,7 @@ type ListModel<'K,'T> with
         m.Var.Value <- Array.filter (f >> not) m.Var.Value
 
     member m.RemoveByKey key =
-        m.Var.Value <- Array.filter (fun i -> m.Key i <> key) m.Var.Value
+        m.Var.Value <- Array.filter (fun i -> m.key i <> key) m.Var.Value
 
     member m.Iter fn =
         Array.iter fn m.Var.Value
@@ -101,10 +107,10 @@ type ListModel<'K,'T> with
         m.Var.Value <- Array.ofSeq lst
 
     member m.ContainsKey key =
-        Array.exists (fun it -> m.Key it = key) m.Var.Value
+        Array.exists (fun it -> m.key it = key) m.Var.Value
 
     member m.ContainsKeyAsView key =
-        m.Var.View |> View.Map (Array.exists (fun it -> m.Key it = key))
+        m.Var.View |> View.Map (Array.exists (fun it -> m.key it = key))
 
     member m.Find pred =
         Array.find pred m.Var.Value
@@ -119,16 +125,16 @@ type ListModel<'K,'T> with
         m.Var.View |> View.Map (Array.tryFind pred)
 
     member m.FindByKey key =
-        Array.find (fun it -> m.Key it = key) m.Var.Value
+        Array.find (fun it -> m.key it = key) m.Var.Value
 
     member m.TryFindByKey key =
-        Array.tryFind (fun it -> m.Key it = key) m.Var.Value
+        Array.tryFind (fun it -> m.key it = key) m.Var.Value
 
     member m.FindByKeyAsView key =
-        m.Var.View |> View.Map (Array.find (fun it -> m.Key it = key))
+        m.Var.View |> View.Map (Array.find (fun it -> m.key it = key))
 
     member m.TryFindByKeyAsView key =
-        m.Var.View |> View.Map (Array.tryFind (fun it -> m.Key it = key))
+        m.Var.View |> View.Map (Array.tryFind (fun it -> m.key it = key))
 
     member m.UpdateAll fn =
         Var.Update m.Var <| fun a ->
@@ -138,7 +144,7 @@ type ListModel<'K,'T> with
 
     member m.UpdateBy fn key =
         let v = m.Var.Value
-        match Array.tryFindIndex (fun it -> m.Key it = key) v with
+        match Array.tryFindIndex (fun it -> m.key it = key) v with
         | None -> ()
         | Some index ->
             match fn v.[index] with
@@ -156,6 +162,44 @@ type ListModel<'K,'T> with
     member m.LengthAsView =
         m.Var.View |> View.Map (fun arr -> arr.Length)
 
+    [<Inline>]
+    member m.LensInto (get: 'T -> 'V) (update: 'T -> 'V -> 'T) (key : 'Key) : IRef<'V> =
+        new RefImpl<'Key, 'T, 'V>(m, key, get, update) :> IRef<'V>
+
+    member m.Lens (key: 'Key) =
+        m.LensInto id (fun _ -> id) key
+
+    member m.Value
+        with [<Inline>] get () = m.Var.Value :> seq<_>
+        and [<Inline>] set v = m.Var.Value <- Array.ofSeq v
+
+and [<JavaScript>]
+    RefImpl<'K, 'T, 'V when 'K : equality>
+        (m: ListModel<'K, 'T>, key: 'K, get: 'T -> 'V, update: 'T -> 'V -> 'T) =
+
+    let id = Fresh.Id()
+
+    interface IRef<'V> with
+
+        member r.Get() =
+            m.FindByKey key |> get
+
+        member r.Set(v) =
+            m.UpdateBy (fun i -> Some (update i v)) key
+
+        member r.Update(f) =
+            m.UpdateBy (fun i -> Some (update i (f (get i)))) key
+
+        member r.UpdateMaybe(f) =
+            m.UpdateBy (fun i -> Option.map (update i) (f (get i))) key
+
+        member r.View =
+            m.FindByKeyAsView(key)
+            |> View.Map get
+
+        member r.Id =
+            id
+
 [<JavaScript>]
 [<Sealed>]
 type ListModel =
@@ -168,13 +212,16 @@ type ListModel =
             |> Var.Create
         let view = var.View |> View.Map (fun x -> Array.copy x :> seq<_>)
         {
-            Key = key
+            key = key
             Var = var
-            View = view
+            view = view
         }
 
     static member FromSeq xs =
         ListModel.Create (fun x -> x) xs
 
     static member View m =
-        m.View
+        m.view
+
+    static member Key m =
+        m.key

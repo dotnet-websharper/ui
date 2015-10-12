@@ -20,7 +20,109 @@
 
 namespace WebSharper.UI.Next
 
+open System.Web.UI
+open Microsoft.FSharp.Quotations
+open Microsoft.FSharp.Quotations.Patterns
 open WebSharper
+open WebSharper.JavaScript
+module M = WebSharper.Core.Metadata
+module P = WebSharper.Core.JavaScript.Packager
+module R = WebSharper.Core.Reflection
+
+module private Internal =
+
+    let getLocation (q: Expr) =
+        let (|Val|_|) e : 't option =
+            match e with
+            | Quotations.Patterns.Value(:? 't as v,_) -> Some v
+            | _ -> None
+        let l =
+            q.CustomAttributes |> Seq.tryPick (function
+                | NewTuple [ Val "DebugRange";
+                             NewTuple [ Val (file: string)
+                                        Val (startLine: int)
+                                        Val (startCol: int)
+                                        Val (endLine: int)
+                                        Val (endCol: int) ] ] ->
+                    Some (sprintf "%s: %i.%i-%i.%i" file startLine startCol endLine endCol)
+                | _ -> None)
+        defaultArg l "(no location)"
+
+    let gen = System.Random()
+
+type Attr =
+    | AppendAttr of list<Attr>
+    | SingleAttr of string * string
+    | DepAttr of string * (M.Info -> string) * seq<M.Node>
+
+    member this.Write(meta, w: HtmlTextWriter, removeDataHole) =
+        match this with
+        | AppendAttr attrs ->
+            attrs |> List.iter (fun a ->
+                a.Write(meta, w, removeDataHole))
+        | SingleAttr (n, v) ->
+            if not (removeDataHole && n = "data-hole") then
+                w.WriteAttribute(n, v)
+        | DepAttr (n, v, _) ->
+            w.WriteAttribute(n, v meta)
+
+    interface IRequiresResources with
+
+        member this.Requires =
+            match this with
+            | AppendAttr attrs ->
+                attrs |> Seq.collect (fun a -> (a :> IRequiresResources).Requires)
+            | DepAttr (_, _, reqs) -> reqs
+            | _ -> Seq.empty
+
+        member this.Encode (meta, json) =
+            []
+
+    static member Create name value =
+        SingleAttr (name, value)
+
+    static member Append a b =
+        AppendAttr [a; b]
+
+    static member Empty =
+        AppendAttr []
+
+    static member Concat (xs: seq<Attr>) =
+        AppendAttr (List.ofSeq xs)
+
+    static member Handler (event: string) (q: Expr<Dom.Element -> #Dom.Event -> unit>) =
+        let declType, name, reqs =
+            match q with
+            | Lambda (x1, Lambda (y1, Call(None, m, [Var x2; Var y2]))) when x1 = x2 && y1 = y2 ->
+                let rm = R.Method.Parse m
+                rm.DeclaringType, rm.Name, [M.MethodNode rm; M.TypeNode rm.DeclaringType]
+            | _ -> failwithf "Invalid handler function: %A" q
+        let loc = Internal.getLocation q
+        let value = ref None
+        let func (meta: M.Info) =
+            match !value with
+            | None ->
+                match meta.GetAddress declType with
+                | None ->
+                    failwithf "Error in Handler at %s: Couldn't find address for method" loc
+                | Some a ->
+                    let rec mk acc (a: P.Address) =
+                        let acc = a.LocalName :: acc
+                        match a.Parent with
+                        | None -> acc
+                        | Some p -> mk acc p
+                    let s = String.concat "." (mk [name] a) + "(this, event)"
+                    value := Some s
+                    s
+            | Some v -> v
+        DepAttr ("on" + event, func, reqs)
+
+namespace WebSharper.UI.Next.Client
+
+open Microsoft.FSharp.Quotations
+open WebSharper
+open WebSharper.JavaScript
+open WebSharper.UI.Next
 module DU = DomUtility
 
 type IAttrNode =
@@ -29,6 +131,7 @@ type IAttrNode =
     abstract GetEnterAnim : Element -> Anim
     abstract GetExitAnim : Element -> Anim
     abstract Sync : Element -> unit
+    abstract Init : Element -> unit
 
 [<JavaScript>]
 [<Sealed>]
@@ -90,11 +193,13 @@ type AnimatedAttrNode<'T>(tr: Trans<'T>, view: View<'T>, push: Element -> 'T -> 
         /// NOTE: enter or change animation will do the sync.
         member a.Sync parent = ()
 
+        member a.Init parent = ()
+
         member a.Changed = updates
 
 [<JavaScript>]
 [<Sealed>]
-type DynamicAttrNode<'T>(view: View<'T>, push: Element -> 'T -> unit) =
+type DynamicAttrNode<'T>(view: View<'T>, init: Element -> unit, push: Element -> 'T -> unit) =
     let mutable value = U
     let mutable dirty = true
     let updates = view |> View.Map (fun x -> value <- x; dirty <- true)
@@ -104,12 +209,14 @@ type DynamicAttrNode<'T>(view: View<'T>, push: Element -> 'T -> unit) =
         member a.GetExitAnim parent = Anim.Empty
         member a.Sync parent = if dirty then push parent value; dirty <- false
         member a.Changed = updates
+        member a.Init parent = init parent
 
 type AttrTree =
     | A0
     | A1 of IAttrNode
     | A2 of AttrTree * AttrTree
-    | A3 of (Element -> unit)
+    | A3 of init: (Element -> unit)
+    | A4 of onAfterRender: (Element -> unit)
 
 type AttrFlags =
     | Defaults = 0
@@ -117,13 +224,12 @@ type AttrFlags =
     | HasExitAnim = 2
     | HasChangeAnim = 4
 
-[<JavaScript>]
-type Attr =
+[<JavaScript; Proxy(typeof<Attr>)>]
+type AttrProxy =
     {
         Flags : AttrFlags
         Tree : AttrTree
     }
-
 [<JavaScript>]
 module Attrs =
 
@@ -132,6 +238,8 @@ module Attrs =
             DynElem : Element
             DynFlags : AttrFlags
             DynNodes : IAttrNode []
+            [<OptionalField>]
+            OnAfterRender : option<Element -> unit>
         }
 
     let HasChangeAnim attr =
@@ -150,20 +258,25 @@ module Attrs =
             d.Sync elem)
 
     /// Inserts static attributes and computes dynamic attributes.
-    let Insert elem tree =
+    let Insert elem (tree: Attr) =
         let nodes = JQueue.Create ()
+        let oar = JQueue.Create()
         let rec loop node =
             match node with
             | A0 -> ()
-            | A1 n -> JQueue.Add n nodes
+            | A1 n -> n.Init elem; JQueue.Add n nodes
             | A2 (a, b) -> loop a; loop b
             | A3 mk -> mk elem
-        loop tree.Tree
+            | A4 cb -> JQueue.Add cb oar
+        loop (As<AttrProxy> tree).Tree
         let arr = JQueue.ToArray nodes
         {
             DynElem = elem
-            DynFlags = tree.Flags
+            DynFlags = (As<AttrProxy> tree).Flags
             DynNodes = arr
+            OnAfterRender =
+                if JQueue.Count oar = 0 then None else
+                Some (fun el -> JQueue.Iter (fun f -> f el) oar)
         }
 
     let Updates dyn =
@@ -184,6 +297,10 @@ module Attrs =
 
     let GetChangeAnim dyn =
         GetAnim dyn (fun n -> n.GetChangeAnim)
+
+    [<Inline>]
+    let GetOnAfterRender dyn =
+        dyn.OnAfterRender
 
     let AppendTree a b =
         match a, b with
@@ -210,75 +327,124 @@ module Attrs =
         Mk flags (A1 node)
 
     [<MethodImpl(MethodImplOptions.NoInlining)>]
-    let Dynamic view set =
-        A1 (DynamicAttrNode (view, set))
+    let Dynamic view init set =
+        A1 (DynamicAttrNode (view, init, set))
         |> Mk AttrFlags.Defaults
 
     [<MethodImpl(MethodImplOptions.NoInlining)>]
     let Static attr =
         Mk AttrFlags.Defaults (A3 attr)
 
-type Attr with
 
-    static member Animated name tr view attr =
-        Attrs.Animated tr view (fun el v -> DU.SetAttr el name (attr v))
-
-    static member AnimatedStyle name tr view attr =
-        Attrs.Animated tr view (fun el v -> DU.SetStyle el name (attr v))
-
-    static member Dynamic name view =
-        Attrs.Dynamic view (fun el v -> DU.SetAttr el name v)
-
-    static member DynamicCustom set view =
-        Attrs.Dynamic view set
-
-    static member DynamicStyle name view =
-        Attrs.Dynamic view (fun el v -> DU.SetStyle el name v)
+[<JavaScript>]
+type AttrProxy with
 
     static member Create name value =
-        Attrs.Static (fun el -> DU.SetAttr el name value)
+        As<Attr> (Attrs.Static (fun el -> DU.SetAttr el name value))
 
-    static member Style name value =
-        Attrs.Static (fun el -> DU.SetStyle el name value)
+    static member Append (a: Attr) (b: Attr) =
+        As<Attr> (
+            Attrs.Mk
+                ((As<AttrProxy> a).Flags ||| (As<AttrProxy> b).Flags)
+                (Attrs.AppendTree (As<AttrProxy> a).Tree (As<AttrProxy> b).Tree))
 
-    static member Handler name (callback: DomEvent -> unit) =
-        Attrs.Static (fun el -> el.AddEventListener(name, callback, false))
+    [<Inline>]
+    static member Empty =
+        As<Attr> Attrs.EmptyAttr
 
-    static member Class name =
-        Attrs.Static (fun el -> DU.AddClass el name)
+    static member Concat (xs: seq<Attr>) =
+        Seq.toArray xs
+        |> Array.MapReduce id Attr.Empty Attr.Append
 
-    static member DynamicClass name view ok =
-        Attrs.Dynamic view (fun el v -> if ok v then DU.AddClass el name else DU.RemoveClass el name)
+    static member Handler (event: string) (q: Expr<Element -> #DomEvent-> unit>) =
+        As<Attr> (Attrs.Static (fun el -> el.AddEventListener(event, (As<Element -> DomEvent -> unit> q) el, false)))
 
-    static member DynamicPred name predView valView =
+[<JavaScript>]
+module Attr =
+
+    let Style name value =
+        As<Attr> (Attrs.Static (fun el -> DU.SetStyle el name value))
+
+    let Class name =
+        As<Attr> (Attrs.Static (fun el -> DU.AddClass el name))
+
+    let Animated name tr view attr =
+        As<Attr> (Attrs.Animated tr view (fun el v -> DU.SetAttr el name (attr v)))
+
+    let AnimatedStyle name tr view attr =
+        As<Attr> (Attrs.Animated tr view (fun el v -> DU.SetStyle el name (attr v)))
+
+    let Dynamic name view =
+        As<Attr> (Attrs.Dynamic view ignore (fun el v -> DU.SetAttr el name v))
+
+    let DynamicCustom set view =
+        As<Attr> (Attrs.Dynamic view ignore set)
+
+    let DynamicStyle name view =
+        As<Attr> (Attrs.Dynamic view ignore (fun el v -> DU.SetStyle el name v))
+
+    let Handler name (callback: Element -> #DomEvent -> unit) =
+        As<Attr> (Attrs.Static (fun el -> el.AddEventListener(name, As<DomEvent -> unit> (callback el), false)))
+
+    let HandlerView name (view: View<'T>) (callback: Element -> #DomEvent -> 'T -> unit) =
+        let id = Fresh.Id()
+        let init (el: Element) =
+            let callback = callback el
+            el.AddEventListener(name, (fun (ev: DomEvent) -> callback (ev :?> _) el?(id)), false)
+        let cb (el: Element) (x: 'T) =
+            el?(id) <- x
+        As<Attr> (Attrs.Dynamic view init cb)
+
+    let OnAfterRender (callback: Element -> unit) =
+        As<Attr> (Attrs.Mk AttrFlags.Defaults (A4 callback))
+
+    let DynamicClass name view ok =
+        As<Attr> (Attrs.Dynamic view ignore (fun el v ->
+            if ok v then DU.AddClass el name else DU.RemoveClass el name))
+
+    let DynamicPred name predView valView =
         let viewFn el (p, v) =
             if p then
                 DU.SetAttr el name v
             else
                 DU.RemoveAttr el name
         let tupleView = View.Map2 (fun pred value -> (pred, value)) predView valView
-        Attrs.Dynamic tupleView viewFn
+        As<Attr> (Attrs.Dynamic tupleView ignore viewFn)
 
-    static member DynamicProp name view =
-        Attrs.Dynamic view (fun el v ->
-            el?(name) <- v)
+    let DynamicProp name view =
+        As<Attr> (Attrs.Dynamic view ignore (fun el v ->
+            el?(name) <- v))
 
-    static member Append a b =
-        Attrs.Mk (a.Flags ||| b.Flags) (Attrs.AppendTree a.Tree b.Tree)
-
-    static member Empty =
-        Attrs.EmptyAttr
-
-    static member Concat xs =
-        Seq.toArray xs
-        |> Array.MapReduce (fun x -> x) Attrs.EmptyAttr Attr.Append
-
-    static member Value (var: Var<string>) =
-        let onChange (e: DomEvent) =
-            if e.CurrentTarget?value <> var.Value then
-                Var.Set var e.CurrentTarget?value
+    let CustomVar (var: IRef<'a>) (set: Element -> 'a -> unit) (get: Element -> 'a option) =
+        let onChange (el: Element) (e: DomEvent) =
+            var.UpdateMaybe(fun v ->
+                match get el with
+                | Some x as o when x <> v -> o
+                | _ -> None)
+        let set e v =
+            match get e with
+            | Some x when x = v -> ()
+            | _ -> set e v
         Attr.Concat [
-            Attr.Handler "change" onChange
-            Attr.Handler "input" onChange
-            Attrs.Dynamic var.View (fun e v -> if v <> e?value then e?value <- v)
+            Handler "change" onChange
+            Handler "input" onChange
+            Handler "keypress" onChange
+            DynamicCustom set var.View
         ]
+
+    let CustomValue (var: IRef<'a>) (toString : 'a -> string) (fromString : string -> 'a option) =
+        CustomVar var (fun e v -> e?value <- toString v) (fun e -> fromString e?value)
+
+    let ContentEditableText (var: IRef<string>) =
+        CustomVar var (fun e v -> e.TextContent <- v) (fun e -> Some e.TextContent)
+        |> Attr.Append (Attr.Create "contenteditable" "true")
+
+    let ContentEditableHtml (var: IRef<string>) =
+        CustomVar var (fun e v -> e?innerHTML <- v) (fun e -> Some e?innerHTML)
+        |> Attr.Append (Attr.Create "contenteditable" "true")
+
+    let Value (var: IRef<string>) =
+        CustomValue var id (id >> Some)
+
+    let ValidateForm =
+        OnAfterRender Resources.H5F.Setup

@@ -18,10 +18,10 @@ type Interpolation =
 
 Represents a way to interpolate between two values of a given type.
 
-<a name="Interpolate" href="#Interpolate">#</a> interpolation.**Interpolate** `NormalizedTime -> 'T -> 'T -> 'T`
+<a name="Interpolate" href="#Interpolate">#</a> interpolation.**Interpolate** : `NormalizedTime -> 'T -> 'T -> 'T`
 
 Computes an in-between value based on normalized time, starting and ending values.
 
-<a name="Interpolation.Double" href="#Interpolation.Double">#</a> Interpolation.**Double** `Interpolation<double>`
+<a name="Interpolation.Double" href="#Interpolation.Double">#</a> Interpolation.**Double** : `Interpolation<double>`
 
 Linear interpolation on doubles.

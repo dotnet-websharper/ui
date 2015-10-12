@@ -21,6 +21,7 @@
 namespace WebSharper.UI.Next
 
 open WebSharper
+open WebSharper.JavaScript
 
 type Time = double
 type NormalizedTime = double
@@ -182,15 +183,13 @@ type Anim with
     static member Run k anim =
         let dur = anim.Duration
         Async.FromContinuations <| fun (ok, _, _) ->
-            let rec start () =
-                AnimationFrame.Request (fun t -> loop t t)
-            and loop start now =
+            let rec loop start now =
                 let t = now - start
                 k (anim.Compute t)
                 if t <= dur then
-                    AnimationFrame.Request (fun t -> loop start t)
+                    JS.RequestAnimationFrame (fun t -> loop start t) |> ignore
                 else ok ()
-            start ()
+            JS.RequestAnimationFrame (fun t -> loop t t) |> ignore
 
     static member WhenDone f main =
         main

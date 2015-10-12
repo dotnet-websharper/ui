@@ -9,6 +9,7 @@ let bt =
 let main =
     bt.WebSharper.Library("WebSharper.UI.Next")
         .SourcesFromProject()
+        .Embed(["h5f.js"])
 
 let tmpl =
     bt.WebSharper.Library("WebSharper.UI.Next.Templating")

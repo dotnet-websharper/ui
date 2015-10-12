@@ -51,8 +51,14 @@ module internal Snap =
     /// Maps a function.
     val Map : ('A -> 'B) -> Snap<'A> -> Snap<'B>
 
+    val internal MapCached : ref<option<'A * 'B>> -> ('A -> 'B) -> Snap<'A> -> Snap<'B>
+        when 'A : equality
+
     /// Combines two snaps.
     val Map2 : ('A -> 'B -> 'C) -> Snap<'A> -> Snap<'B> -> Snap<'C>
+
+    /// Combines three snaps.
+    val Map3 : ('A -> 'B -> 'C -> 'D) -> Snap<'A> -> Snap<'B> -> Snap<'C> -> Snap<'D>
 
     /// Maps an async function.
     val MapAsync : ('A -> Async<'B>) -> Snap<'A> -> Snap<'B>

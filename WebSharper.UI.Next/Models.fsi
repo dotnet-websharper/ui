@@ -28,7 +28,7 @@ type Key =
     /// Constructs a fresh key.
     static member Fresh : unit -> Key
 
-/// Helper type for coarse-grainde mutable models, with
+/// Helper type for coarse-grained mutable models, with
 /// a mutable type 'M and an immutable type 'I.
 type Model<'I,'M>
 
@@ -58,6 +58,15 @@ type ListModel<'Key,'T when 'Key : equality>
 type ListModel
 
 type ListModel<'Key,'T when 'Key : equality> with
+
+    /// Same as ListModel.View.
+    member View : View<seq<'T>>
+
+    /// Get or set the current items.
+    member Value : seq<'T> with get, set
+
+    /// Get the key retrieval function.
+    member Key : ('T -> 'Key)
 
     /// Adds an item. If an item with the given key exists, it is replaced.
     member Add : 'T -> unit
@@ -124,6 +133,12 @@ type ListModel<'Key,'T when 'Key : equality> with
     /// Gets a view of the number of elements in the list.
     member LengthAsView : View<int>
 
+    /// Gets a reference to an element of the list.
+    member Lens : 'Key -> IRef<'T>
+
+    /// Gets a reference to a part of an element of the list.
+    member LensInto : get:('T -> 'V) -> update:('T -> 'V -> 'T) -> 'Key -> IRef<'V>
+
 type ListModel with
 
     /// Creates a new instance.
@@ -134,3 +149,6 @@ type ListModel with
 
     /// Views the current item sequence.
     static member View : ListModel<'Key,'T> -> View<seq<'T>>
+
+    /// Get the key retrieval function.
+    static member Key : ListModel<'Key, 'T> -> ('T -> 'Key)

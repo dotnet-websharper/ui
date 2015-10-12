@@ -7,10 +7,12 @@
   * [Key](Key.md) - helper type for generating unique identifiers 
   * [Model](Model.md) - helpers for imperative models
   * [ListModel](ListModel.md) - `ResizeArray`-like reactive model helpers
+  * [Submitter](Submitter.md) - helper to bring events in the dataflow
 * DOM
   * [Attr](Attr.md) - attributes
   * [Doc](Doc.md) - document fragments
   * [Html](Html.md) - HTML Helper Functions
+  * [Templates](Templates.md) - Using HTML files as templates
 * [Animation](Animation.md) - support for animation
   * [Anim](Anim.md) - abstract animation types
   * [Easing](Easing.md) - easing functions
@@ -26,3 +28,4 @@
   * [Input](Input.md) - Views of the mouse and keyboard
 * Misc
   * [Notation](Notation.md)
+  * [Client vs Server](ClientServer.md) - a discussion of client-side and server-side functionality
