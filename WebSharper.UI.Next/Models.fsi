@@ -62,8 +62,8 @@ type Storage<'T> =
 
 type Serializer<'T> =
     {
-        Serialize : 'T -> string
-        Deserialize : string -> 'T
+        Encode : 'T -> obj
+        Decode : obj -> 'T
     }
 
 module Serializer =

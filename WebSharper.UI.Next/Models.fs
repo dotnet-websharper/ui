@@ -58,34 +58,57 @@ type Storage<'T> =
 
 type Serializer<'T> =
     {
-        Serialize : 'T -> string
-        Deserialize : string -> 'T
+        Encode : 'T -> obj
+        Decode : obj -> 'T
     }
+
+module Macro =
+    module CJ = WebSharper.Json.Macro
+    module J = WebSharper.Core.JavaScript.Core
+    module M = WebSharper.Core.Macros
+    module Q = WebSharper.Core.Quotations
+    module R = WebSharper.Core.Reflection
+
+    type M() =
+        interface M.IMacro with
+            member this.Translate(q, tr) =
+                match q with
+                | Q.CallOrCallModule ({Generics = [t]}, []) ->
+                    let f =
+                        let enc = Q.Id.Create "enc" (R.Type.FromType typeof<obj -> obj>)
+                        let dec = Q.Id.Create "dec" (R.Type.FromType typeof<obj -> obj>)
+                        let recT = R.Type.FromType typeof<Serializer<obj>>
+                        Q.Lambda(enc,
+                            Q.Lambda(dec,
+                                Q.NewRecord(recT, [Q.Var enc; Q.Var dec])))
+                        |> tr
+                    let param = CJ.Parameters.Default tr
+                    let enc = CJ.EncodeLambda param tr t
+                    let dec = CJ.DecodeLambda param tr t
+                    J.Application(J.Application(f, [enc]), [dec])
+                | Q.NoMacro q | q -> failwithf "Invalid macro use: %A" q
 
 [<JavaScript>]
 module Serializer =
     open WebSharper
     open WebSharper.JavaScript
 
+    [<Macro(typeof<Macro.M>)>]
     let Default =
         {
-            Serialize   = fun e -> Json.Stringify(e)
-            Deserialize = fun e -> As<'T> <| Json.Parse(e)
+            Encode = box
+            Decode = unbox
         }
 
 [<JavaScript>]
 module Storage =
     open WebSharper
     open WebSharper.JavaScript
-
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
-    [<Inline "$0.push($1)">]
-    let private push (x: 'T[]) (v: 'T) = ()
     
     type private ArrayStorage<'T>(init) =
 
         interface Storage<'T> with
-            member x.Add i arr = push arr i; arr
+            member x.Add i arr = arr.JS.Push i |> ignore; arr
             member x.Init () = init
             member x.RemoveIf pred arr = Array.filter pred arr
             member x.SetAt idx elem arr = arr.[idx] <- elem; arr
@@ -94,20 +117,20 @@ module Storage =
     type private LocalStorageBackend<'T>(id : string, serializer : Serializer<'T>) =
         let storage = JS.Window.LocalStorage
         let set (arr : 'T[]) = 
-            storage.SetItem(id, arr |> Array.map serializer.Serialize |> Json.Stringify)
+            storage.SetItem(id, arr |> Array.map serializer.Encode |> Json.Stringify)
             arr
         let clear () = storage.RemoveItem(id)
 
         interface Storage<'T> with
-            member x.Add i arr = push arr i; set arr
+            member x.Add i arr = arr.JS.Push i |> ignore; set arr
 
             member x.Init () =
                 let item = storage.GetItem(id)
                 if item = null then [||]
                 else 
                     try
-                        let arr = As<string []> <| Json.Parse(item)
-                        arr |> Array.map serializer.Deserialize
+                        let arr = As<obj []> <| Json.Parse(item)
+                        arr |> Array.map serializer.Decode
                     with _ -> [||]
 
             member x.RemoveIf pred arr = set <| Array.filter pred arr
