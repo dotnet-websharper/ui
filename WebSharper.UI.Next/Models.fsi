@@ -164,10 +164,10 @@ type ListModel<'Key,'T when 'Key : equality> with
 type ListModel with
 
     /// Creates a new instance.
-    static member Create<'Key,'T when 'Key : equality> : ('T -> 'Key) -> Storage<'T> -> ListModel<'Key,'T>
+    static member Create<'Key,'T when 'Key : equality> : ('T -> 'Key) -> seq<'T> -> ListModel<'Key,'T>
 
-    /// Creates a new instance using intrinsic equality and the specified storage type.
-    static member WithStorage<'T when 'T : equality> : Storage<'T> -> ListModel<'T,'T>
+    /// Creates a new instance using the specified storage type.
+    static member CreateWithStorage<'Key, 'T when 'Key : equality> : ('T -> 'Key) -> Storage<'T> -> ListModel<'Key,'T>
 
     /// Creates a new instance using intrinsic equality and in-memory storage.
     static member FromSeq<'T when 'T : equality> : 'T seq -> ListModel<'T,'T>

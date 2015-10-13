@@ -291,7 +291,7 @@ and [<JavaScript>]
 [<Sealed>]
 type ListModel =
 
-    static member Create<'Key,'T when 'Key : equality>
+    static member CreateWithStorage<'Key,'T when 'Key : equality>
             (key: 'T -> 'Key) (storage : Storage<'T>) =
         let var =
             Seq.distinctBy key (storage.Init ())
@@ -308,11 +308,11 @@ type ListModel =
             view = view
         }
 
-    static member WithStorage storage =
-        ListModel.Create id storage
+    static member Create<'Key, 'T when 'Key : equality> (key: 'T -> 'Key) init =
+        ListModel.CreateWithStorage key (Storage.InMemory <| Seq.toArray init)
 
     static member FromSeq init =
-        ListModel.Create id (Storage.InMemory <| Seq.toArray init)
+        ListModel.Create id init
 
     static member View m =
         m.view

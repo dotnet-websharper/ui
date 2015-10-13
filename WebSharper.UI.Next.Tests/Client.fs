@@ -22,9 +22,10 @@ module Client =
 
     let Main =
         let myItems =
-            ListModel.Create Item.Key (Storage.LocalStorage "Test" Serializer.Default)
+            ListModel.CreateWithStorage Item.Key (Storage.LocalStorage "Test" Serializer.Default)
 
         let newName = Var.Create ""
+        let newDescr = Var.Create ""
         let itemsSub = Submitter.Create myItems.View Seq.empty
  
         let title = View.Const "Starting title"
@@ -34,7 +35,8 @@ module Client =
         let doc =
             MyTemplate.Doc(
                 NewName = newName,
-                NewItem = (fun e v -> myItems.Add { id = Key.Fresh(); name = newName.Value; description = "" }),
+                NewDescription = newDescr,
+                NewItem = (fun e v -> myItems.Add { id = Key.Fresh(); name = newName.Value; description = newDescr.Value }),
                 Title = [
                     h1Attr [
                         attr.style "color: blue"
