@@ -22,10 +22,18 @@ namespace WebSharper.UI.Next
 
 open Microsoft.FSharp.Quotations
 open WebSharper.JavaScript
+module M = WebSharper.Core.Metadata
 
 /// A potentially time-varying or animated attribute list.
-[<Sealed>]
 type Attr =
+    internal
+    | AppendAttr of list<Attr>
+    | SingleAttr of string * string
+    | DepAttr of string * (M.Info -> string) * seq<M.Node>
+
+    interface WebSharper.IRequiresResources
+
+    member internal Write : M.Info * System.Web.UI.HtmlTextWriter * bool -> unit
 
     /// Sets a basic DOM attribute, such as `id` to a text value.
     static member Create : name: string -> value: string -> Attr
@@ -45,15 +53,6 @@ type Attr =
     /// When called on the server side, the handler must be a top-level function or a static member.
     static member Handler : event: string -> callback: (Expr<Dom.Element -> #Dom.Event -> unit>) -> Attr
 
-namespace WebSharper.UI.Next.Server
-
-open WebSharper.UI.Next
-open WebSharper.Html.Server
-
-module Attr =
-
-    val AsAttributes : Attr -> list<Html.Attribute>
-
 namespace WebSharper.UI.Next.Client
 
 open WebSharper.UI.Next
@@ -67,7 +66,7 @@ module Attr =
     val DynamicProp : name: string -> value: View<'T> -> Attr
 
     /// Dynamic with a custom setter.
-    val internal DynamicCustom : set: (Element -> 'T -> unit) -> value: View<'T> -> Attr
+    val DynamicCustom : set: (Element -> 'T -> unit) -> value: View<'T> -> Attr
 
     /// Animated variant of Create.
     val Animated : name: string -> Trans<'T> -> view: View<'T> -> value: ('T -> string) -> Attr
@@ -87,6 +86,10 @@ module Attr =
     /// Sets an event handler, for a given event such as `click`.
     val HandlerView : name: string -> view: View<'T> -> callback: (Element -> #DomEvent -> 'T -> unit) -> Attr
 
+    /// Adds a callback to be called after the element has been inserted in the DOM.
+    /// The callback is guaranteed to be called only once, even if the element is moved or removed and reinserted.
+    val OnAfterRender : callback: (Element -> unit) -> Attr
+
     /// Sets a CSS class.
     val Class : name: string -> Attr
 
@@ -99,8 +102,21 @@ module Attr =
     /// Gets and sets the value of the element according to a Var.
     val CustomValue : IRef<'a> -> ('a -> string) -> (string -> 'a option) -> Attr when 'a : equality
 
+    /// Gets and sets custom properties on the element according to a Var.
+    val CustomVar : IRef<'a> -> set: (Element -> 'a -> unit) -> get: (Element -> 'a option) -> Attr when 'a : equality
+
+    /// Make the element's content editable and bind its text content to a Var.
+    val ContentEditableText : IRef<string> -> Attr
+
+    /// Make the element's content editable and bind its HTML content to a Var.
+    val ContentEditableHtml : IRef<string> -> Attr
+
     /// Gets and sets the value of the element according to a Var.
     val Value : IRef<string> -> Attr
+
+    /// Add this attribute to any <form> element that contains validation
+    /// (including Doc.IntInput and Doc.FloatInput) for compatibility in Internet Explorer 9 and older.
+    val ValidateForm : Attr
 
 /// Internals used in Doc.
 module internal Attrs =
@@ -136,3 +152,6 @@ module internal Attrs =
 
     /// Animate exit transition.
     val GetExitAnim : Dyn -> Anim
+
+    /// Get OnAfterRender callback, if any.
+    val GetOnAfterRender : Dyn -> option<Element -> unit>

@@ -20,28 +20,26 @@
 
 namespace WebSharper.UI.Next.Server
 
+open System
 open WebSharper.UI.Next
 
 module Doc =
-    open WebSharper.Html.Server
 
-    /// Converts a `Doc` to a list of sitelet elements.
-    val AsElements : Doc -> list<Html.Element>
+    /// Converts a WebSharper INode to a Doc.
+    val WebControl : WebSharper.Web.INode -> Doc
 
 [<AutoOpen>]
 module Extensions =
     open WebSharper.Sitelets
+    open WebSharper.Sitelets.Content
 
     type Content<'Action> with
+
         /// Converts a `Doc` to a sitelet Page.
         /// `Doc` values that correspond to HTML fragements are converted to full documents.
+        static member Page : Doc -> Async<Content<'Action>>
+
+        /// Converts a `Doc` to a sitelet Page.
+        /// `Doc` values that correspond to HTML fragements are converted to full documents.
+        [<Obsolete "Use Content.Page(...) instead">]
         static member Doc : Doc -> Async<Content<'Action>>
-
-        /// Creates an HTML page response from `Doc`s.
-        static member Doc
-            : ?Body: #seq<Doc>
-            * ?Head: #seq<Doc>
-            * ?Title: string
-            * ?Doctype: string
-            -> Async<Content<'EndPoint>>
-

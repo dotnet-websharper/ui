@@ -126,6 +126,11 @@ type View =
         View.CreateLazy (fun () ->
             observe () |> Snap.Map fn)
 
+    static member MapCached fn (V observe) =
+        let vref = ref None
+        View.CreateLazy (fun () ->
+            observe () |> Snap.MapCached vref fn)
+
     // Creates a lazy view using a given snap function and 2 views
     static member private CreateLazy2 snapFn (V o1) (V o2) =
         View.CreateLazy (fun () ->
@@ -270,15 +275,13 @@ type RefImpl<'T, 'V>(baseRef: IRef<'T>, get: 'T -> 'V, update: 'T -> 'V -> 'T) =
             get (baseRef.Get())
 
         member this.Set(v) =
-            baseRef.Set(update (baseRef.Get()) v)
+            baseRef.Update(fun t -> update t v)
 
         member this.Update(f) =
-            let t = baseRef.Get()
-            baseRef.Set(update t (f (get t)))
+            baseRef.Update(fun t -> update t (f (get t)))
 
         member this.UpdateMaybe(f) =
-            let t = baseRef.Get()
-            f (get t) |> Option.iter (fun v -> baseRef.Set(update t v))
+            baseRef.UpdateMaybe(fun t -> Option.map (update t) (f (get t)))
 
         member this.View =
             baseRef.View |> View.Map get

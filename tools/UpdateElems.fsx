@@ -156,7 +156,7 @@ module Tags =
                     sprintf "/// Create a handler for the event \"%s\"." e.Name
                     "/// When called on the server side, the handler must be a top-level function or a static member."
                     "[<Inline>]"
-                    sprintf """static member %s (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.%s -> unit>) = Attr.Handler "%s" f""" e.LowNameEsc e.Category e.Name
+                    sprintf """static member %s (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.%s -> unit>) = Attr.Handler "%s" f""" e.CamelNameEsc e.Category e.Name
                 |]
             | ty -> failwithf "unknown type: %s" ty
         RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next", "HTML.Client.fs")) all <| fun e ->

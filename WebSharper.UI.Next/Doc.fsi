@@ -21,28 +21,31 @@
 namespace WebSharper.UI.Next
 
 open Microsoft.FSharp.Quotations
-open WebSharper.Html.Client
+open WebSharper
 open WebSharper.JavaScript
 
 /// Represents a time-varying node or a node list.
 [<Interface>]
 type Doc =
-    inherit WebSharper.Html.Client.IControlBody
+    inherit IControlBody
+    inherit Web.INode
     abstract ToDynDoc : DynDoc
+    abstract Write : Core.Metadata.Info * System.Web.UI.HtmlTextWriter * ?res: Sitelets.Content.RenderedResources -> unit
+    abstract HasNonScriptSpecialTags : bool
 
 and DynDoc =
     internal
     | AppendDoc of list<Doc>
-    | ElemDoc of tag: string * attrs: list<Attr> * children: list<Doc>
+    | ElemDoc of Elt
     | EmptyDoc
     | TextDoc of string
-    | ClientSideDoc of Expr<IControlBody>
+    | VerbatimDoc of string
+    | INodeDoc of Web.INode
 
     interface Doc
     interface IControlBody
 
-[<Sealed>]
-type Elt =
+and [<Sealed>] Elt =
     interface Doc
 
     /// Add an event handler.
@@ -473,7 +476,6 @@ type Elt =
 module Doc =
 
     open Microsoft.FSharp.Quotations
-    open WebSharper.Html.Client
 
     // Construction of basic nodes.
 
@@ -499,4 +501,8 @@ module Doc =
     /// Static variant of TextView.
     val TextNode : string -> Doc
 
+    /// Client-side control.
     val ClientSide : Expr<#IControlBody> -> Doc
+
+    /// Verbatim HTML.
+    val Verbatim : string -> Doc

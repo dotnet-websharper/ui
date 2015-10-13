@@ -99,6 +99,10 @@ type View =
     /// Lifting functions.
     static member Map : ('A -> 'B) -> View<'A> -> View<'B>
 
+    /// Lift a function, doesn't call it again if the input value is equal to the previous one.
+    static member MapCached : ('A -> 'B) -> View<'A> -> View<'B>
+        when 'A : equality
+
     /// Lifting async functions.
     static member MapAsync : ('A -> Async<'B>) -> View<'A> -> View<'B>
 

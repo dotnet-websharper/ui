@@ -26,6 +26,14 @@ open WebSharper.UI.Next
 [<AutoOpen>]
 module EltExtensions =
 
+    type Doc with
+
+        /// Runs a reactive Doc as contents of the given element.
+        member Run : Element -> unit
+
+        /// Same as Run, but looks up the element by ID.
+        member RunById : id: string -> unit
+
     type Elt with
 
         /// Get the underlying DOM element.
@@ -33,6 +41,9 @@ module EltExtensions =
 
         /// Add an event handler.
         member On : event: string * callback: (Dom.Element -> Dom.Event -> unit) -> Elt
+
+        /// Add a callback to be called after the element has been inserted into the DOM.
+        member OnAfterRender : callback: (Dom.Element -> unit) -> Elt
 
         // {{ event
         /// Add a handler for the event "abort".
@@ -366,6 +377,13 @@ module EltExtensions =
         /// Sets an inline style.
         member SetStyle : name: string * value: string -> unit
 
+type CheckedInput<'T> =
+    | Valid of value: 'T * inputText: string
+    | Invalid of inputText: string
+    | Blank of inputText: string
+
+    member Input : string
+
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Doc =
 
@@ -409,11 +427,32 @@ module Doc =
     /// Runs a reactive Doc as contents of the given element.
     val Run : Element -> Doc -> unit
 
-    /// Same as rn, but looks up the element by ID.
+    /// Runs a reactive Doc as contents of the element with the given ID.
     val RunById : id: string -> Doc -> unit
 
-    /// Creates a Pagelet from a Doc, in a Div container.
-    val AsPagelet : Doc -> WebSharper.Html.Client.Pagelet
+    /// Runs a reactive Doc as first child(ren) of the given element.
+    val RunPrepend : Element -> Doc -> unit
+
+    /// Runs a reactive Doc as first child(ren) of the element with the given ID.
+    val RunPrependById : string -> Doc -> unit
+
+    /// Runs a reactive Doc as last child(ren) of the given element.
+    val RunAppend : Element -> Doc -> unit
+
+    /// Runs a reactive Doc as last child(ren) of the element with the given ID.
+    val RunAppendById : string -> Doc -> unit
+
+    /// Runs a reactive Doc as previous sibling(s) of the given element.
+    val RunBefore : Dom.Node -> Doc -> unit
+
+    /// Runs a reactive Doc as previous sibling(s) of the element with the given ID.
+    val RunBeforeById : string -> Doc -> unit
+
+    /// Runs a reactive Doc as next sibling(s) of the given element.
+    val RunAfter : Dom.Node -> Doc -> unit
+
+    /// Runs a reactive Doc as next sibling(s) of the element with the given ID.
+    val RunAfterById : string -> Doc -> unit
 
   // Form helpers
 
@@ -421,10 +460,26 @@ module Doc =
     val Input : seq<Attr> -> IRef<string> -> Elt
 
     /// Input box with type="number".
-    val IntInput : seq<Attr> -> IRef<int> -> Elt
+    /// For validation to work properly in Internet Explorer 9 and older,
+    /// needs to be inside a <form> with Attr.ValidateForm.
+    val IntInput : seq<Attr> -> IRef<CheckedInput<int>> -> Elt
 
     /// Input box with type="number".
-    val FloatInput : seq<Attr> -> IRef<float> -> Elt
+    /// If the input box is blank, the value is set to 0.
+    /// If the input is not parseable as an int, the value is unchanged from its last valid value.
+    /// It is advised to use IntInput instead for better user experience.
+    val IntInputUnchecked : seq<Attr> -> IRef<int> -> Elt
+
+    /// Input box with type="number".
+    /// For validation to work properly in Internet Explorer 9 and older,
+    /// needs to be inside a <form> with Attr.ValidateForm.
+    val FloatInput : seq<Attr> -> IRef<CheckedInput<float>> -> Elt
+
+    /// Input box with type="number".
+    /// If the input box is blank, the value is set to 0.
+    /// If the input is not parseable as a float, the value is unchanged from its last valid value.
+    /// It is advised to use FloatInput instead for better user experience.
+    val FloatInputUnchecked : seq<Attr> -> IRef<float> -> Elt
 
     /// Input text area.
     val InputArea : seq<Attr> -> IRef<string> -> Elt
@@ -454,7 +509,19 @@ module Doc =
         when 'T : equality
 
     /// Select box.
-    val Select : seq<Attr> -> ('T -> string) -> list<'T> -> IRef<'T> -> Elt
+    val Select : seq<Attr> -> optionText: ('T -> string) -> options: list<'T> -> IRef<'T> -> Elt
+        when 'T : equality
+
+    /// Select box with time-varying option list.
+    val SelectDyn : seq<Attr> -> optionText: ('T -> string) -> options: View<list<'T>> -> IRef<'T> -> Elt
+        when 'T : equality
+
+    /// Select box where the first option returns None.
+    val SelectOptional : seq<Attr> -> noneText: string -> optionText: ('T -> string) -> options: list<'T> -> IRef<option<'T>> -> Elt
+        when 'T : equality
+
+    /// Select box with time-varying option list where the first option returns None.
+    val SelectDynOptional : seq<Attr> -> noneText: string -> optionText: ('T -> string) -> options: View<list<'T>> -> IRef<option<'T>> -> Elt
         when 'T : equality
 
     /// Radio button.

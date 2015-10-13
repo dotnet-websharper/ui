@@ -42,6 +42,12 @@ module Array =
                 re a b
         loop 0 a.Length
 
+module internal String =
+
+    [<JavaScript>]
+    let isBlank s =
+        String.forall Char.IsWhiteSpace s
+
 /// Abbreviations and small utilities for this assembly.
 [<AutoOpen>]
 module internal Abbrev =
@@ -200,8 +206,3 @@ module internal Abbrev =
                 JQueue.Add msg mail
                 start ()
             post
-
-    module AnimationFrame =
-
-        [<Inline "void (window.requestAnimationFrame($fn))">]
-        let Request (fn: double -> unit) = ()

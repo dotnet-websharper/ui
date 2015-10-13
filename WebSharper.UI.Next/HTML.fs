@@ -1073,7 +1073,11 @@ module Html =
 
     [<JavaScript>]
     type attr private () =
-        do ()
+
+        /// Create an HTML attribute "data-name" with the given value.
+        [<JavaScript; Inline>]
+        static member ``data-`` name value = Attr.Create ("data-" + name) value
+
         // {{ attr normal colliding deprecated
         /// Create an HTML attribute "accept" with the given value.
         [<JavaScript; Inline>]
@@ -1556,31 +1560,31 @@ module Html =
         /// Create a handler for the event "afterprint".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member afterprint (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "afterprint" f
+        static member afterPrint (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "afterprint" f
         /// Create a handler for the event "animationend".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member animationend (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "animationend" f
+        static member animationEnd (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "animationend" f
         /// Create a handler for the event "animationiteration".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member animationiteration (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "animationiteration" f
+        static member animationIteration (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "animationiteration" f
         /// Create a handler for the event "animationstart".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member animationstart (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "animationstart" f
+        static member animationStart (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "animationstart" f
         /// Create a handler for the event "audioprocess".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member audioprocess (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "audioprocess" f
+        static member audioProcess (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "audioprocess" f
         /// Create a handler for the event "beforeprint".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member beforeprint (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "beforeprint" f
+        static member beforePrint (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "beforeprint" f
         /// Create a handler for the event "beforeunload".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member beforeunload (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "beforeunload" f
+        static member beforeUnload (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "beforeunload" f
         /// Create a handler for the event "beginEvent".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
@@ -1600,11 +1604,11 @@ module Html =
         /// Create a handler for the event "canplay".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member canplay (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "canplay" f
+        static member canPlay (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "canplay" f
         /// Create a handler for the event "canplaythrough".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member canplaythrough (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "canplaythrough" f
+        static member canPlayThrough (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "canplaythrough" f
         /// Create a handler for the event "change".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
@@ -1612,11 +1616,11 @@ module Html =
         /// Create a handler for the event "chargingchange".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member chargingchange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "chargingchange" f
+        static member chargingChange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "chargingchange" f
         /// Create a handler for the event "chargingtimechange".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member chargingtimechange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "chargingtimechange" f
+        static member chargingTimeChange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "chargingtimechange" f
         /// Create a handler for the event "checking".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
@@ -1636,19 +1640,19 @@ module Html =
         /// Create a handler for the event "compositionend".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member compositionend (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.CompositionEvent -> unit>) = Attr.Handler "compositionend" f
+        static member compositionEnd (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.CompositionEvent -> unit>) = Attr.Handler "compositionend" f
         /// Create a handler for the event "compositionstart".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member compositionstart (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.CompositionEvent -> unit>) = Attr.Handler "compositionstart" f
+        static member compositionStart (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.CompositionEvent -> unit>) = Attr.Handler "compositionstart" f
         /// Create a handler for the event "compositionupdate".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member compositionupdate (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.CompositionEvent -> unit>) = Attr.Handler "compositionupdate" f
+        static member compositionUpdate (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.CompositionEvent -> unit>) = Attr.Handler "compositionupdate" f
         /// Create a handler for the event "contextmenu".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member contextmenu (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "contextmenu" f
+        static member contextMenu (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "contextmenu" f
         /// Create a handler for the event "copy".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
@@ -1660,27 +1664,27 @@ module Html =
         /// Create a handler for the event "dblclick".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member dblclick (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "dblclick" f
+        static member dblClick (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "dblclick" f
         /// Create a handler for the event "devicelight".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member devicelight (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "devicelight" f
+        static member deviceLight (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "devicelight" f
         /// Create a handler for the event "devicemotion".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member devicemotion (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "devicemotion" f
+        static member deviceMotion (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "devicemotion" f
         /// Create a handler for the event "deviceorientation".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member deviceorientation (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "deviceorientation" f
+        static member deviceOrientation (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "deviceorientation" f
         /// Create a handler for the event "deviceproximity".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member deviceproximity (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "deviceproximity" f
+        static member deviceProximity (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "deviceproximity" f
         /// Create a handler for the event "dischargingtimechange".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member dischargingtimechange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "dischargingtimechange" f
+        static member dischargingTimeChange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "dischargingtimechange" f
         /// Create a handler for the event "DOMActivate".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
@@ -1736,23 +1740,23 @@ module Html =
         /// Create a handler for the event "dragend".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member dragend (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "dragend" f
+        static member dragEnd (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "dragend" f
         /// Create a handler for the event "dragenter".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member dragenter (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "dragenter" f
+        static member dragEnter (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "dragenter" f
         /// Create a handler for the event "dragleave".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member dragleave (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "dragleave" f
+        static member dragLeave (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "dragleave" f
         /// Create a handler for the event "dragover".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member dragover (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "dragover" f
+        static member dragOver (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "dragover" f
         /// Create a handler for the event "dragstart".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member dragstart (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "dragstart" f
+        static member dragStart (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "dragstart" f
         /// Create a handler for the event "drop".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
@@ -1760,7 +1764,7 @@ module Html =
         /// Create a handler for the event "durationchange".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member durationchange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "durationchange" f
+        static member durationChange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "durationchange" f
         /// Create a handler for the event "emptied".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
@@ -1784,23 +1788,23 @@ module Html =
         /// Create a handler for the event "fullscreenchange".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member fullscreenchange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "fullscreenchange" f
+        static member fullScreenChange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "fullscreenchange" f
         /// Create a handler for the event "fullscreenerror".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member fullscreenerror (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "fullscreenerror" f
+        static member fullScreenError (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "fullscreenerror" f
         /// Create a handler for the event "gamepadconnected".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member gamepadconnected (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "gamepadconnected" f
+        static member gamepadConnected (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "gamepadconnected" f
         /// Create a handler for the event "gamepaddisconnected".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member gamepaddisconnected (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "gamepaddisconnected" f
+        static member gamepadDisconnected (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "gamepaddisconnected" f
         /// Create a handler for the event "hashchange".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member hashchange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "hashchange" f
+        static member hashChange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "hashchange" f
         /// Create a handler for the event "input".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
@@ -1812,23 +1816,23 @@ module Html =
         /// Create a handler for the event "keydown".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member keydown (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.KeyboardEvent -> unit>) = Attr.Handler "keydown" f
+        static member keyDown (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.KeyboardEvent -> unit>) = Attr.Handler "keydown" f
         /// Create a handler for the event "keypress".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member keypress (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.KeyboardEvent -> unit>) = Attr.Handler "keypress" f
+        static member keyPress (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.KeyboardEvent -> unit>) = Attr.Handler "keypress" f
         /// Create a handler for the event "keyup".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member keyup (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.KeyboardEvent -> unit>) = Attr.Handler "keyup" f
+        static member keyUp (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.KeyboardEvent -> unit>) = Attr.Handler "keyup" f
         /// Create a handler for the event "languagechange".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member languagechange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "languagechange" f
+        static member languageChange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "languagechange" f
         /// Create a handler for the event "levelchange".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member levelchange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "levelchange" f
+        static member levelChange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "levelchange" f
         /// Create a handler for the event "load".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
@@ -1836,19 +1840,19 @@ module Html =
         /// Create a handler for the event "loadeddata".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member loadeddata (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "loadeddata" f
+        static member loadedData (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "loadeddata" f
         /// Create a handler for the event "loadedmetadata".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member loadedmetadata (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "loadedmetadata" f
+        static member loadedMetadata (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "loadedmetadata" f
         /// Create a handler for the event "loadend".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member loadend (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "loadend" f
+        static member loadEnd (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "loadend" f
         /// Create a handler for the event "loadstart".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member loadstart (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "loadstart" f
+        static member loadStart (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "loadstart" f
         /// Create a handler for the event "message".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
@@ -1856,35 +1860,35 @@ module Html =
         /// Create a handler for the event "mousedown".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member mousedown (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "mousedown" f
+        static member mouseDown (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "mousedown" f
         /// Create a handler for the event "mouseenter".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member mouseenter (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "mouseenter" f
+        static member mouseEnter (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "mouseenter" f
         /// Create a handler for the event "mouseleave".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member mouseleave (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "mouseleave" f
+        static member mouseLeave (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "mouseleave" f
         /// Create a handler for the event "mousemove".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member mousemove (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "mousemove" f
+        static member mouseMove (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "mousemove" f
         /// Create a handler for the event "mouseout".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member mouseout (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "mouseout" f
+        static member mouseOut (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "mouseout" f
         /// Create a handler for the event "mouseover".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member mouseover (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "mouseover" f
+        static member mouseOver (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "mouseover" f
         /// Create a handler for the event "mouseup".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member mouseup (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "mouseup" f
+        static member mouseUp (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.MouseEvent -> unit>) = Attr.Handler "mouseup" f
         /// Create a handler for the event "noupdate".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member noupdate (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "noupdate" f
+        static member noUpdate (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "noupdate" f
         /// Create a handler for the event "obsolete".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
@@ -1904,15 +1908,15 @@ module Html =
         /// Create a handler for the event "orientationchange".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member orientationchange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "orientationchange" f
+        static member orientationChange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "orientationchange" f
         /// Create a handler for the event "pagehide".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member pagehide (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "pagehide" f
+        static member pageHide (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "pagehide" f
         /// Create a handler for the event "pageshow".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member pageshow (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "pageshow" f
+        static member pageShow (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "pageshow" f
         /// Create a handler for the event "paste".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
@@ -1932,15 +1936,15 @@ module Html =
         /// Create a handler for the event "pointerlockchange".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member pointerlockchange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "pointerlockchange" f
+        static member pointerLockChange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "pointerlockchange" f
         /// Create a handler for the event "pointerlockerror".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member pointerlockerror (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "pointerlockerror" f
+        static member pointerLockError (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "pointerlockerror" f
         /// Create a handler for the event "popstate".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member popstate (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "popstate" f
+        static member popState (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "popstate" f
         /// Create a handler for the event "progress".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
@@ -1948,11 +1952,11 @@ module Html =
         /// Create a handler for the event "ratechange".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member ratechange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "ratechange" f
+        static member rateChange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "ratechange" f
         /// Create a handler for the event "readystatechange".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member readystatechange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "readystatechange" f
+        static member readyStateChange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "readystatechange" f
         /// Create a handler for the event "repeatEvent".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
@@ -2036,39 +2040,39 @@ module Html =
         /// Create a handler for the event "timeout".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member timeout (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "timeout" f
+        static member timeOut (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "timeout" f
         /// Create a handler for the event "timeupdate".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member timeupdate (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "timeupdate" f
+        static member timeUpdate (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "timeupdate" f
         /// Create a handler for the event "touchcancel".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member touchcancel (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "touchcancel" f
+        static member touchCancel (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "touchcancel" f
         /// Create a handler for the event "touchend".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member touchend (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "touchend" f
+        static member touchEnd (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "touchend" f
         /// Create a handler for the event "touchenter".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member touchenter (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "touchenter" f
+        static member touchEnter (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "touchenter" f
         /// Create a handler for the event "touchleave".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member touchleave (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "touchleave" f
+        static member touchLeave (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "touchleave" f
         /// Create a handler for the event "touchmove".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member touchmove (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "touchmove" f
+        static member touchMove (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "touchmove" f
         /// Create a handler for the event "touchstart".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member touchstart (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "touchstart" f
+        static member touchStart (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "touchstart" f
         /// Create a handler for the event "transitionend".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member transitionend (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "transitionend" f
+        static member transitionEnd (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "transitionend" f
         /// Create a handler for the event "unload".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
@@ -2076,27 +2080,27 @@ module Html =
         /// Create a handler for the event "updateready".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member updateready (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "updateready" f
+        static member updateReady (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "updateready" f
         /// Create a handler for the event "upgradeneeded".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member upgradeneeded (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "upgradeneeded" f
+        static member upgradeNeeded (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "upgradeneeded" f
         /// Create a handler for the event "userproximity".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member userproximity (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "userproximity" f
+        static member userProximity (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "userproximity" f
         /// Create a handler for the event "versionchange".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member versionchange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "versionchange" f
+        static member versionChange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "versionchange" f
         /// Create a handler for the event "visibilitychange".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member visibilitychange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "visibilitychange" f
+        static member visibilityChange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "visibilitychange" f
         /// Create a handler for the event "volumechange".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]
-        static member volumechange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "volumechange" f
+        static member volumeChange (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.Event -> unit>) = Attr.Handler "volumechange" f
         /// Create a handler for the event "waiting".
         /// When called on the server side, the handler must be a top-level function or a static member.
         [<Inline>]

@@ -6,7 +6,7 @@
 </ul>
 <div>
     <p>
-        <input data-var="NewName" placeholder="Name" />
+        <input data-var="NewName" placeholder="Name" data-event-keyup="NameChanged" />
         <button data-event-click="NewItem">Add item</button>
     </p>
     <p><button data-event-click="SubmitItems">Submit items</button></p>
@@ -18,5 +18,5 @@
     <hr />
     <input data-var="MyInput" placeholder="Type here" />
     <button data-event-click="MyCallback">Click me!</button>
-    <div>You said: $!{MyInputView}</div>
+    <div><b>You</b> <b>said</b>: $!{MyInputView}</div>
 </div>

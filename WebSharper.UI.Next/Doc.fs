@@ -20,36 +20,136 @@
 
 namespace WebSharper.UI.Next
 
+open System.Web.UI
 open Microsoft.FSharp.Quotations
 open WebSharper
+open WebSharper.Web
 open WebSharper.JavaScript
 
 [<Interface>]
 type Doc =
     abstract ToDynDoc : DynDoc
+    abstract Write : Core.Metadata.Info * HtmlTextWriter * ?res: Sitelets.Content.RenderedResources -> unit
+    abstract HasNonScriptSpecialTags : bool
 
-    inherit Html.Client.IControlBody
+    inherit IControlBody
+
+    inherit INode
 
 and DynDoc =
     | AppendDoc of list<Doc>
-    | ElemDoc of tag: string * attrs: list<Attr> * children: list<Doc>
+    | ElemDoc of Elt
     | EmptyDoc
     | TextDoc of string
-    | ClientSideDoc of Expr<Html.Client.IControlBody>
+    | VerbatimDoc of string
+    | INodeDoc of INode
 
     interface Doc with
         member this.ToDynDoc = this
+        member this.Write(meta, w, ?res) =
+            match this with
+            | AppendDoc docs ->
+                docs |> List.iter (fun d -> d.Write(meta, w, ?res = res))
+            | ElemDoc elt ->
+                (elt :> Doc).Write(meta, w, ?res = res)
+            | EmptyDoc -> ()
+            | TextDoc t -> w.WriteEncodedText(t)
+            | VerbatimDoc t -> w.Write(t)
+            | INodeDoc d -> d.Write(meta, w)
+        member this.HasNonScriptSpecialTags =
+            match this with
+            | AppendDoc docs ->
+                docs |> List.exists (fun d -> d.HasNonScriptSpecialTags)
+            | ElemDoc elt ->
+                (elt :> Doc).HasNonScriptSpecialTags
+            | _ -> false
 
-    interface Html.Client.IControlBody with
+    interface IControlBody with
         member this.ReplaceInDom (node: Dom.Node) = X<unit>
 
-[<Sealed>]
-type Elt(tag: string, attrs: list<Attr>, children: list<Doc>) =
+    interface INode with
+        member this.IsAttribute = false
+
+        member this.Write(meta, w) =
+            (this :> Doc).Write(meta, w, ?res = None)
+
+    interface IRequiresResources with
+        member this.Encode(meta, json) =
+            match this with
+            | AppendDoc docs -> docs |> List.collect (fun d -> d.Encode(meta, json))
+            | INodeDoc c -> c.Encode(meta, json)
+            | ElemDoc elt -> (elt :> IRequiresResources).Encode(meta, json)
+            | _ -> []
+
+        member this.Requires =
+            match this with
+            | AppendDoc docs -> docs |> Seq.collect (fun d -> d.Requires)
+            | INodeDoc c -> (c :> IRequiresResources).Requires
+            | ElemDoc elt -> (elt :> IRequiresResources).Requires
+            | _ -> Seq.empty
+
+and [<Sealed>] Elt(tag: string, attrs: list<Attr>, children: list<Doc>) =
 
     interface Doc with
-        member this.ToDynDoc = ElemDoc(tag, attrs, children)
+        member this.ToDynDoc = ElemDoc this
 
-    interface WebSharper.Html.Client.IControlBody with
+        member this.Write(meta, w, ?res) =
+            let hole =
+                res |> Option.bind (fun res ->
+                    let rec findHole = function
+                        | Attr.SingleAttr (name, value) ->
+                            if (name = "data-replace" || name = "data-hole")
+                                && (value = "scripts" || value = "styles" || value = "meta") then
+                                Some (name, value, res)
+                            else None
+                        | Attr.AppendAttr attrs -> List.tryPick findHole attrs
+                        | Attr.DepAttr _ -> None
+                    List.tryPick findHole attrs
+                )
+            match hole with
+            | Some ("data-replace", name, res) -> w.Write(res.[name])
+            | Some ("data-hole", name, res) ->
+                w.WriteBeginTag(tag)
+                attrs |> List.iter (fun a -> a.Write(meta, w, true))
+                w.Write(HtmlTextWriter.TagRightChar)
+                w.Write(res.[name])
+                w.WriteEndTag(tag)
+            | Some _ -> () // can't happen
+            | None ->
+                w.WriteBeginTag(tag)
+                attrs |> List.iter (fun a -> a.Write(meta, w, false))
+                if List.isEmpty children && HtmlTextWriter.IsSelfClosingTag tag then
+                    w.Write(HtmlTextWriter.SelfClosingTagEnd)
+                else
+                    w.Write(HtmlTextWriter.TagRightChar)
+                    children |> List.iter (fun e -> e.Write(meta, w, ?res = res))
+                    w.WriteEndTag(tag)
+
+        member this.HasNonScriptSpecialTags =
+            let rec testAttr = function
+                | Attr.AppendAttr attrs -> List.exists testAttr attrs
+                | Attr.SingleAttr (("data-replace" | "data-hole"), ("styles" | "meta")) -> true
+                | Attr.SingleAttr _
+                | Attr.DepAttr _ -> false
+            (attrs |> List.exists testAttr)
+            || (children |> List.exists (fun d -> d.HasNonScriptSpecialTags))
+
+    interface INode with
+        member this.IsAttribute = false
+
+        member this.Write(meta, w) =
+            (this :> Doc).Write(meta, w, ?res = None)
+
+    interface IRequiresResources with
+        member this.Encode(meta, json) =
+            children |> List.collect (fun e -> (e :> IRequiresResources).Encode(meta, json))
+
+        member this.Requires =
+            Seq.append
+                (attrs |> Seq.collect (fun a -> (a :> IRequiresResources).Requires))
+                (children |> Seq.collect (fun e -> (e :> IRequiresResources).Requires))
+
+    interface IControlBody with
         member this.ReplaceInDom (node: Dom.Node) = X<unit>
 
     member this.On(ev, cb) =
@@ -353,5 +453,7 @@ module Doc =
 
     let TextNode t = TextDoc t :> Doc
 
-    let ClientSide (expr: Expr<#Html.Client.IControlBody>) =
-        ClientSideDoc <@ %expr :> Html.Client.IControlBody @> :> Doc
+    let ClientSide (expr: Expr<#IControlBody>) =
+        INodeDoc (new Web.InlineControl<_>(<@ %expr :> IControlBody @>)) :> Doc
+
+    let Verbatim t = VerbatimDoc t :> Doc

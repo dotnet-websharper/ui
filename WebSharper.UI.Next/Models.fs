@@ -255,7 +255,7 @@ and [<JavaScript>]
             m.UpdateBy (fun i -> Some (update i (f (get i)))) key
 
         member r.UpdateMaybe(f) =
-            m.UpdateBy (fun i -> f (get i) |> Option.map (update i)) key
+            m.UpdateBy (fun i -> Option.map (update i) (f (get i))) key
 
         member r.View =
             m.FindByKeyAsView(key)

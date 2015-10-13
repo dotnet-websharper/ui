@@ -20,64 +20,39 @@
 
 namespace WebSharper.UI.Next.Server
 
+open System
 open WebSharper.UI.Next
-open WebSharper.Html.Server
 
 module Doc =
-    module m = WebSharper.Html.Server.Tags
 
-    let rec AsElements (doc: Doc) =
-        match doc.ToDynDoc with
-        | AppendDoc docs -> List.collect AsElements docs
-        | ElemDoc (name, attrs, children) ->
-            [
-                Html.TagContent {
-                    Name = name
-                    Attributes = List.collect Attr.AsAttributes attrs
-                    Contents = List.collect AsElements children
-                    Annotation = None
-                }
-            ]
-        | EmptyDoc -> []
-        | TextDoc t -> [Html.TextContent t]
-        | ClientSideDoc q ->
-            let e =
-                match (WebSharper.WebExtensions.ClientSide q :> Html.INode).Node with
-                | Html.Node.ContentNode e -> e
-                | Html.Node.AttributeNode _ -> failwith "Unexpected attribute"
-            [e]
+    let WebControl (c: WebSharper.Web.INode) =
+        INodeDoc c :> Doc
 
 [<AutoOpen>]
 module Extensions =
     open WebSharper.Sitelets
-
-    let rec AsContent (doc: Doc) =
-        let els = Doc.AsElements doc
-        // Do we have an HTML document?
-        // 1. <html>...</html>
-        match els with
-        | [Element.TagContent { Name = name } as e] when name.ToLowerInvariant() = "html" ->
-            let tpl = WebSharper.Sitelets.Content.Template.FromHtmlElement(e)
-            Content.WithTemplate tpl ()
-        // No, so return the fragement as a full document with it as the body
-        | els ->
-            Content.Page(Body = els)
+    open WebSharper.Sitelets.Content
 
     type Content<'Action> with
-        static member Doc doc : Async<Content<'Action>> =
-            AsContent doc
 
-        static member Doc (?Body: #seq<Doc>, ?Head: #seq<Doc>, ?Title: string, ?Doctype: string) =
-            Content.Page(
-                Body =
-                    (match Body with
-                    | Some h -> Seq.collect Doc.AsElements h
-                    | None -> Seq.empty),
-                ?Doctype = Doctype,
-                Head =
-                    (match Head with
-                    | Some h -> Seq.collect Doc.AsElements h
-                    | None -> Seq.empty),
-                ?Title = Title
-            )
+        static member Page (doc: Doc) : Async<Content<'Action>> =
+            let hasNonScriptSpecialTags = doc.HasNonScriptSpecialTags
+            Content.FromContext <| fun ctx ->
+                let env = Env.Create ctx
+                let res =
+                    if hasNonScriptSpecialTags then
+                        env.GetSeparateResourcesAndScripts [doc]
+                    else
+                        { Scripts = env.GetResourcesAndScripts [doc]; Styles = ""; Meta = "" }
+                Content.Custom(
+                    Status = Http.Status.Ok,
+                    Headers = [Http.Header.Custom "Content-Type" "text/html; charset=utf-8"],
+                    WriteBody = fun s ->
+                        use w = new System.IO.StreamWriter(s)
+                        use w = new System.Web.UI.HtmlTextWriter(w)
+                        w.WriteLine("<!DOCTYPE html>")
+                        doc.Write(ctx.Metadata, w, res)
+                )
 
+        static member Doc (doc: Doc) : Async<Content<'Action>> =
+            Content<'Action>.Page doc

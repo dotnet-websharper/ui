@@ -22,6 +22,7 @@
     <Compile Include="Utility\DomUtility.fs" />
     <Compile Include="Utility\Trie.fsi" />
     <Compile Include="Utility\Trie.fs" />
+    <Compile Include="Utility\Resources.fs" />
     <Compile Include="Snap.fsi" />
     <Compile Include="Snap.fs" />
     <Compile Include="Reactive.fsi" />
@@ -49,5 +50,6 @@
     <Content Include="SVG.fs" />
     <Compile Include="Input.fsi" />
     <Compile Include="Input.fs" />
+    <EmbeddedResource Include="h5f.js" />
   </ItemGroup>
 </Project>

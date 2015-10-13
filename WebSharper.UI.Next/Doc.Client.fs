@@ -1,4 +1,3 @@
-
 namespace WebSharper.UI.Next.Client
 
 open WebSharper
@@ -6,9 +5,6 @@ open WebSharper.JavaScript
 open WebSharper.UI.Next
 
 module DU = DomUtility
-type Pagelet = WebSharper.Html.Client.Pagelet
-module HTMLTags = WebSharper.Html.Client.Tags
-module HTMLAttr = WebSharper.Html.Client.Attr
 
 [<JavaScript>]
 type DocNode =
@@ -30,6 +26,8 @@ and [<CustomEquality>]
         Delimiters : (Node * Node) option
         El : Element
         ElKey : int
+        [<OptionalField>]
+        mutable Render : option<Dom.Element -> unit>
     }
 
     override this.Equals(o: obj) =
@@ -159,6 +157,9 @@ module Docs =
         Attrs.Sync el.El el.Attr
         if hasDirtyChildren el then
             DoSyncElement el
+        match el.Render with
+        | None -> ()
+        | Some f -> f el.El; el.Render <- None
 
     /// Links an element to children by inserting them.
     [<MethodImpl(MethodImplOptions.NoInlining)>]
@@ -241,24 +242,28 @@ module Docs =
     /// Creates an element node.
     let CreateElemNode el attr children =
         LinkElement el children
+        let attr = Attrs.Insert el attr
         {
-            Attr = Attrs.Insert el attr
+            Attr = attr
             Children = children
             Delimiters = None
             El = el
             ElKey = Fresh.Int ()
+            Render = Attrs.GetOnAfterRender attr
         }
 
     /// Creates an element node that handles a delimited subset of its children.
     let CreateDelimitedElemNode (ldelim: Node) (rdelim: Node) attr children =
         let el = ldelim.ParentNode :?> _
         LinkPrevElement rdelim children
+        let attr = Attrs.Insert el attr
         {
-            Attr = Attrs.Insert el attr
+            Attr = attr
             Children = children
             Delimiters = Some (ldelim, rdelim)
             El = el
             ElKey = Fresh.Int ()
+            Render = Attrs.GetOnAfterRender attr
         }
 
     /// Creates a new RunState.
@@ -343,70 +348,102 @@ module Docs =
         n.Value <- t
         n.Dirty <- true
 
+[<JavaScript>]
+type CheckedInput<'T> =
+    | Valid of value: 'T * inputText: string
+    | Invalid of inputText: string
+    | Blank of inputText: string
+
+    member this.Input =
+        match this with
+        | Valid (_, x)
+        | Invalid x
+        | Blank x -> x
+
 // We implement the Doc class proxy, the Doc module proxy and the Client.Doc module proxy
 // all in this so that it all neatly looks like Doc.* in javascript.
-type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
-    Doc'(docNode, updates) =
+type [<Proxy(typeof<Doc>); CompiledName "Doc">]
+    Doc' [<JavaScript>] (docNode, updates) =
 
-    [<Inline "$this.docNode">]
+    [<JavaScript; Inline "$this.docNode">]
     member this.DocNode = docNode
-    [<Inline "$this.updates">]
+    [<JavaScript; Inline "$this.updates">]
     member this.Updates = updates
 
     interface Doc with
         member this.ToDynDoc = Unchecked.defaultof<_>
+        member this.Write(_, _) = ()
+        member this.HasNonScriptSpecialTags = false
+        member this.Write(_, _, _) = ()
+        member this.IsAttribute = false
+        member this.Encode(_, _) = []
+        member this.Requires = Seq.empty
 
-    interface WebSharper.Html.Client.IControlBody with
+    interface IControlBody with
 
+        [<JavaScript>]
         member this.ReplaceInDom(elt) =
             // Insert empty text nodes that will serve as delimiters for the Doc.
-            let ldelim = JS.Document.CreateTextNode ""
             let rdelim = JS.Document.CreateTextNode ""
-            let parent = elt.ParentNode
-            parent.ReplaceChild(rdelim, elt) |> ignore
-            parent.InsertBefore(ldelim, rdelim) |> ignore
-            Docs.LinkPrevElement rdelim docNode
-            let st = Docs.CreateDelimitedRunState ldelim rdelim docNode
-            let p = Mailbox.StartProcessor (fun () -> Docs.PerformAnimatedUpdate st docNode)
-            View.Sink p updates
+            elt.ParentNode.ReplaceChild(rdelim, elt) |> ignore
+            Doc'.RunBefore rdelim this
 
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    [<JavaScript; MethodImpl(MethodImplOptions.NoInlining)>]
     static member Mk node updates =
         Doc'(node, updates)
 
+    [<JavaScript>]
     static member Append (a: Doc') (b: Doc') =
         (a.Updates, b.Updates)
         ||> View.Map2 (fun () () -> ())
         |> Doc'.Mk (AppendDoc (a.DocNode, b.DocNode))
 
+    [<JavaScript>]
     static member Concat xs =
         Seq.toArray xs
         |> Array.MapReduce (fun x -> x) Doc'.Empty Doc'.Append
 
+    [<JavaScript>]
     static member Empty
         with [<MethodImpl(MethodImplOptions.NoInlining)>] get () =
             Doc'.Mk EmptyDoc (View.Const ())
 
-    [<Inline>]
+    [<JavaScript; Inline>]
     static member Elem el attr (children: Doc') =
         As<Elt> (Elt'.New(el, attr, children))
 
+    [<JavaScript>]
     static member Element name attr children =
         let attr = Attr.Concat attr
         let children = Doc'.Concat children
         Doc'.Elem (DU.CreateElement name) attr children
 
+    [<JavaScript>]
     static member SvgElement name attr children =
         let attr = Attr.Concat attr
         let children = Doc'.Concat children
         Doc'.Elem (DU.CreateSvgElement name) attr children
 
+    [<JavaScript>]
     static member TextNode v =
         Doc'.Mk (TextNodeDoc (DU.CreateText v)) (View.Const ())
 
+    [<JavaScript>]
     static member Static el : Elt =
         Doc'.Elem el Attr.Empty Doc'.Empty
 
+    [<JavaScript>]
+    static member Verbatim html =
+        let a =
+            match JQuery.JQuery.ParseHTML html with
+            | null -> [||]
+            | a -> a
+        let elem e = ElemDoc (Docs.CreateElemNode e Attr.Empty EmptyDoc)
+        let append x y = AppendDoc (x, y)
+        let es = Array.MapReduce elem EmptyDoc append a
+        Doc'.Mk es (View.Const ())
+
+    [<JavaScript>]
     static member EmbedView (view: View<Doc'>) =
         let node = Docs.CreateEmbedNode ()
         view
@@ -416,9 +453,66 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
         |> View.Map ignore
         |> Doc'.Mk (EmbedDoc node)
 
+    [<JavaScript>]
     static member BindView (f: 'T -> Doc') (view: View<'T>) =
         Doc'.EmbedView (View.Map f view)
 
+    [<JavaScript>]
+    static member RunBetween ldelim rdelim (doc: Doc') =
+        Docs.LinkPrevElement rdelim doc.DocNode
+        let st = Docs.CreateDelimitedRunState ldelim rdelim doc.DocNode
+        let p = Mailbox.StartProcessor (fun () -> Docs.PerformAnimatedUpdate st doc.DocNode)
+        View.Sink p doc.Updates
+
+    [<JavaScript>]
+    static member RunBefore (rdelim: Dom.Node) (doc: Doc') =
+        let ldelim = JS.Document.CreateTextNode("")
+        rdelim.ParentNode.InsertBefore(ldelim, rdelim) |> ignore
+        Doc'.RunBetween ldelim rdelim doc
+
+    [<JavaScript>]
+    static member RunBeforeById id doc =
+        match DU.Doc.GetElementById(id) with
+        | null -> failwith ("invalid id: " + id)
+        | el -> Doc'.RunBefore el doc
+
+    [<JavaScript>]
+    static member RunAfter (ldelim : Dom.Node) (doc: Doc') =
+        let rdelim = JS.Document.CreateTextNode("")
+        ldelim.ParentNode.InsertBefore(rdelim, ldelim.NextSibling) |> ignore
+        Doc'.RunBetween ldelim rdelim doc
+
+    [<JavaScript>]
+    static member RunAfterById id doc =
+        match DU.Doc.GetElementById(id) with
+        | null -> failwith ("invalid id: " + id)
+        | el -> Doc'.RunAfter el doc
+
+    [<JavaScript>]
+    static member RunAppend (parent: Dom.Element) (doc: Doc') =
+        let rdelim = JS.Document.CreateTextNode ""
+        parent.AppendChild(rdelim) |> ignore
+        Doc'.RunBefore rdelim doc
+
+    [<JavaScript>]
+    static member RunAppendById id doc =
+        match DU.Doc.GetElementById(id) with
+        | null -> failwith ("invalid id: " + id)
+        | el -> Doc'.RunAppend el doc
+
+    [<JavaScript>]
+    static member RunPrepend (parent: Dom.Element) (doc: Doc') =
+        let rdelim = JS.Document.CreateTextNode ""
+        parent.InsertBefore(rdelim, parent.FirstChild) |> ignore
+        Doc'.RunBefore rdelim doc
+
+    [<JavaScript>]
+    static member RunPrependById id doc =
+        match DU.Doc.GetElementById(id) with
+        | null -> failwith ("invalid id: " + id)
+        | el -> Doc'.RunPrepend el doc
+
+    [<JavaScript>]
     static member Run parent (doc: Doc') =
         let d = doc.DocNode
         Docs.LinkElement parent d
@@ -426,81 +520,137 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
         let p = Mailbox.StartProcessor (fun () -> Docs.PerformAnimatedUpdate st d)
         View.Sink p doc.Updates
 
+    [<JavaScript>]
     static member RunById id tr =
         match DU.Doc.GetElementById(id) with
         | null -> failwith ("invalid id: " + id)
         | el -> Doc'.Run el tr
 
-    static member AsPagelet doc =
-        new UINextPagelet (doc) :> Pagelet
-
+    [<JavaScript>]
     static member TextView txt =
         let node = Docs.CreateTextNode ()
         txt
         |> View.Map (Docs.UpdateTextNode node)
         |> Doc'.Mk (TextDoc node)
 
+    [<JavaScript>]
     static member Flatten view =
         view
         |> View.Map Doc'.Concat
         |> Doc'.EmbedView
 
+    [<JavaScript>]
     static member Convert render view =
         View.Convert render view |> Doc'.Flatten
 
+    [<JavaScript>]
     static member ConvertBy key render view =
         View.ConvertBy key render view |> Doc'.Flatten
 
+    [<JavaScript>]
     static member ConvertSeq render view =
         View.ConvertSeq render view |> Doc'.Flatten
 
+    [<JavaScript>]
     static member ConvertSeqBy key render view =
         View.ConvertSeqBy key (As render) view |> Doc'.Flatten
 
-    static member InputInternal attr (value : Attr) inputTy =
-        let (attrN, elemTy) =
-            match inputTy with
-            | SimpleInputBox -> (Attr.Concat attr, "input")
-            | TypedInputBox ``type`` ->
-                let atType = Attr.Create "type" ``type``
-                (Attr.Concat attr |> Attr.Append atType, "input")
-            | TextArea -> (Attr.Concat attr, "textarea")
+    [<JavaScript>]
+    static member InputInternal elemTy attr =
         let el = DU.CreateElement elemTy
-        Doc'.Elem el (Attr.Append attrN value) Doc'.Empty
+        Doc'.Elem el (Attr.Concat (attr el)) Doc'.Empty
 
+    [<JavaScript>]
     static member Input attr (var: IRef<string>) =
-        Doc'.InputInternal attr (Attr.Value var) SimpleInputBox
+        Doc'.InputInternal "input" (fun _ ->
+            Seq.append attr [| Attr.Value var |])
 
+    [<JavaScript>]
     static member PasswordBox attr (var: IRef<string>) =
-        Doc'.InputInternal attr (Attr.Value var) (TypedInputBox "password")
+        Doc'.InputInternal "input" (fun _ ->
+            Seq.append attr [|
+                Attr.Value var
+                Attr.Create "type" "password"
+            |])
 
-    static member IntInput attr (var: IRef<int>) =
-        let parseInt s =
-            let pd = JS.ParseInt(s, 10)
-            if JS.IsNaN pd then None
-            else Some pd
-        Doc'.InputInternal attr (Attr.CustomValue var string parseInt) (TypedInputBox "number")
+    [<JavaScript>]
+    static member IntInputUnchecked attr (var: IRef<int>) =
+        let parseInt (s: string) =
+            if String.isBlank s then Some 0 else
+            let pd : int = JS.Plus s
+            if pd !==. (pd >>. 0) then None else Some pd
+        Doc'.InputInternal "input" (fun _ ->
+            Seq.append attr [|
+                (if var.Get() = 0 then Attr.Create "value" "0" else Attr.Empty)
+                Attr.CustomValue var string parseInt
+                Attr.Create "type" "number"
+                Attr.Create "step" "1"
+            |])
 
-    static member FloatInput attr (var: IRef<float>) =
-        let parseFloat s =
-            let pd = JS.ParseFloat(s)
-            if JS.IsNaN pd then None
-            else Some pd
-        Doc'.InputInternal attr (Attr.CustomValue var string parseFloat) (TypedInputBox "number")
+    [<JavaScript; Inline "$e.checkValidity?$e.checkValidity():true">]
+    static member CheckValidity (e: Dom.Element) = X<bool>
 
+    [<JavaScript>]
+    static member IntInput attr (var: IRef<CheckedInput<int>>) =
+        let parseCheckedInt (el: Dom.Element) (s: string) : option<CheckedInput<int>> =
+            if String.isBlank s then
+                if Doc'.CheckValidity el then Blank s else Invalid s
+            else
+                let i = JS.Plus s
+                if JS.IsNaN i then Invalid s else Valid (i, s)
+            |> Some
+        Doc'.InputInternal "input" (fun el ->
+            Seq.append attr [|
+                Attr.CustomValue var (fun i -> i.Input) (parseCheckedInt el)
+                Attr.Create "type" "number"
+                Attr.Create "step" "1"
+            |])
+
+    [<JavaScript>]
+    static member FloatInputUnchecked attr (var: IRef<float>) =
+        let parseFloat (s: string) =
+            if String.isBlank s then Some 0. else
+            let pd : float = JS.Plus s
+            if JS.IsNaN pd then None else Some pd
+        Doc'.InputInternal "input" (fun _ ->
+            Seq.append attr [|
+                (if var.Get() = 0. then Attr.Create "value" "0" else Attr.Empty)
+                Attr.CustomValue var string parseFloat
+                Attr.Create "type" "number"
+            |])
+
+    [<JavaScript>]
+    static member FloatInput attr (var: IRef<CheckedInput<float>>) =
+        let parseCheckedFloat (el: Dom.Element) (s: string) : option<CheckedInput<float>> =
+            if String.isBlank s then
+                if Doc'.CheckValidity el then Blank s else Invalid s
+            else
+                let i = JS.Plus s
+                if JS.IsNaN i then Invalid s else Valid (i, s)
+            |> Some
+        Doc'.InputInternal "input" (fun el ->
+            Seq.append attr [|
+                Attr.CustomValue var (fun i -> i.Input) (parseCheckedFloat el)
+                Attr.Create "type" "number"
+            |])
+
+    [<JavaScript>]
     static member InputArea attr (var: IRef<string>) =
-        Doc'.InputInternal attr (Attr.Value var) TextArea
+        Doc'.InputInternal "textarea" (fun _ ->
+            Seq.append attr [| Attr.Value var |])
 
-    static member Select attrs (show: 'T -> string) (options: list<'T>) (current: IRef<'T>) =
+    [<JavaScript>]
+    static member SelectDyn attrs (show: 'T -> string) (vOptions: View<list<'T>>) (current: IRef<'T>) =
+        let options = ref []
         let getIndex (el: Element) =
             el?selectedIndex : int
         let setIndex (el: Element) (i: int) =
             el?selectedIndex <- i
         let getSelectedItem el =
             let i = getIndex el
-            options.[i]
+            (!options).[i]
         let itemIndex x =
-            List.findIndex ((=) x) options
+            List.findIndex ((=) x) !options
         let setSelectedItem (el: Element) item =
             setIndex el (itemIndex item)
         let el = DU.CreateElement "select"
@@ -508,17 +658,45 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
             current.View
             |> Attr.DynamicCustom setSelectedItem
         let onChange (x: DomEvent) =
-            current.Set (getSelectedItem el)
+            current.UpdateMaybe(fun x ->
+                let y = getSelectedItem el
+                if x = y then None else Some y
+            )
         el.AddEventListener("change", onChange, false)
         let optionElements =
-            Doc.Concat (
-                options
-                |> List.mapi (fun i o ->
-                    let t = Doc.TextNode (show o)
-                    Doc.Element "option" [Attr.Create "value" (string i)] [t] :> _)
+            vOptions
+            |> View.Map (fun l ->
+                options := l
+                l |> Seq.mapi (fun i x -> i, x)
+            )
+            |> Doc'.Convert (fun (i, o) ->
+                let t = Doc.TextNode (show o)
+                As<Doc'> (
+                    Doc.Element "option" [
+                        Attr.Create "value" (string i)
+                    ] [t])
             )
         Doc'.Elem el (Attr.Concat attrs |> Attr.Append selectedItemAttr) (As optionElements)
 
+    [<JavaScript>]
+    static member Select attrs show options current =
+        Doc'.SelectDyn attrs show (View.Const options) current
+
+    [<JavaScript>]
+    static member SelectOptional attrs noneText show options current =
+        Doc'.Select attrs
+            (function None -> noneText | Some x -> show x)
+            (None :: List.map Some options)
+            current
+
+    [<JavaScript>]
+    static member SelectDynOptional attrs noneText show vOptions current =
+        Doc'.SelectDyn attrs
+            (function None -> noneText | Some x -> show x)
+            (vOptions |> View.Map (fun options -> None :: List.map Some options))
+            current
+
+    [<JavaScript>]
     static member CheckBox attrs (chk: IRef<bool>) =
         let el = DU.CreateElement "input"
         let onClick (x: DomEvent) =
@@ -532,6 +710,7 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
             ]
         Doc'.Elem el attrs Doc'.Empty
 
+    [<JavaScript>]
     static member CheckBoxGroup attrs (item: 'T) (chk: IRef<list<'T>>) =
         // Create RView for the list of checked items
         let rvi = chk.View
@@ -561,6 +740,7 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
 
         Doc'.Elem el attrs Doc'.Empty
 
+    [<JavaScript>]
     static member Clickable elem action =
         let el = DU.CreateElement elem
         el.AddEventListener("click", (fun (ev: DomEvent) ->
@@ -568,26 +748,31 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
             action ()), false)
         el
 
+    [<JavaScript>]
     static member Button caption attrs action =
         let attrs = Attr.Concat attrs
         let el = Doc'.Clickable "button" action
         Doc'.Elem el attrs (As (Doc.TextNode caption))
 
+    [<JavaScript>]
     static member ButtonView caption attrs view action =
         let evAttr = Attr.HandlerView "click" view (fun _ _ -> action)
         let attrs = Attr.Concat (Seq.append [|evAttr|] attrs)
         Doc'.Elem (DU.CreateElement "button") attrs (As (Doc.TextNode caption))
 
+    [<JavaScript>]
     static member Link caption attrs action =
         let attrs = Attr.Concat attrs |> Attr.Append (Attr.Create "href" "#")
         let el = Doc'.Clickable "a" action
         Doc'.Elem el attrs (As (Doc.TextNode caption))
 
+    [<JavaScript>]
     static member LinkView caption attrs view action =
         let evAttr = Attr.HandlerView "click" view (fun _ _ -> action)
         let attrs = Attr.Concat (Seq.append [|evAttr; Attr.Create "href" "#"|] attrs)
         Doc'.Elem (DU.CreateElement "a") attrs (As (Doc.TextNode caption))
 
+    [<JavaScript>]
     static member Radio attrs value (var: IRef<_>) =
         // Radio buttons work by taking a common var, which is given a unique ID.
         // This ID is serialised and used as the name, giving us the "grouping"
@@ -604,12 +789,6 @@ type [<JavaScript; Proxy(typeof<Doc>); CompiledName "Doc">]
                 valAttr
             ] @ (List.ofSeq attrs) |> Attr.Concat
         Doc'.Elem el attr Doc'.Empty
-
-/// Types of input box
-and InputControlType =
-    | SimpleInputBox
-    | TypedInputBox of ``type``: string
-    | TextArea
 
 and [<JavaScript; Proxy(typeof<Elt>); CompiledName "Elt">]
     Elt'(docNode, updates, elt: Dom.Element, rvUpdates: Var<View<unit>>, attrUpdates) =
@@ -632,6 +811,13 @@ and [<JavaScript; Proxy(typeof<Elt>); CompiledName "Elt">]
     [<Name "On"; Inline>]
     member this.onExpr (ev: string, cb: Microsoft.FSharp.Quotations.Expr<Dom.Element -> #Dom.Event -> unit>) =
         this.on (ev, As<_ -> _ -> _> cb)
+
+    member this.OnAfterRender (cb: Dom.Element -> unit) =
+        this.DocElemNode.Render <-
+            match this.DocElemNode.Render with
+            | None -> Some cb
+            | Some f -> Some (fun el -> f el; cb el)
+        this
 
     member private this.DocElemNode =
         match docNode with
@@ -730,17 +916,18 @@ and [<JavaScript; Proxy(typeof<Elt>); CompiledName "Elt">]
     member this.SetStyle'(style: string, value: string) =
         elt?style?(style) <- value
 
-// Creates a UI.Next pagelet
-and [<JavaScript>] UINextPagelet (doc: Doc') =
-    inherit Pagelet()
-    let divId = Fresh.Id ()
-    let body = (HTMLTags.Div [HTMLAttr.Id divId]).Body
-    override pg.Body = body
-    override pg.Render () =
-        Doc'.RunById divId doc
-
 [<AutoOpen; JavaScript>]
 module EltExtensions =
+
+    type Doc with
+
+        [<Inline>]
+        member this.RunById(id) =
+            Doc'.RunById id (As<Doc'> this)
+
+        [<Inline>]
+        member this.Run(elt) =
+            Doc'.Run elt (As<Doc'> this)
 
     type Elt with
 
@@ -763,6 +950,10 @@ module EltExtensions =
         [<Inline>]
         member this.On(event, cb: Dom.Element -> Dom.Event -> unit) =
             As<Elt> ((As<Elt'> this).on(event, cb))
+
+        [<Inline>]
+        member this.OnAfterRender(cb: Dom.Element -> unit) =
+            As<Elt> ((As<Elt'> this).OnAfterRender(cb))
 
         // {{ event
         [<Inline>]
@@ -1129,8 +1320,12 @@ type DocExtProxy =
 
     // TODO: what if it's not a Doc but (eg) an Html.Client.Element ?
     [<Inline>]
-    static member ClientSide (expr: Microsoft.FSharp.Quotations.Expr<#WebSharper.Html.Client.IControlBody>) =
+    static member ClientSide (expr: Microsoft.FSharp.Quotations.Expr<#IControlBody>) =
         As<Doc> expr
+
+    [<Inline>]
+    static member Verbatim (html: string) : Doc =
+        As (Doc'.Verbatim html)
 
 [<JavaScript; CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Doc =
@@ -1156,8 +1351,36 @@ module Doc =
         Doc'.RunById id (As tr)
 
     [<Inline>]
-    let AsPagelet (doc: Doc) =
-        Doc'.AsPagelet (As doc)
+    let RunBefore parent (doc: Doc) =
+        Doc'.RunBefore parent (As doc)
+
+    [<Inline>]
+    let RunBeforeById id (tr: Doc) =
+        Doc'.RunBeforeById id (As tr)
+
+    [<Inline>]
+    let RunAfter parent (doc: Doc) =
+        Doc'.RunAfter parent (As doc)
+
+    [<Inline>]
+    let RunAfterById id (tr: Doc) =
+        Doc'.RunAfterById id (As tr)
+
+    [<Inline>]
+    let RunAppend parent (doc: Doc) =
+        Doc'.RunAppend parent (As doc)
+
+    [<Inline>]
+    let RunAppendById id (tr: Doc) =
+        Doc'.RunAppendById id (As tr)
+
+    [<Inline>]
+    let RunPrepend parent (doc: Doc) =
+        Doc'.RunPrepend parent (As doc)
+
+    [<Inline>]
+    let RunPrependById id (tr: Doc) =
+        Doc'.RunPrependById id (As tr)
 
     [<Inline>]
     let TextView txt : Doc =
@@ -1196,8 +1419,16 @@ module Doc =
         Doc'.IntInput attr var
 
     [<Inline>]
+    let IntInputUnchecked attr var =
+        Doc'.IntInputUnchecked attr var
+
+    [<Inline>]
     let FloatInput attr var =
         Doc'.FloatInput attr var
+
+    [<Inline>]
+    let FloatInputUnchecked attr var =
+        Doc'.FloatInputUnchecked attr var
 
     [<Inline>]
     let InputArea attr var =
@@ -1206,6 +1437,18 @@ module Doc =
     [<Inline>]
     let Select attrs show options current =
         Doc'.Select attrs show options current
+
+    [<Inline>]
+    let SelectDyn attrs show options current =
+        Doc'.SelectDyn attrs show options current
+
+    [<Inline>]
+    let SelectOptional attrs noneText show options current =
+        Doc'.SelectOptional attrs noneText show options current
+
+    [<Inline>]
+    let SelectDynOptional attrs noneText show options current =
+        Doc'.SelectDynOptional attrs noneText show options current
 
     [<Inline>]
     let CheckBox attrs chk =
