@@ -20,6 +20,7 @@
 
 namespace WebSharper.UI.Next
 
+open System.Runtime.CompilerServices
 open WebSharper
 
 type IRef<'T> =
@@ -302,6 +303,49 @@ type Var<'T> with
         with [<Inline>] get () = Var.Get v
         and [<Inline>] set value = Var.Set v value
 
+// These methods apply to any View<'A>, so we can use `type View with`
+// and they'll be compiled as normal instance methods on View<'A>.
+type View<'A> with
+
+    [<JavaScript; Inline>]
+    member v.Map f = View.Map f v
+
+    [<JavaScript; Inline>]
+    member v.MapAsync f = View.MapAsync f v
+
+    [<JavaScript; Inline>]
+    member v.Bind f = View.Bind f v
+
+    [<JavaScript; Inline>]
+    member v.SnapshotOn init v' = View.SnapshotOn init v' v
+
+    [<JavaScript; Inline>]
+    member v.UpdateWhile init vPred = View.UpdateWhile init vPred v
+
+// These methods apply to specific types of View (such as View<seq<'A>> when 'A : equality)
+/// so we need to use C#-style extension methods.
+[<Extension; JavaScript>]
+type ReactiveExtensions() =
+
+    [<Extension; Inline>]
+    static member MapCached (v, f) = View.MapCached f v
+
+    [<Extension; Inline>]
+    static member Convert<'A, 'B when 'A : equality>
+        (v: View<seq<'A>>, f: 'A -> 'B) = View.Convert f v
+
+    [<Extension; Inline>]
+    static member ConvertBy<'A, 'B, 'K when 'K : equality>
+        (v: View<seq<'A>>, k: 'A -> 'K, f: 'A -> 'B) = View.ConvertBy k f v
+
+    [<Extension; Inline>]
+    static member ConvertSeq<'A, 'B when 'A : equality>
+        (v: View<seq<'A>>, f: View<'A> -> 'B) = View.ConvertSeq f v
+
+    [<Extension; Inline>]
+    static member ConvertSeqBy<'A, 'B, 'K when 'K : equality>
+        (v: View<seq<'A>>, k: 'A -> 'K, f: 'K -> View<'A> -> 'B) = View.ConvertSeqBy k f v
+
 [<AutoOpen>]
 module IRefExtension =
 
@@ -310,14 +354,6 @@ module IRefExtension =
         [<JavaScript; Inline>]
         member iref.Lens get update =
             Var.Lens iref get update
-
-type View<'T> with
-
-    [<JavaScript; Inline>]
-    member v.Map f = View.Map f v
-
-    [<JavaScript; Inline>]
-    member v.Bind f = View.Bind f v
 
 type ViewBuilder =
     | B
@@ -357,3 +393,6 @@ type Submitter =
 
     static member Input (s: Submitter<_>) =
         s.Input
+
+[<assembly:System.Runtime.CompilerServices.Extension>]
+do ()

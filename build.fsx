@@ -5,6 +5,7 @@ let bt =
     BuildTool().PackageId("WebSharper.UI.Next")
         .VersionFrom("WebSharper")
         .WithFramework(fun fw -> fw.Net40)
+        .WithFSharpVersion(FSharpVersion.FSharp30)
 
 let main =
     bt.WebSharper.Library("WebSharper.UI.Next")
@@ -22,7 +23,8 @@ let tmpl =
             ])
 
 let test = 
-    bt.WebSharper.BundleWebsite("WebSharper.UI.Next.Tests")        
+    bt.WithFSharpVersion(FSharpVersion.FSharp31)
+        .WebSharper.BundleWebsite("WebSharper.UI.Next.Tests")
         .SourcesFromProject()
         .References(fun r ->
             [

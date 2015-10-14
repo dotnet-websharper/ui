@@ -1,5 +1,6 @@
 namespace WebSharper.UI.Next.Client
 
+open System.Runtime.CompilerServices
 open WebSharper
 open WebSharper.JavaScript
 open WebSharper.UI.Next
@@ -1477,3 +1478,21 @@ module Doc =
     [<Inline>]
     let Radio attrs value var =
         Doc'.Radio attrs value var
+
+[<Extension; JavaScript>]
+type DocExtensions() =
+
+    [<Extension; Inline>]
+    static member Doc(v, f) = Doc.BindView f v
+
+    [<Extension; Inline>]
+    static member Doc(v, f) = Doc.Convert f v
+
+    [<Extension; Inline>]
+    static member Doc(v, k, f) = Doc.ConvertBy k f v
+
+    [<Extension; Inline>]
+    static member Doc(v, f) = Doc.ConvertSeq f v
+
+    [<Extension; Inline>]
+    static member Doc(v, k, f) = Doc.ConvertSeqBy k f v
