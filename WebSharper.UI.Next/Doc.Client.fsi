@@ -20,6 +20,8 @@
 
 namespace WebSharper.UI.Next.Client
 
+open System
+open System.Runtime.CompilerServices
 open WebSharper.JavaScript
 open WebSharper.UI.Next
 
@@ -406,19 +408,35 @@ module Doc =
 
     /// Converts a collection to Doc using View.Convert and embeds the concatenated result.
     /// Shorthand for View.Convert f |> View.Map Doc.Concat |> Doc.EmbedView.
+    val BindSeqCached : ('T -> #Doc) -> View<seq<'T>> -> Doc
+        when 'T : equality
+
+    [<Obsolete "Use Doc.BindSeqCached or view.DocSeqCached() instead.">]
     val Convert : ('T -> #Doc) -> View<seq<'T>> -> Doc
         when 'T : equality
 
     /// Doc.Convert with a custom key.
+    val BindSeqCachedBy : ('T -> 'K) -> ('T -> #Doc) -> View<seq<'T>> -> Doc
+        when 'K : equality
+
+    [<Obsolete "Use BindSeqCachedBy or view.DocSeqCached() instead.">]
     val ConvertBy : ('T -> 'K) -> ('T -> #Doc) -> View<seq<'T>> -> Doc
         when 'K : equality
 
     /// Converts a collection to Doc using View.ConvertSeq and embeds the concatenated result.
     /// Shorthand for View.ConvertSeq f |> View.Map Doc.Concat |> Doc.EmbedView.
+    val BindSeqCachedView : (View<'T> -> #Doc) -> View<seq<'T>> -> Doc
+        when 'T : equality
+
+    [<Obsolete "Use BindSeqCachedView or view.DocSeqCached() instead.">]
     val ConvertSeq : (View<'T> -> #Doc) -> View<seq<'T>> -> Doc
         when 'T : equality
 
     /// Doc.ConvertSeq with a custom key.
+    val BindSeqCachedViewBy : ('T -> 'K) -> ('K -> View<'T> -> #Doc) -> View<seq<'T>> -> Doc
+        when 'K : equality
+
+    [<Obsolete "Use BindSeqCachedViewBy or view.DocSeqCached() instead.">]
     val ConvertSeqBy : ('T -> 'K) -> ('K -> View<'T> -> #Doc) -> View<seq<'T>> -> Doc
         when 'K : equality
 
@@ -528,3 +546,32 @@ module Doc =
     val Radio : seq<Attr> -> 'T -> IRef<'T> -> Elt
         when 'T : equality
 
+[<Extension; Class>]
+type DocExtensions =
+
+    /// Embeds time-varying fragments.
+    /// Equivalent to View.Map followed by Doc.EmbedView.
+    [<Extension>]
+    static member Doc : View<'T> * ('T -> #Doc) -> Doc
+
+    /// Converts a collection to Doc using View.Convert and embeds the concatenated result.
+    /// Shorthand for View.Convert f |> View.Map Doc.Concat |> Doc.EmbedView.
+    [<Extension>]
+    static member DocSeqCached : View<seq<'T>> * ('T -> #Doc) -> Doc
+        when 'T : equality
+
+    /// DocConvert with a custom key.
+    [<Extension>]
+    static member DocSeqCached : View<seq<'T>> * ('T -> 'K) * ('T -> #Doc) -> Doc
+        when 'K : equality
+
+    /// Converts a collection to Doc using View.ConvertSeq and embeds the concatenated result.
+    /// Shorthand for View.ConvertSeq f |> View.Map Doc.Concat |> Doc.EmbedView.
+    [<Extension>]
+    static member DocSeqCached : View<seq<'T>> * (View<'T> -> #Doc) -> Doc
+        when 'T : equality
+
+    /// DocConvertSeq with a custom key.
+    [<Extension>]
+    static member DocSeqCached : View<seq<'T>> * ('T -> 'K) * ('K -> View<'T> -> #Doc) -> Doc
+        when 'K : equality

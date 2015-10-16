@@ -1,5 +1,6 @@
 namespace WebSharper.UI.Next.Client
 
+open System.Runtime.CompilerServices
 open WebSharper
 open WebSharper.JavaScript
 open WebSharper.UI.Next
@@ -541,19 +542,19 @@ type [<Proxy(typeof<Doc>); CompiledName "Doc">]
 
     [<JavaScript>]
     static member Convert render view =
-        View.Convert render view |> Doc'.Flatten
+        View.MapSeqCached render view |> Doc'.Flatten
 
     [<JavaScript>]
     static member ConvertBy key render view =
-        View.ConvertBy key render view |> Doc'.Flatten
+        View.MapSeqCachedBy key render view |> Doc'.Flatten
 
     [<JavaScript>]
     static member ConvertSeq render view =
-        View.ConvertSeq render view |> Doc'.Flatten
+        View.MapSeqCachedView render view |> Doc'.Flatten
 
     [<JavaScript>]
     static member ConvertSeqBy key render view =
-        View.ConvertSeqBy key (As render) view |> Doc'.Flatten
+        View.MapSeqCachedViewBy key (As render) view |> Doc'.Flatten
 
     [<JavaScript>]
     static member InputInternal elemTy attr =
@@ -1389,20 +1390,32 @@ module Doc =
   // Collections ----------------------------------------------------------------
 
     [<Inline>]
-    let Convert (render: 'T -> #Doc) (view: View<seq<'T>>) : Doc =
+    let BindSeqCached (render: 'T -> #Doc) (view: View<seq<'T>>) : Doc =
         As (Doc'.Convert (As render) view)
 
     [<Inline>]
-    let ConvertBy (key: 'T -> 'K) (render: 'T -> #Doc) (view: View<seq<'T>>) : Doc =
+    let Convert f v = BindSeqCached f v
+
+    [<Inline>]
+    let BindSeqCachedBy (key: 'T -> 'K) (render: 'T -> #Doc) (view: View<seq<'T>>) : Doc =
         As (Doc'.ConvertBy key (As render) view)
 
     [<Inline>]
-    let ConvertSeq (render: View<'T> -> #Doc) (view: View<seq<'T>>) : Doc =
+    let ConvertBy k f v = BindSeqCachedBy k f v
+
+    [<Inline>]
+    let BindSeqCachedView (render: View<'T> -> #Doc) (view: View<seq<'T>>) : Doc =
         As (Doc'.ConvertSeq (As render) view)
 
     [<Inline>]
-    let ConvertSeqBy (key: 'T -> 'K) (render: 'K -> View<'T> -> #Doc) (view: View<seq<'T>>) : Doc =
+    let ConvertSeq f v = BindSeqCachedView f v
+
+    [<Inline>]
+    let BindSeqCachedViewBy (key: 'T -> 'K) (render: 'K -> View<'T> -> #Doc) (view: View<seq<'T>>) : Doc =
         As (Doc'.ConvertSeqBy key render view)
+
+    [<Inline>]
+    let ConvertSeqBy k f v = BindSeqCachedViewBy k f v
 
   // Form helpers ---------------------------------------------------------------
 
@@ -1477,3 +1490,21 @@ module Doc =
     [<Inline>]
     let Radio attrs value var =
         Doc'.Radio attrs value var
+
+[<Extension; JavaScript>]
+type DocExtensions() =
+
+    [<Extension; Inline>]
+    static member Doc(v, f) = Doc.BindView f v
+
+    [<Extension; Inline>]
+    static member DocSeqCached(v, f) = Doc.BindSeqCached f v
+
+    [<Extension; Inline>]
+    static member DocSeqCached(v, k, f) = Doc.BindSeqCachedBy k f v
+
+    [<Extension; Inline>]
+    static member DocSeqCached(v, f) = Doc.BindSeqCachedView f v
+
+    [<Extension; Inline>]
+    static member DocSeqCached(v, k, f) = Doc.BindSeqCachedViewBy k f v

@@ -25,76 +25,113 @@
 /// please provide only pure (non-throwing) functions to this API.
 namespace WebSharper.UI.Next
 
+open System
+open System.Runtime.CompilerServices
+
+/// A read-only view on a time-varying value that a can be observed.
+[<Sealed>]
+type View<'A> =
+
+    /// Lifting functions.
+    member Map : ('A -> 'B) -> View<'B>
+
+    /// Lifting async functions.
+    member MapAsync : ('A -> Async<'B>) -> View<'B>
+
+    /// Dynamic composition.
+    member Bind : ('A -> View<'B>) -> View<'B>
+
+    /// Snapshots the second view whenever the first updates
+    member SnapshotOn : 'A -> View<'B> -> View<'A>
+
+    /// Only keeps the latest value of the second view when the predicate is true
+    member UpdateWhile : 'A -> View<bool> -> View<'A>
+
 /// An abstract time-varying variable than can be observed for changes
 /// by independent processes.
-type IRef<'T> =
+[<Interface>]
+type IRef<'A> =
 
     /// Gets the current value.
-    abstract Get : unit -> 'T
+    abstract Get : unit -> 'A
 
     /// Sets the current value.
-    abstract Set : 'T -> unit
+    abstract Set : 'A -> unit
 
     /// Updates the current value.
-    abstract Update : ('T -> 'T) -> unit
+    abstract Update : ('A -> 'A) -> unit
 
     /// Maybe updates the current value.
-    abstract UpdateMaybe : ('T -> 'T option) -> unit
+    abstract UpdateMaybe : ('A -> 'A option) -> unit
 
     /// Gets a view that observes changes on this variable.
-    abstract View : View<'T>
+    abstract View : View<'A>
 
     /// Gets the unique ID associated with the variable.
     abstract Id : string
 
 /// A time-varying variable that behaves like a ref cell that
 /// can also be observed for changes by independent processes.
-and [<Sealed>] Var<'T> =
-    interface IRef<'T>
+[<Sealed>]
+type Var<'A> =
+    interface IRef<'A>
 
-/// A read-only view on a time-varying value that a can be observed.
-and View<'T>
+    /// The corresponding view.
+    member View : View<'A>
+
+    /// Gets or sets the current value.
+    member Value : 'A with get, set
 
 /// Static operations on variables.
 [<Sealed>]
 type Var =
 
     /// Creates a fresh variable with the given initial value.
-    static member Create : 'T -> Var<'T>
+    static member Create : 'A -> Var<'A>
 
     /// Obtains the current value.
-    static member Get : Var<'T> -> 'T
+    static member Get : Var<'A> -> 'A
 
     /// Sets the current value.
-    static member Set : Var<'T> -> 'T -> unit
+    static member Set : Var<'A> -> 'A -> unit
 
     /// Sets the final value (after this, Set/Update are invalid).
     /// This is rarely needed, but can help solve memory leaks when
     /// mutliple views are scheduled to wait on a variable that is never
     /// going to change again.
-    static member SetFinal : Var<'T> -> 'T -> unit
+    static member SetFinal : Var<'A> -> 'A -> unit
 
     /// Updates the current value.
-    static member Update : Var<'T> -> ('T -> 'T) -> unit
+    static member Update : Var<'A> -> ('A -> 'A) -> unit
 
     /// Gets the unique ID associated with the var.
-    static member GetId  : Var<'T> -> int
+    static member GetId  : Var<'A> -> int
 
     /// Gets a reference to part of a var's value.
-    static member Lens : IRef<'T> -> get: ('T -> 'V) -> update: ('T -> 'V -> 'T) -> IRef<'V>
+    static member Lens : IRef<'A> -> get: ('A -> 'V) -> update: ('A -> 'V -> 'A) -> IRef<'V>
+
+/// Computation expression builder for views.
+[<Sealed>]
+type ViewBuilder =
+
+    /// Same as View.Bind.
+    member Bind : View<'A> * ('A -> View<'B>) -> View<'B>
+
+    /// Same as View.Const.
+    member Return : 'A -> View<'A>
 
 /// Static operations on views.
 [<Sealed>]
 type View =
 
     /// Creates a view that does not vary.
-    static member Const : 'T -> View<'T>
+    static member Const : 'A -> View<'A>
 
     /// Creation from a Var.
-    static member FromVar : Var<'T> -> View<'T>
+    static member FromVar : Var<'A> -> View<'A>
 
     /// Calls the given sink function repeatedly with the latest view value.
-    static member Sink : ('T -> unit) -> View<'T> -> unit
+    static member Sink : ('A -> unit) -> View<'A> -> unit
 
     /// Lifting functions.
     static member Map : ('A -> 'B) -> View<'A> -> View<'B>
@@ -113,7 +150,7 @@ type View =
     static member Apply : View<'A -> 'B> -> View<'A> -> View<'B>
 
     /// Dynamic composition.
-    static member Join : View<View<'T>> -> View<'T>
+    static member Join : View<View<'A>> -> View<'A>
 
     /// Dynamic composition.
     static member Bind : ('A -> View<'B>) -> View<'A> -> View<'B>
@@ -128,80 +165,111 @@ type View =
 
     /// Starts a process doing stateful conversion with shallow memoization.
     /// The process remembers inputs from the previous step, and re-uses outputs
-    /// from the previous step when possible instead of calling the converter function.
+    /// from the previous step when possible instead of calling the mapping function.
     /// Memory use is proportional to the longest sequence taken by the View.
-    static member Convert<'A,'B when 'A : equality> :
+    static member MapSeqCached<'A, 'B when 'A : equality> :
         ('A -> 'B) -> View<seq<'A>> -> View<seq<'B>>
 
-    /// A variant of Convert with custom equality.
-    static member ConvertBy<'A,'B,'K when 'K : equality> :
+    [<Obsolete "Use View.MapSeqCached or view.MapSeqCached() instead.">]
+    static member Convert<'A, 'B when 'A : equality> :
+        ('A -> 'B) -> View<seq<'A>> -> View<seq<'B>>
+
+    /// Starts a process doing stateful conversion with shallow memoization.
+    /// The process remembers inputs from the previous step, and re-uses outputs
+    /// from the previous step when possible instead of calling the mapping function.
+    /// Memory use is proportional to the longest sequence taken by the View.
+    /// Inputs are compared via their `key`.
+    static member MapSeqCachedBy<'A, 'B, 'K when 'K : equality> :
         ('A -> 'K) -> ('A -> 'B) -> View<seq<'A>> -> View<seq<'B>>
 
-    /// An extended form of Convert where the conversion function accepts a
+    [<Obsolete "Use View.MapSeqCachedBy or view.MapSeqCached() instead.">]
+    static member ConvertBy<'A, 'B, 'K when 'K : equality> :
+        ('A -> 'K) -> ('A -> 'B) -> View<seq<'A>> -> View<seq<'B>>
+
+    /// An extended form of MapSeqCached where the conversion function accepts a
     /// reactive view.  At every step, changes to inputs identified as being
     /// the same object using equality are propagated via that view.
-    static member ConvertSeq<'A,'B when 'A : equality> :
+    static member MapSeqCachedView<'A, 'B when 'A : equality> :
         (View<'A> -> 'B) -> View<seq<'A>> -> View<seq<'B>>
 
-    /// A variant of ConvertSeq with custom equality.
-    static member ConvertSeqBy<'A,'B,'K when 'K : equality> :
+    [<Obsolete "Use View.MapSeqCachedView or view.MapSeqCached() instead.">]
+    static member ConvertSeq<'A, 'B when 'A : equality> :
+        (View<'A> -> 'B) -> View<seq<'A>> -> View<seq<'B>>
+
+    /// An extended form of MapSeqCached where the conversion function accepts a
+    /// reactive view.  At every step, changes to inputs identified as being
+    /// the same object using equality are propagated via that view.
+    /// Inputs are compared via their `key`.
+    static member MapSeqCachedViewBy<'A, 'B, 'K when 'K : equality> :
         ('A -> 'K) -> ('K -> View<'A> -> 'B) -> View<seq<'A>> -> View<seq<'B>>
 
-/// Computation expression builder for views.
-[<Sealed>]
-type ViewBuilder =
-
-    /// Same as View.Bind.
-    member Bind : View<'A> * ('A -> View<'B>) -> View<'B>
-
-    /// Same as View.Const.
-    member Return : 'T -> View<'T>
-
-/// Additions to View combinators.
-type View with
+    [<Obsolete "Use View.MapSeqCachedViewBy or view.MapSeqCached() instead.">]
+    static member ConvertSeqBy<'A, 'B, 'K when 'K : equality> :
+        ('A -> 'K) -> ('K -> View<'A> -> 'B) -> View<seq<'A>> -> View<seq<'B>>
 
     /// An instance of ViewBuilder.
     static member Do : ViewBuilder
 
-/// More members on Var.
-type Var<'T> with
+/// More members on View.
+[<Extension; Class>]
+type ReactiveExtensions =
 
-    /// The corresponding view.
-    member View : View<'T>
+    /// Lift a function, doesn't call it again if the input static memberue is equal to the previous one.
+    [<Extension>]
+    static member MapCached : View<'A> * ('A -> 'B) -> View<'B>
+        when 'A : equality
 
-    /// Gets or sets the current value.
-    member Value : 'T with get, set
+    /// Starts a process doing stateful conversion with shallow memoization.
+    /// The process remembers inputs from the previous step, and re-uses outputs
+    /// from the previous step when possible instead of calling the mapping function.
+    /// Memory use is proportional to the longest sequence taken by the View.
+    [<Extension>]
+    static member MapSeqCached<'A,'B when 'A : equality> :
+        View<seq<'A>> * f: ('A -> 'B) -> View<seq<'B>>
+
+    /// Starts a process doing stateful conversion with shallow memoization.
+    /// The process remembers inputs from the previous step, and re-uses outputs
+    /// from the previous step when possible instead of calling the mapping function.
+    /// Memory use is proportional to the longest sequence taken by the View.
+    /// Inputs are compared via their `key`.
+    [<Extension>]
+    static member MapSeqCached<'A,'B,'K when 'K : equality> :
+        View<seq<'A>> * key: ('A -> 'K) * f: ('A -> 'B) -> View<seq<'B>>
+
+    /// An extended form of MapSeqCached where the conversion function accepts a
+    /// reactive view.  At every step, changes to inputs identified as being
+    /// the same object using equality are propagated via that view.
+    [<Extension>]
+    static member MapSeqCached<'A,'B when 'A : equality> :
+        View<seq<'A>> * f: (View<'A> -> 'B) -> View<seq<'B>>
+
+    /// An extended form of MapSeqCached where the conversion function accepts a
+    /// reactive view.  At every step, changes to inputs identified as being
+    /// the same object using equality are propagated via that view.
+    /// Inputs are compared via their `key`.
+    [<Extension>]
+    static member MapSeqCached<'A,'B,'K when 'K : equality> :
+        View<seq<'A>> * key: ('A -> 'K) * f: ('K -> View<'A> -> 'B) -> View<seq<'B>>
 
 [<AutoOpen>]
 module IRefExtension =
 
     type IRef<'T> with
-
-        /// Gets a reference to part of a var's value.
         member Lens : get: ('T -> 'V) -> update: ('T -> 'V -> 'T) -> IRef<'V>
-
-/// More members on View.
-type View<'T> with
-
-    /// Lifting functions.
-    member Map : ('T -> 'B) -> View<'B>
-
-    /// Dynamic composition.
-    member Bind : ('T -> View<'B>) -> View<'B>
 
 /// A special type of View whose value is only updated when Trigger is called.
 [<Sealed>]
-type Submitter<'T> =
+type Submitter<'A> =
 
     /// Get the output view of the submitter.
-    member View : View<'T>
+    member View : View<'A>
 
     /// Trigger the submitter, ie. cause its output view
     /// to get the same value as its input view.
     member Trigger : unit -> unit
 
     /// Get the input view of the submitter.
-    member Input : View<'T>
+    member Input : View<'A>
 
 [<Sealed>]
 type Submitter =
@@ -209,14 +277,15 @@ type Submitter =
     /// Create a Submitter from the given input view.
     /// Initially, the output view has the value init,
     /// until the Submitter is triggered for the first time.
-    static member Create : input: View<'T> -> init: 'T -> Submitter<'T>
+    static member Create : input: View<'A> -> init: 'A -> Submitter<'A>
 
     /// Get the output view of a submitter.
-    static member View : Submitter<'T> -> View<'T>
+    static member View : Submitter<'A> -> View<'A>
 
     /// Trigger a submitter, ie. cause its output view
     /// to get the same value as its input view.
-    static member Trigger : Submitter<'T> -> unit
+    static member Trigger : Submitter<'A> -> unit
 
     /// Get the input view of a submitter.
-    static member Input : Submitter<'T> -> View<'T>
+    static member Input : Submitter<'A> -> View<'A>
+

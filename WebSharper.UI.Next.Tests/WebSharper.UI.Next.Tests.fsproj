@@ -4,10 +4,13 @@
     <ProjectGuid>{608521d3-89cf-452b-ad62-5fa7eb246e6f}</ProjectGuid>
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{F2A71F9B-5D33-465A-A702-920D77279786}</ProjectTypeGuids>
     <Name>WebSharper.UI.Next.Tests</Name>
+    <RootNamespace>$(Name)</RootNamespace>
+    <AssemblyName>$(Name)</AssemblyName>
     <WebSharperProject>Bundle</WebSharperProject>
     <WebSharperBundleOutputDir>Content</WebSharperBundleOutputDir>
     <OutputType>Library</OutputType>
     <OutputPath>bin</OutputPath>
+    <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort />
@@ -15,8 +18,21 @@
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
   </PropertyGroup>
+  <!-- F# targets -->
+  <Choose>
+    <When Condition="'$(VisualStudioVersion)' == '11.0'">
+      <PropertyGroup Condition="Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')">
+        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets')">
+        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets</FSharpTargetsPath>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+  <Import Project="$(FSharpTargetsPath)" />
   <Import Project="../build/net40/$(Name).proj" />
-  <Import Project="../msbuild/FSharp.targets" />
   <ItemGroup>
     <Compile Include="Client.fs" />
     <Compile Include="Main.fs" />
