@@ -25,6 +25,7 @@
 /// please provide only pure (non-throwing) functions to this API.
 namespace WebSharper.UI.Next
 
+open System
 open System.Runtime.CompilerServices
 
 /// A read-only view on a time-varying value that a can be observed.
@@ -164,22 +165,45 @@ type View =
 
     /// Starts a process doing stateful conversion with shallow memoization.
     /// The process remembers inputs from the previous step, and re-uses outputs
-    /// from the previous step when possible instead of calling the converter function.
+    /// from the previous step when possible instead of calling the mapping function.
     /// Memory use is proportional to the longest sequence taken by the View.
+    static member MapSeqCached<'A, 'B when 'A : equality> :
+        ('A -> 'B) -> View<seq<'A>> -> View<seq<'B>>
+
+    [<Obsolete "Use View.MapSeqCached or view.MapSeqCached() instead.">]
     static member Convert<'A, 'B when 'A : equality> :
         ('A -> 'B) -> View<seq<'A>> -> View<seq<'B>>
 
-    /// A variant of Convert with custom equality.
+    /// Starts a process doing stateful conversion with shallow memoization.
+    /// The process remembers inputs from the previous step, and re-uses outputs
+    /// from the previous step when possible instead of calling the mapping function.
+    /// Memory use is proportional to the longest sequence taken by the View.
+    /// Inputs are compared via their `key`.
+    static member MapSeqCachedBy<'A, 'B, 'K when 'K : equality> :
+        ('A -> 'K) -> ('A -> 'B) -> View<seq<'A>> -> View<seq<'B>>
+
+    [<Obsolete "Use View.MapSeqCachedBy or view.MapSeqCached() instead.">]
     static member ConvertBy<'A, 'B, 'K when 'K : equality> :
         ('A -> 'K) -> ('A -> 'B) -> View<seq<'A>> -> View<seq<'B>>
 
-    /// An extended form of Convert where the conversion function accepts a
+    /// An extended form of MapSeqCached where the conversion function accepts a
     /// reactive view.  At every step, changes to inputs identified as being
     /// the same object using equality are propagated via that view.
+    static member MapSeqCachedView<'A, 'B when 'A : equality> :
+        (View<'A> -> 'B) -> View<seq<'A>> -> View<seq<'B>>
+
+    [<Obsolete "Use View.MapSeqCachedView or view.MapSeqCached() instead.">]
     static member ConvertSeq<'A, 'B when 'A : equality> :
         (View<'A> -> 'B) -> View<seq<'A>> -> View<seq<'B>>
 
-    /// A variant of ConvertSeq with custom equality.
+    /// An extended form of MapSeqCached where the conversion function accepts a
+    /// reactive view.  At every step, changes to inputs identified as being
+    /// the same object using equality are propagated via that view.
+    /// Inputs are compared via their `key`.
+    static member MapSeqCachedViewBy<'A, 'B, 'K when 'K : equality> :
+        ('A -> 'K) -> ('K -> View<'A> -> 'B) -> View<seq<'A>> -> View<seq<'B>>
+
+    [<Obsolete "Use View.MapSeqCachedViewBy or view.MapSeqCached() instead.">]
     static member ConvertSeqBy<'A, 'B, 'K when 'K : equality> :
         ('A -> 'K) -> ('K -> View<'A> -> 'B) -> View<seq<'A>> -> View<seq<'B>>
 
@@ -197,28 +221,35 @@ type ReactiveExtensions =
 
     /// Starts a process doing stateful conversion with shallow memoization.
     /// The process remembers inputs from the previous step, and re-uses outputs
-    /// from the previous step when possible instead of calling the converter function.
+    /// from the previous step when possible instead of calling the mapping function.
     /// Memory use is proportional to the longest sequence taken by the View.
     [<Extension>]
-    static member Convert<'A,'B when 'A : equality> :
-        View<seq<'A>> * ('A -> 'B) -> View<seq<'B>>
+    static member MapSeqCached<'A,'B when 'A : equality> :
+        View<seq<'A>> * f: ('A -> 'B) -> View<seq<'B>>
 
-    /// A variant of Convert with custom equality.
+    /// Starts a process doing stateful conversion with shallow memoization.
+    /// The process remembers inputs from the previous step, and re-uses outputs
+    /// from the previous step when possible instead of calling the mapping function.
+    /// Memory use is proportional to the longest sequence taken by the View.
+    /// Inputs are compared via their `key`.
     [<Extension>]
-    static member ConvertBy<'A,'B,'K when 'K : equality> :
-        View<seq<'A>> * ('A -> 'K) * ('A -> 'B) -> View<seq<'B>>
+    static member MapSeqCached<'A,'B,'K when 'K : equality> :
+        View<seq<'A>> * key: ('A -> 'K) * f: ('A -> 'B) -> View<seq<'B>>
 
-    /// An extended form of Convert where the conversion function accepts a
+    /// An extended form of MapSeqCached where the conversion function accepts a
     /// reactive view.  At every step, changes to inputs identified as being
     /// the same object using equality are propagated via that view.
     [<Extension>]
-    static member ConvertSeq<'A,'B when 'A : equality> :
-        View<seq<'A>> * (View<'A> -> 'B) -> View<seq<'B>>
+    static member MapSeqCached<'A,'B when 'A : equality> :
+        View<seq<'A>> * f: (View<'A> -> 'B) -> View<seq<'B>>
 
-    /// A variant of ConvertSeq with custom equality.
+    /// An extended form of MapSeqCached where the conversion function accepts a
+    /// reactive view.  At every step, changes to inputs identified as being
+    /// the same object using equality are propagated via that view.
+    /// Inputs are compared via their `key`.
     [<Extension>]
-    static member ConvertSeqBy<'A,'B,'K when 'K : equality> :
-        View<seq<'A>> * ('A -> 'K) * ('K -> View<'A> -> 'B) -> View<seq<'B>>
+    static member MapSeqCached<'A,'B,'K when 'K : equality> :
+        View<seq<'A>> * key: ('A -> 'K) * f: ('K -> View<'A> -> 'B) -> View<seq<'B>>
 
 [<AutoOpen>]
 module IRefExtension =

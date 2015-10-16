@@ -45,7 +45,7 @@ module Client =
                     ] [textView title]
                 ],
                 ListContainer = [
-                    myItems.View.Doc(Item.Key, fun key item ->
+                    myItems.View.DocSeqCached(Item.Key, fun key item ->
                         MyTemplate.ListItem.Doc(
                             Name = item.Map(fun i -> i.name),
                             Description = myItems.LensInto (fun i -> i.description) (fun i d -> { i with description = d }) key,
@@ -55,7 +55,7 @@ module Client =
                 ],
                 SubmitItems = (fun el ev -> itemsSub.Trigger ()),
                 ListView = [
-                    itemsSub.View.Doc(Item.Key, fun key item ->
+                    itemsSub.View.DocSeqCached(Item.Key, fun key item ->
                         MyTemplate.ListViewItem.Doc(
                             Name = item.Map(fun i -> i.name),
                             Description = item.Map(fun i -> i.description)

@@ -178,7 +178,7 @@ type View =
 
      // Collections --------------------------------------------------------------
 
-    static member ConvertBy<'A,'B,'K when 'K : equality>
+    static member MapSeqCachedBy<'A,'B,'K when 'K : equality>
             (key: 'A -> 'K) (conv: 'A -> 'B) (view: View<seq<'A>>) =
         // Save history only for t - 1, discard older history.
         let state = ref (Dictionary())
@@ -200,8 +200,8 @@ type View =
             state := newState
             result)
 
-    static member Convert conv view =
-        View.ConvertBy (fun x -> x) conv view
+    static member MapSeqCached conv view =
+        View.MapSeqCachedBy (fun x -> x) conv view
 
     static member ConvertSeqNode conv value =
         let var = Var.Create value
@@ -212,7 +212,7 @@ type View =
             NView = view
         }
 
-    static member ConvertSeqBy<'A,'B,'K when 'K : equality>
+    static member MapSeqCachedViewBy<'A,'B,'K when 'K : equality>
             (key: 'A -> 'K) (conv: 'K -> View<'A> -> 'B) (view: View<seq<'A>>) =
         // Save history only for t - 1, discard older history.
         let state = ref (Dictionary())
@@ -237,8 +237,24 @@ type View =
             state := newState
             result)
 
-    static member ConvertSeq conv view =
-        View.ConvertSeqBy (fun x -> x) (fun _ v -> conv v) view
+    static member MapSeqCachedView conv view =
+        View.MapSeqCachedViewBy (fun x -> x) (fun _ v -> conv v) view
+
+    [<Inline>]
+    static member Convert<'A, 'B when 'A : equality> (f: 'A -> 'B) v =
+        View.MapSeqCached f v
+
+    [<Inline>]
+    static member ConvertBy<'A, 'B, 'K when 'K : equality> (k: 'A -> 'K) (f: 'A -> 'B) v =
+        View.MapSeqCachedBy k f v
+
+    [<Inline>]
+    static member ConvertSeq<'A, 'B when 'A : equality> (f: View<'A> -> 'B) v =
+        View.MapSeqCachedView f v
+
+    [<Inline>]
+    static member ConvertSeqBy<'A, 'B, 'K when 'K : equality> (k: 'A -> 'K) (f: 'K -> View<'A> -> 'B) v =
+        View.MapSeqCachedViewBy k f v
 
   // More cominators ------------------------------------------------------------
 
@@ -331,20 +347,20 @@ type ReactiveExtensions() =
     static member MapCached (v, f) = View.MapCached f v
 
     [<Extension; Inline>]
-    static member Convert<'A, 'B when 'A : equality>
-        (v: View<seq<'A>>, f: 'A -> 'B) = View.Convert f v
+    static member MapSeqCached<'A, 'B when 'A : equality>
+        (v: View<seq<'A>>, f: 'A -> 'B) = View.MapSeqCached f v
 
     [<Extension; Inline>]
-    static member ConvertBy<'A, 'B, 'K when 'K : equality>
-        (v: View<seq<'A>>, k: 'A -> 'K, f: 'A -> 'B) = View.ConvertBy k f v
+    static member MapSeqCached<'A, 'B, 'K when 'K : equality>
+        (v: View<seq<'A>>, k: 'A -> 'K, f: 'A -> 'B) = View.MapSeqCachedBy k f v
 
     [<Extension; Inline>]
-    static member ConvertSeq<'A, 'B when 'A : equality>
-        (v: View<seq<'A>>, f: View<'A> -> 'B) = View.ConvertSeq f v
+    static member MapSeqCached<'A, 'B when 'A : equality>
+        (v: View<seq<'A>>, f: View<'A> -> 'B) = View.MapSeqCachedView f v
 
     [<Extension; Inline>]
-    static member ConvertSeqBy<'A, 'B, 'K when 'K : equality>
-        (v: View<seq<'A>>, k: 'A -> 'K, f: 'K -> View<'A> -> 'B) = View.ConvertSeqBy k f v
+    static member MapSeqCached<'A, 'B, 'K when 'K : equality>
+        (v: View<seq<'A>>, k: 'A -> 'K, f: 'K -> View<'A> -> 'B) = View.MapSeqCachedViewBy k f v
 
 [<AutoOpen>]
 module IRefExtension =
