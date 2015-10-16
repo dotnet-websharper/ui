@@ -1,9 +1,9 @@
 # View
 > [Documentation](../README.md) ▸ [API Reference](API.md) ▸ [Dataflow](Dataflow.md) ▸ **View**
 
-`View<'T>` represents a node in the [Dataflow](Dataflow.md) layer.
+`View<'A>` represents a node in the [Dataflow](Dataflow.md) layer.
 Intuitively, it is a time-varying value computed from your model.
-At any point in time the view has a certain `'T`.
+At any point in time the view has a certain `'A`.
 
 Below, `[[x]]` notation is used to denote value of `x` view at every
 point in time, so that `[[x]] = [[y]]` means that the two views are
@@ -11,40 +11,40 @@ observationally equivalent.
 
 
 ```fsharp
-namespace IntelliFactory.WebSharper.UI.Next
+namespace WebSharper.UI.Next
 
-type View<'T>
+type View<'A>
 
 type ViewBuilder =
     member Bind : View<'A> * ('A -> View<'B>) -> View<'B>
-    member Return : 'T -> View<'T>
+    member Return : 'A -> View<'A>
 
 type View =
 
-    static member Const : 'T -> View<'T>
-    static member FromVar: Var<'T> -> View<'T>
+    static member Const : 'A -> View<'A>
+    static member FromVar: Var<'A> -> View<'A>
 
-    static member Sink : ('T -> unit) -> View<'T> -> unit
+    static member Sink : ('A -> unit) -> View<'A> -> unit
     
     static member Map : ('A -> 'B) -> View<'A> -> View<'B>
     static member Map2 : ('A -> 'B -> 'C) -> View<'A> -> View<'B> -> View<'C>
     static member Apply : View<'A -> 'B> -> View<'A> -> View<'B>
     static member MapAsync : ('A -> Async<'B>) -> View<'A> -> View<'B>
-    static member Join : View<View<'T>> -> View<'T>
+    static member Join : View<View<'A>> -> View<'A>
     static member Bind : ('A -> View<'B>) -> View<'A> -> View<'B>
     static member SnapshotOn : View<'A> -> View<'B> -> View<'B>
     static member UpdateWhile : View<bool> -> View<'A> -> View<'A>
     
-    static member Convert<'A,'B when 'A : equality> :
+    static member MapSeqCached<'A,'B when 'A : equality> :
         ('A -> 'B) -> View<seq<'A>> -> View<seq<'B>>
 
-    static member ConvertBy<'A,'B,'K when 'K : equality> :
+    static member MapSeqCachedBy<'A,'B,'K when 'K : equality> :
         ('A -> 'K) -> ('A -> 'B) -> View<seq<'A>> -> View<seq<'B>>
 
-    static member ConvertSeq<'A,'B when 'A : equality> :
+    static member MapSeqCachedView<'A,'B when 'A : equality> :
         (View<'A> -> 'B) -> View<seq<'A>> -> View<seq<'B>>
 
-    static member ConvertSeqBy<'A,'B,'K when 'K : equality> :
+    static member MapSeqCachedViewBy<'A,'B,'K when 'K : equality> :
         ('A -> 'K) -> (View<'A> -> 'B) -> View<seq<'A>> -> View<seq<'B>>
 
     static member Do : ViewBuilder
@@ -52,11 +52,11 @@ type View =
 
 ## Constructing
 
-<a name="View" href="#View">#</a> **View** `type View<'T>`
+<a name="View" href="#View">#</a> **View** `type View<'A>`
 
 A time-varying read-only value of a given type.
 
-<a name="Const" href="#Const">#</a> View.**Const** : `'T -> View<'T>`
+<a name="Const" href="#Const">#</a> View.**Const** : `'A -> View<'A>`
 
 Lifts a constant value to a View.  Constants are a boring
 special case of time-varying values:
@@ -65,15 +65,16 @@ special case of time-varying values:
 [[View.Const x]] = x
 ```
 
-<a name="FromVar" href="#FromVar">#</a> View.**FromVar** : `Var<'T> -> View<'T>`
+<a name="FromVar" href="#FromVar">#</a> View.**FromVar** : `Var<'A> -> View<'A>`
+
+Also available as a property **.View** on `Var<'A>`.
 
 Reactive variables of type [Var](Var.md) can be seen as Views by considering
-their current value at any point in time.  The same functionality is available as
-a `var.View` shorthand.
+their current value at any point in time.
 
 ## Using
 
-<a name="Sink" href="#Sink">#</a> View.**Sink** : `('T -> unit) -> View<'T> -> unit`
+<a name="Sink" href="#Sink">#</a> View.**Sink** : `('A -> unit) -> View<'A> -> unit`
 
 Starts a process that calls the given function repeatedly with the latest View value.
 This method is rarely needed, the most common way to use views is by constructing
@@ -88,6 +89,8 @@ processes that never get collected because they await a Var that is never going 
 
 <a name="Map" href="#Map">#</a> View.**Map** : `('A -> 'B) -> View<'A> -> View<'B>`
 
+Also available as a method **.Map**(f) on `View<'A>`.
+
 Lifts a function to the View layer, such that the value `[[]]` relation holds:
 
 ```fsharp
@@ -95,6 +98,16 @@ Lifts a function to the View layer, such that the value `[[]]` relation holds:
 ```
 
 This is the simplest and perhaps the most useful combinator.
+
+<a name="MapCached" href="#Map">#</a> View.**MapCached** : `('A -> 'B) -> View<'A> -> View<'B> when 'A : equality`
+
+Also available as a method **.MapCached**(f) on `View<'A>`.
+
+Similar to Map, but caches the previous result: if the input value is equal to what it was during the previous update propagation, then `f` is not called again and the previous result is reused. The update is still propagated down. The following relation still holds:
+
+```fsharp
+[[View.MapCached f x]] = f [[x]]
+```
 
 <a name="Map2" href="#Map2">#</a> View.**Map2** : `('A -> 'B -> 'C) -> View<'A> -> View<'B> -> View<'C>`
 
@@ -126,7 +139,7 @@ let ( <*> ) f x = View.Apply f x
 View.Const (fun x y z -> (x, y, z)) <*> x <*> y <*> z
 ```
 
-<a name="Join" href="#Join">#</a> View.**Join** : `View<View<'T>> -> View<'T>`
+<a name="Join" href="#Join">#</a> View.**Join** : `View<View<'A>> -> View<'A>`
 
 Flattens a higher-order View, using this defining equation:
 
@@ -139,6 +152,8 @@ complicates the implementation.  It is rarely used directly, but is a building
 block for other combinators.
 
 <a name="Bind" href="#Bind">#</a> View.**Bind** : `('A -> View<'B>) -> View<'A> -> View<'B>`
+
+Also available as a method **.Bind**(f) on `View<'A>`.
 
 Bind is a useful combinator for expressing value-dependent views:
 
@@ -170,6 +185,8 @@ for a discussion).
 
 <a name="SnapshotOn" href="#SnapshotOn">#</a> View.**SnapshotOn** : `'B -> View<'A> -> View<'B> -> View<'B>`
 
+Also available as a method **.SnapshotOn**(init, a) on `View<'B>`.
+
 Given two views `a` and `b`, and a default value, provides a 'snapshot' of `b` whenever `a` updates. 
 The value of `a` is unused. The initial value is an initial sample of `b`.
 
@@ -178,10 +195,11 @@ The value of `a` is unused. The initial value is an initial sample of `b`.
                              = [[b the last time [[a]] was updated]],  once [[a]] has been updated
 ```
 
-This combinator is used as the base for the implementation of the [Submitter](Submitter.md), which
-is commonly used to include punctual events into the dataflow graph.
+This combinator is used as the base for the implementation of the [Submitter](Submitter.md), which is commonly used to include punctual events such as button clicks into the dataflow graph.
 
 <a name="UpdateWhile" href="#UpdateWhile">#</a> View.**UpdateWhile** : `'A -> View<'bool> -> View<'A> -> View<'A>`
+
+Also available as a method **.UpdateWhile**(init, a) on `View<'B>`.
 
 Given a predicate `View<bool>` `a`, a view `b`, and a default value, create a view which reflects the latest value of
 `b` whenever the predicate is true. Updates are not propagated when the predicate is false.
@@ -196,6 +214,8 @@ Given a predicate `View<bool>` `a`, a view `b`, and a default value, create a vi
 
 <a name="MapAsync" href="#MapAsync">#</a> View.**MapAsync** : `('A -> Async<'B>) -> View<'A> -> View<'B>`
 
+Also available as a method **.MapAsync**(f) on `View<'A>`.
+
 Lifts an asynchronous function to the View layer.  A nice
 property here is that this combinator allows saving work by abandoning
 requests.  That is, if the input view changes faster than we can
@@ -206,7 +226,9 @@ results are thus discarded.
 **TODO**: this combinator is being discussed for potential
 imrpovements and the signature is subject to change.
 
-<a name="Convert" href="#Convert">#</a> View.**Convert** : `('A -> 'B) -> View<seq<'A>> -> View<seq<'B>>`
+<a name="MapSeqCached" href="#MapSeqCached">#</a> View.**MapSeqCached** : `('A -> 'B) -> View<seq<'A>> -> View<seq<'B>>`
+
+Also available as a method **.MapSeqCached**(f) on `View<'A>`.
 
 Starts a process doing stateful conversion with "shallow" memoization.
 The process remembers inputs from the previous step, and re-uses outputs
@@ -216,18 +238,32 @@ Since only one step of history is retained, there is no memory leak.
 
 Needs equality on `'A`.
 
-<a name="ConvertBy" href="#ConvertBy">#</a> View.**ConvertBy** : `('A -> 'K) -> ('A -> 'B) -> View<seq<'A>> -> View<seq<'B>>`
+Obsolete synonym: `View.Convert`.
 
-A variant of `Convert` with a custom key function, needing an equality on `'K`.
+<a name="MapSeqCachedBy" href="#MapSeqCachedBy">#</a> View.**MapSeqCachedBy** : `('A -> 'K) -> ('A -> 'B) -> View<seq<'A>> -> View<seq<'B>>`
 
-<a name="ConvertSeq" href="#ConvertSeq">#</a> View.**ConvertSeq** : `(View<'A> -> 'B) -> View<seq<'A>> -> View<seq<'B>>`
+Also available as a method **.MapSeqCached**(k, f) on `View<'A>`.
 
-An extended form of `Convert` where the conversion function accepts a
+A variant of `MapSeqCached` with a custom key function, needing an equality on `'K`.
+
+Obsolete synonym: `View.ConvertBy`.
+
+<a name="MapSeqCachedView" href="#MapSeqCachedView">#</a> View.**MapSeqCachedView** : `(View<'A> -> 'B) -> View<seq<'A>> -> View<seq<'B>>`
+
+Also available as a method **.MapSeqCached**(f) on `View<'A>`.
+
+An extended form of `MapSeqCached` where the conversion function accepts a
 reactive view.  At every step, changes to inputs identified as being
 the same object are propagated via that view.
 
 Needs equality on `'A`.
 
-<a name="ConvertSeqBy" href="#ConvertSeqBy">#</a> View.**ConvertSeqBy** : `('A -> 'K) -> (View<'A> -> 'B) -> View<seq<'A>> -> View<seq<'B>>`
+Obsolete synonym: `View.ConvertSeq`.
 
-A variant of `ConvertSeq` with a custom key function, needing an equality on `'K`.
+<a name="MapSeqCachedViewBy" href="#MapSeqCachedViewBy">#</a> View.**MapSeqCachedViewBy** : `('A -> 'K) -> (View<'A> -> 'B) -> View<seq<'A>> -> View<seq<'B>>`
+
+Also available as a method **.MapSeqCached**(k, f) on `View<'A>`.
+
+A variant of `MapSeqCachedView` with a custom key function, needing an equality on `'K`.
+
+Obsolete synonym: `View.ConvertSeqBy`.

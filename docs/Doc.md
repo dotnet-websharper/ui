@@ -47,16 +47,16 @@ type Doc =
     static member CheckBox<'T when 'T : equality> : ('T -> string) -> list<'T> -> Var<list<'T>> -> Elt
     static member Select<'T when 'T : equality> : seq<Attr> -> ('T -> string) -> list<'T> -> Var<'T> -> Elt
     
-    static member Convert<'T when 'T : equality> :
+    static member BindSeqCached<'T when 'T : equality> :
         ('T -> Doc) -> View<seq<'T>> -> Doc
 
-    static member ConvertBy<'T,'K when 'K : equality> :
+    static member BindSeqCachedBy<'T,'K when 'K : equality> :
         ('T -> 'K) -> ('T -> Doc) -> View<seq<'T>> -> Doc
 
-    static member ConvertSeq<'T when 'T : equality> :
+    static member BindSeqCachedView<'T when 'T : equality> :
         (View<'T> -> Doc) -> View<seq<'T>> -> Doc
 
-    static member ConvertSeqBy<'T,'K when 'K : equality> :
+    static member BindSeqCachedViewBy<'T,'K when 'K : equality> :
         ('T -> 'K) -> (View<'T> -> Doc) -> View<seq<'T>> -> Doc
 
 and Elt =
@@ -99,6 +99,8 @@ Constructs an element node with a given name, attributes and children.
 Create a time-varying Doc from a View on a Doc.
 
 <a name="BindView" href="#BindView">#</a> Doc.**BindView** : `('T -> Doc) -> View<'T> -> Doc`
+
+Also available as a method **.Doc**(f) on `View<'A>`.
 
 Create a time-varying Doc from a View on a Doc.
 
@@ -180,23 +182,31 @@ Creates a selection box from the given list. Requires a function to show each it
 
 ## Collections
 
-For convenience, [View](View.md) Convert* functions are specialied for the `Doc` type.
+For convenience, [View](View.md) BindSeqCached* functions are specialied for the `Doc` type.
 
-<a name="Convert" href="#Convert">#</a> Doc.**Convert** : `('T -> Doc) -> View<seq<'T>> -> Doc`
+<a name="BindSeqCached" href="#BindSeqCached">#</a> Doc.**BindSeqCached** : `('T -> Doc) -> View<seq<'T>> -> Doc`
 
-Variant of `View.Convert`.
+Also available as a method **.DocSeqCached**(f) on `View<'A>`.
 
-<a name="ConvertBy" href="#ConvertBy">#</a> Doc.**ConvertBy** : `('T -> 'K) -> ('T -> Doc) -> View<seq<'T>> -> Doc`
+Variant of `View.BindSeqCached` that concatenates the resulting `Doc`s.
 
-Variant of `View.ConvertBy`.
+<a name="BindSeqCachedBy" href="#BindSeqCachedBy">#</a> Doc.**BindSeqCachedBy** : `('T -> 'K) -> ('T -> Doc) -> View<seq<'T>> -> Doc`
 
-<a name="ConvertSeq" href="#ConvertSeq">#</a> Doc.**ConvertSeq** : `(View<'T> -> Doc) -> View<seq<'T>> -> Doc`
+Also available as a method **.DocSeqCached**(k, f) on `View<'A>`.
 
-Variant of `View.ConvertSeq`.
+Variant of `View.BindSeqCachedBy` that concatenates the resulting `Doc`s.
 
-<a name="ConvertSeqBy" href="#ConvertSeqBy">#</a> Doc.**ConvertSeqBy** : `('T -> 'K) -> (View<'T> -> Doc) -> View<seq<'T>> -> Doc`
+<a name="BindSeqCachedView" href="#BindSeqCachedView">#</a> Doc.**BindSeqCachedView** : `(View<'T> -> Doc) -> View<seq<'T>> -> Doc`
 
-Variant of `View.ConvertSeqBy`.
+Also available as a method **.DocSeqCached**(f) on `View<'A>`.
+
+Variant of `View.BindSeqCachedView` that concatenates the resulting `Doc`s.
+
+<a name="BindSeqCachedViewBy" href="#BindSeqCachedViewBy">#</a> Doc.**BindSeqCachedViewBy** : `('T -> 'K) -> (View<'T> -> Doc) -> View<seq<'T>> -> Doc`
+
+Also available as a method **.DocSeqCached**(k, f) on `View<'A>`.
+
+Variant of `View.BindSeqCachedViewBy` that concatenates the resulting `Doc`s.
 
 ## Elt instance members
 
