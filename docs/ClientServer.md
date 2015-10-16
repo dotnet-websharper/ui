@@ -39,8 +39,8 @@ namespace `WebSharper.UI.Next.Client`.
 
 Client-side `Doc`s can be integrated directly into the DOM using the
 functions [`Doc.Run`](Doc.md#Run) and [`Doc.RunById`](Doc.md#RunById).
-They can also be wrapped into a div as a Pagelet from
-`WebSharper.Html.Client` using [`Doc.AsPagelet`](Doc.md#AsPagelet).
+They can also be used as the body of a `Web.Control`, since the
+type `Doc` implements the interface `IControlBody`.
 
 ### Server side
 
@@ -61,7 +61,8 @@ using the version of `Attr.Handler` that is available when the
 namespace `WebSharper.UI.Next.Client` is _not_ opened. This function
 takes its callback in a quotation, with very strict constraints on the
 contents of the quotation: it must only be the name of a top-level
-function or a static member.
+function or a static member. You can also use the shorthands available
+from `WebSharper.UI.Next.Html`, such as `on.click`.
 
 It is also possible to include a client-side `Doc` within a
 server-side `Doc`, using the function `Doc.ClientSide` (aliased as
@@ -73,13 +74,16 @@ The resulting HTML is a simple placeholder with a unique id, and
 runtime code will replace this placeholder with the correct `Doc`.
 
 Server-side `Doc`s can be integrated into a WebSharper application
-using one of the following, available when opening
-`WebSharper.UI.Next.Server`:
+in one of the following ways:
 
-* The function `Doc.AsElements` converts a `Doc` into a list of
-  `Html.Server.Element`s, which can then be included in a page.
-* The overloaded method `Content.Doc` directly creates a
-  `Content<'EndPoint>`.
+* The type `Doc` implements the interface `Web.INode`, so it can be
+  used as:
+    * the `Head` or `Body` argument of the Sitelets method
+      `Content.Page`;
+    * a child element of a `WebSharper.Html.Server` element.
+* When opening `WebSharper.UI.Next.Server`, the method `Content.Page`
+  has an overload that takes a single `Doc` argument representing a
+  full HTML page.
 
 ## Example
 
@@ -102,7 +106,7 @@ module ClientCode =
     open WebSharper.UI.Next.Client
 
     let rvInput = Var.Create ""
-    let submit = Submitter.Create (View.Map Some rvInput.View) None
+    let submit = Submitter.Create (rvInput.View.Map Some) None
 
     let Submit (el: Dom.Element) (ev: Dom.Event) =
         submit.Trigger()
@@ -111,8 +115,7 @@ module ClientCode =
         Doc.Input [attr.placeholder "Enter your name here"] rvInput
 
     let OutputControl() =
-        submit.View
-        |> Doc.BindView (function
+        submit.View.Doc(function
             | None ->
                 Doc.Empty
             | Some "" ->
@@ -129,14 +132,14 @@ module ServerCode =
     [<Website>]
     let Website =
         Application.SinglePage(fun ctx ->
-            Content.Doc(
+            Content.Page(
                 Title = "UI.Next client-server example",
                 Body = [
                     h1 [text "Who are you?"]
                     client <@ ClientCode.InputControl() @>
                     inputAttr [
                         attr.``type`` "submit"
-                        Attr.Handler "click" <@ ClientCode.Submit @>
+                        on.click <@ ClientCode.Submit @>
                     ] []
                     client <@ ClientCode.OutputControl() @>
                 ]
