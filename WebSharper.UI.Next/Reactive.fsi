@@ -271,6 +271,7 @@ type Submitter<'A> =
     /// Get the input view of the submitter.
     member Input : View<'A>
 
+/// A special type of View whose value is only updated when Trigger is called.
 [<Sealed>]
 type Submitter =
 
@@ -278,6 +279,11 @@ type Submitter =
     /// Initially, the output view has the value init,
     /// until the Submitter is triggered for the first time.
     static member Create : input: View<'A> -> init: 'A -> Submitter<'A>
+
+    /// Create a Submitter from the given input view.
+    /// Initially, the output view has the value None,
+    /// until the Submitter is triggered for the first time.
+    static member CreateOption : input: View<'A> -> Submitter<option<'A>>
 
     /// Get the output view of a submitter.
     static member View : Submitter<'A> -> View<'A>

@@ -401,6 +401,9 @@ type Submitter =
     static member Create input init =
         Submitter<_>(input, init)
 
+    static member CreateOption input =
+        Submitter<_>(View.Map Some input, None)
+
     static member View (s: Submitter<_>) =
         s.View
 
