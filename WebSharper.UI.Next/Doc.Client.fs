@@ -371,15 +371,6 @@ type Doc' [<JavaScript>] (docNode, updates) =
     [<JavaScript; Inline "$this.updates">]
     member this.Updates = updates
 
-    interface Doc with
-        member this.ToDynDoc = Unchecked.defaultof<_>
-        member this.Write(_, _) = ()
-        member this.HasNonScriptSpecialTags = false
-        member this.Write(_, _, _) = ()
-        member this.IsAttribute = false
-        member this.Encode(_, _) = []
-        member this.Requires = Seq.empty
-
     interface IControlBody with
 
         [<JavaScript>]

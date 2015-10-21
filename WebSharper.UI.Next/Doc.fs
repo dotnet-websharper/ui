@@ -68,7 +68,18 @@ and DynDoc =
         member this.ReplaceInDom (node: Dom.Node) = X<unit>
 
     interface INode with
+        member this.Name =
+            match this with
+            | AppendDoc _
+            | EmptyDoc
+            | TextDoc _
+            | VerbatimDoc _ -> None
+            | ElemDoc e -> (e :> INode).Name
+            | INodeDoc node -> node.Name
+
         member this.IsAttribute = false
+
+        member this.AttributeValue = None
 
         member this.Write(meta, w) =
             (this :> Doc).Write(meta, w, ?res = None)
@@ -135,7 +146,9 @@ and [<Sealed>] Elt(tag: string, attrs: list<Attr>, children: list<Doc>) =
             || (children |> List.exists (fun d -> d.HasNonScriptSpecialTags))
 
     interface INode with
+        member this.Name = Some tag
         member this.IsAttribute = false
+        member this.AttributeValue = None
 
         member this.Write(meta, w) =
             (this :> Doc).Write(meta, w, ?res = None)
