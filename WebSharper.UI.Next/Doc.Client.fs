@@ -361,10 +361,10 @@ type CheckedInput<'T> =
         | Invalid x
         | Blank x -> x
 
-// We implement the Doc class proxy, the Doc module proxy and the Client.Doc module proxy
+// We implement the Doc interface, the Doc module proxy and the Client.Doc module proxy
 // all in this so that it all neatly looks like Doc.* in javascript.
-type [<Proxy(typeof<Doc>); CompiledName "Doc">]
-    Doc' [<JavaScript>] (docNode, updates) =
+[<CompiledName "Doc">]
+type Doc' [<JavaScript>] (docNode, updates) =
 
     [<JavaScript; Inline "$this.docNode">]
     member this.DocNode = docNode
