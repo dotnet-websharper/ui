@@ -85,14 +85,15 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
 
     let thisAssembly = Assembly.GetExecutingAssembly()
 
-    let refAssembly name =
-        cfg.ReferencedAssemblies
-        |> Seq.map (fun an -> Assembly.LoadFrom an)
-        |> Seq.tryFind (fun a -> name = a.GetName().Name)
-        |> function None -> null | Some a -> a
-
     do  System.AppDomain.CurrentDomain.add_AssemblyResolve(fun _ args ->
-            refAssembly <| AssemblyName(args.Name).Name
+            let name = AssemblyName(args.Name).Name.ToLowerInvariant()
+            let an =
+                cfg.ReferencedAssemblies
+                |> Seq.tryFind (fun an ->
+                    Path.GetFileNameWithoutExtension(an).ToLowerInvariant() = name)
+            match an with
+            | Some f -> Assembly.LoadFrom f
+            | None -> null
         )
     
     let rootNamespace = "WebSharper.UI.Next.Templating"
