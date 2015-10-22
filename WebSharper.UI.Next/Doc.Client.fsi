@@ -28,314 +28,10 @@ open WebSharper.UI.Next
 [<AutoOpen>]
 module EltExtensions =
 
-    type Doc with
-
-        /// Runs a reactive Doc as contents of the given element.
-        member Run : Element -> unit
-
-        /// Same as Run, but looks up the element by ID.
-        member RunById : id: string -> unit
-
     type Elt with
 
         /// Get the underlying DOM element.
         member Dom : Dom.Element
-
-        /// Add an event handler.
-        member On : event: string * callback: (Dom.Element -> Dom.Event -> unit) -> Elt
-
-        /// Add a callback to be called after the element has been inserted into the DOM.
-        member OnAfterRender : callback: (Dom.Element -> unit) -> Elt
-
-        // {{ event
-        /// Add a handler for the event "abort".
-        member OnAbort : cb: (Dom.Element -> Dom.UIEvent -> unit) -> Elt
-        /// Add a handler for the event "afterprint".
-        member OnAfterPrint : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "animationend".
-        member OnAnimationEnd : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "animationiteration".
-        member OnAnimationIteration : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "animationstart".
-        member OnAnimationStart : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "audioprocess".
-        member OnAudioProcess : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "beforeprint".
-        member OnBeforePrint : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "beforeunload".
-        member OnBeforeUnload : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "beginEvent".
-        member OnBeginEvent : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "blocked".
-        member OnBlocked : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "blur".
-        member OnBlur : cb: (Dom.Element -> Dom.FocusEvent -> unit) -> Elt
-        /// Add a handler for the event "cached".
-        member OnCached : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "canplay".
-        member OnCanPlay : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "canplaythrough".
-        member OnCanPlayThrough : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "change".
-        member OnChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "chargingchange".
-        member OnChargingChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "chargingtimechange".
-        member OnChargingTimeChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "checking".
-        member OnChecking : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "click".
-        member OnClick : cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
-        /// Add a handler for the event "close".
-        member OnClose : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "complete".
-        member OnComplete : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "compositionend".
-        member OnCompositionEnd : cb: (Dom.Element -> Dom.CompositionEvent -> unit) -> Elt
-        /// Add a handler for the event "compositionstart".
-        member OnCompositionStart : cb: (Dom.Element -> Dom.CompositionEvent -> unit) -> Elt
-        /// Add a handler for the event "compositionupdate".
-        member OnCompositionUpdate : cb: (Dom.Element -> Dom.CompositionEvent -> unit) -> Elt
-        /// Add a handler for the event "contextmenu".
-        member OnContextMenu : cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
-        /// Add a handler for the event "copy".
-        member OnCopy : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "cut".
-        member OnCut : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "dblclick".
-        member OnDblClick : cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
-        /// Add a handler for the event "devicelight".
-        member OnDeviceLight : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "devicemotion".
-        member OnDeviceMotion : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "deviceorientation".
-        member OnDeviceOrientation : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "deviceproximity".
-        member OnDeviceProximity : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "dischargingtimechange".
-        member OnDischargingTimeChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "DOMActivate".
-        member OnDOMActivate : cb: (Dom.Element -> Dom.UIEvent -> unit) -> Elt
-        /// Add a handler for the event "DOMAttributeNameChanged".
-        member OnDOMAttributeNameChanged : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "DOMAttrModified".
-        member OnDOMAttrModified : cb: (Dom.Element -> Dom.MutationEvent -> unit) -> Elt
-        /// Add a handler for the event "DOMCharacterDataModified".
-        member OnDOMCharacterDataModified : cb: (Dom.Element -> Dom.MutationEvent -> unit) -> Elt
-        /// Add a handler for the event "DOMContentLoaded".
-        member OnDOMContentLoaded : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "DOMElementNameChanged".
-        member OnDOMElementNameChanged : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "DOMNodeInserted".
-        member OnDOMNodeInserted : cb: (Dom.Element -> Dom.MutationEvent -> unit) -> Elt
-        /// Add a handler for the event "DOMNodeInsertedIntoDocument".
-        member OnDOMNodeInsertedIntoDocument : cb: (Dom.Element -> Dom.MutationEvent -> unit) -> Elt
-        /// Add a handler for the event "DOMNodeRemoved".
-        member OnDOMNodeRemoved : cb: (Dom.Element -> Dom.MutationEvent -> unit) -> Elt
-        /// Add a handler for the event "DOMNodeRemovedFromDocument".
-        member OnDOMNodeRemovedFromDocument : cb: (Dom.Element -> Dom.MutationEvent -> unit) -> Elt
-        /// Add a handler for the event "DOMSubtreeModified".
-        member OnDOMSubtreeModified : cb: (Dom.Element -> Dom.MutationEvent -> unit) -> Elt
-        /// Add a handler for the event "downloading".
-        member OnDownloading : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "drag".
-        member OnDrag : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "dragend".
-        member OnDragEnd : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "dragenter".
-        member OnDragEnter : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "dragleave".
-        member OnDragLeave : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "dragover".
-        member OnDragOver : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "dragstart".
-        member OnDragStart : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "drop".
-        member OnDrop : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "durationchange".
-        member OnDurationChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "emptied".
-        member OnEmptied : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "ended".
-        member OnEnded : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "endEvent".
-        member OnEndEvent : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "error".
-        member OnError : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "focus".
-        member OnFocus : cb: (Dom.Element -> Dom.FocusEvent -> unit) -> Elt
-        /// Add a handler for the event "fullscreenchange".
-        member OnFullScreenChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "fullscreenerror".
-        member OnFullScreenError : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "gamepadconnected".
-        member OnGamepadConnected : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "gamepaddisconnected".
-        member OnGamepadDisconnected : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "hashchange".
-        member OnHashChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "input".
-        member OnInput : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "invalid".
-        member OnInvalid : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "keydown".
-        member OnKeyDown : cb: (Dom.Element -> Dom.KeyboardEvent -> unit) -> Elt
-        /// Add a handler for the event "keypress".
-        member OnKeyPress : cb: (Dom.Element -> Dom.KeyboardEvent -> unit) -> Elt
-        /// Add a handler for the event "keyup".
-        member OnkeyUp : cb: (Dom.Element -> Dom.KeyboardEvent -> unit) -> Elt
-        /// Add a handler for the event "languagechange".
-        member OnLanguageChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "levelchange".
-        member OnLevelChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "load".
-        member OnLoad : cb: (Dom.Element -> Dom.UIEvent -> unit) -> Elt
-        /// Add a handler for the event "loadeddata".
-        member OnLoadedData : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "loadedmetadata".
-        member OnLoadedMetadata : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "loadend".
-        member OnLoadEnd : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "loadstart".
-        member OnLoadStart : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "message".
-        member OnMessage : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "mousedown".
-        member OnMouseDown : cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
-        /// Add a handler for the event "mouseenter".
-        member OnMouseEnter : cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
-        /// Add a handler for the event "mouseleave".
-        member OnMouseLeave : cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
-        /// Add a handler for the event "mousemove".
-        member OnMouseMove : cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
-        /// Add a handler for the event "mouseout".
-        member OnMouseOut : cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
-        /// Add a handler for the event "mouseover".
-        member OnMouseOver : cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
-        /// Add a handler for the event "mouseup".
-        member OnMouseUp : cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
-        /// Add a handler for the event "noupdate".
-        member OnNoUpdate : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "obsolete".
-        member OnObsolete : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "offline".
-        member OnOffline : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "online".
-        member OnOnline : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "open".
-        member OnOpen : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "orientationchange".
-        member OnOrientationChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "pagehide".
-        member OnPageHide : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "pageshow".
-        member OnPageShow : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "paste".
-        member OnPaste : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "pause".
-        member OnPause : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "play".
-        member OnPlay : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "playing".
-        member OnPlaying : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "pointerlockchange".
-        member OnPointerLockChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "pointerlockerror".
-        member OnPointerLockError : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "popstate".
-        member OnPopState : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "progress".
-        member OnProgress : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "ratechange".
-        member OnRateChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "readystatechange".
-        member OnReadyStateChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "repeatEvent".
-        member OnRepeatEvent : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "reset".
-        member OnReset : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "resize".
-        member OnResize : cb: (Dom.Element -> Dom.UIEvent -> unit) -> Elt
-        /// Add a handler for the event "scroll".
-        member OnScroll : cb: (Dom.Element -> Dom.UIEvent -> unit) -> Elt
-        /// Add a handler for the event "seeked".
-        member OnSeeked : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "seeking".
-        member OnSeeking : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "select".
-        member OnSelect : cb: (Dom.Element -> Dom.UIEvent -> unit) -> Elt
-        /// Add a handler for the event "show".
-        member OnShow : cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
-        /// Add a handler for the event "stalled".
-        member OnStalled : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "storage".
-        member OnStorage : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "submit".
-        member OnSubmit : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "success".
-        member OnSuccess : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "suspend".
-        member OnSuspend : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "SVGAbort".
-        member OnSVGAbort : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "SVGError".
-        member OnSVGError : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "SVGLoad".
-        member OnSVGLoad : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "SVGResize".
-        member OnSVGResize : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "SVGScroll".
-        member OnSVGScroll : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "SVGUnload".
-        member OnSVGUnload : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "SVGZoom".
-        member OnSVGZoom : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "timeout".
-        member OnTimeOut : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "timeupdate".
-        member OnTimeUpdate : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "touchcancel".
-        member OnTouchCancel : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "touchend".
-        member OnTouchEnd : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "touchenter".
-        member OnTouchEnter : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "touchleave".
-        member OnTouchLeave : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "touchmove".
-        member OnTouchMove : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "touchstart".
-        member OnTouchStart : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "transitionend".
-        member OnTransitionEnd : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "unload".
-        member OnUnload : cb: (Dom.Element -> Dom.UIEvent -> unit) -> Elt
-        /// Add a handler for the event "updateready".
-        member OnUpdateReady : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "upgradeneeded".
-        member OnUpgradeNeeded : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "userproximity".
-        member OnUserProximity : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "versionchange".
-        member OnVersionChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "visibilitychange".
-        member OnVisibilityChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "volumechange".
-        member OnVolumeChange : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "waiting".
-        member OnWaiting : cb: (Dom.Element -> Dom.Event -> unit) -> Elt
-        /// Add a handler for the event "wheel".
-        member OnWheel : cb: (Dom.Element -> Dom.WheelEvent -> unit) -> Elt
-        // }}
-
-        /// Add the given doc as first child(ren) of this element.
-        member Prepend : Doc -> unit
-
-        /// Add the given doc as last child(ren) of this element.
-        member Append : Doc -> unit
-
-        /// Remove all children from the element.
-        member Clear : unit -> unit
 
         /// Get the HTML string for this element in its current state.
         member Html : string
@@ -349,36 +45,6 @@ module EltExtensions =
         /// Get or set the element's text content.
         member Text : string with get, set
 
-        /// Get the given attribute's value.
-        member GetAttribute : name: string -> string
-
-        /// Set the given attribute's value.
-        member SetAttribute : name: string * value: string -> unit
-
-        /// Checks whether the element has the given attribute.
-        member HasAttribute : name: string -> bool
-
-        /// Unsets the given attribute.
-        member RemoveAttribute : name: string -> unit
-
-        /// Get the given property's value.
-        member GetProperty : name: string -> 'T
-
-        /// Set the given property's value.
-        member SetProperty : name: string * value: 'T -> unit
-
-        /// Add a CSS class to the element.
-        member AddClass : ``class``: string -> unit
-
-        /// Remove a CSS class from the element.
-        member RemoveClass : ``class``: string -> unit
-
-        /// Checks whether the element has a CSS class.
-        member HasClass : ``class``: string -> bool
-
-        /// Sets an inline style.
-        member SetStyle : name: string * value: string -> unit
-
 type CheckedInput<'T> =
     | Valid of value: 'T * inputText: string
     | Invalid of inputText: string
@@ -386,7 +52,555 @@ type CheckedInput<'T> =
 
     member Input : string
 
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+// Extension methods
+[<Extension; Sealed>]
+type DocExtensions =
+
+    /// Embeds time-varying fragments.
+    /// Equivalent to Doc.BindView.
+    [<Extension>]
+    static member Doc : View<'T> * ('T -> #Doc) -> Doc
+
+    /// Converts a collection to Doc using View.MapSeqCached and embeds the concatenated result.
+    /// Shorthand for Doc.BindSeqCached.
+    [<Extension>]
+    static member DocSeqCached : View<seq<'T>> * ('T -> #Doc) -> Doc
+        when 'T : equality
+
+    /// DocSeqCached with a custom key.
+    /// Shorthand for Doc.BindSeqCachedBy.
+    [<Extension>]
+    static member DocSeqCached : View<seq<'T>> * ('T -> 'K) * ('T -> #Doc) -> Doc
+        when 'K : equality
+
+    /// Converts a collection to Doc using View.MapSeqCachedView and embeds the concatenated result.
+    /// Shorthand for Doc.BindSeqCachedView.
+    [<Extension>]
+    static member DocSeqCached : View<seq<'T>> * (View<'T> -> #Doc) -> Doc
+        when 'T : equality
+
+    /// DocSeqCached with a custom key.
+    /// Shorthand for Doc.BindSeqCachedViewBy.
+    [<Extension>]
+    static member DocSeqCached : View<seq<'T>> * ('T -> 'K) * ('K -> View<'T> -> #Doc) -> Doc
+        when 'K : equality
+
+    /// Runs a reactive Doc as contents of the given element.
+    [<Extension>]
+    static member Run : Doc * Element -> unit
+
+    /// Same as Run, but looks up the element by ID.
+    [<Extension>]
+    static member RunById : Doc * id: string -> unit
+
+    /// Get the underlying DOM element.
+    [<Extension>]
+    static member GetDom : Elt -> Dom.Element
+
+    /// Add an event handler.
+    [<Extension>]
+    static member On : Elt * event: string * callback: (Dom.Element -> Dom.Event -> unit) -> Elt
+
+    /// Add a callback to be called after the element has been inserted into the DOM.
+    [<Extension>]
+    static member OnAfterRender : Elt * callback: (Dom.Element -> unit) -> Elt
+
+    /// Add the given doc as first child(ren) of this element.
+    [<Extension>]
+    static member Prepend : Elt * Doc -> unit
+
+    /// Add the given doc as last child(ren) of this element.
+    [<Extension>]
+    static member Append : Elt * Doc -> unit
+
+    /// Remove all children from the element.
+    [<Extension>]
+    static member Clear : Elt -> unit
+
+    /// Get the HTML string for this element in its current state.
+    [<Extension>]
+    static member GetHtml : Elt -> string
+
+    /// Get the element's id.
+    [<Extension>]
+    static member GetId : Elt -> string
+
+    /// Get the element's current value.
+    [<Extension>]
+    static member GetValue : Elt -> string
+
+    /// Get the element's text content.
+    [<Extension>]
+    static member GetText : Elt -> string
+
+    /// Set the element's current value.
+    [<Extension>]
+    static member SetValue : Elt * string -> unit
+
+    /// Set the element's text content.
+    [<Extension>]
+    static member SetText : Elt * string -> unit
+
+    /// Get the given attribute's value.
+    [<Extension>]
+    static member GetAttribute : Elt * name: string -> string
+
+    /// Set the given attribute's value.
+    [<Extension>]
+    static member SetAttribute : Elt * name: string * value: string -> unit
+
+    /// Checks whether the element has the given attribute.
+    [<Extension>]
+    static member HasAttribute : Elt * name: string -> bool
+
+    /// Unsets the given attribute.
+    [<Extension>]
+    static member RemoveAttribute : Elt * name: string -> unit
+
+    /// Get the given property's value.
+    [<Extension>]
+    static member GetProperty : Elt * name: string -> 'T
+
+    /// Set the given property's value.
+    [<Extension>]
+    static member SetProperty : Elt * name: string * value: 'T -> unit
+
+    /// Add a CSS class to the element.
+    [<Extension>]
+    static member AddClass : Elt * ``class``: string -> unit
+
+    /// Remove a CSS class from the element.
+    [<Extension>]
+    static member RemoveClass : Elt * ``class``: string -> unit
+
+    /// Checks whether the element has a CSS class.
+    [<Extension>]
+    static member HasClass : Elt * ``class``: string -> bool
+
+    /// Sets an inline style.
+    [<Extension>]
+    static member SetStyle : Elt * name: string * value: string -> unit
+
+    // {{ event
+    /// Add a handler for the event "abort".
+    [<Extension>]
+    static member OnAbort : Elt * cb: (Dom.Element -> Dom.UIEvent -> unit) -> Elt
+    /// Add a handler for the event "afterprint".
+    [<Extension>]
+    static member OnAfterPrint : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "animationend".
+    [<Extension>]
+    static member OnAnimationEnd : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "animationiteration".
+    [<Extension>]
+    static member OnAnimationIteration : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "animationstart".
+    [<Extension>]
+    static member OnAnimationStart : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "audioprocess".
+    [<Extension>]
+    static member OnAudioProcess : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "beforeprint".
+    [<Extension>]
+    static member OnBeforePrint : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "beforeunload".
+    [<Extension>]
+    static member OnBeforeUnload : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "beginEvent".
+    [<Extension>]
+    static member OnBeginEvent : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "blocked".
+    [<Extension>]
+    static member OnBlocked : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "blur".
+    [<Extension>]
+    static member OnBlur : Elt * cb: (Dom.Element -> Dom.FocusEvent -> unit) -> Elt
+    /// Add a handler for the event "cached".
+    [<Extension>]
+    static member OnCached : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "canplay".
+    [<Extension>]
+    static member OnCanPlay : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "canplaythrough".
+    [<Extension>]
+    static member OnCanPlayThrough : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "change".
+    [<Extension>]
+    static member OnChange : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "chargingchange".
+    [<Extension>]
+    static member OnChargingChange : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "chargingtimechange".
+    [<Extension>]
+    static member OnChargingTimeChange : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "checking".
+    [<Extension>]
+    static member OnChecking : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "click".
+    [<Extension>]
+    static member OnClick : Elt * cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
+    /// Add a handler for the event "close".
+    [<Extension>]
+    static member OnClose : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "complete".
+    [<Extension>]
+    static member OnComplete : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "compositionend".
+    [<Extension>]
+    static member OnCompositionEnd : Elt * cb: (Dom.Element -> Dom.CompositionEvent -> unit) -> Elt
+    /// Add a handler for the event "compositionstart".
+    [<Extension>]
+    static member OnCompositionStart : Elt * cb: (Dom.Element -> Dom.CompositionEvent -> unit) -> Elt
+    /// Add a handler for the event "compositionupdate".
+    [<Extension>]
+    static member OnCompositionUpdate : Elt * cb: (Dom.Element -> Dom.CompositionEvent -> unit) -> Elt
+    /// Add a handler for the event "contextmenu".
+    [<Extension>]
+    static member OnContextMenu : Elt * cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
+    /// Add a handler for the event "copy".
+    [<Extension>]
+    static member OnCopy : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "cut".
+    [<Extension>]
+    static member OnCut : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "dblclick".
+    [<Extension>]
+    static member OnDblClick : Elt * cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
+    /// Add a handler for the event "devicelight".
+    [<Extension>]
+    static member OnDeviceLight : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "devicemotion".
+    [<Extension>]
+    static member OnDeviceMotion : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "deviceorientation".
+    [<Extension>]
+    static member OnDeviceOrientation : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "deviceproximity".
+    [<Extension>]
+    static member OnDeviceProximity : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "dischargingtimechange".
+    [<Extension>]
+    static member OnDischargingTimeChange : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "DOMActivate".
+    [<Extension>]
+    static member OnDOMActivate : Elt * cb: (Dom.Element -> Dom.UIEvent -> unit) -> Elt
+    /// Add a handler for the event "DOMAttributeNameChanged".
+    [<Extension>]
+    static member OnDOMAttributeNameChanged : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "DOMAttrModified".
+    [<Extension>]
+    static member OnDOMAttrModified : Elt * cb: (Dom.Element -> Dom.MutationEvent -> unit) -> Elt
+    /// Add a handler for the event "DOMCharacterDataModified".
+    [<Extension>]
+    static member OnDOMCharacterDataModified : Elt * cb: (Dom.Element -> Dom.MutationEvent -> unit) -> Elt
+    /// Add a handler for the event "DOMContentLoaded".
+    [<Extension>]
+    static member OnDOMContentLoaded : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "DOMElementNameChanged".
+    [<Extension>]
+    static member OnDOMElementNameChanged : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "DOMNodeInserted".
+    [<Extension>]
+    static member OnDOMNodeInserted : Elt * cb: (Dom.Element -> Dom.MutationEvent -> unit) -> Elt
+    /// Add a handler for the event "DOMNodeInsertedIntoDocument".
+    [<Extension>]
+    static member OnDOMNodeInsertedIntoDocument : Elt * cb: (Dom.Element -> Dom.MutationEvent -> unit) -> Elt
+    /// Add a handler for the event "DOMNodeRemoved".
+    [<Extension>]
+    static member OnDOMNodeRemoved : Elt * cb: (Dom.Element -> Dom.MutationEvent -> unit) -> Elt
+    /// Add a handler for the event "DOMNodeRemovedFromDocument".
+    [<Extension>]
+    static member OnDOMNodeRemovedFromDocument : Elt * cb: (Dom.Element -> Dom.MutationEvent -> unit) -> Elt
+    /// Add a handler for the event "DOMSubtreeModified".
+    [<Extension>]
+    static member OnDOMSubtreeModified : Elt * cb: (Dom.Element -> Dom.MutationEvent -> unit) -> Elt
+    /// Add a handler for the event "downloading".
+    [<Extension>]
+    static member OnDownloading : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "drag".
+    [<Extension>]
+    static member OnDrag : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "dragend".
+    [<Extension>]
+    static member OnDragEnd : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "dragenter".
+    [<Extension>]
+    static member OnDragEnter : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "dragleave".
+    [<Extension>]
+    static member OnDragLeave : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "dragover".
+    [<Extension>]
+    static member OnDragOver : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "dragstart".
+    [<Extension>]
+    static member OnDragStart : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "drop".
+    [<Extension>]
+    static member OnDrop : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "durationchange".
+    [<Extension>]
+    static member OnDurationChange : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "emptied".
+    [<Extension>]
+    static member OnEmptied : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "ended".
+    [<Extension>]
+    static member OnEnded : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "endEvent".
+    [<Extension>]
+    static member OnEndEvent : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "error".
+    [<Extension>]
+    static member OnError : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "focus".
+    [<Extension>]
+    static member OnFocus : Elt * cb: (Dom.Element -> Dom.FocusEvent -> unit) -> Elt
+    /// Add a handler for the event "fullscreenchange".
+    [<Extension>]
+    static member OnFullScreenChange : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "fullscreenerror".
+    [<Extension>]
+    static member OnFullScreenError : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "gamepadconnected".
+    [<Extension>]
+    static member OnGamepadConnected : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "gamepaddisconnected".
+    [<Extension>]
+    static member OnGamepadDisconnected : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "hashchange".
+    [<Extension>]
+    static member OnHashChange : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "input".
+    [<Extension>]
+    static member OnInput : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "invalid".
+    [<Extension>]
+    static member OnInvalid : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "keydown".
+    [<Extension>]
+    static member OnKeyDown : Elt * cb: (Dom.Element -> Dom.KeyboardEvent -> unit) -> Elt
+    /// Add a handler for the event "keypress".
+    [<Extension>]
+    static member OnKeyPress : Elt * cb: (Dom.Element -> Dom.KeyboardEvent -> unit) -> Elt
+    /// Add a handler for the event "keyup".
+    [<Extension>]
+    static member OnKeyUp : Elt * cb: (Dom.Element -> Dom.KeyboardEvent -> unit) -> Elt
+    /// Add a handler for the event "languagechange".
+    [<Extension>]
+    static member OnLanguageChange : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "levelchange".
+    [<Extension>]
+    static member OnLevelChange : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "load".
+    [<Extension>]
+    static member OnLoad : Elt * cb: (Dom.Element -> Dom.UIEvent -> unit) -> Elt
+    /// Add a handler for the event "loadeddata".
+    [<Extension>]
+    static member OnLoadedData : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "loadedmetadata".
+    [<Extension>]
+    static member OnLoadedMetadata : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "loadend".
+    [<Extension>]
+    static member OnLoadEnd : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "loadstart".
+    [<Extension>]
+    static member OnLoadStart : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "message".
+    [<Extension>]
+    static member OnMessage : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "mousedown".
+    [<Extension>]
+    static member OnMouseDown : Elt * cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
+    /// Add a handler for the event "mouseenter".
+    [<Extension>]
+    static member OnMouseEnter : Elt * cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
+    /// Add a handler for the event "mouseleave".
+    [<Extension>]
+    static member OnMouseLeave : Elt * cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
+    /// Add a handler for the event "mousemove".
+    [<Extension>]
+    static member OnMouseMove : Elt * cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
+    /// Add a handler for the event "mouseout".
+    [<Extension>]
+    static member OnMouseOut : Elt * cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
+    /// Add a handler for the event "mouseover".
+    [<Extension>]
+    static member OnMouseOver : Elt * cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
+    /// Add a handler for the event "mouseup".
+    [<Extension>]
+    static member OnMouseUp : Elt * cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
+    /// Add a handler for the event "noupdate".
+    [<Extension>]
+    static member OnNoUpdate : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "obsolete".
+    [<Extension>]
+    static member OnObsolete : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "offline".
+    [<Extension>]
+    static member OnOffline : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "online".
+    [<Extension>]
+    static member OnOnline : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "open".
+    [<Extension>]
+    static member OnOpen : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "orientationchange".
+    [<Extension>]
+    static member OnOrientationChange : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "pagehide".
+    [<Extension>]
+    static member OnPageHide : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "pageshow".
+    [<Extension>]
+    static member OnPageShow : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "paste".
+    [<Extension>]
+    static member OnPaste : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "pause".
+    [<Extension>]
+    static member OnPause : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "play".
+    [<Extension>]
+    static member OnPlay : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "playing".
+    [<Extension>]
+    static member OnPlaying : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "pointerlockchange".
+    [<Extension>]
+    static member OnPointerLockChange : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "pointerlockerror".
+    [<Extension>]
+    static member OnPointerLockError : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "popstate".
+    [<Extension>]
+    static member OnPopState : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "progress".
+    [<Extension>]
+    static member OnProgress : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "ratechange".
+    [<Extension>]
+    static member OnRateChange : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "readystatechange".
+    [<Extension>]
+    static member OnReadyStateChange : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "repeatEvent".
+    [<Extension>]
+    static member OnRepeatEvent : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "reset".
+    [<Extension>]
+    static member OnReset : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "resize".
+    [<Extension>]
+    static member OnResize : Elt * cb: (Dom.Element -> Dom.UIEvent -> unit) -> Elt
+    /// Add a handler for the event "scroll".
+    [<Extension>]
+    static member OnScroll : Elt * cb: (Dom.Element -> Dom.UIEvent -> unit) -> Elt
+    /// Add a handler for the event "seeked".
+    [<Extension>]
+    static member OnSeeked : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "seeking".
+    [<Extension>]
+    static member OnSeeking : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "select".
+    [<Extension>]
+    static member OnSelect : Elt * cb: (Dom.Element -> Dom.UIEvent -> unit) -> Elt
+    /// Add a handler for the event "show".
+    [<Extension>]
+    static member OnShow : Elt * cb: (Dom.Element -> Dom.MouseEvent -> unit) -> Elt
+    /// Add a handler for the event "stalled".
+    [<Extension>]
+    static member OnStalled : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "storage".
+    [<Extension>]
+    static member OnStorage : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "submit".
+    [<Extension>]
+    static member OnSubmit : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "success".
+    [<Extension>]
+    static member OnSuccess : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "suspend".
+    [<Extension>]
+    static member OnSuspend : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "SVGAbort".
+    [<Extension>]
+    static member OnSVGAbort : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "SVGError".
+    [<Extension>]
+    static member OnSVGError : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "SVGLoad".
+    [<Extension>]
+    static member OnSVGLoad : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "SVGResize".
+    [<Extension>]
+    static member OnSVGResize : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "SVGScroll".
+    [<Extension>]
+    static member OnSVGScroll : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "SVGUnload".
+    [<Extension>]
+    static member OnSVGUnload : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "SVGZoom".
+    [<Extension>]
+    static member OnSVGZoom : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "timeout".
+    [<Extension>]
+    static member OnTimeOut : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "timeupdate".
+    [<Extension>]
+    static member OnTimeUpdate : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "touchcancel".
+    [<Extension>]
+    static member OnTouchCancel : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "touchend".
+    [<Extension>]
+    static member OnTouchEnd : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "touchenter".
+    [<Extension>]
+    static member OnTouchEnter : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "touchleave".
+    [<Extension>]
+    static member OnTouchLeave : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "touchmove".
+    [<Extension>]
+    static member OnTouchMove : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "touchstart".
+    [<Extension>]
+    static member OnTouchStart : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "transitionend".
+    [<Extension>]
+    static member OnTransitionEnd : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "unload".
+    [<Extension>]
+    static member OnUnload : Elt * cb: (Dom.Element -> Dom.UIEvent -> unit) -> Elt
+    /// Add a handler for the event "updateready".
+    [<Extension>]
+    static member OnUpdateReady : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "upgradeneeded".
+    [<Extension>]
+    static member OnUpgradeNeeded : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "userproximity".
+    [<Extension>]
+    static member OnUserProximity : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "versionchange".
+    [<Extension>]
+    static member OnVersionChange : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "visibilitychange".
+    [<Extension>]
+    static member OnVisibilityChange : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "volumechange".
+    [<Extension>]
+    static member OnVolumeChange : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "waiting".
+    [<Extension>]
+    static member OnWaiting : Elt * cb: (Dom.Element -> Dom.Event -> unit) -> Elt
+    /// Add a handler for the event "wheel".
+    [<Extension>]
+    static member OnWheel : Elt * cb: (Dom.Element -> Dom.WheelEvent -> unit) -> Elt
+    // }}
+
 module Doc =
 
   // Construction of basic nodes.
@@ -406,8 +620,8 @@ module Doc =
 
   // Collections.
 
-    /// Converts a collection to Doc using View.Convert and embeds the concatenated result.
-    /// Shorthand for View.Convert f |> View.Map Doc.Concat |> Doc.EmbedView.
+    /// Converts a collection to Doc using View.MapSeqCached and embeds the concatenated result.
+    /// Shorthand for View.MapSeqCached f |> View.Map Doc.Concat |> Doc.EmbedView.
     val BindSeqCached : ('T -> #Doc) -> View<seq<'T>> -> Doc
         when 'T : equality
 
@@ -423,8 +637,8 @@ module Doc =
     val ConvertBy : ('T -> 'K) -> ('T -> #Doc) -> View<seq<'T>> -> Doc
         when 'K : equality
 
-    /// Converts a collection to Doc using View.ConvertSeq and embeds the concatenated result.
-    /// Shorthand for View.ConvertSeq f |> View.Map Doc.Concat |> Doc.EmbedView.
+    /// Converts a collection to Doc using View.MapSeqCachedView and embeds the concatenated result.
+    /// Shorthand for View.MapSeqCachedView f |> View.Map Doc.Concat |> Doc.EmbedView.
     val BindSeqCachedView : (View<'T> -> #Doc) -> View<seq<'T>> -> Doc
         when 'T : equality
 
@@ -545,33 +759,3 @@ module Doc =
     /// Radio button.
     val Radio : seq<Attr> -> 'T -> IRef<'T> -> Elt
         when 'T : equality
-
-[<Extension; Class>]
-type DocExtensions =
-
-    /// Embeds time-varying fragments.
-    /// Equivalent to View.Map followed by Doc.EmbedView.
-    [<Extension>]
-    static member Doc : View<'T> * ('T -> #Doc) -> Doc
-
-    /// Converts a collection to Doc using View.Convert and embeds the concatenated result.
-    /// Shorthand for View.Convert f |> View.Map Doc.Concat |> Doc.EmbedView.
-    [<Extension>]
-    static member DocSeqCached : View<seq<'T>> * ('T -> #Doc) -> Doc
-        when 'T : equality
-
-    /// DocConvert with a custom key.
-    [<Extension>]
-    static member DocSeqCached : View<seq<'T>> * ('T -> 'K) * ('T -> #Doc) -> Doc
-        when 'K : equality
-
-    /// Converts a collection to Doc using View.ConvertSeq and embeds the concatenated result.
-    /// Shorthand for View.ConvertSeq f |> View.Map Doc.Concat |> Doc.EmbedView.
-    [<Extension>]
-    static member DocSeqCached : View<seq<'T>> * (View<'T> -> #Doc) -> Doc
-        when 'T : equality
-
-    /// DocConvertSeq with a custom key.
-    [<Extension>]
-    static member DocSeqCached : View<seq<'T>> * ('T -> 'K) * ('K -> View<'T> -> #Doc) -> Doc
-        when 'K : equality

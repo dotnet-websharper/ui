@@ -133,8 +133,7 @@ type IAttrNode =
     abstract Sync : Element -> unit
     abstract Init : Element -> unit
 
-[<JavaScript>]
-[<Sealed>]
+[<JavaScript; Sealed; Name "WebSharper.UI.Next.AnimatedAttrNode">]
 type AnimatedAttrNode<'T>(tr: Trans<'T>, view: View<'T>, push: Element -> 'T -> unit) =
     let mutable logical : option<'T> = None // current logical value
     let mutable visible : option<'T> = None // current value pushed to the parent element
@@ -197,8 +196,7 @@ type AnimatedAttrNode<'T>(tr: Trans<'T>, view: View<'T>, push: Element -> 'T -> 
 
         member a.Changed = updates
 
-[<JavaScript>]
-[<Sealed>]
+[<JavaScript; Sealed; Name "WebSharper.UI.Next.DynamicAttrNode">]
 type DynamicAttrNode<'T>(view: View<'T>, init: Element -> unit, push: Element -> 'T -> unit) =
     let mutable value = U
     let mutable dirty = true
@@ -224,13 +222,14 @@ type AttrFlags =
     | HasExitAnim = 2
     | HasChangeAnim = 4
 
-[<JavaScript; Proxy(typeof<Attr>)>]
+[<JavaScript; Proxy(typeof<Attr>); Name "WebSharper.UI.Next.AttrProxy">]
 type AttrProxy =
     {
         Flags : AttrFlags
         Tree : AttrTree
     }
-[<JavaScript>]
+
+[<JavaScript; Name "WebSharper.UI.Next.Attrs">]
 module Attrs =
 
     type Dyn =
@@ -359,7 +358,7 @@ type AttrProxy with
     static member Handler (event: string) (q: Expr<Element -> #DomEvent-> unit>) =
         As<Attr> (Attrs.Static (fun el -> el.AddEventListener(event, (As<Element -> DomEvent -> unit> q) el, false)))
 
-[<JavaScript>]
+[<JavaScript; Name "WebSharper.UI.Next.AttrModule">]
 module Attr =
 
     let Style name value =

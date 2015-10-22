@@ -201,15 +201,16 @@ module Tags =
             match e.Type with
             | "event" ->
                 [|
-                    "[<Inline>]"
-                    sprintf "member this.On%s(cb: Dom.Element -> Dom.%s -> unit) = As<Elt> ((As<Elt'> this).on(\"%s\", cb))" e.PascalName e.Category e.Name
+                    "[<Extension; Inline>]"
+                    sprintf "static member On%s(this: Elt, cb: Dom.Element -> Dom.%s -> unit) = As<Elt> ((As<Elt'> this).on(\"%s\", cb))" e.PascalName e.Category e.Name
                 |]
         RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next", "Doc.Client.fsi")) all <| fun e ->
             match e.Type with
             | "event" ->
                 [|
                     sprintf "/// Add a handler for the event \"%s\"." e.Name
-                    sprintf "member On%s : cb: (Dom.Element -> Dom.%s -> unit) -> Elt" e.PascalName e.Category
+                    "[<Extension>]"
+                    sprintf "static member On%s : Elt * cb: (Dom.Element -> Dom.%s -> unit) -> Elt" e.PascalName e.Category
                 |]
 
 Tags.Run()

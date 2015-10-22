@@ -22,37 +22,34 @@ namespace WebSharper.UI.Next.Server
 
 open System
 open WebSharper.UI.Next
+open WebSharper.Sitelets
+open WebSharper.Sitelets.Content
 
 module Doc =
 
     let WebControl (c: WebSharper.Web.INode) =
-        INodeDoc c :> Doc
+        Doc.OfINode c
 
-[<AutoOpen>]
-module Extensions =
-    open WebSharper.Sitelets
-    open WebSharper.Sitelets.Content
+module Content =
 
-    type Content<'Action> with
+    let Page (doc: Doc) : Async<Content<'Action>> =
+        let hasNonScriptSpecialTags = doc.HasNonScriptSpecialTags
+        Content.FromContext <| fun ctx ->
+            let env = Env.Create ctx
+            let res =
+                if hasNonScriptSpecialTags then
+                    env.GetSeparateResourcesAndScripts [doc]
+                else
+                    { Scripts = env.GetResourcesAndScripts [doc]; Styles = ""; Meta = "" }
+            Content.Custom(
+                Status = Http.Status.Ok,
+                Headers = [Http.Header.Custom "Content-Type" "text/html; charset=utf-8"],
+                WriteBody = fun s ->
+                    use w = new System.IO.StreamWriter(s)
+                    use w = new System.Web.UI.HtmlTextWriter(w)
+                    w.WriteLine("<!DOCTYPE html>")
+                    doc.Write(ctx.Metadata, w, res)
+            )
 
-        static member Page (doc: Doc) : Async<Content<'Action>> =
-            let hasNonScriptSpecialTags = doc.HasNonScriptSpecialTags
-            Content.FromContext <| fun ctx ->
-                let env = Env.Create ctx
-                let res =
-                    if hasNonScriptSpecialTags then
-                        env.GetSeparateResourcesAndScripts [doc]
-                    else
-                        { Scripts = env.GetResourcesAndScripts [doc]; Styles = ""; Meta = "" }
-                Content.Custom(
-                    Status = Http.Status.Ok,
-                    Headers = [Http.Header.Custom "Content-Type" "text/html; charset=utf-8"],
-                    WriteBody = fun s ->
-                        use w = new System.IO.StreamWriter(s)
-                        use w = new System.Web.UI.HtmlTextWriter(w)
-                        w.WriteLine("<!DOCTYPE html>")
-                        doc.Write(ctx.Metadata, w, res)
-                )
-
-        static member Doc (doc: Doc) : Async<Content<'Action>> =
-            Content<'Action>.Page doc
+    let Doc (doc: Doc) : Async<Content<'Action>> =
+        Page doc

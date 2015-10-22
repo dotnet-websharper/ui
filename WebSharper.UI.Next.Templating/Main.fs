@@ -386,7 +386,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                 let elName = e.Name.LocalName
                                 let attrValue = a.Value
                                 <@ Doc.Element elName [|Attr.Create "data-replace" attrValue |] [||] :> _ @>
-                            | a -> <@ Doc.Concat %(getSimpleHole a.Value) @>
+                            | a -> <@ Doc.Concat %(getSimpleHole a.Value : Expr<seq<Doc>>) @>
                         
                         let mainExpr = t |> createNode true
 

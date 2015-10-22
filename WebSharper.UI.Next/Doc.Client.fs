@@ -19,6 +19,7 @@ type DocNode =
 and [<CustomEquality>]
     [<JavaScript>]
     [<NoComparison>]
+    [<Name "WebSharper.UI.Next.DocElemNode">]
     DocElemNode =
     {
         Attr : Attrs.Dyn
@@ -50,7 +51,7 @@ and DocTextNode =
         mutable Value : string
     }
 
-[<JavaScript>]
+[<JavaScript; Name "WebSharper.UI.Next.Docs">]
 module Docs =
 
     /// Sets of DOM nodes.
@@ -349,7 +350,7 @@ module Docs =
         n.Value <- t
         n.Dirty <- true
 
-[<JavaScript>]
+[<JavaScript; Name "WebSharper.UI.Next.CheckedInput">]
 type CheckedInput<'T> =
     | Valid of value: 'T * inputText: string
     | Invalid of inputText: string
@@ -363,7 +364,7 @@ type CheckedInput<'T> =
 
 // We implement the Doc interface, the Doc module proxy and the Client.Doc module proxy
 // all in this so that it all neatly looks like Doc.* in javascript.
-[<CompiledName "Doc">]
+[<Name "WebSharper.UI.Next.Doc"; Proxy(typeof<Doc>)>]
 type Doc' [<JavaScript>] (docNode, updates) =
 
     [<JavaScript; Inline "$this.docNode">]
@@ -384,19 +385,19 @@ type Doc' [<JavaScript>] (docNode, updates) =
     static member Mk node updates =
         Doc'(node, updates)
 
-    [<JavaScript>]
-    static member Append (a: Doc') (b: Doc') =
+    [<JavaScript; Name "Append">]
+    static member Append' (a: Doc') (b: Doc') =
         (a.Updates, b.Updates)
         ||> View.Map2 (fun () () -> ())
         |> Doc'.Mk (AppendDoc (a.DocNode, b.DocNode))
 
-    [<JavaScript>]
-    static member Concat xs =
+    [<JavaScript; Name "Concat">]
+    static member Concat' xs =
         Seq.toArray xs
-        |> Array.MapReduce (fun x -> x) Doc'.Empty Doc'.Append
+        |> Array.MapReduce (fun x -> x) Doc'.Empty' Doc'.Append'
 
-    [<JavaScript>]
-    static member Empty
+    [<JavaScript; Name "Empty">]
+    static member Empty'
         with [<MethodImpl(MethodImplOptions.NoInlining)>] get () =
             Doc'.Mk EmptyDoc (View.Const ())
 
@@ -404,28 +405,16 @@ type Doc' [<JavaScript>] (docNode, updates) =
     static member Elem el attr (children: Doc') =
         As<Elt> (Elt'.New(el, attr, children))
 
-    [<JavaScript>]
-    static member Element name attr children =
-        let attr = Attr.Concat attr
-        let children = Doc'.Concat children
-        Doc'.Elem (DU.CreateElement name) attr children
-
-    [<JavaScript>]
-    static member SvgElement name attr children =
-        let attr = Attr.Concat attr
-        let children = Doc'.Concat children
-        Doc'.Elem (DU.CreateSvgElement name) attr children
-
-    [<JavaScript>]
-    static member TextNode v =
+    [<JavaScript; Name "TextNode">]
+    static member TextNode' v =
         Doc'.Mk (TextNodeDoc (DU.CreateText v)) (View.Const ())
 
     [<JavaScript>]
     static member Static el : Elt =
-        Doc'.Elem el Attr.Empty Doc'.Empty
+        Doc'.Elem el Attr.Empty Doc'.Empty'
 
-    [<JavaScript>]
-    static member Verbatim html =
+    [<JavaScript; Name "Verbatim">]
+    static member Verbatim' html =
         let a =
             match JQuery.JQuery.ParseHTML html with
             | null -> [||]
@@ -528,7 +517,7 @@ type Doc' [<JavaScript>] (docNode, updates) =
     [<JavaScript>]
     static member Flatten view =
         view
-        |> View.Map Doc'.Concat
+        |> View.Map Doc'.Concat'
         |> Doc'.EmbedView
 
     [<JavaScript>]
@@ -550,7 +539,7 @@ type Doc' [<JavaScript>] (docNode, updates) =
     [<JavaScript>]
     static member InputInternal elemTy attr =
         let el = DU.CreateElement elemTy
-        Doc'.Elem el (Attr.Concat (attr el)) Doc'.Empty
+        Doc'.Elem el (Attr.Concat (attr el)) Doc'.Empty'
 
     [<JavaScript>]
     static member Input attr (var: IRef<string>) =
@@ -662,9 +651,9 @@ type Doc' [<JavaScript>] (docNode, updates) =
                 l |> Seq.mapi (fun i x -> i, x)
             )
             |> Doc'.Convert (fun (i, o) ->
-                let t = Doc.TextNode (show o)
+                let t = Doc'.TextNode (show o)
                 As<Doc'> (
-                    Doc.Element "option" [
+                    Doc'.Element "option" [
                         Attr.Create "value" (string i)
                     ] [t])
             )
@@ -700,7 +689,7 @@ type Doc' [<JavaScript>] (docNode, updates) =
                 yield Attr.Create "type" "checkbox"
                 yield Attr.DynamicProp "checked" chk.View
             ]
-        Doc'.Elem el attrs Doc'.Empty
+        Doc'.Elem el attrs Doc'.Empty'
 
     [<JavaScript>]
     static member CheckBoxGroup attrs (item: 'T) (chk: IRef<list<'T>>) =
@@ -730,7 +719,7 @@ type Doc' [<JavaScript>] (docNode, updates) =
             updateList chkd
         el.AddEventListener("click", onClick, false)
 
-        Doc'.Elem el attrs Doc'.Empty
+        Doc'.Elem el attrs Doc'.Empty'
 
     [<JavaScript>]
     static member Clickable elem action =
@@ -744,19 +733,19 @@ type Doc' [<JavaScript>] (docNode, updates) =
     static member Button caption attrs action =
         let attrs = Attr.Concat attrs
         let el = Doc'.Clickable "button" action
-        Doc'.Elem el attrs (As (Doc.TextNode caption))
+        Doc'.Elem el attrs (Doc'.TextNode' caption)
 
     [<JavaScript>]
     static member ButtonView caption attrs view action =
         let evAttr = Attr.HandlerView "click" view (fun _ _ -> action)
         let attrs = Attr.Concat (Seq.append [|evAttr|] attrs)
-        Doc'.Elem (DU.CreateElement "button") attrs (As (Doc.TextNode caption))
+        Doc'.Elem (DU.CreateElement "button") attrs (Doc'.TextNode' caption)
 
     [<JavaScript>]
     static member Link caption attrs action =
         let attrs = Attr.Concat attrs |> Attr.Append (Attr.Create "href" "#")
         let el = Doc'.Clickable "a" action
-        Doc'.Elem el attrs (As (Doc.TextNode caption))
+        Doc'.Elem el attrs (Doc'.TextNode' caption)
 
     [<JavaScript>]
     static member LinkView caption attrs view action =
@@ -780,9 +769,53 @@ type Doc' [<JavaScript>] (docNode, updates) =
                 "name" ==> var.Id
                 valAttr
             ] @ (List.ofSeq attrs) |> Attr.Concat
-        Doc'.Elem el attr Doc'.Empty
+        Doc'.Elem el attr Doc'.Empty'
 
-and [<JavaScript; Proxy(typeof<Elt>); CompiledName "Elt">]
+    // Actual proxy members
+
+    [<JavaScript>]
+    static member Element (name: string) (attr: seq<Attr>) (children: seq<Doc>) : Elt =
+        let attr = Attr.Concat attr
+        let children = Doc'.Concat' (As children)
+        As (Doc'.Elem (DU.CreateElement name) attr children)
+
+    [<JavaScript>]
+    static member SvgElement (name: string) (attr: seq<Attr>) (children: seq<Doc>) : Elt =
+        let attr = Attr.Concat attr
+        let children = Doc'.Concat' (As children)
+        As (Doc'.Elem (DU.CreateSvgElement name) attr children)
+
+    [<JavaScript; Name "EmptyProxy">]
+    static member Empty
+        with [<Inline; MethodImpl(MethodImplOptions.NoInlining)>] get () : Doc =
+            As Doc'.Empty'
+
+    [<JavaScript; Inline; Name "AppendProxy">]
+    static member Append (a: Doc) (b: Doc) : Doc =
+        As (Doc'.Append' (As a) (As b))
+
+    [<JavaScript; Inline; Name "ConcatProxy1">]
+    static member Concat (xs: seq<Doc>) : Doc =
+        As (Doc'.Concat' (As xs))
+
+    [<JavaScript; Inline; Name "ConcatProxy2">]
+    static member Concat (xs: seq<Elt>) : Doc =
+        As (Doc'.Concat' (As xs))
+
+    [<JavaScript; Inline; Name "TextNodeProxy">]
+    static member TextNode (s: string) : Doc =
+        As (Doc'.TextNode' s)
+
+    // TODO: what if it's not a Doc but (eg) an Html.Client.Element ?
+    [<JavaScript; Inline>]
+    static member ClientSide (expr: Microsoft.FSharp.Quotations.Expr<#IControlBody>) : Doc =
+        As expr
+
+    [<JavaScript; Inline; Name "VerbatimProxy">]
+    static member Verbatim (s: string) : Doc =
+        As (Doc'.Verbatim' s)
+
+and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
     Elt'(docNode, updates, elt: Dom.Element, rvUpdates: Var<View<unit>>, attrUpdates) =
     inherit Doc'(docNode, updates)
 
@@ -817,14 +850,14 @@ and [<JavaScript; Proxy(typeof<Elt>); CompiledName "Elt">]
         | _ -> failwith "Elt: Invalid docNode"
 
     [<Name "Append">]
-    member this.Append'(doc: Doc') =
+    member this.AppendDoc(doc: Doc') =
         let e = this.DocElemNode
         e.Children <- AppendDoc(e.Children, doc.DocNode)
         rvUpdates.Value <- View.Map2 (fun () () -> ()) rvUpdates.Value doc.Updates
         Docs.InsertDoc elt doc.DocNode DU.AtEnd |> ignore
 
     [<Name "Prepend">]
-    member this.Prepend'(doc: Doc') =
+    member this.PrependDoc(doc: Doc') =
         let e = this.DocElemNode
         e.Children <- AppendDoc(doc.DocNode, e.Children)
         rvUpdates.Value <- View.Map2 (fun () () -> ()) rvUpdates.Value doc.Updates
@@ -911,322 +944,11 @@ and [<JavaScript; Proxy(typeof<Elt>); CompiledName "Elt">]
 [<AutoOpen; JavaScript>]
 module EltExtensions =
 
-    type Doc with
-
-        [<Inline>]
-        member this.RunById(id) =
-            Doc'.RunById id (As<Doc'> this)
-
-        [<Inline>]
-        member this.Run(elt) =
-            Doc'.Run elt (As<Doc'> this)
-
     type Elt with
 
         [<Inline "$0.elt">]
         member this.Dom =
             (As<Elt'> this).Element
-
-        [<Inline>]
-        member this.Append(doc: Doc) =
-            (As<Elt'> this).Append'(As<Doc'> doc)
-
-        [<Inline>]
-        member this.Prepend(doc: Doc) =
-            (As<Elt'> this).Prepend'(As<Doc'> doc)
-
-        [<Inline>]
-        member this.Clear() =
-            (As<Elt'> this).Clear'()
-
-        [<Inline>]
-        member this.On(event, cb: Dom.Element -> Dom.Event -> unit) =
-            As<Elt> ((As<Elt'> this).on(event, cb))
-
-        [<Inline>]
-        member this.OnAfterRender(cb: Dom.Element -> unit) =
-            As<Elt> ((As<Elt'> this).OnAfterRender(cb))
-
-        // {{ event
-        [<Inline>]
-        member this.OnAbort(cb: Dom.Element -> Dom.UIEvent -> unit) = As<Elt> ((As<Elt'> this).on("abort", cb))
-        [<Inline>]
-        member this.OnAfterPrint(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("afterprint", cb))
-        [<Inline>]
-        member this.OnAnimationEnd(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("animationend", cb))
-        [<Inline>]
-        member this.OnAnimationIteration(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("animationiteration", cb))
-        [<Inline>]
-        member this.OnAnimationStart(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("animationstart", cb))
-        [<Inline>]
-        member this.OnAudioProcess(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("audioprocess", cb))
-        [<Inline>]
-        member this.OnBeforePrint(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("beforeprint", cb))
-        [<Inline>]
-        member this.OnBeforeUnload(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("beforeunload", cb))
-        [<Inline>]
-        member this.OnBeginEvent(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("beginEvent", cb))
-        [<Inline>]
-        member this.OnBlocked(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("blocked", cb))
-        [<Inline>]
-        member this.OnBlur(cb: Dom.Element -> Dom.FocusEvent -> unit) = As<Elt> ((As<Elt'> this).on("blur", cb))
-        [<Inline>]
-        member this.OnCached(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("cached", cb))
-        [<Inline>]
-        member this.OnCanPlay(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("canplay", cb))
-        [<Inline>]
-        member this.OnCanPlayThrough(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("canplaythrough", cb))
-        [<Inline>]
-        member this.OnChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("change", cb))
-        [<Inline>]
-        member this.OnChargingChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("chargingchange", cb))
-        [<Inline>]
-        member this.OnChargingTimeChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("chargingtimechange", cb))
-        [<Inline>]
-        member this.OnChecking(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("checking", cb))
-        [<Inline>]
-        member this.OnClick(cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("click", cb))
-        [<Inline>]
-        member this.OnClose(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("close", cb))
-        [<Inline>]
-        member this.OnComplete(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("complete", cb))
-        [<Inline>]
-        member this.OnCompositionEnd(cb: Dom.Element -> Dom.CompositionEvent -> unit) = As<Elt> ((As<Elt'> this).on("compositionend", cb))
-        [<Inline>]
-        member this.OnCompositionStart(cb: Dom.Element -> Dom.CompositionEvent -> unit) = As<Elt> ((As<Elt'> this).on("compositionstart", cb))
-        [<Inline>]
-        member this.OnCompositionUpdate(cb: Dom.Element -> Dom.CompositionEvent -> unit) = As<Elt> ((As<Elt'> this).on("compositionupdate", cb))
-        [<Inline>]
-        member this.OnContextMenu(cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("contextmenu", cb))
-        [<Inline>]
-        member this.OnCopy(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("copy", cb))
-        [<Inline>]
-        member this.OnCut(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("cut", cb))
-        [<Inline>]
-        member this.OnDblClick(cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("dblclick", cb))
-        [<Inline>]
-        member this.OnDeviceLight(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("devicelight", cb))
-        [<Inline>]
-        member this.OnDeviceMotion(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("devicemotion", cb))
-        [<Inline>]
-        member this.OnDeviceOrientation(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("deviceorientation", cb))
-        [<Inline>]
-        member this.OnDeviceProximity(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("deviceproximity", cb))
-        [<Inline>]
-        member this.OnDischargingTimeChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("dischargingtimechange", cb))
-        [<Inline>]
-        member this.OnDOMActivate(cb: Dom.Element -> Dom.UIEvent -> unit) = As<Elt> ((As<Elt'> this).on("DOMActivate", cb))
-        [<Inline>]
-        member this.OnDOMAttributeNameChanged(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("DOMAttributeNameChanged", cb))
-        [<Inline>]
-        member this.OnDOMAttrModified(cb: Dom.Element -> Dom.MutationEvent -> unit) = As<Elt> ((As<Elt'> this).on("DOMAttrModified", cb))
-        [<Inline>]
-        member this.OnDOMCharacterDataModified(cb: Dom.Element -> Dom.MutationEvent -> unit) = As<Elt> ((As<Elt'> this).on("DOMCharacterDataModified", cb))
-        [<Inline>]
-        member this.OnDOMContentLoaded(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("DOMContentLoaded", cb))
-        [<Inline>]
-        member this.OnDOMElementNameChanged(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("DOMElementNameChanged", cb))
-        [<Inline>]
-        member this.OnDOMNodeInserted(cb: Dom.Element -> Dom.MutationEvent -> unit) = As<Elt> ((As<Elt'> this).on("DOMNodeInserted", cb))
-        [<Inline>]
-        member this.OnDOMNodeInsertedIntoDocument(cb: Dom.Element -> Dom.MutationEvent -> unit) = As<Elt> ((As<Elt'> this).on("DOMNodeInsertedIntoDocument", cb))
-        [<Inline>]
-        member this.OnDOMNodeRemoved(cb: Dom.Element -> Dom.MutationEvent -> unit) = As<Elt> ((As<Elt'> this).on("DOMNodeRemoved", cb))
-        [<Inline>]
-        member this.OnDOMNodeRemovedFromDocument(cb: Dom.Element -> Dom.MutationEvent -> unit) = As<Elt> ((As<Elt'> this).on("DOMNodeRemovedFromDocument", cb))
-        [<Inline>]
-        member this.OnDOMSubtreeModified(cb: Dom.Element -> Dom.MutationEvent -> unit) = As<Elt> ((As<Elt'> this).on("DOMSubtreeModified", cb))
-        [<Inline>]
-        member this.OnDownloading(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("downloading", cb))
-        [<Inline>]
-        member this.OnDrag(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("drag", cb))
-        [<Inline>]
-        member this.OnDragEnd(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("dragend", cb))
-        [<Inline>]
-        member this.OnDragEnter(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("dragenter", cb))
-        [<Inline>]
-        member this.OnDragLeave(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("dragleave", cb))
-        [<Inline>]
-        member this.OnDragOver(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("dragover", cb))
-        [<Inline>]
-        member this.OnDragStart(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("dragstart", cb))
-        [<Inline>]
-        member this.OnDrop(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("drop", cb))
-        [<Inline>]
-        member this.OnDurationChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("durationchange", cb))
-        [<Inline>]
-        member this.OnEmptied(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("emptied", cb))
-        [<Inline>]
-        member this.OnEnded(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("ended", cb))
-        [<Inline>]
-        member this.OnEndEvent(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("endEvent", cb))
-        [<Inline>]
-        member this.OnError(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("error", cb))
-        [<Inline>]
-        member this.OnFocus(cb: Dom.Element -> Dom.FocusEvent -> unit) = As<Elt> ((As<Elt'> this).on("focus", cb))
-        [<Inline>]
-        member this.OnFullScreenChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("fullscreenchange", cb))
-        [<Inline>]
-        member this.OnFullScreenError(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("fullscreenerror", cb))
-        [<Inline>]
-        member this.OnGamepadConnected(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("gamepadconnected", cb))
-        [<Inline>]
-        member this.OnGamepadDisconnected(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("gamepaddisconnected", cb))
-        [<Inline>]
-        member this.OnHashChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("hashchange", cb))
-        [<Inline>]
-        member this.OnInput(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("input", cb))
-        [<Inline>]
-        member this.OnInvalid(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("invalid", cb))
-        [<Inline>]
-        member this.OnKeyDown(cb: Dom.Element -> Dom.KeyboardEvent -> unit) = As<Elt> ((As<Elt'> this).on("keydown", cb))
-        [<Inline>]
-        member this.OnKeyPress(cb: Dom.Element -> Dom.KeyboardEvent -> unit) = As<Elt> ((As<Elt'> this).on("keypress", cb))
-        [<Inline>]
-        member this.OnkeyUp(cb: Dom.Element -> Dom.KeyboardEvent -> unit) = As<Elt> ((As<Elt'> this).on("keyup", cb))
-        [<Inline>]
-        member this.OnLanguageChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("languagechange", cb))
-        [<Inline>]
-        member this.OnLevelChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("levelchange", cb))
-        [<Inline>]
-        member this.OnLoad(cb: Dom.Element -> Dom.UIEvent -> unit) = As<Elt> ((As<Elt'> this).on("load", cb))
-        [<Inline>]
-        member this.OnLoadedData(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("loadeddata", cb))
-        [<Inline>]
-        member this.OnLoadedMetadata(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("loadedmetadata", cb))
-        [<Inline>]
-        member this.OnLoadEnd(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("loadend", cb))
-        [<Inline>]
-        member this.OnLoadStart(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("loadstart", cb))
-        [<Inline>]
-        member this.OnMessage(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("message", cb))
-        [<Inline>]
-        member this.OnMouseDown(cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("mousedown", cb))
-        [<Inline>]
-        member this.OnMouseEnter(cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("mouseenter", cb))
-        [<Inline>]
-        member this.OnMouseLeave(cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("mouseleave", cb))
-        [<Inline>]
-        member this.OnMouseMove(cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("mousemove", cb))
-        [<Inline>]
-        member this.OnMouseOut(cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("mouseout", cb))
-        [<Inline>]
-        member this.OnMouseOver(cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("mouseover", cb))
-        [<Inline>]
-        member this.OnMouseUp(cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("mouseup", cb))
-        [<Inline>]
-        member this.OnNoUpdate(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("noupdate", cb))
-        [<Inline>]
-        member this.OnObsolete(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("obsolete", cb))
-        [<Inline>]
-        member this.OnOffline(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("offline", cb))
-        [<Inline>]
-        member this.OnOnline(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("online", cb))
-        [<Inline>]
-        member this.OnOpen(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("open", cb))
-        [<Inline>]
-        member this.OnOrientationChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("orientationchange", cb))
-        [<Inline>]
-        member this.OnPageHide(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("pagehide", cb))
-        [<Inline>]
-        member this.OnPageShow(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("pageshow", cb))
-        [<Inline>]
-        member this.OnPaste(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("paste", cb))
-        [<Inline>]
-        member this.OnPause(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("pause", cb))
-        [<Inline>]
-        member this.OnPlay(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("play", cb))
-        [<Inline>]
-        member this.OnPlaying(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("playing", cb))
-        [<Inline>]
-        member this.OnPointerLockChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("pointerlockchange", cb))
-        [<Inline>]
-        member this.OnPointerLockError(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("pointerlockerror", cb))
-        [<Inline>]
-        member this.OnPopState(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("popstate", cb))
-        [<Inline>]
-        member this.OnProgress(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("progress", cb))
-        [<Inline>]
-        member this.OnRateChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("ratechange", cb))
-        [<Inline>]
-        member this.OnReadyStateChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("readystatechange", cb))
-        [<Inline>]
-        member this.OnRepeatEvent(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("repeatEvent", cb))
-        [<Inline>]
-        member this.OnReset(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("reset", cb))
-        [<Inline>]
-        member this.OnResize(cb: Dom.Element -> Dom.UIEvent -> unit) = As<Elt> ((As<Elt'> this).on("resize", cb))
-        [<Inline>]
-        member this.OnScroll(cb: Dom.Element -> Dom.UIEvent -> unit) = As<Elt> ((As<Elt'> this).on("scroll", cb))
-        [<Inline>]
-        member this.OnSeeked(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("seeked", cb))
-        [<Inline>]
-        member this.OnSeeking(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("seeking", cb))
-        [<Inline>]
-        member this.OnSelect(cb: Dom.Element -> Dom.UIEvent -> unit) = As<Elt> ((As<Elt'> this).on("select", cb))
-        [<Inline>]
-        member this.OnShow(cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("show", cb))
-        [<Inline>]
-        member this.OnStalled(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("stalled", cb))
-        [<Inline>]
-        member this.OnStorage(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("storage", cb))
-        [<Inline>]
-        member this.OnSubmit(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("submit", cb))
-        [<Inline>]
-        member this.OnSuccess(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("success", cb))
-        [<Inline>]
-        member this.OnSuspend(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("suspend", cb))
-        [<Inline>]
-        member this.OnSVGAbort(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("SVGAbort", cb))
-        [<Inline>]
-        member this.OnSVGError(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("SVGError", cb))
-        [<Inline>]
-        member this.OnSVGLoad(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("SVGLoad", cb))
-        [<Inline>]
-        member this.OnSVGResize(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("SVGResize", cb))
-        [<Inline>]
-        member this.OnSVGScroll(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("SVGScroll", cb))
-        [<Inline>]
-        member this.OnSVGUnload(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("SVGUnload", cb))
-        [<Inline>]
-        member this.OnSVGZoom(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("SVGZoom", cb))
-        [<Inline>]
-        member this.OnTimeOut(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("timeout", cb))
-        [<Inline>]
-        member this.OnTimeUpdate(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("timeupdate", cb))
-        [<Inline>]
-        member this.OnTouchCancel(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("touchcancel", cb))
-        [<Inline>]
-        member this.OnTouchEnd(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("touchend", cb))
-        [<Inline>]
-        member this.OnTouchEnter(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("touchenter", cb))
-        [<Inline>]
-        member this.OnTouchLeave(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("touchleave", cb))
-        [<Inline>]
-        member this.OnTouchMove(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("touchmove", cb))
-        [<Inline>]
-        member this.OnTouchStart(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("touchstart", cb))
-        [<Inline>]
-        member this.OnTransitionEnd(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("transitionend", cb))
-        [<Inline>]
-        member this.OnUnload(cb: Dom.Element -> Dom.UIEvent -> unit) = As<Elt> ((As<Elt'> this).on("unload", cb))
-        [<Inline>]
-        member this.OnUpdateReady(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("updateready", cb))
-        [<Inline>]
-        member this.OnUpgradeNeeded(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("upgradeneeded", cb))
-        [<Inline>]
-        member this.OnUserProximity(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("userproximity", cb))
-        [<Inline>]
-        member this.OnVersionChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("versionchange", cb))
-        [<Inline>]
-        member this.OnVisibilityChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("visibilitychange", cb))
-        [<Inline>]
-        member this.OnVolumeChange(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("volumechange", cb))
-        [<Inline>]
-        member this.OnWaiting(cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("waiting", cb))
-        [<Inline>]
-        member this.OnWheel(cb: Dom.Element -> Dom.WheelEvent -> unit) = As<Elt> ((As<Elt'> this).on("wheel", cb))
-        // }}
 
         [<Inline>]
         member this.Html =
@@ -1244,82 +966,7 @@ module EltExtensions =
             with [<Inline>] get() = (As<Elt'> this).GetText()
             and [<Inline>] set v = (As<Elt'> this).SetText(v)
 
-        [<Inline>]
-        member this.SetAttribute(name, value) =
-            (As<Elt'> this).SetAttribute'(name, value)
-
-        [<Inline>]
-        member this.GetAttribute(name) =
-            (As<Elt'> this).GetAttribute'(name)
-
-        [<Inline>]
-        member this.HasAttribute(name) =
-            (As<Elt'> this).HasAttribute'(name)
-
-        [<Inline>]
-        member this.RemoveAttribute(name) =
-            (As<Elt'> this).RemoveAttribute'(name)
-
-        [<Inline>]
-        member this.SetProperty(name, value) =
-            (As<Elt'> this).SetProperty'(name, value)
-
-        [<Inline>]
-        member this.GetProperty(name) =
-            (As<Elt'> this).GetProperty'(name)
-
-        [<Inline>]
-        member this.AddClass(cls) =
-            (As<Elt'> this).AddClass'(cls)
-
-        [<Inline>]
-        member this.RemoveClass(cls) =
-            (As<Elt'> this).RemoveClass'(cls)
-
-        [<Inline>]
-        member this.HasClass(cls) =
-            (As<Elt'> this).HasClass'(cls)
-
-        [<Inline>]
-        member this.SetStyle(name, value) =
-            (As<Elt'> this).SetStyle'(name, value)
-
-[<JavaScript; Proxy("WebSharper.UI.Next.DocModule, WebSharper.UI.Next")>]
-type DocExtProxy =
-
-    [<Inline>]
-    static member Append (a: Doc) (b: Doc) : Doc =
-        As (Doc'.Append (As a) (As b))
-
-    [<Inline>]
-    static member Concat (xs: seq<Doc>) : Doc =
-        As (Doc'.Concat (As xs))
-
-    static member Empty
-        with [<Inline>] get () : Doc = As Doc'.Empty
-
-    [<Inline>]
-    static member Element name attr (children: seq<Doc>) : Elt =
-        Doc'.Element name attr (As children)
-
-    [<Inline>]
-    static member SvgElement name attr (children: seq<Doc>) : Elt =
-        Doc'.SvgElement name attr (As children)
-
-    [<Inline>]
-    static member TextNode v : Doc =
-        As (Doc'.TextNode v)
-
-    // TODO: what if it's not a Doc but (eg) an Html.Client.Element ?
-    [<Inline>]
-    static member ClientSide (expr: Microsoft.FSharp.Quotations.Expr<#IControlBody>) =
-        As<Doc> expr
-
-    [<Inline>]
-    static member Verbatim (html: string) : Doc =
-        As (Doc'.Verbatim html)
-
-[<JavaScript; CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+[<JavaScript; Name "DocModule">]
 module Doc =
 
     [<Inline>]
@@ -1482,8 +1129,29 @@ module Doc =
     let Radio attrs value var =
         Doc'.Radio attrs value var
 
-[<Extension; JavaScript>]
-type DocExtensions() =
+[<Extension; Sealed; JavaScript>]
+type DocExtensions =
+
+    [<Extension; Inline>]
+    static member GetDom(this: Elt) = this.Dom
+
+    [<Extension; Inline>]
+    static member GetHtml(this: Elt) = this.Html
+
+    [<Extension; Inline>]
+    static member GetId(this: Elt) = this.Id
+
+    [<Extension; Inline>]
+    static member GetValue(this: Elt) = this.Value
+
+    [<Extension; Inline>]
+    static member SetValue(this: Elt, v) = this.Value <- v
+
+    [<Extension; Inline>]
+    static member GetText(this: Elt) = this.Text
+
+    [<Extension; Inline>]
+    static member SetText(this: Elt, v) = this.Text <- v
 
     [<Extension; Inline>]
     static member Doc(v, f) = Doc.BindView f v
@@ -1499,3 +1167,352 @@ type DocExtensions() =
 
     [<Extension; Inline>]
     static member DocSeqCached(v, k, f) = Doc.BindSeqCachedViewBy k f v
+
+    [<Extension; Inline>]
+    static member RunById(doc: Doc, id: string) =
+        Doc'.RunById id (As<Doc'> doc)
+
+    [<Extension; Inline>]
+    static member Run(doc: Doc, elt: Dom.Element) =
+        Doc'.Run elt (As<Doc'> doc)
+
+    [<Extension; Inline>]
+    static member Append(this: Elt, doc: Doc) =
+        (As<Elt'> this).AppendDoc(As<Doc'> doc)
+
+    [<Extension; Inline>]
+    static member Prepend(this: Elt, doc: Doc) =
+        (As<Elt'> this).PrependDoc(As<Doc'> doc)
+
+    [<Extension; Inline>]
+    static member Clear(this: Elt) =
+        (As<Elt'> this).Clear'()
+
+    [<Extension; Inline>]
+    static member On(this: Elt, event, cb: Dom.Element -> Dom.Event -> unit) =
+        As<Elt> ((As<Elt'> this).on(event, cb))
+
+    [<Extension; Inline>]
+    static member OnAfterRender(this: Elt, cb: Dom.Element -> unit) =
+        As<Elt> ((As<Elt'> this).OnAfterRender(cb))
+
+    [<Extension; Inline>]
+    static member SetAttribute(this: Elt, name, value) =
+        (As<Elt'> this).SetAttribute'(name, value)
+
+    [<Extension; Inline>]
+    static member GetAttribute(this: Elt, name) =
+        (As<Elt'> this).GetAttribute'(name)
+
+    [<Extension; Inline>]
+    static member HasAttribute(this: Elt, name) =
+        (As<Elt'> this).HasAttribute'(name)
+
+    [<Extension; Inline>]
+    static member RemoveAttribute(this: Elt, name) =
+        (As<Elt'> this).RemoveAttribute'(name)
+
+    [<Extension; Inline>]
+    static member SetProperty(this: Elt, name, value) =
+        (As<Elt'> this).SetProperty'(name, value)
+
+    [<Extension; Inline>]
+    static member GetProperty(this: Elt, name) =
+        (As<Elt'> this).GetProperty'(name)
+
+    [<Extension; Inline>]
+    static member AddClass(this: Elt, cls) =
+        (As<Elt'> this).AddClass'(cls)
+
+    [<Extension; Inline>]
+    static member RemoveClass(this: Elt, cls) =
+        (As<Elt'> this).RemoveClass'(cls)
+
+    [<Extension; Inline>]
+    static member HasClass(this: Elt, cls) =
+        (As<Elt'> this).HasClass'(cls)
+
+    [<Extension; Inline>]
+    static member SetStyle(this: Elt, name, value) =
+        (As<Elt'> this).SetStyle'(name, value)
+
+    // {{ event
+    [<Extension; Inline>]
+    static member OnAbort(this: Elt, cb: Dom.Element -> Dom.UIEvent -> unit) = As<Elt> ((As<Elt'> this).on("abort", cb))
+    [<Extension; Inline>]
+    static member OnAfterPrint(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("afterprint", cb))
+    [<Extension; Inline>]
+    static member OnAnimationEnd(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("animationend", cb))
+    [<Extension; Inline>]
+    static member OnAnimationIteration(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("animationiteration", cb))
+    [<Extension; Inline>]
+    static member OnAnimationStart(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("animationstart", cb))
+    [<Extension; Inline>]
+    static member OnAudioProcess(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("audioprocess", cb))
+    [<Extension; Inline>]
+    static member OnBeforePrint(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("beforeprint", cb))
+    [<Extension; Inline>]
+    static member OnBeforeUnload(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("beforeunload", cb))
+    [<Extension; Inline>]
+    static member OnBeginEvent(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("beginEvent", cb))
+    [<Extension; Inline>]
+    static member OnBlocked(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("blocked", cb))
+    [<Extension; Inline>]
+    static member OnBlur(this: Elt, cb: Dom.Element -> Dom.FocusEvent -> unit) = As<Elt> ((As<Elt'> this).on("blur", cb))
+    [<Extension; Inline>]
+    static member OnCached(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("cached", cb))
+    [<Extension; Inline>]
+    static member OnCanPlay(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("canplay", cb))
+    [<Extension; Inline>]
+    static member OnCanPlayThrough(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("canplaythrough", cb))
+    [<Extension; Inline>]
+    static member OnChange(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("change", cb))
+    [<Extension; Inline>]
+    static member OnChargingChange(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("chargingchange", cb))
+    [<Extension; Inline>]
+    static member OnChargingTimeChange(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("chargingtimechange", cb))
+    [<Extension; Inline>]
+    static member OnChecking(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("checking", cb))
+    [<Extension; Inline>]
+    static member OnClick(this: Elt, cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("click", cb))
+    [<Extension; Inline>]
+    static member OnClose(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("close", cb))
+    [<Extension; Inline>]
+    static member OnComplete(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("complete", cb))
+    [<Extension; Inline>]
+    static member OnCompositionEnd(this: Elt, cb: Dom.Element -> Dom.CompositionEvent -> unit) = As<Elt> ((As<Elt'> this).on("compositionend", cb))
+    [<Extension; Inline>]
+    static member OnCompositionStart(this: Elt, cb: Dom.Element -> Dom.CompositionEvent -> unit) = As<Elt> ((As<Elt'> this).on("compositionstart", cb))
+    [<Extension; Inline>]
+    static member OnCompositionUpdate(this: Elt, cb: Dom.Element -> Dom.CompositionEvent -> unit) = As<Elt> ((As<Elt'> this).on("compositionupdate", cb))
+    [<Extension; Inline>]
+    static member OnContextMenu(this: Elt, cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("contextmenu", cb))
+    [<Extension; Inline>]
+    static member OnCopy(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("copy", cb))
+    [<Extension; Inline>]
+    static member OnCut(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("cut", cb))
+    [<Extension; Inline>]
+    static member OnDblClick(this: Elt, cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("dblclick", cb))
+    [<Extension; Inline>]
+    static member OnDeviceLight(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("devicelight", cb))
+    [<Extension; Inline>]
+    static member OnDeviceMotion(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("devicemotion", cb))
+    [<Extension; Inline>]
+    static member OnDeviceOrientation(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("deviceorientation", cb))
+    [<Extension; Inline>]
+    static member OnDeviceProximity(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("deviceproximity", cb))
+    [<Extension; Inline>]
+    static member OnDischargingTimeChange(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("dischargingtimechange", cb))
+    [<Extension; Inline>]
+    static member OnDOMActivate(this: Elt, cb: Dom.Element -> Dom.UIEvent -> unit) = As<Elt> ((As<Elt'> this).on("DOMActivate", cb))
+    [<Extension; Inline>]
+    static member OnDOMAttributeNameChanged(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("DOMAttributeNameChanged", cb))
+    [<Extension; Inline>]
+    static member OnDOMAttrModified(this: Elt, cb: Dom.Element -> Dom.MutationEvent -> unit) = As<Elt> ((As<Elt'> this).on("DOMAttrModified", cb))
+    [<Extension; Inline>]
+    static member OnDOMCharacterDataModified(this: Elt, cb: Dom.Element -> Dom.MutationEvent -> unit) = As<Elt> ((As<Elt'> this).on("DOMCharacterDataModified", cb))
+    [<Extension; Inline>]
+    static member OnDOMContentLoaded(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("DOMContentLoaded", cb))
+    [<Extension; Inline>]
+    static member OnDOMElementNameChanged(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("DOMElementNameChanged", cb))
+    [<Extension; Inline>]
+    static member OnDOMNodeInserted(this: Elt, cb: Dom.Element -> Dom.MutationEvent -> unit) = As<Elt> ((As<Elt'> this).on("DOMNodeInserted", cb))
+    [<Extension; Inline>]
+    static member OnDOMNodeInsertedIntoDocument(this: Elt, cb: Dom.Element -> Dom.MutationEvent -> unit) = As<Elt> ((As<Elt'> this).on("DOMNodeInsertedIntoDocument", cb))
+    [<Extension; Inline>]
+    static member OnDOMNodeRemoved(this: Elt, cb: Dom.Element -> Dom.MutationEvent -> unit) = As<Elt> ((As<Elt'> this).on("DOMNodeRemoved", cb))
+    [<Extension; Inline>]
+    static member OnDOMNodeRemovedFromDocument(this: Elt, cb: Dom.Element -> Dom.MutationEvent -> unit) = As<Elt> ((As<Elt'> this).on("DOMNodeRemovedFromDocument", cb))
+    [<Extension; Inline>]
+    static member OnDOMSubtreeModified(this: Elt, cb: Dom.Element -> Dom.MutationEvent -> unit) = As<Elt> ((As<Elt'> this).on("DOMSubtreeModified", cb))
+    [<Extension; Inline>]
+    static member OnDownloading(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("downloading", cb))
+    [<Extension; Inline>]
+    static member OnDrag(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("drag", cb))
+    [<Extension; Inline>]
+    static member OnDragEnd(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("dragend", cb))
+    [<Extension; Inline>]
+    static member OnDragEnter(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("dragenter", cb))
+    [<Extension; Inline>]
+    static member OnDragLeave(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("dragleave", cb))
+    [<Extension; Inline>]
+    static member OnDragOver(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("dragover", cb))
+    [<Extension; Inline>]
+    static member OnDragStart(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("dragstart", cb))
+    [<Extension; Inline>]
+    static member OnDrop(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("drop", cb))
+    [<Extension; Inline>]
+    static member OnDurationChange(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("durationchange", cb))
+    [<Extension; Inline>]
+    static member OnEmptied(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("emptied", cb))
+    [<Extension; Inline>]
+    static member OnEnded(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("ended", cb))
+    [<Extension; Inline>]
+    static member OnEndEvent(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("endEvent", cb))
+    [<Extension; Inline>]
+    static member OnError(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("error", cb))
+    [<Extension; Inline>]
+    static member OnFocus(this: Elt, cb: Dom.Element -> Dom.FocusEvent -> unit) = As<Elt> ((As<Elt'> this).on("focus", cb))
+    [<Extension; Inline>]
+    static member OnFullScreenChange(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("fullscreenchange", cb))
+    [<Extension; Inline>]
+    static member OnFullScreenError(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("fullscreenerror", cb))
+    [<Extension; Inline>]
+    static member OnGamepadConnected(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("gamepadconnected", cb))
+    [<Extension; Inline>]
+    static member OnGamepadDisconnected(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("gamepaddisconnected", cb))
+    [<Extension; Inline>]
+    static member OnHashChange(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("hashchange", cb))
+    [<Extension; Inline>]
+    static member OnInput(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("input", cb))
+    [<Extension; Inline>]
+    static member OnInvalid(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("invalid", cb))
+    [<Extension; Inline>]
+    static member OnKeyDown(this: Elt, cb: Dom.Element -> Dom.KeyboardEvent -> unit) = As<Elt> ((As<Elt'> this).on("keydown", cb))
+    [<Extension; Inline>]
+    static member OnKeyPress(this: Elt, cb: Dom.Element -> Dom.KeyboardEvent -> unit) = As<Elt> ((As<Elt'> this).on("keypress", cb))
+    [<Extension; Inline>]
+    static member OnKeyUp(this: Elt, cb: Dom.Element -> Dom.KeyboardEvent -> unit) = As<Elt> ((As<Elt'> this).on("keyup", cb))
+    [<Extension; Inline>]
+    static member OnLanguageChange(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("languagechange", cb))
+    [<Extension; Inline>]
+    static member OnLevelChange(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("levelchange", cb))
+    [<Extension; Inline>]
+    static member OnLoad(this: Elt, cb: Dom.Element -> Dom.UIEvent -> unit) = As<Elt> ((As<Elt'> this).on("load", cb))
+    [<Extension; Inline>]
+    static member OnLoadedData(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("loadeddata", cb))
+    [<Extension; Inline>]
+    static member OnLoadedMetadata(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("loadedmetadata", cb))
+    [<Extension; Inline>]
+    static member OnLoadEnd(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("loadend", cb))
+    [<Extension; Inline>]
+    static member OnLoadStart(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("loadstart", cb))
+    [<Extension; Inline>]
+    static member OnMessage(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("message", cb))
+    [<Extension; Inline>]
+    static member OnMouseDown(this: Elt, cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("mousedown", cb))
+    [<Extension; Inline>]
+    static member OnMouseEnter(this: Elt, cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("mouseenter", cb))
+    [<Extension; Inline>]
+    static member OnMouseLeave(this: Elt, cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("mouseleave", cb))
+    [<Extension; Inline>]
+    static member OnMouseMove(this: Elt, cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("mousemove", cb))
+    [<Extension; Inline>]
+    static member OnMouseOut(this: Elt, cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("mouseout", cb))
+    [<Extension; Inline>]
+    static member OnMouseOver(this: Elt, cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("mouseover", cb))
+    [<Extension; Inline>]
+    static member OnMouseUp(this: Elt, cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("mouseup", cb))
+    [<Extension; Inline>]
+    static member OnNoUpdate(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("noupdate", cb))
+    [<Extension; Inline>]
+    static member OnObsolete(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("obsolete", cb))
+    [<Extension; Inline>]
+    static member OnOffline(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("offline", cb))
+    [<Extension; Inline>]
+    static member OnOnline(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("online", cb))
+    [<Extension; Inline>]
+    static member OnOpen(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("open", cb))
+    [<Extension; Inline>]
+    static member OnOrientationChange(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("orientationchange", cb))
+    [<Extension; Inline>]
+    static member OnPageHide(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("pagehide", cb))
+    [<Extension; Inline>]
+    static member OnPageShow(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("pageshow", cb))
+    [<Extension; Inline>]
+    static member OnPaste(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("paste", cb))
+    [<Extension; Inline>]
+    static member OnPause(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("pause", cb))
+    [<Extension; Inline>]
+    static member OnPlay(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("play", cb))
+    [<Extension; Inline>]
+    static member OnPlaying(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("playing", cb))
+    [<Extension; Inline>]
+    static member OnPointerLockChange(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("pointerlockchange", cb))
+    [<Extension; Inline>]
+    static member OnPointerLockError(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("pointerlockerror", cb))
+    [<Extension; Inline>]
+    static member OnPopState(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("popstate", cb))
+    [<Extension; Inline>]
+    static member OnProgress(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("progress", cb))
+    [<Extension; Inline>]
+    static member OnRateChange(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("ratechange", cb))
+    [<Extension; Inline>]
+    static member OnReadyStateChange(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("readystatechange", cb))
+    [<Extension; Inline>]
+    static member OnRepeatEvent(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("repeatEvent", cb))
+    [<Extension; Inline>]
+    static member OnReset(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("reset", cb))
+    [<Extension; Inline>]
+    static member OnResize(this: Elt, cb: Dom.Element -> Dom.UIEvent -> unit) = As<Elt> ((As<Elt'> this).on("resize", cb))
+    [<Extension; Inline>]
+    static member OnScroll(this: Elt, cb: Dom.Element -> Dom.UIEvent -> unit) = As<Elt> ((As<Elt'> this).on("scroll", cb))
+    [<Extension; Inline>]
+    static member OnSeeked(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("seeked", cb))
+    [<Extension; Inline>]
+    static member OnSeeking(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("seeking", cb))
+    [<Extension; Inline>]
+    static member OnSelect(this: Elt, cb: Dom.Element -> Dom.UIEvent -> unit) = As<Elt> ((As<Elt'> this).on("select", cb))
+    [<Extension; Inline>]
+    static member OnShow(this: Elt, cb: Dom.Element -> Dom.MouseEvent -> unit) = As<Elt> ((As<Elt'> this).on("show", cb))
+    [<Extension; Inline>]
+    static member OnStalled(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("stalled", cb))
+    [<Extension; Inline>]
+    static member OnStorage(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("storage", cb))
+    [<Extension; Inline>]
+    static member OnSubmit(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("submit", cb))
+    [<Extension; Inline>]
+    static member OnSuccess(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("success", cb))
+    [<Extension; Inline>]
+    static member OnSuspend(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("suspend", cb))
+    [<Extension; Inline>]
+    static member OnSVGAbort(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("SVGAbort", cb))
+    [<Extension; Inline>]
+    static member OnSVGError(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("SVGError", cb))
+    [<Extension; Inline>]
+    static member OnSVGLoad(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("SVGLoad", cb))
+    [<Extension; Inline>]
+    static member OnSVGResize(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("SVGResize", cb))
+    [<Extension; Inline>]
+    static member OnSVGScroll(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("SVGScroll", cb))
+    [<Extension; Inline>]
+    static member OnSVGUnload(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("SVGUnload", cb))
+    [<Extension; Inline>]
+    static member OnSVGZoom(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("SVGZoom", cb))
+    [<Extension; Inline>]
+    static member OnTimeOut(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("timeout", cb))
+    [<Extension; Inline>]
+    static member OnTimeUpdate(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("timeupdate", cb))
+    [<Extension; Inline>]
+    static member OnTouchCancel(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("touchcancel", cb))
+    [<Extension; Inline>]
+    static member OnTouchEnd(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("touchend", cb))
+    [<Extension; Inline>]
+    static member OnTouchEnter(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("touchenter", cb))
+    [<Extension; Inline>]
+    static member OnTouchLeave(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("touchleave", cb))
+    [<Extension; Inline>]
+    static member OnTouchMove(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("touchmove", cb))
+    [<Extension; Inline>]
+    static member OnTouchStart(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("touchstart", cb))
+    [<Extension; Inline>]
+    static member OnTransitionEnd(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("transitionend", cb))
+    [<Extension; Inline>]
+    static member OnUnload(this: Elt, cb: Dom.Element -> Dom.UIEvent -> unit) = As<Elt> ((As<Elt'> this).on("unload", cb))
+    [<Extension; Inline>]
+    static member OnUpdateReady(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("updateready", cb))
+    [<Extension; Inline>]
+    static member OnUpgradeNeeded(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("upgradeneeded", cb))
+    [<Extension; Inline>]
+    static member OnUserProximity(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("userproximity", cb))
+    [<Extension; Inline>]
+    static member OnVersionChange(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("versionchange", cb))
+    [<Extension; Inline>]
+    static member OnVisibilityChange(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("visibilitychange", cb))
+    [<Extension; Inline>]
+    static member OnVolumeChange(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("volumechange", cb))
+    [<Extension; Inline>]
+    static member OnWaiting(this: Elt, cb: Dom.Element -> Dom.Event -> unit) = As<Elt> ((As<Elt'> this).on("waiting", cb))
+    [<Extension; Inline>]
+    static member OnWheel(this: Elt, cb: Dom.Element -> Dom.WheelEvent -> unit) = As<Elt> ((As<Elt'> this).on("wheel", cb))
+    // }}

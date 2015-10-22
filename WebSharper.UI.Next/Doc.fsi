@@ -25,28 +25,53 @@ open WebSharper
 open WebSharper.JavaScript
 
 /// Represents a time-varying node or a node list.
-[<Interface>]
+[<AbstractClass>]
 type Doc =
-    inherit IControlBody
-    inherit Web.INode
-    abstract ToDynDoc : DynDoc
+    interface IControlBody
+    interface Web.INode
+
+    // Construction of basic nodes.
+
+    /// Constructs a reactive element node.
+    static member Element : name: string -> seq<Attr> -> seq<Doc> -> Elt
+
+    /// Same as Element, but uses SVG namespace.
+    static member SvgElement : name: string -> seq<Attr> -> seq<Doc> -> Elt
+
+    // Note: Empty, Append, Concat define a monoid on Doc.
+
+    /// Empty tree.
+    static member Empty : Doc
+
+    /// Append on trees.
+    static member Append : Doc -> Doc -> Doc
+
+    /// Concatenation.
+    static member Concat : seq<Doc> -> Doc
+
+    /// Concatenation.
+    static member Concat : seq<Elt> -> Doc
+
+    // Special cases
+
+    /// Static variant of TextView.
+    static member TextNode : string -> Doc
+
+    /// Client-side control.
+    static member ClientSide : Expr<#IControlBody> -> Doc
+
+    /// Verbatim HTML.
+    static member Verbatim : string -> Doc
+
     abstract Write : Core.Metadata.Info * System.Web.UI.HtmlTextWriter * ?res: Sitelets.Content.RenderedResources -> unit
     abstract HasNonScriptSpecialTags : bool
+    abstract Name : option<string>
+    abstract Encode : Core.Metadata.Info * Core.Json.Provider -> list<string * Core.Json.Encoded>
+    abstract Requires : seq<Core.Metadata.Node>
+    static member internal OfINode : Web.INode -> Doc
 
-and DynDoc =
-    internal
-    | AppendDoc of list<Doc>
-    | ElemDoc of Elt
-    | EmptyDoc
-    | TextDoc of string
-    | VerbatimDoc of string
-    | INodeDoc of Web.INode
-
-    interface Doc
-    interface IControlBody
-
-and [<Sealed>] Elt =
-    interface Doc
+and [<Sealed; Class>] Elt =
+    inherit Doc
 
     /// Add an event handler.
     /// When called on the server side, the handler must be a top-level function or a static member.
@@ -256,7 +281,7 @@ and [<Sealed>] Elt =
     member OnKeyPress : cb: Expr<Dom.Element -> Dom.KeyboardEvent -> unit> -> Elt
     /// Add a handler for the event "keyup".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnkeyUp : cb: Expr<Dom.Element -> Dom.KeyboardEvent -> unit> -> Elt
+    member OnKeyUp : cb: Expr<Dom.Element -> Dom.KeyboardEvent -> unit> -> Elt
     /// Add a handler for the event "languagechange".
     /// When called on the server side, the handler must be a top-level function or a static member.
     member OnLanguageChange : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
@@ -471,38 +496,3 @@ and [<Sealed>] Elt =
     /// When called on the server side, the handler must be a top-level function or a static member.
     member OnWheel : cb: Expr<Dom.Element -> Dom.WheelEvent -> unit> -> Elt
     // }}
-
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module Doc =
-
-    open Microsoft.FSharp.Quotations
-
-    // Construction of basic nodes.
-
-    /// Constructs a reactive element node.
-    val Element : name: string -> seq<Attr> -> seq<Doc> -> Elt
-
-    /// Same as Element, but uses SVG namespace.
-    val SvgElement : name: string -> seq<Attr> -> seq<Doc> -> Elt
-
-    // Note: Empty, Append, Concat define a monoid on Doc.
-
-    /// Empty tree.
-    val Empty : Doc
-
-    /// Append on trees.
-    val Append : Doc -> Doc -> Doc
-
-    /// Concatenation.
-    val Concat : seq<Doc> -> Doc
-
-    // Special cases
-
-    /// Static variant of TextView.
-    val TextNode : string -> Doc
-
-    /// Client-side control.
-    val ClientSide : Expr<#IControlBody> -> Doc
-
-    /// Verbatim HTML.
-    val Verbatim : string -> Doc
