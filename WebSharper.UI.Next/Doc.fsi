@@ -49,9 +49,6 @@ type Doc =
     /// Concatenation.
     static member Concat : seq<Doc> -> Doc
 
-    /// Concatenation.
-    static member Concat : seq<Elt> -> Doc
-
     // Special cases
 
     /// Static variant of TextView.

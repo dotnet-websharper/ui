@@ -21,6 +21,7 @@
 namespace WebSharper.UI.Next.Server
 
 open System
+open WebSharper.Web
 open WebSharper.UI.Next
 open WebSharper.Sitelets
 open WebSharper.Sitelets.Content
@@ -28,15 +29,25 @@ open WebSharper.Sitelets.Content
 module Doc =
 
     /// Converts a WebSharper INode to a Doc.
-    val WebControl : WebSharper.Web.INode -> Doc
+    val WebControl : INode -> Doc
 
-module Content =
+[<Sealed>]
+type Content =
 
     /// Converts a `Doc` to a sitelet Page.
     /// `Doc` values that correspond to HTML fragements are converted to full documents.
-    val Page : Doc -> Async<Content<'Action>>
+    static member Page : Doc -> Async<Content<'Action>>
 
     /// Converts a `Doc` to a sitelet Page.
     /// `Doc` values that correspond to HTML fragements are converted to full documents.
     [<Obsolete "Use Content.Page(...) instead">]
-    val Doc : Doc -> Async<Content<'Action>>
+    static member Doc : Doc -> Async<Content<'Action>>
+
+    static member inline Page
+        : ?Body: #seq<#INode>
+        * ?Head: #seq<#INode>
+        * ?Title: string
+        * ?Doctype: string
+        -> Async<Content<'Action>>
+
+    static member inline Page : Page -> Async<Content<'Action>>

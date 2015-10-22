@@ -30,9 +30,10 @@ module Doc =
     let WebControl (c: WebSharper.Web.INode) =
         Doc.OfINode c
 
-module Content =
+[<Sealed>]
+type Content =
 
-    let Page (doc: Doc) : Async<Content<'Action>> =
+    static member Page (doc: Doc) : Async<Content<'Action>> =
         let hasNonScriptSpecialTags = doc.HasNonScriptSpecialTags
         Content.FromContext <| fun ctx ->
             let env = Env.Create ctx
@@ -51,5 +52,11 @@ module Content =
                     doc.Write(ctx.Metadata, w, res)
             )
 
-    let Doc (doc: Doc) : Async<Content<'Action>> =
-        Page doc
+    static member Doc (doc: Doc) : Async<Content<'Action>> =
+        Content.Page doc
+
+    static member inline Page (?Body, ?Head, ?Title, ?Doctype) =
+        Content<_>.Page(?Body = Body, ?Head = Head, ?Title = Title, ?Doctype = Doctype)
+
+    static member inline Page (page: Page) : Async<Content<'Action>> =
+        Content<_>.Page page

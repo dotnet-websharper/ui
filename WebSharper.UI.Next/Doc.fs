@@ -453,8 +453,6 @@ type Doc with
 
     static member Concat (docs: seq<Doc>) = ConcreteDoc(AppendDoc (List.ofSeq docs)) :> Doc
 
-    static member Concat (docs: seq<Elt>) = ConcreteDoc(AppendDoc (List.ofSeq (Seq.cast docs))) :> Doc
-
     static member TextNode t = ConcreteDoc(TextDoc t) :> Doc
 
     static member ClientSide (expr: Expr<#IControlBody>) =

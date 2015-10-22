@@ -798,10 +798,6 @@ type Doc' [<JavaScript>] (docNode, updates) =
     static member Concat (xs: seq<Doc>) : Doc =
         As (Doc'.Concat' (As xs))
 
-    [<JavaScript; Inline; Name "ConcatProxy2">]
-    static member Concat (xs: seq<Elt>) : Doc =
-        As (Doc'.Concat' (As xs))
-
     [<JavaScript; Inline; Name "TextNodeProxy">]
     static member TextNode (s: string) : Doc =
         As (Doc'.TextNode' s)
