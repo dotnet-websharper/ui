@@ -618,6 +618,9 @@ module Doc =
     /// Constructs a reactive text node.
     val TextView : View<string> -> Doc
 
+    /// Embeds an asynchronous Doc. The resulting Doc is empty until the Async returns.
+    val Async : Async<#Doc> -> Doc
+
   // Collections.
 
     /// Converts a collection to Doc using View.MapSeqCached and embeds the concatenated result.

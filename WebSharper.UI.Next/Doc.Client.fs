@@ -439,6 +439,12 @@ type Doc' [<JavaScript>] (docNode, updates) =
         Doc'.EmbedView (View.Map f view)
 
     [<JavaScript>]
+    static member Async (a: Async<Doc'>) : Doc' =
+        View.Const a
+        |> View.MapAsync id
+        |> Doc'.EmbedView
+
+    [<JavaScript>]
     static member RunBetween ldelim rdelim (doc: Doc') =
         Docs.LinkPrevElement rdelim doc.DocNode
         let st = Docs.CreateDelimitedRunState ldelim rdelim doc.DocNode
@@ -976,6 +982,10 @@ module Doc =
     [<Inline>]
     let BindView (f: 'T -> #Doc) (view: View<'T>) : Doc =
         As (Doc'.BindView (As f) view)
+
+    [<Inline>]
+    let Async (a: Async<#Doc>) : Doc =
+        As (Doc'.Async (As a))
 
     [<Inline>]
     let Run parent (doc: Doc) =
