@@ -7,9 +7,9 @@ around functions from the `Doc` and `Attr` classes. For example, this:
 
 ```fsharp
 
-open IntelliFactory.WebSharper.UI.Next
-open IntelliFactory.WebSharper.UI.Next.Html
-open IntelliFactory.WebSharper.UI.Next.Client
+open WebSharper.UI.Next
+open WebSharper.UI.Next.Html
+open WebSharper.UI.Next.Client
 
 let vWorld = View.Const "World!"
 div [
@@ -26,8 +26,8 @@ div [
 would be equivalent to:
 
 ```fsharp
-open IntelliFactory.WebSharper.UI.Next
-open IntelliFactory.WebSharper.UI.Next.Client
+open WebSharper.UI.Next
+open WebSharper.UI.Next.Client
 
 let vWorld = View.Const "World!"
 Doc.Element "div" [] [

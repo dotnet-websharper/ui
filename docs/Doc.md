@@ -21,7 +21,7 @@ opened. See [here](ClientServer.md) for a discussion of client-side
 and server-side functionality.
 
 ```fsharp
-namespace IntelliFactory.WebSharper.UI.Next
+namespace WebSharper.UI.Next
 
 type Doc =
     static member Element : name: string -> seq<Attr> -> seq<Doc> -> Elt

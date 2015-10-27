@@ -6,7 +6,7 @@ propagating changes between current browser hash-route (URL part) and the logica
 "place" in a site.
 
 ```fsharp
-namespace IntelliFactory.WebSharper.UI.Next
+namespace WebSharper.UI.Next
 
 type RouteId
 type Router<'T>

@@ -16,8 +16,8 @@ A simple graph might look like this:
 
 ```fsharp
 
-open IntelliFactory.WebSharper
-open IntelliFactory.WebSharper.UI.Next
+open WebSharper
+open WebSharper.UI.Next
 
 let Main () =
 

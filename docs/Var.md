@@ -7,7 +7,7 @@ Unlike `ref` cells, variables can be lifted to the [View](View.md) type to
 participate in the dataflow graph.
 
 ```fsharp
-namespace IntelliFactory.WebSharper.UI.Next
+namespace WebSharper.UI.Next
 
 type Var<'T> =
     member View : View<'T>

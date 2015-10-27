@@ -11,7 +11,7 @@ the framework automatically encodes the strings using `encodeUriComponent`
 and `decodeUriComponent`.  All non-null values are therefore supported.
 
 ```fsharp
-namespace IntelliFactory.WebSharper.UI.Next
+namespace WebSharper.UI.Next
 
 type RouteMap<'T>
 type RouteMap =

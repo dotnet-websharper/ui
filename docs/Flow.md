@@ -7,7 +7,7 @@ Flows work through the use of a monadic interface, and can be constructed using
 a computation expression.
 
 ```fsharp
-namespace IntelliFactory.WebSharper.UI.Next
+namespace WebSharper.UI.Next
 
 type Flow<'T>
 

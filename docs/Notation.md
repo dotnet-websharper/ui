@@ -4,7 +4,7 @@
 The Notation module provides infix operators to make UI.Next code more concise.
 To use, you need to:
 
-`open IntelliFactory.WebSharper.UI.Next.Notation`
+`open WebSharper.UI.Next.Notation`
 
 Note that `!` and `:=` still work for `ref` as usual, even when overloaded.
 

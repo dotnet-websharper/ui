@@ -10,7 +10,7 @@ code. See [here](ClientServer.md) for a discussion of client-side and
 server-side functionality.
 
 ```fsharp
-namespace IntelliFactory.WebSharper.UI.Next
+namespace WebSharper.UI.Next
 
 type Attr =
     static member Create : name: string -> value: string -> Attr

@@ -5,7 +5,7 @@
 into animation collections that can be played together.
 
 ```fsharp
-namespace IntelliFactory.WebSharper.UI.Next
+namespace WebSharper.UI.Next
 
 type Anim<'T> =
     {

@@ -6,7 +6,7 @@ temporarily take values outside of this range.  It is used heavily
 in animation.  Implemented as a type alias:
 
 ```fsharp
-namespace IntelliFactory.WebSharper.UI.Next
+namespace WebSharper.UI.Next
 
 type NormalizedTime = double
 ```

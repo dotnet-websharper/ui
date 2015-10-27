@@ -11,7 +11,7 @@ are three kinds of transitions:
 A `Trans` type describes which [Anim](Anim.md) to play for every kind of transition.
 
 ```fsharp
-namespace IntelliFactory.WebSharper.UI.Next
+namespace WebSharper.UI.Next
 
 type Trans<'T>
 

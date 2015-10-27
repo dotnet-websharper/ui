@@ -51,10 +51,10 @@ it all up in a couple of `<div/>` elements, and then run it in a
 `<div/>` called `#main`.
 
 ```fsharp
-open IntelliFactory.WebSharper
-open IntelliFactory.WebSharper.UI.Next
-open IntelliFactory.WebSharper.UI.Next.Html
-open IntelliFactory.WebSharper.UI.Next.Client
+open WebSharper
+open WebSharper.UI.Next
+open WebSharper.UI.Next.Html
+open WebSharper.UI.Next.Client
 
 let Main () =
   let rvText = Var.Create ""

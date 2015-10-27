@@ -6,7 +6,7 @@ You could accomplish the same by creating a `ResizeArray`
 wrapped in a [Model](Model.md).
 
 ```fsharp
-namespace IntelliFactory.WebSharper.UI.Next
+namespace WebSharper.UI.Next
 
 type ListModel<'Key,'T when 'Key : equality> =
     member Add : 'T -> unit
