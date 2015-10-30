@@ -337,6 +337,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                     | null ->
                                         e.Nodes() |> Seq.collect (function
                                             | :? XElement as n -> [ createNode false n ]
+                                            | :? XCData as n -> let v = n.Value in [ <@ Doc.Verbatim v @> ]
                                             | :? XText as n ->
                                                 getParts n.Value
                                                 |> List.map (function
