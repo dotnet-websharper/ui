@@ -79,8 +79,8 @@ module Docs =
                 | AppendDoc (a, b) -> loop a; loop b
                 | EmbedDoc d -> loop d.Current
                 | ElemDoc e -> JQueue.Add (e.El :> Node) q
-                | EmptyDoc
-                | TextNodeDoc _ -> ()
+                | EmptyDoc -> ()
+                | TextNodeDoc tn -> JQueue.Add (tn :> Node) q
                 | TextDoc t -> JQueue.Add (t.Text :> Node) q
             loop node.Children
             DomNodes (JQueue.ToArray q)
