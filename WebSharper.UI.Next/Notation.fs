@@ -59,13 +59,29 @@ module Notation =
                     |> tr
                 | _ -> failwith "SetValueMacro error"
 
+    [<Sealed>]
+    type UpdateValueMacro() =
+        interface M.IMacro with
+            member this.Translate(q, tr) =
+                match q with
+                | Q.CallModule (c, [ o; fn ]) ->
+                    let t = c.Generics.Head.DeclaringType
+                    let p : Q.Concrete<_> =
+                        {
+                            Generics = c.Generics
+                            Entity = R.Property.Parse (t.Load().GetProperty "Value")
+                        }
+                    Q.PropertySet(p, [o; Q.Application(fn, Q.PropertyGet(p, [o]))])
+                    |> tr
+                | _ -> failwith "SetValueMacro error"
+
     [<Macro(typeof<GetValueMacro>)>]
     let inline ( ! ) (o: ^x) : ^a = (^x: (member Value: ^a with get) o)
 
     [<Macro(typeof<SetValueMacro>)>]
     let inline ( := ) (o: ^x) (v: ^a) = (^x: (member Value: ^a with set) (o, v))
 
-    [<JavaScript; Inline>]
+    [<Macro(typeof<UpdateValueMacro>)>]
     let inline ( <~ ) (o: ^x) (fn: ^a -> ^a) = o := fn !o
 
     [<JavaScript; Inline>]
