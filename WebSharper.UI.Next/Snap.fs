@@ -147,19 +147,22 @@ module Snap =
 
     let Sequence (snaps : seq<Snap<'T>>) =
         let res = Create ()
-        let c = Seq.length snaps
+        let snaps = Array.ofSeq snaps
+        let c = snaps.Length
+        let d = ref 0
         let vs = ref [||]
         let obs () = 
+            d := 0
             vs := [||]
             MarkObsolete res
         let cont () =
-            if Array.length !vs = c then
-                if Seq.forall (fun x -> IsForever x) snaps then
+            if !d = c then
+                if Array.forall (fun x -> IsForever x) snaps then
                     MarkForever res (!vs :> seq<_>)
                 else
                     MarkReady res (!vs :> seq<_>)
         snaps
-        |> Seq.iteri (fun i s -> When s (fun x -> setAt i x !vs; cont ()) obs)
+        |> Array.iteri (fun i s -> When s (fun x -> setAt i x !vs; incr d; cont ()) obs)
         res
 
     let Map fn sn =
