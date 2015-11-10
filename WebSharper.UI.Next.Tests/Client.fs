@@ -28,8 +28,23 @@ module Client =
         let newDescr = Var.Create ""
         let itemsSub = Submitter.Create myItems.View Seq.empty
  
-        let title = View.Const "Starting title"
+        let stitle = "Starting titlo"
         let var = Var.Create ""
+
+        let title = 
+            stitle
+            |> Seq.toList
+            |> List.map Var.Create
+
+        async {
+            do! Async.Sleep 1500
+            Var.Set (List.nth title (title.Length - 1)) 'e'
+        } |> Async.Start
+
+        let tv = title
+                 |> Seq.map View.FromVar
+                 |> View.Sequence
+                 |> View.Map (fun e -> new string(Seq.toArray e))
         let btnSub = Submitter.Create var.View ""
  
         let doc =
@@ -42,7 +57,7 @@ module Client =
                         attr.style "color: blue"
                         attr.classDynPred var.View (View.Const true)
                         on.click (fun el ev -> Console.Log ev)
-                    ] [textView title]
+                    ] [textView tv]
                 ],
                 ListContainer = [
                     myItems.View.DocSeqCached(Item.Key, fun key item ->

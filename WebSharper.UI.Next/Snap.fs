@@ -139,6 +139,32 @@ module Snap =
         When snap onReady onObs
         res
 
+    // more optimal array access for circumventing
+    // array bounds check to get JS semantics
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    [<Inline "$arr[$i] = $v">]
+    let private setAt (i : int) (v : 'T) (arr : 'T[]) = ()
+
+    let Sequence (snaps : seq<Snap<'T>>) =
+        let res = Create ()
+        let snaps = Array.ofSeq snaps
+        let c = snaps.Length
+        let d = ref 0
+        let vs = ref [||]
+        let obs () = 
+            d := 0
+            vs := [||]
+            MarkObsolete res
+        let cont () =
+            if !d = c then
+                if Array.forall (fun x -> IsForever x) snaps then
+                    MarkForever res (!vs :> seq<_>)
+                else
+                    MarkReady res (!vs :> seq<_>)
+        snaps
+        |> Array.iteri (fun i s -> When s (fun x -> setAt i x !vs; incr d; cont ()) obs)
+        res
+
     let Map fn sn =
         match sn.State with
         | Forever x -> CreateForever (fn x) // optimization
