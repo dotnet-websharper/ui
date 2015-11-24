@@ -191,11 +191,13 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                             name, if wrap then XElement(xn"body", e) else e
                         )
                                         
-                    let addTemplateMethod (t: XElement) (toTy: ProvidedTypeDefinition) =                        
+                    let addTemplateMethod (t: XElement) (toTy: ProvidedTypeDefinition) =
                         let holes = Dictionary()
 
                         let getSimpleHole name : Expr<'T> =
                             match holes.TryGetValue(name) with
+                            | true, Hole.Simple t when t = typeof<'T> ->
+                                ()
                             | true, _ ->
                                 failwithf "Invalid multiple use of variable name in the same template: %s" name
                             | false, _ ->
