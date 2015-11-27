@@ -32,4 +32,7 @@
     <Compile Include="ProvidedTypes.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Runtime.Caching" />
+  </ItemGroup>
 </Project>
