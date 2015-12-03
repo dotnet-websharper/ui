@@ -267,9 +267,32 @@ type View =
     static member Bind fn view =
         View.Join (View.Map fn view)
 
+    static member Sequence views =
+        View.CreateLazy(fun () ->
+            views
+            |> Seq.map (fun (V observe) -> observe ())
+            |> Snap.Sequence)
+
     static member Const x =
         let o = Snap.CreateForever x
         V (fun () -> o)
+
+    static member TryWith (f: exn -> View<'T>) (V observe: View<'T>) : View<'T> =
+        View.CreateLazy (fun () ->
+            try
+                observe ()
+            with exn ->
+                let (V obs) = f exn
+                obs ()
+        )
+
+    static member TryFinally (f: unit -> unit) (V observe: View<'T>) : View<'T> =
+        View.CreateLazy (fun () ->
+            try
+                observe ()
+            finally
+                f ()
+        )
 
     static member Sink act (V observe) =
         let rec loop () =
@@ -379,6 +402,15 @@ type ViewBuilder =
 
     [<JavaScript; Inline>]
     member b.Return x = View.Const x
+
+    [<JavaScript; Inline>]
+    member b.ReturnFrom(v: View<'T>) = v
+
+    [<JavaScript; Inline>]
+    member b.TryWith(v, f) = View.TryWith f v
+
+    [<JavaScript; Inline>]
+    member b.TryFinally(v, f) = View.TryFinally f v
 
 type View with
     [<JavaScript>]
