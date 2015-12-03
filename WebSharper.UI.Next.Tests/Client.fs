@@ -20,7 +20,12 @@ module Client =
         { id : Key; name: string; description: string }
         static member Key x = x.id
 
+#if ZAFIR
+    [<SPAEntryPoint; ReflectedDefinition>]
+    let Main() =
+#else
     let Main =
+#endif
         let myItems =
             ListModel.CreateWithStorage Item.Key (Storage.LocalStorage "Test" Serializer.Default)
 

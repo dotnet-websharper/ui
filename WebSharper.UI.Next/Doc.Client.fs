@@ -364,7 +364,11 @@ type CheckedInput<'T> =
 
 // We implement the Doc interface, the Doc module proxy and the Client.Doc module proxy
 // all in this so that it all neatly looks like Doc.* in javascript.
+#if ZAFIR
+[<Proxy(typeof<Doc>)>]
+#else
 [<Name "WebSharper.UI.Next.Doc"; Proxy(typeof<Doc>)>]
+#endif
 type Doc' [<JavaScript>] (docNode, updates) =
 
     [<JavaScript; Inline "$this.docNode">]
@@ -817,7 +821,11 @@ type Doc' [<JavaScript>] (docNode, updates) =
     static member Verbatim (s: string) : Doc =
         As (Doc'.Verbatim' s)
 
+#if ZAFIR
+and [<JavaScript; Proxy(typeof<Elt>)>]
+#else
 and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
+#endif
     Elt'(docNode, updates, elt: Dom.Element, rvUpdates: Var<View<unit>>, attrUpdates) =
     inherit Doc'(docNode, updates)
 

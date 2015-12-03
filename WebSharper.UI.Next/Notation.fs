@@ -22,6 +22,40 @@ namespace WebSharper.UI.Next
 
 open WebSharper
 
+#if ZAFIR
+module Notation =
+
+    open WebSharper.Core
+    open WebSharper.Core.AST
+
+    [<Sealed>]
+    type GetValueMacro() =
+        inherit Macro()
+
+        override this.TranslateCall(_, _, m, args, _) =
+            let t = m.Generics.Head
+            let meth =
+                (Reflection.loadType t).GetProperty("Value").GetGetMethod()
+                |> Reflection.getMethod |> Method
+            match t with
+            | ConcreteType ct ->
+                Call (None, ct, concrete (meth, []), args) |> MacroOk
+            | _ -> failwith "GetValueMacro error"
+        
+    [<Sealed>]
+    type SetValueMacro() =
+        inherit WebSharper.Core.Macro()
+
+        override this.TranslateCall(_, _, m, args, _) =
+            let t = m.Generics.Head
+            let meth =
+                (Reflection.loadType t).GetProperty("Value").GetSetMethod()
+                |> Reflection.getMethod |> Method
+            match t with
+            | ConcreteType ct ->
+                Call (None, ct, concrete (meth, []), args) |> MacroOk
+            | _ -> failwith "SetValueMacro error"
+#else
 module M = WebSharper.Core.Macros
 module Q = WebSharper.Core.Quotations
 module R = WebSharper.Core.Reflection
@@ -58,6 +92,7 @@ module Notation =
                         }, [o; v])
                     |> tr
                 | _ -> failwith "SetValueMacro error"
+#endif
 
     [<Macro(typeof<GetValueMacro>)>]
     let inline ( ! ) (o: ^x) : ^a = (^x: (member Value: ^a with get) o)

@@ -26,8 +26,13 @@ open Microsoft.FSharp.Quotations.Patterns
 open WebSharper
 open WebSharper.JavaScript
 module M = WebSharper.Core.Metadata
+#if ZAFIR
+open WebSharper.Core.Utilities
+module R = WebSharper.Core.AST.Reflection
+#else
 module P = WebSharper.Core.JavaScript.Packager
 module R = WebSharper.Core.Reflection
+#endif
 
 module private Internal =
 
@@ -90,6 +95,36 @@ type Attr =
     static member Concat (xs: seq<Attr>) =
         AppendAttr (List.ofSeq xs)
 
+#if ZAFIR
+    static member Handler (event: string) (q: Expr<Dom.Element -> #Dom.Event -> unit>) =
+        let declType, name, reqs =
+            match q with
+            | Lambda (x1, Lambda (y1, Call(None, m, [Var x2; Var y2]))) when x1 = x2 && y1 = y2 ->
+                let rm = R.getMethod m
+                let typ = R.getTypeDefinition m.DeclaringType
+                R.getTypeDefinition m.DeclaringType, rm.MethodName, [M.MethodNode (typ, Hashed rm); M.TypeNode typ]
+            | _ -> failwithf "Invalid handler function: %A" q
+        let loc = Internal.getLocation q
+        let value = ref None
+        let func (meta: M.Info) =
+            match !value with
+            | None ->
+                match meta.Classes.TryFind declType with
+                | Some {Address = Some a} ->
+                    let rec mk acc a =
+                        let local :: parent = a
+                        let acc = local :: acc
+                        match parent with
+                        | [] -> acc
+                        | p -> mk acc p
+                    let s = String.concat "." (mk [name] a.Value) + "(this, event)"
+                    value := Some s
+                    s
+                | _ ->
+                    failwithf "Error in Handler at %s: Couldn't find address for method" loc
+            | Some v -> v
+        DepAttr ("on" + event, func, reqs)
+#else
     static member Handler (event: string) (q: Expr<Dom.Element -> #Dom.Event -> unit>) =
         let declType, name, reqs =
             match q with
@@ -116,6 +151,7 @@ type Attr =
                     s
             | Some v -> v
         DepAttr ("on" + event, func, reqs)
+#endif
 
 namespace WebSharper.UI.Next.Client
 

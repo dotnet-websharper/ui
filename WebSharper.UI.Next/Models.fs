@@ -62,6 +62,42 @@ type Serializer<'T> =
         Decode : obj -> 'T
     }
 
+#if ZAFIR
+module Macro =
+    module CJ = WebSharper.Json.Macro
+
+    open WebSharper.Core.AST
+
+//    type M(comp : WebSharper.Core.Metadata.Compilation) =
+//        inherit WebSharper.Core.Macro()
+//
+//        override this.TranslateCall(_, typ, meth, args, _) =
+//            match typ.Generics with 
+//            | [t] ->
+//                let param = CJ.Parameters.Default tr
+//                let enc = CJ.EncodeLambda param tr t
+//                let dec = CJ.DecodeLambda param tr t
+//                Object [ "Encode", enc; "Decode" dec ]
+//            | _ -> failwith "Invalid UI.Next.Serializer macro use"
+
+[<JavaScript>]
+module Serializer =
+    open WebSharper
+    open WebSharper.JavaScript
+
+    let Default =
+        {
+            Encode = box
+            Decode = unbox
+        }
+
+//    [<Macro(typeof<Macro.M>)>]
+//    let Typed =
+//        {
+//            Encode = box
+//            Decode = unbox
+//        }
+#else
 module Macro =
     module CJ = WebSharper.Json.Macro
     module J = WebSharper.Core.JavaScript.Core
@@ -99,6 +135,7 @@ module Serializer =
             Encode = box
             Decode = unbox
         }
+#endif
 
 [<JavaScript>]
 module Storage =
