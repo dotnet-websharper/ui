@@ -34,12 +34,12 @@ module Notation =
 
         override this.TranslateCall(_, _, m, args, _) =
             let t = m.Generics.Head
-            let meth =
+            let getMeth =
                 (Reflection.loadType t).GetProperty("Value").GetGetMethod()
                 |> Reflection.getMethod |> Method
             match t with
             | ConcreteType ct ->
-                Call (None, ct, concrete (meth, []), args) |> MacroOk
+                Call (Some args.[0], ct, concrete (getMeth, []), []) |> MacroOk
             | _ -> failwith "GetValueMacro error"
         
     [<Sealed>]
@@ -48,12 +48,31 @@ module Notation =
 
         override this.TranslateCall(_, _, m, args, _) =
             let t = m.Generics.Head
-            let meth =
+            let setMeth =
                 (Reflection.loadType t).GetProperty("Value").GetSetMethod()
                 |> Reflection.getMethod |> Method
             match t with
             | ConcreteType ct ->
-                Call (None, ct, concrete (meth, []), args) |> MacroOk
+                Call (Some args.[0], ct, concrete (setMeth, []), [args.[1]]) |> MacroOk
+            | _ -> failwith "SetValueMacro error"
+
+    [<Sealed>]
+    type UpdateValueMacro() =
+        inherit WebSharper.Core.Macro()
+
+        override this.TranslateCall(_, _, m, args, _) =
+            let t = m.Generics.Head
+            let valueProp = (Reflection.loadType t).GetProperty("Value") 
+            let getMeth =
+                valueProp.GetGetMethod()
+                |> Reflection.getMethod |> Method
+            let setMeth =
+                valueProp.GetSetMethod()
+                |> Reflection.getMethod |> Method
+            match t with
+            | ConcreteType ct ->
+                let v = Call (Some args.[0], ct, concrete (getMeth, []), [])
+                Call (Some args.[0], ct, concrete (setMeth, []), [Application(args.[1], [v])]) |> MacroOk
             | _ -> failwith "SetValueMacro error"
 #else
 module M = WebSharper.Core.Macros
@@ -92,7 +111,6 @@ module Notation =
                         }, [o; v])
                     |> tr
                 | _ -> failwith "SetValueMacro error"
-#endif
 
     [<Sealed>]
     type UpdateValueMacro() =
@@ -108,7 +126,8 @@ module Notation =
                         }
                     Q.PropertySet(p, [o; Q.Application(fn, Q.PropertyGet(p, [o]))])
                     |> tr
-                | _ -> failwith "SetValueMacro error"
+                | _ -> failwith UpdateValueMacro error"
+#endif
 
     [<Macro(typeof<GetValueMacro>)>]
     let inline ( ! ) (o: ^x) : ^a = (^x: (member Value: ^a with get) o)

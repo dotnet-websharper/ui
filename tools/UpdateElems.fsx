@@ -186,7 +186,6 @@ module Tags =
             match e.Type with
             | "event" ->
                 [|
-                    "[<JavaScript; Inline>]"
                     sprintf "member this.On%s(cb: Expr<Dom.Element -> Dom.%s -> unit>) = this.On(\"%s\", cb)" e.PascalName e.Category e.Name
                 |]
         RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next", "Doc.fsi")) all <| fun e ->
