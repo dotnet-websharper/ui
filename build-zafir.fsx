@@ -11,7 +11,6 @@ let bt =
 let main =
     bt.Zafir.Library("WebSharper.UI.Next")
         .SourcesFromProject()
-        .AppendCustom(FSharpConfig.OtherFlags, "--define:ZAFIR")
         .Embed(["h5f.js"])
 
 let tmpl =
@@ -27,7 +26,6 @@ let tmpl =
 let test = 
     bt.Zafir.BundleWebsite("WebSharper.UI.Next.Tests")
         .SourcesFromProject()
-        .AppendCustom(FSharpConfig.OtherFlags, "--define:ZAFIR")
         .References(fun r ->
             [
                 r.Project main
