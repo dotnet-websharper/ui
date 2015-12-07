@@ -4,7 +4,7 @@ open IntelliFactory.Build
 
 let bt =
     BuildTool().PackageId("Zafir.UI.Next")
-        .VersionFrom("WebSharper")
+        .VersionFrom("Zafir")
         .WithFramework(fun fw -> fw.Net40)
         .WithFSharpVersion(FSharpVersion.FSharp30)
 
