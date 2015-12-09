@@ -126,7 +126,7 @@ module Notation =
                         }
                     Q.PropertySet(p, [o; Q.Application(fn, Q.PropertyGet(p, [o]))])
                     |> tr
-                | _ -> failwith UpdateValueMacro error"
+                | _ -> failwith "UpdateValueMacro error"
 #endif
 
     [<Macro(typeof<GetValueMacro>)>]
