@@ -663,7 +663,12 @@ type Doc' [<JavaScript>] (docNode, updates) =
                         Attr.Create "value" (string i)
                     ] [t])
             )
-        Doc'.Elem el (Attr.Concat attrs |> Attr.Append selectedItemAttr) (As optionElements)
+        let attrs =
+            Attr.Concat attrs
+            |> Attr.Append selectedItemAttr
+            |> Attr.Append (Attr.OnAfterRender (fun el -> 
+                setSelectedItem el <| current.Get()))
+        Doc'.Elem el attrs (As optionElements)
 
     [<JavaScript>]
     static member Select attrs show options current =
