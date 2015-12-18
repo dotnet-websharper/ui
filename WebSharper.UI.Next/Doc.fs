@@ -313,6 +313,9 @@ type Doc with
     static member Element (tagname: string) (attrs: seq<Attr>) (children: seq<Doc>) =
         Elt (tagname, List.ofSeq attrs, List.ofSeq children)
 
+    static member ElementU (tagname, attrs, children) =
+        Doc.Element tagname attrs children
+
     static member SvgElement (tagname: string) (attrs: seq<Attr>) (children: seq<Doc>) =
         Elt (tagname, List.ofSeq attrs, List.ofSeq children)
 

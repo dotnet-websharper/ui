@@ -86,6 +86,12 @@ type Attr =
     static member Create name value =
         SingleAttr (name, value)
 
+    static member CreateU (name, value) =
+        SingleAttr (name, value)
+
+    static member StringConcat (strings: string[]) =
+        System.String.Concat(strings)
+
     static member Append a b =
         AppendAttr [a; b]
 
@@ -377,6 +383,10 @@ type AttrProxy with
     static member Create name value =
         As<Attr> (Attrs.Static (fun el -> DU.SetAttr el name value))
 
+    [<Inline>]
+    static member CreateU (name, value) =
+        Attr.Create name value
+
     static member Append (a: Attr) (b: Attr) =
         As<Attr> (
             Attrs.Mk
@@ -386,6 +396,10 @@ type AttrProxy with
     [<Inline>]
     static member Empty =
         As<Attr> Attrs.EmptyAttr
+
+    [<Inline>]
+    static member StringConcat (strings: string[]) =
+        System.String.Concat(strings)
 
     static member Concat (xs: seq<Attr>) =
         Seq.toArray xs

@@ -38,6 +38,12 @@ type Attr =
     /// Sets a basic DOM attribute, such as `id` to a text value.
     static member Create : name: string -> value: string -> Attr
 
+    /// Same as Create, uncurried for Type Provider use
+    static member CreateU : name: string * value: string -> Attr
+
+    /// Helper for Type Provider
+    static member StringConcat : strings: string[] -> string
+
   // Note: Empty, Append, Concat define a monoid on Attr.
 
     /// Append on attributes.
