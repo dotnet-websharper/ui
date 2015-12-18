@@ -305,7 +305,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                                     | [] -> <@ "" @>
                                                     | [e] -> e
                                                     | [e2; e1] -> <@ %e1 + %e2 @>
-                                                    | es -> <@ System.String.Concat %(ExprArray (List.rev es)) @>
+                                                    | es -> <@ Attr.StringConcat %(ExprArray (List.rev es)) @>
                                                     |> Choice1Of2
                                                 match l with
                                                 | [] -> [toStringRev cur]
@@ -313,8 +313,8 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                                 | TextHole h :: rest -> groupTextPartsAndTextHoles (getSimpleHole h :: cur) rest
                                                 | TextViewHole h :: rest -> toStringRev cur :: Choice2Of2 (getViewHole h : Expr<View<string>>) :: groupTextPartsAndTextHoles [] rest
                                             match groupTextPartsAndTextHoles [] parts with
-                                            | [] -> <@ Attr.Create n "" @>
-                                            | [Choice1Of2 s] -> <@ Attr.Create n %s @>
+                                            | [] -> <@ Attr.CreateU (n, "") @>
+                                            | [Choice1Of2 s] -> <@ Attr.CreateU (n, %s) @>
                                             | parts ->
                                                 let rec collect parts =
                                                     match parts with
@@ -374,21 +374,21 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                         elif n.ToLower() = "textarea" then
                                             <@ Doc.InputArea %attrs %(getVarHole a) :> _ @>
                                         elif n.ToLower() = "select" then
-                                            <@ Doc.Element "select"
+                                            <@ Doc.ElementU ("select",
                                                 (Seq.append
                                                     (Seq.singleton (Attr.Value %(getVarHole a)))
-                                                    %attrs)
-                                                %nodes :> _ @>
+                                                    %attrs),
+                                                %nodes) :> _ @>
                                         else failwithf "data-var attribute \"%s\" on invalid element \"%s\"" a n
                                     match e with
-                                    | NoVar -> <@ Doc.Element n %attrs %nodes :> _ @>
+                                    | NoVar -> <@ Doc.ElementU (n, %attrs, %nodes) :> _ @>
                                     | Var a -> var a false
                                     | VarUnchecked a -> var a true
 
                             | SpecialHole as a ->
                                 let elName = e.Name.LocalName
                                 let attrValue = a.Value
-                                <@ Doc.Element elName [|Attr.Create "data-replace" attrValue |] [||] :> _ @>
+                                <@ Doc.ElementU (elName, [|Attr.CreateU ("data-replace", attrValue) |], [||]) :> _ @>
                             | a -> <@ Doc.Concat %(getSimpleHole a.Value : Expr<seq<Doc>>) @>
                         
                         let mainExpr = t |> createNode true

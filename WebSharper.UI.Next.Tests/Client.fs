@@ -21,7 +21,7 @@ module Client =
         static member Key x = x.id
 
 #if ZAFIR
-    [<SPAEntryPoint; ReflectedDefinition>]
+    [<SPAEntryPoint>]
     let Main() =
 #else
     let Main =

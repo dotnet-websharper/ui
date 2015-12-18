@@ -790,6 +790,10 @@ type Doc' [<JavaScript>] (docNode, updates) =
         let children = Doc'.Concat' (As children)
         As (Doc'.Elem (DU.CreateElement name) attr children)
 
+    [<JavaScript; Inline>]
+    static member ElementU (tagname, attrs, children) =
+        Doc.Element tagname attrs children
+
     [<JavaScript>]
     static member SvgElement (name: string) (attr: seq<Attr>) (children: seq<Doc>) : Elt =
         let attr = Attr.Concat attr
