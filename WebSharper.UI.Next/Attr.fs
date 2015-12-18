@@ -481,5 +481,5 @@ module Attr =
     let Value (var: IRef<string>) =
         CustomValue var id (id >> Some)
 
-    let ValidateForm =
+    let ValidateForm () =
         OnAfterRender Resources.H5F.Setup

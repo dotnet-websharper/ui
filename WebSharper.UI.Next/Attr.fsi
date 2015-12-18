@@ -116,7 +116,7 @@ module Attr =
 
     /// Add this attribute to any <form> element that contains validation
     /// (including Doc.IntInput and Doc.FloatInput) for compatibility in Internet Explorer 9 and older.
-    val ValidateForm : Attr
+    val ValidateForm : unit -> Attr
 
 /// Internals used in Doc.
 module internal Attrs =
