@@ -72,8 +72,8 @@ module internal Abbrev =
     type TextNode = Dom.Text
     type DomEvent = Dom.Event
 
-    [<JavaScript>]
-    let U<'T> = Unchecked.defaultof<'T>
+    [<JavaScript; Inline>]
+    let U<'T> = As<'T> JS.Undefined
 
     [<Inline "$f()">]
     let lock root f = lock root f
