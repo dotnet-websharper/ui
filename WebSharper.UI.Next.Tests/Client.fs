@@ -90,6 +90,10 @@ module Client =
                     if key = 13 then newName := "")
             )
 
-        doc |> Doc.RunById "main"
+        div[
+            doc 
+            ReproFor67.doc
+        ]
+        |> Doc.RunById "main"
 
         Console.Log("Running JavaScript Entry Point..")
