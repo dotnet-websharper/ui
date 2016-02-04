@@ -34,6 +34,7 @@
   <Import Project="$(FSharpTargetsPath)" />
   <Import Project="../build/net40/$(Name).proj" />
   <ItemGroup>
+    <Compile Include="Repro for #67.fs" />
     <Compile Include="Client.fs" />
     <Compile Include="Main.fs" />
     <Content Include="index.html" />
