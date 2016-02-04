@@ -90,9 +90,9 @@ module Client =
                     if key = 13 then newName := "")
             )
 
-        div[
+        div [
             doc 
-            ReproFor67.doc
+            Regression67.Doc
         ]
         |> Doc.RunById "main"
 
