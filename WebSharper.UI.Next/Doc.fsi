@@ -38,8 +38,14 @@ type Doc =
     /// Same as Element, uncurried for Type Provider use
     static member ElementU : name: string * seq<Attr> * seq<Doc> -> Elt
 
+    /// Constructs a reactive element node with mixed content. 
+    static member ElementMixed : name: string -> seq<obj> -> Elt
+
     /// Same as Element, but uses SVG namespace.
     static member SvgElement : name: string -> seq<Attr> -> seq<Doc> -> Elt
+
+    /// Same as ElementMixed, but uses SVG namespace.
+    static member SvgElementMixed : name: string -> seq<obj> -> Elt
 
     // Note: Empty, Append, Concat define a monoid on Doc.
 

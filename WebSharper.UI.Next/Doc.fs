@@ -313,11 +313,27 @@ type Doc with
     static member Element (tagname: string) (attrs: seq<Attr>) (children: seq<Doc>) =
         Elt (tagname, List.ofSeq attrs, List.ofSeq children)
 
+    static member ElementMixed (tagname: string) (nodes: seq<obj>) =
+        let attrs = ResizeArray()
+        let children = ResizeArray()
+        for n in nodes do
+            match n with
+            | :? Attr as a -> attrs.Add a
+            | :? Doc as d -> children.Add d
+            | :? INode as n -> children.Add (Doc.OfINode n)
+            | :? Expr<#IControlBody> as e -> children.Add (Doc.ClientSide e)
+            | :? string as t -> children.Add (Doc.TextNode t)
+            | o -> children.Add (Doc.TextNode (string o))
+        Doc.Element tagname attrs children 
+
     static member ElementU (tagname, attrs, children) =
         Doc.Element tagname attrs children
 
     static member SvgElement (tagname: string) (attrs: seq<Attr>) (children: seq<Doc>) =
         Elt (tagname, List.ofSeq attrs, List.ofSeq children)
+
+    static member SvgElementMixed (tagname: string) (nodes: seq<obj>) =
+        Doc.ElementMixed tagname nodes
 
     static member Empty = ConcreteDoc(EmptyDoc) :> Doc
 

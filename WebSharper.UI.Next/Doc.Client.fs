@@ -790,6 +790,33 @@ type Doc' [<JavaScript>] (docNode, updates) =
         let children = Doc'.Concat' (As children)
         As (Doc'.Elem (DU.CreateElement name) attr children)
 
+    static member MixedNodes (nodes: seq<obj>) =
+        let attrs = ResizeArray()
+        let children = ResizeArray()
+        for n in nodes do
+            match n with
+            | :? Attr as a -> attrs.Add a
+            | :? Doc as d -> children.Add d
+            | :? string as t -> children.Add (Doc.TextNode t)
+            | :? View<obj> as v -> 
+                children.Add (
+                    Doc'.EmbedView (
+                        v.Map (fun v ->
+                            match box v with
+                            | :? Doc' as d -> d
+                            | :? string as t -> Doc.TextNode t |> As<Doc'>
+                            | o -> (Doc.TextNode (string o)) |> As<Doc'>  
+                        ) 
+                    ) |> As<Doc>
+                )
+            | o -> children.Add (Doc.TextNode (string o))
+        attrs :> _ seq, children :> _ seq 
+
+    [<JavaScript>]
+    static member ElementMixed (tagname: string) (nodes: seq<obj>) =
+        let attrs, children = Doc'.MixedNodes nodes
+        Doc.Element tagname attrs children 
+
     [<JavaScript; Inline>]
     static member ElementU (tagname, attrs, children) =
         Doc.Element tagname attrs children
@@ -799,6 +826,11 @@ type Doc' [<JavaScript>] (docNode, updates) =
         let attr = Attr.Concat attr
         let children = Doc'.Concat' (As children)
         As (Doc'.Elem (DU.CreateSvgElement name) attr children)
+
+    [<JavaScript>]
+    static member SvgElementMixed (tagname: string) (nodes: seq<obj>) =
+        let attrs, children = Doc'.MixedNodes nodes
+        Doc.SvgElement tagname attrs children 
 
     [<JavaScript; Name "EmptyProxy">]
     static member Empty

@@ -6,13 +6,15 @@ open System.Text.RegularExpressions
 module Tags =
 
     let NeedsBuilding input output =
-        let i = FileInfo(input)
-        let o = FileInfo(output)
-        not o.Exists || o.LastWriteTimeUtc < i.LastWriteTimeUtc
+//        let i = FileInfo(input)
+//        let o = FileInfo(output)
+//        not o.Exists || o.LastWriteTimeUtc < i.LastWriteTimeUtc
+        true
 
     let tagsFilePath =
         let d =
             Directory.GetDirectories(Path.Combine(__SOURCE_DIRECTORY__, "..", "packages"), "WebSharper.*")
+            |> Array.append (Directory.GetDirectories(Path.Combine(__SOURCE_DIRECTORY__, "..", "packages"), "Zafir.*"))
             |> Array.maxBy (fun d -> DirectoryInfo(d).LastWriteTimeUtc)
         Path.Combine(d, "tools", "net40", "tags.csv")
 
@@ -159,6 +161,32 @@ module Tags =
                     sprintf """static member %s (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.%s -> unit>) = Attr.Handler "%s" f""" e.CamelNameEsc e.Category e.Name
                 |]
             | ty -> failwithf "unknown type: %s" ty
+        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next", "HTML.CSharp.fs")) all <| fun e ->
+            match e.Type with
+            | "tag" ->
+                [|
+                    sprintf "/// Create an HTML element <%s> with children nodes." e.Name
+                    "[<JavaScript; Inline>]"
+                    sprintf """let %s ([<ParamArray>] ns) = Doc.ElementMixed "%s" ns""" e.LowNameEsc e.Name
+                |]
+            | "svgtag" ->
+                [|
+                    sprintf "/// Create an SVG element <%s> with children nodes." e.Name
+                    "[<JavaScript; Inline>]"
+                    sprintf """let %s ([<ParamArray>] ns) = Doc.SvgElementMixed "%s" ns""" e.LowNameEsc e.Name
+                |]
+            | "attr" ->
+                [|
+                    sprintf "/// Create an HTML attribute \"%s\" with the given value." e.Name
+                    "[<JavaScript; Inline>]"
+                    sprintf "static member %s value = Attr.Create \"%s\" value" e.LowNameEsc e.Name
+                |]
+            | "svgattr" ->
+                [|
+                    sprintf "/// Create an SVG attribute \"%s\" with the given value." e.Name
+                    "[<JavaScript; Inline>]"
+                    sprintf "let %s value = Attr.Create \"%s\" value" e.LowNameEsc e.Name
+                |]
         RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next", "HTML.Client.fs")) all <| fun e ->
             match e.Type with
             | "attr" ->
