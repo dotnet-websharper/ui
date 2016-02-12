@@ -809,6 +809,17 @@ type Doc' [<JavaScript>] (docNode, updates) =
                         ) 
                     ) |> As<Doc>
                 )
+            | :? Var<obj> as v ->
+                children.Add (
+                    Doc'.EmbedView (
+                        v.View.Map (fun v ->
+                            match box v with
+                            | :? Doc' as d -> d
+                            | :? string as t -> Doc.TextNode t |> As<Doc'>
+                            | o -> (Doc.TextNode (string o)) |> As<Doc'>  
+                        ) 
+                    ) |> As<Doc>
+                )
             | o -> children.Add (Doc.TextNode (string o))
         attrs :> _ seq, children :> _ seq 
 

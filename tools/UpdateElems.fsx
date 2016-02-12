@@ -14,7 +14,10 @@ module Tags =
     let tagsFilePath =
         let d =
             Directory.GetDirectories(Path.Combine(__SOURCE_DIRECTORY__, "..", "packages"), "WebSharper.*")
-            |> Array.append (Directory.GetDirectories(Path.Combine(__SOURCE_DIRECTORY__, "..", "packages"), "Zafir.*"))
+            |> Array.append (
+                Directory.GetDirectories(Path.Combine(__SOURCE_DIRECTORY__, "..", "packages"), "Zafir.*") 
+                |> Array.filter (fun p -> not ((Path.GetFileName p).Contains "Zafir.FSharp"))
+            )
             |> Array.maxBy (fun d -> DirectoryInfo(d).LastWriteTimeUtc)
         Path.Combine(d, "tools", "net40", "tags.csv")
 
@@ -167,13 +170,13 @@ module Tags =
                 [|
                     sprintf "/// Create an HTML element <%s> with children nodes." e.Name
                     "[<JavaScript; Inline>]"
-                    sprintf """let %s ([<ParamArray>] ns) = Doc.ElementMixed "%s" ns""" e.LowNameEsc e.Name
+                    sprintf """let %s ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "%s" ns""" e.LowNameEsc e.Name
                 |]
             | "svgtag" ->
                 [|
                     sprintf "/// Create an SVG element <%s> with children nodes." e.Name
                     "[<JavaScript; Inline>]"
-                    sprintf """let %s ([<ParamArray>] ns) = Doc.SvgElementMixed "%s" ns""" e.LowNameEsc e.Name
+                    sprintf """let %s ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "%s" ns""" e.LowNameEsc e.Name
                 |]
             | "attr" ->
                 [|
@@ -209,6 +212,29 @@ module Tags =
                     sprintf "/// Create a handler for the event \"%s\" which also receives the value of a view at the time of the event." e.Name
                     "[<JavaScript; Inline>]"
                     sprintf """static member %sView (view: View<'T>) (f: Dom.Element -> Dom.%s -> 'T -> unit) = Client.Attr.HandlerView "%s" view f""" e.CamelName e.Category e.Name
+                |]
+        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next", "HTML.Client.CSharp.fs")) all <| fun e ->
+            match e.Type with
+            | "attr" ->
+                [|
+                    sprintf "/// Create an HTML attribute \"%s\" with the given reactive value." e.Name
+                    "[<JavaScript; Inline>]"
+                    sprintf "static member %sDyn view = Client.Attr.Dynamic \"%s\" view" e.LowName e.Name
+                    sprintf "/// `%s v p` sets an HTML attribute \"%s\" with reactive value v when p is true, and unsets it when p is false." e.LowName e.Name
+                    "[<JavaScript; Inline>]"
+                    sprintf "static member %sDynPred view pred = Client.Attr.DynamicPred \"%s\" pred view" e.LowName e.Name
+                    sprintf "/// Create an animated HTML attribute \"%s\" whose value is computed from the given reactive view." e.Name
+                    "[<JavaScript; Inline>]"
+                    sprintf "static member %sAnim view convert trans = Client.Attr.Animated \"%s\" trans view convert" e.LowName e.Name
+                |]
+            | "event" ->
+                [|
+                    sprintf "/// Create a handler for the event \"%s\"." e.Name
+                    "[<JavaScript; Inline>]"
+                    sprintf """static member %s (f: System.Action<Dom.Element, Dom.%s>) = Client.Attr.Handler "%s" (FSharpConvert.Fun f)""" e.CamelNameEsc e.Category e.Name
+                    sprintf "/// Create a handler for the event \"%s\" which also receives the value of a view at the time of the event." e.Name
+                    "[<JavaScript; Inline>]"
+                    sprintf """static member %sView (view: View<'T>) (f: System.Action<Dom.Element, Dom.%s, 'T>) = Client.Attr.HandlerView "%s" view (FSharpConvert.Fun f)""" e.CamelName e.Category e.Name
                 |]
         RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next", "Doc.fs")) all <| fun e ->
             match e.Type with

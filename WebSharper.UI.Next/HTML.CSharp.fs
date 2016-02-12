@@ -36,557 +36,557 @@ module Html =
     // {{ tag normal
     /// Create an HTML element <a> with children nodes.
     [<JavaScript; Inline>]
-    let a ([<ParamArray>] ns) = Doc.ElementMixed "a" ns
+    let a ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "a" ns
     /// Create an HTML element <abbr> with children nodes.
     [<JavaScript; Inline>]
-    let abbr ([<ParamArray>] ns) = Doc.ElementMixed "abbr" ns
+    let abbr ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "abbr" ns
     /// Create an HTML element <address> with children nodes.
     [<JavaScript; Inline>]
-    let address ([<ParamArray>] ns) = Doc.ElementMixed "address" ns
+    let address ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "address" ns
     /// Create an HTML element <area> with children nodes.
     [<JavaScript; Inline>]
-    let area ([<ParamArray>] ns) = Doc.ElementMixed "area" ns
+    let area ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "area" ns
     /// Create an HTML element <article> with children nodes.
     [<JavaScript; Inline>]
-    let article ([<ParamArray>] ns) = Doc.ElementMixed "article" ns
+    let article ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "article" ns
     /// Create an HTML element <aside> with children nodes.
     [<JavaScript; Inline>]
-    let aside ([<ParamArray>] ns) = Doc.ElementMixed "aside" ns
+    let aside ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "aside" ns
     /// Create an HTML element <audio> with children nodes.
     [<JavaScript; Inline>]
-    let audio ([<ParamArray>] ns) = Doc.ElementMixed "audio" ns
+    let audio ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "audio" ns
     /// Create an HTML element <b> with children nodes.
     [<JavaScript; Inline>]
-    let b ([<ParamArray>] ns) = Doc.ElementMixed "b" ns
+    let b ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "b" ns
     /// Create an HTML element <base> with children nodes.
     [<JavaScript; Inline>]
-    let ``base`` ([<ParamArray>] ns) = Doc.ElementMixed "base" ns
+    let ``base`` ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "base" ns
     /// Create an HTML element <bdi> with children nodes.
     [<JavaScript; Inline>]
-    let bdi ([<ParamArray>] ns) = Doc.ElementMixed "bdi" ns
+    let bdi ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "bdi" ns
     /// Create an HTML element <bdo> with children nodes.
     [<JavaScript; Inline>]
-    let bdo ([<ParamArray>] ns) = Doc.ElementMixed "bdo" ns
+    let bdo ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "bdo" ns
     /// Create an HTML element <blockquote> with children nodes.
     [<JavaScript; Inline>]
-    let blockquote ([<ParamArray>] ns) = Doc.ElementMixed "blockquote" ns
+    let blockquote ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "blockquote" ns
     /// Create an HTML element <body> with children nodes.
     [<JavaScript; Inline>]
-    let body ([<ParamArray>] ns) = Doc.ElementMixed "body" ns
+    let body ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "body" ns
     /// Create an HTML element <br> with children nodes.
     [<JavaScript; Inline>]
-    let br ([<ParamArray>] ns) = Doc.ElementMixed "br" ns
+    let br ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "br" ns
     /// Create an HTML element <button> with children nodes.
     [<JavaScript; Inline>]
-    let button ([<ParamArray>] ns) = Doc.ElementMixed "button" ns
+    let button ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "button" ns
     /// Create an HTML element <canvas> with children nodes.
     [<JavaScript; Inline>]
-    let canvas ([<ParamArray>] ns) = Doc.ElementMixed "canvas" ns
+    let canvas ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "canvas" ns
     /// Create an HTML element <caption> with children nodes.
     [<JavaScript; Inline>]
-    let caption ([<ParamArray>] ns) = Doc.ElementMixed "caption" ns
+    let caption ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "caption" ns
     /// Create an HTML element <cite> with children nodes.
     [<JavaScript; Inline>]
-    let cite ([<ParamArray>] ns) = Doc.ElementMixed "cite" ns
+    let cite ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "cite" ns
     /// Create an HTML element <code> with children nodes.
     [<JavaScript; Inline>]
-    let code ([<ParamArray>] ns) = Doc.ElementMixed "code" ns
+    let code ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "code" ns
     /// Create an HTML element <col> with children nodes.
     [<JavaScript; Inline>]
-    let col ([<ParamArray>] ns) = Doc.ElementMixed "col" ns
+    let col ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "col" ns
     /// Create an HTML element <colgroup> with children nodes.
     [<JavaScript; Inline>]
-    let colgroup ([<ParamArray>] ns) = Doc.ElementMixed "colgroup" ns
+    let colgroup ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "colgroup" ns
     /// Create an HTML element <command> with children nodes.
     [<JavaScript; Inline>]
-    let command ([<ParamArray>] ns) = Doc.ElementMixed "command" ns
+    let command ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "command" ns
     /// Create an HTML element <datalist> with children nodes.
     [<JavaScript; Inline>]
-    let datalist ([<ParamArray>] ns) = Doc.ElementMixed "datalist" ns
+    let datalist ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "datalist" ns
     /// Create an HTML element <dd> with children nodes.
     [<JavaScript; Inline>]
-    let dd ([<ParamArray>] ns) = Doc.ElementMixed "dd" ns
+    let dd ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "dd" ns
     /// Create an HTML element <del> with children nodes.
     [<JavaScript; Inline>]
-    let del ([<ParamArray>] ns) = Doc.ElementMixed "del" ns
+    let del ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "del" ns
     /// Create an HTML element <details> with children nodes.
     [<JavaScript; Inline>]
-    let details ([<ParamArray>] ns) = Doc.ElementMixed "details" ns
+    let details ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "details" ns
     /// Create an HTML element <dfn> with children nodes.
     [<JavaScript; Inline>]
-    let dfn ([<ParamArray>] ns) = Doc.ElementMixed "dfn" ns
+    let dfn ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "dfn" ns
     /// Create an HTML element <div> with children nodes.
     [<JavaScript; Inline>]
-    let div ([<ParamArray>] ns) = Doc.ElementMixed "div" ns
+    let div ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "div" ns
     /// Create an HTML element <dl> with children nodes.
     [<JavaScript; Inline>]
-    let dl ([<ParamArray>] ns) = Doc.ElementMixed "dl" ns
+    let dl ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "dl" ns
     /// Create an HTML element <dt> with children nodes.
     [<JavaScript; Inline>]
-    let dt ([<ParamArray>] ns) = Doc.ElementMixed "dt" ns
+    let dt ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "dt" ns
     /// Create an HTML element <em> with children nodes.
     [<JavaScript; Inline>]
-    let em ([<ParamArray>] ns) = Doc.ElementMixed "em" ns
+    let em ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "em" ns
     /// Create an HTML element <embed> with children nodes.
     [<JavaScript; Inline>]
-    let embed ([<ParamArray>] ns) = Doc.ElementMixed "embed" ns
+    let embed ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "embed" ns
     /// Create an HTML element <fieldset> with children nodes.
     [<JavaScript; Inline>]
-    let fieldset ([<ParamArray>] ns) = Doc.ElementMixed "fieldset" ns
+    let fieldset ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "fieldset" ns
     /// Create an HTML element <figcaption> with children nodes.
     [<JavaScript; Inline>]
-    let figcaption ([<ParamArray>] ns) = Doc.ElementMixed "figcaption" ns
+    let figcaption ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "figcaption" ns
     /// Create an HTML element <figure> with children nodes.
     [<JavaScript; Inline>]
-    let figure ([<ParamArray>] ns) = Doc.ElementMixed "figure" ns
+    let figure ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "figure" ns
     /// Create an HTML element <footer> with children nodes.
     [<JavaScript; Inline>]
-    let footer ([<ParamArray>] ns) = Doc.ElementMixed "footer" ns
+    let footer ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "footer" ns
     /// Create an HTML element <form> with children nodes.
     [<JavaScript; Inline>]
-    let form ([<ParamArray>] ns) = Doc.ElementMixed "form" ns
+    let form ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "form" ns
     /// Create an HTML element <h1> with children nodes.
     [<JavaScript; Inline>]
-    let h1 ([<ParamArray>] ns) = Doc.ElementMixed "h1" ns
+    let h1 ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "h1" ns
     /// Create an HTML element <h2> with children nodes.
     [<JavaScript; Inline>]
-    let h2 ([<ParamArray>] ns) = Doc.ElementMixed "h2" ns
+    let h2 ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "h2" ns
     /// Create an HTML element <h3> with children nodes.
     [<JavaScript; Inline>]
-    let h3 ([<ParamArray>] ns) = Doc.ElementMixed "h3" ns
+    let h3 ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "h3" ns
     /// Create an HTML element <h4> with children nodes.
     [<JavaScript; Inline>]
-    let h4 ([<ParamArray>] ns) = Doc.ElementMixed "h4" ns
+    let h4 ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "h4" ns
     /// Create an HTML element <h5> with children nodes.
     [<JavaScript; Inline>]
-    let h5 ([<ParamArray>] ns) = Doc.ElementMixed "h5" ns
+    let h5 ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "h5" ns
     /// Create an HTML element <h6> with children nodes.
     [<JavaScript; Inline>]
-    let h6 ([<ParamArray>] ns) = Doc.ElementMixed "h6" ns
+    let h6 ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "h6" ns
     /// Create an HTML element <head> with children nodes.
     [<JavaScript; Inline>]
-    let head ([<ParamArray>] ns) = Doc.ElementMixed "head" ns
+    let head ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "head" ns
     /// Create an HTML element <header> with children nodes.
     [<JavaScript; Inline>]
-    let header ([<ParamArray>] ns) = Doc.ElementMixed "header" ns
+    let header ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "header" ns
     /// Create an HTML element <hgroup> with children nodes.
     [<JavaScript; Inline>]
-    let hgroup ([<ParamArray>] ns) = Doc.ElementMixed "hgroup" ns
+    let hgroup ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "hgroup" ns
     /// Create an HTML element <hr> with children nodes.
     [<JavaScript; Inline>]
-    let hr ([<ParamArray>] ns) = Doc.ElementMixed "hr" ns
+    let hr ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "hr" ns
     /// Create an HTML element <html> with children nodes.
     [<JavaScript; Inline>]
-    let html ([<ParamArray>] ns) = Doc.ElementMixed "html" ns
+    let html ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "html" ns
     /// Create an HTML element <i> with children nodes.
     [<JavaScript; Inline>]
-    let i ([<ParamArray>] ns) = Doc.ElementMixed "i" ns
+    let i ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "i" ns
     /// Create an HTML element <iframe> with children nodes.
     [<JavaScript; Inline>]
-    let iframe ([<ParamArray>] ns) = Doc.ElementMixed "iframe" ns
+    let iframe ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "iframe" ns
     /// Create an HTML element <img> with children nodes.
     [<JavaScript; Inline>]
-    let img ([<ParamArray>] ns) = Doc.ElementMixed "img" ns
+    let img ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "img" ns
     /// Create an HTML element <input> with children nodes.
     [<JavaScript; Inline>]
-    let input ([<ParamArray>] ns) = Doc.ElementMixed "input" ns
+    let input ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "input" ns
     /// Create an HTML element <ins> with children nodes.
     [<JavaScript; Inline>]
-    let ins ([<ParamArray>] ns) = Doc.ElementMixed "ins" ns
+    let ins ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "ins" ns
     /// Create an HTML element <kbd> with children nodes.
     [<JavaScript; Inline>]
-    let kbd ([<ParamArray>] ns) = Doc.ElementMixed "kbd" ns
+    let kbd ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "kbd" ns
     /// Create an HTML element <keygen> with children nodes.
     [<JavaScript; Inline>]
-    let keygen ([<ParamArray>] ns) = Doc.ElementMixed "keygen" ns
+    let keygen ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "keygen" ns
     /// Create an HTML element <label> with children nodes.
     [<JavaScript; Inline>]
-    let label ([<ParamArray>] ns) = Doc.ElementMixed "label" ns
+    let label ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "label" ns
     /// Create an HTML element <legend> with children nodes.
     [<JavaScript; Inline>]
-    let legend ([<ParamArray>] ns) = Doc.ElementMixed "legend" ns
+    let legend ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "legend" ns
     /// Create an HTML element <li> with children nodes.
     [<JavaScript; Inline>]
-    let li ([<ParamArray>] ns) = Doc.ElementMixed "li" ns
+    let li ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "li" ns
     /// Create an HTML element <link> with children nodes.
     [<JavaScript; Inline>]
-    let link ([<ParamArray>] ns) = Doc.ElementMixed "link" ns
+    let link ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "link" ns
     /// Create an HTML element <mark> with children nodes.
     [<JavaScript; Inline>]
-    let mark ([<ParamArray>] ns) = Doc.ElementMixed "mark" ns
+    let mark ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "mark" ns
     /// Create an HTML element <meta> with children nodes.
     [<JavaScript; Inline>]
-    let meta ([<ParamArray>] ns) = Doc.ElementMixed "meta" ns
+    let meta ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "meta" ns
     /// Create an HTML element <meter> with children nodes.
     [<JavaScript; Inline>]
-    let meter ([<ParamArray>] ns) = Doc.ElementMixed "meter" ns
+    let meter ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "meter" ns
     /// Create an HTML element <nav> with children nodes.
     [<JavaScript; Inline>]
-    let nav ([<ParamArray>] ns) = Doc.ElementMixed "nav" ns
+    let nav ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "nav" ns
     /// Create an HTML element <noframes> with children nodes.
     [<JavaScript; Inline>]
-    let noframes ([<ParamArray>] ns) = Doc.ElementMixed "noframes" ns
+    let noframes ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "noframes" ns
     /// Create an HTML element <noscript> with children nodes.
     [<JavaScript; Inline>]
-    let noscript ([<ParamArray>] ns) = Doc.ElementMixed "noscript" ns
+    let noscript ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "noscript" ns
     /// Create an HTML element <ol> with children nodes.
     [<JavaScript; Inline>]
-    let ol ([<ParamArray>] ns) = Doc.ElementMixed "ol" ns
+    let ol ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "ol" ns
     /// Create an HTML element <optgroup> with children nodes.
     [<JavaScript; Inline>]
-    let optgroup ([<ParamArray>] ns) = Doc.ElementMixed "optgroup" ns
+    let optgroup ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "optgroup" ns
     /// Create an HTML element <output> with children nodes.
     [<JavaScript; Inline>]
-    let output ([<ParamArray>] ns) = Doc.ElementMixed "output" ns
+    let output ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "output" ns
     /// Create an HTML element <p> with children nodes.
     [<JavaScript; Inline>]
-    let p ([<ParamArray>] ns) = Doc.ElementMixed "p" ns
+    let p ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "p" ns
     /// Create an HTML element <param> with children nodes.
     [<JavaScript; Inline>]
-    let param ([<ParamArray>] ns) = Doc.ElementMixed "param" ns
+    let param ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "param" ns
     /// Create an HTML element <picture> with children nodes.
     [<JavaScript; Inline>]
-    let picture ([<ParamArray>] ns) = Doc.ElementMixed "picture" ns
+    let picture ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "picture" ns
     /// Create an HTML element <pre> with children nodes.
     [<JavaScript; Inline>]
-    let pre ([<ParamArray>] ns) = Doc.ElementMixed "pre" ns
+    let pre ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "pre" ns
     /// Create an HTML element <progress> with children nodes.
     [<JavaScript; Inline>]
-    let progress ([<ParamArray>] ns) = Doc.ElementMixed "progress" ns
+    let progress ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "progress" ns
     /// Create an HTML element <q> with children nodes.
     [<JavaScript; Inline>]
-    let q ([<ParamArray>] ns) = Doc.ElementMixed "q" ns
+    let q ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "q" ns
     /// Create an HTML element <rp> with children nodes.
     [<JavaScript; Inline>]
-    let rp ([<ParamArray>] ns) = Doc.ElementMixed "rp" ns
+    let rp ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "rp" ns
     /// Create an HTML element <rt> with children nodes.
     [<JavaScript; Inline>]
-    let rt ([<ParamArray>] ns) = Doc.ElementMixed "rt" ns
+    let rt ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "rt" ns
     /// Create an HTML element <rtc> with children nodes.
     [<JavaScript; Inline>]
-    let rtc ([<ParamArray>] ns) = Doc.ElementMixed "rtc" ns
+    let rtc ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "rtc" ns
     /// Create an HTML element <ruby> with children nodes.
     [<JavaScript; Inline>]
-    let ruby ([<ParamArray>] ns) = Doc.ElementMixed "ruby" ns
+    let ruby ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "ruby" ns
     /// Create an HTML element <samp> with children nodes.
     [<JavaScript; Inline>]
-    let samp ([<ParamArray>] ns) = Doc.ElementMixed "samp" ns
+    let samp ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "samp" ns
     /// Create an HTML element <script> with children nodes.
     [<JavaScript; Inline>]
-    let script ([<ParamArray>] ns) = Doc.ElementMixed "script" ns
+    let script ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "script" ns
     /// Create an HTML element <section> with children nodes.
     [<JavaScript; Inline>]
-    let section ([<ParamArray>] ns) = Doc.ElementMixed "section" ns
+    let section ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "section" ns
     /// Create an HTML element <select> with children nodes.
     [<JavaScript; Inline>]
-    let select ([<ParamArray>] ns) = Doc.ElementMixed "select" ns
+    let select ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "select" ns
     /// Create an HTML element <shadow> with children nodes.
     [<JavaScript; Inline>]
-    let shadow ([<ParamArray>] ns) = Doc.ElementMixed "shadow" ns
+    let shadow ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "shadow" ns
     /// Create an HTML element <small> with children nodes.
     [<JavaScript; Inline>]
-    let small ([<ParamArray>] ns) = Doc.ElementMixed "small" ns
+    let small ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "small" ns
     /// Create an HTML element <source> with children nodes.
     [<JavaScript; Inline>]
-    let source ([<ParamArray>] ns) = Doc.ElementMixed "source" ns
+    let source ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "source" ns
     /// Create an HTML element <span> with children nodes.
     [<JavaScript; Inline>]
-    let span ([<ParamArray>] ns) = Doc.ElementMixed "span" ns
+    let span ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "span" ns
     /// Create an HTML element <strong> with children nodes.
     [<JavaScript; Inline>]
-    let strong ([<ParamArray>] ns) = Doc.ElementMixed "strong" ns
+    let strong ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "strong" ns
     /// Create an HTML element <sub> with children nodes.
     [<JavaScript; Inline>]
-    let sub ([<ParamArray>] ns) = Doc.ElementMixed "sub" ns
+    let sub ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "sub" ns
     /// Create an HTML element <summary> with children nodes.
     [<JavaScript; Inline>]
-    let summary ([<ParamArray>] ns) = Doc.ElementMixed "summary" ns
+    let summary ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "summary" ns
     /// Create an HTML element <sup> with children nodes.
     [<JavaScript; Inline>]
-    let sup ([<ParamArray>] ns) = Doc.ElementMixed "sup" ns
+    let sup ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "sup" ns
     /// Create an HTML element <table> with children nodes.
     [<JavaScript; Inline>]
-    let table ([<ParamArray>] ns) = Doc.ElementMixed "table" ns
+    let table ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "table" ns
     /// Create an HTML element <tbody> with children nodes.
     [<JavaScript; Inline>]
-    let tbody ([<ParamArray>] ns) = Doc.ElementMixed "tbody" ns
+    let tbody ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "tbody" ns
     /// Create an HTML element <td> with children nodes.
     [<JavaScript; Inline>]
-    let td ([<ParamArray>] ns) = Doc.ElementMixed "td" ns
+    let td ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "td" ns
     /// Create an HTML element <textarea> with children nodes.
     [<JavaScript; Inline>]
-    let textarea ([<ParamArray>] ns) = Doc.ElementMixed "textarea" ns
+    let textarea ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "textarea" ns
     /// Create an HTML element <tfoot> with children nodes.
     [<JavaScript; Inline>]
-    let tfoot ([<ParamArray>] ns) = Doc.ElementMixed "tfoot" ns
+    let tfoot ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "tfoot" ns
     /// Create an HTML element <th> with children nodes.
     [<JavaScript; Inline>]
-    let th ([<ParamArray>] ns) = Doc.ElementMixed "th" ns
+    let th ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "th" ns
     /// Create an HTML element <thead> with children nodes.
     [<JavaScript; Inline>]
-    let thead ([<ParamArray>] ns) = Doc.ElementMixed "thead" ns
+    let thead ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "thead" ns
     /// Create an HTML element <time> with children nodes.
     [<JavaScript; Inline>]
-    let time ([<ParamArray>] ns) = Doc.ElementMixed "time" ns
+    let time ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "time" ns
     /// Create an HTML element <tr> with children nodes.
     [<JavaScript; Inline>]
-    let tr ([<ParamArray>] ns) = Doc.ElementMixed "tr" ns
+    let tr ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "tr" ns
     /// Create an HTML element <track> with children nodes.
     [<JavaScript; Inline>]
-    let track ([<ParamArray>] ns) = Doc.ElementMixed "track" ns
+    let track ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "track" ns
     /// Create an HTML element <ul> with children nodes.
     [<JavaScript; Inline>]
-    let ul ([<ParamArray>] ns) = Doc.ElementMixed "ul" ns
+    let ul ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "ul" ns
     /// Create an HTML element <video> with children nodes.
     [<JavaScript; Inline>]
-    let video ([<ParamArray>] ns) = Doc.ElementMixed "video" ns
+    let video ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "video" ns
     /// Create an HTML element <wbr> with children nodes.
     [<JavaScript; Inline>]
-    let wbr ([<ParamArray>] ns) = Doc.ElementMixed "wbr" ns
+    let wbr ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "wbr" ns
     // }}
 
     module SvgElements =
         // {{ svgtag normal
         /// Create an SVG element <a> with children nodes.
         [<JavaScript; Inline>]
-        let a ([<ParamArray>] ns) = Doc.SvgElementMixed "a" ns
+        let a ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "a" ns
         /// Create an SVG element <altglyph> with children nodes.
         [<JavaScript; Inline>]
-        let altglyph ([<ParamArray>] ns) = Doc.SvgElementMixed "altglyph" ns
+        let altglyph ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "altglyph" ns
         /// Create an SVG element <altglyphdef> with children nodes.
         [<JavaScript; Inline>]
-        let altglyphdef ([<ParamArray>] ns) = Doc.SvgElementMixed "altglyphdef" ns
+        let altglyphdef ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "altglyphdef" ns
         /// Create an SVG element <altglyphitem> with children nodes.
         [<JavaScript; Inline>]
-        let altglyphitem ([<ParamArray>] ns) = Doc.SvgElementMixed "altglyphitem" ns
+        let altglyphitem ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "altglyphitem" ns
         /// Create an SVG element <animate> with children nodes.
         [<JavaScript; Inline>]
-        let animate ([<ParamArray>] ns) = Doc.SvgElementMixed "animate" ns
+        let animate ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "animate" ns
         /// Create an SVG element <animatecolor> with children nodes.
         [<JavaScript; Inline>]
-        let animatecolor ([<ParamArray>] ns) = Doc.SvgElementMixed "animatecolor" ns
+        let animatecolor ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "animatecolor" ns
         /// Create an SVG element <animatemotion> with children nodes.
         [<JavaScript; Inline>]
-        let animatemotion ([<ParamArray>] ns) = Doc.SvgElementMixed "animatemotion" ns
+        let animatemotion ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "animatemotion" ns
         /// Create an SVG element <animatetransform> with children nodes.
         [<JavaScript; Inline>]
-        let animatetransform ([<ParamArray>] ns) = Doc.SvgElementMixed "animatetransform" ns
+        let animatetransform ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "animatetransform" ns
         /// Create an SVG element <circle> with children nodes.
         [<JavaScript; Inline>]
-        let circle ([<ParamArray>] ns) = Doc.SvgElementMixed "circle" ns
+        let circle ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "circle" ns
         /// Create an SVG element <clippath> with children nodes.
         [<JavaScript; Inline>]
-        let clippath ([<ParamArray>] ns) = Doc.SvgElementMixed "clippath" ns
+        let clippath ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "clippath" ns
         /// Create an SVG element <color-profile> with children nodes.
         [<JavaScript; Inline>]
-        let colorProfile ([<ParamArray>] ns) = Doc.SvgElementMixed "color-profile" ns
+        let colorProfile ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "color-profile" ns
         /// Create an SVG element <cursor> with children nodes.
         [<JavaScript; Inline>]
-        let cursor ([<ParamArray>] ns) = Doc.SvgElementMixed "cursor" ns
+        let cursor ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "cursor" ns
         /// Create an SVG element <defs> with children nodes.
         [<JavaScript; Inline>]
-        let defs ([<ParamArray>] ns) = Doc.SvgElementMixed "defs" ns
+        let defs ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "defs" ns
         /// Create an SVG element <desc> with children nodes.
         [<JavaScript; Inline>]
-        let desc ([<ParamArray>] ns) = Doc.SvgElementMixed "desc" ns
+        let desc ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "desc" ns
         /// Create an SVG element <ellipse> with children nodes.
         [<JavaScript; Inline>]
-        let ellipse ([<ParamArray>] ns) = Doc.SvgElementMixed "ellipse" ns
+        let ellipse ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "ellipse" ns
         /// Create an SVG element <feblend> with children nodes.
         [<JavaScript; Inline>]
-        let feblend ([<ParamArray>] ns) = Doc.SvgElementMixed "feblend" ns
+        let feblend ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "feblend" ns
         /// Create an SVG element <fecolormatrix> with children nodes.
         [<JavaScript; Inline>]
-        let fecolormatrix ([<ParamArray>] ns) = Doc.SvgElementMixed "fecolormatrix" ns
+        let fecolormatrix ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fecolormatrix" ns
         /// Create an SVG element <fecomponenttransfer> with children nodes.
         [<JavaScript; Inline>]
-        let fecomponenttransfer ([<ParamArray>] ns) = Doc.SvgElementMixed "fecomponenttransfer" ns
+        let fecomponenttransfer ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fecomponenttransfer" ns
         /// Create an SVG element <fecomposite> with children nodes.
         [<JavaScript; Inline>]
-        let fecomposite ([<ParamArray>] ns) = Doc.SvgElementMixed "fecomposite" ns
+        let fecomposite ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fecomposite" ns
         /// Create an SVG element <feconvolvematrix> with children nodes.
         [<JavaScript; Inline>]
-        let feconvolvematrix ([<ParamArray>] ns) = Doc.SvgElementMixed "feconvolvematrix" ns
+        let feconvolvematrix ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "feconvolvematrix" ns
         /// Create an SVG element <fediffuselighting> with children nodes.
         [<JavaScript; Inline>]
-        let fediffuselighting ([<ParamArray>] ns) = Doc.SvgElementMixed "fediffuselighting" ns
+        let fediffuselighting ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fediffuselighting" ns
         /// Create an SVG element <fedisplacementmap> with children nodes.
         [<JavaScript; Inline>]
-        let fedisplacementmap ([<ParamArray>] ns) = Doc.SvgElementMixed "fedisplacementmap" ns
+        let fedisplacementmap ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fedisplacementmap" ns
         /// Create an SVG element <fedistantlight> with children nodes.
         [<JavaScript; Inline>]
-        let fedistantlight ([<ParamArray>] ns) = Doc.SvgElementMixed "fedistantlight" ns
+        let fedistantlight ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fedistantlight" ns
         /// Create an SVG element <feflood> with children nodes.
         [<JavaScript; Inline>]
-        let feflood ([<ParamArray>] ns) = Doc.SvgElementMixed "feflood" ns
+        let feflood ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "feflood" ns
         /// Create an SVG element <fefunca> with children nodes.
         [<JavaScript; Inline>]
-        let fefunca ([<ParamArray>] ns) = Doc.SvgElementMixed "fefunca" ns
+        let fefunca ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fefunca" ns
         /// Create an SVG element <fefuncb> with children nodes.
         [<JavaScript; Inline>]
-        let fefuncb ([<ParamArray>] ns) = Doc.SvgElementMixed "fefuncb" ns
+        let fefuncb ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fefuncb" ns
         /// Create an SVG element <fefuncg> with children nodes.
         [<JavaScript; Inline>]
-        let fefuncg ([<ParamArray>] ns) = Doc.SvgElementMixed "fefuncg" ns
+        let fefuncg ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fefuncg" ns
         /// Create an SVG element <fefuncr> with children nodes.
         [<JavaScript; Inline>]
-        let fefuncr ([<ParamArray>] ns) = Doc.SvgElementMixed "fefuncr" ns
+        let fefuncr ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fefuncr" ns
         /// Create an SVG element <fegaussianblur> with children nodes.
         [<JavaScript; Inline>]
-        let fegaussianblur ([<ParamArray>] ns) = Doc.SvgElementMixed "fegaussianblur" ns
+        let fegaussianblur ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fegaussianblur" ns
         /// Create an SVG element <feimage> with children nodes.
         [<JavaScript; Inline>]
-        let feimage ([<ParamArray>] ns) = Doc.SvgElementMixed "feimage" ns
+        let feimage ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "feimage" ns
         /// Create an SVG element <femerge> with children nodes.
         [<JavaScript; Inline>]
-        let femerge ([<ParamArray>] ns) = Doc.SvgElementMixed "femerge" ns
+        let femerge ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "femerge" ns
         /// Create an SVG element <femergenode> with children nodes.
         [<JavaScript; Inline>]
-        let femergenode ([<ParamArray>] ns) = Doc.SvgElementMixed "femergenode" ns
+        let femergenode ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "femergenode" ns
         /// Create an SVG element <femorphology> with children nodes.
         [<JavaScript; Inline>]
-        let femorphology ([<ParamArray>] ns) = Doc.SvgElementMixed "femorphology" ns
+        let femorphology ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "femorphology" ns
         /// Create an SVG element <feoffset> with children nodes.
         [<JavaScript; Inline>]
-        let feoffset ([<ParamArray>] ns) = Doc.SvgElementMixed "feoffset" ns
+        let feoffset ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "feoffset" ns
         /// Create an SVG element <fepointlight> with children nodes.
         [<JavaScript; Inline>]
-        let fepointlight ([<ParamArray>] ns) = Doc.SvgElementMixed "fepointlight" ns
+        let fepointlight ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fepointlight" ns
         /// Create an SVG element <fespecularlighting> with children nodes.
         [<JavaScript; Inline>]
-        let fespecularlighting ([<ParamArray>] ns) = Doc.SvgElementMixed "fespecularlighting" ns
+        let fespecularlighting ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fespecularlighting" ns
         /// Create an SVG element <fespotlight> with children nodes.
         [<JavaScript; Inline>]
-        let fespotlight ([<ParamArray>] ns) = Doc.SvgElementMixed "fespotlight" ns
+        let fespotlight ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fespotlight" ns
         /// Create an SVG element <fetile> with children nodes.
         [<JavaScript; Inline>]
-        let fetile ([<ParamArray>] ns) = Doc.SvgElementMixed "fetile" ns
+        let fetile ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fetile" ns
         /// Create an SVG element <feturbulence> with children nodes.
         [<JavaScript; Inline>]
-        let feturbulence ([<ParamArray>] ns) = Doc.SvgElementMixed "feturbulence" ns
+        let feturbulence ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "feturbulence" ns
         /// Create an SVG element <filter> with children nodes.
         [<JavaScript; Inline>]
-        let filter ([<ParamArray>] ns) = Doc.SvgElementMixed "filter" ns
+        let filter ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "filter" ns
         /// Create an SVG element <font> with children nodes.
         [<JavaScript; Inline>]
-        let font ([<ParamArray>] ns) = Doc.SvgElementMixed "font" ns
+        let font ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "font" ns
         /// Create an SVG element <font-face> with children nodes.
         [<JavaScript; Inline>]
-        let fontFace ([<ParamArray>] ns) = Doc.SvgElementMixed "font-face" ns
+        let fontFace ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "font-face" ns
         /// Create an SVG element <font-face-format> with children nodes.
         [<JavaScript; Inline>]
-        let fontFaceFormat ([<ParamArray>] ns) = Doc.SvgElementMixed "font-face-format" ns
+        let fontFaceFormat ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "font-face-format" ns
         /// Create an SVG element <font-face-name> with children nodes.
         [<JavaScript; Inline>]
-        let fontFaceName ([<ParamArray>] ns) = Doc.SvgElementMixed "font-face-name" ns
+        let fontFaceName ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "font-face-name" ns
         /// Create an SVG element <font-face-src> with children nodes.
         [<JavaScript; Inline>]
-        let fontFaceSrc ([<ParamArray>] ns) = Doc.SvgElementMixed "font-face-src" ns
+        let fontFaceSrc ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "font-face-src" ns
         /// Create an SVG element <font-face-uri> with children nodes.
         [<JavaScript; Inline>]
-        let fontFaceUri ([<ParamArray>] ns) = Doc.SvgElementMixed "font-face-uri" ns
+        let fontFaceUri ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "font-face-uri" ns
         /// Create an SVG element <foreignobject> with children nodes.
         [<JavaScript; Inline>]
-        let foreignobject ([<ParamArray>] ns) = Doc.SvgElementMixed "foreignobject" ns
+        let foreignobject ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "foreignobject" ns
         /// Create an SVG element <g> with children nodes.
         [<JavaScript; Inline>]
-        let g ([<ParamArray>] ns) = Doc.SvgElementMixed "g" ns
+        let g ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "g" ns
         /// Create an SVG element <glyph> with children nodes.
         [<JavaScript; Inline>]
-        let glyph ([<ParamArray>] ns) = Doc.SvgElementMixed "glyph" ns
+        let glyph ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "glyph" ns
         /// Create an SVG element <glyphref> with children nodes.
         [<JavaScript; Inline>]
-        let glyphref ([<ParamArray>] ns) = Doc.SvgElementMixed "glyphref" ns
+        let glyphref ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "glyphref" ns
         /// Create an SVG element <hkern> with children nodes.
         [<JavaScript; Inline>]
-        let hkern ([<ParamArray>] ns) = Doc.SvgElementMixed "hkern" ns
+        let hkern ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "hkern" ns
         /// Create an SVG element <image> with children nodes.
         [<JavaScript; Inline>]
-        let image ([<ParamArray>] ns) = Doc.SvgElementMixed "image" ns
+        let image ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "image" ns
         /// Create an SVG element <line> with children nodes.
         [<JavaScript; Inline>]
-        let line ([<ParamArray>] ns) = Doc.SvgElementMixed "line" ns
+        let line ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "line" ns
         /// Create an SVG element <lineargradient> with children nodes.
         [<JavaScript; Inline>]
-        let lineargradient ([<ParamArray>] ns) = Doc.SvgElementMixed "lineargradient" ns
+        let lineargradient ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "lineargradient" ns
         /// Create an SVG element <marker> with children nodes.
         [<JavaScript; Inline>]
-        let marker ([<ParamArray>] ns) = Doc.SvgElementMixed "marker" ns
+        let marker ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "marker" ns
         /// Create an SVG element <mask> with children nodes.
         [<JavaScript; Inline>]
-        let mask ([<ParamArray>] ns) = Doc.SvgElementMixed "mask" ns
+        let mask ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "mask" ns
         /// Create an SVG element <metadata> with children nodes.
         [<JavaScript; Inline>]
-        let metadata ([<ParamArray>] ns) = Doc.SvgElementMixed "metadata" ns
+        let metadata ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "metadata" ns
         /// Create an SVG element <missing-glyph> with children nodes.
         [<JavaScript; Inline>]
-        let missingGlyph ([<ParamArray>] ns) = Doc.SvgElementMixed "missing-glyph" ns
+        let missingGlyph ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "missing-glyph" ns
         /// Create an SVG element <mpath> with children nodes.
         [<JavaScript; Inline>]
-        let mpath ([<ParamArray>] ns) = Doc.SvgElementMixed "mpath" ns
+        let mpath ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "mpath" ns
         /// Create an SVG element <path> with children nodes.
         [<JavaScript; Inline>]
-        let path ([<ParamArray>] ns) = Doc.SvgElementMixed "path" ns
+        let path ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "path" ns
         /// Create an SVG element <pattern> with children nodes.
         [<JavaScript; Inline>]
-        let pattern ([<ParamArray>] ns) = Doc.SvgElementMixed "pattern" ns
+        let pattern ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "pattern" ns
         /// Create an SVG element <polygon> with children nodes.
         [<JavaScript; Inline>]
-        let polygon ([<ParamArray>] ns) = Doc.SvgElementMixed "polygon" ns
+        let polygon ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "polygon" ns
         /// Create an SVG element <polyline> with children nodes.
         [<JavaScript; Inline>]
-        let polyline ([<ParamArray>] ns) = Doc.SvgElementMixed "polyline" ns
+        let polyline ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "polyline" ns
         /// Create an SVG element <radialgradient> with children nodes.
         [<JavaScript; Inline>]
-        let radialgradient ([<ParamArray>] ns) = Doc.SvgElementMixed "radialgradient" ns
+        let radialgradient ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "radialgradient" ns
         /// Create an SVG element <rect> with children nodes.
         [<JavaScript; Inline>]
-        let rect ([<ParamArray>] ns) = Doc.SvgElementMixed "rect" ns
+        let rect ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "rect" ns
         /// Create an SVG element <script> with children nodes.
         [<JavaScript; Inline>]
-        let script ([<ParamArray>] ns) = Doc.SvgElementMixed "script" ns
+        let script ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "script" ns
         /// Create an SVG element <set> with children nodes.
         [<JavaScript; Inline>]
-        let set ([<ParamArray>] ns) = Doc.SvgElementMixed "set" ns
+        let set ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "set" ns
         /// Create an SVG element <stop> with children nodes.
         [<JavaScript; Inline>]
-        let stop ([<ParamArray>] ns) = Doc.SvgElementMixed "stop" ns
+        let stop ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "stop" ns
         /// Create an SVG element <style> with children nodes.
         [<JavaScript; Inline>]
-        let style ([<ParamArray>] ns) = Doc.SvgElementMixed "style" ns
+        let style ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "style" ns
         /// Create an SVG element <svg> with children nodes.
         [<JavaScript; Inline>]
-        let svg ([<ParamArray>] ns) = Doc.SvgElementMixed "svg" ns
+        let svg ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "svg" ns
         /// Create an SVG element <switch> with children nodes.
         [<JavaScript; Inline>]
-        let switch ([<ParamArray>] ns) = Doc.SvgElementMixed "switch" ns
+        let switch ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "switch" ns
         /// Create an SVG element <symbol> with children nodes.
         [<JavaScript; Inline>]
-        let symbol ([<ParamArray>] ns) = Doc.SvgElementMixed "symbol" ns
+        let symbol ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "symbol" ns
         /// Create an SVG element <text> with children nodes.
         [<JavaScript; Inline>]
-        let text ([<ParamArray>] ns) = Doc.SvgElementMixed "text" ns
+        let text ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "text" ns
         /// Create an SVG element <textpath> with children nodes.
         [<JavaScript; Inline>]
-        let textpath ([<ParamArray>] ns) = Doc.SvgElementMixed "textpath" ns
+        let textpath ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "textpath" ns
         /// Create an SVG element <title> with children nodes.
         [<JavaScript; Inline>]
-        let title ([<ParamArray>] ns) = Doc.SvgElementMixed "title" ns
+        let title ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "title" ns
         /// Create an SVG element <tref> with children nodes.
         [<JavaScript; Inline>]
-        let tref ([<ParamArray>] ns) = Doc.SvgElementMixed "tref" ns
+        let tref ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "tref" ns
         /// Create an SVG element <tspan> with children nodes.
         [<JavaScript; Inline>]
-        let tspan ([<ParamArray>] ns) = Doc.SvgElementMixed "tspan" ns
+        let tspan ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "tspan" ns
         /// Create an SVG element <use> with children nodes.
         [<JavaScript; Inline>]
-        let ``use`` ([<ParamArray>] ns) = Doc.SvgElementMixed "use" ns
+        let ``use`` ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "use" ns
         /// Create an SVG element <view> with children nodes.
         [<JavaScript; Inline>]
-        let view ([<ParamArray>] ns) = Doc.SvgElementMixed "view" ns
+        let view ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "view" ns
         /// Create an SVG element <vkern> with children nodes.
         [<JavaScript; Inline>]
-        let vkern ([<ParamArray>] ns) = Doc.SvgElementMixed "vkern" ns
+        let vkern ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "vkern" ns
         // }}
 
     [<JavaScript>]
