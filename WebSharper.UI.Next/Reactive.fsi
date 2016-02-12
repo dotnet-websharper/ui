@@ -34,12 +34,15 @@ type View<'A> =
 
     /// Lifting functions.
     member Map : ('A -> 'B) -> View<'B>
+    //member Map : (System.Func<'A, 'B>) -> View<'B>
 
     /// Lifting async functions.
     member MapAsync : ('A -> Async<'B>) -> View<'B>
+    //member MapAsync : (System.Func<'A, System.Threading.Tasks.Task<'B>>) -> View<'B>
 
     /// Dynamic composition.
     member Bind : ('A -> View<'B>) -> View<'B>
+    //member Bind : (System.Func<'A, View<'B>>) -> View<'B>
 
     /// Snapshots the second view whenever the first updates
     member SnapshotOn : 'A -> View<'B> -> View<'A>

@@ -19,6 +19,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{2A2EF6F0
 		tools\UpdateElems.fsx = tools\UpdateElems.fsx
 	EndProjectSection
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebSharper.UI.Next.CSharp", "WebSharper.UI.Next.CSharp\WebSharper.UI.Next.CSharp.fsproj", "{13FBA482-7285-4C83-A201-2D60FF89E586}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,10 @@ Global
 		{608521D3-89CF-452B-AD62-5FA7EB246E6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{608521D3-89CF-452B-AD62-5FA7EB246E6F}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{608521D3-89CF-452B-AD62-5FA7EB246E6F}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{13FBA482-7285-4C83-A201-2D60FF89E586}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13FBA482-7285-4C83-A201-2D60FF89E586}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13FBA482-7285-4C83-A201-2D60FF89E586}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13FBA482-7285-4C83-A201-2D60FF89E586}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

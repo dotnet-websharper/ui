@@ -349,11 +349,26 @@ type View<'A> with
     [<JavaScript; Inline>]
     member v.Map f = View.Map f v
 
+    //[<JavaScript; Inline>]
+    //member v.Map (f: System.Func<_, 'B>) =
+    //    View.Map (FSharpConvert.Fun f) v
+
     [<JavaScript; Inline>]
     member v.MapAsync f = View.MapAsync f v
 
+    //member v.MapAsync (f: System.Func<_, System.Threading.Tasks.Task<'B>>) =
+    //    v |> View.MapAsync (fun a ->
+    //        async {
+    //            let! res = f.Invoke(a) |> Async.AwaitTask
+    //            return res
+    //        })
+
     [<JavaScript; Inline>]
     member v.Bind f = View.Bind f v
+
+    //[<JavaScript; Inline>]
+    //member v.Bind (f: System.Func<_, View<'B>>) =
+    //    View.Bind (FSharpConvert.Fun f) v
 
     [<JavaScript; Inline>]
     member v.SnapshotOn init v' = View.SnapshotOn init v' v
