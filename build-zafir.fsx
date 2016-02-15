@@ -53,7 +53,6 @@ bt.Solution [
     main
     tmpl
     test
-    csharp
 
     bt.NuGet.CreatePackage()
         .Add(main)
@@ -70,7 +69,7 @@ bt.Solution [
 ]
 |> bt.Dispatch
 
-btcs.Solution [
+(*btcs.Solution [
     main
     csharp
     
@@ -85,4 +84,4 @@ btcs.Solution [
                 Description = "C# API for UI.Next"
                 RequiresLicenseAcceptance = false })
 ]
-|> btcs.Dispatch
+|> btcs.Dispatch*)

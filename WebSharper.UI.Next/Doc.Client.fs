@@ -365,6 +365,7 @@ type CheckedInput<'T> =
 // We implement the Doc interface, the Doc module proxy and the Client.Doc module proxy
 // all in this so that it all neatly looks like Doc.* in javascript.
 [<Name "WebSharper.UI.Next.Doc"; Proxy(typeof<Doc>)>]
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 type Doc' [<JavaScript>] (docNode, updates) =
 
     [<JavaScript; Inline "$this.docNode">]

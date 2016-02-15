@@ -71,7 +71,7 @@ type VarExtensions =
     static member Update : Var<'A> * Func<'A, 'A> -> unit
 
 [<Extension; Sealed>]
-type DocExtensions =
+type DocExtension =
     /// Embeds time-varying fragments.
     /// Equivalent to Doc.BindView.
     [<Extension>]

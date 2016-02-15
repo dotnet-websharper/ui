@@ -93,7 +93,7 @@ type VarExtensions =
         Var.Update var (FSharpConvert.Fun f)
 
 [<Extension; Sealed; JavaScript>]
-type DocExtensions =
+type DocExtension =
     /// Embeds time-varying fragments.
     /// Equivalent to Doc.BindView.
     [<Extension; Inline>]

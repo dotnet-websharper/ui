@@ -32,7 +32,18 @@ open WebSharper.UI.Next
 // Warning: don't mark this module as JavaScript: some submodules _must_ not
 // be JavaScript because they are proxied.
 module Html =
-    
+    /// Create a text node with constant content.
+    [<JavaScript; Inline>]
+    let text t = Doc.TextNode t
+
+    /// Create a text node with dynamic content.
+    [<JavaScript; Inline>]
+    let textView v = Client.Doc.TextView v
+
+    /// Insert a client-side Doc.
+    [<JavaScript; Inline>]
+    let client q = Doc.ClientSide q
+
     // {{ tag normal
     /// Create an HTML element <a> with children nodes.
     [<JavaScript; Inline>]
@@ -591,6 +602,10 @@ module Html =
 
     [<JavaScript>]
     type attr private () =
+
+        /// Create an HTML attribute "data-name" with the given value.
+        [<JavaScript; Inline>]
+        static member ``data-`` name value = Attr.Create ("data-" + name) value
 
         // {{ attr normal colliding deprecated
         /// Create an HTML attribute "accept" with the given value.

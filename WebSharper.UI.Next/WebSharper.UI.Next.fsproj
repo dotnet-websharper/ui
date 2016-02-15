@@ -41,8 +41,6 @@
     <Compile Include="Doc.Server.fs" />
     <Compile Include="Doc.Client.fsi" />
     <Compile Include="Doc.Client.fs" />
-    <!--<Compile Include="Doc.Client.CSharp.fs" />-->
-    <!--<Compile Include="Doc.Client.CSharp.fsi" />-->
     <Compile Include="Flow.fsi" />
     <Compile Include="Flow.fs" />
     <Compile Include="HTML.fs" />
