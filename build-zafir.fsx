@@ -53,10 +53,12 @@ bt.Solution [
     main
     tmpl
     test
+    csharp
 
     bt.NuGet.CreatePackage()
         .Add(main)
         .Add(tmpl)
+        .Add(csharp)
         .Configure(fun c -> 
             { c with
                 Authors = [ "IntelliFactory" ]

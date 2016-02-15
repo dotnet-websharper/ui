@@ -515,6 +515,12 @@ type Doc' [<JavaScript>] (docNode, updates) =
         | el -> Doc'.Run el tr
 
     [<JavaScript>]
+    static member RunReplaceById id (tr: Doc') =
+        match DU.Doc.GetElementById(id) with
+        | null -> failwith ("invalid id: " + id)
+        | el -> (tr :> IControlBody).ReplaceInDom(el)
+
+    [<JavaScript>]
     static member TextView txt =
         let node = Docs.CreateTextNode ()
         txt
@@ -1079,6 +1085,14 @@ module Doc =
     [<Inline>]
     let RunPrependById id (tr: Doc) =
         Doc'.RunPrependById id (As tr)
+
+    [<Inline>]
+    let RunReplace (elt: Node) (doc: Doc) =
+        (doc :> IControlBody).ReplaceInDom(elt)
+
+    [<Inline>]
+    let RunReplaceById id (tr: Doc) =
+        Doc'.RunReplaceById id (As tr)
 
     [<Inline>]
     let TextView txt : Doc =

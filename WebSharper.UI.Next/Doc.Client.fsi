@@ -612,7 +612,7 @@ module Doc =
     /// Equivalent to View.Map followed by Doc.EmbedView.
     val BindView : ('T -> #Doc) -> View<'T> -> Doc
 
-    /// Creates a Doc using a given DOM element
+    /// Creates a Doc using a given DOM element.
     val Static : Element -> Elt
 
     /// Constructs a reactive text node.
@@ -688,6 +688,12 @@ module Doc =
 
     /// Runs a reactive Doc as next sibling(s) of the element with the given ID.
     val RunAfterById : string -> Doc -> unit
+
+    /// Runs a reactive Doc replacing the given element.
+    val RunReplace : Dom.Node -> Doc -> unit
+
+    /// Runs a reactive Doc replacing the element with the given ID.
+    val RunReplaceById : string -> Doc -> unit
 
   // Form helpers
 

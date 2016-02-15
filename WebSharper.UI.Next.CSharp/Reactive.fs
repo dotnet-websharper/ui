@@ -1,4 +1,4 @@
-namespace WebSharper.UI.Next.CSharp.Extensions
+namespace WebSharper.UI.Next.CSharp
 
 open WebSharper
 
