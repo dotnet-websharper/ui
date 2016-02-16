@@ -74,11 +74,10 @@ module Storage =
     val LocalStorage : string -> Serializer<'T> -> Storage<'T>
 
 /// A helper type for ResizeArray-like observable structures.
-type ListModel<'Key,'T when 'Key : equality>
+type ListModel<'Key,'T when 'Key : equality> =
+    new : System.Func<'T, 'Key> * Storage<'T> -> ListModel<'Key, 'T>
+    new : System.Func<'T, 'Key> * seq<'T> -> ListModel<'Key, 'T>
  
-/// ListModel combinators.
-type ListModel
-
 type ListModel<'Key,'T when 'Key : equality> with
 
     /// Same as ListModel.View.
@@ -161,19 +160,20 @@ type ListModel<'Key,'T when 'Key : equality> with
     /// Gets a reference to a part of an element of the list.
     member LensInto : get:('T -> 'V) -> update:('T -> 'V -> 'T) -> 'Key -> IRef<'V>
 
-type ListModel with
+/// ListModel combinators.
+module ListModel =
 
     /// Creates a new instance.
-    static member Create<'Key,'T when 'Key : equality> : ('T -> 'Key) -> seq<'T> -> ListModel<'Key,'T>
+    val Create<'Key,'T when 'Key : equality> : ('T -> 'Key) -> seq<'T> -> ListModel<'Key,'T>
 
     /// Creates a new instance using the specified storage type.
-    static member CreateWithStorage<'Key, 'T when 'Key : equality> : ('T -> 'Key) -> Storage<'T> -> ListModel<'Key,'T>
+    val CreateWithStorage<'Key, 'T when 'Key : equality> : ('T -> 'Key) -> Storage<'T> -> ListModel<'Key,'T>
 
     /// Creates a new instance using intrinsic equality and in-memory storage.
-    static member FromSeq<'T when 'T : equality> : 'T seq -> ListModel<'T,'T>
+    val FromSeq<'T when 'T : equality> : 'T seq -> ListModel<'T,'T>
 
     /// Views the current item sequence.
-    static member View : ListModel<'Key,'T> -> View<seq<'T>>
+    val View : ListModel<'Key,'T> -> View<seq<'T>>
 
     /// Get the key retrieval function.
-    static member Key : ListModel<'Key, 'T> -> ('T -> 'Key)
+    val Key : ListModel<'Key, 'T> -> ('T -> 'Key)

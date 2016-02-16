@@ -181,13 +181,26 @@ module Storage =
         new LocalStorageBackend<_>(id, serializer) :> Storage<_>
 
 [<JavaScript>]
-type ListModel<'Key,'T when 'Key : equality> =
-    {
-        key : 'T -> 'Key
-        Var : Var<'T[]>
-        Storage : Storage<'T>
-        view : View<seq<'T>>
-    }
+type ListModel<'Key,'T when 'Key : equality>
+    (key : System.Func<'T, 'Key>, storage : Storage<'T>) =
+
+    let var =
+        Seq.distinctBy key.Invoke (storage.Init ())
+        |> Seq.toArray
+        |> Var.Create
+    let v = 
+        var.View |> View.Map (fun x ->
+            storage.Set x |> ignore
+            Array.copy x :> seq<_>)
+
+    new (key: System.Func<'T, 'Key>, init: seq<'T>) =
+        ListModel<'Key, 'T>(WebSharper.FSharpConvert.Fun key,
+                    Storage.InMemory <| Seq.toArray init)
+
+    member this.key = key.Invoke
+    member this.Var = var
+    member this.Storage = storage
+    member this.view = v
 
 [<JavaScript>]
 module ListModels =
@@ -325,34 +338,20 @@ and [<JavaScript>]
             id
 
 [<JavaScript>]
-[<Sealed>]
-type ListModel =
+module ListModel =
 
-    static member CreateWithStorage<'Key,'T when 'Key : equality>
+    let CreateWithStorage<'Key,'T when 'Key : equality>
             (key: 'T -> 'Key) (storage : Storage<'T>) =
-        let var =
-            Seq.distinctBy key (storage.Init ())
-            |> Seq.toArray
-            |> Var.Create
-        let view = 
-            var.View |> View.Map (fun x ->
-                storage.Set x |> ignore
-                Array.copy x :> seq<_>)
-        {
-            key = key
-            Var = var
-            Storage = storage
-            view = view
-        }
+        ListModel<'Key, 'T>(key, storage)
 
-    static member Create<'Key, 'T when 'Key : equality> (key: 'T -> 'Key) init =
-        ListModel.CreateWithStorage key (Storage.InMemory <| Seq.toArray init)
+    let Create<'Key, 'T when 'Key : equality> (key: 'T -> 'Key) init =
+        CreateWithStorage key (Storage.InMemory <| Seq.toArray init)
 
-    static member FromSeq init =
-        ListModel.Create id init
+    let FromSeq init =
+        Create id init
 
-    static member View m =
+    let View (m: ListModel<_,_>) =
         m.view
 
-    static member Key m =
+    let Key (m: ListModel<_,_>) =
         m.key

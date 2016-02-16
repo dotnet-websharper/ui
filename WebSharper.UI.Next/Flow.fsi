@@ -21,9 +21,12 @@
 /// Flow.fs: experiment in flowlet-style combinators.
 namespace WebSharper.UI.Next
 
+open System
+
 /// Support for mutli-stage applications,
 /// where the current stage may depend on previous stages.
-type Flow<'T>
+type Flow<'T> =
+    new : Func<Func<'T, unit>, Doc> -> Flow<'T>
 
 /// Computation expression builder for Flow.
 [<Sealed>]

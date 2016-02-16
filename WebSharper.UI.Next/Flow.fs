@@ -20,19 +20,23 @@
 
 namespace WebSharper.UI.Next
 
+open System
 open WebSharper.UI.Next.Client
 
-type Flow<'T> =
-    {
-        Render : Var<Doc> -> ('T -> unit) -> unit
-    }
+[<JavaScript>]
+type Flow<'T>(render: Var<Doc> -> ('T -> unit) -> unit) =
+
+    new (define: Func<Func<'T, unit>, Doc>) =
+        Flow(fun var cont -> Var.Set var (define.Invoke (Func<_,_>(cont))))
+
+    member this.Render = render
 
 [<JavaScript>]
 [<Sealed>]
 type Flow =
 
-    static member Map f x =
-        { Render = fun var cont -> x.Render var (fun r -> (f r) |> cont) }
+    static member Map f (x: Flow<'A>) =
+        Flow(fun var cont -> x.Render var (fun r -> (f r) |> cont))
 
     // "Unwrap" the value from the flowlet, use it as an argument to the
     // continuation k, and return the value of the applied continuation.
@@ -40,22 +44,22 @@ type Flow =
     // Semantically, what we're doing here is running the form (or other
     // input mechanism, but let's stick with thinking about forms), getting
     // the result, and then using this as an input to the continuation.
-    static member Bind m k  =
-        { Render = fun var cont -> m.Render var (fun r -> (k r).Render var cont) }
+    static member Bind (m: Flow<'A>) (k: 'A -> Flow<'B>) =
+        Flow(fun var cont -> m.Render var (fun r -> (k r).Render var cont))
 
     static member Return x =
-        { Render = fun var cont -> cont x }
+        Flow(fun var cont -> cont x)
 
-    static member Embed fl =
+    static member Embed (fl: Flow<'A>) =
         let var = Var.Create Doc.Empty
         fl.Render var ignore
         Doc.EmbedView var.View
 
-    static member Define f =
-        { Render = fun var cont -> Var.Set var (f cont) }
+    static member Define (f: ('A -> unit) -> Doc) =
+        Flow(Func<_,_>(fun (x: Func<'A, unit>) -> f x.Invoke))
 
     static member Static doc =
-        { Render = fun var cont -> Var.Set var doc; cont () }
+        Flow(fun var cont -> Var.Set var doc; cont ())
 
 [<JavaScript>]
 [<Sealed>]

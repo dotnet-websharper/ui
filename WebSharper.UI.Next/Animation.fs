@@ -20,6 +20,7 @@
 
 namespace WebSharper.UI.Next
 
+open System
 open WebSharper
 open WebSharper.JavaScript
 
@@ -206,13 +207,43 @@ type TFlags =
     | TEnter = 2
     | TExit = 4
 
-type Trans<'T> =
-    {
-        TChange : 'T -> 'T -> Anim<'T>
-        TEnter : 'T -> Anim<'T>
-        TExit : 'T -> Anim<'T>
-        TFlags : TFlags
-    }
+[<JavaScript>]
+type Trans<'T>
+    (
+        change: Func<'T, 'T, Anim<'T>>,
+        enter: Func<'T, Anim<'T>>,
+        exit: Func<'T, Anim<'T>>,
+        flags: TFlags
+    ) =
+
+    new () =
+        Trans(
+            (fun x y -> Anim.Const y),
+            (fun t -> Anim.Const t),
+            (fun t -> Anim.Const t),
+            TFlags.TTrivial
+        )
+
+    new (ch: Func<'T, 'T, Anim<'T>>) =
+        Trans(
+            ch,
+            (fun t -> Anim.Const t),
+            (fun t -> Anim.Const t),
+            TFlags.TChange
+        )
+
+    member this.TChange x y = change.Invoke(x, y)
+    member this.TEnter = enter.Invoke
+    member this.TExit = exit.Invoke
+    member this.TFlags = flags
+
+    member this.Copy(?change, ?enter, ?exit, ?flags) =
+        let ch = defaultArg change this.TChange
+        let en = defaultArg enter this.TEnter
+        let ex = defaultArg exit this.TExit
+        let fl = defaultArg flags this.TFlags
+        Trans(Func<_,_,_>(ch), Func<_,_>(en),
+            Func<_,_>(ex), fl)
 
 [<JavaScript>]
 [<Sealed>]
@@ -220,48 +251,26 @@ type Trans =
 
   // Using a Trans ---------------
 
-    static member AnimateChange tr x y = tr.TChange x y
-    static member AnimateEnter tr x = tr.TEnter x
-    static member AnimateExit tr x = tr.TExit x
-    static member CanAnimateChange tr = tr.TFlags.HasFlag(TFlags.TChange)
-    static member CanAnimateEnter tr = tr.TFlags.HasFlag(TFlags.TEnter)
-    static member CanAnimateExit tr = tr.TFlags.HasFlag(TFlags.TExit)
+    static member AnimateChange (tr: Trans<'T>) x y = tr.TChange x y
+    static member AnimateEnter (tr: Trans<'T>) x = tr.TEnter x
+    static member AnimateExit (tr: Trans<'T>) x = tr.TExit x
+    static member CanAnimateChange (tr: Trans<'T>) = tr.TFlags.HasFlag(TFlags.TChange)
+    static member CanAnimateEnter (tr: Trans<'T>) = tr.TFlags.HasFlag(TFlags.TEnter)
+    static member CanAnimateExit (tr: Trans<'T>) = tr.TFlags.HasFlag(TFlags.TExit)
 
   // Creating a Trans ------------
 
     static member Trivial () =
-        {
-            TChange = fun x y -> Anim.Const y
-            TEnter = fun t -> Anim.Const t
-            TExit = fun t -> Anim.Const t
-            TFlags = TFlags.TTrivial
-        }
+        Trans()
 
-    static member Create ch =
-        {
-            TChange = ch
-            TEnter = fun t -> Anim.Const t
-            TExit = fun t -> Anim.Const t
-            TFlags = TFlags.TChange
-        }
+    static member Create (ch: 'T -> 'T -> Anim<'T>) =
+        Trans(Func<_,_,_>(ch))
 
-    static member Change ch tr =
-        {
-            tr with
-                TChange = ch
-                TFlags = tr.TFlags ||| TFlags.TChange
-        }
+    static member Change ch (tr: Trans<'T>) =
+        tr.Copy(change = ch, flags = (tr.TFlags ||| TFlags.TChange))
 
-    static member Enter f tr =
-        {
-            tr with
-                TEnter = f
-                TFlags = tr.TFlags ||| TFlags.TEnter
-        }
+    static member Enter f (tr: Trans<'T>) =
+        tr.Copy(enter = f, flags = (tr.TFlags ||| TFlags.TEnter))
 
-    static member Exit f tr =
-        {
-            tr with
-                TExit = f
-                TFlags = tr.TFlags ||| TFlags.TExit
-        }
+    static member Exit f (tr: Trans<'T>) =
+        tr.Copy(exit = f, flags = (tr.TFlags ||| TFlags.TExit))

@@ -116,7 +116,9 @@ type Anim with
 // Transitions ----------------------------------------------------------------
 
 /// Defines animations for changing, adding and removing a value.
-type Trans<'T>
+type Trans<'T> =
+    new : unit -> Trans<'T>
+    new : System.Func<'T, 'T, Anim<'T>> -> Trans<'T>
 
 /// Combinators on transitions.
 [<Sealed>]
