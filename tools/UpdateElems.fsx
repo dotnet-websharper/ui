@@ -164,32 +164,6 @@ module Tags =
                     sprintf """static member %s (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.%s -> unit>) = Attr.Handler "%s" f""" e.CamelNameEsc e.Category e.Name
                 |]
             | ty -> failwithf "unknown type: %s" ty
-        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next", "HTML.CSharp.fs")) all <| fun e ->
-            match e.Type with
-            | "tag" ->
-                [|
-                    sprintf "/// Create an HTML element <%s> with children nodes." e.Name
-                    "[<JavaScript; Inline>]"
-                    sprintf """let %s ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "%s" ns""" e.LowNameEsc e.Name
-                |]
-            | "svgtag" ->
-                [|
-                    sprintf "/// Create an SVG element <%s> with children nodes." e.Name
-                    "[<JavaScript; Inline>]"
-                    sprintf """let %s ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "%s" ns""" e.LowNameEsc e.Name
-                |]
-            | "attr" ->
-                [|
-                    sprintf "/// Create an HTML attribute \"%s\" with the given value." e.Name
-                    "[<JavaScript; Inline>]"
-                    sprintf "static member %s value = Attr.Create \"%s\" value" e.LowNameEsc e.Name
-                |]
-            | "svgattr" ->
-                [|
-                    sprintf "/// Create an SVG attribute \"%s\" with the given value." e.Name
-                    "[<JavaScript; Inline>]"
-                    sprintf "let %s value = Attr.Create \"%s\" value" e.LowNameEsc e.Name
-                |]
         RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next", "HTML.Client.fs")) all <| fun e ->
             match e.Type with
             | "attr" ->
@@ -212,29 +186,6 @@ module Tags =
                     sprintf "/// Create a handler for the event \"%s\" which also receives the value of a view at the time of the event." e.Name
                     "[<JavaScript; Inline>]"
                     sprintf """static member %sView (view: View<'T>) (f: Dom.Element -> Dom.%s -> 'T -> unit) = Client.Attr.HandlerView "%s" view f""" e.CamelName e.Category e.Name
-                |]
-        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next", "HTML.Client.CSharp.fs")) all <| fun e ->
-            match e.Type with
-            | "attr" ->
-                [|
-                    sprintf "/// Create an HTML attribute \"%s\" with the given reactive value." e.Name
-                    "[<JavaScript; Inline>]"
-                    sprintf "static member %sDyn view = Client.Attr.Dynamic \"%s\" view" e.LowName e.Name
-                    sprintf "/// `%s v p` sets an HTML attribute \"%s\" with reactive value v when p is true, and unsets it when p is false." e.LowName e.Name
-                    "[<JavaScript; Inline>]"
-                    sprintf "static member %sDynPred view pred = Client.Attr.DynamicPred \"%s\" pred view" e.LowName e.Name
-                    sprintf "/// Create an animated HTML attribute \"%s\" whose value is computed from the given reactive view." e.Name
-                    "[<JavaScript; Inline>]"
-                    sprintf "static member %sAnim view convert trans = Client.Attr.Animated \"%s\" trans view convert" e.LowName e.Name
-                |]
-            | "event" ->
-                [|
-                    sprintf "/// Create a handler for the event \"%s\"." e.Name
-                    "[<JavaScript; Inline>]"
-                    sprintf """static member %s (f: System.Action<Dom.Element, Dom.%s>) = Client.Attr.Handler "%s" (FSharpConvert.Fun f)""" e.CamelNameEsc e.Category e.Name
-                    sprintf "/// Create a handler for the event \"%s\" which also receives the value of a view at the time of the event." e.Name
-                    "[<JavaScript; Inline>]"
-                    sprintf """static member %sView (view: View<'T>) (f: System.Action<Dom.Element, Dom.%s, 'T>) = Client.Attr.HandlerView "%s" view (FSharpConvert.Fun f)""" e.CamelName e.Category e.Name
                 |]
         RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next", "Doc.fs")) all <| fun e ->
             match e.Type with
@@ -264,6 +215,85 @@ module Tags =
                     sprintf "/// Add a handler for the event \"%s\"." e.Name
                     "[<Extension>]"
                     sprintf "static member On%s : Elt * cb: (Dom.Element -> Dom.%s -> unit) -> Elt" e.PascalName e.Category
+                |]
+        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next.CSharp", "HTML.fs")) all <| fun e ->
+            match e.Type with
+            | "tag" ->
+                [|
+                    sprintf "/// Create an HTML element <%s> with children nodes." e.Name
+                    "[<Inline>]"
+                    sprintf """let %s ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "%s" ns""" e.LowNameEsc e.Name
+                |]
+            | "svgtag" ->
+                [|
+                    sprintf "/// Create an SVG element <%s> with children nodes." e.Name
+                    "[<Inline>]"
+                    sprintf """let %s ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "%s" ns""" e.LowNameEsc e.Name
+                |]
+            | "attr" ->
+                [|
+                    sprintf "/// Create an HTML attribute \"%s\" with the given value." e.Name
+                    "[<Inline>]"
+                    sprintf "static member %s value = Attr.Create \"%s\" value" e.LowNameEsc e.Name
+                |]
+            | "svgattr" ->
+                [|
+                    sprintf "/// Create an SVG attribute \"%s\" with the given value." e.Name
+                    "[<Inline>]"
+                    sprintf "let %s value = Attr.Create \"%s\" value" e.LowNameEsc e.Name
+                |]
+        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next.CSharp", "HTML.Client.fs")) all <| fun e ->
+            match e.Type with
+            | "tag" ->
+                [|
+                    sprintf "/// Create an HTML element <%s> with children nodes." e.Name
+                    sprintf "[<Inline; CompiledName \"%s\">]" e.LowName
+                    sprintf """let %s ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "%s" ns""" e.PascalName e.Name
+                |]
+            | "svgtag" ->
+                [|
+                    sprintf "/// Create an SVG element <%s> with children nodes." e.Name
+                    sprintf "[<Inline; CompiledName \"%s\">]" e.LowName
+                    sprintf """let %s ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "%s" ns""" e.PascalName e.Name
+                |]
+            | "attr" ->
+                [|
+                    sprintf "/// Create an HTML attribute \"%s\" with the given value." e.Name
+                    sprintf "[<Inline; CompiledName \"%s\">]" e.CamelName
+                    sprintf "let %s value = Attr.Create \"%s\" value" e.PascalName e.Name
+                    sprintf "/// Create an HTML attribute \"%s\" with the given reactive value." e.Name
+                    sprintf "[<Inline; CompiledName \"%s\">]" e.CamelName
+                    sprintf "let %sDyn view = Client.Attr.Dynamic \"%s\" view" e.PascalName e.Name
+                    sprintf "/// `%s v p` sets an HTML attribute \"%s\" with reactive value v when p is true, and unsets it when p is false." e.LowName e.Name
+                    sprintf "[<Inline; CompiledName \"%s\">]" e.CamelName
+                    sprintf "let %sDynPred view pred = Client.Attr.DynamicPred \"%s\" pred view" e.PascalName e.Name
+                    sprintf "/// Create an animated HTML attribute \"%s\" whose value is computed from the given reactive view." e.Name
+                    sprintf "[<Inline; CompiledName \"%s\">]" e.CamelName
+                    sprintf "let %sAnim view convert trans = Client.Attr.Animated \"%s\" trans view convert" e.PascalName e.Name
+                |]
+            | "svgattr" ->
+                [|
+                    sprintf "/// Create an SVG attribute \"%s\" with the given value." e.Name
+                    sprintf "[<Inline; CompiledName \"%s\">]" e.CamelName
+                    sprintf "let %s value = Attr.Create \"%s\" value" e.PascalName e.Name
+                    sprintf "/// Create an SVG attribute \"%s\" with the given reactive value." e.Name
+                    sprintf "[<Inline; CompiledName \"%s\">]" e.CamelName
+                    sprintf "let %sDyn view = Client.Attr.Dynamic \"%s\" view" e.PascalName e.Name
+                    sprintf "/// `%s v p` sets an SVG attribute \"%s\" with reactive value v when p is true, and unsets it when p is false." e.LowName e.Name
+                    sprintf "[<Inline; CompiledName \"%s\">]" e.CamelName
+                    sprintf "let %sDynPred view pred = Client.Attr.DynamicPred \"%s\" pred view" e.PascalName e.Name
+                    sprintf "/// Create an animated SVG attribute \"%s\" whose value is computed from the given reactive view." e.Name
+                    sprintf "[<Inline; CompiledName \"%s\">]" e.CamelName
+                    sprintf "let %sAnim view convert trans = Client.Attr.Animated \"%s\" trans view convert" e.PascalName e.Name
+                |]
+            | "event" ->
+                [|
+                    sprintf "/// Create a handler for the event \"%s\"." e.Name
+                    sprintf "[<Inline; CompiledName \"%s\">]" e.CamelName
+                    sprintf """let %s_ (f: System.Action<Dom.Element, Dom.%s>) = Client.Attr.Handler "%s" (FSharpConvert.Fun f)""" e.PascalName e.Category e.Name
+                    sprintf "/// Create a handler for the event \"%s\" which also receives the value of a view at the time of the event." e.Name
+                    sprintf "[<Inline; CompiledName \"%s\">]" e.CamelName
+                    sprintf """let %sView (view: View<'T>) (f: System.Action<Dom.Element, Dom.%s, 'T>) = Client.Attr.HandlerView "%s" view (FSharpConvert.Fun f)""" e.PascalName e.Category e.Name
                 |]
 
 Tags.Run()
