@@ -38,8 +38,8 @@
     <Compile Include="Models.fsi" />
     <Compile Include="Models.fs" />
     <Compile Include="Attr.fs" />
-    <Compile Include="HTML.CSharp.fs" />
-    <Compile Include="HTML.Client.CSharp.fs" />
+    <Compile Include="HTML.fs" />
+    <Compile Include="HTML.Client.fs" />
   </ItemGroup>
   <!-- F# targets -->
   <Choose>
