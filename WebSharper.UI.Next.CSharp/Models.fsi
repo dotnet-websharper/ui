@@ -5,7 +5,14 @@ open System.Runtime.CompilerServices
 open WebSharper.UI.Next
 
 [<Extension; Class>]
+type ModelsExtensions =
+
+    [<Extension>]
+    static member Update : Model<'I, 'M> * Func<'M, unit> -> unit
+
+[<Extension; Class>]
 type ListModelExtensions =
+
     [<Extension>]
     static member RemoveBy<'K,'T when 'K : equality> :
         ListModel<'K,'T> * Func<'T, bool> -> unit

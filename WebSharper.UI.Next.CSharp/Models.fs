@@ -6,6 +6,13 @@ open WebSharper
 open WebSharper.UI.Next
 
 [<Extension; Class; JavaScript>]
+type ModelsExtensions =
+
+    [<Extension; Inline>]
+    static member Update(model, update: Func<'M, unit>) =
+        Model.Update update.Invoke model
+
+[<Extension; Class; JavaScript>]
 type ListModelExtensions =
     [<Extension; Inline>]
     static member RemoveBy<'K,'T when 'K : equality>

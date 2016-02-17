@@ -21,6 +21,8 @@
 /// Models.fs: support for changing models beyond a simple Var.
 namespace WebSharper.UI.Next
 
+open System
+
 /// Unique keys for equality.
 [<Sealed>]
 type Key =
@@ -30,7 +32,11 @@ type Key =
 
 /// Helper type for coarse-grained mutable models, with
 /// a mutable type 'M and an immutable type 'I.
-type Model<'I,'M>
+type Model<'I,'M> =
+    new : Func<'M, 'I> * 'M -> Model<'I, 'M>
+
+    /// Same as Model.View.
+    member View : View<'I>
 
 /// Combinators for Model type.
 [<Sealed>]
@@ -45,11 +51,6 @@ type Model =
 
     /// Views a model.
     static member View : Model<'I,'M> -> View<'I>
-
-type Model<'I,'M> with
-
-    /// Same as Model.View.
-    member View : View<'I>
 
 /// Basic store interface. ListModel uses this for operating on the backing array.
 [<Interface>]
@@ -77,6 +78,7 @@ module Storage =
 type ListModel<'Key,'T when 'Key : equality> =
     new : System.Func<'T, 'Key> * Storage<'T> -> ListModel<'Key, 'T>
     new : System.Func<'T, 'Key> * seq<'T> -> ListModel<'Key, 'T>
+    new : System.Func<'T, 'Key> -> ListModel<'Key, 'T>
  
 type ListModel<'Key,'T when 'Key : equality> with
 

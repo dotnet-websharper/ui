@@ -20,34 +20,36 @@
 
 namespace WebSharper.UI.Next
 
+open System
+
 [<JavaScript>]
 type Key =
     | Key of int
 
     static member Fresh () = Key (Fresh.Int ())
 
-type Model<'I,'M> =
-    | M of Var<'M> * View<'I>
+type Model<'I,'M>(var: Var<'M>, view: View<'I>) =
+
+    new (proj: Func<'M, 'I>, init: 'M) =
+        let var = Var.Create init
+        let view = View.Map proj.Invoke var.View
+        Model(var, view)
+
+    member this.Var = var
+    member this.View = view
 
 [<JavaScript>]
 [<Sealed>]
 type Model =
 
     static member Create proj init =
-        let var = Var.Create init
-        let view = View.Map proj var.View
-        M (var, view)
+        Model(Func<_,_>(proj), init)
 
-    static member Update update (M (var, _)) =
-        Var.Update var (fun x -> update x; x)
+    static member Update update (m: Model<'I, 'M>) =
+        Var.Update m.Var (fun x -> update x; x)
 
-    static member View (M (_, view)) =
-        view
-
-type Model<'I,'M> with
-
-    [<JavaScript>]
-    member m.View = Model.View m
+    static member View (m: Model<'I, 'M>) =
+        m.View
 
 type Storage<'T> =
     abstract member Add      : 'T -> 'T[] -> 'T[]
@@ -196,6 +198,10 @@ type ListModel<'Key,'T when 'Key : equality>
     new (key: System.Func<'T, 'Key>, init: seq<'T>) =
         ListModel<'Key, 'T>(WebSharper.FSharpConvert.Fun key,
                     Storage.InMemory <| Seq.toArray init)
+
+    new (key: System.Func<'T, 'Key>) =
+        ListModel<'Key, 'T>(WebSharper.FSharpConvert.Fun key,
+                    Storage.InMemory <| [||])
 
     member this.key = key.Invoke
     member this.Var = var

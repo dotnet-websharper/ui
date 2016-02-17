@@ -42,6 +42,8 @@
     <Compile Include="HTML.Client.fs" />
     <Compile Include="Animation.fsi" />
     <Compile Include="Animation.fs" />
+    <Compile Include="Flow.fsi" />
+    <Compile Include="Flow.fs" />
   </ItemGroup>
   <!-- F# targets -->
   <Choose>
