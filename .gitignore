@@ -1,7 +1,9 @@
 build/
 packages/
 *.suo
+*.user
 WebSharper.UI.Next.Tests/Content/
+WebSharper.UI.Next.CSharp.Tests/Content/
 bin/
 obj/
 .vs/
