@@ -28,6 +28,7 @@ type Key =
 
     static member Fresh () = Key (Fresh.Int ())
 
+[<JavaScript>]
 type Model<'I,'M>(var: Var<'M>, view: View<'I>) =
 
     new (proj: Func<'M, 'I>, init: 'M) =
