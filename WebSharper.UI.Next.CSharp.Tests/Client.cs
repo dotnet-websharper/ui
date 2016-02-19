@@ -9,11 +9,13 @@ namespace WebSharper.UI.Next.CSharp.Tests
     [JavaScript]
     public class App
     {
-        [EndPoint("/person/{name}/{age}")]
+        [EndPoint("/person")]
         public class Person
         {
-            public string name;
-            public int age;
+            [Name("name")]
+            public string Name;
+            [Name("age")]
+            public int Age;
         }
 
         [EndPoint("/")]
@@ -31,11 +33,11 @@ namespace WebSharper.UI.Next.CSharp.Tests
                     return div(
                         input(name),
                         input(age),
-                        button("Go", () => go(new Person { name = name.Value, age = age.Value }))
+                        button("Go", () => go(new Person { Name = name.Value, Age = age.Value }))
                     );
                 })
                 .With<Person>((go, p) =>
-                    div(p.name, " is ", p.age, " years old!",
+                    div(p.Name, " is ", p.Age, " years old!",
                         button("Back", () => go(new Home { }))
                     )
                 )

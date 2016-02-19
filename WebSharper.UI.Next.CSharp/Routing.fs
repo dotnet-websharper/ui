@@ -21,12 +21,27 @@
 namespace WebSharper.UI.Next.CSharp
 
 open System
+open System.Collections.Generic
 open WebSharper
 open WebSharper.JavaScript
 open WebSharper.UI.Next
 open WebSharper.Core
 open WebSharper.Core.AST
 type private BF = System.Reflection.BindingFlags
+
+[<AutoOpen>]
+module private Internals =
+
+    let inline nameOf x =
+        let o =
+            (^T : (member GetCustomAttributesData : unit -> IList<Reflection.CustomAttributeData>)(x))
+            |> Seq.tryPick (fun cad ->
+                if cad.Constructor.DeclaringType = typeof<NameAttribute> then
+                    Some (cad.ConstructorArguments.[0].Value :?> string)
+                else None
+            )
+        defaultArg o (^T : (member Name : string)(x))
+
 
 // TODO: MAKE THIS THE SAME AS ENDPOINT FROM SITELETS
 [<AttributeUsage(AttributeTargets.Class)>]
@@ -171,6 +186,12 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
             | _ -> t.Name
         match s.[s.IndexOf('/') + 1 ..].Split([|'/'|], StringSplitOptions.RemoveEmptyEntries) with
         | [||] -> MetaRoot
+        | [| name |] ->
+            let args =
+                t.GetFields(BF.Instance ||| BF.Public ||| BF.NonPublic)
+                |> Array.map nameOf
+                |> List.ofArray
+            MetaPath (name, args)
         | a ->
             let name = a.[0]
             let args =
