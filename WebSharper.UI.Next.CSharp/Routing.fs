@@ -121,7 +121,7 @@ and private RouteShape =
 
 and private MetaRootShape =
     | MetaRoot
-    | MetaPath of name: string * args: list<string>
+    | MetaPath of name: string * args: list<string * System.Type>
 
 and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
     inherit Macro()
@@ -150,6 +150,7 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
             |> Reflection.getMethod
             |> Hashed,
             [])
+    let parsersT = Reflection.getTypeDefinition typeof<RouteItemParsers>
 
 //    let internals = Hashed { Assembly = "WebSharper.UI.Next.CSharp"; FullName = "RoutingInternals" }
 //    let getInternals() =
@@ -184,21 +185,23 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
             match t.GetCustomAttributes(typeof<EndPointAttribute>, false) with
             | [| :? EndPointAttribute as attr |] -> attr.EndPoint
             | _ -> t.Name
+        let fields =
+            t.GetFields(BF.Instance ||| BF.Public ||| BF.NonPublic)
+            |> Array.map (fun f -> nameOf f, f.FieldType)
+            |> List.ofArray
         match s.[s.IndexOf('/') + 1 ..].Split([|'/'|], StringSplitOptions.RemoveEmptyEntries) with
         | [||] -> MetaRoot
-        | [| name |] ->
-            let args =
-                t.GetFields(BF.Instance ||| BF.Public ||| BF.NonPublic)
-                |> Array.map nameOf
-                |> List.ofArray
-            MetaPath (name, args)
+        | [| name |] -> MetaPath (name, fields)
         | a ->
             let name = a.[0]
             let args =
                 a.[1..]
                 |> Array.map (fun n ->
                     if n.StartsWith "{" && n.EndsWith "}" then
-                        n.[1..n.Length-2]
+                        let name = n.[1..n.Length-2]
+                        match fields |> List.tryFind (fun (n, _) -> name = n) with
+                        | Some f -> f
+                        | None -> failwithf "Path argument doesn't correspond to a field: %s" n
                     else
                         failwith "Path arguments must be of the shape: {fieldName}")
                 |> List.ofArray
@@ -211,14 +214,36 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
             NewUnionCase (routeShapeT, "Path",
                 [
                     Value (String name)
-                    NewArray (args |> List.map (fun arg ->
-                        NewArray [
-                            Value (String arg)
-                            // TODO below: parse instead of just returning
-                            (let x = Id.New() in Lambda ([x], some (optionOf objT) (Var x)))
-                            // TODO below: link instead of just returning
-                            (let x = Id.New() in Lambda([x], Var x))
-                        ]))
+                    NewArray (args |> List.map (fun (argName, argType) ->
+                        let meth arg res =
+                            Hashed {
+                                MethodName = argType.FullName
+                                Parameters = [arg]
+                                ReturnType = res
+                                Generics = 0
+                            }
+                        let argType' = Reflection.getType argType
+                        let parseMeth = meth stringT (optionOf argType')
+                        match comp.LookupMethodInfo(parsersT, parseMeth) with
+                        | Metadata.LookupMemberError _ ->
+                            failwithf "EndPoint field type not supported: %s %s" argType.FullName argName
+                        | _ ->
+                            let stringM =
+                                let m = Hashed {
+                                    MethodName = "ToString"
+                                    Parameters = [GenericType 0]
+                                    ReturnType = stringT
+                                    Generics = 1
+                                }
+                                concrete(m, [argType'])
+                            NewArray [
+                                Value (String argName)
+                                (let x = Id.New() in Lambda ([x],
+                                    Call(None, concrete(parsersT, []), concrete(parseMeth, []), [Var x])))
+                                // TODO below: link instead of just returning
+                                (let x = Id.New() in Lambda([x],
+                                    Call(None, concrete(fsCoreType "Core.Operators", []), stringM, [Var x])))
+                            ]))
                 ])
 
     override __.TranslateCall(_, _, m, args, _) =
@@ -270,3 +295,41 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
                 | _ -> failwith "Invalid use of RouteMapBuilder macro"
                 |> MacroOk
             with e -> MacroError e.Message
+
+and [<JavaScript>] private RouteItemParsers =
+
+    static member ``System.String``(x: string) = Some x
+
+    static member ``System.Int32``(x: string) =
+        match RegExp("^[0-9]+$").Exec(x) with
+        | null -> None
+        | a -> Some (JS.ParseInt a.[0])
+//        match Int32.TryParse x with
+//        | true, x -> Some x
+//        | false, _ -> None
+
+    [<Inline>]
+    static member ``System.SByte``(x: string) = As<option<System.SByte>>(RouteItemParsers.``System.Int32``(x))
+    [<Inline>]
+    static member ``System.Byte``(x: string) = As<option<System.Byte>>(RouteItemParsers.``System.Int32``(x))
+    [<Inline>]
+    static member ``System.Int16``(x: string) = As<option<System.Int16>>(RouteItemParsers.``System.Int32``(x))
+    [<Inline>]
+    static member ``System.UInt16``(x: string) = As<option<System.UInt16>>(RouteItemParsers.``System.Int32``(x))
+    [<Inline>]
+    static member ``System.UInt32``(x: string) = As<option<System.UInt32>>(RouteItemParsers.``System.Int32``(x))
+    [<Inline>]
+    static member ``System.Int64``(x: string) = As<option<System.Int64>>(RouteItemParsers.``System.Int32``(x))
+    [<Inline>]
+    static member ``System.UInt64``(x: string) = As<option<System.UInt64>>(RouteItemParsers.``System.Int32``(x))
+
+    static member ``System.Double``(x: string) =
+        match RegExp(@"^[0-9](?:\.[0-9]*)?$").Exec(x) with
+        | null -> None
+        | a -> Some (JS.ParseFloat a.[0])
+//        match Double.TryParse x with
+//        | true, x -> Some x
+//        | false, _ -> None
+
+    [<Inline>]
+    static member ``System.Single``(x: string) = As<option<System.Single>>(RouteItemParsers.``System.Double``(x))
