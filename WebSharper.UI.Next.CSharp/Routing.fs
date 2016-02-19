@@ -248,9 +248,12 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
                     match targ with
                     | ConcreteType ct ->
                         let t = Reflection.loadType targ
-                        let init = Lambda([], Ctor (ct, Hashed { CtorParameters = [] }, []))
-                        let routeShape = getRouteShape t |> convertRouteShape
-                        Call (None, concrete(routeMapBuilderT, []), parseRouteM, [routeShape; init])
+                        match t.GetConstructor([||]) with
+                        | null -> failwith "Endpoint types must have a default constructor"
+                        | ctor ->
+                            let init = Lambda([], Ctor (ct, Hashed (Reflection.getConstructor ctor), []))
+                            let routeShape = getRouteShape t |> convertRouteShape
+                            Call (None, concrete(routeMapBuilderT, []), parseRouteM, [routeShape; init])
                     | _ -> failwith "Can only create a route for a concrete type"
                 | "Render" ->
                     let go = Id.New()
