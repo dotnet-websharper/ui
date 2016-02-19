@@ -18,13 +18,14 @@
 //
 // $end{copyright}
 
-namespace WebSharper.UI.Next.CSharp
+namespace WebSharper.UI.Next.CSharp.Client
 
 open System
 open System.Collections.Generic
 open WebSharper
 open WebSharper.JavaScript
 open WebSharper.UI.Next
+open WebSharper.UI.Next.Client
 open WebSharper.Core
 open WebSharper.Core.AST
 type private BF = System.Reflection.BindingFlags

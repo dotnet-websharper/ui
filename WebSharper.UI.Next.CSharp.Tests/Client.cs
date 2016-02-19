@@ -1,6 +1,7 @@
 using WebSharper.UI.Next;
 using WebSharper.UI.Next.Client;
 using WebSharper.UI.Next.CSharp;
+using WebSharper.UI.Next.CSharp.Client;
 using static WebSharper.UI.Next.CSharp.Client.Html;
 using static WebSharper.Core.Attributes;
 
