@@ -248,10 +248,12 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
                     match targ with
                     | ConcreteType ct ->
                         let t = Reflection.loadType targ
-                        match t.GetConstructor([||]) with
-                        | null -> failwith "Endpoint types must have a default constructor"
-                        | ctor ->
-                            let init = Lambda([], Ctor (ct, Hashed (Reflection.getConstructor ctor), []))
+                        let defaultCtor = Hashed { CtorParameters = [] }
+                        match comp.LookupConstructorInfo(ct.Entity, defaultCtor) with
+                        | Metadata.LookupMemberError _ ->
+                            failwith "Endpoint types must have a default constructor, which can be public or private"
+                        | _ ->
+                            let init = Lambda([], Ctor (ct, defaultCtor, []))
                             let routeShape = getRouteShape t |> convertRouteShape
                             Call (None, concrete(routeMapBuilderT, []), parseRouteM, [routeShape; init])
                     | _ -> failwith "Can only create a route for a concrete type"

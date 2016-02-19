@@ -16,6 +16,14 @@ namespace WebSharper.UI.Next.CSharp.Tests
             public string Name;
             [Name("age")]
             public int Age;
+
+            private Person() { }
+
+            public Person(string name, int age)
+            {
+                Name = name;
+                Age = age;
+            }
         }
 
         [EndPoint("/")]
@@ -33,7 +41,7 @@ namespace WebSharper.UI.Next.CSharp.Tests
                     return div(
                         input(name),
                         input(age),
-                        button("Go", () => go(new Person { Name = name.Value, Age = age.Value }))
+                        button("Go", () => go(new Person(name.Value, age.Value)))
                     );
                 })
                 .With<Person>((go, p) =>
