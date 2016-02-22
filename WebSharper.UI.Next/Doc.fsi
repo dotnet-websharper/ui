@@ -20,6 +20,7 @@
 
 namespace WebSharper.UI.Next
 
+open System
 open Microsoft.FSharp.Quotations
 open WebSharper
 open WebSharper.JavaScript
@@ -57,6 +58,9 @@ type Doc =
 
     /// Concatenation.
     static member Concat : seq<Doc> -> Doc
+
+    /// Concatenation of mixed content.
+    static member ConcatMixed : [<ParamArray>] docs: obj[] -> Doc
 
     // Special cases
 

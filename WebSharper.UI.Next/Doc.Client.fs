@@ -797,38 +797,41 @@ type Doc' [<JavaScript>] (docNode, updates) =
         let children = Doc'.Concat' (As children)
         As (Doc'.Elem (DU.CreateElement name) attr children)
 
+    static member ToMixedDoc (o: obj) =
+        match o with
+        | :? Doc as d -> d
+        | :? string as t -> Doc.TextNode t
+        | :? View<obj> as v ->
+            Doc'.EmbedView (
+                v.Map (fun v ->
+                    match box v with
+                    | :? Doc' as d -> d
+                    | :? string as t -> Doc.TextNode t |> As<Doc'>
+                    | o -> (Doc.TextNode (string o)) |> As<Doc'>
+                )
+            ) |> As<Doc>
+        | :? Var<obj> as v ->
+            Doc'.EmbedView (
+                v.View.Map (fun v ->
+                    match box v with
+                    | :? Doc' as d -> d
+                    | :? string as t -> Doc.TextNode t |> As<Doc'>
+                    | o -> (Doc.TextNode (string o)) |> As<Doc'>
+                )
+            ) |> As<Doc>
+        | o -> Doc.TextNode (string o)
+
     static member MixedNodes (nodes: seq<obj>) =
         let attrs = ResizeArray()
         let children = ResizeArray()
         for n in nodes do
             match n with
             | :? Attr as a -> attrs.Add a
-            | :? Doc as d -> children.Add d
-            | :? string as t -> children.Add (Doc.TextNode t)
-            | :? View<obj> as v -> 
-                children.Add (
-                    Doc'.EmbedView (
-                        v.Map (fun v ->
-                            match box v with
-                            | :? Doc' as d -> d
-                            | :? string as t -> Doc.TextNode t |> As<Doc'>
-                            | o -> (Doc.TextNode (string o)) |> As<Doc'>  
-                        ) 
-                    ) |> As<Doc>
-                )
-            | :? Var<obj> as v ->
-                children.Add (
-                    Doc'.EmbedView (
-                        v.View.Map (fun v ->
-                            match box v with
-                            | :? Doc' as d -> d
-                            | :? string as t -> Doc.TextNode t |> As<Doc'>
-                            | o -> (Doc.TextNode (string o)) |> As<Doc'>  
-                        ) 
-                    ) |> As<Doc>
-                )
-            | o -> children.Add (Doc.TextNode (string o))
+            | n -> children.Add (Doc'.ToMixedDoc n)
         attrs :> _ seq, children :> _ seq 
+
+    static member ConcatMixed (elts: obj[]) =
+        Doc.Concat (Seq.map Doc'.ToMixedDoc elts)
 
     [<JavaScript>]
     static member ElementMixed (tagname: string) (nodes: seq<obj>) =

@@ -20,6 +20,7 @@
 
 namespace WebSharper.UI.Next
 
+open System
 open System.Web.UI
 open Microsoft.FSharp.Quotations
 open WebSharper
@@ -310,6 +311,14 @@ and [<Sealed; Name "EltServer">] Elt(tag: string, attrs: list<Attr>, children: l
 
 type Doc with
 
+    static member ToMixedDoc (o: obj) =
+        match o with
+        | :? Doc as d -> d
+        | :? INode as n -> Doc.OfINode n
+        | :? Expr<#IControlBody> as e -> Doc.ClientSide e
+        | :? string as t -> Doc.TextNode t
+        | o -> Doc.TextNode (string o)
+
     static member Element (tagname: string) (attrs: seq<Attr>) (children: seq<Doc>) =
         Elt (tagname, List.ofSeq attrs, List.ofSeq children)
 
@@ -319,11 +328,7 @@ type Doc with
         for n in nodes do
             match n with
             | :? Attr as a -> attrs.Add a
-            | :? Doc as d -> children.Add d
-            | :? INode as n -> children.Add (Doc.OfINode n)
-            | :? Expr<#IControlBody> as e -> children.Add (Doc.ClientSide e)
-            | :? string as t -> children.Add (Doc.TextNode t)
-            | o -> children.Add (Doc.TextNode (string o))
+            | o -> children.Add (Doc.ToMixedDoc o)
         Doc.Element tagname attrs children 
 
     static member ElementU (tagname, attrs, children) =
@@ -340,6 +345,8 @@ type Doc with
     static member Append d1 d2 = ConcreteDoc(AppendDoc [ d1; d2 ]) :> Doc
 
     static member Concat (docs: seq<Doc>) = ConcreteDoc(AppendDoc (List.ofSeq docs)) :> Doc
+
+    static member ConcatMixed ([<ParamArray>] docs: obj[]) = Doc.Concat (Seq.map Doc.ToMixedDoc docs)
 
     static member TextNode t = ConcreteDoc(TextDoc t) :> Doc
 

@@ -44,6 +44,10 @@ module Html =
     [<JavaScript; Inline>]
     let client q = Doc.ClientSide q
 
+    /// Concatenate Docs.
+    [<JavaScript; Inline>]
+    let doc ([<ParamArray>] ns : obj[]) = Doc.ConcatMixed ns
+
     // {{ tag normal
     /// Create an HTML element <a> with children nodes.
     [<JavaScript; Inline>]

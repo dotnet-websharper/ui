@@ -35,6 +35,11 @@ module Html =
     let Async(d: Async<#Doc>) =
         Client.Doc.Async d
 
+    /// Creates a Doc by concatenating Docs.
+    [<Inline; CompiledName "doc">]
+    let ConcatMixed([<ParamArray>] docs: obj[]) =
+        Doc.ConcatMixed docs
+
     /// Constructs a text node.
     [<Inline; CompiledName "text">]
     let TextNode(v) =
