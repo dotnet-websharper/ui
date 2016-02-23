@@ -143,6 +143,9 @@ type View =
     /// Lifting async functions.
     static member MapAsync : ('A -> Async<'B>) -> View<'A> -> View<'B>
 
+    /// Lifting async functions.
+    static member MapAsync2 : ('A -> 'B -> Async<'C>) -> View<'A> -> View<'B> -> View<'C>
+
     /// Static composition.
     static member Map2 : ('A -> 'B -> 'C) -> View<'A> -> View<'B> -> View<'C>
 
