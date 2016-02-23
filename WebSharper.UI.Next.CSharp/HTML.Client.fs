@@ -2678,6 +2678,11 @@ module Html =
         [<Inline>]
         let afterRender (f: Action<Dom.Element>) = Client.Attr.OnAfterRender (FSharpConvert.Fun f)
 
+        /// Adds a callback to be called every time the given view receives an updated value,
+        /// iff the element is currently in the DOM.
+        [<Inline>]
+        let viewUpdate (v: View<'T>) (f: Dom.Element -> 'T -> unit) = Client.Attr.DynamicCustom f v
+
         // {{ event
         /// Create a handler for the event "abort".
         [<Inline; CompiledName "abort">]
