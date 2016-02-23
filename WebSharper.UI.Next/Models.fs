@@ -197,16 +197,20 @@ type ListModel<'Key,'T when 'Key : equality>
             Array.copy x :> seq<_>)
 
     new (key: System.Func<'T, 'Key>, init: seq<'T>) =
-        ListModel<'Key, 'T>(WebSharper.FSharpConvert.Fun key,
+        ListModel<'Key, 'T>(key,
                     Storage.InMemory <| Seq.toArray init)
 
     new (key: System.Func<'T, 'Key>) =
-        ListModel<'Key, 'T>(WebSharper.FSharpConvert.Fun key,
+        ListModel<'Key, 'T>(key,
                     Storage.InMemory <| [||])
 
-    member this.key = key.Invoke
+    [<Inline>]
+    member this.key x = key.Invoke x
+    [<Inline>]
     member this.Var = var
+    [<Inline>]
     member this.Storage = storage
+    [<Inline>]
     member this.view = v
 
 [<JavaScript>]
@@ -223,7 +227,7 @@ type ListModel<'Key,'T> with
     member m.View = m.view
 
     [<Inline>]
-    member m.Key = m.key
+    member m.Key x = m.key x
 
     member m.Add item =
         let v = m.Var.Value

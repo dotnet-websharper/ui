@@ -89,7 +89,7 @@ type ListModel<'Key,'T when 'Key : equality> with
     member Value : seq<'T> with get, set
 
     /// Get the key retrieval function.
-    member Key : ('T -> 'Key)
+    member Key : 'T -> 'Key
 
     /// Adds an item. If an item with the given key exists, it is replaced.
     member Add : 'T -> unit
