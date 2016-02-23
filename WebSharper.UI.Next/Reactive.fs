@@ -145,6 +145,9 @@ type View =
     static member MapAsync fn (V observe) =
         View.CreateLazy (fun () -> observe () |> Snap.MapAsync fn)
 
+    static member MapAsync2 fn v1 v2 =
+        View.Map2 fn v1 v2 |> View.MapAsync id
+
     static member SnapshotOn def (V o1) (V o2) =
         let res = Snap.CreateWithValue def
         let init = ref false
