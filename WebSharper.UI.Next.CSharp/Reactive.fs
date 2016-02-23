@@ -52,6 +52,10 @@ type ViewExtensions =
         View.Map2 (FSharpConvert.Fun f) va vb
 
     [<Extension; Inline>]
+    static member MapAsync2(v1, v2, f: Func<'A, 'B, Task<'C>>) =
+        View.MapAsync2 (fun a b -> Async.AwaitTask <| f.Invoke(a, b)) v1 v2
+
+    [<Extension; Inline>]
     static member Apply(vf: View<Func<'A, 'B>>, va) =
         View.Apply (vf.Map FSharpConvert.Fun) va
 

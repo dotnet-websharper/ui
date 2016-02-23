@@ -42,6 +42,9 @@ type ViewExtensions =
     static member Map2 : View<'A> * View<'B> * Func<'A, 'B, 'C> -> View<'C>
 
     [<Extension>]
+    static member MapAsync2 : View<'A> * View<'B> * Func<'A, 'B, Task<'C>> -> View<'C>
+
+    [<Extension>]
     static member Apply : View<Func<'A, 'B>> * View<'A> -> View<'B>
 
     [<Extension>]
