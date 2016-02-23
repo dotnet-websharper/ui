@@ -10,8 +10,8 @@ type ViewExtensions =
     [<Extension>]
     static member Map : View<'A> * Func<'A, 'B> -> View<'B>
 
-//    [<Extension>]
-//    static member MapAsync : View<'A> * Func<'A, Task<'B>> -> View<'B>
+    [<Extension>]
+    static member MapAsync : View<'A> * Func<'A, Task<'B>> -> View<'B>
 
     [<Extension>]
     static member Bind : View<'A> * Func<'A, View<'B>> -> View<'B>

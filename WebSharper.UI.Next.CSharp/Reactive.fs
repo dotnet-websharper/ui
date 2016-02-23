@@ -13,13 +13,9 @@ type ViewExtensions =
     static member Map(v, f: Func<'A, 'B>) = 
         View.Map (FSharpConvert.Fun f) v
 
-//    [<Extension; Inline>]
-//    static member MapAsync(v, f: Func<'A, Task<'B>>) =
-//        v |> View.MapAsync (fun a ->
-//            async {
-//                return! Async.AwaitTask <| f.Invoke a
-//            }
-//        )
+    [<Extension; Inline>]
+    static member MapAsync(v, f: Func<'A, Task<'B>>) =
+        v |> View.MapAsync (fun a -> Async.AwaitTask <| f.Invoke a)
 
     [<Extension; Inline>]
     static member Bind(v, f: Func<'A, View<'B>>) =
