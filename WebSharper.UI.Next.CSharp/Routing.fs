@@ -80,6 +80,8 @@ type RouteMapBuilder() =
         this
 
     member this.ToRouteMap() =
+        let links = List.rev links
+        let routes = List.rev routes
         RouteMap.Create
             (fun a -> List.pick ((|>) a) links)
             (fun r -> List.pick ((|>) r) routes)
@@ -87,42 +89,58 @@ type RouteMapBuilder() =
     member this.Install() =
         let routeMap = this.ToRouteMap()
         let var = RouteMap.Install routeMap
-        let renders = renders |> List.map (fun f -> fun r -> f.Invoke(Action<obj>(Var.Set var), r))
+        let renders = renders |> List.rev |> List.map (fun f -> fun r -> f.Invoke(Action<obj>(Var.Set var), r))
         var.View.Doc(fun r -> List.pick ((|>) r) renders)
 
-    static member private ParseRoute(shape: RouteShape, init: unit -> obj) =
+    static member private ParseShape(shape: RouteShape, init: unit -> obj) =
         fun (path: list<string>) ->
-            match shape, path with
-            | Root, [] -> Some (init())
-            | Path (name, args), root :: rest when args.Length = rest.Length ->
+            let parseArgs (rest: list<string>) (args: Args) =
                 let v = init()
-                let ok =
-                    (args, rest)
-                    ||> Seq.forall2 (fun (name, parse, _) value ->
-                       match parse value with
-                       | None -> false
-                       | Some parsed -> v?(name) <- parsed; true
-                    )
-                if ok then Some v else None
+                (Some rest, args)
+                ||> Seq.fold (fun rest (name, parse, _) ->
+                    match rest with
+                    | None -> None
+                    | Some rest ->
+                        match parse rest with
+                        | None -> None
+                        | Some (parsed, rest) ->
+                            v?(name) <- parsed
+                            Some rest
+                )
+                |> Option.map (fun rest -> (v, rest))
+            match shape with
+            | Root -> Some (init(), path)
+            | Path (Some name, args) ->
+                match path with
+                | root :: rest when root = name -> parseArgs rest args
+                | _ -> None
+            | Path (None, args) -> parseArgs path args
+
+    static member private ParseRoute(shape, init) =
+        RouteMapBuilder.ParseShape(shape, init) >> Option.bind (function
+            | x, [] -> Some x
             | _ -> None
+        )
 
     static member private MakeLink(shape: RouteShape) =
         fun (value: obj) ->
             match shape with
             | Root -> []
             | Path (name, args) ->
-                name ::
+                Option.toList name @
                 (args
-                |> Array.map (fun (name, _, link) -> link value?(name))
-                |> List.ofArray)
+                |> Seq.collect (fun (name, _, link) -> link value?(name))
+                |> List.ofSeq)
+
+and private Args = array<string * (list<string> -> option<obj * list<string>>) * (obj -> list<string>)>
 
 and private RouteShape =
     | Root
-    | Path of name: string * args: array<string * (string -> option<obj>) * (obj -> string)>
+    | Path of name: option<string> * args: Args
 
 and private MetaRootShape =
     | MetaRoot
-    | MetaPath of name: string * args: list<string * System.Type>
+    | MetaPath of name: option<string> * args: list<string * System.Type>
 
 and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
     inherit Macro()
@@ -138,10 +156,16 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
     let cons t hd tl = NewUnionCase (listOf' t, "Cons", [hd; tl])
     let stringT = concreteType(Hashed { Assembly = "mscorlib"; FullName = "System.String" }, [])
     let objT = concreteType(Hashed { Assembly = "mscorlib"; FullName = "System.Object" }, [])
-    let routeMapBuilderT = Reflection.getTypeDefinition typeof<RouteMapBuilder>
+    let routeMapBuilderT = concrete(Reflection.getTypeDefinition typeof<RouteMapBuilder>, [])
     let parseRouteM =
         concrete(
             typeof<RouteMapBuilder>.GetMethod("ParseRoute", BF.Static ||| BF.NonPublic)
+            |> Reflection.getMethod
+            |> Hashed,
+            [])
+    let parseShapeM =
+        concrete(
+            typeof<RouteMapBuilder>.GetMethod("ParseShape", BF.Static ||| BF.NonPublic)
             |> Reflection.getMethod
             |> Hashed,
             [])
@@ -152,6 +176,19 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
             |> Hashed,
             [])
     let parsersT = Reflection.getTypeDefinition typeof<RouteItemParsers>
+
+    let getDefaultCtor (t: Type) =
+        match t with
+        | ConcreteType ct ->
+            let t = Reflection.loadType t
+            let defaultCtor = Hashed { CtorParameters = [] }
+            match comp.LookupConstructorInfo(ct.Entity, defaultCtor) with
+            | Metadata.LookupMemberError _ ->
+                failwithf "Endpoint type must have a default constructor: %s" t.AssemblyQualifiedName
+            | _ ->
+                Lambda([], Ctor (ct, defaultCtor, [])), t
+        // TODO: handle TupleType etc
+        | _ -> failwithf "Generic endpoint type not supported for routing: %s" t.AssemblyQualifiedName
 
 //    let internals = Hashed { Assembly = "WebSharper.UI.Next.CSharp"; FullName = "RoutingInternals" }
 //    let getInternals() =
@@ -182,23 +219,29 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
 //        meth
 
     let getRouteShape (t: System.Type) =
-        let s =
+        let endpoint =
             match t.GetCustomAttributes(typeof<EndPointAttribute>, false) with
             | [| :? EndPointAttribute as attr |] -> attr.EndPoint
-            | _ -> t.Name
+            | _ -> "/"
         let fields =
             t.GetFields(BF.Instance ||| BF.Public ||| BF.NonPublic)
             |> Array.map (fun f -> nameOf f, f.FieldType)
             |> List.ofArray
-        match s.[s.IndexOf('/') + 1 ..].Split([|'/'|], StringSplitOptions.RemoveEmptyEntries) with
-        | [||] -> MetaRoot
-        | [| name |] -> MetaPath (name, fields)
+        let isHole (n: string) = n.StartsWith "{" && n.EndsWith "}"
+        match endpoint.[endpoint.IndexOf('/') + 1 ..].Split([|'/'|], StringSplitOptions.RemoveEmptyEntries) with
+        | [||] ->
+            if List.isEmpty fields then MetaRoot else MetaPath (None, fields)
+        | [| name |] when not (isHole name) -> MetaPath (Some name, fields)
         | a ->
-            let name = a.[0]
+            let name, a =
+                if isHole a.[0] then
+                    None, a
+                else
+                    Some a.[0], a.[1..]
             let args =
                 a.[1..]
                 |> Array.map (fun n ->
-                    if n.StartsWith "{" && n.EndsWith "}" then
+                    if isHole n then
                         let name = n.[1..n.Length-2]
                         match fields |> List.tryFind (fun (n, _) -> name = n) with
                         | Some f -> f
@@ -209,25 +252,36 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
             MetaPath (name, args)
 
     let routeShapeT = concrete(Reflection.getTypeDefinition typeof<RouteShape>, [])
-    let convertRouteShape = function
+    let rec convertRouteShape = function
         | MetaRoot -> NewUnionCase (routeShapeT, "Root", [])
         | MetaPath (name, args) ->
             NewUnionCase (routeShapeT, "Path",
                 [
-                    Value (String name)
+                    (match name with
+                    | Some name -> some stringT (Value (String name))
+                    | None -> none stringT)
                     NewArray (args |> List.map (fun (argName, argType) ->
-                        let meth arg res =
+                        let meth args res =
                             Hashed {
                                 MethodName = argType.FullName
-                                Parameters = [arg]
+                                Parameters = args
                                 ReturnType = res
                                 Generics = 0
                             }
                         let argType' = Reflection.getType argType
-                        let parseMeth = meth stringT (optionOf argType')
+                        let parseMeth = meth [listOf stringT] (optionOf (TupleType [argType'; listOf stringT]))
                         match comp.LookupMethodInfo(parsersT, parseMeth) with
                         | Metadata.LookupMemberError _ ->
-                            failwithf "EndPoint field type not supported: %s %s" argType.FullName argName
+                            let shape = getRouteShape argType |> convertRouteShape
+                            let shapeId = Id.New()
+                            let init, _ = getDefaultCtor argType'
+                            Let(shapeId, shape,
+                                NewArray [
+                                    Value (String argName)
+                                    Call (None, routeMapBuilderT, parseShapeM, [Var shapeId; init])
+                                    Call (None, routeMapBuilderT, makeLinkM, [Var shapeId])
+                                ]
+                            )
                         | _ ->
                             let stringM =
                                 let m = Hashed {
@@ -240,10 +294,11 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
                             NewArray [
                                 Value (String argName)
                                 (let x = Id.New() in Lambda ([x],
-                                    Call(None, concrete(parsersT, []), concrete(parseMeth, []), [Var x])))
-                                // TODO below: link instead of just returning
+                                    Call (None, concrete(parsersT, []), concrete(parseMeth, []), [Var x])))
                                 (let x = Id.New() in Lambda([x],
-                                    Call(None, concrete(fsCoreType "Core.Operators", []), stringM, [Var x])))
+                                    cons (listOf stringT)
+                                        <| Call (None, concrete(fsCoreType "Core.Operators", []), stringM, [Var x])
+                                        <| emptyList (listOf stringT)))
                             ]))
                 ])
 
@@ -260,7 +315,7 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
                         let action = Id.New()
                         let t = Reflection.loadType targ
                         let routeShape = getRouteShape t |> convertRouteShape
-                        Let(mk, Call (None, concrete(routeMapBuilderT, []), makeLinkM, [routeShape]),
+                        Let (mk, Call (None, routeMapBuilderT, makeLinkM, [routeShape]),
                             Lambda ([action],
                                 Conditional (TypeCheck (Var action, targ),
                                     some (listOf stringT) (Application (Var mk, [Var action])),
@@ -270,19 +325,9 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
                         )
                     | _ -> failwith "Can only create a link for a concrete type"
                 | "Route" ->
-                    let route = Id.New()
-                    match targ with
-                    | ConcreteType ct ->
-                        let t = Reflection.loadType targ
-                        let defaultCtor = Hashed { CtorParameters = [] }
-                        match comp.LookupConstructorInfo(ct.Entity, defaultCtor) with
-                        | Metadata.LookupMemberError _ ->
-                            failwith "Endpoint types must have a default constructor, which can be public or private"
-                        | _ ->
-                            let init = Lambda([], Ctor (ct, defaultCtor, []))
-                            let routeShape = getRouteShape t |> convertRouteShape
-                            Call (None, concrete(routeMapBuilderT, []), parseRouteM, [routeShape; init])
-                    | _ -> failwith "Can only create a route for a concrete type"
+                    let init, t = getDefaultCtor targ
+                    let routeShape = getRouteShape t |> convertRouteShape
+                    Call (None, routeMapBuilderT, parseRouteM, [routeShape; init])
                 | "Render" ->
                     let go = Id.New()
                     let action = Id.New()
@@ -299,38 +344,50 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
 
 and [<JavaScript>] private RouteItemParsers =
 
-    static member ``System.String``(x: string) = Some x
+    static member ``System.String``(x: list<string>) =
+        match x with
+        | [] -> None
+        | x :: rest -> Some (x, rest)
 
-    static member ``System.Int32``(x: string) =
-        match RegExp("^[0-9]+$").Exec(x) with
-        | null -> None
-        | a -> Some (JS.ParseInt a.[0])
-//        match Int32.TryParse x with
-//        | true, x -> Some x
-//        | false, _ -> None
-
-    [<Inline>]
-    static member ``System.SByte``(x: string) = As<option<System.SByte>>(RouteItemParsers.``System.Int32``(x))
-    [<Inline>]
-    static member ``System.Byte``(x: string) = As<option<System.Byte>>(RouteItemParsers.``System.Int32``(x))
-    [<Inline>]
-    static member ``System.Int16``(x: string) = As<option<System.Int16>>(RouteItemParsers.``System.Int32``(x))
-    [<Inline>]
-    static member ``System.UInt16``(x: string) = As<option<System.UInt16>>(RouteItemParsers.``System.Int32``(x))
-    [<Inline>]
-    static member ``System.UInt32``(x: string) = As<option<System.UInt32>>(RouteItemParsers.``System.Int32``(x))
-    [<Inline>]
-    static member ``System.Int64``(x: string) = As<option<System.Int64>>(RouteItemParsers.``System.Int32``(x))
-    [<Inline>]
-    static member ``System.UInt64``(x: string) = As<option<System.UInt64>>(RouteItemParsers.``System.Int32``(x))
-
-    static member ``System.Double``(x: string) =
-        match RegExp(@"^[0-9](?:\.[0-9]*)?$").Exec(x) with
-        | null -> None
-        | a -> Some (JS.ParseFloat a.[0])
-//        match Double.TryParse x with
-//        | true, x -> Some x
-//        | false, _ -> None
+    static member ``System.Int32``(x: list<string>) =
+        match x with
+        | [] -> None
+        | x :: rest ->
+            match RegExp("^[0-9]+$").Exec(x) with
+            | null -> None
+            | a -> Some (JS.ParseInt a.[0], rest)
+//            match Int32.TryParse x with
+//            | true, x -> Some x
+//            | false, _ -> None
 
     [<Inline>]
-    static member ``System.Single``(x: string) = As<option<System.Single>>(RouteItemParsers.``System.Double``(x))
+    static member ``System.SByte``(x: list<string>) = As<option<System.SByte * list<string>>>(RouteItemParsers.``System.Int32``(x))
+    [<Inline>]
+    static member ``System.Byte``(x: list<string>) = As<option<System.Byte * list<string>>>(RouteItemParsers.``System.Int32``(x))
+    [<Inline>]
+    static member ``System.Int16``(x: list<string>) = As<option<System.Int16 * list<string>>>(RouteItemParsers.``System.Int32``(x))
+    [<Inline>]
+    static member ``System.UInt16``(x: list<string>) = As<option<System.UInt16 * list<string>>>(RouteItemParsers.``System.Int32``(x))
+    [<Inline>]
+    static member ``System.UInt32``(x: list<string>) = As<option<System.UInt32 * list<string>>>(RouteItemParsers.``System.Int32``(x))
+    [<Inline>]
+    static member ``System.Int64``(x: list<string>) = As<option<System.Int64 * list<string>>>(RouteItemParsers.``System.Int32``(x))
+    [<Inline>]
+    static member ``System.UInt64``(x: list<string>) = As<option<System.UInt64 * list<string>>>(RouteItemParsers.``System.Int32``(x))
+
+    static member ``System.Double``(x: list<string>) =
+        match x with
+        | [] -> None
+        | x :: rest ->
+            match RegExp(@"^[0-9](?:\.[0-9]*)?$").Exec(x) with
+            | null -> None
+            | a -> Some (JS.ParseFloat a.[0], rest)
+//            match Double.TryParse x with
+//            | true, x -> Some x
+//            | false, _ -> None
+
+    [<Inline>]
+    static member ``System.Single``(x: list<string>) = As<option<System.Single * list<string>>>(RouteItemParsers.``System.Double``(x))
+
+[<assembly:System.Reflection.AssemblyVersionAttribute("4.0.0.0")>]
+do()

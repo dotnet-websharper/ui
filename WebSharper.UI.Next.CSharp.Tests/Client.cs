@@ -10,17 +10,29 @@ namespace WebSharper.UI.Next.CSharp.Tests
     [JavaScript]
     public class App
     {
+        public class Name
+        {
+            public string First;
+            public string Last;
+
+            private Name() { }
+
+            public Name(string first, string last)
+            {
+                First = first;
+                Last = last;
+            }
+        }
+
         [EndPoint("/person")]
         public class Person
         {
-            [Name("name")]
-            public string Name;
-            [Name("age")]
+            public Name Name;
             public int Age;
 
             private Person() { }
 
-            public Person(string name, int age)
+            public Person(Name name, int age)
             {
                 Name = name;
                 Age = age;
@@ -37,16 +49,18 @@ namespace WebSharper.UI.Next.CSharp.Tests
             var newName = Var.Create("");
             var routed = new RouteMapBuilder()
                 .With<Home>((go, _) => {
-                    var name = Var.Create("Johnny");
+                    var first = Var.Create("John");
+                    var last = Var.Create("Doe");
                     var age = Var.Create(20);
                     return div(
-                        input(name),
+                        input(first),
+                        input(last),
                         input(age),
-                        button("Go", () => go(new Person(name.Value, age.Value)))
+                        button("Go", () => go(new Person(new Name(first.Value, last.Value), age.Value)))
                     );
                 })
                 .With<Person>((go, p) =>
-                    div(p.Name, " is ", p.Age, " years old!",
+                    div(p.Name.First, " ", p.Name.Last, " is ", p.Age, " years old!",
                         button("Back", () => go(new Home { }))
                     )
                 )
