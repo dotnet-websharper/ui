@@ -44,11 +44,7 @@ module private Internals =
         defaultArg o (^T : (member Name : string)(x))
 
 
-// TODO: MAKE THIS THE SAME AS ENDPOINT FROM SITELETS
-[<AttributeUsage(AttributeTargets.Class)>]
-type EndPointAttribute(ep: string) =
-    inherit System.Attribute()
-    member this.EndPoint = ep
+type EndPointAttribute = Sitelets.EndPointAttribute
 
 [<JavaScript>]
 type RouteMapBuilder() =
