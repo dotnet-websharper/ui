@@ -97,13 +97,13 @@ and private RouteShape =
     | Base of ParseFunc // assuming string as LinkFunc
     | Object of ctor: (unit -> obj) * name: option<string> * args: RouteObjectArgs
     | Sequence of fromArray: (array<obj> -> obj) * parseItem: ParseFunc * linkItem: LinkFunc
-//    | Tuple of items: array<ParseFunc * LinkFunc>
+    | Tuple of items: array<ParseFunc * LinkFunc>
 
 and private MetaRootShape =
     | MetaBase of parse: Method
     | MetaObject of ctor: Expression * name: option<string> * args: list<string * System.Type>
     | MetaSequence of fromArray: Expression * item: Type
-//    | MetaTuple of items: list<System.Type>
+    | MetaTuple of items: list<Type>
 
 and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
     inherit Macro()
@@ -246,6 +246,8 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
                 | _ -> MetaBase parseMeth
         | ArrayType (t, 1) ->
             MetaSequence((let x = Id.New() in Lambda([x], Var x)), t)
+        | TupleType ts ->
+            MetaTuple ts
         | t -> failwithf "Type not supported by RouteMap: %s" t.AssemblyQualifiedName
 
     let routeShapeT = concrete(Reflection.getTypeDefinition typeof<RouteShape>, [])
@@ -288,6 +290,17 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
                         Call (None, routeItemParsersT, makeLinkM, [Var shapeId])
                     ])
             )
+        | MetaTuple items ->
+            let shapes =
+                items |> List.map (fun item ->
+                    let shape = getRouteShape item |> convertRouteShape
+                    let shapeId = Id.New()
+                    Let(shapeId, shape,
+                        NewArray [
+                            Call (None, routeItemParsersT, parseShapeM, [Var shapeId])
+                            Call (None, routeItemParsersT, makeLinkM, [Var shapeId])
+                        ]))
+            NewUnionCase (routeShapeT, "Tuple", [NewArray shapes])
 
     override __.TranslateCall(_, _, m, args, _) =
         match m.Generics.[0] with
@@ -331,7 +344,7 @@ and [<JavaScript>] private RouteItemParsers =
             let parseArgs (init: unit -> obj) (rest: list<string>) (args: RouteObjectArgs) =
                 let v = init()
                 (Some rest, args)
-                ||> Seq.fold (fun rest (name, parse, _) ->
+                ||> Array.fold (fun rest (name, parse, _) ->
                     match rest with
                     | None -> None
                     | Some rest ->
@@ -364,6 +377,15 @@ and [<JavaScript>] private RouteItemParsers =
                                 set (i + 1) rest
                     set 0 rest
                 )
+            | Tuple items ->
+                let t = JavaScript.Array()
+                (Some path, items)
+                ||> Array.fold (fun rest (parse, _) ->
+                    rest |> Option.bind (fun rest ->
+                        parse rest |> Option.map (fun (parsed, rest) ->
+                            t.Push(parsed) |> ignore
+                            rest)))
+                |> Option.map (fun rest -> (box t, rest))
 
     static member private ParseRoute(shape) =
         RouteItemParsers.ParseShape(shape) >> Option.bind (function
@@ -382,10 +404,15 @@ and [<JavaScript>] private RouteItemParsers =
                 |> List.ofSeq)
             | Sequence (_, _, linkItem) ->
                 let s = value :?> seq<obj>
-                ([[string (Seq.length s)]], s)
-                ||> Seq.fold (fun a b -> linkItem b :: a)
-                |> List.rev
-                |> List.concat
+                string (Seq.length s) ::
+                (value :?> seq<obj>
+                |> Seq.collect linkItem
+                |> List.ofSeq)
+            | Tuple items ->
+                (items, (value :?> obj[]))
+                ||> Seq.map2 (fun (_, link) x -> link x)
+                |> Seq.concat
+                |> List.ofSeq
 
     static member ``System.String``(x: list<string>) =
         match x with
