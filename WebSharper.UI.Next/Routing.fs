@@ -31,8 +31,8 @@ module T = Trie
 
 type RouteMap<'T> =
     {
-        Des : list<string> -> 'T
-        Ser : 'T -> list<string>
+        Des : (list<string> * Map<string, string>) -> 'T
+        Ser : 'T -> (list<string> * Map<string, string>)
     }
 
 [<JavaScript>]
@@ -51,34 +51,58 @@ module Route =
 
     type T =
         private
-        | Route of AppendList<string>
+        | Route of AppendList<string> * Map<string, string>
 
     let ParseHash (hash: string) =
-        (NoHash hash).Split('/')
-        |> Array.map Decode
-        |> A.FromArray
-        |> Route
+        let hash = NoHash hash
+        let path, query =
+            match hash.IndexOf '?' with
+            | -1 -> hash, ""
+            | i -> hash.[..i-1], hash.[i+1..]
+        let path =
+            path.Split('/')
+            |> Array.map Decode
+            |> A.FromArray
+        let query =
+            query.Split('&')
+            |> Array.map (fun s ->
+                match s.IndexOf '=' with
+                | -1 -> Decode s, ""
+                | i -> Decode (s.[..i-1]), Decode (s.[i+1..]))
+            |> Map.ofArray
+        Route (path, query)
 
-    let MakeHash (Route x) =
-        A.ToArray x
-        |> Array.map Encode
-        |> String.concat "/"
+    let MakeHash (Route (path, query)) =
+        let path =
+            A.ToArray path
+            |> Array.map Encode
+            |> String.concat "/"
+        if Map.isEmpty query then
+            path
+        else
+            path + "?" +
+            (query
+            |> Seq.map (fun (KeyValue(k, v)) -> Encode k + "=" + Encode v)
+            |> String.concat "&")
 
     [<MethodImpl(MethodImplOptions.NoInlining)>]
     let SameHash a b =
         NoHash a = NoHash b
 
-    let ToList (Route rt) =
-        A.ToArray rt
-        |> Array.toList
+    let ToList (Route (rt, q)) =
+        let path =
+            A.ToArray rt
+            |> Array.toList
+        path, q
 
-    let FromList xs =
-        List.toArray xs
-        |> A.FromArray
-        |> Route
+    let FromList (xs, q) =
+        let a =
+            List.toArray xs
+            |> A.FromArray
+        Route(a, q)
 
-    let Append (Route a) (Route b) =
-        Route (A.Append a b)
+    let Append (Route (pa, qa)) (Route (pb, qb)) =
+        Route (A.Append pa pb, Map.foldBack Map.add qa qb)
 
 type RouteContext<'T> =
     {
@@ -206,7 +230,7 @@ module Routing =
     /// A given site updates its internal state.
     let OnInternalSiteUpdate state ix prefix rest =
         if state.CurrentSite = ix then
-            let route = Route.Append (Route.FromList prefix) rest
+            let route = Route.Append (Route.FromList (prefix, Map.empty)) rest
             SetCurrentRoute state route
 
     /// User selects an different current site, which may update the global route.
@@ -232,7 +256,9 @@ module Routing =
         state.Bodies <- ComputeBodies siteTrie
         // Setup handling changes to the currently selected site
         let parseRoute route =
-            T.Lookup siteTrie (Route.ToList route)
+            let path, query = Route.ToList route
+            T.Lookup siteTrie path
+            // TODO check query
         let glob =
             match parseRoute currentRoute.Value with
             | T.NotFound ->
@@ -251,7 +277,7 @@ module Routing =
         let updateRoute route =
             match parseRoute route with
             | T.Found (site, rest) ->
-                Route.FromList rest
+                Route.FromList (rest, Map.empty)
                 |> OnGlobalRouteChange state site
             | T.NotFound -> ()
         updateRoute currentRoute.Value
@@ -263,8 +289,11 @@ module Routing =
 [<Sealed>]
 type RouteMap =
 
-    static member Create ser des =
+    static member CreateWithQuery ser des =
         { Ser = ser; Des = des }
+
+    static member Create ser des =
+        { Ser = (fun x -> ser x, Map.empty); Des = fst >> des }
 
     static member Install map =
         Routing.InstallMap map

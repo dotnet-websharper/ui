@@ -49,15 +49,15 @@ type EndPointAttribute = Sitelets.EndPointAttribute
 [<JavaScript>]
 type RouteMapBuilder() =
 
-    let mutable links : list<obj -> option<list<string>>> = []
-    let mutable routes : list<list<string> -> option<obj>> = []
+    let mutable links : list<obj -> option<list<string> * Map<string, string>>> = []
+    let mutable routes : list<list<string> * Map<string, string> -> option<obj>> = []
     let mutable renders : list<Func<Action<obj>, obj, option<Doc>>> = []
 
     [<Macro(typeof<RouteMapBuilderMacro>)>]
-    member private this.Route<'T>() = X<list<string> -> option<obj>>
+    member private this.Route<'T>() = X<list<string> * Map<string, string> -> option<obj>>
 
     [<Macro(typeof<RouteMapBuilderMacro>)>]
-    member private this.Link<'T>() = X<obj -> option<list<string>>>
+    member private this.Link<'T>() = X<obj -> option<list<string> * Map<string, string>>>
 
     [<Macro(typeof<RouteMapBuilderMacro>)>]
     member private this.Render<'T>(render: Func<Action<obj>, 'T, Doc>) = X<Func<Action<obj>, obj, option<Doc>>>
@@ -78,7 +78,7 @@ type RouteMapBuilder() =
     member this.ToRouteMap() =
         let links = List.rev links
         let routes = List.rev routes
-        RouteMap.Create
+        RouteMap.CreateWithQuery
             (fun a -> List.pick ((|>) a) links)
             (fun r -> List.pick ((|>) r) routes)
 
@@ -88,10 +88,10 @@ type RouteMapBuilder() =
         let renders = renders |> List.rev |> List.map (fun f -> fun r -> f.Invoke(Action<obj>(Var.Set var), r))
         var.View.Doc(fun r -> List.pick ((|>) r) renders)
 
-and private ParseFunc = list<string> -> option<obj * list<string>>
-and private LinkFunc = obj -> list<string>
+and private ParseFunc = list<string> * Map<string, string> -> option<obj * list<string>>
+and private LinkFunc = obj -> list<string> * Map<string, string>
 
-and private RouteObjectArgs = array<string * ParseFunc * LinkFunc>
+and private RouteObjectArgs = array<string * QueryItem * ParseFunc * LinkFunc>
 
 and private RouteShape =
     | Base of ParseFunc // assuming string as LinkFunc
@@ -101,9 +101,14 @@ and private RouteShape =
 
 and private MetaRootShape =
     | MetaBase of parse: Method
-    | MetaObject of ctor: Expression * name: option<string> * args: list<string * System.Type>
+    | MetaObject of ctor: Expression * name: option<string> * args: list<string * QueryItem * Type>
     | MetaSequence of fromArray: Expression * item: Type
     | MetaTuple of items: list<Type>
+
+and private QueryItem =
+    | NotQuery
+    | QueryOptional
+    | QueryMandatory
 
 and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
     inherit Macro()
@@ -117,10 +122,12 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
     let listT = Reflection.getTypeDefinition typedefof<list<_>>
     let listOf' t = concrete(fsCoreType "Collections.FSharpList`1", [t])
     let listOf t = ConcreteType (listOf' t)
+    let mapOf t u = concreteType(Reflection.getTypeDefinition typedefof<Map<_, _>>, [t; u])
     let arrayModule = concrete(fsCoreType "Collections.ArrayModule", [])
     let emptyList t = NewUnionCase (listOf' t, "Empty", [])
     let cons t hd tl = NewUnionCase (listOf' t, "Cons", [hd; tl])
     let stringT = concreteType(sysType "System.String", [])
+    let stringMapT = mapOf stringT stringT
     let objT = concreteType(sysType "System.Object", [])
     let parsersT = Reflection.getTypeDefinition typeof<RouteItemParsers>
     let routeItemParsersT = concrete(parsersT, [])
@@ -184,6 +191,16 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
 //        | _ -> comp.AddCompiledMethod(internals, meth, Metadata.Instance name, impl)
 //        meth
 
+    let isBaseType (ty: System.Type) =
+        match ty.FullName with
+        | "System.SByte"    | "System.Byte"
+        | "System.Int16"    | "System.UInt16"
+        | "System.Int32"    | "System.UInt32"
+        | "System.Int64"    | "System.UInt64"
+        | "System.Single"   | "System.Double"
+        | "System.String" -> true
+        | _ -> false
+
     let getRouteShape (t: Type) =
         match t with
         | ConcreteType td ->
@@ -209,7 +226,7 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
                         ReturnType = res
                         Generics = 0
                     }
-                let parseMeth = meth [listOf stringT] (optionOf (TupleType [t; listOf stringT]))
+                let parseMeth = meth [TupleType [listOf stringT; stringMapT]] (optionOf (TupleType [t; listOf stringT]))
                 match comp.LookupMethodInfo(parsersT, parseMeth) with
                 | Metadata.LookupMemberError _ ->
                     let ctor, t' = getDefaultCtor t
@@ -219,7 +236,26 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
                         | _ -> "/"
                     let fields =
                         t'.GetFields(BF.Instance ||| BF.Public ||| BF.NonPublic)
-                        |> Array.map (fun f -> nameOf f, f.FieldType)
+                        |> Array.map (fun f ->
+                            let name = nameOf f
+                            f.GetCustomAttributesData()
+                            |> Seq.tryFind (fun cad ->
+                                cad.Constructor.DeclaringType = typeof<Sitelets.QueryAttribute> &&
+                                cad.ConstructorArguments.Count = 0)
+                            |> function
+                                | None -> name, NotQuery, Reflection.getType f.FieldType
+                                | Some cad ->
+                                    let queryItem, ty =
+                                        if f.FieldType.IsGenericType &&
+                                            f.FieldType.GetGenericTypeDefinition() = typedefof<option<_>> then
+                                            QueryOptional, f.FieldType.GetGenericArguments().[0]
+                                        else
+                                            QueryMandatory, f.FieldType
+                                    if not (isBaseType ty) then
+                                        failwithf "Invalid query parameter type for %s: %s. Must be a number, string, or an option thereof."
+                                            name f.FieldType.FullName
+                                    name, queryItem, Reflection.getType ty
+                            )
                         |> List.ofArray
                     let isHole (n: string) = n.StartsWith "{" && n.EndsWith "}"
                     match endpoint.[endpoint.IndexOf('/') + 1 ..].Split([|'/'|], StringSplitOptions.RemoveEmptyEntries) with
@@ -236,7 +272,7 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
                             |> Array.map (fun n ->
                                 if isHole n then
                                     let name = n.[1..n.Length-2]
-                                    match fields |> List.tryFind (fun (n, _) -> name = n) with
+                                    match fields |> List.tryFind (fun (n, _, _) -> name = n) with
                                     | Some f -> f
                                     | None -> failwithf "Path argument doesn't correspond to a field: %s" n
                                 else
@@ -250,13 +286,21 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
             MetaTuple ts
         | t -> failwithf "Type not supported by RouteMap: %s" t.AssemblyQualifiedName
 
+    let queryItemT = concrete(Reflection.getTypeDefinition typeof<QueryItem>, [])
+    let convertQueryItem = function
+        | NotQuery -> NewUnionCase(queryItemT, "NotQuery", [])
+        | QueryOptional -> NewUnionCase(queryItemT, "QueryOptional", [])
+        | QueryMandatory -> NewUnionCase(queryItemT, "QueryMandatory", [])
+
     let routeShapeT = concrete(Reflection.getTypeDefinition typeof<RouteShape>, [])
     let rec convertRouteShape = function
         | MetaBase parse ->
             NewUnionCase(routeShapeT, "Base",
                 [
-                    (let x = Id.New() in Lambda ([x],
-                        Call (None, concrete(parsersT, []), concrete(parse, []), [Var x])))
+                    (let x = Id.New()
+                     let y = Id.New()
+                     Lambda ([x; y],
+                        Call (None, concrete(parsersT, []), concrete(parse, []), [Var x; Var y])))
                 ]
             )
         | MetaObject (init, name, args) ->
@@ -266,13 +310,13 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
                     (match name with
                     | Some name -> some stringT (Value (String name))
                     | None -> none stringT)
-                    NewArray (args |> List.map (fun (argName, argType) ->
-                        let argType' = Reflection.getType argType
-                        let shape = getRouteShape argType' |> convertRouteShape
+                    NewArray (args |> List.map (fun (argName, queryItem, argType) ->
+                        let shape = getRouteShape argType |> convertRouteShape
                         let shapeId = Id.New()
                         Let(shapeId, shape,
                             NewArray [
                                 Value (String argName)
+                                convertQueryItem queryItem
                                 Call (None, routeItemParsersT, parseShapeM, [Var shapeId])
                                 Call (None, routeItemParsersT, makeLinkM, [Var shapeId])
                             ]
@@ -340,37 +384,46 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
 and [<JavaScript>] private RouteItemParsers =
 
     static member private ParseShape(shape: RouteShape) : ParseFunc =
-        fun (path: list<string>) ->
+        fun (path: list<string>, query: Map<string, string>) ->
             let parseArgs (init: unit -> obj) (rest: list<string>) (args: RouteObjectArgs) =
                 let v = init()
                 (Some rest, args)
-                ||> Array.fold (fun rest (name, parse, _) ->
+                ||> Array.fold (fun rest (name, queryItem, parse, _) ->
                     match rest with
                     | None -> None
                     | Some rest ->
-                        match parse rest with
-                        | None -> None
-                        | Some (parsed, rest) ->
-                            v?(name) <- parsed
+                        match queryItem with
+                        | NotQuery ->
+                            match parse (rest, query) with
+                            | None -> None
+                            | Some (parsed, rest) ->
+                                v?(name) <- parsed
+                                Some rest
+                        | QueryOptional ->
+                            v?(name) <- Map.tryFind name query
                             Some rest
+                        | QueryMandatory ->
+                            match Map.tryFind name query with
+                            | Some x -> v?(name) <- x; Some rest
+                            | None -> None
                 )
                 |> Option.map (fun rest -> (v, rest))
             match shape with
-            | Base f -> f path
+            | Base f -> f (path, query)
             | Object (init, Some name, args) ->
                 match path with
                 | root :: rest when root = name -> parseArgs init rest args
                 | _ -> None
             | Object (init, None, args) -> parseArgs init path args
             | Sequence (fromArray, parseItem, _) ->
-                RouteItemParsers.``System.Int32`` path
+                RouteItemParsers.``System.Int32``(path, query)
                 |> Option.bind (fun (length, rest) ->
                     let arr = Array.zeroCreate<obj> length
                     let rec set i rest =
                         if i = length then
                             Some (fromArray arr, rest)
                         else
-                            match parseItem rest with
+                            match parseItem (rest, query) with
                             | None -> None
                             | Some (item, rest) ->
                                 arr.[i] <- item
@@ -382,7 +435,7 @@ and [<JavaScript>] private RouteItemParsers =
                 (Some path, items)
                 ||> Array.fold (fun rest (parse, _) ->
                     rest |> Option.bind (fun rest ->
-                        parse rest |> Option.map (fun (parsed, rest) ->
+                        parse (rest, query) |> Option.map (fun (parsed, rest) ->
                             t.Push(parsed) |> ignore
                             rest)))
                 |> Option.map (fun rest -> (box t, rest))
@@ -396,30 +449,49 @@ and [<JavaScript>] private RouteItemParsers =
     static member private MakeLink(shape: RouteShape) : LinkFunc =
         fun (value: obj) ->
             match shape with
-            | Base _ -> [string value]
+            | Base _ -> [string value], Map.empty
             | Object (_, name, args) ->
-                Option.toList name @
-                (args
-                |> Seq.collect (fun (name, _, link) -> link value?(name))
-                |> List.ofSeq)
+                let map = ref Map.empty
+                let l =
+                    Option.toList name @
+                    (args
+                    |> Seq.collect (fun (name, queryItem, _, link) ->
+                        match queryItem with
+                        | NotQuery ->
+                            let l, m = link value?(name)
+                            map := Map.foldBack Map.add m !map
+                            l
+                        | QueryOptional ->
+                            match value?(name) with
+                            | None -> ()
+                            | Some x ->
+                                let [x], _ = link x
+                                map := Map.add name x !map
+                            []
+                        | QueryMandatory ->
+                            let [x], _ = link value?(name)
+                            map := Map.add name x !map
+                            [])
+                    |> List.ofSeq)
+                l, !map
             | Sequence (_, _, linkItem) ->
                 let s = value :?> seq<obj>
                 string (Seq.length s) ::
                 (value :?> seq<obj>
-                |> Seq.collect linkItem
-                |> List.ofSeq)
+                |> Seq.collect (linkItem >> fst)
+                |> List.ofSeq), Map.empty
             | Tuple items ->
                 (items, (value :?> obj[]))
-                ||> Seq.map2 (fun (_, link) x -> link x)
+                ||> Seq.map2 (fun (_, link) x -> link x |> fst)
                 |> Seq.concat
-                |> List.ofSeq
+                |> List.ofSeq, Map.empty
 
-    static member ``System.String``(x: list<string>) =
+    static member ``System.String``((x: list<string>, q: Map<string, string>)) =
         match x with
         | [] -> None
         | x :: rest -> Some (x, rest)
 
-    static member ``System.Int32``(x: list<string>) =
+    static member ``System.Int32``((x: list<string>, q: Map<string, string>)) =
         match x with
         | [] -> None
         | x :: rest ->
@@ -431,21 +503,21 @@ and [<JavaScript>] private RouteItemParsers =
 //            | false, _ -> None
 
     [<Inline>]
-    static member ``System.SByte``(x: list<string>) = As<option<System.SByte * list<string>>>(RouteItemParsers.``System.Int32``(x))
+    static member ``System.SByte``(xq: list<string> * Map<string, string>) = As<option<System.SByte * list<string>>>(RouteItemParsers.``System.Int32``(xq))
     [<Inline>]
-    static member ``System.Byte``(x: list<string>) = As<option<System.Byte * list<string>>>(RouteItemParsers.``System.Int32``(x))
+    static member ``System.Byte``(xq: list<string> * Map<string, string>) = As<option<System.Byte * list<string>>>(RouteItemParsers.``System.Int32``(xq))
     [<Inline>]
-    static member ``System.Int16``(x: list<string>) = As<option<System.Int16 * list<string>>>(RouteItemParsers.``System.Int32``(x))
+    static member ``System.Int16``(xq: list<string> * Map<string, string>) = As<option<System.Int16 * list<string>>>(RouteItemParsers.``System.Int32``(xq))
     [<Inline>]
-    static member ``System.UInt16``(x: list<string>) = As<option<System.UInt16 * list<string>>>(RouteItemParsers.``System.Int32``(x))
+    static member ``System.UInt16``(xq: list<string> * Map<string, string>) = As<option<System.UInt16 * list<string>>>(RouteItemParsers.``System.Int32``(xq))
     [<Inline>]
-    static member ``System.UInt32``(x: list<string>) = As<option<System.UInt32 * list<string>>>(RouteItemParsers.``System.Int32``(x))
+    static member ``System.UInt32``(xq: list<string> * Map<string, string>) = As<option<System.UInt32 * list<string>>>(RouteItemParsers.``System.Int32``(xq))
     [<Inline>]
-    static member ``System.Int64``(x: list<string>) = As<option<System.Int64 * list<string>>>(RouteItemParsers.``System.Int32``(x))
+    static member ``System.Int64``(xq: list<string> * Map<string, string>) = As<option<System.Int64 * list<string>>>(RouteItemParsers.``System.Int32``(xq))
     [<Inline>]
-    static member ``System.UInt64``(x: list<string>) = As<option<System.UInt64 * list<string>>>(RouteItemParsers.``System.Int32``(x))
+    static member ``System.UInt64``(xq: list<string> * Map<string, string>) = As<option<System.UInt64 * list<string>>>(RouteItemParsers.``System.Int32``(xq))
 
-    static member ``System.Double``(x: list<string>) =
+    static member ``System.Double``((x: list<string>, q: Map<string, string>)) =
         match x with
         | [] -> None
         | x :: rest ->
@@ -457,7 +529,4 @@ and [<JavaScript>] private RouteItemParsers =
 //            | false, _ -> None
 
     [<Inline>]
-    static member ``System.Single``(x: list<string>) = As<option<System.Single * list<string>>>(RouteItemParsers.``System.Double``(x))
-
-[<assembly:System.Reflection.AssemblyVersionAttribute("4.0.0.0")>]
-do()
+    static member ``System.Single``(xq: list<string> * Map<string, string>) = As<option<System.Single * list<string>>>(RouteItemParsers.``System.Double``(xq))

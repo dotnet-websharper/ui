@@ -1,3 +1,4 @@
+using System.Linq;
 using WebSharper.UI.Next;
 using WebSharper.UI.Next.Client;
 using WebSharper.UI.Next.CSharp;
@@ -5,6 +6,7 @@ using WebSharper.UI.Next.CSharp.Client;
 using static WebSharper.UI.Next.CSharp.Client.Html;
 using static WebSharper.Core.Attributes;
 using WebSharper.Sitelets;
+using Microsoft.FSharp.Core;
 
 namespace WebSharper.UI.Next.CSharp.Tests
 {
@@ -29,15 +31,22 @@ namespace WebSharper.UI.Next.CSharp.Tests
         public class Person
         {
             public Name Name;
-            public int Age;
+            [Query]
+            public FSharpOption<int> Age;
 
             private Person() { }
 
-            public Person(Name name, int age)
+            public Person(Name name, FSharpOption<int> age)
             {
                 Name = name;
                 Age = age;
             }
+        }
+
+        [EndPoint("/people")]
+        public class People
+        {
+            public Name[] people;
         }
 
         [EndPoint("/")]
@@ -57,13 +66,18 @@ namespace WebSharper.UI.Next.CSharp.Tests
                         input(first),
                         input(last),
                         input(age),
-                        button("Go", () => go(new Person(new Name(first.Value, last.Value), age.Value)))
+                        button("Go", () =>
+                            go(new Person(new Name(first.Value, last.Value),
+                                age.Value == 0 ? null : FSharpOption<int>.Some(age.Value))))
                     );
                 })
                 .With<Person>((go, p) =>
                     div(p.Name.First, " ", p.Name.Last, " is ", p.Age, " years old!",
                         button("Back", () => go(new Home { }))
                     )
+                )
+                .With<People>((go, p) =>
+                    ul(p.people.Select(x => li(x.First, " ", x.Last)).ToArray())
                 )
                 .Install();
 

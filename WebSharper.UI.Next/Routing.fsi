@@ -43,8 +43,14 @@ type RouteMap
 /// RouteMap combinators.
 type RouteMap with
 
-    /// Creates a router.
+    /// Creates a router that parses a slash-separated path.
     static member Create : ('T -> list<string>) -> (list<string> -> 'T) -> RouteMap<'T>
+
+    /// Creates a router that parses a slash-separated path with a query string (?a=x&b=y).
+    static member CreateWithQuery
+         : ('T -> list<string> * Map<string, string>)
+        -> (list<string> * Map<string, string> -> 'T)
+        -> RouteMap<'T>
 
     /// Installs the map globally, tying it to the
     /// hash-route of the current window. Call once per app.

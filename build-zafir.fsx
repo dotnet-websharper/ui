@@ -51,9 +51,9 @@ let wslibdir =
 
 bt.Solution [
     main
+    csharp
     tmpl
     test
-    csharp
 
     bt.NuGet.CreatePackage()
         .Add(main)
