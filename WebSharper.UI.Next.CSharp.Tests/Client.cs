@@ -32,11 +32,11 @@ namespace WebSharper.UI.Next.CSharp.Tests
         {
             public Name Name;
             [Query]
-            public FSharpOption<int> Age;
+            public int? Age;
 
             private Person() { }
 
-            public Person(Name name, FSharpOption<int> age)
+            public Person(Name name, int? age)
             {
                 Name = name;
                 Age = age;
@@ -68,11 +68,12 @@ namespace WebSharper.UI.Next.CSharp.Tests
                         input(age),
                         button("Go", () =>
                             go(new Person(new Name(first.Value, last.Value),
-                                age.Value == 0 ? null : FSharpOption<int>.Some(age.Value))))
+                                age.Value == 0 ? null : (int?) age.Value)))
                     );
                 })
                 .With<Person>((go, p) =>
-                    div(p.Name.First, " ", p.Name.Last, " is ", p.Age, " years old!",
+                    div(p.Name.First, " ", p.Name.Last,
+                        p.Age == null ? " won't tell their age!" : " is " + p.Age.Value.ToString() + " years old!",
                         button("Back", () => go(new Home { }))
                     )
                 )

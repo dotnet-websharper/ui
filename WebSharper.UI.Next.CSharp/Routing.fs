@@ -106,9 +106,10 @@ and private MetaRootShape =
     | MetaTuple of items: list<Type>
 
 and private QueryItem =
-    | NotQuery
-    | QueryOptional
-    | QueryMandatory
+    | NotQuery = 0
+    | Mandatory = 1
+    | Option = 2
+    | Nullable = 3
 
 and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
     inherit Macro()
@@ -243,14 +244,17 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
                                 cad.Constructor.DeclaringType = typeof<Sitelets.QueryAttribute> &&
                                 cad.ConstructorArguments.Count = 0)
                             |> function
-                                | None -> name, NotQuery, Reflection.getType f.FieldType
+                                | None -> name, QueryItem.NotQuery, Reflection.getType f.FieldType
                                 | Some cad ->
                                     let queryItem, ty =
                                         if f.FieldType.IsGenericType &&
                                             f.FieldType.GetGenericTypeDefinition() = typedefof<option<_>> then
-                                            QueryOptional, f.FieldType.GetGenericArguments().[0]
+                                            QueryItem.Option, f.FieldType.GetGenericArguments().[0]
+                                        elif f.FieldType.IsGenericType &&
+                                            f.FieldType.GetGenericTypeDefinition() = typedefof<Nullable<_>> then
+                                            QueryItem.Nullable, f.FieldType.GetGenericArguments().[0]
                                         else
-                                            QueryMandatory, f.FieldType
+                                            QueryItem.Mandatory, f.FieldType
                                     if not (isBaseType ty) then
                                         failwithf "Invalid query parameter type for %s: %s. Must be a number, string, or an option thereof."
                                             name f.FieldType.FullName
@@ -286,12 +290,6 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
             MetaTuple ts
         | t -> failwithf "Type not supported by RouteMap: %s" t.AssemblyQualifiedName
 
-    let queryItemT = concrete(Reflection.getTypeDefinition typeof<QueryItem>, [])
-    let convertQueryItem = function
-        | NotQuery -> NewUnionCase(queryItemT, "NotQuery", [])
-        | QueryOptional -> NewUnionCase(queryItemT, "QueryOptional", [])
-        | QueryMandatory -> NewUnionCase(queryItemT, "QueryMandatory", [])
-
     let routeShapeT = concrete(Reflection.getTypeDefinition typeof<RouteShape>, [])
     let rec convertRouteShape = function
         | MetaBase parse ->
@@ -316,7 +314,7 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
                         Let(shapeId, shape,
                             NewArray [
                                 Value (String argName)
-                                convertQueryItem queryItem
+                                Value (Int (int queryItem))
                                 Call (None, routeItemParsersT, parseShapeM, [Var shapeId])
                                 Call (None, routeItemParsersT, makeLinkM, [Var shapeId])
                             ]
@@ -393,16 +391,35 @@ and [<JavaScript>] private RouteItemParsers =
                     | None -> None
                     | Some rest ->
                         match queryItem with
-                        | NotQuery ->
+                        | QueryItem.NotQuery ->
                             match parse (rest, query) with
                             | None -> None
                             | Some (parsed, rest) ->
                                 v?(name) <- parsed
                                 Some rest
-                        | QueryOptional ->
-                            v?(name) <- Map.tryFind name query
-                            Some rest
-                        | QueryMandatory ->
+                        | QueryItem.Option ->
+                            match Map.tryFind name query with
+                            | None ->
+                                v?(name) <- None
+                                Some rest
+                            | Some x ->
+                                match parse ([x], Map.empty) with
+                                | None -> None
+                                | Some (x, _) ->
+                                    v?(name) <- Some x
+                                    Some rest
+                        | QueryItem.Nullable ->
+                            match Map.tryFind name query with
+                            | None ->
+                                v?(name) <- Nullable()
+                                Some rest
+                            | Some x ->
+                                match parse ([x], Map.empty) with
+                                | None -> None
+                                | Some (x, _) ->
+                                    v?(name) <- Nullable(As<int> x)
+                                    Some rest
+                        | QueryItem.Mandatory ->
                             match Map.tryFind name query with
                             | Some x -> v?(name) <- x; Some rest
                             | None -> None
@@ -457,18 +474,24 @@ and [<JavaScript>] private RouteItemParsers =
                     (args
                     |> Seq.collect (fun (name, queryItem, _, link) ->
                         match queryItem with
-                        | NotQuery ->
+                        | QueryItem.NotQuery ->
                             let l, m = link value?(name)
                             map := Map.foldBack Map.add m !map
                             l
-                        | QueryOptional ->
+                        | QueryItem.Option ->
                             match value?(name) with
                             | None -> ()
                             | Some x ->
                                 let [x], _ = link x
                                 map := Map.add name x !map
                             []
-                        | QueryMandatory ->
+                        | QueryItem.Nullable ->
+                            let v = As<Nullable<_>> (value?(name))
+                            if v.HasValue then
+                                let [x], _ = link v.Value
+                                map := Map.add name x !map
+                            []
+                        | QueryItem.Mandatory ->
                             let [x], _ = link value?(name)
                             map := Map.add name x !map
                             [])
