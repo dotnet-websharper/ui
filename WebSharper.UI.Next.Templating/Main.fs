@@ -55,12 +55,14 @@ module internal Utils =
     let ViewOf ty = typedefof<View<_>>.MakeGenericType([|ty|])
     let IRefOf ty = typedefof<IRef<_>>.MakeGenericType([|ty|])
     let EventTy = typeof<WebSharper.JavaScript.Dom.Element -> WebSharper.JavaScript.Dom.Event -> unit>
+    let ElemHandlerTy = typeof<WebSharper.JavaScript.Dom.Element -> unit>
 
     [<RequireQualifiedAccess>]
     type Hole =
         | IRef of valTy: System.Type * hasView: bool
         | View of valTy: System.Type
         | Event
+        | ElemHandler
         | Simple of ty: System.Type
 
         member this.ArgType =
@@ -68,6 +70,7 @@ module internal Utils =
             | IRef (valTy = t) -> IRefOf t
             | View (valTy = t) -> ViewOf t
             | Event -> EventTy
+            | ElemHandler -> ElemHandlerTy
             | Simple (ty = t) -> t
 
     type XElement with
@@ -122,6 +125,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
     let dataVarUnchecked = xn"data-var-unchecked"
     let dataAttr = xn"data-attr"
     let dataEvent = "data-event-"
+    let afterRenderEvent = "afterrender"
     let (|SpecialHole|_|) (a: XAttribute) =
         match a.Value.ToLowerInvariant() with
         | "scripts" | "meta" | "styles" -> Some()
@@ -234,6 +238,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                 else
                                     failwithf "Invalid multiple use of variable name for differently typed View and Var: %s" name
                             | true, Hole.Simple _
+                            | true, Hole.ElemHandler
                             | true, Hole.Event ->
                                 failwithf "Invalid multiple use of variable name in the same template: %s" name
                             | false, _ ->
@@ -255,6 +260,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                 else
                                     failwithf "Invalid multiple use of variable name for differently typed Views: %s" name
                             | true, Hole.Simple _
+                            | true, Hole.ElemHandler
                             | true, Hole.Event ->
                                 failwithf "Invalid multiple use of variable name in the same template: %s" name
                             | false, _ ->
@@ -264,6 +270,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                         let getEventHole name : Expr<WebSharper.JavaScript.Dom.Element -> WebSharper.JavaScript.Dom.Event -> unit> =
                             match holes.TryGetValue(name) with
                             | true, Hole.Event -> ()
+                            | true, Hole.ElemHandler
                             | true, Hole.Simple _
                             | true, Hole.IRef _
                             | true, Hole.View _ ->
@@ -271,6 +278,18 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                             | false, _ ->
                                 holes.Add(name, Hole.Event)
                             Expr.Var (Var (name, EventTy)) |> Expr.Cast
+
+                        let getElemHandlerHole name : Expr<WebSharper.JavaScript.Dom.Element -> unit> =
+                            match holes.TryGetValue(name) with
+                            | true, Hole.ElemHandler -> ()
+                            | true, Hole.Event
+                            | true, Hole.Simple _
+                            | true, Hole.IRef _
+                            | true, Hole.View _ ->
+                                failwithf "Invalid multiple use of variable name in the same template: %s" name
+                            | false, _ ->
+                                holes.Add(name, Hole.ElemHandler)
+                            Expr.Var (Var (name, ElemHandlerTy)) |> Expr.Cast
 
                         let getParts (t: string) =
                             if t = "" then [] else
@@ -310,7 +329,10 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                         let n = a.Name.LocalName
                                         if n.StartsWith dataEvent then
                                             let eventName = n.[dataEvent.Length..]
-                                            <@ Attr.Handler eventName %(getEventHole a.Value) @>
+                                            if eventName = afterRenderEvent then
+                                                <@ Attr.OnAfterRender %(getElemHandlerHole a.Value) @>
+                                            else
+                                                <@ Attr.Handler eventName %(getEventHole a.Value) @>
                                         elif a.Name = dataAttr then
                                             getSimpleHole a.Value
                                         else
@@ -419,6 +441,8 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                     varMap.Add((name, ty), arg)
                                 | Hole.Event ->
                                     varMap.Add((name, EventTy), arg)
+                                | Hole.ElemHandler ->
+                                    varMap.Add((name, ElemHandlerTy), arg)
                                 | Hole.View valTy ->
                                     varMap.Add((name, ViewOf valTy), arg)
                                 | Hole.IRef(valTy, hasView) ->
