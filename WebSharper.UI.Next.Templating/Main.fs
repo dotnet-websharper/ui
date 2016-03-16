@@ -26,13 +26,13 @@ open System.IO
 open System.Reflection
 open System.Xml.Linq
 open System.Text.RegularExpressions
-open Microsoft.FSharp.Reflection
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Core.CompilerServices
 open WebSharper.UI.Next
 open WebSharper.UI.Next.Client
 
 open ProviderImplementation.ProvidedTypes
+open System.Runtime.Caching
 
 [<AutoOpen>]
 module internal Utils =
@@ -79,6 +79,18 @@ module internal Utils =
                 | a -> a
             )
 
+[<AutoOpen>]
+module Cache =
+    type MemoryCache with 
+        member x.GetOrAdd(key, value: Lazy<_>, ?expiration) = 
+            let policy = CacheItemPolicy()
+            policy.SlidingExpiration <- defaultArg expiration <| TimeSpan.FromHours 24.
+            match x.AddOrGetExisting(key, value, policy) with
+            | :? Lazy<ProvidedTypeDefinition> as item -> item.Value 
+            | x -> 
+                assert(x = null)
+                value.Value
+
 [<TypeProvider>]
 type TemplateProvider(cfg: TypeProviderConfig) as this =
     inherit TypeProviderForNamespaces()
@@ -123,13 +135,17 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
             | a -> VarUnchecked a.Value
         | a -> Var a.Value
 
+    let cache = new MemoryCache("YamlConfigProvider")
+
     do
         this.Disposing.Add <| fun _ ->
             if watcher <> null then watcher.Dispose()
+            cache.Dispose()
 
         templateTy.DefineStaticParameters(
             [ProvidedStaticParameter("path", typeof<string>)],
             fun typename pars ->
+                let value = lazy (
                 match pars with
                 | [| :? string as path |] ->
                     let ty = ProvidedTypeDefinition(thisAssembly, rootNamespace, typename, None)
@@ -430,7 +446,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
 
                     ty |>! addTemplateMethod xml
                 | _ -> failwith "Unexpected parameter values")
-
+                cache.GetOrAdd (typename, value))
         this.AddNamespace(rootNamespace, [ templateTy ])
 
 [<TypeProviderAssembly>]

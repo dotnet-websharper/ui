@@ -20,6 +20,7 @@ let tmpl =
                 r.Project main
                 r.Assembly "System.Xml"
                 r.Assembly "System.Xml.Linq"
+                r.Assembly "System.Runtime.Caching"
             ])
 
 let test = 
