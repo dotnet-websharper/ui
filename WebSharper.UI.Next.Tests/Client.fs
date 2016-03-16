@@ -87,7 +87,8 @@ module Client =
                 MyCallback = (fun el ev -> btnSub.Trigger ()),
                 NameChanged = (fun el ev -> 
                     let key = if ev?which then ev?which else ev?keyCode
-                    if key = 13 then newName := "")
+                    if key = 13 then newName := ""),
+                PRendered = (fun el -> var := el.GetAttribute("id"))
             )
 
         div [
