@@ -28,51 +28,44 @@ module Notation =
     open WebSharper.Core
     open WebSharper.Core.AST
 
+    let rec containsGeneric t =
+        match t with
+        | ConcreteType ct -> ct.Generics |> Seq.exists containsGeneric
+        | GenericType _ -> true
+        | ArrayType (a, _) -> containsGeneric a
+        | TupleType ts -> ts |> Seq.exists containsGeneric
+        | FSharpFuncType(a, r) -> containsGeneric a || containsGeneric r
+        | ByRefType r -> containsGeneric r
+        | VoidType -> false
+
     [<Sealed>]
     type GetValueMacro() =
         inherit Macro()
 
-        override this.TranslateCall(_, _, m, args, _) =
-            let t = m.Generics.Head
+        override this.TranslateCall(c) =
+            let t = c.Method.Generics.Head
+            if containsGeneric t then MacroResult.MacroNeedsResolvedTypeArg else
             let getMeth =
                 (Reflection.loadType t).GetProperty("Value").GetGetMethod()
                 |> Reflection.getMethod |> Method
             match t with
             | ConcreteType ct ->
-                Call (Some args.[0], ct, concrete (getMeth, []), []) |> MacroOk
+                Call (Some c.Arguments.[0], ct, concrete (getMeth, []), []) |> MacroOk
             | _ -> failwith "GetValueMacro error"
         
     [<Sealed>]
     type SetValueMacro() =
         inherit WebSharper.Core.Macro()
 
-        override this.TranslateCall(_, _, m, args, _) =
-            let t = m.Generics.Head
+        override this.TranslateCall(c) =
+            let t = c.Method.Generics.Head
+            if containsGeneric t then MacroResult.MacroNeedsResolvedTypeArg else
             let setMeth =
                 (Reflection.loadType t).GetProperty("Value").GetSetMethod()
                 |> Reflection.getMethod |> Method
             match t with
             | ConcreteType ct ->
-                Call (Some args.[0], ct, concrete (setMeth, []), [args.[1]]) |> MacroOk
-            | _ -> failwith "SetValueMacro error"
-
-    [<Sealed>]
-    type UpdateValueMacro() =
-        inherit WebSharper.Core.Macro()
-
-        override this.TranslateCall(_, _, m, args, _) =
-            let t = m.Generics.Head
-            let valueProp = (Reflection.loadType t).GetProperty("Value") 
-            let getMeth =
-                valueProp.GetGetMethod()
-                |> Reflection.getMethod |> Method
-            let setMeth =
-                valueProp.GetSetMethod()
-                |> Reflection.getMethod |> Method
-            match t with
-            | ConcreteType ct ->
-                let v = Call (Some args.[0], ct, concrete (getMeth, []), [])
-                Call (Some args.[0], ct, concrete (setMeth, []), [Application(args.[1], [v])]) |> MacroOk
+                Call (Some c.Arguments.[0], ct, concrete (setMeth, []), [c.Arguments.[1]]) |> MacroOk
             | _ -> failwith "SetValueMacro error"
 #else
 module M = WebSharper.Core.Macros
@@ -135,7 +128,7 @@ module Notation =
     [<Macro(typeof<SetValueMacro>)>]
     let inline ( := ) (o: ^x) (v: ^a) = (^x: (member Value: ^a with set) (o, v))
 
-    [<Macro(typeof<UpdateValueMacro>)>]
+    [<Inline; JavaScript>]
     let inline ( <~ ) (o: ^x) (fn: ^a -> ^a) = o := fn !o
 
     [<JavaScript; Inline>]

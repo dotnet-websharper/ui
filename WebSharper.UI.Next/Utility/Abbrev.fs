@@ -51,10 +51,8 @@ module internal String =
 /// Abbreviations and small utilities for this assembly.
 [<AutoOpen>]
 module internal Abbrev =
-    module A = Core.Attributes
 
     type Dictionary<'K,'V> = Generic.Dictionary<'K,'V>
-    type DirectAttribute = A.DirectAttribute
     type Document = Dom.Document
     type Element = Dom.Element
     type HashSet<'T> = Generic.HashSet<'T>
@@ -62,13 +60,10 @@ module internal Abbrev =
     type IEnumerable = Collections.IEnumerable
     type IEnumerable<'T> = Generic.IEnumerable<'T>
     type IEqualityComparer<'T> = Generic.IEqualityComparer<'T>
-    type InlineAttribute = A.InlineAttribute
-    type JavaScriptAttribute = A.JavaScriptAttribute
     type MethodImplAttribute = System.Runtime.CompilerServices.MethodImplAttribute
     type MethodImplOptions = System.Runtime.CompilerServices.MethodImplOptions
     type Node = Dom.Node
     type Object = System.Object
-    type ProxyAttribute = A.ProxyAttribute
     type TextNode = Dom.Text
     type DomEvent = Dom.Event
 
@@ -101,7 +96,7 @@ module internal Abbrev =
     module HashSet =
 
         let ToArray (set: HashSet<'T>) =
-            let arr = Array.zeroCreate set.Count
+            let arr = Array.create set.Count JS.Undefined
             set.CopyTo(arr)
             arr
 
@@ -122,12 +117,12 @@ module internal Abbrev =
     module Dict =
 
         let ToKeyArray (d: Dictionary<_,_>) =
-            let arr = Array.zeroCreate d.Count
+            let arr = Array.create d.Count JS.Undefined
             d |> Seq.iteri (fun i kv -> arr.[i] <- kv.Key)
             arr
 
         let ToValueArray (d: Dictionary<_,_>) =
-            let arr = Array.zeroCreate d.Count
+            let arr = Array.create d.Count JS.Undefined
             d |> Seq.iteri (fun i kv -> arr.[i] <- kv.Value)
             arr
 

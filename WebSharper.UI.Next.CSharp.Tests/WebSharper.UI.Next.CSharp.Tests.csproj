@@ -9,6 +9,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{88079FA1-E1C8-4868-A1D0-3815BF4DABE2}</ProjectGuid>
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <Name>WebSharper.UI.Next.CSharp.Tests</Name>
     <WebSharperProject>Bundle</WebSharperProject>
     <WebSharperBundleOutputDir>Content</WebSharperBundleOutputDir>
     <UseIISExpress>true</UseIISExpress>
@@ -58,46 +59,6 @@
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="WebSharper.Collections, Version=4.0.0.0, Culture=neutral, PublicKeyToken=dcd983dec8f76a71, processorArchitecture=MSIL">
-      <HintPath>..\packages\Zafir.4.0.37.63-alpha\lib\net40\WebSharper.Collections.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="WebSharper.Control, Version=4.0.0.0, Culture=neutral, PublicKeyToken=dcd983dec8f76a71, processorArchitecture=MSIL">
-      <HintPath>..\packages\Zafir.4.0.37.63-alpha\lib\net40\WebSharper.Control.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="WebSharper.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=dcd983dec8f76a71, processorArchitecture=MSIL">
-      <HintPath>..\packages\Zafir.4.0.37.63-alpha\lib\net40\WebSharper.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="WebSharper.Core.JavaScript, Version=4.0.0.0, Culture=neutral, PublicKeyToken=dcd983dec8f76a71, processorArchitecture=MSIL">
-      <HintPath>..\packages\Zafir.4.0.37.63-alpha\lib\net40\WebSharper.Core.JavaScript.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="WebSharper.InterfaceGenerator, Version=4.0.0.0, Culture=neutral, PublicKeyToken=dcd983dec8f76a71, processorArchitecture=MSIL">
-      <HintPath>..\packages\Zafir.4.0.37.63-alpha\lib\net40\WebSharper.InterfaceGenerator.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="WebSharper.JavaScript, Version=4.0.0.0, Culture=neutral, PublicKeyToken=dcd983dec8f76a71, processorArchitecture=MSIL">
-      <HintPath>..\packages\Zafir.4.0.37.63-alpha\lib\net40\WebSharper.JavaScript.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="WebSharper.JQuery, Version=4.0.0.0, Culture=neutral, PublicKeyToken=dcd983dec8f76a71, processorArchitecture=MSIL">
-      <HintPath>..\packages\Zafir.4.0.37.63-alpha\lib\net40\WebSharper.JQuery.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="WebSharper.Main, Version=4.0.0.0, Culture=neutral, PublicKeyToken=dcd983dec8f76a71, processorArchitecture=MSIL">
-      <HintPath>..\packages\Zafir.4.0.37.63-alpha\lib\net40\WebSharper.Main.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="WebSharper.Sitelets, Version=4.0.0.0, Culture=neutral, PublicKeyToken=dcd983dec8f76a71, processorArchitecture=MSIL">
-      <HintPath>..\packages\Zafir.4.0.37.63-alpha\lib\net40\WebSharper.Sitelets.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="WebSharper.Web, Version=4.0.0.0, Culture=neutral, PublicKeyToken=dcd983dec8f76a71, processorArchitecture=MSIL">
-      <HintPath>..\packages\Zafir.4.0.37.63-alpha\lib\net40\WebSharper.Web.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
@@ -129,7 +90,7 @@
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
@@ -149,11 +110,5 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
-  <Import Project="..\packages\Zafir.CSharp.4.0.38.64-alpha\build\Zafir.CSharp.targets" Condition="Exists('..\packages\Zafir.CSharp.4.0.38.64-alpha\build\Zafir.CSharp.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Zafir.CSharp.4.0.38.64-alpha\build\Zafir.CSharp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Zafir.CSharp.4.0.38.64-alpha\build\Zafir.CSharp.targets'))" />
-  </Target>
+  <Import Project="../build/net40/$(Name).proj" />
 </Project>

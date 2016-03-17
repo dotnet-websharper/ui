@@ -111,9 +111,10 @@ and private QueryItem =
     | Option = 2
     | Nullable = 3
 
-and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
+and private RouteMapBuilderMacro() =
     inherit Macro()
 
+    let mutable comp = Unchecked.defaultof<Metadata.ICompilation>
     let fsCoreType name = Hashed { Assembly = "FSharp.Core"; FullName = "Microsoft.FSharp." + name }
     let sysType name = Hashed { Assembly = "mscorlib"; FullName = name }
     let optionOf' t = concrete(fsCoreType "Core.FSharpOption`1", [t])
@@ -156,11 +157,9 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
         | ConcreteType ct ->
             let t = Reflection.loadType t
             let defaultCtor = Hashed { CtorParameters = [] }
-            match comp.LookupConstructorInfo(ct.Entity, defaultCtor) with
-            | Metadata.LookupMemberError _ ->
-                failwithf "Endpoint type must have a default constructor: %s" t.AssemblyQualifiedName
-            | _ ->
-                Lambda([], Ctor (ct, defaultCtor, [])), t
+            if comp.GetClassInfo ct.Entity |> Option.exists (fun cls -> cls.Constructors.ContainsKey defaultCtor) 
+            then failwithf "Endpoint type must have a default constructor: %s" t.AssemblyQualifiedName
+            else Lambda([], Ctor (ct, defaultCtor, [])), t
         // TODO: handle TupleType etc
         | _ -> failwithf "Generic endpoint type not supported for routing: %s" t.AssemblyQualifiedName
 
@@ -228,8 +227,9 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
                         Generics = 0
                     }
                 let parseMeth = meth [TupleType [listOf stringT; stringMapT]] (optionOf (TupleType [t; listOf stringT]))
-                match comp.LookupMethodInfo(parsersT, parseMeth) with
-                | Metadata.LookupMemberError _ ->
+                if comp.GetClassInfo parsersT |> Option.exists (fun cls -> cls.Methods.ContainsKey parseMeth)
+                then MetaBase parseMeth
+                else
                     let ctor, t' = getDefaultCtor t
                     let endpoint =
                         match t'.GetCustomAttributes(typeof<EndPointAttribute>, false) with
@@ -283,7 +283,6 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
                                     failwith "Path arguments must be of the shape: {fieldName}")
                             |> List.ofArray
                         MetaObject (ctor, name, args)
-                | _ -> MetaBase parseMeth
         | ArrayType (t, 1) ->
             MetaSequence((let x = Id.New() in Lambda([x], Var x)), t)
         | TupleType ts ->
@@ -344,12 +343,13 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
                         ]))
             NewUnionCase (routeShapeT, "Tuple", [NewArray shapes])
 
-    override __.TranslateCall(_, _, m, args, _) =
-        match m.Generics.[0] with
+    override __.TranslateCall(c) =
+        comp <- c.Compilation
+        match c.Method.Generics.[0] with
         | GenericType _ -> MacroNeedsResolvedTypeArg
         | targ ->
             try
-                match m.Entity.Value.MethodName with
+                match c.Method.Entity.Value.MethodName with
                 | "Link" ->
                     let mk = Id.New()
                     let action = Id.New()
@@ -368,7 +368,7 @@ and private RouteMapBuilderMacro(comp: Metadata.Compilation) =
                 | "Render" ->
                     let go = Id.New()
                     let action = Id.New()
-                    let render = args.[0]
+                    let render = c.Arguments.[0]
                     Lambda([go; action],
                         Conditional (TypeCheck (Var action, targ),
                             some targ (Application (render, [Var go; Var action])),

@@ -19,6 +19,7 @@
 // $end{copyright}
 
 namespace WebSharper.UI.Next
+open WebSharper
 
 open System
 open WebSharper.UI.Next.Client

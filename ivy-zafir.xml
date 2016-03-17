@@ -1,6 +1,0 @@
-<ivy-module version="2.0">
-  <info organisation="IntelliFactory" module="zafir.ui.next" revision="3.0" />
-  <dependencies>
-    <dependency name="zafir" rev="latest.integration" />
-  </dependencies>
-</ivy-module>
