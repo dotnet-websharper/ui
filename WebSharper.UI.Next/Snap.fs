@@ -20,6 +20,7 @@
 
 namespace WebSharper.UI.Next
 
+open System.Collections.Generic
 open WebSharper
 
 (*
@@ -47,8 +48,8 @@ State transitions:
 type SnapState<'T> =
     | Forever of 'T
     | Obsolete
-    | Ready of 'T * JQueue<unit -> unit>
-    | Waiting of JQueue<'T -> unit> * JQueue<unit -> unit>
+    | Ready of 'T * Queue<unit -> unit>
+    | Waiting of Queue<'T -> unit> * Queue<unit -> unit>
 
 type Snap<'T> =
     {
@@ -64,13 +65,13 @@ module Snap =
     let Make st = { State = st }
 
     [<MethodImpl(MethodImplOptions.NoInlining)>]
-    let Create () = Make (Waiting (JQueue.Create (), JQueue.Create ()))
+    let Create () = Make (Waiting (Queue(), Queue()))
 
     [<MethodImpl(MethodImplOptions.NoInlining)>]
     let CreateForever v = Make (Forever v)
 
     [<MethodImpl(MethodImplOptions.NoInlining)>]
-    let CreateWithValue v = Make (Ready (v, JQueue.Create ()))
+    let CreateWithValue v = Make (Ready (v, Queue()))
 
   // misc
 
@@ -92,7 +93,7 @@ module Snap =
         match sn.State with
         | Waiting (q, _) ->
             sn.State <- Forever v
-            JQueue.Iter (fun k -> k v) q
+            Seq.iter (fun k -> k v) q
         | _ -> ()
 
     let MarkObsolete sn =
@@ -100,13 +101,13 @@ module Snap =
         | Forever _ | Obsolete -> ()
         | Ready (_, ks) | Waiting (_, ks) ->
             sn.State <- Obsolete
-            JQueue.Iter (fun k -> k ()) ks
+            Seq.iter (fun k -> k ()) ks
 
     let MarkReady sn v =
         match sn.State with
         | Waiting (q1, q2) ->
             sn.State <- Ready (v, q2)
-            JQueue.Iter (fun k -> k v) q1
+            Seq.iter (fun k -> k v) q1
         | _ -> ()
 
     let MarkDone res sn v =
@@ -121,8 +122,8 @@ module Snap =
         match snap.State with
         | Forever v -> avail v
         | Obsolete -> obsolete ()
-        | Ready (v, q) -> JQueue.Add obsolete q; avail v
-        | Waiting (q1, q2) -> JQueue.Add avail q1; JQueue.Add obsolete q2
+        | Ready (v, q) -> q.Enqueue obsolete; avail v
+        | Waiting (q1, q2) -> q1.Enqueue avail; q2.Enqueue obsolete
 
   // combinators
 

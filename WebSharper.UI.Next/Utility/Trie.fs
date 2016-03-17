@@ -20,6 +20,7 @@
 
 namespace WebSharper.UI.Next
 
+open System.Collections.Generic
 module M = Map
 
 /// Trie lookup structure.
@@ -122,10 +123,10 @@ module Trie =
     /// Collects all values.
     let ToArray trie =
         // TODO: more efficient than this.
-        let all = JQueue.Create ()
-        Map (fun _ v -> JQueue.Add v all) trie
+        let all = Queue()
+        Map (fun _ v -> all.Enqueue v) trie
         |> ignore
-        JQueue.ToArray all
+        all.ToArray()
 
     /// Result of lookup function.
     type LookupResult<'K,'V> =

@@ -1,5 +1,6 @@
 namespace WebSharper.UI.Next.Client
 
+open System.Collections.Generic
 open System.Runtime.CompilerServices
 open WebSharper
 open WebSharper.JavaScript
@@ -73,17 +74,17 @@ module Docs =
 
         /// Shallow children of an element node.
         static member DocChildren node =
-            let q = JQueue.Create ()
+            let q = Queue()
             let rec loop doc =
                 match doc with
                 | AppendDoc (a, b) -> loop a; loop b
                 | EmbedDoc d -> loop d.Current
-                | ElemDoc e -> JQueue.Add (e.El :> Node) q
+                | ElemDoc e -> q.Enqueue (e.El :> Node)
                 | EmptyDoc -> ()
-                | TextNodeDoc tn -> JQueue.Add (tn :> Node) q
-                | TextDoc t -> JQueue.Add (t.Text :> Node) q
+                | TextNodeDoc tn -> q.Enqueue (tn :> Node)
+                | TextDoc t -> q.Enqueue (t.Text :> Node)
             loop node.Children
-            DomNodes (JQueue.ToArray q)
+            DomNodes (q.ToArray())
 
         /// Set difference - currently only using equality O(N^2).
         /// Can do better? Can store <hash> data on every node?
@@ -204,15 +205,15 @@ module Docs =
 
         /// Finds all node elements in a tree.
         static member FindAll doc =
-            let q = JQueue.Create ()
+            let q = Queue()
             let rec loop node =
                 match node with
                 | AppendDoc (a, b) -> loop a; loop b
-                | ElemDoc el -> JQueue.Add el q; loop el.Children
+                | ElemDoc el -> q.Enqueue el; loop el.Children
                 | EmbedDoc em -> loop em.Current
                 | _ -> ()
             loop doc
-            NodeSet (HashSet (JQueue.ToArray q))
+            NodeSet (HashSet (q.ToArray()))
 
         /// Set difference.
         static member Except (NodeSet excluded) (NodeSet included) =

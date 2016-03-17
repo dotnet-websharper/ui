@@ -22,7 +22,6 @@ namespace WebSharper.UI.Next
 
 open System
 open System.Collections
-open System.Collections.Generic
 open WebSharper
 open WebSharper.JavaScript
 
@@ -155,46 +154,17 @@ module internal Abbrev =
             async { return f () }
             |> Async.Start
 
-    /// Simple imperative queues optimized for JS.
-    [<Sealed>]
-    type JQueue<'T> = class end
-
-    module JQueue =
-
-        [<Inline "[]">]
-        [<MethodImpl(MethodImplOptions.NoInlining)>]
-        let Create () : JQueue<'T> = U
-
-        [<JavaScript>]
-        let Count (q: JQueue<'T>) : int = Array.length (As q)
-
-        [<JavaScript>]
-        let ToArray (q: JQueue<'T>) : 'T[] = Array.copy (As q)
-
-        [<JavaScript>]
-        [<MethodImpl(MethodImplOptions.NoInlining)>]
-        let Iter (f: 'T -> unit) (q: JQueue<'T>) =
-            Array.iter f (ToArray q)
-
-        [<Direct "$q.push($x)">]
-        [<MethodImpl(MethodImplOptions.NoInlining)>]
-        let Add (x: 'T) (q: JQueue<'T>) = ()
-
-        [<Direct "$q.shift()">]
-        [<MethodImpl(MethodImplOptions.NoInlining)>]
-        let Dequeue (q: JQueue<'T>) = ()
-
     [<JavaScript>]
     module Mailbox =
 
         /// Simplified MailboxProcessor implementation.
         let StartProcessor proc =
-            let mail = JQueue.Create ()
+            let mail = Generic.Queue()
             let isActive = ref false
             let work =
                 async {
-                    while JQueue.Count mail > 0 do
-                        let msg = JQueue.Dequeue mail
+                    while mail.Count > 0 do
+                        let msg = mail.Dequeue()
                         do! proc msg
                     return isActive := false
                 }
@@ -203,6 +173,6 @@ module internal Abbrev =
                     isActive := true
                     Async.Start work
             let post msg =
-                JQueue.Add msg mail
+                mail.Enqueue msg
                 start ()
             post

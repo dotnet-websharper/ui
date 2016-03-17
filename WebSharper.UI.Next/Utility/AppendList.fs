@@ -20,6 +20,8 @@
 
 namespace WebSharper.UI.Next
 
+open System.Collections.Generic
+
 type AppendList<'T> =
     | AL0
     | AL1 of 'T
@@ -46,15 +48,15 @@ module AppendList =
         AL1 x
 
     let ToArray xs =
-        let out = JQueue.Create ()
+        let out = Queue()
         let rec loop xs =
             match xs with
             | AL0 -> ()
-            | AL1 x -> JQueue.Add x out
+            | AL1 x -> out.Enqueue x
             | AL2 (x, y) -> loop x; loop y
-            | AL3 xs -> Array.iter (fun v -> JQueue.Add v out) xs
+            | AL3 xs -> Array.iter (fun v -> out.Enqueue v) xs
         loop xs
-        JQueue.ToArray out
+        out.ToArray()
 
     let FromArray xs =
         match Array.length xs with

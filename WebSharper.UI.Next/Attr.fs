@@ -161,6 +161,7 @@ type Attr =
 
 namespace WebSharper.UI.Next.Client
 
+open System.Collections.Generic
 open Microsoft.FSharp.Quotations
 open WebSharper
 open WebSharper.JavaScript
@@ -300,24 +301,24 @@ module Attrs =
 
     /// Inserts static attributes and computes dynamic attributes.
     let Insert elem (tree: Attr) =
-        let nodes = JQueue.Create ()
-        let oar = JQueue.Create()
+        let nodes = Queue()
+        let oar = Queue()
         let rec loop node =
             match node with
             | A0 -> ()
-            | A1 n -> n.Init elem; JQueue.Add n nodes
+            | A1 n -> n.Init elem; nodes.Enqueue n
             | A2 (a, b) -> loop a; loop b
             | A3 mk -> mk elem
-            | A4 cb -> JQueue.Add cb oar
+            | A4 cb -> oar.Enqueue cb
         loop (As<AttrProxy> tree).Tree
-        let arr = JQueue.ToArray nodes
+        let arr = nodes.ToArray()
         {
             DynElem = elem
             DynFlags = (As<AttrProxy> tree).Flags
             DynNodes = arr
             OnAfterRender =
-                if JQueue.Count oar = 0 then None else
-                Some (fun el -> JQueue.Iter (fun f -> f el) oar)
+                if oar.Count = 0 then None else
+                Some (fun el -> Seq.iter (fun f -> f el) oar)
         }
 
     let Updates dyn =
@@ -497,3 +498,6 @@ module Attr =
 
     let ValidateForm () =
         OnAfterRender Resources.H5F.Setup
+
+[<assembly:System.Reflection.AssemblyVersionAttribute("4.0.0.0")>]
+do()
