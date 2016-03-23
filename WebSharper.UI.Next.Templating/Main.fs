@@ -176,9 +176,12 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                             let xml = XElement(xn"wrapper")
                             xml.Add(xmlDoc.Root)
                             xml
-                        with :? System.Xml.XmlException ->
+                        with :? System.Xml.XmlException as e ->
                             // Try to load the file as a XML fragment, ie. potentially several root nodes.
-                            XDocument.Parse("<wrapper>" + File.ReadAllText htmlFile + "</wrapper>", LoadOptions.PreserveWhitespace).Root
+                            try XDocument.Parse("<wrapper>" + File.ReadAllText htmlFile + "</wrapper>", LoadOptions.PreserveWhitespace).Root
+                            with _ ->
+                                // The error from loading as a full document generally has a better error message.
+                                raise e
 
                     let isSingleElt =
                         let firstNode = xml.FirstNode
