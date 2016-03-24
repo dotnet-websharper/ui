@@ -244,26 +244,23 @@ module Snap =
             res
 
     let SnapshotOn sn1 sn2 =
-        match sn1.State, sn2.State with
-        | _, Forever y -> CreateForever y
-        | _ ->
-            let res = Create ()
-            let v = ref None
-            let triggered = ref false
+        let res = Create ()
+        let v = ref None
+        let triggered = ref false
 
-            let obs () =
-                v := None
-                MarkObsolete res
+        let obs () =
+            v := None
+            MarkObsolete res
 
-            let cont () =
-                if !triggered then
-                    match !v with
-                    | Some y when IsForever sn2 -> MarkForever res y
-                    | Some y -> MarkReady res y
-                    | _ -> ()
-            When sn1 (fun x -> triggered := true; cont ()) obs
-            When sn2 (fun y -> v := Some y; cont ()) ignore
-            res
+        let cont () =
+            if !triggered then
+                match !v with
+                | Some y when IsForever sn1 -> MarkForever res y
+                | Some y -> MarkReady res y
+                | _ -> ()
+        When sn1 (fun x -> triggered := true; cont ()) obs
+        When sn2 (fun y -> v := Some y; cont ()) ignore
+        res
 
     let MapAsync fn snap =
         let res = Create ()

@@ -149,25 +149,19 @@ type View =
         View.Map2 fn v1 v2 |> View.MapAsync id
 
     static member SnapshotOn def (V o1) (V o2) =
-        let res = Snap.CreateWithValue def
-        let init = ref false
-
-        let initialised () =
-            if not !init then
-                init := true
-                Snap.MarkObsolete res
+        let sInit = Snap.CreateWithValue def
 
         let obs () =
             let s1 = o1 ()
             let s2 = o2 ()
 
-            if !init then
+            if Snap.IsObsolete sInit then
                 // Already initialised, do big grown up SnapshotOn
                 Snap.SnapshotOn s1 s2
             else
                 let s = Snap.SnapshotOn s1 s2
-                Snap.When s (fun x -> ()) (fun () -> initialised ())
-                res
+                Snap.When s ignore (fun () -> Snap.MarkObsolete sInit)
+                sInit
 
         View.CreateLazy obs
 
