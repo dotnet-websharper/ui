@@ -47,11 +47,11 @@ State transitions:
 
 type SnapState<'T> =
     | Forever of 'T
-    | Obsolete
-    | Ready of 'T * Queue<unit -> unit>
-    | Waiting of Queue<'T -> unit> * Queue<unit -> unit>
+    | Obsolete of Snap<'T>
+    | Ready of 'T * Queue<Snap<'T> -> unit>
+    | Waiting of Queue<'T -> unit> * Queue<Snap<'T> -> unit>
 
-type Snap<'T> =
+and Snap<'T> =
     {
         mutable State : SnapState<'T>
     }
@@ -84,7 +84,7 @@ module Snap =
     [<MethodImpl(MethodImplOptions.NoInlining)>]
     let IsObsolete snap =
         match snap.State with
-        | Obsolete -> true
+        | Obsolete _ -> true
         | _ -> false
 
   // transitions
@@ -96,12 +96,13 @@ module Snap =
             Seq.iter (fun k -> k v) q
         | _ -> ()
 
-    let MarkObsolete sn =
+    let MarkObsolete sn newSn =
         match sn.State with
-        | Forever _ | Obsolete -> ()
+        | Forever _ -> ()
+        | Obsolete _ -> sn.State <- Obsolete newSn
         | Ready (_, ks) | Waiting (_, ks) ->
-            sn.State <- Obsolete
-            Seq.iter (fun k -> k ()) ks
+            sn.State <- Obsolete newSn
+            Seq.iter (fun k -> k newSn) ks
 
     let MarkReady sn v =
         match sn.State with
@@ -116,28 +117,31 @@ module Snap =
         else
             MarkReady res v
 
+    let (|ForeverOrReady|_|) = function
+        | Forever x | Ready (x, _) -> Some x
+        | _ -> None
+
   // eliminators
 
     let When snap avail obsolete =
         match snap.State with
         | Forever v -> avail v
-        | Obsolete -> obsolete ()
+        | Obsolete newSn -> obsolete newSn
         | Ready (v, q) -> q.Enqueue obsolete; avail v
         | Waiting (q1, q2) -> q1.Enqueue avail; q2.Enqueue obsolete
 
   // combinators
 
-    let Bind f snap =
-        let res = Create ()
-        let onObs () = MarkObsolete res
-        let onReady x =
+    let rec Bind set f snap =
+        let res = Create () |>! set
+        let rec onReady x =
             let y = f x
             When y (fun v ->
                 if IsForever y && IsForever snap then
                     MarkForever res v
                 else
-                    MarkReady res v) onObs
-        When snap onReady onObs
+                    MarkReady res v) (MarkObsolete res)
+        When snap onReady (Bind set f >> MarkObsolete res)
         res
 
     // more optimal array access for circumventing
@@ -146,18 +150,19 @@ module Snap =
     [<Inline "$arr[$i] = $v">]
     let private setAt (i : int) (v : 'T) (arr : 'T[]) = ()
 
-    let Sequence (snaps : seq<Snap<'T>>) =
-        if Seq.isEmpty snaps then CreateForever Seq.empty
-        else
+    let Sequence set (snaps : seq<Snap<'T>>) =
+        let rec sequenceArr (snaps: Snap<'T>[]) =
+            if Seq.isEmpty snaps then CreateForever Seq.empty |>! set else
             let res = Create ()
-            let snaps = Array.ofSeq snaps
             let c = snaps.Length
             let d = ref 0
             let vs = ref [||]
-            let obs () = 
-                d := 0
-                vs := [||]
-                MarkObsolete res
+            let obs (x: Snap<'T>) =
+                if not (IsObsolete res) then
+                    d := 0
+                    vs := [||]
+                    sequenceArr snaps
+                    |> MarkObsolete res
             let cont () =
                 if !d = c then
                     if Array.forall (fun x -> IsForever x) snaps then
@@ -167,90 +172,66 @@ module Snap =
             snaps
             |> Array.iteri (fun i s -> When s (fun x -> setAt i x !vs; incr d; cont ()) obs)
             res
+            |>! set
+        sequenceArr (Array.ofSeq snaps)
 
-    let Map fn sn =
+    let rec Map set fn sn =
         match sn.State with
         | Forever x -> CreateForever (fn x) // optimization
         | _ ->
             let res = Create ()
-            When sn (fn >> MarkDone res sn) (fun () -> MarkObsolete res)
+            When sn (fn >> MarkDone res sn)
+                (Map set fn >> MarkObsolete res)
             res
+        |>! set
 
-    let MapCached prev fn sn =
-        let fn x =
-            match !prev with
-            | Some (x', y) when x = x' -> y
-            | _ ->
-                let y = fn x
-                prev := Some (x, y)
-                y
-        Map fn sn
-
-    let Map2 fn sn1 sn2 =
-        match sn1.State, sn2.State with
-        | Forever x, Forever y -> CreateForever (fn x y) // optimization
-        | Forever x, _ -> Map (fn x) sn2 // optimize for known sn1
-        | _, Forever y -> Map (fun x -> fn x y) sn1 // optimize for known s2
+    let rec MapCached set prev fn sn =
+        match sn.State with
+        | Forever x -> CreateForever (fn x) // optimization
         | _ ->
             let res = Create ()
-            let v1 = ref None
-            let v2 = ref None
-            let obs () =
-                v1 := None
-                v2 := None
-                MarkObsolete res
-            let cont () =
-                match !v1, !v2 with
-                | Some x, Some y ->
-                    if IsForever sn1 && IsForever sn2 then
-                        MarkForever res (fn x y)
-                    else
-                        MarkReady res (fn x y)
-                | _ -> ()
-            When sn1 (fun x -> v1 := Some x; cont ()) obs
-            When sn2 (fun y -> v2 := Some y; cont ()) obs
+            let fn x =
+                match !prev, res.State with
+                | Some x', (ForeverOrReady y) when x = x' -> y
+                | _ -> prev := Some x; fn x
+            When sn (fn >> MarkDone res sn) (fun newSn ->
+                match !prev, newSn.State with
+                | Some x', (ForeverOrReady x) when x = x' -> ()
+                | _ -> MapCached set prev fn newSn |> MarkObsolete res)
             res
+        |>! set
 
-    let Map3 fn sn1 sn2 sn3 =
-        match sn1.State, sn2.State, sn3.State with
-        | Forever x, Forever y, Forever z -> CreateForever (fn x y z)
-        | Forever x, Forever y, _         -> Map (fun z -> fn x y z) sn3
-        | Forever x, _,         Forever z -> Map (fun y -> fn x y z) sn2
-        | Forever x, _,         _         -> Map2 (fun y z -> fn x y z) sn2 sn3
-        | _,         Forever y, Forever z -> Map (fun x -> fn x y z) sn1
-        | _,         Forever y, _         -> Map2 (fun x z -> fn x y z) sn1 sn3
-        | _,         _,         Forever z -> Map2 (fun x y -> fn x y z) sn1 sn2
-        | _,         _,         _         ->
+    let rec Map2 set fn sn1 sn2 =
+        match sn1.State, sn2.State with
+        | Forever x, Forever y -> CreateForever (fn x y) // optimization
+        | Forever x, _ -> Map set (fn x) sn2 // optimize for known sn1
+        | _, Forever y -> Map set (fun x -> fn x y) sn1 // optimize for known s2
+        | _ ->
             let res = Create ()
-            let v1 = ref None
-            let v2 = ref None
-            let v3 = ref None
-            let obs () =
-                v1 := None
-                v2 := None
-                v3 := None
-                MarkObsolete res
             let cont () =
-                match !v1, !v2, !v3 with
-                | Some x, Some y, Some z ->
-                    if IsForever sn1 && IsForever sn2 && IsForever sn3 then
-                        MarkForever res (fn x y z)
-                    else
-                        MarkReady res (fn x y z)
+                match sn1.State, sn2.State with
+                | Forever x, Forever y ->
+                    MarkForever res (fn x y)
+                | (ForeverOrReady x), (ForeverOrReady y) ->
+                    MarkReady res (fn x y)
                 | _ -> ()
-            When sn1 (fun x -> v1 := Some x; cont ()) obs
-            When sn2 (fun y -> v2 := Some y; cont ()) obs
-            When sn3 (fun z -> v3 := Some z; cont ()) obs
+            let obs sn1 sn2 =
+                if not (IsObsolete res) then
+                    Map2 set fn sn1 sn2
+                    |> MarkObsolete res
+            When sn1 (fun x -> cont ()) (fun sn1 -> obs sn1 sn2)
+            When sn2 (fun y -> cont ()) (fun sn2 -> obs sn1 sn2)
             res
+        |>! set
 
-    let SnapshotOn sn1 sn2 =
+    let rec SnapshotOn set (sn1: Snap<'T>) sn2 =
         let res = Create ()
         let v = ref None
         let triggered = ref false
 
-        let obs () =
+        let obs newSn =
             v := None
-            MarkObsolete res
+            MarkObsolete res newSn
 
         let cont () =
             if !triggered then
@@ -258,13 +239,19 @@ module Snap =
                 | Some y when IsForever sn1 -> MarkForever res y
                 | Some y -> MarkReady res y
                 | _ -> ()
-        When sn1 (fun x -> triggered := true; cont ()) obs
-        When sn2 (fun y -> v := Some y; cont ()) ignore
+        When sn1 (fun x -> triggered := true; cont ())
+            (fun sn1 -> SnapshotOn set sn1 sn2 |> obs)
+        let rec listen sn2 =
+            When sn2 (fun y -> v := Some y; cont ())
+                (fun newSn2 -> if not (IsObsolete res) then listen newSn2)
+        listen sn2
         res
+        |>! set
 
-    let MapAsync fn snap =
+    let rec MapAsync set fn snap =
         let res = Create ()
         When snap
             (fun v -> Async.StartTo (fn v) (MarkDone res snap))
-            (fun () -> MarkObsolete res)
+            (MapAsync set fn >> MarkObsolete res)
         res
+        |>! set

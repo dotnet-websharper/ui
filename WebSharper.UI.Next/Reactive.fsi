@@ -159,7 +159,7 @@ type View =
     static member Bind : ('A -> View<'B>) -> View<'A> -> View<'B>
 
     /// Evaluate each action and collect the results
-    static member Sequence : seq<View<'T>> -> View<seq<'T>>
+//    static member Sequence : seq<View<'T>> -> View<seq<'T>>
 
     /// Snapshots the second view whenever the first updates
     static member SnapshotOn : 'B -> View<'A> -> View<'B> -> View<'B>

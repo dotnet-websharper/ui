@@ -76,9 +76,10 @@ and [<JavaScript; Sealed>] Var =
         if var.Const then
             () // TODO: signal an error
         else
-            Snap.MarkObsolete var.Snap
+            let newSn = Snap.CreateWithValue value
+            Snap.MarkObsolete var.Snap newSn
             var.Current <- value
-            var.Snap <- Snap.CreateWithValue value
+            var.Snap <- newSn
 
     static member SetFinal var value =
         if var.Const then
@@ -114,36 +115,34 @@ type View =
 
     static member CreateLazy observe =
         let cur = ref None
+        let set x = cur := Some x
         let obs () =
             match !cur with
             | Some sn when not (Snap.IsObsolete sn) -> sn
-            | _ ->
-                let sn = observe ()
-                cur := Some sn
-                sn
+            | _ -> observe set |>! set
         V obs
 
     static member Map fn (V observe) =
-        View.CreateLazy (fun () ->
-            observe () |> Snap.Map fn)
+        View.CreateLazy (fun set ->
+            observe () |> Snap.Map set fn)
 
     static member MapCached fn (V observe) =
         let vref = ref None
-        View.CreateLazy (fun () ->
-            observe () |> Snap.MapCached vref fn)
+        View.CreateLazy (fun set ->
+            observe () |> Snap.MapCached set vref fn)
 
     // Creates a lazy view using a given snap function and 2 views
     static member private CreateLazy2 snapFn (V o1) (V o2) =
-        View.CreateLazy (fun () ->
+        View.CreateLazy (fun set ->
             let s1 = o1 ()
             let s2 = o2 ()
-            snapFn s1 s2)
+            snapFn set s1 s2)
 
     static member Map2 fn v1 v2 =
-        View.CreateLazy2 (Snap.Map2 fn) v1 v2
+        View.CreateLazy2 (fun set -> Snap.Map2 set fn) v1 v2
 
     static member MapAsync fn (V observe) =
-        View.CreateLazy (fun () -> observe () |> Snap.MapAsync fn)
+        View.CreateLazy (fun set -> observe () |> Snap.MapAsync set fn)
 
     static member MapAsync2 fn v1 v2 =
         View.Map2 fn v1 v2 |> View.MapAsync id
@@ -151,16 +150,16 @@ type View =
     static member SnapshotOn def (V o1) (V o2) =
         let sInit = Snap.CreateWithValue def
 
-        let obs () =
+        let obs set =
             let s1 = o1 ()
             let s2 = o2 ()
 
             if Snap.IsObsolete sInit then
                 // Already initialised, do big grown up SnapshotOn
-                Snap.SnapshotOn s1 s2
+                Snap.SnapshotOn set s1 s2
             else
-                let s = Snap.SnapshotOn s1 s2
-                Snap.When s ignore (fun () -> Snap.MarkObsolete sInit)
+                let s = Snap.SnapshotOn set s1 s2
+                Snap.When s ignore (Snap.MarkObsolete sInit)
                 sInit
 
         View.CreateLazy obs
@@ -256,26 +255,26 @@ type View =
   // More cominators ------------------------------------------------------------
 
     static member Join (V observe : View<View<'T>>) : View<'T> =
-        View.CreateLazy (fun () ->
+        View.CreateLazy (fun set ->
             observe ()
-            |> Snap.Bind (fun (V obs) ->
+            |> Snap.Bind set (fun (V obs) ->
                 obs ()))
 
     static member Bind fn view =
         View.Join (View.Map fn view)
 
-    static member Sequence views =
-        View.CreateLazy(fun () ->
-            views
-            |> Seq.map (fun (V observe) -> observe ())
-            |> Snap.Sequence)
+//    static member Sequence views =
+//        View.CreateLazy(fun set ->
+//            views
+//            |> Seq.map (fun (V observe) -> observe ())
+//            |> Snap.Sequence set)
 
     static member Const x =
         let o = Snap.CreateForever x
         V (fun () -> o)
 
     static member TryWith (f: exn -> View<'T>) (V observe: View<'T>) : View<'T> =
-        View.CreateLazy (fun () ->
+        View.CreateLazy (fun set ->
             try
                 observe ()
             with exn ->
@@ -284,7 +283,7 @@ type View =
         )
 
     static member TryFinally (f: unit -> unit) (V observe: View<'T>) : View<'T> =
-        View.CreateLazy (fun () ->
+        View.CreateLazy (fun set ->
             try
                 observe ()
             finally
@@ -294,7 +293,7 @@ type View =
     static member Sink act (V observe) =
         let rec loop () =
             let sn = observe ()
-            Snap.When sn act (fun () ->
+            Snap.When sn act (fun _ ->
                 Async.Schedule loop)
         Async.Schedule loop
 

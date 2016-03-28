@@ -38,33 +38,30 @@ module internal Snap =
   // transitions
 
     /// Marks the snapshot as obsolete.
-    val MarkObsolete : Snap<'T> -> unit
+    val MarkObsolete : Snap<'T> -> newSn: Snap<'T> -> unit
 
   // combinators
 
     /// Dynamic combination of snaps.
-    val Bind : ('A -> Snap<'B>) -> Snap<'A> -> Snap<'B>
+    val Bind : (Snap<'B> -> unit) -> ('A -> Snap<'B>) -> Snap<'A> -> Snap<'B>
 
     /// Evaluates each action in the sequence and collects the results
-    val Sequence : seq<Snap<'A>> -> Snap<seq<'A>>
+    val Sequence : (Snap<seq<'A>> -> unit) -> seq<Snap<'A>> -> Snap<seq<'A>>
 
     /// Maps a function.
-    val Map : ('A -> 'B) -> Snap<'A> -> Snap<'B>
+    val Map : (Snap<'B> -> unit) -> ('A -> 'B) -> Snap<'A> -> Snap<'B>
 
-    val internal MapCached : ref<option<'A * 'B>> -> ('A -> 'B) -> Snap<'A> -> Snap<'B>
+    val internal MapCached : (Snap<'B> -> unit) -> ref<option<'A>> -> ('A -> 'B) -> Snap<'A> -> Snap<'B>
         when 'A : equality
 
     /// Combines two snaps.
-    val Map2 : ('A -> 'B -> 'C) -> Snap<'A> -> Snap<'B> -> Snap<'C>
-
-    /// Combines three snaps.
-    val Map3 : ('A -> 'B -> 'C -> 'D) -> Snap<'A> -> Snap<'B> -> Snap<'C> -> Snap<'D>
+    val Map2 : (Snap<'C> -> unit) -> ('A -> 'B -> 'C) -> Snap<'A> -> Snap<'B> -> Snap<'C>
 
     /// Maps an async function.
-    val MapAsync : ('A -> Async<'B>) -> Snap<'A> -> Snap<'B>
+    val MapAsync : (Snap<'B> -> unit) -> ('A -> Async<'B>) -> Snap<'A> -> Snap<'B>
 
     /// Snapshots when the first value changes
-    val SnapshotOn : Snap<'A> -> Snap<'B> -> Snap<'B>
+    val SnapshotOn : (Snap<'B> -> unit) -> Snap<'A> -> Snap<'B> -> Snap<'B>
 
     /// Updates the second value while the first view is true
  //   val UpdateWhile : Snap<bool> -> Snap<'A> -> Snap<'A>
@@ -72,7 +69,7 @@ module internal Snap =
   // eliminators
 
     /// Schedule callbacks on lifecycle events.
-    val When : Snap<'T> -> ready: ('T -> unit) -> obsolete: (unit -> unit) -> unit
+    val When : Snap<'T> -> ready: ('T -> unit) -> obsolete: (Snap<'T> -> unit) -> unit
 
   // misc
 
