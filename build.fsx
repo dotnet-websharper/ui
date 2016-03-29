@@ -30,6 +30,16 @@ let test =
         .References(fun r ->
             [
                 r.Project main
+                r.NuGet("WebSharper.Testing").Reference()
+            ])
+
+let tmplTest =
+    bt.WithFSharpVersion(FSharpVersion.FSharp31)
+        .WebSharper.BundleWebsite("WebSharper.UI.Next.Templating.Tests")
+        .SourcesFromProject()
+        .References(fun r ->
+            [
+                r.Project main
                 r.Project tmpl
             ])
 
@@ -40,6 +50,7 @@ bt.Solution [
     main
     tmpl
     test
+    tmplTest
 
     bt.NuGet.CreatePackage()
         .Add(main)

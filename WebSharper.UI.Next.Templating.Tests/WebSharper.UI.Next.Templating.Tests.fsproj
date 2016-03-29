@@ -1,9 +1,9 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <ProjectGuid>{559573f7-4ea1-462c-a94d-1c2db8102419}</ProjectGuid>
+    <ProjectGuid>{608521d3-89cf-452b-ad62-5fa7eb246e6f}</ProjectGuid>
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{F2A71F9B-5D33-465A-A702-920D77279786}</ProjectTypeGuids>
-    <Name>WebSharper.UI.Next.Tests</Name>
+    <Name>WebSharper.UI.Next.Templating.Tests</Name>
     <RootNamespace>$(Name)</RootNamespace>
     <AssemblyName>$(Name)</AssemblyName>
     <WebSharperProject>Bundle</WebSharperProject>
@@ -34,7 +34,8 @@
   <Import Project="$(FSharpTargetsPath)" />
   <Import Project="../build/net40/$(Name).proj" />
   <ItemGroup>
-    <Compile Include="Main.fs" />
+    <Compile Include="Regression67.fs" />
+    <Compile Include="Client.fs" />
     <Content Include="index.html" />
     <Content Include="Web.config" />
     <Content Include="template.html" />
