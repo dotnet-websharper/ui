@@ -13,6 +13,7 @@ module Tags =
     let tagsFilePath =
         let d =
             Directory.GetDirectories(Path.Combine(__SOURCE_DIRECTORY__, "..", "packages"), "WebSharper.*")
+            |> Array.filter (fun d -> not (d.Contains "Testing"))
             |> Array.maxBy (fun d -> DirectoryInfo(d).LastWriteTimeUtc)
         Path.Combine(d, "tools", "net40", "tags.csv")
 
@@ -202,6 +203,8 @@ module Tags =
                 [|
                     "[<Extension; Inline>]"
                     sprintf "static member On%s(this: Elt, cb: Dom.Element -> Dom.%s -> unit) = As<Elt> ((As<Elt'> this).on(\"%s\", cb))" e.PascalName e.Category e.Name
+                    "[<Extension; Inline>]"
+                    sprintf "static member On%sView(this: Elt, view: View<'T>, cb: Dom.Element -> Dom.%s -> 'T -> unit) = As<Elt> ((As<Elt'> this).onView(\"%s\", view, cb))" e.PascalName e.Category e.Name
                 |]
         RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next", "Doc.Client.fsi")) all <| fun e ->
             match e.Type with
@@ -210,6 +213,9 @@ module Tags =
                     sprintf "/// Add a handler for the event \"%s\"." e.Name
                     "[<Extension>]"
                     sprintf "static member On%s : Elt * cb: (Dom.Element -> Dom.%s -> unit) -> Elt" e.PascalName e.Category
+                    sprintf "/// Add a handler for the event \"%s\" which also receives the value of a view at the time of the event." e.Name
+                    "[<Extension>]"
+                    sprintf "static member On%sView : Elt * view: View<'T> * cb: (Dom.Element -> Dom.%s -> 'T -> unit) -> Elt" e.PascalName e.Category
                 |]
 
 Tags.Run()

@@ -448,6 +448,12 @@ module Attr =
     let OnAfterRender (callback: Element -> unit) =
         As<Attr> (Attrs.Mk AttrFlags.Defaults (A4 callback))
 
+    let OnAfterRenderView (v: View<'T>) (callback: Element -> 'T -> unit) =
+        let id = Fresh.Id()
+        Attr.Append
+            (OnAfterRender (fun el -> callback el el?(id)))
+            (DynamicCustom (fun el x -> el?(id) <- x) v)
+
     let DynamicClass name view ok =
         As<Attr> (Attrs.Dynamic view ignore (fun el v ->
             if ok v then DU.AddClass el name else DU.RemoveClass el name))
