@@ -74,6 +74,12 @@ module Main =
                 equal (v()) 12
             }
 
+            Test "ConstAsync" {
+                let a = async { return 86 }
+                let v = View.ConstAsync a |> observe
+                equal (v()) 86
+            }
+
             Test "FromVar" {
                 let rv = Var.Create 38
                 let v = View.FromVar rv |> observe

@@ -32,6 +32,11 @@ module internal Snap =
     /// Creates a snapshot that holds the given value forever, never obsolete.
     val CreateForever : 'T -> Snap<'T>
 
+    /// Creates a snapshot initially in a waiting state, which starts the given
+    /// asynchronous task and, upon completion, holds its returned value
+    /// forever, never obsolete.
+    val CreateForeverAsync : Async<'T> -> Snap<'T>
+
     /// Creates an snapshot with a given value; it will become obsolete later.
     val CreateWithValue : 'T -> Snap<'T>
 

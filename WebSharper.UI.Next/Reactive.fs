@@ -274,6 +274,10 @@ type View =
         let o = Snap.CreateForever x
         V (fun () -> o)
 
+    static member ConstAsync a =
+        let o = Snap.CreateForeverAsync a
+        V (fun () -> o)
+
     static member TryWith (f: exn -> View<'T>) (V observe: View<'T>) : View<'T> =
         View.CreateLazy (fun () ->
             try

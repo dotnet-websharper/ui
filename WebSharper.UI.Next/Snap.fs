@@ -146,6 +146,14 @@ module Snap =
     [<Inline "$arr[$i] = $v">]
     let private setAt (i : int) (v : 'T) (arr : 'T[]) = ()
 
+    let CreateForeverAsync a =
+        let o = Make (Waiting (Queue(), Queue()))
+        async {
+            let! v = a
+            return MarkForever o v
+        } |> Async.Start
+        o
+
     let Sequence (snaps : seq<Snap<'T>>) =
         if Seq.isEmpty snaps then CreateForever Seq.empty
         else
