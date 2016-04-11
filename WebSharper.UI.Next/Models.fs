@@ -184,7 +184,7 @@ module Storage =
 type ListModel<'Key,'T when 'Key : equality> =
     {
         key : 'T -> 'Key
-        Var : Var<'T[]>
+        Var : IRef<'T[]>
         Storage : Storage<'T>
         view : View<seq<'T>>
     }
@@ -263,7 +263,7 @@ type ListModel<'Key,'T> with
         m.Var.View |> View.Map (Array.tryFind (fun it -> m.key it = key))
 
     member m.UpdateAll fn =
-        Var.Update m.Var <| fun a ->
+        m.Var.Update <| fun a ->
             a |> Array.iteri (fun i x ->
                 fn x |> Option.iter (fun y -> a.[i] <- y))
             m.Storage.Set a
@@ -352,6 +352,50 @@ type ListModel =
     static member Create<'Key, 'T when 'Key : equality> (key: 'T -> 'Key) init =
         ListModel.CreateWithStorage key (Storage.InMemory <| Seq.toArray init)
 
+    static member Wrap<'Key, 'T, 'U when 'Key : equality>
+            (underlying: ListModel<'Key, 'U>)
+            (extract: 'T -> 'U)
+            (createItem: 'U -> 'T)
+            (updateItem: 'T -> 'U -> 'T) =
+        let state = ref (Dictionary<'Key, 'T>())
+        let init =
+            underlying.Var.Value |> Array.map (fun u ->
+                let t = createItem u
+                (!state).[underlying.Key u] <- t
+                t)
+        let var : IRef<'T[]> =
+            underlying.Var.Lens
+                <| fun us ->
+                    let newState = Dictionary<'Key, 'T>()
+                    let ts =
+                        us |> Array.map (fun u ->
+                            let k = underlying.Key u
+                            let t =
+                                if (!state).ContainsKey(k) then
+                                    updateItem (!state).[k] u
+                                else
+                                    createItem u
+                            newState.[k] <- t
+                            t
+                        )
+                    state := newState
+                    ts
+                <| fun us ts ->
+                    let newState = Dictionary<'Key, 'T>()
+                    let us =
+                        ts |> Array.map (fun t ->
+                            let u = extract t
+                            newState.[underlying.Key u] <- t
+                            u)
+                    state := newState
+                    us
+        {
+            key = extract >> underlying.Key
+            Var = var
+            Storage = Storage.InMemory init
+            view = var.View.Map Seq.ofArray
+        }
+
     static member FromSeq init =
         ListModel.Create id init
 
@@ -360,3 +404,8 @@ type ListModel =
 
     static member Key m =
         m.key
+
+type ListModel<'Key,'T> with
+
+    member this.Wrap extract wrap update =
+        ListModel.Wrap this extract wrap update

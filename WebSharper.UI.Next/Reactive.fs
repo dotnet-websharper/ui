@@ -348,8 +348,8 @@ type Var<'T> with
 
     [<JavaScript>]
     member v.Value
-        with [<Inline>] get () = Var.Get v
-        and [<Inline>] set value = Var.Set v value
+        with [<Inline; Name "get_VarValue">] get () = Var.Get v
+        and [<Inline; Name "set_VarValue">] set value = Var.Set v value
 
 // These methods apply to any View<'A>, so we can use `type View with`
 // and they'll be compiled as normal instance methods on View<'A>.

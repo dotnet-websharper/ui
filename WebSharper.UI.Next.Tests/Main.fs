@@ -202,6 +202,32 @@ module Main =
 
         }
 
+    let ListModelTest =
+        TestCategory "ListModel" {
+            Test "WithContext" {
+                let u = ListModel.Create fst [1, "11"; 2, "22"]
+                let l = u.Wrap
+                        <| fun (k, s, f) -> (k, s)
+                        <| fun (k, s) -> (k, s, float k)
+                        <| fun (_, _, f) (k, s) -> (k, s, f)
+                let uv = observe <| u.View.Map List.ofSeq
+                let lv = observe <| l.View.Map List.ofSeq
+                equalMsg (lv()) [1, "11", 1.; 2, "22", 2.] "initialization"
+                u.UpdateBy (fun _ -> Some (1, "111")) 1
+                equalMsg (lv()) [1, "111", 1.; 2, "22", 2.] "update underlying item"
+                u.Add (3, "33")
+                equalMsg (lv()) [1, "111", 1.; 2, "22", 2.; 3, "33", 3.] "insert into underlying"
+                u.RemoveByKey 2
+                equalMsg (lv()) [1, "111", 1.; 3, "33", 3.] "remove from underlying"
+                l.UpdateBy (fun _ -> Some (1, "1111", 1.)) 1
+                equalMsg (uv()) [1, "1111"; 3, "33"] "update contextual"
+                l.Add (4, "44", 4.)
+                equalMsg (uv()) [1, "1111"; 3, "33"; 4, "44"] "insert into contextual"
+                l.RemoveByKey 3
+                equalMsg (uv())[1, "1111"; 4, "44"] "remove from contextual"
+            }
+        }
+
 #if ZAFIR
     [<SPAEntryPoint>]
     let Main() = ()
