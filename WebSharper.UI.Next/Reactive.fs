@@ -26,6 +26,7 @@ open WebSharper
 type IRef<'T> =
     abstract Get : unit -> 'T
     abstract Set : 'T -> unit
+    abstract Value : 'T with get, set
     abstract Update : ('T -> 'T) -> unit
     abstract UpdateMaybe : ('T -> 'T option) -> unit
     abstract View : View<'T>
@@ -50,6 +51,9 @@ type Var<'T> =
     interface IRef<'T> with
         member this.Get() = Var.Get this
         member this.Set v = Var.Set this v
+        member this.Value
+            with get() = Var.Get this
+            and set v = Var.Set this v
         member this.Update f = Var.Update this f
         member this.UpdateMaybe f =
             match f (Var.Get this) with
@@ -317,6 +321,10 @@ type RefImpl<'T, 'V>(baseRef: IRef<'T>, get: 'T -> 'V, update: 'T -> 'V -> 'T) =
 
         member this.Set(v) =
             baseRef.Update(fun t -> update t v)
+
+        member this.Value
+            with get () = get (baseRef.Get())
+            and set v = baseRef.Update(fun t -> update t v)
 
         member this.Update(f) =
             baseRef.Update(fun t -> update t (f (get t)))

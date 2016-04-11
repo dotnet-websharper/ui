@@ -58,6 +58,9 @@ type IRef<'A> =
     /// Sets the current value.
     abstract Set : 'A -> unit
 
+    /// Gets or sets the current value.
+    abstract Value : 'A with get, set
+
     /// Updates the current value.
     abstract Update : ('A -> 'A) -> unit
 

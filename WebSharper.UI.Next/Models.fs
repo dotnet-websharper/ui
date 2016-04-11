@@ -311,6 +311,10 @@ and [<JavaScript>]
         member r.Set(v) =
             m.UpdateBy (fun i -> Some (update i v)) key
 
+        member r.Value
+            with get() = (r :> IRef<'V>).Get()
+            and set v = (r :> IRef<'V>).Set v
+
         member r.Update(f) =
             m.UpdateBy (fun i -> Some (update i (f (get i)))) key
 
