@@ -146,12 +146,15 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
             if watcher <> null then watcher.Dispose()
             cache.Dispose()
 
-        templateTy.DefineStaticParameters(
-            [ProvidedStaticParameter("path", typeof<string>)],
-            fun typename pars ->
-                let value = lazy (
+        let parameters =
+            [
+                ProvidedStaticParameter("path", typeof<string>)
+                ProvidedStaticParameter("useMethods", typeof<bool>, box false)
+            ]
+        templateTy.DefineStaticParameters(parameters, fun typename pars ->
+            let value = lazy (
                 match pars with
-                | [| :? string as path |] ->
+                | [| :? string as path; :? bool as useMethods |] ->
                     let ty = ProvidedTypeDefinition(thisAssembly, rootNamespace, typename, None)
 
                     let htmlFile = 
@@ -460,20 +463,87 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                 match varMap.TryGetValue((v.Name, v.Type)) with
                                 | true, e -> Some e
                                 | false, _ -> None)
-                        
-                        ProvidedMethod("Doc", pars, typeof<Doc>, IsStaticMethod = true, InvokeCode = code)
-                        |> toTy.AddMember
-                        if isSingleElt then
-                            ProvidedMethod("Elt", pars, typeof<Elt>, IsStaticMethod = true,
-                                InvokeCode = fun args -> <@@ (%%code args : Doc) :?> Elt @@>)
+                            |> Expr.Cast
+                            : Expr<Doc>
+
+                        if useMethods then
+                            let boxExpr =
+                                let m =
+                                    typedefof<option<_>>.Assembly
+                                        .GetType("Microsoft.FSharp.Core.Operators")
+                                        .GetMethod("Box")
+                                fun (e: Expr) -> Expr.Call(m.MakeGenericMethod(e.Type), [e])
+                            let unboxExpr =
+                                let m =
+                                    typedefof<option<_>>.Assembly
+                                        .GetType("Microsoft.FSharp.Core.Operators")
+                                        .GetMethod("Unbox")
+                                fun (t: System.Type) (e: Expr) -> Expr.Call(m.MakeGenericMethod(t), [e])
+                            let rec mkTyForVars (baseName: string) (finalExpr: (Expr -> Expr<Doc>) * Type) (vars: Map<string, Type * int>) : option<ProvidedTypeDefinition> =
+                                if Map.isEmpty vars then
+                                    None
+                                else
+                                    let name = baseName + " missing " + String.concat ", " (Seq.map (fun (KeyValue(k, _)) -> k) vars)
+                                    let def = ProvidedTypeDefinition(name, None)
+                                    for KeyValue(k, (t, pos)) in vars do
+                                        def.AddMembersDelayed <| fun () ->
+                                            match mkTyForVars baseName finalExpr (Map.remove k vars) with
+                                            | Some ot ->
+                                                let m =
+                                                    ProvidedMethod(k, [ProvidedParameter(k, t)], ot,
+                                                        InvokeCode = (function
+                                                            | [this; arg] ->
+                                                                <@@ WebSharper.JavaScript.JS.Set (%%this) k (%%boxExpr arg); %%this @@>
+                                                            | _ -> failwith "Incorrect invoke"))
+                                                [ot; m] : MemberInfo list
+                                            | None ->
+                                                let e, ot = finalExpr
+                                                let m =
+                                                    ProvidedMethod(k, [ProvidedParameter(k, t)], ot,
+                                                        InvokeCode = (function
+                                                            | [this; arg] ->
+                                                                <@@ WebSharper.JavaScript.JS.Set (%%this) k (%%boxExpr arg); %e this @@>
+                                                            | _ -> failwith "Incorrect invoke"))
+                                                [m] : MemberInfo list
+                                    Some def
+
+                            toTy.AddMembersDelayed <| fun () ->
+                                let map = Map (holes |> Seq.mapi (fun i (KeyValue(name, h)) -> name, (h.ArgType, i)))
+                                let buildDoc (e: Expr) =
+                                    code [ for KeyValue(name, h) in holes -> unboxExpr h.ArgType <@@ WebSharper.JavaScript.JS.Get name (%%e) @@> ]
+                                [
+                                    match mkTyForVars "Doc" (buildDoc, typeof<Doc>) map with
+                                    | Some t ->
+                                        yield t :> MemberInfo
+                                        yield ProvidedProperty("Doc", t, IsStatic = true, GetterCode = fun _ ->
+                                            <@@ WebSharper.JavaScript.Pervasives.New [] @@>) :> MemberInfo
+                                    | None ->
+                                        yield ProvidedProperty("Doc", typeof<Doc>, IsStatic = true, GetterCode = fun _ ->
+                                            buildDoc <@@ WebSharper.JavaScript.Pervasives.New [] @@> :> _) :> MemberInfo
+                                    if isSingleElt then
+                                        match mkTyForVars "Elt" (buildDoc, typeof<Elt>) map with
+                                        | Some t ->
+                                            yield t :> MemberInfo
+                                            yield ProvidedProperty("Elt", t, IsStatic = true, GetterCode = fun _ ->
+                                                <@@ WebSharper.JavaScript.Pervasives.New [] @@>) :> MemberInfo
+                                        | None ->
+                                            yield ProvidedProperty("Elt", typeof<Elt>, IsStatic = true, GetterCode = fun _ ->
+                                                <@@ (%buildDoc <@@ WebSharper.JavaScript.Pervasives.New [] @@>) :?> Elt @@>) :> MemberInfo
+                                ]
+                        else
+                            ProvidedMethod("Doc", pars, typeof<Doc>, IsStaticMethod = true, InvokeCode = fun x -> code x :> _)
                             |> toTy.AddMember
+                            if isSingleElt then
+                                ProvidedMethod("Elt", pars, typeof<Elt>, IsStaticMethod = true,
+                                    InvokeCode = fun args -> <@@ (%code args : Doc) :?> Elt @@>)
+                                |> toTy.AddMember
 
                     for name, e in innerTemplates do
                         ProvidedTypeDefinition(name, None) |>! addTemplateMethod e |> ty.AddMember
 
                     ty |>! addTemplateMethod xml
                 | _ -> failwith "Unexpected parameter values")
-                cache.GetOrAdd (typename, value))
+            cache.GetOrAdd (typename, value))
         this.AddNamespace(rootNamespace, [ templateTy ])
 
 [<TypeProviderAssembly>]
