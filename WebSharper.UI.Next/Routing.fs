@@ -145,7 +145,7 @@ module Routing =
         let set value =
             if not (same var.Value value) then
                 var.Value <- value
-        let onUpdate (evt: Dom.Event) = set (cur ())
+        let onUpdate = System.Action<_>(fun (evt: Dom.Event) -> set (cur ()))
         win.Onpopstate <- onUpdate
         win.Onhashchange <- onUpdate
         var.View
