@@ -27,11 +27,7 @@ open WebSharper
 open WebSharper.Web
 open WebSharper.JavaScript
 
-#if ZAFIR
 [<AbstractClass>]
-#else
-[<AbstractClass; Name "DocServer">]
-#endif
 type Doc() =
 
     interface IControlBody with
@@ -106,11 +102,7 @@ and DynDoc =
     | VerbatimDoc of string
     | INodeDoc of INode
 
-#if ZAFIR
 and [<Sealed>] Elt(tag: string, attrs: list<Attr>, children: list<Doc>) =
-#else
-and [<Sealed; Name "EltServer">] Elt(tag: string, attrs: list<Attr>, children: list<Doc>) =
-#endif
     inherit Doc()
 
     override this.Write(meta, w, ?res) =

@@ -66,23 +66,30 @@ type Serializer<'T> =
         Decode : obj -> 'T
     }
 
-#if ZAFIR
 module Macro =
     module CJ = WebSharper.Json.Macro
 
     open WebSharper.Core.AST
 
-//    type M(comp : WebSharper.Core.Metadata.Compilation) =
-//        inherit WebSharper.Core.Macro()
-//
-//        override this.TranslateCall(_, typ, meth, args, _) =
-//            match typ.Generics with 
-//            | [t] ->
-//                let param = CJ.Parameters.Default tr
-//                let enc = CJ.EncodeLambda param tr t
-//                let dec = CJ.DecodeLambda param tr t
-//                Object [ "Encode", enc; "Decode" dec ]
-//            | _ -> failwith "Invalid UI.Next.Serializer macro use"
+    type M() =
+        inherit WebSharper.Core.Macro()
+
+        override this.TranslateCall(call) =
+            match call.DefiningType.Generics with 
+            | [t] ->
+                let warning = ref None
+                let warn msg = 
+                    warning := Some msg
+                let param = CJ.Parameters.Default
+                let enc = CJ.EncodeLambda param warn call.Compilation t
+                let dec = CJ.DecodeLambda param warn call.Compilation t
+                let res =
+                    Object [ "Encode", enc; "Decode", dec ]
+                    |> WebSharper.Core.MacroOk
+                match !warning with
+                | None -> res
+                | Some msg -> WebSharper.Core.MacroWarning(msg, res)
+            | _ -> failwith "Invalid UI.Next.Serializer macro use"
 
 [<JavaScript>]
 module Serializer =
@@ -94,52 +101,13 @@ module Serializer =
             Encode = box
             Decode = unbox
         }
-
-//    [<Macro(typeof<Macro.M>)>]
-//    let Typed =
-//        {
-//            Encode = box
-//            Decode = unbox
-//        }
-#else
-module Macro =
-    module CJ = WebSharper.Json.Macro
-    module J = WebSharper.Core.JavaScript.Core
-    module M = WebSharper.Core.Macros
-    module Q = WebSharper.Core.Quotations
-    module R = WebSharper.Core.Reflection
-
-    type M() =
-        interface M.IMacro with
-            member this.Translate(q, tr) =
-                match q with
-                | Q.CallOrCallModule ({Generics = [t]}, []) ->
-                    let f =
-                        let enc = Q.Id.Create "enc" (R.Type.FromType typeof<obj -> obj>)
-                        let dec = Q.Id.Create "dec" (R.Type.FromType typeof<obj -> obj>)
-                        let recT = R.Type.FromType typeof<Serializer<obj>>
-                        Q.Lambda(enc,
-                            Q.Lambda(dec,
-                                Q.NewRecord(recT, [Q.Var enc; Q.Var dec])))
-                        |> tr
-                    let param = CJ.Parameters.Default tr
-                    let enc = CJ.EncodeLambda param tr t
-                    let dec = CJ.DecodeLambda param tr t
-                    J.Application(J.Application(f, [enc]), [dec])
-                | Q.NoMacro q | q -> failwithf "Invalid macro use: %A" q
-
-[<JavaScript>]
-module Serializer =
-    open WebSharper
-    open WebSharper.JavaScript
 
     [<Macro(typeof<Macro.M>)>]
-    let Default =
+    let Typed =
         {
             Encode = box
             Decode = unbox
         }
-#endif
 
 [<JavaScript>]
 module Storage =

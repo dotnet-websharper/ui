@@ -117,45 +117,36 @@ and private RouteMapBuilderMacro() =
     let mutable comp = Unchecked.defaultof<Metadata.ICompilation>
     let fsCoreType name = Hashed { Assembly = "FSharp.Core"; FullName = "Microsoft.FSharp." + name }
     let sysType name = Hashed { Assembly = "mscorlib"; FullName = name }
-    let optionOf' t = concrete(fsCoreType "Core.FSharpOption`1", [t])
+    let optionOf' t = Generic (fsCoreType "Core.FSharpOption`1") [t]
     let optionOf t = ConcreteType (optionOf' t)
     let some t v = NewUnionCase (optionOf' t, "Some", [v])
     let none t = NewUnionCase (optionOf' t, "None", [])
-    let listT = Reflection.getTypeDefinition typedefof<list<_>>
-    let listOf' t = concrete(fsCoreType "Collections.FSharpList`1", [t])
+    let listT = Reflection.ReadTypeDefinition typedefof<list<_>>
+    let listOf' t = Generic (fsCoreType "Collections.FSharpList`1") [t]
     let listOf t = ConcreteType (listOf' t)
-    let mapOf t u = concreteType(Reflection.getTypeDefinition typedefof<Map<_, _>>, [t; u])
-    let arrayModule = concrete(fsCoreType "Collections.ArrayModule", [])
+    let mapOf t u = GenericType (Reflection.ReadTypeDefinition typedefof<Map<_, _>>) [t; u]
+    let arrayModule = NonGeneric (fsCoreType "Collections.ArrayModule")
     let emptyList t = NewUnionCase (listOf' t, "Empty", [])
     let cons t hd tl = NewUnionCase (listOf' t, "Cons", [hd; tl])
-    let stringT = concreteType(sysType "System.String", [])
+    let stringT = NonGenericType (sysType "System.String")
     let stringMapT = mapOf stringT stringT
-    let objT = concreteType(sysType "System.Object", [])
-    let parsersT = Reflection.getTypeDefinition typeof<RouteItemParsers>
-    let routeItemParsersT = concrete(parsersT, [])
+    let objT = NonGenericType (sysType "System.Object")
+    let parsersT = Reflection.ReadTypeDefinition typeof<RouteItemParsers>
+    let routeItemParsersT = NonGeneric parsersT
     let parseRouteM =
-        concrete(
-            typeof<RouteItemParsers>.GetMethod("ParseRoute", BF.Static ||| BF.NonPublic)
-            |> Reflection.getMethod
-            |> Hashed,
-            [])
+        typeof<RouteItemParsers>.GetMethod("ParseRoute", BF.Static ||| BF.NonPublic)
+        |> Reflection.ReadMethod |> NonGeneric
     let parseShapeM =
-        concrete(
-            typeof<RouteItemParsers>.GetMethod("ParseShape", BF.Static ||| BF.NonPublic)
-            |> Reflection.getMethod
-            |> Hashed,
-            [])
+        typeof<RouteItemParsers>.GetMethod("ParseShape", BF.Static ||| BF.NonPublic)
+        |> Reflection.ReadMethod |> NonGeneric
     let makeLinkM =
-        concrete(
-            typeof<RouteItemParsers>.GetMethod("MakeLink", BF.Static ||| BF.NonPublic)
-            |> Reflection.getMethod
-            |> Hashed,
-            [])
+        typeof<RouteItemParsers>.GetMethod("MakeLink", BF.Static ||| BF.NonPublic)
+        |> Reflection.ReadMethod |> NonGeneric
 
     let getDefaultCtor (t: Type) =
         match t with
         | ConcreteType ct ->
-            let t = Reflection.loadType t
+            let t = Reflection.LoadType t
             let defaultCtor = Hashed { CtorParameters = [] }
             if comp.GetClassInfo ct.Entity |> Option.exists (fun cls -> cls.Constructors.ContainsKey defaultCtor) 
             then failwithf "Endpoint type must have a default constructor: %s" t.AssemblyQualifiedName
@@ -209,13 +200,13 @@ and private RouteMapBuilderMacro() =
                 let fromArray =
                     Hashed {
                         MethodName = "ToList"
-                        Parameters = [ArrayType (GenericType 0, 1)]
-                        ReturnType = listOf (GenericType 0)
+                        Parameters = [ArrayType (TypeParameter 0, 1)]
+                        ReturnType = listOf (TypeParameter 0)
                         Generics = 1
                     }
                 let x = Id.New()
                 MetaSequence (
-                    Lambda([x], Call (None, arrayModule, concrete(fromArray, [itemT]), [Var x])),
+                    Lambda([x], Call (None, arrayModule, Generic fromArray [itemT], [Var x])),
                     itemT
                 )
             else
@@ -244,7 +235,7 @@ and private RouteMapBuilderMacro() =
                                 cad.Constructor.DeclaringType = typeof<Sitelets.QueryAttribute> &&
                                 cad.ConstructorArguments.Count = 0)
                             |> function
-                                | None -> name, QueryItem.NotQuery, Reflection.getType f.FieldType
+                                | None -> name, QueryItem.NotQuery, Reflection.ReadType f.FieldType
                                 | Some cad ->
                                     let queryItem, ty =
                                         if f.FieldType.IsGenericType &&
@@ -258,7 +249,7 @@ and private RouteMapBuilderMacro() =
                                     if not (isBaseType ty) then
                                         failwithf "Invalid query parameter type for %s: %s. Must be a number, string, or an option thereof."
                                             name f.FieldType.FullName
-                                    name, queryItem, Reflection.getType ty
+                                    name, queryItem, Reflection.ReadType ty
                             )
                         |> List.ofArray
                     let isHole (n: string) = n.StartsWith "{" && n.EndsWith "}"
@@ -289,7 +280,7 @@ and private RouteMapBuilderMacro() =
             MetaTuple ts
         | t -> failwithf "Type not supported by RouteMap: %s" t.AssemblyQualifiedName
 
-    let routeShapeT = concrete(Reflection.getTypeDefinition typeof<RouteShape>, [])
+    let routeShapeT = NonGeneric (Reflection.ReadTypeDefinition typeof<RouteShape>)
     let rec convertRouteShape = function
         | MetaBase parse ->
             NewUnionCase(routeShapeT, "Base",
@@ -297,7 +288,7 @@ and private RouteMapBuilderMacro() =
                     (let x = Id.New()
                      let y = Id.New()
                      Lambda ([x; y],
-                        Call (None, concrete(parsersT, []), concrete(parse, []), [Var x; Var y])))
+                        Call (None, NonGeneric parsersT, NonGeneric parse, [Var x; Var y])))
                 ]
             )
         | MetaObject (init, name, args) ->
@@ -346,7 +337,7 @@ and private RouteMapBuilderMacro() =
     override __.TranslateCall(c) =
         comp <- c.Compilation
         match c.Method.Generics.[0] with
-        | GenericType _ -> MacroNeedsResolvedTypeArg
+        | TypeParameter _ -> MacroNeedsResolvedTypeArg
         | targ ->
             try
                 match c.Method.Entity.Value.MethodName with
@@ -521,9 +512,6 @@ and [<JavaScript>] private RouteItemParsers =
             match RegExp("^[0-9]+$").Exec(x) with
             | null -> None
             | a -> Some (JS.ParseInt a.[0], rest)
-//            match Int32.TryParse x with
-//            | true, x -> Some x
-//            | false, _ -> None
 
     [<Inline>]
     static member ``System.SByte``(xq: list<string> * Map<string, string>) = As<option<System.SByte * list<string>>>(RouteItemParsers.``System.Int32``(xq))
@@ -547,9 +535,6 @@ and [<JavaScript>] private RouteItemParsers =
             match RegExp(@"^[0-9](?:\.[0-9]*)?$").Exec(x) with
             | null -> None
             | a -> Some (JS.ParseFloat a.[0], rest)
-//            match Double.TryParse x with
-//            | true, x -> Some x
-//            | false, _ -> None
 
     [<Inline>]
     static member ``System.Single``(xq: list<string> * Map<string, string>) = As<option<System.Single * list<string>>>(RouteItemParsers.``System.Double``(xq))
