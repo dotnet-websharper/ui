@@ -196,14 +196,15 @@ module Snap =
         | Forever x -> CreateForever (fn x) // optimization
         | _ ->
             let res = Create ()
-            let fn x =
+            let fn' x =
                 match !prev, res.State with
                 | Some x', (ForeverOrReady y) when x = x' -> y
                 | _ -> prev := Some x; fn x
-            When sn (fn >> MarkDone res sn) (fun newSn ->
+            let rec obs (newSn: Snap<'A>) =
                 match !prev, newSn.State with
-                | Some x', (ForeverOrReady x) when x = x' -> ()
-                | _ -> MapCached set prev fn newSn |> MarkObsolete res)
+                | Some x', (ForeverOrReady x) when x = x' -> When newSn ignore obs
+                | _ -> MapCached set prev fn newSn |> MarkObsolete res
+            When sn (fn' >> MarkDone res sn) obs
             res
         |>! set
 

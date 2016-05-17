@@ -102,7 +102,9 @@ module Main =
                 equalMsg (v()) (66 + 21) "after set"
                 rv.Value <- 66
                 equalMsg (v()) (66 + 21) "after set to the same value"
-                equalMsg calls.Self [|9; 66|] "function calls"
+                rv.Value <- 57
+                equalMsg (v()) (57 + 21) "after set to another value"
+                equalMsg calls.Self [|9; 66; 57|] "function calls"
             }
 
             Test "MapAsync" {
