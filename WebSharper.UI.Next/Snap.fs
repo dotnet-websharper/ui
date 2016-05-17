@@ -87,6 +87,12 @@ module Snap =
         | Obsolete _ -> true
         | _ -> false
 
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    let IsReady snap =
+        match snap.State with
+        | Forever _ | Ready _ -> true
+        | _ -> false
+
   // transitions
 
     let MarkForever sn v =
@@ -209,6 +215,7 @@ module Snap =
         | _ ->
             let res = Create ()
             let cont () =
+                if IsReady res then () else
                 match sn1.State, sn2.State with
                 | Forever x, Forever y ->
                     MarkForever res (fn x y)
