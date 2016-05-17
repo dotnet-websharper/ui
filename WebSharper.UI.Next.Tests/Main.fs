@@ -1,6 +1,7 @@
 namespace WebSharper.UI.Next.Tests
 
 open WebSharper
+open WebSharper.JavaScript
 open WebSharper.Testing
 open WebSharper.UI.Next
 
@@ -83,61 +84,61 @@ module Main =
             }
 
             Test "Map" {
-                let count = ref 0
+                let calls = Array<int>()
                 let rv = Var.Create 7
-                let v = View.Map (fun x -> incr count; x + 15) rv.View |> observe
+                let v = View.Map (fun (x: int) -> calls.Push(x) |> ignore; x + 15) rv.View |> observe
                 equalMsg (v()) (7 + 15) "initial"
                 rv.Value <- 23
                 equalMsg (v()) (23 + 15) "after set"
-                equalMsg !count 2 "function call count"
+                equalMsg calls.Self [|7; 23|] "function calls"
             }
 
             Test "MapCached" {
-                let count = ref 0
+                let calls = Array<int>()
                 let rv = Var.Create 9
-                let v = View.MapCached (fun x -> incr count; x + 21) rv.View |> observe
+                let v = View.MapCached (fun (x: int) -> calls.Push(x) |> ignore; x + 21) rv.View |> observe
                 equalMsg (v()) (9 + 21) "initial"
                 rv.Value <- 66
                 equalMsg (v()) (66 + 21) "after set"
                 rv.Value <- 66
                 equalMsg (v()) (66 + 21) "after set to the same value"
-                equalMsg !count 2 "function call count"
+                equalMsg calls.Self [|9; 66|] "function calls"
             }
 
             Test "MapAsync" {
-                let count = ref 0
+                let calls = Array<int>()
                 let rv = Var.Create 11
                 let v =
                     View.MapAsync
-                        (fun x -> async { incr count; return x * 43 })
+                        (fun (x: int) -> async { calls.Push(x) |> ignore; return x * 43 })
                         rv.View
                     |> observe
                 equalMsg (v()) (11 * 43) "initial"
                 rv.Value <- 45
                 equalMsg (v()) (45 * 43) "after set"
-                equalMsg !count 2 "function call count"
+                equalMsg calls.Self [|11; 45|] "function calls"
             }
 
             Test "Map2" {
-                let count = ref 0
+                let calls = Array<int * int>()
                 let rv1 = Var.Create 29
                 let rv2 = Var.Create 8
-                let v = View.Map2 (fun x y -> incr count; x * y) rv1.View rv2.View |> observe
+                let v = View.Map2 (fun x y -> calls.Push((x, y)) |> ignore; x * y) rv1.View rv2.View |> observe
                 equalMsg (v()) (29*8) "initial"
                 rv1.Value <- 78
                 equalMsg (v()) (78*8) "after set v1"
                 rv2.Value <- 30
                 equalMsg (v()) (78*30) "after set v2"
-                equalMsg !count 3 "function call count"
+                equalMsg calls.Self [|29, 8; 78, 8; 78, 30|] "function calls"
             }
 
             Test "MapAsync2" {
-                let count = ref 0
+                let calls = Array<int * int>()
                 let rv1 = Var.Create 36
                 let rv2 = Var.Create 22
                 let v =
                     View.MapAsync2
-                        (fun x y -> async { incr count; return x - y })
+                        (fun x y -> async { calls.Push((x, y)) |> ignore; return x - y })
                         rv1.View rv2.View
                     |> observe
                 equalMsg (v()) (36-22) "initial"
@@ -145,45 +146,45 @@ module Main =
                 equalMsg (v()) (82-22) "after set v1"
                 rv2.Value <- 13
                 equalMsg (v()) (82-13) "after set v2"
-                equalMsg !count 3 "function call count"
+                equalMsg calls.Self [|36, 22; 82, 22; 82, 13|] "function calls"
             }
 
             Test "Apply" {
-                let count = ref 0
-                let rv1 = Var.Create (fun x -> incr count; x + 5)
+                let calls = Array<string * int>()
+                let rv1 = Var.Create (fun x -> calls.Push(("a", x)) |> ignore; x + 5)
                 let rv2 = Var.Create 57
                 let v = View.Apply rv1.View rv2.View |> observe
                 equalMsg (v()) (57 + 5) "initial"
-                rv1.Value <- fun x -> incr count; x * 4
+                rv1.Value <- fun x -> calls.Push(("b", x)) |> ignore; x * 4
                 equalMsg (v()) (57 * 4) "after set v1"
                 rv2.Value <- 33
                 equalMsg (v()) (33 * 4) "after set v2"
-                equalMsg !count 3 "function call count"
+                equalMsg calls.Self [|"a", 57; "b", 57; "b", 33|] "function calls"
             }
 
             Test "Join" {
-                let count = ref 0
+                let calls = Array<string * int>()
                 let rv1 = Var.Create 76
-                let rv2 = Var.Create rv1.View
-                let v = View.Join (rv2.View |> View.Map (fun x -> incr count; x)) |> observe
+                let rv2 = Var.Create (rv1.View |> View.Map (fun x -> calls.Push(("c", x)) |> ignore; x))
+                let v = View.Join (rv2.View |> View.Map (fun x -> calls.Push(("a", observe x ())) |> ignore; x)) |> observe
                 equalMsg (v()) 76 "initial"
                 rv1.Value <- 44
                 equalMsg (v()) 44 "after set inner"
-                rv2.Value <- View.Const 39 |> View.Map (fun x -> incr count; x)
+                rv2.Value <- View.Const 39 |> View.Map (fun x -> calls.Push(("b", x)) |> ignore; x)
                 equalMsg (v()) 39 "after set outer"
-                equalMsg !count 3 "function call count"
+                equalMsg calls.Self [|"c", 76; "a", 76; "c", 44; "b", 39; "a", 39|] "function calls"
             }
 
             Test "Bind" {
-                let outerCount = ref 0
-                let innerCount = ref 0
+                let outerCalls = Array<int>()
+                let innerCalls = Array<int>()
                 let rv1 = Var.Create 93
                 let rv2 = Var.Create 27
                 let v =
                     View.Bind
-                        (fun x ->
-                            incr outerCount
-                            View.Map (fun y -> incr innerCount; x + y) rv1.View)
+                        (fun (x: int) ->
+                            outerCalls.Push(x) |> ignore
+                            View.Map (fun (y: int) -> innerCalls.Push(y) |> ignore; x + y) rv1.View)
                         rv2.View
                     |> observe
                 equalMsg (v()) (93 + 27) "initial"
@@ -191,7 +192,7 @@ module Main =
                 equalMsg (v()) (74 + 27) "after set inner"
                 rv2.Value <- 22
                 equalMsg (v()) (74 + 22) "after set outer"
-                equalMsg (!outerCount, !innerCount) (2, 3) "function call count"
+                equalMsg (outerCalls.Self, innerCalls.Self) ([|27; 22|], [|93; 74; 74|]) "function calls"
             }
 
         }
