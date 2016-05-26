@@ -23,6 +23,7 @@ namespace WebSharper.UI.Next
 open System.Runtime.CompilerServices
 open WebSharper
 
+[<JavaScript>]
 type IRef<'T> =
     abstract Get : unit -> 'T
     abstract Set : 'T -> unit
@@ -31,7 +32,7 @@ type IRef<'T> =
     abstract View : View<'T>
     abstract Id : string
 
-and View<'T> =
+and [<JavaScript>] View<'T> =
     | V of (unit -> Snap<'T>)
 
 /// Var either holds a Snap or is in Const state.

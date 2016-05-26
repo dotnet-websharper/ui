@@ -83,12 +83,15 @@ module Macro =
                 let param = CJ.Parameters.Default
                 let enc = CJ.EncodeLambda param warn call.Compilation t
                 let dec = CJ.DecodeLambda param warn call.Compilation t
-                let res =
-                    Object [ "Encode", enc; "Decode", dec ]
-                    |> WebSharper.Core.MacroOk
-                match !warning with
-                | None -> res
-                | Some msg -> WebSharper.Core.MacroWarning(msg, res)
+                match enc, dec with
+                | Some enc, Some dec ->
+                    let res =
+                        Object [ "Encode", enc; "Decode", dec ]
+                        |> WebSharper.Core.MacroOk
+                    match !warning with
+                    | None -> res
+                    | Some msg -> WebSharper.Core.MacroWarning(msg, res)
+                | _ -> WebSharper.Core.MacroNeedsResolvedTypeArg
             | _ -> failwith "Invalid UI.Next.Serializer macro use"
 
 [<JavaScript>]

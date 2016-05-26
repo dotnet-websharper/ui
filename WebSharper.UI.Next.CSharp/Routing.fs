@@ -348,7 +348,7 @@ and private RouteMapBuilderMacro() =
                     Let (mk, Call (None, routeItemParsersT, makeLinkM, [routeShape]),
                         Lambda ([action],
                             Conditional (TypeCheck (Var action, targ),
-                                some (listOf stringT) (Application (Var mk, [Var action])),
+                                some (listOf stringT) (Application (Var mk, [Var action], true, Some 1)),
                                 none (listOf stringT)
                             )
                         )
@@ -362,7 +362,7 @@ and private RouteMapBuilderMacro() =
                     let render = c.Arguments.[0]
                     Lambda([go; action],
                         Conditional (TypeCheck (Var action, targ),
-                            some targ (Application (render, [Var go; Var action])),
+                            some targ (Application (render, [Var go; Var action], true, Some 2)),
                             none targ
                         )
                     )
