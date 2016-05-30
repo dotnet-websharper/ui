@@ -30,6 +30,7 @@ type NormalizedTime = double
 // Interpolation --------------------------------------------------------------
 
 type Interpolation<'T> =
+    [<Name "Interpolate">]
     abstract Interpolate : NormalizedTime -> 'T -> 'T -> 'T
 
 [<JavaScript>]

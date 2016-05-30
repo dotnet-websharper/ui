@@ -25,11 +25,17 @@ open WebSharper
 
 [<JavaScript>]
 type IRef<'T> =
+    [<Name "RGet">]
     abstract Get : unit -> 'T
+    [<Name "RSet">]
     abstract Set : 'T -> unit
+    [<Name "RUpdate">]
     abstract Update : ('T -> 'T) -> unit
+    [<Name "RUpdateMaybe">]
     abstract UpdateMaybe : ('T -> 'T option) -> unit
+    [<Name "RView">]
     abstract View : View<'T>
+    [<Name "RId">]
     abstract Id : string
 
 and [<JavaScript>] View<'T> =

@@ -54,10 +54,15 @@ type Model =
         m.View
 
 type Storage<'T> =
+    [<Name "SAdd">]
     abstract member Add      : 'T -> 'T[] -> 'T[]
+    [<Name "SInit">]
     abstract member Init     : unit -> 'T[]
+    [<Name "SRemoveIf">]
     abstract member RemoveIf : ('T -> bool) -> 'T [] -> 'T[]
+    [<Name "SSetAt">]
     abstract member SetAt    : int -> 'T -> 'T[] -> 'T[]
+    [<Name "SSet">]
     abstract member Set      : 'T seq -> 'T[]
 
 type Serializer<'T> =

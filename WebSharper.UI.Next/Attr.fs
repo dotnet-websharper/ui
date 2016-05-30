@@ -134,11 +134,17 @@ open WebSharper.UI.Next
 module DU = DomUtility
 
 type IAttrNode =
+    [<Name "NChanged">]
     abstract Changed : View<unit>
+    [<Name "NGetChangeAnim">]
     abstract GetChangeAnim : Element -> Anim
+    [<Name "NGetEnterAnim">]
     abstract GetEnterAnim : Element -> Anim
+    [<Name "NGetExitAnim">]
     abstract GetExitAnim : Element -> Anim
+    [<Name "NSync">]
     abstract Sync : Element -> unit
+    [<Name "NInit">]
     abstract Init : Element -> unit
 
 [<JavaScript; Sealed; Name "WebSharper.UI.Next.AnimatedAttrNode">]
