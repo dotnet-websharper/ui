@@ -28,6 +28,7 @@ open System.Xml.Linq
 open System.Text.RegularExpressions
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Core.CompilerServices
+open WebSharper
 open WebSharper.UI.Next
 open WebSharper.UI.Next.Client
 
@@ -81,6 +82,23 @@ module internal Utils =
                 | null -> this.Attribute(n)
                 | a -> a
             )
+
+[<AutoOpen; JavaScript>]
+module Inlines =
+    [<Inline>]
+    let AttrHandler a b = Attr.Handler a b
+    [<Inline>]
+    let StringConcat (a: string[]) = String.Concat(a)
+    [<Inline>]
+    let AttrCreate a b = Attr.Create a b
+    [<Inline>]
+    let ViewMap a b = View.Map a b 
+    [<Inline>]
+    let ViewMap2 a b c = View.Map2 a b c
+    [<Inline>]
+    let AttrDynamic a b = Attr.Dynamic a b
+    [<Inline>]
+    let DocElement a b c = Doc.Element a b c
 
 [<AutoOpen>]
 module Cache =
@@ -332,7 +350,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                             if eventName = afterRenderEvent then
                                                 <@ Attr.OnAfterRender %(getElemHandlerHole a.Value) @>
                                             else
-                                                <@ Attr.Handler eventName %(getEventHole a.Value) @>
+                                                <@ AttrHandler eventName %(getEventHole a.Value) @>
                                         elif a.Name = dataAttr then
                                             getSimpleHole a.Value
                                         else
@@ -343,7 +361,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                                     | [] -> <@ "" @>
                                                     | [e] -> e
                                                     | [e2; e1] -> <@ %e1 + %e2 @>
-                                                    | es -> <@ Attr.StringConcat %(ExprArray (List.rev es)) @>
+                                                    | es -> <@ StringConcat %(ExprArray (List.rev es)) @>
                                                     |> Choice1Of2
                                                 match l with
                                                 | [] -> [toStringRev cur]
@@ -351,24 +369,24 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                                 | TextHole h :: rest -> groupTextPartsAndTextHoles (getSimpleHole h :: cur) rest
                                                 | TextViewHole h :: rest -> toStringRev cur :: Choice2Of2 (getViewHole h : Expr<View<string>>) :: groupTextPartsAndTextHoles [] rest
                                             match groupTextPartsAndTextHoles [] parts with
-                                            | [] -> <@ Attr.CreateU (n, "") @>
-                                            | [Choice1Of2 s] -> <@ Attr.CreateU (n, %s) @>
+                                            | [] -> <@ AttrCreate n "" @>
+                                            | [Choice1Of2 s] -> <@ AttrCreate n %s @>
                                             | parts ->
                                                 let rec collect parts =
                                                     match parts with
                                                     | [ Choice2Of2 h ] -> h
                                                     | [ Choice2Of2 h; Choice1Of2 t ] -> 
-                                                        <@ View.Map (fun s -> s + %t) %h @>
+                                                        <@ ViewMap (fun s -> s + %t) %h @>
                                                     | [ Choice1Of2 t; Choice2Of2 h ] -> 
-                                                        <@ View.Map (fun s -> %t + s) %h @>
+                                                        <@ ViewMap (fun s -> %t + s) %h @>
                                                     | [ Choice1Of2 t1; Choice2Of2 h; Choice1Of2 t2 ] ->
-                                                        <@ View.Map (fun s -> %t1 + s + %t2) %h @>
+                                                        <@ ViewMap (fun s -> %t1 + s + %t2) %h @>
                                                     | Choice2Of2 h :: rest ->
-                                                        <@ View.Map2 (fun s1 s2 -> s1 + s2) %h %(collect rest) @>
+                                                        <@ ViewMap2 (fun s1 s2 -> s1 + s2) %h %(collect rest) @>
                                                     | Choice1Of2 t :: Choice2Of2 h :: rest ->
-                                                        <@ View.Map2 (fun s1 s2 -> %t + s1 + s2) %h %(collect rest) @>
+                                                        <@ ViewMap2 (fun s1 s2 -> %t + s1 + s2) %h %(collect rest) @>
                                                     | _ -> failwithf "collecting attribute parts failure" // should not happen
-                                                <@ Attr.Dynamic n %(collect parts) @>
+                                                <@ AttrDynamic n %(collect parts) @>
                                     )
                                     |> ExprArray
                                 
@@ -412,21 +430,21 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                         elif n.ToLower() = "textarea" then
                                             <@ Doc.InputArea %attrs %(getVarHole a) :> _ @>
                                         elif n.ToLower() = "select" then
-                                            <@ Doc.ElementU ("select",
+                                            <@ DocElement "select"
                                                 (Seq.append
                                                     (Seq.singleton (Attr.Value %(getVarHole a)))
-                                                    %attrs),
-                                                %nodes) :> _ @>
+                                                    %attrs)
+                                                %nodes :> _ @>
                                         else failwithf "data-var attribute \"%s\" on invalid element \"%s\"" a n
                                     match e with
-                                    | NoVar -> <@ Doc.ElementU (n, %attrs, %nodes) :> _ @>
+                                    | NoVar -> <@ DocElement n %attrs %nodes :> _ @>
                                     | Var a -> var a false
                                     | VarUnchecked a -> var a true
 
                             | SpecialHole as a ->
                                 let elName = e.Name.LocalName
                                 let attrValue = a.Value
-                                <@ Doc.ElementU (elName, [|Attr.CreateU ("data-replace", attrValue) |], [||]) :> _ @>
+                                <@ Doc.Element elName [| AttrCreate "data-replace" attrValue |] [||] :> _ @>
                             | a -> <@ Doc.Concat %(getSimpleHole a.Value : Expr<seq<Doc>>) @>
                         
                         let mainExpr = t |> createNode true

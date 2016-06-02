@@ -839,10 +839,6 @@ type Doc' [<JavaScript>] (docNode, updates) =
         let attrs, children = Doc'.MixedNodes nodes
         Doc.Element tagname attrs children 
 
-    [<JavaScript; Inline>]
-    static member ElementU (tagname, attrs, children) =
-        Doc.Element tagname attrs children
-
     [<JavaScript>]
     static member SvgElement (name: string) (attr: seq<Attr>) (children: seq<Doc>) : Elt =
         let attr = Attr.Concat attr

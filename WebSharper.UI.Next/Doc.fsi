@@ -36,9 +36,6 @@ type Doc =
     /// Constructs a reactive element node.
     static member Element : name: string -> seq<Attr> -> seq<Doc> -> Elt
 
-    /// Same as Element, uncurried for Type Provider use
-    static member ElementU : name: string * seq<Attr> * seq<Doc> -> Elt
-
     /// Constructs a reactive element node with mixed content. 
     static member ElementMixed : name: string -> seq<obj> -> Elt
 
