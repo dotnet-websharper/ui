@@ -28,9 +28,9 @@ open System.Xml.Linq
 open System.Text.RegularExpressions
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Core.CompilerServices
-open WebSharper
 open WebSharper.UI.Next
 open WebSharper.UI.Next.Client
+open WebSharper.UI.Next.TypeProviderHelpers 
 
 open ProviderImplementation.ProvidedTypes
 open System.Runtime.Caching
@@ -82,23 +82,6 @@ module internal Utils =
                 | null -> this.Attribute(n)
                 | a -> a
             )
-
-[<AutoOpen; JavaScript>]
-module Inlines =
-    [<Inline>]
-    let AttrHandler a b = Attr.Handler a b
-    [<Inline>]
-    let StringConcat (a: string[]) = String.Concat(a)
-    [<Inline>]
-    let AttrCreate a b = Attr.Create a b
-    [<Inline>]
-    let ViewMap a b = View.Map a b 
-    [<Inline>]
-    let ViewMap2 a b c = View.Map2 a b c
-    [<Inline>]
-    let AttrDynamic a b = Attr.Dynamic a b
-    [<Inline>]
-    let DocElement a b c = Doc.Element a b c
 
 [<AutoOpen>]
 module Cache =
