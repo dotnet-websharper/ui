@@ -44,6 +44,16 @@ let test =
         .References(fun r ->
             [
                 r.Project main
+                r.NuGet("Zafir.Testing").Latest(true).Reference()
+            ])
+
+let tmplTest =
+    bt.WithFSharpVersion(FSharpVersion.FSharp31)
+        .Zafir.BundleWebsite("WebSharper.UI.Next.Templating.Tests")
+        .SourcesFromProject()
+        .References(fun r ->
+            [
+                r.Project main
                 r.Project tmpl
             ])
 
@@ -65,6 +75,7 @@ bt.Solution [
     tmpl
     test
 //    cstest
+    tmplTest
 
     bt.NuGet.CreatePackage()
         .Add(main)

@@ -90,6 +90,11 @@ module Attr =
     /// The callback is guaranteed to be called only once, even if the element is moved or removed and reinserted.
     val OnAfterRender : callback: (Element -> unit) -> Attr
 
+    /// Adds a callback to be called after the element has been inserted in the DOM,
+    /// which also receives the value of a view at the time of the event.
+    /// The callback is guaranteed to be called only once, even if the element is moved or removed and reinserted.
+    val OnAfterRenderView : view: View<'T> -> callback: (Element -> 'T -> unit) -> Attr
+
     /// Sets a CSS class.
     val Class : name: string -> Attr
 

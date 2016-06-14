@@ -1451,6 +1451,11 @@ module HtmlExtensions =
         /// The callback is guaranteed to be called only once, even if the element is moved or removed and reinserted.
         [<JavaScript; Inline>]
         static member afterRender (f: Dom.Element -> unit) = Client.Attr.OnAfterRender f
+        /// Adds a callback to be called after the element has been inserted in the DOM,
+        /// which also receives the value of a view at the time of the event.
+        /// The callback is guaranteed to be called only once, even if the element is moved or removed and reinserted.
+        [<JavaScript; Inline>]
+        static member afterRenderView (v: View<'T>) (f: Dom.Element -> 'T -> unit) = Client.Attr.OnAfterRenderView v f
         /// Adds a callback to be called every time the given view receives an updated value,
         /// iff the element is currently in the DOM.
         [<JavaScript; Inline>]

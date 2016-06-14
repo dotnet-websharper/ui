@@ -61,6 +61,9 @@ type IRef<'A> =
     /// Sets the current value.
     abstract Set : 'A -> unit
 
+    /// Gets or sets the current value.
+    abstract Value : 'A with get, set
+
     /// Updates the current value.
     abstract Update : ('A -> 'A) -> unit
 
@@ -129,6 +132,10 @@ type View =
 
     /// Creates a view that does not vary.
     static member Const : 'A -> View<'A>
+
+    /// Creates a view that awaits the given asynchronous task and
+    /// gets its value, after which it does not vary.
+    static member ConstAsync : Async<'A> -> View<'A>
 
     /// Creation from a Var.
     static member FromVar : Var<'A> -> View<'A>

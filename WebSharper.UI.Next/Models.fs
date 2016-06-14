@@ -161,25 +161,31 @@ module Storage =
         new LocalStorageBackend<_>(id, serializer) :> Storage<_>
 
 [<JavaScript>]
-type ListModel<'Key,'T when 'Key : equality>
-    (key : System.Func<'T, 'Key>, storage : Storage<'T>) =
+type ListModel<'Key, 'T when 'Key : equality>
+    (
+        key : System.Func<'T, 'Key>,
+        var: IRef<'T[]>,
+        storage : Storage<'T>
+    ) =
 
-    let var =
-        Seq.distinctBy key.Invoke (storage.Init ())
-        |> Seq.toArray
-        |> Var.Create
     let v = 
         var.View |> View.Map (fun x ->
             storage.Set x |> ignore
             Array.copy x :> seq<_>)
 
     new (key: System.Func<'T, 'Key>, init: seq<'T>) =
-        ListModel<'Key, 'T>(key,
-                    Storage.InMemory <| Seq.toArray init)
+        let init = Seq.toArray init
+        ListModel<'Key, 'T>(key, Var.Create init, Storage.InMemory init)
 
     new (key: System.Func<'T, 'Key>) =
-        ListModel<'Key, 'T>(key,
-                    Storage.InMemory <| [||])
+        ListModel<'Key, 'T>(key, [||])
+
+    new (key: System.Func<'T, 'Key>, storage: Storage<'T>) =
+        let var =
+            Seq.distinctBy key.Invoke (storage.Init ())
+            |> Seq.toArray
+            |> Var.Create
+        ListModel<'Key, 'T>(key, var, storage)
 
     [<Inline>]
     member this.key x = key.Invoke x
@@ -264,7 +270,7 @@ type ListModel<'Key,'T> with
         m.Var.View |> View.Map (Array.tryFind (fun it -> m.key it = key))
 
     member m.UpdateAll fn =
-        Var.Update m.Var <| fun a ->
+        m.Var.Update <| fun a ->
             a |> Array.iteri (fun i x ->
                 fn x |> Option.iter (fun y -> a.[i] <- y))
             m.Storage.Set a
@@ -312,6 +318,10 @@ and [<JavaScript>]
         member r.Set(v) =
             m.UpdateBy (fun i -> Some (update i v)) key
 
+        member r.Value
+            with get() = (r :> IRef<'V>).Get()
+            and set v = (r :> IRef<'V>).Set v
+
         member r.Update(f) =
             m.UpdateBy (fun i -> Some (update i (f (get i)))) key
 
@@ -338,8 +348,52 @@ module ListModel =
     let FromSeq init =
         Create id init
 
+    let Wrap<'Key, 'T, 'U when 'Key : equality>
+            (underlying: ListModel<'Key, 'U>)
+            (extract: 'T -> 'U)
+            (createItem: 'U -> 'T)
+            (updateItem: 'T -> 'U -> 'T) =
+        let state = ref (Dictionary<'Key, 'T>())
+        let init =
+            underlying.Var.Value |> Array.map (fun u ->
+                let t = createItem u
+                (!state).[underlying.Key u] <- t
+                t)
+        let var : IRef<'T[]> =
+            underlying.Var.Lens
+                <| fun us ->
+                    let newState = Dictionary<'Key, 'T>()
+                    let ts =
+                        us |> Array.map (fun u ->
+                            let k = underlying.Key u
+                            let t =
+                                if (!state).ContainsKey(k) then
+                                    updateItem (!state).[k] u
+                                else
+                                    createItem u
+                            newState.[k] <- t
+                            t
+                        )
+                    state := newState
+                    ts
+                <| fun us ts ->
+                    let newState = Dictionary<'Key, 'T>()
+                    let us =
+                        ts |> Array.map (fun t ->
+                            let u = extract t
+                            newState.[underlying.Key u] <- t
+                            u)
+                    state := newState
+                    us
+        ListModel<'Key, 'T>(Func<_,_>(extract >> underlying.Key), var, Storage.InMemory init)
+
     let View (m: ListModel<_,_>) =
         m.view
 
     let Key (m: ListModel<_,_>) =
         m.key
+
+type ListModel<'Key,'T> with
+
+    member this.Wrap extract wrap update =
+        ListModel.Wrap this extract wrap update

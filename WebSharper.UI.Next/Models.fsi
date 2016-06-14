@@ -162,9 +162,21 @@ type ListModel<'Key,'T when 'Key : equality> with
     /// Gets a reference to a part of an element of the list.
     member LensInto : get:('T -> 'V) -> update:('T -> 'V -> 'T) -> 'Key -> IRef<'V>
 
+    /// <summary>
+    /// Creates a new ListModel of 'V that is two-way bound to the underlying ListModel of 'T
+    /// but wraps each item with some extra data.
+    /// </summary>
+    /// <param name="extract">Extract the underlying item from a wrapped item</param>
+    /// <param name="wrap">Construct a wrapped item from an underlying item</param>
+    /// <param name="update">Update a wrapped item's underlying data</param>
+    member Wrap
+         : extract: ('V -> 'T)
+        -> wrap: ('T -> 'V)
+        -> update: ('V -> 'T -> 'V)
+        -> ListModel<'Key, 'V>
+
 /// ListModel combinators.
 module ListModel =
-
     /// Creates a new instance.
     val Create<'Key,'T when 'Key : equality> : ('T -> 'Key) -> seq<'T> -> ListModel<'Key,'T>
 
@@ -173,6 +185,21 @@ module ListModel =
 
     /// Creates a new instance using intrinsic equality and in-memory storage.
     val FromSeq<'T when 'T : equality> : 'T seq -> ListModel<'T,'T>
+
+    /// <summary>
+    /// Creates a new ListModel of 'T that is two-way bound to an underlying ListModel of 'U
+    /// but wraps each item with some extra data.
+    /// </summary>
+    /// <param name="underlying">The underlying ListModel of 'U</param>
+    /// <param name="extract">Extract the underlying item from a wrapped item</param>
+    /// <param name="wrap">Construct a wrapped item from an underlying item</param>
+    /// <param name="update">Update a wrapped item's underlying data</param>
+    val Wrap<'Key, 'T, 'U when 'Key : equality>
+             : underlying: ListModel<'Key, 'U>
+            -> extract: ('T -> 'U)
+            -> wrap: ('U -> 'T)
+            -> update: ('T -> 'U -> 'T)
+            -> ListModel<'Key, 'T>
 
     /// Views the current item sequence.
     val View : ListModel<'Key,'T> -> View<seq<'T>>

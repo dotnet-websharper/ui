@@ -29,6 +29,7 @@ type IRef<'T> =
     abstract Get : unit -> 'T
     [<Name "RSet">]
     abstract Set : 'T -> unit
+    abstract Value : 'T with get, set
     [<Name "RUpdate">]
     abstract Update : ('T -> 'T) -> unit
     [<Name "RUpdateMaybe">]
@@ -57,6 +58,9 @@ type Var<'T> =
     interface IRef<'T> with
         member this.Get() = Var.Get this
         member this.Set v = Var.Set this v
+        member this.Value
+            with get() = Var.Get this
+            and set v = Var.Set this v
         member this.Update f = Var.Update this f
         member this.UpdateMaybe f =
             match f (Var.Get this) with
@@ -156,25 +160,19 @@ type View =
         View.Map2 fn v1 v2 |> View.MapAsync id
 
     static member SnapshotOn def (V o1) (V o2) =
-        let res = Snap.CreateWithValue def
-        let init = ref false
-
-        let initialised () =
-            if not !init then
-                init := true
-                Snap.MarkObsolete res
+        let sInit = Snap.CreateWithValue def
 
         let obs () =
             let s1 = o1 ()
             let s2 = o2 ()
 
-            if !init then
+            if Snap.IsObsolete sInit then
                 // Already initialised, do big grown up SnapshotOn
                 Snap.SnapshotOn s1 s2
             else
                 let s = Snap.SnapshotOn s1 s2
-                Snap.When s (fun x -> ()) (fun () -> initialised ())
-                res
+                Snap.When s ignore (fun () -> Snap.MarkObsolete sInit)
+                sInit
 
         View.CreateLazy obs
 
@@ -287,6 +285,10 @@ type View =
         let o = Snap.CreateForever x
         V (fun () -> o)
 
+    static member ConstAsync a =
+        let o = Snap.CreateForeverAsync a
+        V (fun () -> o)
+
     static member TryWith (f: exn -> View<'T>) (V observe: View<'T>) : View<'T> =
         View.CreateLazy (fun () ->
             try
@@ -327,6 +329,10 @@ type RefImpl<'T, 'V>(baseRef: IRef<'T>, get: 'T -> 'V, update: 'T -> 'V -> 'T) =
         member this.Set(v) =
             baseRef.Update(fun t -> update t v)
 
+        member this.Value
+            with get () = get (baseRef.Get())
+            and set v = baseRef.Update(fun t -> update t v)
+
         member this.Update(f) =
             baseRef.Update(fun t -> update t (f (get t)))
 
@@ -349,8 +355,8 @@ type Var<'T> with
 
     [<JavaScript>]
     member v.Value
-        with [<Inline>] get () = Var.Get v
-        and [<Inline>] set value = Var.Set v value
+        with [<Inline; Name "get_VarValue">] get () = Var.Get v
+        and [<Inline; Name "set_VarValue">] set value = Var.Set v value
 
 // These methods apply to any View<'A>, so we can use `type View with`
 // and they'll be compiled as normal instance methods on View<'A>.
