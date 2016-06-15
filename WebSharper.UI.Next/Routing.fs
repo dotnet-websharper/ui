@@ -60,8 +60,8 @@ module Route =
             | -1 -> hash, ""
             | i -> hash.[..i-1], hash.[i+1..]
         let path =
-            path.Split([|'/'|], System.StringSplitOptions.RemoveEmptyEntries)
-            |> Array.map Decode
+            if path = "" then [||] 
+            else path.Split('/') |> Array.map Decode
             |> A.FromArray
         let query =
             query.Split('&')
