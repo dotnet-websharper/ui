@@ -40,6 +40,8 @@
     <Compile Include="Attr.fs" />
     <Compile Include="HTML.fs" />
     <Compile Include="HTML.Client.fs" />
+    <Compile Include="Doc.fs" />
+    <Compile Include="Doc.Client.fs" />
     <Compile Include="Animation.fsi" />
     <Compile Include="Animation.fs" />
     <Compile Include="Flow.fsi" />

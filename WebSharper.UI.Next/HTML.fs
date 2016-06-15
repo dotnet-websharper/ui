@@ -1071,7 +1071,7 @@ module Html =
         let vkern ats ch = Doc.SvgElement "vkern" ats ch
         // }}
 
-    [<JavaScript>]
+    [<JavaScript; Sealed>]
     type attr private () =
 
         /// Create an HTML attribute "data-name" with the given value.

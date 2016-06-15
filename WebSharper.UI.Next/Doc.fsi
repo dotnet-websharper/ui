@@ -84,6 +84,10 @@ and [<Sealed; Class>] Elt =
     /// When called on the server side, the handler must be a top-level function or a static member.
     member On : event: string * callback: Expr<Dom.Element -> #Dom.Event -> unit> -> Elt
 
+    /// Add an event handler.
+    /// When called on the server side, the handler must be a top-level function or a static member.
+    member OnLinq : event: string * callback: System.Linq.Expressions.Expression<System.Action<Dom.Element, #Dom.Event>> -> Elt
+
     // {{ event
     /// Add a handler for the event "abort".
     /// When called on the server side, the handler must be a top-level function or a static member.

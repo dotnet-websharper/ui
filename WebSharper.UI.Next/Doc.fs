@@ -159,6 +159,9 @@ and [<Sealed>] Elt(tag: string, attrs: list<Attr>, children: list<Doc>) =
     member this.On(ev, cb) =
         Elt(tag, Attr.Handler ev cb :: attrs, children)
 
+    member this.OnLinq(ev, cb) =
+        Elt(tag, Attr.HandlerLinq ev cb :: attrs, children)
+
     // {{ event
     member this.OnAbort(cb: Expr<Dom.Element -> Dom.UIEvent -> unit>) = this.On("abort", cb)
     member this.OnAfterPrint(cb: Expr<Dom.Element -> Dom.Event -> unit>) = this.On("afterprint", cb)

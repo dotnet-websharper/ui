@@ -15,8 +15,7 @@ module Tags =
         let d =
             Directory.GetDirectories(Path.Combine(__SOURCE_DIRECTORY__, "..", "packages"), "WebSharper.*")
             |> Array.append (
-                Directory.GetDirectories(Path.Combine(__SOURCE_DIRECTORY__, "..", "packages"), "Zafir.*") 
-                |> Array.filter (fun p -> not ((Path.GetFileName p).Contains "Zafir.FSharp"))
+                Directory.GetDirectories(Path.Combine(__SOURCE_DIRECTORY__, "..", "packages"), "Zafir.4.*") 
             )
             |> Array.filter (fun d -> not (d.Contains "Testing"))
             |> Array.maxBy (fun d -> DirectoryInfo(d).LastWriteTimeUtc)
@@ -210,6 +209,11 @@ module Tags =
                     sprintf "static member On%s(this: Elt, cb: Dom.Element -> Dom.%s -> unit) = As<Elt> ((As<Elt'> this).on(\"%s\", cb))" e.PascalName e.Category e.Name
                     "[<Extension; Inline>]"
                     sprintf "static member On%sView(this: Elt, view: View<'T>, cb: Dom.Element -> Dom.%s -> 'T -> unit) = As<Elt> ((As<Elt'> this).onView(\"%s\", view, cb))" e.PascalName e.Category e.Name
+                    // C# version
+//                    "[<Extension; Inline>]"
+//                    sprintf "static member On%s(this: Elt, cb: System.Action<Dom.Element, Dom.%s>) = As<Elt> ((As<Elt'> this).onDel(\"%s\", cb))" e.PascalName e.Category e.Name
+//                    "[<Extension; Inline>]"
+//                    sprintf "static member On%sView(this: Elt, view: View<'T>, cb: System.Action<Dom.Element, Dom.%s, 'T>) = As<Elt> ((As<Elt'> this).onViewDel(\"%s\", view, cb))" e.PascalName e.Category e.Name
                 |]
         RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next", "Doc.Client.fsi")) all <| fun e ->
             match e.Type with
@@ -221,6 +225,13 @@ module Tags =
                     sprintf "/// Add a handler for the event \"%s\" which also receives the value of a view at the time of the event." e.Name
                     "[<Extension>]"
                     sprintf "static member On%sView : Elt * view: View<'T> * cb: (Dom.Element -> Dom.%s -> 'T -> unit) -> Elt" e.PascalName e.Category
+                    // C# version
+//                    sprintf "/// Add a handler for the event \"%s\"." e.Name
+//                    "[<Extension>]"
+//                    sprintf "static member On%s : Elt * cb: System.Action<Dom.Element, Dom.%s> -> Elt" e.PascalName e.Category
+//                    sprintf "/// Add a handler for the event \"%s\" which also receives the value of a view at the time of the event." e.Name
+//                    "[<Extension>]"
+//                    sprintf "static member On%sView : Elt * view: View<'T> * cb: System.Action<Dom.Element, Dom.%s, 'T> -> Elt" e.PascalName e.Category
                 |]
         RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next.CSharp", "HTML.fs")) all <| fun e ->
             match e.Type with
@@ -300,6 +311,26 @@ module Tags =
                     sprintf "/// Create a handler for the event \"%s\" which also receives the value of a view at the time of the event." e.Name
                     sprintf "[<Inline; CompiledName \"%s\">]" e.CamelName
                     sprintf """let %sView (view: View<'T>) (f: System.Action<Dom.Element, Dom.%s, 'T>) = Client.Attr.HandlerView "%s" view (FSharpConvert.Fun f)""" e.PascalName e.Category e.Name
+                |]
+        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next.CSharp", "Doc.fs")) all <| fun e ->
+            match e.Type with
+            | "event" ->
+                [|
+                    sprintf "/// Add a handler for the event \"%s\"." e.Name
+                    "/// When called on the server side, the handler must be a top-level function or a static member."
+                    "[<Extension>]"
+                    sprintf "static member On%s(this: Elt, cb: Expression<System.Action<Dom.Element, Dom.%s>>) = this.OnLinq(\"%s\", cb)" e.PascalName e.Category e.Name
+                |]
+        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next.CSharp", "Doc.Client.fs")) all <| fun e ->
+            match e.Type with
+            | "event" ->
+                [|
+                    sprintf "/// Add a handler for the event \"%s\"." e.Name
+                    "[<Extension; Inline>]"
+                    sprintf "static member On%s(this: Elt, cb: System.Action<Dom.Element, Dom.%s>) = this.On%s(FSharpConvert.Fun cb)" e.PascalName e.Category e.PascalName
+                    sprintf "/// Add a handler for the event \"%s\" which also receives the value of a view at the time of the event." e.Name
+                    "[<Extension; Inline>]"
+                    sprintf "static member On%sView(this: Elt, view: View<'T>, cb: System.Action<Dom.Element, Dom.%s, 'T>) = this.On%sView(view, FSharpConvert.Fun cb)" e.PascalName e.Category e.PascalName
                 |]
 
 Tags.Run()

@@ -74,7 +74,7 @@ bt.Solution [
     csharp
     tmpl
     test
-    cstest
+//    cstest
     tmplTest
 
     bt.NuGet.CreatePackage()

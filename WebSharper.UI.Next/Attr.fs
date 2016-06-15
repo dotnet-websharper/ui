@@ -20,6 +20,8 @@
 
 namespace WebSharper.UI.Next
 
+open System
+open System.Linq.Expressions
 open System.Web.UI
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.Patterns
@@ -114,7 +116,37 @@ type Attr =
                     value := Some s
                     s
                 | _ ->
-                    failwithf "Error in Handler at %s: Couldn't find address for method" loc
+                    failwithf "Error in Handler at %s: Couldn't find JavaScript address for method" loc
+            | Some v -> v
+        DepAttr ("on" + event, func, reqs)
+
+    static member HandlerLinq (event: string) (q: Expression<Action<Dom.Element, #Dom.Event>>) =
+        let declType, name, reqs =
+            match q.Body with
+            | :? MethodCallExpression as e -> 
+                let m = e.Method
+                let rm = R.ReadMethod m
+                let typ = R.ReadTypeDefinition m.DeclaringType
+                R.ReadTypeDefinition m.DeclaringType, rm.Value.MethodName, [M.MethodNode (typ, rm); M.TypeNode typ]
+            | _ -> failwithf "Invalid handler function: %A" q
+//        let loc = Internal.getLocation q
+        let value = ref None
+        let func (meta: M.Info) =
+            match !value with
+            | None ->
+                match meta.Classes.TryGetValue declType with
+                | true, {Address = Some a} ->
+                    let rec mk acc a =
+                        let local :: parent = a
+                        let acc = local :: acc
+                        match parent with
+                        | [] -> acc
+                        | p -> mk acc p
+                    let s = String.concat "." (mk [name] a.Value) + "(this, event)"
+                    value := Some s
+                    s
+                | _ ->
+                    failwithf "Error in Handler: Couldn't find JavaScript address for method %s.%s" declType.Value.FullName name
             | Some v -> v
         DepAttr ("on" + event, func, reqs)
 
