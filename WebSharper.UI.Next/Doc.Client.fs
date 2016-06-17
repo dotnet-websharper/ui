@@ -1038,7 +1038,7 @@ module EltExtensions =
             with [<Inline>] get() = (As<Elt'> this).GetText()
             and [<Inline>] set v = (As<Elt'> this).SetText(v)
 
-[<JavaScript; Name "DocModule">]
+[<JavaScript; CompiledName "DocModule">]
 module Doc =
 
     [<Inline>]
