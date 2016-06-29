@@ -148,42 +148,48 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
             cache.Dispose()
 
         templateTy.DefineStaticParameters(
-            [ProvidedStaticParameter("path", typeof<string>)],
+            [ProvidedStaticParameter("pathOrXml", typeof<string>)],
             fun typename pars ->
                 let value = lazy (
                 match pars with
-                | [| :? string as path |] ->
+                | [| :? string as pathOrXml |] ->
                     let ty = ProvidedTypeDefinition(thisAssembly, rootNamespace, typename, None)
 
-                    let htmlFile = 
-                        if Path.IsPathRooted path then path 
-                        else cfg.ResolutionFolder +/ path
-
-                    if cfg.IsInvalidationSupported then
-                        if watcher <> null then watcher.Dispose()
-                        watcher <-
-                            new FileSystemWatcher(Path.GetDirectoryName htmlFile, Path.GetFileName htmlFile, 
-                                NotifyFilter = (NotifyFilters.LastWrite ||| NotifyFilters.Security ||| NotifyFilters.FileName)
-                            )
-                        watcher.Changed.Add <| fun _ -> this.Invalidate()
-                        watcher.Deleted.Add <| fun _ -> this.Invalidate()
-                        watcher.Renamed.Add <| fun _ -> this.Invalidate()
-                        watcher.Created.Add <| fun _ -> this.Invalidate()
-                        watcher.EnableRaisingEvents <- true
-
-                    let xml =
+                    let parseXml s =
                         try // Try to load the file as a whole XML document, ie. single root node with optional DTD.
-                            let xmlDoc = XDocument.Load(htmlFile, LoadOptions.PreserveWhitespace)
+                            let xmlDoc = XDocument.Parse(s, LoadOptions.PreserveWhitespace)
                             let xml = XElement(xn"wrapper")
                             xml.Add(xmlDoc.Root)
                             xml
                         with :? System.Xml.XmlException as e ->
                             // Try to load the file as a XML fragment, ie. potentially several root nodes.
-                            try XDocument.Parse("<wrapper>" + File.ReadAllText htmlFile + "</wrapper>", LoadOptions.PreserveWhitespace).Root
+                            try XDocument.Parse("<wrapper>" + s + "</wrapper>", LoadOptions.PreserveWhitespace).Root
                             with _ ->
                                 // The error from loading as a full document generally has a better error message.
                                 raise e
 
+                    let xml =
+                        if pathOrXml.Contains("<") then
+                            parseXml pathOrXml    
+                        else 
+                            let htmlFile = 
+                                if Path.IsPathRooted pathOrXml then pathOrXml 
+                                else cfg.ResolutionFolder +/ pathOrXml
+
+                            if cfg.IsInvalidationSupported then
+                                if watcher <> null then watcher.Dispose()
+                                watcher <-
+                                    new FileSystemWatcher(Path.GetDirectoryName htmlFile, Path.GetFileName htmlFile, 
+                                        NotifyFilter = (NotifyFilters.LastWrite ||| NotifyFilters.Security ||| NotifyFilters.FileName)
+                                    )
+                                watcher.Changed.Add <| fun _ -> this.Invalidate()
+                                watcher.Deleted.Add <| fun _ -> this.Invalidate()
+                                watcher.Renamed.Add <| fun _ -> this.Invalidate()
+                                watcher.Created.Add <| fun _ -> this.Invalidate()
+                                watcher.EnableRaisingEvents <- true
+
+                            parseXml (File.ReadAllText htmlFile) 
+                        
                     let isSingleElt =
                         let firstNode = xml.FirstNode
                         isNull firstNode.NextNode &&
