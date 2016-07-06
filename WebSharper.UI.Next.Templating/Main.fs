@@ -170,6 +170,10 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
 
                     let xml =
                         if pathOrXml.Contains("<") then
+                            if watcher <> null then 
+                                watcher.Dispose()
+                                watcher <- null
+
                             parseXml pathOrXml    
                         else 
                             let htmlFile = 
