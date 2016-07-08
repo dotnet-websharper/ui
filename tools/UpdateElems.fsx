@@ -312,7 +312,7 @@ module Tags =
                     sprintf "[<Inline; CompiledName \"%s\">]" e.CamelName
                     sprintf """let %sView (view: View<'T>) (f: System.Action<Dom.Element, Dom.%s, 'T>) = Client.Attr.HandlerView "%s" view (FSharpConvert.Fun f)""" e.PascalName e.Category e.Name
                 |]
-        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next.CSharp", "Doc.fs")) all <| fun e ->
+        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next.CSharp", "Doc.Server.fs")) all <| fun e ->
             match e.Type with
             | "event" ->
                 [|

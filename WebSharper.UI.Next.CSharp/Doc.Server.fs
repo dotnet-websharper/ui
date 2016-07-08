@@ -18,7 +18,7 @@
 //
 // $end{copyright}
 
-namespace WebSharper.UI.Next.CSharp.Client
+namespace WebSharper.UI.Next.CSharp.Server
 
 open System
 open System.Runtime.CompilerServices
