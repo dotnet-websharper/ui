@@ -276,31 +276,31 @@ module Tags =
             | "attr" ->
                 [|
                     sprintf "/// Create an HTML attribute \"%s\" with the given value." e.Name
-                    sprintf "[<Inline; CompiledName \"%s\">]" e.CamelName
+                    sprintf "[<Inline; CompiledName \"%s\">]" e.LowName
                     sprintf "let %s value = Attr.Create \"%s\" value" e.PascalName e.Name
                     sprintf "/// Create an HTML attribute \"%s\" with the given reactive value." e.Name
-                    sprintf "[<Inline; CompiledName \"%s\">]" e.CamelName
+                    sprintf "[<Inline; CompiledName \"%s\">]" e.LowName
                     sprintf "let %sDyn view = Client.Attr.Dynamic \"%s\" view" e.PascalName e.Name
                     sprintf "/// `%s v p` sets an HTML attribute \"%s\" with reactive value v when p is true, and unsets it when p is false." e.LowName e.Name
-                    sprintf "[<Inline; CompiledName \"%s\">]" e.CamelName
+                    sprintf "[<Inline; CompiledName \"%s\">]" e.LowName
                     sprintf "let %sDynPred view pred = Client.Attr.DynamicPred \"%s\" pred view" e.PascalName e.Name
                     sprintf "/// Create an animated HTML attribute \"%s\" whose value is computed from the given reactive view." e.Name
-                    sprintf "[<Inline; CompiledName \"%s\">]" e.CamelName
-                    sprintf "let %sAnim view convert trans = Client.Attr.Animated \"%s\" trans view convert" e.PascalName e.Name
+                    sprintf "[<Inline; CompiledName \"%s\">]" e.LowName
+                    sprintf "let %sAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated \"%s\" trans view convert.Invoke" e.PascalName e.Name
                 |]
             | "svgattr" ->
                 [|
                     sprintf "/// Create an SVG attribute \"%s\" with the given value." e.Name
-                    sprintf "[<Inline; CompiledName \"%s\">]" e.CamelName
+                    sprintf "[<Inline; CompiledName \"%s\">]" e.LowName
                     sprintf "let %s value = Attr.Create \"%s\" value" e.PascalName e.Name
                     sprintf "/// Create an SVG attribute \"%s\" with the given reactive value." e.Name
-                    sprintf "[<Inline; CompiledName \"%s\">]" e.CamelName
+                    sprintf "[<Inline; CompiledName \"%s\">]" e.LowName
                     sprintf "let %sDyn view = Client.Attr.Dynamic \"%s\" view" e.PascalName e.Name
                     sprintf "/// `%s v p` sets an SVG attribute \"%s\" with reactive value v when p is true, and unsets it when p is false." e.LowName e.Name
-                    sprintf "[<Inline; CompiledName \"%s\">]" e.CamelName
+                    sprintf "[<Inline; CompiledName \"%s\">]" e.LowName
                     sprintf "let %sDynPred view pred = Client.Attr.DynamicPred \"%s\" pred view" e.PascalName e.Name
                     sprintf "/// Create an animated SVG attribute \"%s\" whose value is computed from the given reactive view." e.Name
-                    sprintf "[<Inline; CompiledName \"%s\">]" e.CamelName
+                    sprintf "[<Inline; CompiledName \"%s\">]" e.LowName
                     sprintf "let %sAnim view convert trans = Client.Attr.Animated \"%s\" trans view convert" e.PascalName e.Name
                 |]
             | "event" ->

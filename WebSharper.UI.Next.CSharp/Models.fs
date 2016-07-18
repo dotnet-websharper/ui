@@ -44,9 +44,9 @@ type ListModelExtensions =
 
     [<Extension; Inline>]
     static member UpdateBy<'K,'T when 'K : equality>
-        (lm: ListModel<'K,'T>, key, f: Func<'T, 'T option>) = lm.UpdateBy (FSharpConvert.Fun f) key
+        (lm: ListModel<'K,'T>, key, f: Func<'T, 'T option>) = lm.UpdateByU (FSharpConvert.Fun f, key)
 
     [<Extension; Inline>]
     static member LensInto<'K,'T,'V when 'K : equality>
         (lm: ListModel<'K,'T>, key, get: Func<'T,'V>, set: Func<'T,'V,'T>) =
-        lm.LensInto (FSharpConvert.Fun get) (FSharpConvert.Fun set) key
+        lm.LensIntoU (FSharpConvert.Fun get, FSharpConvert.Fun set, key)

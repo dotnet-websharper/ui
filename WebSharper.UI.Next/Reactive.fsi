@@ -292,6 +292,11 @@ type Submitter<'A> =
 type Submitter =
 
     /// Create a Submitter from the given input view.
+    /// Initially, the output view has the the default value of its type parameter,
+    /// until the Submitter is triggered for the first time.
+    static member CreateDefault : input: View<'A> -> Submitter<'A>
+
+    /// Create a Submitter from the given input view.
     /// Initially, the output view has the value init,
     /// until the Submitter is triggered for the first time.
     static member Create : input: View<'A> -> init: 'A -> Submitter<'A>

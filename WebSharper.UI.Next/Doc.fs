@@ -312,6 +312,7 @@ type Doc with
         | :? INode as n -> Doc.OfINode n
         | :? Expr<#IControlBody> as e -> Doc.ClientSide e
         | :? string as t -> Doc.TextNode t
+        | null -> Doc.Empty
         | o -> Doc.TextNode (string o)
 
     static member Element (tagname: string) (attrs: seq<Attr>) (children: seq<Doc>) =

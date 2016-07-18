@@ -46,11 +46,11 @@ type Interpolation =
 
 /// Represents an easing function, a transform on NormalizedTime.
 type Easing =
-    {
-        /// Transforms time coordinates, typically domain and range are both
-        /// on the unit interval [0, 1].
-        TransformTime : NormalizedTime -> NormalizedTime
-    }
+    new : transformTime: System.Converter<NormalizedTime, NormalizedTime> -> Easing
+
+    /// Transforms time coordinates, typically domain and range are both
+    /// on the unit interval [0, 1].
+    member TransformTime : NormalizedTime -> NormalizedTime 
 
     /// Most commonly used easing.
     /// let f t = 3. * (t ** 2.) - 2. * t ** 3.
@@ -66,9 +66,9 @@ type Anim
 
 /// An animation of a given value, defined by duration and a time-function.
 type Anim<'T> =
-    {
+    private {
         /// Compute the value at a given normalized time.
-        Compute : NormalizedTime -> 'T
+        Compute : Time -> 'T
 
         /// Duration in milliseconds.
         Duration : Time
@@ -119,6 +119,7 @@ type Anim with
 type Trans<'T> =
     new : unit -> Trans<'T>
     new : System.Func<'T, 'T, Anim<'T>> -> Trans<'T>
+    new : System.Func<'T, 'T, Anim<'T>> * System.Func<'T, Anim<'T>> * System.Func<'T, Anim<'T>> -> Trans<'T>
 
 /// Combinators on transitions.
 [<Sealed>]

@@ -802,24 +802,16 @@ type Doc' [<JavaScript>] (docNode, updates) =
         match o with
         | :? Doc as d -> d
         | :? string as t -> Doc.TextNode t
+        | :? Element as e -> Doc'.Static e |> As<Doc>        
         | :? View<obj> as v ->
             Doc'.EmbedView (
-                v.Map (fun v ->
-                    match box v with
-                    | :? Doc' as d -> d
-                    | :? string as t -> Doc.TextNode t |> As<Doc'>
-                    | o -> (Doc.TextNode (string o)) |> As<Doc'>
-                )
+                v.Map (As Doc'.ToMixedDoc)
             ) |> As<Doc>
         | :? Var<obj> as v ->
             Doc'.EmbedView (
-                v.View.Map (fun v ->
-                    match box v with
-                    | :? Doc' as d -> d
-                    | :? string as t -> Doc.TextNode t |> As<Doc'>
-                    | o -> (Doc.TextNode (string o)) |> As<Doc'>
-                )
+                v.View.Map (As Doc'.ToMixedDoc)
             ) |> As<Doc>
+        | null -> Doc.Empty
         | o -> Doc.TextNode (string o)
 
     static member MixedNodes (nodes: seq<obj>) =
@@ -828,7 +820,7 @@ type Doc' [<JavaScript>] (docNode, updates) =
         for n in nodes do
             match n with
             | :? Attr as a -> attrs.Add a
-            | n -> children.Add (Doc'.ToMixedDoc n)
+            | _ -> children.Add (Doc'.ToMixedDoc n)
         attrs :> _ seq, children :> _ seq 
 
     static member ConcatMixed (elts: obj[]) =

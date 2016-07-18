@@ -139,6 +139,41 @@ module Html =
     let Radio(var, vl, [<ParamArray>] attrs: Attr[]) =
         Client.Doc.Radio attrs vl var
 
+    /// Sets a basic DOM attribute, such as `id` to a text value.
+    [<Inline; CompiledName "attrib">]
+    let Attribute(name, value) = Attr.Create name value
+
+    /// Sets a basic DOM attribute, such as `id` to a text value.
+    [<Inline; CompiledName "attrib">]
+    let AttributeDyn(name, view) = Client.Attr.Dynamic name view
+
+    /// Sets a basic DOM attribute, such as `id` to a text value.
+    [<Inline; CompiledName "attrib">]
+    let AttributeDynPred(name, view, pred) = Client.Attr.DynamicPred name pred view
+
+    [<Inline; CompiledName "attrib">]
+    let AttrConcat ([<ParamArray>] attrs: Attr[]) = Attr.Concat attrs
+
+    /// Sets a style attribute, such as `background-color`.
+    [<Inline; CompiledName "style">]
+    let Style(name, value) = Client.Attr.Style name value
+
+    /// Dynamic variant of Style.
+    [<Inline; CompiledName "style">]
+    let StyleDyn(name, view: View<string>) = Client.Attr.DynamicStyle name view
+
+    /// Animated variant of Style.
+    [<Inline; CompiledName "style">]
+    let StyleAnim(name, tr, view, attr: Func<_,_>) = Client.Attr.AnimatedStyle name tr view (FSharpConvert.Fun attr)
+
+    /// Sets an event handler, for a given event such as `click`.
+    [<Inline; CompiledName "handler">]
+    let Handler(name, callback: Action<Dom.Element, Dom.Event>) = Client.Attr.Handler name (FSharpConvert.Fun callback)
+
+    /// Sets an event handler, for a given event such as `click`.
+    [<Inline; CompiledName "handler">]
+    let HandlerView(name, view: View<'T>, callback: Action<Dom.Element, Dom.Event, 'T>) = Client.Attr.HandlerView name view (FSharpConvert.Fun callback)
+
     // {{ tag normal
     /// Create an HTML element <a> with children nodes.
     [<Inline; CompiledName "a">]
@@ -780,8 +815,12 @@ module Html =
         [<Inline; CompiledName "vkern">]
         let VKern ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "vkern" ns
         // }}
-
+    
     module attr =
+
+        /// Create an animated HTML attribute "class" whose value is computed from the given reactive view.
+        [<Inline; CompiledName "class">]
+        let DynamicClass name view (apply: Predicate<_>) = Client.Attr.DynamicClass name view apply.Invoke
 
         /// Create an HTML attribute "data-name" with the given value.
         [<Inline>]
@@ -808,31 +847,31 @@ module Html =
         let AcceptDynPred view pred = Client.Attr.DynamicPred "accept" pred view
         /// Create an animated HTML attribute "accept" whose value is computed from the given reactive view.
         [<Inline; CompiledName "accept">]
-        let AcceptAnim view convert trans = Client.Attr.Animated "accept" trans view convert
+        let AcceptAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "accept" trans view convert.Invoke
         /// Create an HTML attribute "accept-charset" with the given value.
-        [<Inline; CompiledName "acceptCharSet">]
+        [<Inline; CompiledName "acceptCharset">]
         let AcceptCharSet value = Attr.Create "accept-charset" value
         /// Create an HTML attribute "accept-charset" with the given reactive value.
-        [<Inline; CompiledName "acceptCharSet">]
+        [<Inline; CompiledName "acceptCharset">]
         let AcceptCharSetDyn view = Client.Attr.Dynamic "accept-charset" view
         /// `acceptCharset v p` sets an HTML attribute "accept-charset" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "acceptCharSet">]
+        [<Inline; CompiledName "acceptCharset">]
         let AcceptCharSetDynPred view pred = Client.Attr.DynamicPred "accept-charset" pred view
         /// Create an animated HTML attribute "accept-charset" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "acceptCharSet">]
-        let AcceptCharSetAnim view convert trans = Client.Attr.Animated "accept-charset" trans view convert
+        [<Inline; CompiledName "acceptCharset">]
+        let AcceptCharSetAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "accept-charset" trans view convert.Invoke
         /// Create an HTML attribute "accesskey" with the given value.
-        [<Inline; CompiledName "accessKey">]
+        [<Inline; CompiledName "accesskey">]
         let AccessKey value = Attr.Create "accesskey" value
         /// Create an HTML attribute "accesskey" with the given reactive value.
-        [<Inline; CompiledName "accessKey">]
+        [<Inline; CompiledName "accesskey">]
         let AccessKeyDyn view = Client.Attr.Dynamic "accesskey" view
         /// `accesskey v p` sets an HTML attribute "accesskey" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "accessKey">]
+        [<Inline; CompiledName "accesskey">]
         let AccessKeyDynPred view pred = Client.Attr.DynamicPred "accesskey" pred view
         /// Create an animated HTML attribute "accesskey" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "accessKey">]
-        let AccessKeyAnim view convert trans = Client.Attr.Animated "accesskey" trans view convert
+        [<Inline; CompiledName "accesskey">]
+        let AccessKeyAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "accesskey" trans view convert.Invoke
         /// Create an HTML attribute "action" with the given value.
         [<Inline; CompiledName "action">]
         let Action value = Attr.Create "action" value
@@ -844,7 +883,7 @@ module Html =
         let ActionDynPred view pred = Client.Attr.DynamicPred "action" pred view
         /// Create an animated HTML attribute "action" whose value is computed from the given reactive view.
         [<Inline; CompiledName "action">]
-        let ActionAnim view convert trans = Client.Attr.Animated "action" trans view convert
+        let ActionAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "action" trans view convert.Invoke
         /// Create an HTML attribute "align" with the given value.
         [<Inline; CompiledName "align">]
         let Align value = Attr.Create "align" value
@@ -856,7 +895,7 @@ module Html =
         let AlignDynPred view pred = Client.Attr.DynamicPred "align" pred view
         /// Create an animated HTML attribute "align" whose value is computed from the given reactive view.
         [<Inline; CompiledName "align">]
-        let AlignAnim view convert trans = Client.Attr.Animated "align" trans view convert
+        let AlignAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "align" trans view convert.Invoke
         /// Create an HTML attribute "alink" with the given value.
         [<Inline; CompiledName "alink">]
         let Alink value = Attr.Create "alink" value
@@ -868,7 +907,7 @@ module Html =
         let AlinkDynPred view pred = Client.Attr.DynamicPred "alink" pred view
         /// Create an animated HTML attribute "alink" whose value is computed from the given reactive view.
         [<Inline; CompiledName "alink">]
-        let AlinkAnim view convert trans = Client.Attr.Animated "alink" trans view convert
+        let AlinkAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "alink" trans view convert.Invoke
         /// Create an HTML attribute "alt" with the given value.
         [<Inline; CompiledName "alt">]
         let Alt value = Attr.Create "alt" value
@@ -880,19 +919,19 @@ module Html =
         let AltDynPred view pred = Client.Attr.DynamicPred "alt" pred view
         /// Create an animated HTML attribute "alt" whose value is computed from the given reactive view.
         [<Inline; CompiledName "alt">]
-        let AltAnim view convert trans = Client.Attr.Animated "alt" trans view convert
+        let AltAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "alt" trans view convert.Invoke
         /// Create an HTML attribute "altcode" with the given value.
-        [<Inline; CompiledName "altCode">]
+        [<Inline; CompiledName "altcode">]
         let AltCode value = Attr.Create "altcode" value
         /// Create an HTML attribute "altcode" with the given reactive value.
-        [<Inline; CompiledName "altCode">]
+        [<Inline; CompiledName "altcode">]
         let AltCodeDyn view = Client.Attr.Dynamic "altcode" view
         /// `altcode v p` sets an HTML attribute "altcode" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "altCode">]
+        [<Inline; CompiledName "altcode">]
         let AltCodeDynPred view pred = Client.Attr.DynamicPred "altcode" pred view
         /// Create an animated HTML attribute "altcode" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "altCode">]
-        let AltCodeAnim view convert trans = Client.Attr.Animated "altcode" trans view convert
+        [<Inline; CompiledName "altcode">]
+        let AltCodeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "altcode" trans view convert.Invoke
         /// Create an HTML attribute "archive" with the given value.
         [<Inline; CompiledName "archive">]
         let Archive value = Attr.Create "archive" value
@@ -904,7 +943,7 @@ module Html =
         let ArchiveDynPred view pred = Client.Attr.DynamicPred "archive" pred view
         /// Create an animated HTML attribute "archive" whose value is computed from the given reactive view.
         [<Inline; CompiledName "archive">]
-        let ArchiveAnim view convert trans = Client.Attr.Animated "archive" trans view convert
+        let ArchiveAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "archive" trans view convert.Invoke
         /// Create an HTML attribute "async" with the given value.
         [<Inline; CompiledName "async">]
         let Async value = Attr.Create "async" value
@@ -916,55 +955,55 @@ module Html =
         let AsyncDynPred view pred = Client.Attr.DynamicPred "async" pred view
         /// Create an animated HTML attribute "async" whose value is computed from the given reactive view.
         [<Inline; CompiledName "async">]
-        let AsyncAnim view convert trans = Client.Attr.Animated "async" trans view convert
+        let AsyncAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "async" trans view convert.Invoke
         /// Create an HTML attribute "autocomplete" with the given value.
-        [<Inline; CompiledName "autoComplete">]
+        [<Inline; CompiledName "autocomplete">]
         let AutoComplete value = Attr.Create "autocomplete" value
         /// Create an HTML attribute "autocomplete" with the given reactive value.
-        [<Inline; CompiledName "autoComplete">]
+        [<Inline; CompiledName "autocomplete">]
         let AutoCompleteDyn view = Client.Attr.Dynamic "autocomplete" view
         /// `autocomplete v p` sets an HTML attribute "autocomplete" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "autoComplete">]
+        [<Inline; CompiledName "autocomplete">]
         let AutoCompleteDynPred view pred = Client.Attr.DynamicPred "autocomplete" pred view
         /// Create an animated HTML attribute "autocomplete" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "autoComplete">]
-        let AutoCompleteAnim view convert trans = Client.Attr.Animated "autocomplete" trans view convert
+        [<Inline; CompiledName "autocomplete">]
+        let AutoCompleteAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "autocomplete" trans view convert.Invoke
         /// Create an HTML attribute "autofocus" with the given value.
-        [<Inline; CompiledName "autoFocus">]
+        [<Inline; CompiledName "autofocus">]
         let AutoFocus value = Attr.Create "autofocus" value
         /// Create an HTML attribute "autofocus" with the given reactive value.
-        [<Inline; CompiledName "autoFocus">]
+        [<Inline; CompiledName "autofocus">]
         let AutoFocusDyn view = Client.Attr.Dynamic "autofocus" view
         /// `autofocus v p` sets an HTML attribute "autofocus" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "autoFocus">]
+        [<Inline; CompiledName "autofocus">]
         let AutoFocusDynPred view pred = Client.Attr.DynamicPred "autofocus" pred view
         /// Create an animated HTML attribute "autofocus" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "autoFocus">]
-        let AutoFocusAnim view convert trans = Client.Attr.Animated "autofocus" trans view convert
+        [<Inline; CompiledName "autofocus">]
+        let AutoFocusAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "autofocus" trans view convert.Invoke
         /// Create an HTML attribute "autoplay" with the given value.
-        [<Inline; CompiledName "autoPlay">]
+        [<Inline; CompiledName "autoplay">]
         let AutoPlay value = Attr.Create "autoplay" value
         /// Create an HTML attribute "autoplay" with the given reactive value.
-        [<Inline; CompiledName "autoPlay">]
+        [<Inline; CompiledName "autoplay">]
         let AutoPlayDyn view = Client.Attr.Dynamic "autoplay" view
         /// `autoplay v p` sets an HTML attribute "autoplay" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "autoPlay">]
+        [<Inline; CompiledName "autoplay">]
         let AutoPlayDynPred view pred = Client.Attr.DynamicPred "autoplay" pred view
         /// Create an animated HTML attribute "autoplay" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "autoPlay">]
-        let AutoPlayAnim view convert trans = Client.Attr.Animated "autoplay" trans view convert
+        [<Inline; CompiledName "autoplay">]
+        let AutoPlayAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "autoplay" trans view convert.Invoke
         /// Create an HTML attribute "autosave" with the given value.
-        [<Inline; CompiledName "autoSave">]
+        [<Inline; CompiledName "autosave">]
         let AutoSave value = Attr.Create "autosave" value
         /// Create an HTML attribute "autosave" with the given reactive value.
-        [<Inline; CompiledName "autoSave">]
+        [<Inline; CompiledName "autosave">]
         let AutoSaveDyn view = Client.Attr.Dynamic "autosave" view
         /// `autosave v p` sets an HTML attribute "autosave" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "autoSave">]
+        [<Inline; CompiledName "autosave">]
         let AutoSaveDynPred view pred = Client.Attr.DynamicPred "autosave" pred view
         /// Create an animated HTML attribute "autosave" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "autoSave">]
-        let AutoSaveAnim view convert trans = Client.Attr.Animated "autosave" trans view convert
+        [<Inline; CompiledName "autosave">]
+        let AutoSaveAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "autosave" trans view convert.Invoke
         /// Create an HTML attribute "axis" with the given value.
         [<Inline; CompiledName "axis">]
         let Axis value = Attr.Create "axis" value
@@ -976,7 +1015,7 @@ module Html =
         let AxisDynPred view pred = Client.Attr.DynamicPred "axis" pred view
         /// Create an animated HTML attribute "axis" whose value is computed from the given reactive view.
         [<Inline; CompiledName "axis">]
-        let AxisAnim view convert trans = Client.Attr.Animated "axis" trans view convert
+        let AxisAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "axis" trans view convert.Invoke
         /// Create an HTML attribute "background" with the given value.
         [<Inline; CompiledName "background">]
         let Background value = Attr.Create "background" value
@@ -988,19 +1027,19 @@ module Html =
         let BackgroundDynPred view pred = Client.Attr.DynamicPred "background" pred view
         /// Create an animated HTML attribute "background" whose value is computed from the given reactive view.
         [<Inline; CompiledName "background">]
-        let BackgroundAnim view convert trans = Client.Attr.Animated "background" trans view convert
+        let BackgroundAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "background" trans view convert.Invoke
         /// Create an HTML attribute "bgcolor" with the given value.
-        [<Inline; CompiledName "bgColor">]
+        [<Inline; CompiledName "bgcolor">]
         let BgColor value = Attr.Create "bgcolor" value
         /// Create an HTML attribute "bgcolor" with the given reactive value.
-        [<Inline; CompiledName "bgColor">]
+        [<Inline; CompiledName "bgcolor">]
         let BgColorDyn view = Client.Attr.Dynamic "bgcolor" view
         /// `bgcolor v p` sets an HTML attribute "bgcolor" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "bgColor">]
+        [<Inline; CompiledName "bgcolor">]
         let BgColorDynPred view pred = Client.Attr.DynamicPred "bgcolor" pred view
         /// Create an animated HTML attribute "bgcolor" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "bgColor">]
-        let BgColorAnim view convert trans = Client.Attr.Animated "bgcolor" trans view convert
+        [<Inline; CompiledName "bgcolor">]
+        let BgColorAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "bgcolor" trans view convert.Invoke
         /// Create an HTML attribute "border" with the given value.
         [<Inline; CompiledName "border">]
         let Border value = Attr.Create "border" value
@@ -1012,19 +1051,19 @@ module Html =
         let BorderDynPred view pred = Client.Attr.DynamicPred "border" pred view
         /// Create an animated HTML attribute "border" whose value is computed from the given reactive view.
         [<Inline; CompiledName "border">]
-        let BorderAnim view convert trans = Client.Attr.Animated "border" trans view convert
+        let BorderAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "border" trans view convert.Invoke
         /// Create an HTML attribute "bordercolor" with the given value.
-        [<Inline; CompiledName "borderColor">]
+        [<Inline; CompiledName "bordercolor">]
         let BorderColor value = Attr.Create "bordercolor" value
         /// Create an HTML attribute "bordercolor" with the given reactive value.
-        [<Inline; CompiledName "borderColor">]
+        [<Inline; CompiledName "bordercolor">]
         let BorderColorDyn view = Client.Attr.Dynamic "bordercolor" view
         /// `bordercolor v p` sets an HTML attribute "bordercolor" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "borderColor">]
+        [<Inline; CompiledName "bordercolor">]
         let BorderColorDynPred view pred = Client.Attr.DynamicPred "bordercolor" pred view
         /// Create an animated HTML attribute "bordercolor" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "borderColor">]
-        let BorderColorAnim view convert trans = Client.Attr.Animated "bordercolor" trans view convert
+        [<Inline; CompiledName "bordercolor">]
+        let BorderColorAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "bordercolor" trans view convert.Invoke
         /// Create an HTML attribute "buffered" with the given value.
         [<Inline; CompiledName "buffered">]
         let Buffered value = Attr.Create "buffered" value
@@ -1036,31 +1075,31 @@ module Html =
         let BufferedDynPred view pred = Client.Attr.DynamicPred "buffered" pred view
         /// Create an animated HTML attribute "buffered" whose value is computed from the given reactive view.
         [<Inline; CompiledName "buffered">]
-        let BufferedAnim view convert trans = Client.Attr.Animated "buffered" trans view convert
+        let BufferedAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "buffered" trans view convert.Invoke
         /// Create an HTML attribute "cellpadding" with the given value.
-        [<Inline; CompiledName "cellPadding">]
+        [<Inline; CompiledName "cellpadding">]
         let CellPadding value = Attr.Create "cellpadding" value
         /// Create an HTML attribute "cellpadding" with the given reactive value.
-        [<Inline; CompiledName "cellPadding">]
+        [<Inline; CompiledName "cellpadding">]
         let CellPaddingDyn view = Client.Attr.Dynamic "cellpadding" view
         /// `cellpadding v p` sets an HTML attribute "cellpadding" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "cellPadding">]
+        [<Inline; CompiledName "cellpadding">]
         let CellPaddingDynPred view pred = Client.Attr.DynamicPred "cellpadding" pred view
         /// Create an animated HTML attribute "cellpadding" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "cellPadding">]
-        let CellPaddingAnim view convert trans = Client.Attr.Animated "cellpadding" trans view convert
+        [<Inline; CompiledName "cellpadding">]
+        let CellPaddingAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "cellpadding" trans view convert.Invoke
         /// Create an HTML attribute "cellspacing" with the given value.
-        [<Inline; CompiledName "cellSpacing">]
+        [<Inline; CompiledName "cellspacing">]
         let CellSpacing value = Attr.Create "cellspacing" value
         /// Create an HTML attribute "cellspacing" with the given reactive value.
-        [<Inline; CompiledName "cellSpacing">]
+        [<Inline; CompiledName "cellspacing">]
         let CellSpacingDyn view = Client.Attr.Dynamic "cellspacing" view
         /// `cellspacing v p` sets an HTML attribute "cellspacing" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "cellSpacing">]
+        [<Inline; CompiledName "cellspacing">]
         let CellSpacingDynPred view pred = Client.Attr.DynamicPred "cellspacing" pred view
         /// Create an animated HTML attribute "cellspacing" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "cellSpacing">]
-        let CellSpacingAnim view convert trans = Client.Attr.Animated "cellspacing" trans view convert
+        [<Inline; CompiledName "cellspacing">]
+        let CellSpacingAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "cellspacing" trans view convert.Invoke
         /// Create an HTML attribute "challenge" with the given value.
         [<Inline; CompiledName "challenge">]
         let Challenge value = Attr.Create "challenge" value
@@ -1072,7 +1111,7 @@ module Html =
         let ChallengeDynPred view pred = Client.Attr.DynamicPred "challenge" pred view
         /// Create an animated HTML attribute "challenge" whose value is computed from the given reactive view.
         [<Inline; CompiledName "challenge">]
-        let ChallengeAnim view convert trans = Client.Attr.Animated "challenge" trans view convert
+        let ChallengeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "challenge" trans view convert.Invoke
         /// Create an HTML attribute "char" with the given value.
         [<Inline; CompiledName "char">]
         let Char value = Attr.Create "char" value
@@ -1084,31 +1123,31 @@ module Html =
         let CharDynPred view pred = Client.Attr.DynamicPred "char" pred view
         /// Create an animated HTML attribute "char" whose value is computed from the given reactive view.
         [<Inline; CompiledName "char">]
-        let CharAnim view convert trans = Client.Attr.Animated "char" trans view convert
+        let CharAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "char" trans view convert.Invoke
         /// Create an HTML attribute "charoff" with the given value.
-        [<Inline; CompiledName "charOff">]
+        [<Inline; CompiledName "charoff">]
         let CharOff value = Attr.Create "charoff" value
         /// Create an HTML attribute "charoff" with the given reactive value.
-        [<Inline; CompiledName "charOff">]
+        [<Inline; CompiledName "charoff">]
         let CharOffDyn view = Client.Attr.Dynamic "charoff" view
         /// `charoff v p` sets an HTML attribute "charoff" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "charOff">]
+        [<Inline; CompiledName "charoff">]
         let CharOffDynPred view pred = Client.Attr.DynamicPred "charoff" pred view
         /// Create an animated HTML attribute "charoff" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "charOff">]
-        let CharOffAnim view convert trans = Client.Attr.Animated "charoff" trans view convert
+        [<Inline; CompiledName "charoff">]
+        let CharOffAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "charoff" trans view convert.Invoke
         /// Create an HTML attribute "charset" with the given value.
-        [<Inline; CompiledName "charSet">]
+        [<Inline; CompiledName "charset">]
         let CharSet value = Attr.Create "charset" value
         /// Create an HTML attribute "charset" with the given reactive value.
-        [<Inline; CompiledName "charSet">]
+        [<Inline; CompiledName "charset">]
         let CharSetDyn view = Client.Attr.Dynamic "charset" view
         /// `charset v p` sets an HTML attribute "charset" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "charSet">]
+        [<Inline; CompiledName "charset">]
         let CharSetDynPred view pred = Client.Attr.DynamicPred "charset" pred view
         /// Create an animated HTML attribute "charset" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "charSet">]
-        let CharSetAnim view convert trans = Client.Attr.Animated "charset" trans view convert
+        [<Inline; CompiledName "charset">]
+        let CharSetAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "charset" trans view convert.Invoke
         /// Create an HTML attribute "checked" with the given value.
         [<Inline; CompiledName "checked">]
         let Checked value = Attr.Create "checked" value
@@ -1120,7 +1159,7 @@ module Html =
         let CheckedDynPred view pred = Client.Attr.DynamicPred "checked" pred view
         /// Create an animated HTML attribute "checked" whose value is computed from the given reactive view.
         [<Inline; CompiledName "checked">]
-        let CheckedAnim view convert trans = Client.Attr.Animated "checked" trans view convert
+        let CheckedAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "checked" trans view convert.Invoke
         /// Create an HTML attribute "cite" with the given value.
         [<Inline; CompiledName "cite">]
         let Cite value = Attr.Create "cite" value
@@ -1132,7 +1171,7 @@ module Html =
         let CiteDynPred view pred = Client.Attr.DynamicPred "cite" pred view
         /// Create an animated HTML attribute "cite" whose value is computed from the given reactive view.
         [<Inline; CompiledName "cite">]
-        let CiteAnim view convert trans = Client.Attr.Animated "cite" trans view convert
+        let CiteAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "cite" trans view convert.Invoke
         /// Create an HTML attribute "class" with the given value.
         [<Inline; CompiledName "class">]
         let Class value = Attr.Create "class" value
@@ -1144,19 +1183,19 @@ module Html =
         let ClassDynPred view pred = Client.Attr.DynamicPred "class" pred view
         /// Create an animated HTML attribute "class" whose value is computed from the given reactive view.
         [<Inline; CompiledName "class">]
-        let ClassAnim view convert trans = Client.Attr.Animated "class" trans view convert
+        let ClassAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "class" trans view convert.Invoke
         /// Create an HTML attribute "classid" with the given value.
-        [<Inline; CompiledName "classId">]
+        [<Inline; CompiledName "classid">]
         let ClassId value = Attr.Create "classid" value
         /// Create an HTML attribute "classid" with the given reactive value.
-        [<Inline; CompiledName "classId">]
+        [<Inline; CompiledName "classid">]
         let ClassIdDyn view = Client.Attr.Dynamic "classid" view
         /// `classid v p` sets an HTML attribute "classid" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "classId">]
+        [<Inline; CompiledName "classid">]
         let ClassIdDynPred view pred = Client.Attr.DynamicPred "classid" pred view
         /// Create an animated HTML attribute "classid" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "classId">]
-        let ClassIdAnim view convert trans = Client.Attr.Animated "classid" trans view convert
+        [<Inline; CompiledName "classid">]
+        let ClassIdAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "classid" trans view convert.Invoke
         /// Create an HTML attribute "clear" with the given value.
         [<Inline; CompiledName "clear">]
         let Clear value = Attr.Create "clear" value
@@ -1168,7 +1207,7 @@ module Html =
         let ClearDynPred view pred = Client.Attr.DynamicPred "clear" pred view
         /// Create an animated HTML attribute "clear" whose value is computed from the given reactive view.
         [<Inline; CompiledName "clear">]
-        let ClearAnim view convert trans = Client.Attr.Animated "clear" trans view convert
+        let ClearAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "clear" trans view convert.Invoke
         /// Create an HTML attribute "code" with the given value.
         [<Inline; CompiledName "code">]
         let Code value = Attr.Create "code" value
@@ -1180,31 +1219,31 @@ module Html =
         let CodeDynPred view pred = Client.Attr.DynamicPred "code" pred view
         /// Create an animated HTML attribute "code" whose value is computed from the given reactive view.
         [<Inline; CompiledName "code">]
-        let CodeAnim view convert trans = Client.Attr.Animated "code" trans view convert
+        let CodeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "code" trans view convert.Invoke
         /// Create an HTML attribute "codebase" with the given value.
-        [<Inline; CompiledName "codeBase">]
+        [<Inline; CompiledName "codebase">]
         let CodeBase value = Attr.Create "codebase" value
         /// Create an HTML attribute "codebase" with the given reactive value.
-        [<Inline; CompiledName "codeBase">]
+        [<Inline; CompiledName "codebase">]
         let CodeBaseDyn view = Client.Attr.Dynamic "codebase" view
         /// `codebase v p` sets an HTML attribute "codebase" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "codeBase">]
+        [<Inline; CompiledName "codebase">]
         let CodeBaseDynPred view pred = Client.Attr.DynamicPred "codebase" pred view
         /// Create an animated HTML attribute "codebase" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "codeBase">]
-        let CodeBaseAnim view convert trans = Client.Attr.Animated "codebase" trans view convert
+        [<Inline; CompiledName "codebase">]
+        let CodeBaseAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "codebase" trans view convert.Invoke
         /// Create an HTML attribute "codetype" with the given value.
-        [<Inline; CompiledName "codeType">]
+        [<Inline; CompiledName "codetype">]
         let CodeType value = Attr.Create "codetype" value
         /// Create an HTML attribute "codetype" with the given reactive value.
-        [<Inline; CompiledName "codeType">]
+        [<Inline; CompiledName "codetype">]
         let CodeTypeDyn view = Client.Attr.Dynamic "codetype" view
         /// `codetype v p` sets an HTML attribute "codetype" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "codeType">]
+        [<Inline; CompiledName "codetype">]
         let CodeTypeDynPred view pred = Client.Attr.DynamicPred "codetype" pred view
         /// Create an animated HTML attribute "codetype" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "codeType">]
-        let CodeTypeAnim view convert trans = Client.Attr.Animated "codetype" trans view convert
+        [<Inline; CompiledName "codetype">]
+        let CodeTypeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "codetype" trans view convert.Invoke
         /// Create an HTML attribute "color" with the given value.
         [<Inline; CompiledName "color">]
         let Color value = Attr.Create "color" value
@@ -1216,7 +1255,7 @@ module Html =
         let ColorDynPred view pred = Client.Attr.DynamicPred "color" pred view
         /// Create an animated HTML attribute "color" whose value is computed from the given reactive view.
         [<Inline; CompiledName "color">]
-        let ColorAnim view convert trans = Client.Attr.Animated "color" trans view convert
+        let ColorAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "color" trans view convert.Invoke
         /// Create an HTML attribute "cols" with the given value.
         [<Inline; CompiledName "cols">]
         let Cols value = Attr.Create "cols" value
@@ -1228,19 +1267,19 @@ module Html =
         let ColsDynPred view pred = Client.Attr.DynamicPred "cols" pred view
         /// Create an animated HTML attribute "cols" whose value is computed from the given reactive view.
         [<Inline; CompiledName "cols">]
-        let ColsAnim view convert trans = Client.Attr.Animated "cols" trans view convert
+        let ColsAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "cols" trans view convert.Invoke
         /// Create an HTML attribute "colspan" with the given value.
-        [<Inline; CompiledName "colSpan">]
+        [<Inline; CompiledName "colspan">]
         let ColSpan value = Attr.Create "colspan" value
         /// Create an HTML attribute "colspan" with the given reactive value.
-        [<Inline; CompiledName "colSpan">]
+        [<Inline; CompiledName "colspan">]
         let ColSpanDyn view = Client.Attr.Dynamic "colspan" view
         /// `colspan v p` sets an HTML attribute "colspan" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "colSpan">]
+        [<Inline; CompiledName "colspan">]
         let ColSpanDynPred view pred = Client.Attr.DynamicPred "colspan" pred view
         /// Create an animated HTML attribute "colspan" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "colSpan">]
-        let ColSpanAnim view convert trans = Client.Attr.Animated "colspan" trans view convert
+        [<Inline; CompiledName "colspan">]
+        let ColSpanAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "colspan" trans view convert.Invoke
         /// Create an HTML attribute "compact" with the given value.
         [<Inline; CompiledName "compact">]
         let Compact value = Attr.Create "compact" value
@@ -1252,7 +1291,7 @@ module Html =
         let CompactDynPred view pred = Client.Attr.DynamicPred "compact" pred view
         /// Create an animated HTML attribute "compact" whose value is computed from the given reactive view.
         [<Inline; CompiledName "compact">]
-        let CompactAnim view convert trans = Client.Attr.Animated "compact" trans view convert
+        let CompactAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "compact" trans view convert.Invoke
         /// Create an HTML attribute "content" with the given value.
         [<Inline; CompiledName "content">]
         let Content value = Attr.Create "content" value
@@ -1264,31 +1303,31 @@ module Html =
         let ContentDynPred view pred = Client.Attr.DynamicPred "content" pred view
         /// Create an animated HTML attribute "content" whose value is computed from the given reactive view.
         [<Inline; CompiledName "content">]
-        let ContentAnim view convert trans = Client.Attr.Animated "content" trans view convert
+        let ContentAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "content" trans view convert.Invoke
         /// Create an HTML attribute "contenteditable" with the given value.
-        [<Inline; CompiledName "contentEditable">]
+        [<Inline; CompiledName "contenteditable">]
         let ContentEditable value = Attr.Create "contenteditable" value
         /// Create an HTML attribute "contenteditable" with the given reactive value.
-        [<Inline; CompiledName "contentEditable">]
+        [<Inline; CompiledName "contenteditable">]
         let ContentEditableDyn view = Client.Attr.Dynamic "contenteditable" view
         /// `contenteditable v p` sets an HTML attribute "contenteditable" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "contentEditable">]
+        [<Inline; CompiledName "contenteditable">]
         let ContentEditableDynPred view pred = Client.Attr.DynamicPred "contenteditable" pred view
         /// Create an animated HTML attribute "contenteditable" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "contentEditable">]
-        let ContentEditableAnim view convert trans = Client.Attr.Animated "contenteditable" trans view convert
+        [<Inline; CompiledName "contenteditable">]
+        let ContentEditableAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "contenteditable" trans view convert.Invoke
         /// Create an HTML attribute "contextmenu" with the given value.
-        [<Inline; CompiledName "contextMenu">]
+        [<Inline; CompiledName "contextmenu">]
         let ContextMenu value = Attr.Create "contextmenu" value
         /// Create an HTML attribute "contextmenu" with the given reactive value.
-        [<Inline; CompiledName "contextMenu">]
+        [<Inline; CompiledName "contextmenu">]
         let ContextMenuDyn view = Client.Attr.Dynamic "contextmenu" view
         /// `contextmenu v p` sets an HTML attribute "contextmenu" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "contextMenu">]
+        [<Inline; CompiledName "contextmenu">]
         let ContextMenuDynPred view pred = Client.Attr.DynamicPred "contextmenu" pred view
         /// Create an animated HTML attribute "contextmenu" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "contextMenu">]
-        let ContextMenuAnim view convert trans = Client.Attr.Animated "contextmenu" trans view convert
+        [<Inline; CompiledName "contextmenu">]
+        let ContextMenuAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "contextmenu" trans view convert.Invoke
         /// Create an HTML attribute "controls" with the given value.
         [<Inline; CompiledName "controls">]
         let Controls value = Attr.Create "controls" value
@@ -1300,7 +1339,7 @@ module Html =
         let ControlsDynPred view pred = Client.Attr.DynamicPred "controls" pred view
         /// Create an animated HTML attribute "controls" whose value is computed from the given reactive view.
         [<Inline; CompiledName "controls">]
-        let ControlsAnim view convert trans = Client.Attr.Animated "controls" trans view convert
+        let ControlsAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "controls" trans view convert.Invoke
         /// Create an HTML attribute "coords" with the given value.
         [<Inline; CompiledName "coords">]
         let Coords value = Attr.Create "coords" value
@@ -1312,7 +1351,7 @@ module Html =
         let CoordsDynPred view pred = Client.Attr.DynamicPred "coords" pred view
         /// Create an animated HTML attribute "coords" whose value is computed from the given reactive view.
         [<Inline; CompiledName "coords">]
-        let CoordsAnim view convert trans = Client.Attr.Animated "coords" trans view convert
+        let CoordsAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "coords" trans view convert.Invoke
         /// Create an HTML attribute "data" with the given value.
         [<Inline; CompiledName "data">]
         let Data value = Attr.Create "data" value
@@ -1324,19 +1363,19 @@ module Html =
         let DataDynPred view pred = Client.Attr.DynamicPred "data" pred view
         /// Create an animated HTML attribute "data" whose value is computed from the given reactive view.
         [<Inline; CompiledName "data">]
-        let DataAnim view convert trans = Client.Attr.Animated "data" trans view convert
+        let DataAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "data" trans view convert.Invoke
         /// Create an HTML attribute "datetime" with the given value.
-        [<Inline; CompiledName "dateTime">]
+        [<Inline; CompiledName "datetime">]
         let DateTime value = Attr.Create "datetime" value
         /// Create an HTML attribute "datetime" with the given reactive value.
-        [<Inline; CompiledName "dateTime">]
+        [<Inline; CompiledName "datetime">]
         let DateTimeDyn view = Client.Attr.Dynamic "datetime" view
         /// `datetime v p` sets an HTML attribute "datetime" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "dateTime">]
+        [<Inline; CompiledName "datetime">]
         let DateTimeDynPred view pred = Client.Attr.DynamicPred "datetime" pred view
         /// Create an animated HTML attribute "datetime" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "dateTime">]
-        let DateTimeAnim view convert trans = Client.Attr.Animated "datetime" trans view convert
+        [<Inline; CompiledName "datetime">]
+        let DateTimeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "datetime" trans view convert.Invoke
         /// Create an HTML attribute "declare" with the given value.
         [<Inline; CompiledName "declare">]
         let Declare value = Attr.Create "declare" value
@@ -1348,7 +1387,7 @@ module Html =
         let DeclareDynPred view pred = Client.Attr.DynamicPred "declare" pred view
         /// Create an animated HTML attribute "declare" whose value is computed from the given reactive view.
         [<Inline; CompiledName "declare">]
-        let DeclareAnim view convert trans = Client.Attr.Animated "declare" trans view convert
+        let DeclareAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "declare" trans view convert.Invoke
         /// Create an HTML attribute "default" with the given value.
         [<Inline; CompiledName "default">]
         let Default value = Attr.Create "default" value
@@ -1360,7 +1399,7 @@ module Html =
         let DefaultDynPred view pred = Client.Attr.DynamicPred "default" pred view
         /// Create an animated HTML attribute "default" whose value is computed from the given reactive view.
         [<Inline; CompiledName "default">]
-        let DefaultAnim view convert trans = Client.Attr.Animated "default" trans view convert
+        let DefaultAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "default" trans view convert.Invoke
         /// Create an HTML attribute "defer" with the given value.
         [<Inline; CompiledName "defer">]
         let Defer value = Attr.Create "defer" value
@@ -1372,7 +1411,7 @@ module Html =
         let DeferDynPred view pred = Client.Attr.DynamicPred "defer" pred view
         /// Create an animated HTML attribute "defer" whose value is computed from the given reactive view.
         [<Inline; CompiledName "defer">]
-        let DeferAnim view convert trans = Client.Attr.Animated "defer" trans view convert
+        let DeferAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "defer" trans view convert.Invoke
         /// Create an HTML attribute "dir" with the given value.
         [<Inline; CompiledName "dir">]
         let Dir value = Attr.Create "dir" value
@@ -1384,7 +1423,7 @@ module Html =
         let DirDynPred view pred = Client.Attr.DynamicPred "dir" pred view
         /// Create an animated HTML attribute "dir" whose value is computed from the given reactive view.
         [<Inline; CompiledName "dir">]
-        let DirAnim view convert trans = Client.Attr.Animated "dir" trans view convert
+        let DirAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "dir" trans view convert.Invoke
         /// Create an HTML attribute "disabled" with the given value.
         [<Inline; CompiledName "disabled">]
         let Disabled value = Attr.Create "disabled" value
@@ -1396,7 +1435,7 @@ module Html =
         let DisabledDynPred view pred = Client.Attr.DynamicPred "disabled" pred view
         /// Create an animated HTML attribute "disabled" whose value is computed from the given reactive view.
         [<Inline; CompiledName "disabled">]
-        let DisabledAnim view convert trans = Client.Attr.Animated "disabled" trans view convert
+        let DisabledAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "disabled" trans view convert.Invoke
         /// Create an HTML attribute "download" with the given value.
         [<Inline; CompiledName "download">]
         let Download value = Attr.Create "download" value
@@ -1408,7 +1447,7 @@ module Html =
         let DownloadDynPred view pred = Client.Attr.DynamicPred "download" pred view
         /// Create an animated HTML attribute "download" whose value is computed from the given reactive view.
         [<Inline; CompiledName "download">]
-        let DownloadAnim view convert trans = Client.Attr.Animated "download" trans view convert
+        let DownloadAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "download" trans view convert.Invoke
         /// Create an HTML attribute "draggable" with the given value.
         [<Inline; CompiledName "draggable">]
         let Draggable value = Attr.Create "draggable" value
@@ -1420,31 +1459,31 @@ module Html =
         let DraggableDynPred view pred = Client.Attr.DynamicPred "draggable" pred view
         /// Create an animated HTML attribute "draggable" whose value is computed from the given reactive view.
         [<Inline; CompiledName "draggable">]
-        let DraggableAnim view convert trans = Client.Attr.Animated "draggable" trans view convert
+        let DraggableAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "draggable" trans view convert.Invoke
         /// Create an HTML attribute "dropzone" with the given value.
-        [<Inline; CompiledName "dropZone">]
+        [<Inline; CompiledName "dropzone">]
         let DropZone value = Attr.Create "dropzone" value
         /// Create an HTML attribute "dropzone" with the given reactive value.
-        [<Inline; CompiledName "dropZone">]
+        [<Inline; CompiledName "dropzone">]
         let DropZoneDyn view = Client.Attr.Dynamic "dropzone" view
         /// `dropzone v p` sets an HTML attribute "dropzone" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "dropZone">]
+        [<Inline; CompiledName "dropzone">]
         let DropZoneDynPred view pred = Client.Attr.DynamicPred "dropzone" pred view
         /// Create an animated HTML attribute "dropzone" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "dropZone">]
-        let DropZoneAnim view convert trans = Client.Attr.Animated "dropzone" trans view convert
+        [<Inline; CompiledName "dropzone">]
+        let DropZoneAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "dropzone" trans view convert.Invoke
         /// Create an HTML attribute "enctype" with the given value.
-        [<Inline; CompiledName "encType">]
+        [<Inline; CompiledName "enctype">]
         let EncType value = Attr.Create "enctype" value
         /// Create an HTML attribute "enctype" with the given reactive value.
-        [<Inline; CompiledName "encType">]
+        [<Inline; CompiledName "enctype">]
         let EncTypeDyn view = Client.Attr.Dynamic "enctype" view
         /// `enctype v p` sets an HTML attribute "enctype" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "encType">]
+        [<Inline; CompiledName "enctype">]
         let EncTypeDynPred view pred = Client.Attr.DynamicPred "enctype" pred view
         /// Create an animated HTML attribute "enctype" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "encType">]
-        let EncTypeAnim view convert trans = Client.Attr.Animated "enctype" trans view convert
+        [<Inline; CompiledName "enctype">]
+        let EncTypeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "enctype" trans view convert.Invoke
         /// Create an HTML attribute "face" with the given value.
         [<Inline; CompiledName "face">]
         let Face value = Attr.Create "face" value
@@ -1456,7 +1495,7 @@ module Html =
         let FaceDynPred view pred = Client.Attr.DynamicPred "face" pred view
         /// Create an animated HTML attribute "face" whose value is computed from the given reactive view.
         [<Inline; CompiledName "face">]
-        let FaceAnim view convert trans = Client.Attr.Animated "face" trans view convert
+        let FaceAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "face" trans view convert.Invoke
         /// Create an HTML attribute "for" with the given value.
         [<Inline; CompiledName "for">]
         let For value = Attr.Create "for" value
@@ -1468,7 +1507,7 @@ module Html =
         let ForDynPred view pred = Client.Attr.DynamicPred "for" pred view
         /// Create an animated HTML attribute "for" whose value is computed from the given reactive view.
         [<Inline; CompiledName "for">]
-        let ForAnim view convert trans = Client.Attr.Animated "for" trans view convert
+        let ForAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "for" trans view convert.Invoke
         /// Create an HTML attribute "form" with the given value.
         [<Inline; CompiledName "form">]
         let Form value = Attr.Create "form" value
@@ -1480,67 +1519,67 @@ module Html =
         let FormDynPred view pred = Client.Attr.DynamicPred "form" pred view
         /// Create an animated HTML attribute "form" whose value is computed from the given reactive view.
         [<Inline; CompiledName "form">]
-        let FormAnim view convert trans = Client.Attr.Animated "form" trans view convert
+        let FormAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "form" trans view convert.Invoke
         /// Create an HTML attribute "formaction" with the given value.
-        [<Inline; CompiledName "formAction">]
+        [<Inline; CompiledName "formaction">]
         let FormAction value = Attr.Create "formaction" value
         /// Create an HTML attribute "formaction" with the given reactive value.
-        [<Inline; CompiledName "formAction">]
+        [<Inline; CompiledName "formaction">]
         let FormActionDyn view = Client.Attr.Dynamic "formaction" view
         /// `formaction v p` sets an HTML attribute "formaction" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "formAction">]
+        [<Inline; CompiledName "formaction">]
         let FormActionDynPred view pred = Client.Attr.DynamicPred "formaction" pred view
         /// Create an animated HTML attribute "formaction" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "formAction">]
-        let FormActionAnim view convert trans = Client.Attr.Animated "formaction" trans view convert
+        [<Inline; CompiledName "formaction">]
+        let FormActionAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "formaction" trans view convert.Invoke
         /// Create an HTML attribute "formenctype" with the given value.
-        [<Inline; CompiledName "formEncType">]
+        [<Inline; CompiledName "formenctype">]
         let FormEncType value = Attr.Create "formenctype" value
         /// Create an HTML attribute "formenctype" with the given reactive value.
-        [<Inline; CompiledName "formEncType">]
+        [<Inline; CompiledName "formenctype">]
         let FormEncTypeDyn view = Client.Attr.Dynamic "formenctype" view
         /// `formenctype v p` sets an HTML attribute "formenctype" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "formEncType">]
+        [<Inline; CompiledName "formenctype">]
         let FormEncTypeDynPred view pred = Client.Attr.DynamicPred "formenctype" pred view
         /// Create an animated HTML attribute "formenctype" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "formEncType">]
-        let FormEncTypeAnim view convert trans = Client.Attr.Animated "formenctype" trans view convert
+        [<Inline; CompiledName "formenctype">]
+        let FormEncTypeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "formenctype" trans view convert.Invoke
         /// Create an HTML attribute "formmethod" with the given value.
-        [<Inline; CompiledName "formMethod">]
+        [<Inline; CompiledName "formmethod">]
         let FormMethod value = Attr.Create "formmethod" value
         /// Create an HTML attribute "formmethod" with the given reactive value.
-        [<Inline; CompiledName "formMethod">]
+        [<Inline; CompiledName "formmethod">]
         let FormMethodDyn view = Client.Attr.Dynamic "formmethod" view
         /// `formmethod v p` sets an HTML attribute "formmethod" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "formMethod">]
+        [<Inline; CompiledName "formmethod">]
         let FormMethodDynPred view pred = Client.Attr.DynamicPred "formmethod" pred view
         /// Create an animated HTML attribute "formmethod" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "formMethod">]
-        let FormMethodAnim view convert trans = Client.Attr.Animated "formmethod" trans view convert
+        [<Inline; CompiledName "formmethod">]
+        let FormMethodAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "formmethod" trans view convert.Invoke
         /// Create an HTML attribute "formnovalidate" with the given value.
-        [<Inline; CompiledName "formNoValidate">]
+        [<Inline; CompiledName "formnovalidate">]
         let FormNoValidate value = Attr.Create "formnovalidate" value
         /// Create an HTML attribute "formnovalidate" with the given reactive value.
-        [<Inline; CompiledName "formNoValidate">]
+        [<Inline; CompiledName "formnovalidate">]
         let FormNoValidateDyn view = Client.Attr.Dynamic "formnovalidate" view
         /// `formnovalidate v p` sets an HTML attribute "formnovalidate" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "formNoValidate">]
+        [<Inline; CompiledName "formnovalidate">]
         let FormNoValidateDynPred view pred = Client.Attr.DynamicPred "formnovalidate" pred view
         /// Create an animated HTML attribute "formnovalidate" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "formNoValidate">]
-        let FormNoValidateAnim view convert trans = Client.Attr.Animated "formnovalidate" trans view convert
+        [<Inline; CompiledName "formnovalidate">]
+        let FormNoValidateAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "formnovalidate" trans view convert.Invoke
         /// Create an HTML attribute "formtarget" with the given value.
-        [<Inline; CompiledName "formTarget">]
+        [<Inline; CompiledName "formtarget">]
         let FormTarget value = Attr.Create "formtarget" value
         /// Create an HTML attribute "formtarget" with the given reactive value.
-        [<Inline; CompiledName "formTarget">]
+        [<Inline; CompiledName "formtarget">]
         let FormTargetDyn view = Client.Attr.Dynamic "formtarget" view
         /// `formtarget v p` sets an HTML attribute "formtarget" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "formTarget">]
+        [<Inline; CompiledName "formtarget">]
         let FormTargetDynPred view pred = Client.Attr.DynamicPred "formtarget" pred view
         /// Create an animated HTML attribute "formtarget" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "formTarget">]
-        let FormTargetAnim view convert trans = Client.Attr.Animated "formtarget" trans view convert
+        [<Inline; CompiledName "formtarget">]
+        let FormTargetAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "formtarget" trans view convert.Invoke
         /// Create an HTML attribute "frame" with the given value.
         [<Inline; CompiledName "frame">]
         let Frame value = Attr.Create "frame" value
@@ -1552,19 +1591,19 @@ module Html =
         let FrameDynPred view pred = Client.Attr.DynamicPred "frame" pred view
         /// Create an animated HTML attribute "frame" whose value is computed from the given reactive view.
         [<Inline; CompiledName "frame">]
-        let FrameAnim view convert trans = Client.Attr.Animated "frame" trans view convert
+        let FrameAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "frame" trans view convert.Invoke
         /// Create an HTML attribute "frameborder" with the given value.
-        [<Inline; CompiledName "frameBorder">]
+        [<Inline; CompiledName "frameborder">]
         let FrameBorder value = Attr.Create "frameborder" value
         /// Create an HTML attribute "frameborder" with the given reactive value.
-        [<Inline; CompiledName "frameBorder">]
+        [<Inline; CompiledName "frameborder">]
         let FrameBorderDyn view = Client.Attr.Dynamic "frameborder" view
         /// `frameborder v p` sets an HTML attribute "frameborder" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "frameBorder">]
+        [<Inline; CompiledName "frameborder">]
         let FrameBorderDynPred view pred = Client.Attr.DynamicPred "frameborder" pred view
         /// Create an animated HTML attribute "frameborder" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "frameBorder">]
-        let FrameBorderAnim view convert trans = Client.Attr.Animated "frameborder" trans view convert
+        [<Inline; CompiledName "frameborder">]
+        let FrameBorderAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "frameborder" trans view convert.Invoke
         /// Create an HTML attribute "headers" with the given value.
         [<Inline; CompiledName "headers">]
         let Headers value = Attr.Create "headers" value
@@ -1576,7 +1615,7 @@ module Html =
         let HeadersDynPred view pred = Client.Attr.DynamicPred "headers" pred view
         /// Create an animated HTML attribute "headers" whose value is computed from the given reactive view.
         [<Inline; CompiledName "headers">]
-        let HeadersAnim view convert trans = Client.Attr.Animated "headers" trans view convert
+        let HeadersAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "headers" trans view convert.Invoke
         /// Create an HTML attribute "height" with the given value.
         [<Inline; CompiledName "height">]
         let Height value = Attr.Create "height" value
@@ -1588,7 +1627,7 @@ module Html =
         let HeightDynPred view pred = Client.Attr.DynamicPred "height" pred view
         /// Create an animated HTML attribute "height" whose value is computed from the given reactive view.
         [<Inline; CompiledName "height">]
-        let HeightAnim view convert trans = Client.Attr.Animated "height" trans view convert
+        let HeightAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "height" trans view convert.Invoke
         /// Create an HTML attribute "hidden" with the given value.
         [<Inline; CompiledName "hidden">]
         let Hidden value = Attr.Create "hidden" value
@@ -1600,7 +1639,7 @@ module Html =
         let HiddenDynPred view pred = Client.Attr.DynamicPred "hidden" pred view
         /// Create an animated HTML attribute "hidden" whose value is computed from the given reactive view.
         [<Inline; CompiledName "hidden">]
-        let HiddenAnim view convert trans = Client.Attr.Animated "hidden" trans view convert
+        let HiddenAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "hidden" trans view convert.Invoke
         /// Create an HTML attribute "high" with the given value.
         [<Inline; CompiledName "high">]
         let High value = Attr.Create "high" value
@@ -1612,55 +1651,55 @@ module Html =
         let HighDynPred view pred = Client.Attr.DynamicPred "high" pred view
         /// Create an animated HTML attribute "high" whose value is computed from the given reactive view.
         [<Inline; CompiledName "high">]
-        let HighAnim view convert trans = Client.Attr.Animated "high" trans view convert
+        let HighAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "high" trans view convert.Invoke
         /// Create an HTML attribute "href" with the given value.
-        [<Inline; CompiledName "hRef">]
+        [<Inline; CompiledName "href">]
         let HRef value = Attr.Create "href" value
         /// Create an HTML attribute "href" with the given reactive value.
-        [<Inline; CompiledName "hRef">]
+        [<Inline; CompiledName "href">]
         let HRefDyn view = Client.Attr.Dynamic "href" view
         /// `href v p` sets an HTML attribute "href" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "hRef">]
+        [<Inline; CompiledName "href">]
         let HRefDynPred view pred = Client.Attr.DynamicPred "href" pred view
         /// Create an animated HTML attribute "href" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "hRef">]
-        let HRefAnim view convert trans = Client.Attr.Animated "href" trans view convert
+        [<Inline; CompiledName "href">]
+        let HRefAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "href" trans view convert.Invoke
         /// Create an HTML attribute "hreflang" with the given value.
-        [<Inline; CompiledName "hRefLang">]
+        [<Inline; CompiledName "hreflang">]
         let HRefLang value = Attr.Create "hreflang" value
         /// Create an HTML attribute "hreflang" with the given reactive value.
-        [<Inline; CompiledName "hRefLang">]
+        [<Inline; CompiledName "hreflang">]
         let HRefLangDyn view = Client.Attr.Dynamic "hreflang" view
         /// `hreflang v p` sets an HTML attribute "hreflang" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "hRefLang">]
+        [<Inline; CompiledName "hreflang">]
         let HRefLangDynPred view pred = Client.Attr.DynamicPred "hreflang" pred view
         /// Create an animated HTML attribute "hreflang" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "hRefLang">]
-        let HRefLangAnim view convert trans = Client.Attr.Animated "hreflang" trans view convert
+        [<Inline; CompiledName "hreflang">]
+        let HRefLangAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "hreflang" trans view convert.Invoke
         /// Create an HTML attribute "hspace" with the given value.
-        [<Inline; CompiledName "hSpace">]
+        [<Inline; CompiledName "hspace">]
         let HSpace value = Attr.Create "hspace" value
         /// Create an HTML attribute "hspace" with the given reactive value.
-        [<Inline; CompiledName "hSpace">]
+        [<Inline; CompiledName "hspace">]
         let HSpaceDyn view = Client.Attr.Dynamic "hspace" view
         /// `hspace v p` sets an HTML attribute "hspace" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "hSpace">]
+        [<Inline; CompiledName "hspace">]
         let HSpaceDynPred view pred = Client.Attr.DynamicPred "hspace" pred view
         /// Create an animated HTML attribute "hspace" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "hSpace">]
-        let HSpaceAnim view convert trans = Client.Attr.Animated "hspace" trans view convert
+        [<Inline; CompiledName "hspace">]
+        let HSpaceAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "hspace" trans view convert.Invoke
         /// Create an HTML attribute "http" with the given value.
-        [<Inline; CompiledName "httpEquiv">]
+        [<Inline; CompiledName "http">]
         let HttpEquiv value = Attr.Create "http" value
         /// Create an HTML attribute "http" with the given reactive value.
-        [<Inline; CompiledName "httpEquiv">]
+        [<Inline; CompiledName "http">]
         let HttpEquivDyn view = Client.Attr.Dynamic "http" view
         /// `http v p` sets an HTML attribute "http" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "httpEquiv">]
+        [<Inline; CompiledName "http">]
         let HttpEquivDynPred view pred = Client.Attr.DynamicPred "http" pred view
         /// Create an animated HTML attribute "http" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "httpEquiv">]
-        let HttpEquivAnim view convert trans = Client.Attr.Animated "http" trans view convert
+        [<Inline; CompiledName "http">]
+        let HttpEquivAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "http" trans view convert.Invoke
         /// Create an HTML attribute "icon" with the given value.
         [<Inline; CompiledName "icon">]
         let Icon value = Attr.Create "icon" value
@@ -1672,7 +1711,7 @@ module Html =
         let IconDynPred view pred = Client.Attr.DynamicPred "icon" pred view
         /// Create an animated HTML attribute "icon" whose value is computed from the given reactive view.
         [<Inline; CompiledName "icon">]
-        let IconAnim view convert trans = Client.Attr.Animated "icon" trans view convert
+        let IconAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "icon" trans view convert.Invoke
         /// Create an HTML attribute "id" with the given value.
         [<Inline; CompiledName "id">]
         let Id value = Attr.Create "id" value
@@ -1684,43 +1723,43 @@ module Html =
         let IdDynPred view pred = Client.Attr.DynamicPred "id" pred view
         /// Create an animated HTML attribute "id" whose value is computed from the given reactive view.
         [<Inline; CompiledName "id">]
-        let IdAnim view convert trans = Client.Attr.Animated "id" trans view convert
+        let IdAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "id" trans view convert.Invoke
         /// Create an HTML attribute "ismap" with the given value.
-        [<Inline; CompiledName "isMap">]
+        [<Inline; CompiledName "ismap">]
         let IsMap value = Attr.Create "ismap" value
         /// Create an HTML attribute "ismap" with the given reactive value.
-        [<Inline; CompiledName "isMap">]
+        [<Inline; CompiledName "ismap">]
         let IsMapDyn view = Client.Attr.Dynamic "ismap" view
         /// `ismap v p` sets an HTML attribute "ismap" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "isMap">]
+        [<Inline; CompiledName "ismap">]
         let IsMapDynPred view pred = Client.Attr.DynamicPred "ismap" pred view
         /// Create an animated HTML attribute "ismap" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "isMap">]
-        let IsMapAnim view convert trans = Client.Attr.Animated "ismap" trans view convert
+        [<Inline; CompiledName "ismap">]
+        let IsMapAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "ismap" trans view convert.Invoke
         /// Create an HTML attribute "itemprop" with the given value.
-        [<Inline; CompiledName "itemProp">]
+        [<Inline; CompiledName "itemprop">]
         let ItemProp value = Attr.Create "itemprop" value
         /// Create an HTML attribute "itemprop" with the given reactive value.
-        [<Inline; CompiledName "itemProp">]
+        [<Inline; CompiledName "itemprop">]
         let ItemPropDyn view = Client.Attr.Dynamic "itemprop" view
         /// `itemprop v p` sets an HTML attribute "itemprop" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "itemProp">]
+        [<Inline; CompiledName "itemprop">]
         let ItemPropDynPred view pred = Client.Attr.DynamicPred "itemprop" pred view
         /// Create an animated HTML attribute "itemprop" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "itemProp">]
-        let ItemPropAnim view convert trans = Client.Attr.Animated "itemprop" trans view convert
+        [<Inline; CompiledName "itemprop">]
+        let ItemPropAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "itemprop" trans view convert.Invoke
         /// Create an HTML attribute "keytype" with the given value.
-        [<Inline; CompiledName "keyType">]
+        [<Inline; CompiledName "keytype">]
         let KeyType value = Attr.Create "keytype" value
         /// Create an HTML attribute "keytype" with the given reactive value.
-        [<Inline; CompiledName "keyType">]
+        [<Inline; CompiledName "keytype">]
         let KeyTypeDyn view = Client.Attr.Dynamic "keytype" view
         /// `keytype v p` sets an HTML attribute "keytype" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "keyType">]
+        [<Inline; CompiledName "keytype">]
         let KeyTypeDynPred view pred = Client.Attr.DynamicPred "keytype" pred view
         /// Create an animated HTML attribute "keytype" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "keyType">]
-        let KeyTypeAnim view convert trans = Client.Attr.Animated "keytype" trans view convert
+        [<Inline; CompiledName "keytype">]
+        let KeyTypeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "keytype" trans view convert.Invoke
         /// Create an HTML attribute "kind" with the given value.
         [<Inline; CompiledName "kind">]
         let Kind value = Attr.Create "kind" value
@@ -1732,7 +1771,7 @@ module Html =
         let KindDynPred view pred = Client.Attr.DynamicPred "kind" pred view
         /// Create an animated HTML attribute "kind" whose value is computed from the given reactive view.
         [<Inline; CompiledName "kind">]
-        let KindAnim view convert trans = Client.Attr.Animated "kind" trans view convert
+        let KindAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "kind" trans view convert.Invoke
         /// Create an HTML attribute "label" with the given value.
         [<Inline; CompiledName "label">]
         let Label value = Attr.Create "label" value
@@ -1744,7 +1783,7 @@ module Html =
         let LabelDynPred view pred = Client.Attr.DynamicPred "label" pred view
         /// Create an animated HTML attribute "label" whose value is computed from the given reactive view.
         [<Inline; CompiledName "label">]
-        let LabelAnim view convert trans = Client.Attr.Animated "label" trans view convert
+        let LabelAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "label" trans view convert.Invoke
         /// Create an HTML attribute "lang" with the given value.
         [<Inline; CompiledName "lang">]
         let Lang value = Attr.Create "lang" value
@@ -1756,7 +1795,7 @@ module Html =
         let LangDynPred view pred = Client.Attr.DynamicPred "lang" pred view
         /// Create an animated HTML attribute "lang" whose value is computed from the given reactive view.
         [<Inline; CompiledName "lang">]
-        let LangAnim view convert trans = Client.Attr.Animated "lang" trans view convert
+        let LangAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "lang" trans view convert.Invoke
         /// Create an HTML attribute "language" with the given value.
         [<Inline; CompiledName "language">]
         let Language value = Attr.Create "language" value
@@ -1768,7 +1807,7 @@ module Html =
         let LanguageDynPred view pred = Client.Attr.DynamicPred "language" pred view
         /// Create an animated HTML attribute "language" whose value is computed from the given reactive view.
         [<Inline; CompiledName "language">]
-        let LanguageAnim view convert trans = Client.Attr.Animated "language" trans view convert
+        let LanguageAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "language" trans view convert.Invoke
         /// Create an HTML attribute "link" with the given value.
         [<Inline; CompiledName "link">]
         let Link value = Attr.Create "link" value
@@ -1780,7 +1819,7 @@ module Html =
         let LinkDynPred view pred = Client.Attr.DynamicPred "link" pred view
         /// Create an animated HTML attribute "link" whose value is computed from the given reactive view.
         [<Inline; CompiledName "link">]
-        let LinkAnim view convert trans = Client.Attr.Animated "link" trans view convert
+        let LinkAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "link" trans view convert.Invoke
         /// Create an HTML attribute "list" with the given value.
         [<Inline; CompiledName "list">]
         let List value = Attr.Create "list" value
@@ -1792,19 +1831,19 @@ module Html =
         let ListDynPred view pred = Client.Attr.DynamicPred "list" pred view
         /// Create an animated HTML attribute "list" whose value is computed from the given reactive view.
         [<Inline; CompiledName "list">]
-        let ListAnim view convert trans = Client.Attr.Animated "list" trans view convert
+        let ListAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "list" trans view convert.Invoke
         /// Create an HTML attribute "longdesc" with the given value.
-        [<Inline; CompiledName "longDesc">]
+        [<Inline; CompiledName "longdesc">]
         let LongDesc value = Attr.Create "longdesc" value
         /// Create an HTML attribute "longdesc" with the given reactive value.
-        [<Inline; CompiledName "longDesc">]
+        [<Inline; CompiledName "longdesc">]
         let LongDescDyn view = Client.Attr.Dynamic "longdesc" view
         /// `longdesc v p` sets an HTML attribute "longdesc" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "longDesc">]
+        [<Inline; CompiledName "longdesc">]
         let LongDescDynPred view pred = Client.Attr.DynamicPred "longdesc" pred view
         /// Create an animated HTML attribute "longdesc" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "longDesc">]
-        let LongDescAnim view convert trans = Client.Attr.Animated "longdesc" trans view convert
+        [<Inline; CompiledName "longdesc">]
+        let LongDescAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "longdesc" trans view convert.Invoke
         /// Create an HTML attribute "loop" with the given value.
         [<Inline; CompiledName "loop">]
         let Loop value = Attr.Create "loop" value
@@ -1816,7 +1855,7 @@ module Html =
         let LoopDynPred view pred = Client.Attr.DynamicPred "loop" pred view
         /// Create an animated HTML attribute "loop" whose value is computed from the given reactive view.
         [<Inline; CompiledName "loop">]
-        let LoopAnim view convert trans = Client.Attr.Animated "loop" trans view convert
+        let LoopAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "loop" trans view convert.Invoke
         /// Create an HTML attribute "low" with the given value.
         [<Inline; CompiledName "low">]
         let Low value = Attr.Create "low" value
@@ -1828,7 +1867,7 @@ module Html =
         let LowDynPred view pred = Client.Attr.DynamicPred "low" pred view
         /// Create an animated HTML attribute "low" whose value is computed from the given reactive view.
         [<Inline; CompiledName "low">]
-        let LowAnim view convert trans = Client.Attr.Animated "low" trans view convert
+        let LowAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "low" trans view convert.Invoke
         /// Create an HTML attribute "manifest" with the given value.
         [<Inline; CompiledName "manifest">]
         let Manifest value = Attr.Create "manifest" value
@@ -1840,31 +1879,31 @@ module Html =
         let ManifestDynPred view pred = Client.Attr.DynamicPred "manifest" pred view
         /// Create an animated HTML attribute "manifest" whose value is computed from the given reactive view.
         [<Inline; CompiledName "manifest">]
-        let ManifestAnim view convert trans = Client.Attr.Animated "manifest" trans view convert
+        let ManifestAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "manifest" trans view convert.Invoke
         /// Create an HTML attribute "marginheight" with the given value.
-        [<Inline; CompiledName "marginHeight">]
+        [<Inline; CompiledName "marginheight">]
         let MarginHeight value = Attr.Create "marginheight" value
         /// Create an HTML attribute "marginheight" with the given reactive value.
-        [<Inline; CompiledName "marginHeight">]
+        [<Inline; CompiledName "marginheight">]
         let MarginHeightDyn view = Client.Attr.Dynamic "marginheight" view
         /// `marginheight v p` sets an HTML attribute "marginheight" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "marginHeight">]
+        [<Inline; CompiledName "marginheight">]
         let MarginHeightDynPred view pred = Client.Attr.DynamicPred "marginheight" pred view
         /// Create an animated HTML attribute "marginheight" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "marginHeight">]
-        let MarginHeightAnim view convert trans = Client.Attr.Animated "marginheight" trans view convert
+        [<Inline; CompiledName "marginheight">]
+        let MarginHeightAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "marginheight" trans view convert.Invoke
         /// Create an HTML attribute "marginwidth" with the given value.
-        [<Inline; CompiledName "marginWidth">]
+        [<Inline; CompiledName "marginwidth">]
         let MarginWidth value = Attr.Create "marginwidth" value
         /// Create an HTML attribute "marginwidth" with the given reactive value.
-        [<Inline; CompiledName "marginWidth">]
+        [<Inline; CompiledName "marginwidth">]
         let MarginWidthDyn view = Client.Attr.Dynamic "marginwidth" view
         /// `marginwidth v p` sets an HTML attribute "marginwidth" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "marginWidth">]
+        [<Inline; CompiledName "marginwidth">]
         let MarginWidthDynPred view pred = Client.Attr.DynamicPred "marginwidth" pred view
         /// Create an animated HTML attribute "marginwidth" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "marginWidth">]
-        let MarginWidthAnim view convert trans = Client.Attr.Animated "marginwidth" trans view convert
+        [<Inline; CompiledName "marginwidth">]
+        let MarginWidthAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "marginwidth" trans view convert.Invoke
         /// Create an HTML attribute "max" with the given value.
         [<Inline; CompiledName "max">]
         let Max value = Attr.Create "max" value
@@ -1876,19 +1915,19 @@ module Html =
         let MaxDynPred view pred = Client.Attr.DynamicPred "max" pred view
         /// Create an animated HTML attribute "max" whose value is computed from the given reactive view.
         [<Inline; CompiledName "max">]
-        let MaxAnim view convert trans = Client.Attr.Animated "max" trans view convert
+        let MaxAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "max" trans view convert.Invoke
         /// Create an HTML attribute "maxlength" with the given value.
-        [<Inline; CompiledName "maxLength">]
+        [<Inline; CompiledName "maxlength">]
         let MaxLength value = Attr.Create "maxlength" value
         /// Create an HTML attribute "maxlength" with the given reactive value.
-        [<Inline; CompiledName "maxLength">]
+        [<Inline; CompiledName "maxlength">]
         let MaxLengthDyn view = Client.Attr.Dynamic "maxlength" view
         /// `maxlength v p` sets an HTML attribute "maxlength" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "maxLength">]
+        [<Inline; CompiledName "maxlength">]
         let MaxLengthDynPred view pred = Client.Attr.DynamicPred "maxlength" pred view
         /// Create an animated HTML attribute "maxlength" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "maxLength">]
-        let MaxLengthAnim view convert trans = Client.Attr.Animated "maxlength" trans view convert
+        [<Inline; CompiledName "maxlength">]
+        let MaxLengthAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "maxlength" trans view convert.Invoke
         /// Create an HTML attribute "media" with the given value.
         [<Inline; CompiledName "media">]
         let Media value = Attr.Create "media" value
@@ -1900,7 +1939,7 @@ module Html =
         let MediaDynPred view pred = Client.Attr.DynamicPred "media" pred view
         /// Create an animated HTML attribute "media" whose value is computed from the given reactive view.
         [<Inline; CompiledName "media">]
-        let MediaAnim view convert trans = Client.Attr.Animated "media" trans view convert
+        let MediaAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "media" trans view convert.Invoke
         /// Create an HTML attribute "method" with the given value.
         [<Inline; CompiledName "method">]
         let Method value = Attr.Create "method" value
@@ -1912,7 +1951,7 @@ module Html =
         let MethodDynPred view pred = Client.Attr.DynamicPred "method" pred view
         /// Create an animated HTML attribute "method" whose value is computed from the given reactive view.
         [<Inline; CompiledName "method">]
-        let MethodAnim view convert trans = Client.Attr.Animated "method" trans view convert
+        let MethodAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "method" trans view convert.Invoke
         /// Create an HTML attribute "min" with the given value.
         [<Inline; CompiledName "min">]
         let Min value = Attr.Create "min" value
@@ -1924,7 +1963,7 @@ module Html =
         let MinDynPred view pred = Client.Attr.DynamicPred "min" pred view
         /// Create an animated HTML attribute "min" whose value is computed from the given reactive view.
         [<Inline; CompiledName "min">]
-        let MinAnim view convert trans = Client.Attr.Animated "min" trans view convert
+        let MinAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "min" trans view convert.Invoke
         /// Create an HTML attribute "multiple" with the given value.
         [<Inline; CompiledName "multiple">]
         let Multiple value = Attr.Create "multiple" value
@@ -1936,7 +1975,7 @@ module Html =
         let MultipleDynPred view pred = Client.Attr.DynamicPred "multiple" pred view
         /// Create an animated HTML attribute "multiple" whose value is computed from the given reactive view.
         [<Inline; CompiledName "multiple">]
-        let MultipleAnim view convert trans = Client.Attr.Animated "multiple" trans view convert
+        let MultipleAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "multiple" trans view convert.Invoke
         /// Create an HTML attribute "name" with the given value.
         [<Inline; CompiledName "name">]
         let Name value = Attr.Create "name" value
@@ -1948,67 +1987,67 @@ module Html =
         let NameDynPred view pred = Client.Attr.DynamicPred "name" pred view
         /// Create an animated HTML attribute "name" whose value is computed from the given reactive view.
         [<Inline; CompiledName "name">]
-        let NameAnim view convert trans = Client.Attr.Animated "name" trans view convert
+        let NameAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "name" trans view convert.Invoke
         /// Create an HTML attribute "nohref" with the given value.
-        [<Inline; CompiledName "noHRef">]
+        [<Inline; CompiledName "nohref">]
         let NoHRef value = Attr.Create "nohref" value
         /// Create an HTML attribute "nohref" with the given reactive value.
-        [<Inline; CompiledName "noHRef">]
+        [<Inline; CompiledName "nohref">]
         let NoHRefDyn view = Client.Attr.Dynamic "nohref" view
         /// `nohref v p` sets an HTML attribute "nohref" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "noHRef">]
+        [<Inline; CompiledName "nohref">]
         let NoHRefDynPred view pred = Client.Attr.DynamicPred "nohref" pred view
         /// Create an animated HTML attribute "nohref" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "noHRef">]
-        let NoHRefAnim view convert trans = Client.Attr.Animated "nohref" trans view convert
+        [<Inline; CompiledName "nohref">]
+        let NoHRefAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "nohref" trans view convert.Invoke
         /// Create an HTML attribute "noresize" with the given value.
-        [<Inline; CompiledName "noResize">]
+        [<Inline; CompiledName "noresize">]
         let NoResize value = Attr.Create "noresize" value
         /// Create an HTML attribute "noresize" with the given reactive value.
-        [<Inline; CompiledName "noResize">]
+        [<Inline; CompiledName "noresize">]
         let NoResizeDyn view = Client.Attr.Dynamic "noresize" view
         /// `noresize v p` sets an HTML attribute "noresize" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "noResize">]
+        [<Inline; CompiledName "noresize">]
         let NoResizeDynPred view pred = Client.Attr.DynamicPred "noresize" pred view
         /// Create an animated HTML attribute "noresize" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "noResize">]
-        let NoResizeAnim view convert trans = Client.Attr.Animated "noresize" trans view convert
+        [<Inline; CompiledName "noresize">]
+        let NoResizeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "noresize" trans view convert.Invoke
         /// Create an HTML attribute "noshade" with the given value.
-        [<Inline; CompiledName "noShade">]
+        [<Inline; CompiledName "noshade">]
         let NoShade value = Attr.Create "noshade" value
         /// Create an HTML attribute "noshade" with the given reactive value.
-        [<Inline; CompiledName "noShade">]
+        [<Inline; CompiledName "noshade">]
         let NoShadeDyn view = Client.Attr.Dynamic "noshade" view
         /// `noshade v p` sets an HTML attribute "noshade" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "noShade">]
+        [<Inline; CompiledName "noshade">]
         let NoShadeDynPred view pred = Client.Attr.DynamicPred "noshade" pred view
         /// Create an animated HTML attribute "noshade" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "noShade">]
-        let NoShadeAnim view convert trans = Client.Attr.Animated "noshade" trans view convert
+        [<Inline; CompiledName "noshade">]
+        let NoShadeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "noshade" trans view convert.Invoke
         /// Create an HTML attribute "novalidate" with the given value.
-        [<Inline; CompiledName "noValidate">]
+        [<Inline; CompiledName "novalidate">]
         let NoValidate value = Attr.Create "novalidate" value
         /// Create an HTML attribute "novalidate" with the given reactive value.
-        [<Inline; CompiledName "noValidate">]
+        [<Inline; CompiledName "novalidate">]
         let NoValidateDyn view = Client.Attr.Dynamic "novalidate" view
         /// `novalidate v p` sets an HTML attribute "novalidate" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "noValidate">]
+        [<Inline; CompiledName "novalidate">]
         let NoValidateDynPred view pred = Client.Attr.DynamicPred "novalidate" pred view
         /// Create an animated HTML attribute "novalidate" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "noValidate">]
-        let NoValidateAnim view convert trans = Client.Attr.Animated "novalidate" trans view convert
+        [<Inline; CompiledName "novalidate">]
+        let NoValidateAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "novalidate" trans view convert.Invoke
         /// Create an HTML attribute "nowrap" with the given value.
-        [<Inline; CompiledName "noWrap">]
+        [<Inline; CompiledName "nowrap">]
         let NoWrap value = Attr.Create "nowrap" value
         /// Create an HTML attribute "nowrap" with the given reactive value.
-        [<Inline; CompiledName "noWrap">]
+        [<Inline; CompiledName "nowrap">]
         let NoWrapDyn view = Client.Attr.Dynamic "nowrap" view
         /// `nowrap v p` sets an HTML attribute "nowrap" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "noWrap">]
+        [<Inline; CompiledName "nowrap">]
         let NoWrapDynPred view pred = Client.Attr.DynamicPred "nowrap" pred view
         /// Create an animated HTML attribute "nowrap" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "noWrap">]
-        let NoWrapAnim view convert trans = Client.Attr.Animated "nowrap" trans view convert
+        [<Inline; CompiledName "nowrap">]
+        let NoWrapAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "nowrap" trans view convert.Invoke
         /// Create an HTML attribute "object" with the given value.
         [<Inline; CompiledName "object">]
         let Object value = Attr.Create "object" value
@@ -2020,7 +2059,7 @@ module Html =
         let ObjectDynPred view pred = Client.Attr.DynamicPred "object" pred view
         /// Create an animated HTML attribute "object" whose value is computed from the given reactive view.
         [<Inline; CompiledName "object">]
-        let ObjectAnim view convert trans = Client.Attr.Animated "object" trans view convert
+        let ObjectAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "object" trans view convert.Invoke
         /// Create an HTML attribute "open" with the given value.
         [<Inline; CompiledName "open">]
         let Open value = Attr.Create "open" value
@@ -2032,7 +2071,7 @@ module Html =
         let OpenDynPred view pred = Client.Attr.DynamicPred "open" pred view
         /// Create an animated HTML attribute "open" whose value is computed from the given reactive view.
         [<Inline; CompiledName "open">]
-        let OpenAnim view convert trans = Client.Attr.Animated "open" trans view convert
+        let OpenAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "open" trans view convert.Invoke
         /// Create an HTML attribute "optimum" with the given value.
         [<Inline; CompiledName "optimum">]
         let Optimum value = Attr.Create "optimum" value
@@ -2044,7 +2083,7 @@ module Html =
         let OptimumDynPred view pred = Client.Attr.DynamicPred "optimum" pred view
         /// Create an animated HTML attribute "optimum" whose value is computed from the given reactive view.
         [<Inline; CompiledName "optimum">]
-        let OptimumAnim view convert trans = Client.Attr.Animated "optimum" trans view convert
+        let OptimumAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "optimum" trans view convert.Invoke
         /// Create an HTML attribute "pattern" with the given value.
         [<Inline; CompiledName "pattern">]
         let Pattern value = Attr.Create "pattern" value
@@ -2056,7 +2095,7 @@ module Html =
         let PatternDynPred view pred = Client.Attr.DynamicPred "pattern" pred view
         /// Create an animated HTML attribute "pattern" whose value is computed from the given reactive view.
         [<Inline; CompiledName "pattern">]
-        let PatternAnim view convert trans = Client.Attr.Animated "pattern" trans view convert
+        let PatternAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "pattern" trans view convert.Invoke
         /// Create an HTML attribute "ping" with the given value.
         [<Inline; CompiledName "ping">]
         let Ping value = Attr.Create "ping" value
@@ -2068,19 +2107,19 @@ module Html =
         let PingDynPred view pred = Client.Attr.DynamicPred "ping" pred view
         /// Create an animated HTML attribute "ping" whose value is computed from the given reactive view.
         [<Inline; CompiledName "ping">]
-        let PingAnim view convert trans = Client.Attr.Animated "ping" trans view convert
+        let PingAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "ping" trans view convert.Invoke
         /// Create an HTML attribute "placeholder" with the given value.
-        [<Inline; CompiledName "placeHolder">]
+        [<Inline; CompiledName "placeholder">]
         let PlaceHolder value = Attr.Create "placeholder" value
         /// Create an HTML attribute "placeholder" with the given reactive value.
-        [<Inline; CompiledName "placeHolder">]
+        [<Inline; CompiledName "placeholder">]
         let PlaceHolderDyn view = Client.Attr.Dynamic "placeholder" view
         /// `placeholder v p` sets an HTML attribute "placeholder" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "placeHolder">]
+        [<Inline; CompiledName "placeholder">]
         let PlaceHolderDynPred view pred = Client.Attr.DynamicPred "placeholder" pred view
         /// Create an animated HTML attribute "placeholder" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "placeHolder">]
-        let PlaceHolderAnim view convert trans = Client.Attr.Animated "placeholder" trans view convert
+        [<Inline; CompiledName "placeholder">]
+        let PlaceHolderAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "placeholder" trans view convert.Invoke
         /// Create an HTML attribute "poster" with the given value.
         [<Inline; CompiledName "poster">]
         let Poster value = Attr.Create "poster" value
@@ -2092,7 +2131,7 @@ module Html =
         let PosterDynPred view pred = Client.Attr.DynamicPred "poster" pred view
         /// Create an animated HTML attribute "poster" whose value is computed from the given reactive view.
         [<Inline; CompiledName "poster">]
-        let PosterAnim view convert trans = Client.Attr.Animated "poster" trans view convert
+        let PosterAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "poster" trans view convert.Invoke
         /// Create an HTML attribute "preload" with the given value.
         [<Inline; CompiledName "preload">]
         let Preload value = Attr.Create "preload" value
@@ -2104,7 +2143,7 @@ module Html =
         let PreloadDynPred view pred = Client.Attr.DynamicPred "preload" pred view
         /// Create an animated HTML attribute "preload" whose value is computed from the given reactive view.
         [<Inline; CompiledName "preload">]
-        let PreloadAnim view convert trans = Client.Attr.Animated "preload" trans view convert
+        let PreloadAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "preload" trans view convert.Invoke
         /// Create an HTML attribute "profile" with the given value.
         [<Inline; CompiledName "profile">]
         let Profile value = Attr.Create "profile" value
@@ -2116,7 +2155,7 @@ module Html =
         let ProfileDynPred view pred = Client.Attr.DynamicPred "profile" pred view
         /// Create an animated HTML attribute "profile" whose value is computed from the given reactive view.
         [<Inline; CompiledName "profile">]
-        let ProfileAnim view convert trans = Client.Attr.Animated "profile" trans view convert
+        let ProfileAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "profile" trans view convert.Invoke
         /// Create an HTML attribute "prompt" with the given value.
         [<Inline; CompiledName "prompt">]
         let Prompt value = Attr.Create "prompt" value
@@ -2128,43 +2167,43 @@ module Html =
         let PromptDynPred view pred = Client.Attr.DynamicPred "prompt" pred view
         /// Create an animated HTML attribute "prompt" whose value is computed from the given reactive view.
         [<Inline; CompiledName "prompt">]
-        let PromptAnim view convert trans = Client.Attr.Animated "prompt" trans view convert
+        let PromptAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "prompt" trans view convert.Invoke
         /// Create an HTML attribute "pubdate" with the given value.
-        [<Inline; CompiledName "pubDate">]
+        [<Inline; CompiledName "pubdate">]
         let PubDate value = Attr.Create "pubdate" value
         /// Create an HTML attribute "pubdate" with the given reactive value.
-        [<Inline; CompiledName "pubDate">]
+        [<Inline; CompiledName "pubdate">]
         let PubDateDyn view = Client.Attr.Dynamic "pubdate" view
         /// `pubdate v p` sets an HTML attribute "pubdate" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "pubDate">]
+        [<Inline; CompiledName "pubdate">]
         let PubDateDynPred view pred = Client.Attr.DynamicPred "pubdate" pred view
         /// Create an animated HTML attribute "pubdate" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "pubDate">]
-        let PubDateAnim view convert trans = Client.Attr.Animated "pubdate" trans view convert
+        [<Inline; CompiledName "pubdate">]
+        let PubDateAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "pubdate" trans view convert.Invoke
         /// Create an HTML attribute "radiogroup" with the given value.
-        [<Inline; CompiledName "radioGroup">]
+        [<Inline; CompiledName "radiogroup">]
         let RadioGroup value = Attr.Create "radiogroup" value
         /// Create an HTML attribute "radiogroup" with the given reactive value.
-        [<Inline; CompiledName "radioGroup">]
+        [<Inline; CompiledName "radiogroup">]
         let RadioGroupDyn view = Client.Attr.Dynamic "radiogroup" view
         /// `radiogroup v p` sets an HTML attribute "radiogroup" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "radioGroup">]
+        [<Inline; CompiledName "radiogroup">]
         let RadioGroupDynPred view pred = Client.Attr.DynamicPred "radiogroup" pred view
         /// Create an animated HTML attribute "radiogroup" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "radioGroup">]
-        let RadioGroupAnim view convert trans = Client.Attr.Animated "radiogroup" trans view convert
+        [<Inline; CompiledName "radiogroup">]
+        let RadioGroupAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "radiogroup" trans view convert.Invoke
         /// Create an HTML attribute "readonly" with the given value.
-        [<Inline; CompiledName "readOnly">]
+        [<Inline; CompiledName "readonly">]
         let ReadOnly value = Attr.Create "readonly" value
         /// Create an HTML attribute "readonly" with the given reactive value.
-        [<Inline; CompiledName "readOnly">]
+        [<Inline; CompiledName "readonly">]
         let ReadOnlyDyn view = Client.Attr.Dynamic "readonly" view
         /// `readonly v p` sets an HTML attribute "readonly" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "readOnly">]
+        [<Inline; CompiledName "readonly">]
         let ReadOnlyDynPred view pred = Client.Attr.DynamicPred "readonly" pred view
         /// Create an animated HTML attribute "readonly" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "readOnly">]
-        let ReadOnlyAnim view convert trans = Client.Attr.Animated "readonly" trans view convert
+        [<Inline; CompiledName "readonly">]
+        let ReadOnlyAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "readonly" trans view convert.Invoke
         /// Create an HTML attribute "rel" with the given value.
         [<Inline; CompiledName "rel">]
         let Rel value = Attr.Create "rel" value
@@ -2176,7 +2215,7 @@ module Html =
         let RelDynPred view pred = Client.Attr.DynamicPred "rel" pred view
         /// Create an animated HTML attribute "rel" whose value is computed from the given reactive view.
         [<Inline; CompiledName "rel">]
-        let RelAnim view convert trans = Client.Attr.Animated "rel" trans view convert
+        let RelAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "rel" trans view convert.Invoke
         /// Create an HTML attribute "required" with the given value.
         [<Inline; CompiledName "required">]
         let Required value = Attr.Create "required" value
@@ -2188,7 +2227,7 @@ module Html =
         let RequiredDynPred view pred = Client.Attr.DynamicPred "required" pred view
         /// Create an animated HTML attribute "required" whose value is computed from the given reactive view.
         [<Inline; CompiledName "required">]
-        let RequiredAnim view convert trans = Client.Attr.Animated "required" trans view convert
+        let RequiredAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "required" trans view convert.Invoke
         /// Create an HTML attribute "rev" with the given value.
         [<Inline; CompiledName "rev">]
         let Rev value = Attr.Create "rev" value
@@ -2200,7 +2239,7 @@ module Html =
         let RevDynPred view pred = Client.Attr.DynamicPred "rev" pred view
         /// Create an animated HTML attribute "rev" whose value is computed from the given reactive view.
         [<Inline; CompiledName "rev">]
-        let RevAnim view convert trans = Client.Attr.Animated "rev" trans view convert
+        let RevAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "rev" trans view convert.Invoke
         /// Create an HTML attribute "reversed" with the given value.
         [<Inline; CompiledName "reversed">]
         let Reversed value = Attr.Create "reversed" value
@@ -2212,7 +2251,7 @@ module Html =
         let ReversedDynPred view pred = Client.Attr.DynamicPred "reversed" pred view
         /// Create an animated HTML attribute "reversed" whose value is computed from the given reactive view.
         [<Inline; CompiledName "reversed">]
-        let ReversedAnim view convert trans = Client.Attr.Animated "reversed" trans view convert
+        let ReversedAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "reversed" trans view convert.Invoke
         /// Create an HTML attribute "rows" with the given value.
         [<Inline; CompiledName "rows">]
         let Rows value = Attr.Create "rows" value
@@ -2224,19 +2263,19 @@ module Html =
         let RowsDynPred view pred = Client.Attr.DynamicPred "rows" pred view
         /// Create an animated HTML attribute "rows" whose value is computed from the given reactive view.
         [<Inline; CompiledName "rows">]
-        let RowsAnim view convert trans = Client.Attr.Animated "rows" trans view convert
+        let RowsAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "rows" trans view convert.Invoke
         /// Create an HTML attribute "rowspan" with the given value.
-        [<Inline; CompiledName "rowSpan">]
+        [<Inline; CompiledName "rowspan">]
         let RowSpan value = Attr.Create "rowspan" value
         /// Create an HTML attribute "rowspan" with the given reactive value.
-        [<Inline; CompiledName "rowSpan">]
+        [<Inline; CompiledName "rowspan">]
         let RowSpanDyn view = Client.Attr.Dynamic "rowspan" view
         /// `rowspan v p` sets an HTML attribute "rowspan" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "rowSpan">]
+        [<Inline; CompiledName "rowspan">]
         let RowSpanDynPred view pred = Client.Attr.DynamicPred "rowspan" pred view
         /// Create an animated HTML attribute "rowspan" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "rowSpan">]
-        let RowSpanAnim view convert trans = Client.Attr.Animated "rowspan" trans view convert
+        [<Inline; CompiledName "rowspan">]
+        let RowSpanAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "rowspan" trans view convert.Invoke
         /// Create an HTML attribute "rules" with the given value.
         [<Inline; CompiledName "rules">]
         let Rules value = Attr.Create "rules" value
@@ -2248,7 +2287,7 @@ module Html =
         let RulesDynPred view pred = Client.Attr.DynamicPred "rules" pred view
         /// Create an animated HTML attribute "rules" whose value is computed from the given reactive view.
         [<Inline; CompiledName "rules">]
-        let RulesAnim view convert trans = Client.Attr.Animated "rules" trans view convert
+        let RulesAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "rules" trans view convert.Invoke
         /// Create an HTML attribute "sandbox" with the given value.
         [<Inline; CompiledName "sandbox">]
         let Sandbox value = Attr.Create "sandbox" value
@@ -2260,7 +2299,7 @@ module Html =
         let SandboxDynPred view pred = Client.Attr.DynamicPred "sandbox" pred view
         /// Create an animated HTML attribute "sandbox" whose value is computed from the given reactive view.
         [<Inline; CompiledName "sandbox">]
-        let SandboxAnim view convert trans = Client.Attr.Animated "sandbox" trans view convert
+        let SandboxAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "sandbox" trans view convert.Invoke
         /// Create an HTML attribute "scheme" with the given value.
         [<Inline; CompiledName "scheme">]
         let Scheme value = Attr.Create "scheme" value
@@ -2272,7 +2311,7 @@ module Html =
         let SchemeDynPred view pred = Client.Attr.DynamicPred "scheme" pred view
         /// Create an animated HTML attribute "scheme" whose value is computed from the given reactive view.
         [<Inline; CompiledName "scheme">]
-        let SchemeAnim view convert trans = Client.Attr.Animated "scheme" trans view convert
+        let SchemeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "scheme" trans view convert.Invoke
         /// Create an HTML attribute "scope" with the given value.
         [<Inline; CompiledName "scope">]
         let Scope value = Attr.Create "scope" value
@@ -2284,7 +2323,7 @@ module Html =
         let ScopeDynPred view pred = Client.Attr.DynamicPred "scope" pred view
         /// Create an animated HTML attribute "scope" whose value is computed from the given reactive view.
         [<Inline; CompiledName "scope">]
-        let ScopeAnim view convert trans = Client.Attr.Animated "scope" trans view convert
+        let ScopeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "scope" trans view convert.Invoke
         /// Create an HTML attribute "scoped" with the given value.
         [<Inline; CompiledName "scoped">]
         let Scoped value = Attr.Create "scoped" value
@@ -2296,7 +2335,7 @@ module Html =
         let ScopedDynPred view pred = Client.Attr.DynamicPred "scoped" pred view
         /// Create an animated HTML attribute "scoped" whose value is computed from the given reactive view.
         [<Inline; CompiledName "scoped">]
-        let ScopedAnim view convert trans = Client.Attr.Animated "scoped" trans view convert
+        let ScopedAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "scoped" trans view convert.Invoke
         /// Create an HTML attribute "scrolling" with the given value.
         [<Inline; CompiledName "scrolling">]
         let Scrolling value = Attr.Create "scrolling" value
@@ -2308,7 +2347,7 @@ module Html =
         let ScrollingDynPred view pred = Client.Attr.DynamicPred "scrolling" pred view
         /// Create an animated HTML attribute "scrolling" whose value is computed from the given reactive view.
         [<Inline; CompiledName "scrolling">]
-        let ScrollingAnim view convert trans = Client.Attr.Animated "scrolling" trans view convert
+        let ScrollingAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "scrolling" trans view convert.Invoke
         /// Create an HTML attribute "seamless" with the given value.
         [<Inline; CompiledName "seamless">]
         let Seamless value = Attr.Create "seamless" value
@@ -2320,7 +2359,7 @@ module Html =
         let SeamlessDynPred view pred = Client.Attr.DynamicPred "seamless" pred view
         /// Create an animated HTML attribute "seamless" whose value is computed from the given reactive view.
         [<Inline; CompiledName "seamless">]
-        let SeamlessAnim view convert trans = Client.Attr.Animated "seamless" trans view convert
+        let SeamlessAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "seamless" trans view convert.Invoke
         /// Create an HTML attribute "selected" with the given value.
         [<Inline; CompiledName "selected">]
         let Selected value = Attr.Create "selected" value
@@ -2332,7 +2371,7 @@ module Html =
         let SelectedDynPred view pred = Client.Attr.DynamicPred "selected" pred view
         /// Create an animated HTML attribute "selected" whose value is computed from the given reactive view.
         [<Inline; CompiledName "selected">]
-        let SelectedAnim view convert trans = Client.Attr.Animated "selected" trans view convert
+        let SelectedAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "selected" trans view convert.Invoke
         /// Create an HTML attribute "shape" with the given value.
         [<Inline; CompiledName "shape">]
         let Shape value = Attr.Create "shape" value
@@ -2344,7 +2383,7 @@ module Html =
         let ShapeDynPred view pred = Client.Attr.DynamicPred "shape" pred view
         /// Create an animated HTML attribute "shape" whose value is computed from the given reactive view.
         [<Inline; CompiledName "shape">]
-        let ShapeAnim view convert trans = Client.Attr.Animated "shape" trans view convert
+        let ShapeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "shape" trans view convert.Invoke
         /// Create an HTML attribute "size" with the given value.
         [<Inline; CompiledName "size">]
         let Size value = Attr.Create "size" value
@@ -2356,7 +2395,7 @@ module Html =
         let SizeDynPred view pred = Client.Attr.DynamicPred "size" pred view
         /// Create an animated HTML attribute "size" whose value is computed from the given reactive view.
         [<Inline; CompiledName "size">]
-        let SizeAnim view convert trans = Client.Attr.Animated "size" trans view convert
+        let SizeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "size" trans view convert.Invoke
         /// Create an HTML attribute "sizes" with the given value.
         [<Inline; CompiledName "sizes">]
         let Sizes value = Attr.Create "sizes" value
@@ -2368,7 +2407,7 @@ module Html =
         let SizesDynPred view pred = Client.Attr.DynamicPred "sizes" pred view
         /// Create an animated HTML attribute "sizes" whose value is computed from the given reactive view.
         [<Inline; CompiledName "sizes">]
-        let SizesAnim view convert trans = Client.Attr.Animated "sizes" trans view convert
+        let SizesAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "sizes" trans view convert.Invoke
         /// Create an HTML attribute "span" with the given value.
         [<Inline; CompiledName "span">]
         let Span value = Attr.Create "span" value
@@ -2380,19 +2419,19 @@ module Html =
         let SpanDynPred view pred = Client.Attr.DynamicPred "span" pred view
         /// Create an animated HTML attribute "span" whose value is computed from the given reactive view.
         [<Inline; CompiledName "span">]
-        let SpanAnim view convert trans = Client.Attr.Animated "span" trans view convert
+        let SpanAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "span" trans view convert.Invoke
         /// Create an HTML attribute "spellcheck" with the given value.
-        [<Inline; CompiledName "spellCheck">]
+        [<Inline; CompiledName "spellcheck">]
         let SpellCheck value = Attr.Create "spellcheck" value
         /// Create an HTML attribute "spellcheck" with the given reactive value.
-        [<Inline; CompiledName "spellCheck">]
+        [<Inline; CompiledName "spellcheck">]
         let SpellCheckDyn view = Client.Attr.Dynamic "spellcheck" view
         /// `spellcheck v p` sets an HTML attribute "spellcheck" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "spellCheck">]
+        [<Inline; CompiledName "spellcheck">]
         let SpellCheckDynPred view pred = Client.Attr.DynamicPred "spellcheck" pred view
         /// Create an animated HTML attribute "spellcheck" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "spellCheck">]
-        let SpellCheckAnim view convert trans = Client.Attr.Animated "spellcheck" trans view convert
+        [<Inline; CompiledName "spellcheck">]
+        let SpellCheckAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "spellcheck" trans view convert.Invoke
         /// Create an HTML attribute "src" with the given value.
         [<Inline; CompiledName "src">]
         let Src value = Attr.Create "src" value
@@ -2404,43 +2443,43 @@ module Html =
         let SrcDynPred view pred = Client.Attr.DynamicPred "src" pred view
         /// Create an animated HTML attribute "src" whose value is computed from the given reactive view.
         [<Inline; CompiledName "src">]
-        let SrcAnim view convert trans = Client.Attr.Animated "src" trans view convert
+        let SrcAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "src" trans view convert.Invoke
         /// Create an HTML attribute "srcdoc" with the given value.
-        [<Inline; CompiledName "srcDoc">]
+        [<Inline; CompiledName "srcdoc">]
         let SrcDoc value = Attr.Create "srcdoc" value
         /// Create an HTML attribute "srcdoc" with the given reactive value.
-        [<Inline; CompiledName "srcDoc">]
+        [<Inline; CompiledName "srcdoc">]
         let SrcDocDyn view = Client.Attr.Dynamic "srcdoc" view
         /// `srcdoc v p` sets an HTML attribute "srcdoc" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "srcDoc">]
+        [<Inline; CompiledName "srcdoc">]
         let SrcDocDynPred view pred = Client.Attr.DynamicPred "srcdoc" pred view
         /// Create an animated HTML attribute "srcdoc" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "srcDoc">]
-        let SrcDocAnim view convert trans = Client.Attr.Animated "srcdoc" trans view convert
+        [<Inline; CompiledName "srcdoc">]
+        let SrcDocAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "srcdoc" trans view convert.Invoke
         /// Create an HTML attribute "srclang" with the given value.
-        [<Inline; CompiledName "srcLang">]
+        [<Inline; CompiledName "srclang">]
         let SrcLang value = Attr.Create "srclang" value
         /// Create an HTML attribute "srclang" with the given reactive value.
-        [<Inline; CompiledName "srcLang">]
+        [<Inline; CompiledName "srclang">]
         let SrcLangDyn view = Client.Attr.Dynamic "srclang" view
         /// `srclang v p` sets an HTML attribute "srclang" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "srcLang">]
+        [<Inline; CompiledName "srclang">]
         let SrcLangDynPred view pred = Client.Attr.DynamicPred "srclang" pred view
         /// Create an animated HTML attribute "srclang" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "srcLang">]
-        let SrcLangAnim view convert trans = Client.Attr.Animated "srclang" trans view convert
+        [<Inline; CompiledName "srclang">]
+        let SrcLangAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "srclang" trans view convert.Invoke
         /// Create an HTML attribute "standby" with the given value.
-        [<Inline; CompiledName "standBy">]
+        [<Inline; CompiledName "standby">]
         let StandBy value = Attr.Create "standby" value
         /// Create an HTML attribute "standby" with the given reactive value.
-        [<Inline; CompiledName "standBy">]
+        [<Inline; CompiledName "standby">]
         let StandByDyn view = Client.Attr.Dynamic "standby" view
         /// `standby v p` sets an HTML attribute "standby" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "standBy">]
+        [<Inline; CompiledName "standby">]
         let StandByDynPred view pred = Client.Attr.DynamicPred "standby" pred view
         /// Create an animated HTML attribute "standby" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "standBy">]
-        let StandByAnim view convert trans = Client.Attr.Animated "standby" trans view convert
+        [<Inline; CompiledName "standby">]
+        let StandByAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "standby" trans view convert.Invoke
         /// Create an HTML attribute "start" with the given value.
         [<Inline; CompiledName "start">]
         let Start value = Attr.Create "start" value
@@ -2452,7 +2491,7 @@ module Html =
         let StartDynPred view pred = Client.Attr.DynamicPred "start" pred view
         /// Create an animated HTML attribute "start" whose value is computed from the given reactive view.
         [<Inline; CompiledName "start">]
-        let StartAnim view convert trans = Client.Attr.Animated "start" trans view convert
+        let StartAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "start" trans view convert.Invoke
         /// Create an HTML attribute "step" with the given value.
         [<Inline; CompiledName "step">]
         let Step value = Attr.Create "step" value
@@ -2464,7 +2503,7 @@ module Html =
         let StepDynPred view pred = Client.Attr.DynamicPred "step" pred view
         /// Create an animated HTML attribute "step" whose value is computed from the given reactive view.
         [<Inline; CompiledName "step">]
-        let StepAnim view convert trans = Client.Attr.Animated "step" trans view convert
+        let StepAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "step" trans view convert.Invoke
         /// Create an HTML attribute "style" with the given value.
         [<Inline; CompiledName "style">]
         let Style value = Attr.Create "style" value
@@ -2476,7 +2515,7 @@ module Html =
         let StyleDynPred view pred = Client.Attr.DynamicPred "style" pred view
         /// Create an animated HTML attribute "style" whose value is computed from the given reactive view.
         [<Inline; CompiledName "style">]
-        let StyleAnim view convert trans = Client.Attr.Animated "style" trans view convert
+        let StyleAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "style" trans view convert.Invoke
         /// Create an HTML attribute "subject" with the given value.
         [<Inline; CompiledName "subject">]
         let Subject value = Attr.Create "subject" value
@@ -2488,7 +2527,7 @@ module Html =
         let SubjectDynPred view pred = Client.Attr.DynamicPred "subject" pred view
         /// Create an animated HTML attribute "subject" whose value is computed from the given reactive view.
         [<Inline; CompiledName "subject">]
-        let SubjectAnim view convert trans = Client.Attr.Animated "subject" trans view convert
+        let SubjectAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "subject" trans view convert.Invoke
         /// Create an HTML attribute "summary" with the given value.
         [<Inline; CompiledName "summary">]
         let Summary value = Attr.Create "summary" value
@@ -2500,19 +2539,19 @@ module Html =
         let SummaryDynPred view pred = Client.Attr.DynamicPred "summary" pred view
         /// Create an animated HTML attribute "summary" whose value is computed from the given reactive view.
         [<Inline; CompiledName "summary">]
-        let SummaryAnim view convert trans = Client.Attr.Animated "summary" trans view convert
+        let SummaryAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "summary" trans view convert.Invoke
         /// Create an HTML attribute "tabindex" with the given value.
-        [<Inline; CompiledName "tabIndex">]
+        [<Inline; CompiledName "tabindex">]
         let TabIndex value = Attr.Create "tabindex" value
         /// Create an HTML attribute "tabindex" with the given reactive value.
-        [<Inline; CompiledName "tabIndex">]
+        [<Inline; CompiledName "tabindex">]
         let TabIndexDyn view = Client.Attr.Dynamic "tabindex" view
         /// `tabindex v p` sets an HTML attribute "tabindex" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "tabIndex">]
+        [<Inline; CompiledName "tabindex">]
         let TabIndexDynPred view pred = Client.Attr.DynamicPred "tabindex" pred view
         /// Create an animated HTML attribute "tabindex" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "tabIndex">]
-        let TabIndexAnim view convert trans = Client.Attr.Animated "tabindex" trans view convert
+        [<Inline; CompiledName "tabindex">]
+        let TabIndexAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "tabindex" trans view convert.Invoke
         /// Create an HTML attribute "target" with the given value.
         [<Inline; CompiledName "target">]
         let Target value = Attr.Create "target" value
@@ -2524,7 +2563,7 @@ module Html =
         let TargetDynPred view pred = Client.Attr.DynamicPred "target" pred view
         /// Create an animated HTML attribute "target" whose value is computed from the given reactive view.
         [<Inline; CompiledName "target">]
-        let TargetAnim view convert trans = Client.Attr.Animated "target" trans view convert
+        let TargetAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "target" trans view convert.Invoke
         /// Create an HTML attribute "text" with the given value.
         [<Inline; CompiledName "text">]
         let Text value = Attr.Create "text" value
@@ -2536,7 +2575,7 @@ module Html =
         let TextDynPred view pred = Client.Attr.DynamicPred "text" pred view
         /// Create an animated HTML attribute "text" whose value is computed from the given reactive view.
         [<Inline; CompiledName "text">]
-        let TextAnim view convert trans = Client.Attr.Animated "text" trans view convert
+        let TextAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "text" trans view convert.Invoke
         /// Create an HTML attribute "title" with the given value.
         [<Inline; CompiledName "title">]
         let Title value = Attr.Create "title" value
@@ -2548,7 +2587,7 @@ module Html =
         let TitleDynPred view pred = Client.Attr.DynamicPred "title" pred view
         /// Create an animated HTML attribute "title" whose value is computed from the given reactive view.
         [<Inline; CompiledName "title">]
-        let TitleAnim view convert trans = Client.Attr.Animated "title" trans view convert
+        let TitleAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "title" trans view convert.Invoke
         /// Create an HTML attribute "type" with the given value.
         [<Inline; CompiledName "type">]
         let Type value = Attr.Create "type" value
@@ -2560,31 +2599,31 @@ module Html =
         let TypeDynPred view pred = Client.Attr.DynamicPred "type" pred view
         /// Create an animated HTML attribute "type" whose value is computed from the given reactive view.
         [<Inline; CompiledName "type">]
-        let TypeAnim view convert trans = Client.Attr.Animated "type" trans view convert
+        let TypeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "type" trans view convert.Invoke
         /// Create an HTML attribute "usemap" with the given value.
-        [<Inline; CompiledName "useMap">]
+        [<Inline; CompiledName "usemap">]
         let UseMap value = Attr.Create "usemap" value
         /// Create an HTML attribute "usemap" with the given reactive value.
-        [<Inline; CompiledName "useMap">]
+        [<Inline; CompiledName "usemap">]
         let UseMapDyn view = Client.Attr.Dynamic "usemap" view
         /// `usemap v p` sets an HTML attribute "usemap" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "useMap">]
+        [<Inline; CompiledName "usemap">]
         let UseMapDynPred view pred = Client.Attr.DynamicPred "usemap" pred view
         /// Create an animated HTML attribute "usemap" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "useMap">]
-        let UseMapAnim view convert trans = Client.Attr.Animated "usemap" trans view convert
+        [<Inline; CompiledName "usemap">]
+        let UseMapAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "usemap" trans view convert.Invoke
         /// Create an HTML attribute "valign" with the given value.
-        [<Inline; CompiledName "vAlign">]
+        [<Inline; CompiledName "valign">]
         let VAlign value = Attr.Create "valign" value
         /// Create an HTML attribute "valign" with the given reactive value.
-        [<Inline; CompiledName "vAlign">]
+        [<Inline; CompiledName "valign">]
         let VAlignDyn view = Client.Attr.Dynamic "valign" view
         /// `valign v p` sets an HTML attribute "valign" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "vAlign">]
+        [<Inline; CompiledName "valign">]
         let VAlignDynPred view pred = Client.Attr.DynamicPred "valign" pred view
         /// Create an animated HTML attribute "valign" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "vAlign">]
-        let VAlignAnim view convert trans = Client.Attr.Animated "valign" trans view convert
+        [<Inline; CompiledName "valign">]
+        let VAlignAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "valign" trans view convert.Invoke
         /// Create an HTML attribute "value" with the given value.
         [<Inline; CompiledName "value">]
         let Value value = Attr.Create "value" value
@@ -2596,19 +2635,19 @@ module Html =
         let ValueDynPred view pred = Client.Attr.DynamicPred "value" pred view
         /// Create an animated HTML attribute "value" whose value is computed from the given reactive view.
         [<Inline; CompiledName "value">]
-        let ValueAnim view convert trans = Client.Attr.Animated "value" trans view convert
+        let ValueAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "value" trans view convert.Invoke
         /// Create an HTML attribute "valuetype" with the given value.
-        [<Inline; CompiledName "valueType">]
+        [<Inline; CompiledName "valuetype">]
         let ValueType value = Attr.Create "valuetype" value
         /// Create an HTML attribute "valuetype" with the given reactive value.
-        [<Inline; CompiledName "valueType">]
+        [<Inline; CompiledName "valuetype">]
         let ValueTypeDyn view = Client.Attr.Dynamic "valuetype" view
         /// `valuetype v p` sets an HTML attribute "valuetype" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "valueType">]
+        [<Inline; CompiledName "valuetype">]
         let ValueTypeDynPred view pred = Client.Attr.DynamicPred "valuetype" pred view
         /// Create an animated HTML attribute "valuetype" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "valueType">]
-        let ValueTypeAnim view convert trans = Client.Attr.Animated "valuetype" trans view convert
+        [<Inline; CompiledName "valuetype">]
+        let ValueTypeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "valuetype" trans view convert.Invoke
         /// Create an HTML attribute "version" with the given value.
         [<Inline; CompiledName "version">]
         let Version value = Attr.Create "version" value
@@ -2620,31 +2659,31 @@ module Html =
         let VersionDynPred view pred = Client.Attr.DynamicPred "version" pred view
         /// Create an animated HTML attribute "version" whose value is computed from the given reactive view.
         [<Inline; CompiledName "version">]
-        let VersionAnim view convert trans = Client.Attr.Animated "version" trans view convert
+        let VersionAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "version" trans view convert.Invoke
         /// Create an HTML attribute "vlink" with the given value.
-        [<Inline; CompiledName "vLink">]
+        [<Inline; CompiledName "vlink">]
         let VLink value = Attr.Create "vlink" value
         /// Create an HTML attribute "vlink" with the given reactive value.
-        [<Inline; CompiledName "vLink">]
+        [<Inline; CompiledName "vlink">]
         let VLinkDyn view = Client.Attr.Dynamic "vlink" view
         /// `vlink v p` sets an HTML attribute "vlink" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "vLink">]
+        [<Inline; CompiledName "vlink">]
         let VLinkDynPred view pred = Client.Attr.DynamicPred "vlink" pred view
         /// Create an animated HTML attribute "vlink" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "vLink">]
-        let VLinkAnim view convert trans = Client.Attr.Animated "vlink" trans view convert
+        [<Inline; CompiledName "vlink">]
+        let VLinkAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "vlink" trans view convert.Invoke
         /// Create an HTML attribute "vspace" with the given value.
-        [<Inline; CompiledName "vSpace">]
+        [<Inline; CompiledName "vspace">]
         let VSpace value = Attr.Create "vspace" value
         /// Create an HTML attribute "vspace" with the given reactive value.
-        [<Inline; CompiledName "vSpace">]
+        [<Inline; CompiledName "vspace">]
         let VSpaceDyn view = Client.Attr.Dynamic "vspace" view
         /// `vspace v p` sets an HTML attribute "vspace" with reactive value v when p is true, and unsets it when p is false.
-        [<Inline; CompiledName "vSpace">]
+        [<Inline; CompiledName "vspace">]
         let VSpaceDynPred view pred = Client.Attr.DynamicPred "vspace" pred view
         /// Create an animated HTML attribute "vspace" whose value is computed from the given reactive view.
-        [<Inline; CompiledName "vSpace">]
-        let VSpaceAnim view convert trans = Client.Attr.Animated "vspace" trans view convert
+        [<Inline; CompiledName "vspace">]
+        let VSpaceAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "vspace" trans view convert.Invoke
         /// Create an HTML attribute "width" with the given value.
         [<Inline; CompiledName "width">]
         let Width value = Attr.Create "width" value
@@ -2656,7 +2695,7 @@ module Html =
         let WidthDynPred view pred = Client.Attr.DynamicPred "width" pred view
         /// Create an animated HTML attribute "width" whose value is computed from the given reactive view.
         [<Inline; CompiledName "width">]
-        let WidthAnim view convert trans = Client.Attr.Animated "width" trans view convert
+        let WidthAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "width" trans view convert.Invoke
         /// Create an HTML attribute "wrap" with the given value.
         [<Inline; CompiledName "wrap">]
         let Wrap value = Attr.Create "wrap" value
@@ -2668,7 +2707,7 @@ module Html =
         let WrapDynPred view pred = Client.Attr.DynamicPred "wrap" pred view
         /// Create an animated HTML attribute "wrap" whose value is computed from the given reactive view.
         [<Inline; CompiledName "wrap">]
-        let WrapAnim view convert trans = Client.Attr.Animated "wrap" trans view convert
+        let WrapAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "wrap" trans view convert.Invoke
         // }}
 
     module on =

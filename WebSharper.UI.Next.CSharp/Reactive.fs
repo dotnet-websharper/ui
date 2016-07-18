@@ -57,7 +57,7 @@ type ViewExtensions =
 
     [<Extension; Inline>]
     static member Apply(vf: View<Func<'A, 'B>>, va) =
-        View.Apply (vf.Map FSharpConvert.Fun) va
+        View.Apply (vf.Map (fun x -> FSharpConvert.Fun x)) va
 
     [<Extension; Inline>]
     static member Join(v) =
@@ -83,7 +83,7 @@ type IRefExtension =
 
     [<Extension; Inline>]
     static member Lens(ref: IRef<'A>, get: Func<'A, 'B>, set: Func<'A, 'B, 'A>) =
-        ref.Lens (FSharpConvert.Fun get) (FSharpConvert.Fun set)
+        Var.Lens ref (FSharpConvert.Fun get) (FSharpConvert.Fun set)
 
 [<Extension; JavaScript; Sealed>]
 type VarExtensions =

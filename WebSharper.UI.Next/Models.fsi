@@ -147,6 +147,9 @@ type ListModel<'Key,'T when 'Key : equality> with
     /// If None is computed or the item to be updated is not found, nothing is done.
     member UpdateBy : ('T -> 'T option) -> 'Key -> unit
 
+    /// Uncurried version of UpdateBy
+    member UpdateByU : ('T -> 'T option) * 'Key -> unit
+
     /// Removes all elements of the list.
     member Clear : unit -> unit
 
@@ -161,6 +164,9 @@ type ListModel<'Key,'T when 'Key : equality> with
 
     /// Gets a reference to a part of an element of the list.
     member LensInto : get:('T -> 'V) -> update:('T -> 'V -> 'T) -> 'Key -> IRef<'V>
+
+    /// Uncurried version of LensInto
+    member LensIntoU : get:('T -> 'V) * update:('T -> 'V -> 'T) * 'Key -> IRef<'V>
 
     /// <summary>
     /// Creates a new ListModel of 'V that is two-way bound to the underlying ListModel of 'T

@@ -285,6 +285,10 @@ type ListModel<'Key,'T> with
             | Some value ->
                 m.Var.Value <- m.Storage.SetAt index value v
 
+    [<Inline>]
+    member m.UpdateByU(fn, key) =
+        m.UpdateBy fn key
+
     member m.Clear () =
         m.Var.Value <- m.Storage.Set Seq.empty
 
@@ -296,6 +300,10 @@ type ListModel<'Key,'T> with
 
     member m.LensInto (get: 'T -> 'V) (update: 'T -> 'V -> 'T) (key : 'Key) : IRef<'V> =
         new RefImpl<'Key, 'T, 'V>(m, key, get, update) :> IRef<'V>
+
+    [<Inline>]
+    member m.LensIntoU (get: 'T -> 'V, update: 'T -> 'V -> 'T, key : 'Key) : IRef<'V> =
+        m.LensInto get update key
 
     member m.Lens (key: 'Key) =
         m.LensInto id (fun _ -> id) key

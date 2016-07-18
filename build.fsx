@@ -60,6 +60,7 @@ let tmplTest =
 let cstest =
     bt.Zafir.CSharp.BundleWebsite("WebSharper.UI.Next.CSharp.Tests")
         .SourcesFromProject("WebSharper.UI.Next.CSharp.Tests.csproj")
+        .WithFramework(fun fw -> fw.Net45)
         .References(fun r ->
             [
                 r.Project main
@@ -74,7 +75,6 @@ bt.Solution [
     csharp
     tmpl
     test
-//    cstest
     tmplTest
 
     bt.NuGet.CreatePackage()
@@ -93,19 +93,12 @@ bt.Solution [
 ]
 |> bt.Dispatch
 
-(*btcs.Solution [
-    main
-    csharp
-    
-    btcs.NuGet.CreatePackage()
-        .Add(csharp)
-        .Configure(fun c -> 
-            { c with
-                Authors = [ "IntelliFactory" ]
-                Title = Some "Zafir.UI.Next.CSharp"
-                LicenseUrl = Some "http://websharper.com/licensing"
-                ProjectUrl = Some "https://github.com/intellifactory/websharper.ui.next"
-                Description = "C# API for UI.Next"
-                RequiresLicenseAcceptance = false })
-]
-|> btcs.Dispatch*)
+try
+    bt.Solution [
+        cstest
+    ]
+    |> bt.Dispatch
+with err ->
+    printfn "Building C# test failed, but that is expected."  
+    printfn "It needs MSBuild 14.0 and also, something is wrong with IF.Build, it would need to be fixed or replaced."  
+    printfn "Error: %s" err.Message

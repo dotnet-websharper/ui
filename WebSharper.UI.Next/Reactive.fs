@@ -80,6 +80,14 @@ and [<JavaScript; Sealed>] Var =
             Id = Fresh.Int ()
         }
 
+    static member Create() =
+        {
+            Const = false
+            Current = ()
+            Snap = Snap.CreateWithValue ()
+            Id = Fresh.Int ()
+        }
+
     static member Get var =
         var.Current
 
@@ -452,27 +460,37 @@ type Submitter<'T> (input: View<'T>, init: 'T) =
     let var = Var.Create ()
     let view = View.SnapshotOn init var.View input
 
+    [<Inline>]
     member this.View = view
 
     member this.Trigger() = var.Value <- ()
 
+    [<Inline>]
     member this.Input = input
 
 [<Sealed; JavaScript>]
 type Submitter =
 
+    [<Inline>]
+    static member CreateDefault input =
+        Submitter<_>(input, Unchecked.defaultof<_>)
+
+    [<Inline>]
     static member Create input init =
         Submitter<_>(input, init)
 
     static member CreateOption input =
         Submitter<_>(View.Map Some input, None)
 
+    [<Inline>]
     static member View (s: Submitter<_>) =
         s.View
 
+    [<Inline>]
     static member Trigger (s: Submitter<_>) =
         s.Trigger()
 
+    [<Inline>]
     static member Input (s: Submitter<_>) =
         s.Input
 

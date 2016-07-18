@@ -23,6 +23,7 @@ namespace WebSharper.UI.Next
 open System
 open WebSharper
 open WebSharper.JavaScript
+open System.Runtime.InteropServices
 
 type Time = double
 type NormalizedTime = double
@@ -49,10 +50,10 @@ type Interpolation =
 // Easing ---------------------------------------------------------------------
 
 [<JavaScript>]
-type Easing =
-    {
-        TransformTime : NormalizedTime -> NormalizedTime
-    }
+type Easing (transformTime : Converter<NormalizedTime, NormalizedTime>) =
+
+    member this.TransformTime t = transformTime.Invoke t
+    static member Custom f = Easing (fun t -> f t)
 
 [<JavaScript>]
 module Easings =
@@ -62,16 +63,15 @@ module Easings =
             let t2 = t * t
             let t3 = t2 * t
             3. * t2 - 2. * t3
-        { TransformTime = f }
+        Easing.Custom f
 
 type Easing with
     static member CubicInOut = Easings.CubicInOut
-    static member Custom f = { TransformTime = f }
 
 // Animation ------------------------------------------------------------------
 
 type Anim<'T> =
-    {
+    private {
         Compute : Time -> 'T
         Duration : Time
     }
@@ -149,7 +149,7 @@ type Anim with
     static member Const v =
         Anims.Const v
 
-    static member Simple (inter: Interpolation<'T>) easing dur x y=
+    static member Simple (inter: Interpolation<'T>) (easing: Easing) dur x y=
         {
             Duration = dur
             Compute = fun t ->
@@ -157,7 +157,7 @@ type Anim with
                 inter.Interpolate t x y
         }
 
-    static member Delayed (inter: Interpolation<'T>) easing dur delay x y =
+    static member Delayed (inter: Interpolation<'T>) (easing: Easing) dur delay x y =
         {
             Duration = dur + delay
             Compute = fun t ->
@@ -231,6 +231,16 @@ type Trans<'T>
             (fun t -> Anim.Const t),
             (fun t -> Anim.Const t),
             TFlags.TChange
+        )
+
+    new (ch: Func<'T, 'T, Anim<'T>>, enter, exit) =
+        Trans(
+            ch,
+            (if enter = null then Func<_,_>(fun t -> Anim.Const t) else enter),
+            (if exit = null then Func<_,_>(fun t -> Anim.Const t) else exit),
+            TFlags.TChange ||| 
+                (if enter = null then TFlags.TTrivial else TFlags.TEnter) |||
+                (if exit = null then TFlags.TTrivial else TFlags.TExit)
         )
 
     member this.TChange x y = change.Invoke(x, y)
