@@ -152,7 +152,7 @@ module Routing =
         |> View.Sink (fun loc ->
             let ha = Route.MakeHash (Route.FromList (rt.Ser loc))
             if not (Route.SameHash win.Location.Hash ha) then
-                win.Location.Hash <- ha)
+                win.Location.Replace ha)
         var
 
     // Given some sub-sites in a Trie, the code tries to preserve an equality:
