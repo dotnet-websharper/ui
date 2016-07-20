@@ -41,8 +41,7 @@ module Html =
     let textView v = Client.Doc.TextView v
 
     /// Insert a client-side Doc.
-    [<JavaScript; Inline>]
-    let client q = Doc.ClientSide q
+    let client q = Doc.ClientSideLinq q
 
     /// Concatenate Docs.
     [<JavaScript; Inline>]

@@ -67,6 +67,9 @@ type Doc =
     /// Client-side control.
     static member ClientSide : Expr<#IControlBody> -> Doc
 
+    /// Client-side control.
+    static member ClientSideLinq : System.Linq.Expressions.Expression<System.Func<IControlBody>> -> Doc
+
     /// Verbatim HTML.
     static member Verbatim : string -> Doc
 

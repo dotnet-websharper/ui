@@ -346,6 +346,9 @@ type Doc with
     static member ClientSide (expr: Expr<#IControlBody>) =
         ConcreteDoc(INodeDoc (new Web.InlineControl<_>(<@ %expr :> IControlBody @>))) :> Doc
 
+    static member ClientSideLinq (expr: System.Linq.Expressions.Expression<System.Func<IControlBody>>) =
+        ConcreteDoc(INodeDoc (new Web.CSharpInlineControl(expr))) :> Doc
+
     static member Verbatim t = ConcreteDoc(VerbatimDoc t) :> Doc
 
     static member OfINode n = ConcreteDoc(INodeDoc n) :> Doc
