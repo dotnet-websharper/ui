@@ -635,7 +635,7 @@ type Doc' [<JavaScript>] (docNode, updates) =
             Seq.append attr [| Attr.Value var |])
 
     [<JavaScript>]
-    static member SelectDyn attrs (show: 'T -> string) (vOptions: View<list<'T>>) (current: IRef<'T>) =
+    static member SelectImpl attrs (show: 'T -> string) (optionElements) (current: IRef<'T>) =
         let options = ref []
         let getIndex (el: Element) =
             el?selectedIndex : int
@@ -658,29 +658,44 @@ type Doc' [<JavaScript>] (docNode, updates) =
                 if x = y then None else Some y
             )
         el.AddEventListener("change", onChange, false)
-        let optionElements =
+        let attrs =
+            Attr.Concat attrs
+            |> Attr.Append selectedItemAttr
+            |> Attr.Append (Attr.OnAfterRender (fun el -> 
+                setSelectedItem el <| current.Get()))
+        Doc'.Elem el attrs (optionElements options)
+
+    [<JavaScript>]
+    static member SelectDyn attrs (show: 'T -> string) (vOptions: View<list<'T>>) (current: IRef<'T>) =
+        let optionElements options =
             vOptions
             |> View.Map (fun l ->
                 options := l
                 l |> Seq.mapi (fun i x -> i, x)
             )
             |> Doc'.Convert (fun (i, o) ->
-                let t = Doc'.TextNode (show o)
                 As<Doc'> (
                     Doc'.Element "option" [
                         Attr.Create "value" (string i)
-                    ] [t])
+                    ] [Doc'.TextNode (show o)]
+                )
             )
-        let attrs =
-            Attr.Concat attrs
-            |> Attr.Append selectedItemAttr
-            |> Attr.Append (Attr.OnAfterRender (fun el -> 
-                setSelectedItem el <| current.Get()))
-        Doc'.Elem el attrs (As optionElements)
+        Doc'.SelectImpl attrs show optionElements current
 
     [<JavaScript>]
     static member Select attrs show options current =
-        Doc'.SelectDyn attrs show (View.Const options) current
+        let optionElements rOptions =
+            rOptions := options
+            options
+            |> List.mapi (fun i o ->
+                As<Doc> (
+                    Doc'.Element "option" [
+                        Attr.Create "value" (string i)
+                    ] [Doc'.TextNode (show o)]
+                )
+            )
+            |> Doc'.Concat
+        Doc'.SelectImpl attrs show (As optionElements) current
 
     [<JavaScript>]
     static member SelectOptional attrs noneText show options current =
