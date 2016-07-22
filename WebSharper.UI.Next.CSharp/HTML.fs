@@ -1087,103 +1087,103 @@ module Html =
         // {{ event
         /// Add a handler for the event "abort".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Abort (f: Expression<System.Action<Dom.Element, Dom.UIEvent>>) = Attr.HandlerLinq "abort" f
+        let abort (f: Expression<System.Action<Dom.Element, Dom.UIEvent>>) = Attr.HandlerLinq "abort" f
         /// Add a handler for the event "afterprint".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let AfterPrint (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "afterprint" f
+        let afterPrint (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "afterprint" f
         /// Add a handler for the event "animationend".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let AnimationEnd (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "animationend" f
+        let animationEnd (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "animationend" f
         /// Add a handler for the event "animationiteration".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let AnimationIteration (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "animationiteration" f
+        let animationIteration (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "animationiteration" f
         /// Add a handler for the event "animationstart".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let AnimationStart (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "animationstart" f
+        let animationStart (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "animationstart" f
         /// Add a handler for the event "audioprocess".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let AudioProcess (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "audioprocess" f
+        let audioProcess (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "audioprocess" f
         /// Add a handler for the event "beforeprint".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let BeforePrint (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "beforeprint" f
+        let beforePrint (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "beforeprint" f
         /// Add a handler for the event "beforeunload".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let BeforeUnload (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "beforeunload" f
+        let beforeUnload (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "beforeunload" f
         /// Add a handler for the event "beginEvent".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let BeginEvent (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "beginEvent" f
+        let beginEvent (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "beginEvent" f
         /// Add a handler for the event "blocked".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Blocked (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "blocked" f
+        let blocked (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "blocked" f
         /// Add a handler for the event "blur".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Blur (f: Expression<System.Action<Dom.Element, Dom.FocusEvent>>) = Attr.HandlerLinq "blur" f
+        let blur (f: Expression<System.Action<Dom.Element, Dom.FocusEvent>>) = Attr.HandlerLinq "blur" f
         /// Add a handler for the event "cached".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Cached (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "cached" f
+        let cached (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "cached" f
         /// Add a handler for the event "canplay".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let CanPlay (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "canplay" f
+        let canPlay (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "canplay" f
         /// Add a handler for the event "canplaythrough".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let CanPlayThrough (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "canplaythrough" f
+        let canPlayThrough (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "canplaythrough" f
         /// Add a handler for the event "change".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Change (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "change" f
+        let change (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "change" f
         /// Add a handler for the event "chargingchange".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let ChargingChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "chargingchange" f
+        let chargingChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "chargingchange" f
         /// Add a handler for the event "chargingtimechange".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let ChargingTimeChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "chargingtimechange" f
+        let chargingTimeChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "chargingtimechange" f
         /// Add a handler for the event "checking".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Checking (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "checking" f
+        let checking (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "checking" f
         /// Add a handler for the event "click".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Click (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "click" f
+        let click (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "click" f
         /// Add a handler for the event "close".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Close (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "close" f
+        let close (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "close" f
         /// Add a handler for the event "complete".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Complete (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "complete" f
+        let complete (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "complete" f
         /// Add a handler for the event "compositionend".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let CompositionEnd (f: Expression<System.Action<Dom.Element, Dom.CompositionEvent>>) = Attr.HandlerLinq "compositionend" f
+        let compositionEnd (f: Expression<System.Action<Dom.Element, Dom.CompositionEvent>>) = Attr.HandlerLinq "compositionend" f
         /// Add a handler for the event "compositionstart".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let CompositionStart (f: Expression<System.Action<Dom.Element, Dom.CompositionEvent>>) = Attr.HandlerLinq "compositionstart" f
+        let compositionStart (f: Expression<System.Action<Dom.Element, Dom.CompositionEvent>>) = Attr.HandlerLinq "compositionstart" f
         /// Add a handler for the event "compositionupdate".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let CompositionUpdate (f: Expression<System.Action<Dom.Element, Dom.CompositionEvent>>) = Attr.HandlerLinq "compositionupdate" f
+        let compositionUpdate (f: Expression<System.Action<Dom.Element, Dom.CompositionEvent>>) = Attr.HandlerLinq "compositionupdate" f
         /// Add a handler for the event "contextmenu".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let ContextMenu (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "contextmenu" f
+        let contextMenu (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "contextmenu" f
         /// Add a handler for the event "copy".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Copy (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "copy" f
+        let copy (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "copy" f
         /// Add a handler for the event "cut".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Cut (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "cut" f
+        let cut (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "cut" f
         /// Add a handler for the event "dblclick".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let DblClick (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "dblclick" f
+        let dblClick (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "dblclick" f
         /// Add a handler for the event "devicelight".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let DeviceLight (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "devicelight" f
+        let deviceLight (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "devicelight" f
         /// Add a handler for the event "devicemotion".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let DeviceMotion (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "devicemotion" f
+        let deviceMotion (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "devicemotion" f
         /// Add a handler for the event "deviceorientation".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let DeviceOrientation (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "deviceorientation" f
+        let deviceOrientation (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "deviceorientation" f
         /// Add a handler for the event "deviceproximity".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let DeviceProximity (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "deviceproximity" f
+        let deviceProximity (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "deviceproximity" f
         /// Add a handler for the event "dischargingtimechange".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let DischargingTimeChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "dischargingtimechange" f
+        let dischargingTimeChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "dischargingtimechange" f
         /// Add a handler for the event "DOMActivate".
         /// Event handler defined on server-side, lambda must be a call to a static member.
         let DOMActivate (f: Expression<System.Action<Dom.Element, Dom.UIEvent>>) = Attr.HandlerLinq "DOMActivate" f
@@ -1219,214 +1219,214 @@ module Html =
         let DOMSubtreeModified (f: Expression<System.Action<Dom.Element, Dom.MutationEvent>>) = Attr.HandlerLinq "DOMSubtreeModified" f
         /// Add a handler for the event "downloading".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Downloading (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "downloading" f
+        let downloading (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "downloading" f
         /// Add a handler for the event "drag".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Drag (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "drag" f
+        let drag (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "drag" f
         /// Add a handler for the event "dragend".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let DragEnd (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "dragend" f
+        let dragEnd (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "dragend" f
         /// Add a handler for the event "dragenter".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let DragEnter (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "dragenter" f
+        let dragEnter (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "dragenter" f
         /// Add a handler for the event "dragleave".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let DragLeave (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "dragleave" f
+        let dragLeave (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "dragleave" f
         /// Add a handler for the event "dragover".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let DragOver (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "dragover" f
+        let dragOver (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "dragover" f
         /// Add a handler for the event "dragstart".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let DragStart (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "dragstart" f
+        let dragStart (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "dragstart" f
         /// Add a handler for the event "drop".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Drop (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "drop" f
+        let drop (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "drop" f
         /// Add a handler for the event "durationchange".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let DurationChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "durationchange" f
+        let durationChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "durationchange" f
         /// Add a handler for the event "emptied".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Emptied (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "emptied" f
+        let emptied (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "emptied" f
         /// Add a handler for the event "ended".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Ended (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "ended" f
+        let ended (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "ended" f
         /// Add a handler for the event "endEvent".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let EndEvent (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "endEvent" f
+        let endEvent (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "endEvent" f
         /// Add a handler for the event "error".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Error (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "error" f
+        let error (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "error" f
         /// Add a handler for the event "focus".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Focus (f: Expression<System.Action<Dom.Element, Dom.FocusEvent>>) = Attr.HandlerLinq "focus" f
+        let focus (f: Expression<System.Action<Dom.Element, Dom.FocusEvent>>) = Attr.HandlerLinq "focus" f
         /// Add a handler for the event "fullscreenchange".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let FullScreenChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "fullscreenchange" f
+        let fullScreenChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "fullscreenchange" f
         /// Add a handler for the event "fullscreenerror".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let FullScreenError (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "fullscreenerror" f
+        let fullScreenError (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "fullscreenerror" f
         /// Add a handler for the event "gamepadconnected".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let GamepadConnected (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "gamepadconnected" f
+        let gamepadConnected (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "gamepadconnected" f
         /// Add a handler for the event "gamepaddisconnected".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let GamepadDisconnected (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "gamepaddisconnected" f
+        let gamepadDisconnected (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "gamepaddisconnected" f
         /// Add a handler for the event "hashchange".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let HashChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "hashchange" f
+        let hashChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "hashchange" f
         /// Add a handler for the event "input".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Input (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "input" f
+        let input (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "input" f
         /// Add a handler for the event "invalid".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Invalid (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "invalid" f
+        let invalid (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "invalid" f
         /// Add a handler for the event "keydown".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let KeyDown (f: Expression<System.Action<Dom.Element, Dom.KeyboardEvent>>) = Attr.HandlerLinq "keydown" f
+        let keyDown (f: Expression<System.Action<Dom.Element, Dom.KeyboardEvent>>) = Attr.HandlerLinq "keydown" f
         /// Add a handler for the event "keypress".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let KeyPress (f: Expression<System.Action<Dom.Element, Dom.KeyboardEvent>>) = Attr.HandlerLinq "keypress" f
+        let keyPress (f: Expression<System.Action<Dom.Element, Dom.KeyboardEvent>>) = Attr.HandlerLinq "keypress" f
         /// Add a handler for the event "keyup".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let KeyUp (f: Expression<System.Action<Dom.Element, Dom.KeyboardEvent>>) = Attr.HandlerLinq "keyup" f
+        let keyUp (f: Expression<System.Action<Dom.Element, Dom.KeyboardEvent>>) = Attr.HandlerLinq "keyup" f
         /// Add a handler for the event "languagechange".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let LanguageChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "languagechange" f
+        let languageChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "languagechange" f
         /// Add a handler for the event "levelchange".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let LevelChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "levelchange" f
+        let levelChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "levelchange" f
         /// Add a handler for the event "load".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Load (f: Expression<System.Action<Dom.Element, Dom.UIEvent>>) = Attr.HandlerLinq "load" f
+        let load (f: Expression<System.Action<Dom.Element, Dom.UIEvent>>) = Attr.HandlerLinq "load" f
         /// Add a handler for the event "loadeddata".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let LoadedData (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "loadeddata" f
+        let loadedData (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "loadeddata" f
         /// Add a handler for the event "loadedmetadata".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let LoadedMetadata (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "loadedmetadata" f
+        let loadedMetadata (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "loadedmetadata" f
         /// Add a handler for the event "loadend".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let LoadEnd (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "loadend" f
+        let loadEnd (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "loadend" f
         /// Add a handler for the event "loadstart".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let LoadStart (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "loadstart" f
+        let loadStart (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "loadstart" f
         /// Add a handler for the event "message".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Message (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "message" f
+        let message (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "message" f
         /// Add a handler for the event "mousedown".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let MouseDown (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "mousedown" f
+        let mouseDown (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "mousedown" f
         /// Add a handler for the event "mouseenter".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let MouseEnter (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "mouseenter" f
+        let mouseEnter (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "mouseenter" f
         /// Add a handler for the event "mouseleave".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let MouseLeave (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "mouseleave" f
+        let mouseLeave (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "mouseleave" f
         /// Add a handler for the event "mousemove".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let MouseMove (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "mousemove" f
+        let mouseMove (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "mousemove" f
         /// Add a handler for the event "mouseout".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let MouseOut (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "mouseout" f
+        let mouseOut (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "mouseout" f
         /// Add a handler for the event "mouseover".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let MouseOver (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "mouseover" f
+        let mouseOver (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "mouseover" f
         /// Add a handler for the event "mouseup".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let MouseUp (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "mouseup" f
+        let mouseUp (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "mouseup" f
         /// Add a handler for the event "noupdate".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let NoUpdate (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "noupdate" f
+        let noUpdate (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "noupdate" f
         /// Add a handler for the event "obsolete".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Obsolete (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "obsolete" f
+        let obsolete (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "obsolete" f
         /// Add a handler for the event "offline".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Offline (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "offline" f
+        let offline (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "offline" f
         /// Add a handler for the event "online".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Online (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "online" f
+        let online (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "online" f
         /// Add a handler for the event "open".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Open (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "open" f
+        let ``open`` (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "open" f
         /// Add a handler for the event "orientationchange".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let OrientationChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "orientationchange" f
+        let orientationChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "orientationchange" f
         /// Add a handler for the event "pagehide".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let PageHide (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "pagehide" f
+        let pageHide (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "pagehide" f
         /// Add a handler for the event "pageshow".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let PageShow (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "pageshow" f
+        let pageShow (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "pageshow" f
         /// Add a handler for the event "paste".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Paste (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "paste" f
+        let paste (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "paste" f
         /// Add a handler for the event "pause".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Pause (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "pause" f
+        let pause (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "pause" f
         /// Add a handler for the event "play".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Play (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "play" f
+        let play (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "play" f
         /// Add a handler for the event "playing".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Playing (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "playing" f
+        let playing (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "playing" f
         /// Add a handler for the event "pointerlockchange".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let PointerLockChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "pointerlockchange" f
+        let pointerLockChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "pointerlockchange" f
         /// Add a handler for the event "pointerlockerror".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let PointerLockError (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "pointerlockerror" f
+        let pointerLockError (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "pointerlockerror" f
         /// Add a handler for the event "popstate".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let PopState (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "popstate" f
+        let popState (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "popstate" f
         /// Add a handler for the event "progress".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Progress (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "progress" f
+        let progress (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "progress" f
         /// Add a handler for the event "ratechange".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let RateChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "ratechange" f
+        let rateChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "ratechange" f
         /// Add a handler for the event "readystatechange".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let ReadyStateChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "readystatechange" f
+        let readyStateChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "readystatechange" f
         /// Add a handler for the event "repeatEvent".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let RepeatEvent (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "repeatEvent" f
+        let repeatEvent (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "repeatEvent" f
         /// Add a handler for the event "reset".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Reset (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "reset" f
+        let reset (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "reset" f
         /// Add a handler for the event "resize".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Resize (f: Expression<System.Action<Dom.Element, Dom.UIEvent>>) = Attr.HandlerLinq "resize" f
+        let resize (f: Expression<System.Action<Dom.Element, Dom.UIEvent>>) = Attr.HandlerLinq "resize" f
         /// Add a handler for the event "scroll".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Scroll (f: Expression<System.Action<Dom.Element, Dom.UIEvent>>) = Attr.HandlerLinq "scroll" f
+        let scroll (f: Expression<System.Action<Dom.Element, Dom.UIEvent>>) = Attr.HandlerLinq "scroll" f
         /// Add a handler for the event "seeked".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Seeked (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "seeked" f
+        let seeked (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "seeked" f
         /// Add a handler for the event "seeking".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Seeking (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "seeking" f
+        let seeking (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "seeking" f
         /// Add a handler for the event "select".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Select (f: Expression<System.Action<Dom.Element, Dom.UIEvent>>) = Attr.HandlerLinq "select" f
+        let select (f: Expression<System.Action<Dom.Element, Dom.UIEvent>>) = Attr.HandlerLinq "select" f
         /// Add a handler for the event "show".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Show (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "show" f
+        let show (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "show" f
         /// Add a handler for the event "stalled".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Stalled (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "stalled" f
+        let stalled (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "stalled" f
         /// Add a handler for the event "storage".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Storage (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "storage" f
+        let storage (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "storage" f
         /// Add a handler for the event "submit".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Submit (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "submit" f
+        let submit (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "submit" f
         /// Add a handler for the event "success".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Success (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "success" f
+        let success (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "success" f
         /// Add a handler for the event "suspend".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Suspend (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "suspend" f
+        let suspend (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "suspend" f
         /// Add a handler for the event "SVGAbort".
         /// Event handler defined on server-side, lambda must be a call to a static member.
         let SVGAbort (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "SVGAbort" f
@@ -1450,58 +1450,58 @@ module Html =
         let SVGZoom (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "SVGZoom" f
         /// Add a handler for the event "timeout".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let TimeOut (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "timeout" f
+        let timeOut (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "timeout" f
         /// Add a handler for the event "timeupdate".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let TimeUpdate (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "timeupdate" f
+        let timeUpdate (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "timeupdate" f
         /// Add a handler for the event "touchcancel".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let TouchCancel (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "touchcancel" f
+        let touchCancel (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "touchcancel" f
         /// Add a handler for the event "touchend".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let TouchEnd (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "touchend" f
+        let touchEnd (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "touchend" f
         /// Add a handler for the event "touchenter".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let TouchEnter (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "touchenter" f
+        let touchEnter (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "touchenter" f
         /// Add a handler for the event "touchleave".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let TouchLeave (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "touchleave" f
+        let touchLeave (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "touchleave" f
         /// Add a handler for the event "touchmove".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let TouchMove (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "touchmove" f
+        let touchMove (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "touchmove" f
         /// Add a handler for the event "touchstart".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let TouchStart (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "touchstart" f
+        let touchStart (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "touchstart" f
         /// Add a handler for the event "transitionend".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let TransitionEnd (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "transitionend" f
+        let transitionEnd (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "transitionend" f
         /// Add a handler for the event "unload".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Unload (f: Expression<System.Action<Dom.Element, Dom.UIEvent>>) = Attr.HandlerLinq "unload" f
+        let unload (f: Expression<System.Action<Dom.Element, Dom.UIEvent>>) = Attr.HandlerLinq "unload" f
         /// Add a handler for the event "updateready".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let UpdateReady (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "updateready" f
+        let updateReady (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "updateready" f
         /// Add a handler for the event "upgradeneeded".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let UpgradeNeeded (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "upgradeneeded" f
+        let upgradeNeeded (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "upgradeneeded" f
         /// Add a handler for the event "userproximity".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let UserProximity (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "userproximity" f
+        let userProximity (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "userproximity" f
         /// Add a handler for the event "versionchange".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let VersionChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "versionchange" f
+        let versionChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "versionchange" f
         /// Add a handler for the event "visibilitychange".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let VisibilityChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "visibilitychange" f
+        let visibilityChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "visibilitychange" f
         /// Add a handler for the event "volumechange".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let VolumeChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "volumechange" f
+        let volumeChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "volumechange" f
         /// Add a handler for the event "waiting".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Waiting (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "waiting" f
+        let waiting (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "waiting" f
         /// Add a handler for the event "wheel".
         /// Event handler defined on server-side, lambda must be a call to a static member.
-        let Wheel (f: Expression<System.Action<Dom.Element, Dom.WheelEvent>>) = Attr.HandlerLinq "wheel" f
+        let wheel (f: Expression<System.Action<Dom.Element, Dom.WheelEvent>>) = Attr.HandlerLinq "wheel" f
         // }}
 
     /// SVG attributes.

@@ -257,7 +257,7 @@ module Tags =
                 [|
                     sprintf "/// Add a handler for the event \"%s\"." e.Name
                     "/// Event handler defined on server-side, lambda must be a call to a static member."
-                    sprintf """let %s (f: Expression<System.Action<Dom.Element, Dom.%s>>) = Attr.HandlerLinq "%s" f""" e.PascalName e.Category e.Name
+                    sprintf """let %s (f: Expression<System.Action<Dom.Element, Dom.%s>>) = Attr.HandlerLinq "%s" f""" e.CamelNameEsc e.Category e.Name
                 |]
             | "svgattr" ->
                 [|
