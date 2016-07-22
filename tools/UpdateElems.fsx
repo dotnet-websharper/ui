@@ -251,7 +251,13 @@ module Tags =
                 [|
                     sprintf "/// Create an HTML attribute \"%s\" with the given value." e.Name
                     "[<Inline>]"
-                    sprintf "static member %s value = Attr.Create \"%s\" value" e.LowNameEsc e.Name
+                    sprintf "let %s value = Attr.Create \"%s\" value" e.LowNameEsc e.Name
+                |]
+            | "event" ->
+                [|
+                    sprintf "/// Add a handler for the event \"%s\"." e.Name
+                    "/// Event handler defined on server-side, lambda must be a call to a static member."
+                    sprintf """let %s (f: Expression<System.Action<Dom.Element, Dom.%s>>) = Attr.HandlerLinq "%s" f""" e.PascalName e.Category e.Name
                 |]
             | "svgattr" ->
                 [|
@@ -317,7 +323,7 @@ module Tags =
             | "event" ->
                 [|
                     sprintf "/// Add a handler for the event \"%s\"." e.Name
-                    "/// When called on the server side, the handler must be a top-level function or a static member."
+                    "/// Event handler defined on server-side, lambda must be a call to a static member."
                     "[<Extension>]"
                     sprintf "static member On%s(this: Elt, cb: Expression<System.Action<Dom.Element, Dom.%s>>) = this.OnLinq(\"%s\", cb)" e.PascalName e.Category e.Name
                 |]

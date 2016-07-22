@@ -25,6 +25,7 @@ open System
 open WebSharper
 open WebSharper.JavaScript
 open WebSharper.UI.Next
+open System.Linq.Expressions
 
 /// This is an auto-generated module providing HTML5 vocabulary.
 /// Generated using tags.csv from WebSharper;
@@ -603,482 +604,904 @@ module Html =
         let vkern ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "vkern" ns
         // }}
 
-    [<JavaScript; Sealed>]
-    type attr private () =
+    [<JavaScript>]
+    module attr =
 
         /// Create an HTML attribute "data-name" with the given value.
-        [<JavaScript; Inline>]
-        static member ``data-`` name value = Attr.Create ("data-" + name) value
+        [<Inline>]
+        let ``data-`` name value = Attr.Create ("data-" + name) value
 
         // {{ attr normal colliding deprecated
         /// Create an HTML attribute "accept" with the given value.
         [<Inline>]
-        static member accept value = Attr.Create "accept" value
+        let accept value = Attr.Create "accept" value
         /// Create an HTML attribute "accept-charset" with the given value.
         [<Inline>]
-        static member acceptCharset value = Attr.Create "accept-charset" value
+        let acceptCharset value = Attr.Create "accept-charset" value
         /// Create an HTML attribute "accesskey" with the given value.
         [<Inline>]
-        static member accesskey value = Attr.Create "accesskey" value
+        let accesskey value = Attr.Create "accesskey" value
         /// Create an HTML attribute "action" with the given value.
         [<Inline>]
-        static member action value = Attr.Create "action" value
+        let action value = Attr.Create "action" value
         /// Create an HTML attribute "align" with the given value.
         [<Inline>]
-        static member align value = Attr.Create "align" value
+        let align value = Attr.Create "align" value
         /// Create an HTML attribute "alink" with the given value.
         [<Inline>]
-        static member alink value = Attr.Create "alink" value
+        let alink value = Attr.Create "alink" value
         /// Create an HTML attribute "alt" with the given value.
         [<Inline>]
-        static member alt value = Attr.Create "alt" value
+        let alt value = Attr.Create "alt" value
         /// Create an HTML attribute "altcode" with the given value.
         [<Inline>]
-        static member altcode value = Attr.Create "altcode" value
+        let altcode value = Attr.Create "altcode" value
         /// Create an HTML attribute "archive" with the given value.
         [<Inline>]
-        static member archive value = Attr.Create "archive" value
+        let archive value = Attr.Create "archive" value
         /// Create an HTML attribute "async" with the given value.
         [<Inline>]
-        static member async value = Attr.Create "async" value
+        let async value = Attr.Create "async" value
         /// Create an HTML attribute "autocomplete" with the given value.
         [<Inline>]
-        static member autocomplete value = Attr.Create "autocomplete" value
+        let autocomplete value = Attr.Create "autocomplete" value
         /// Create an HTML attribute "autofocus" with the given value.
         [<Inline>]
-        static member autofocus value = Attr.Create "autofocus" value
+        let autofocus value = Attr.Create "autofocus" value
         /// Create an HTML attribute "autoplay" with the given value.
         [<Inline>]
-        static member autoplay value = Attr.Create "autoplay" value
+        let autoplay value = Attr.Create "autoplay" value
         /// Create an HTML attribute "autosave" with the given value.
         [<Inline>]
-        static member autosave value = Attr.Create "autosave" value
+        let autosave value = Attr.Create "autosave" value
         /// Create an HTML attribute "axis" with the given value.
         [<Inline>]
-        static member axis value = Attr.Create "axis" value
+        let axis value = Attr.Create "axis" value
         /// Create an HTML attribute "background" with the given value.
         [<Inline>]
-        static member background value = Attr.Create "background" value
+        let background value = Attr.Create "background" value
         /// Create an HTML attribute "bgcolor" with the given value.
         [<Inline>]
-        static member bgcolor value = Attr.Create "bgcolor" value
+        let bgcolor value = Attr.Create "bgcolor" value
         /// Create an HTML attribute "border" with the given value.
         [<Inline>]
-        static member border value = Attr.Create "border" value
+        let border value = Attr.Create "border" value
         /// Create an HTML attribute "bordercolor" with the given value.
         [<Inline>]
-        static member bordercolor value = Attr.Create "bordercolor" value
+        let bordercolor value = Attr.Create "bordercolor" value
         /// Create an HTML attribute "buffered" with the given value.
         [<Inline>]
-        static member buffered value = Attr.Create "buffered" value
+        let buffered value = Attr.Create "buffered" value
         /// Create an HTML attribute "cellpadding" with the given value.
         [<Inline>]
-        static member cellpadding value = Attr.Create "cellpadding" value
+        let cellpadding value = Attr.Create "cellpadding" value
         /// Create an HTML attribute "cellspacing" with the given value.
         [<Inline>]
-        static member cellspacing value = Attr.Create "cellspacing" value
+        let cellspacing value = Attr.Create "cellspacing" value
         /// Create an HTML attribute "challenge" with the given value.
         [<Inline>]
-        static member challenge value = Attr.Create "challenge" value
+        let challenge value = Attr.Create "challenge" value
         /// Create an HTML attribute "char" with the given value.
         [<Inline>]
-        static member char value = Attr.Create "char" value
+        let char value = Attr.Create "char" value
         /// Create an HTML attribute "charoff" with the given value.
         [<Inline>]
-        static member charoff value = Attr.Create "charoff" value
+        let charoff value = Attr.Create "charoff" value
         /// Create an HTML attribute "charset" with the given value.
         [<Inline>]
-        static member charset value = Attr.Create "charset" value
+        let charset value = Attr.Create "charset" value
         /// Create an HTML attribute "checked" with the given value.
         [<Inline>]
-        static member ``checked`` value = Attr.Create "checked" value
+        let ``checked`` value = Attr.Create "checked" value
         /// Create an HTML attribute "cite" with the given value.
         [<Inline>]
-        static member cite value = Attr.Create "cite" value
+        let cite value = Attr.Create "cite" value
         /// Create an HTML attribute "class" with the given value.
         [<Inline>]
-        static member ``class`` value = Attr.Create "class" value
+        let ``class`` value = Attr.Create "class" value
         /// Create an HTML attribute "classid" with the given value.
         [<Inline>]
-        static member classid value = Attr.Create "classid" value
+        let classid value = Attr.Create "classid" value
         /// Create an HTML attribute "clear" with the given value.
         [<Inline>]
-        static member clear value = Attr.Create "clear" value
+        let clear value = Attr.Create "clear" value
         /// Create an HTML attribute "code" with the given value.
         [<Inline>]
-        static member code value = Attr.Create "code" value
+        let code value = Attr.Create "code" value
         /// Create an HTML attribute "codebase" with the given value.
         [<Inline>]
-        static member codebase value = Attr.Create "codebase" value
+        let codebase value = Attr.Create "codebase" value
         /// Create an HTML attribute "codetype" with the given value.
         [<Inline>]
-        static member codetype value = Attr.Create "codetype" value
+        let codetype value = Attr.Create "codetype" value
         /// Create an HTML attribute "color" with the given value.
         [<Inline>]
-        static member color value = Attr.Create "color" value
+        let color value = Attr.Create "color" value
         /// Create an HTML attribute "cols" with the given value.
         [<Inline>]
-        static member cols value = Attr.Create "cols" value
+        let cols value = Attr.Create "cols" value
         /// Create an HTML attribute "colspan" with the given value.
         [<Inline>]
-        static member colspan value = Attr.Create "colspan" value
+        let colspan value = Attr.Create "colspan" value
         /// Create an HTML attribute "compact" with the given value.
         [<Inline>]
-        static member compact value = Attr.Create "compact" value
+        let compact value = Attr.Create "compact" value
         /// Create an HTML attribute "content" with the given value.
         [<Inline>]
-        static member content value = Attr.Create "content" value
+        let content value = Attr.Create "content" value
         /// Create an HTML attribute "contenteditable" with the given value.
         [<Inline>]
-        static member contenteditable value = Attr.Create "contenteditable" value
+        let contenteditable value = Attr.Create "contenteditable" value
         /// Create an HTML attribute "contextmenu" with the given value.
         [<Inline>]
-        static member contextmenu value = Attr.Create "contextmenu" value
+        let contextmenu value = Attr.Create "contextmenu" value
         /// Create an HTML attribute "controls" with the given value.
         [<Inline>]
-        static member controls value = Attr.Create "controls" value
+        let controls value = Attr.Create "controls" value
         /// Create an HTML attribute "coords" with the given value.
         [<Inline>]
-        static member coords value = Attr.Create "coords" value
+        let coords value = Attr.Create "coords" value
         /// Create an HTML attribute "data" with the given value.
         [<Inline>]
-        static member data value = Attr.Create "data" value
+        let data value = Attr.Create "data" value
         /// Create an HTML attribute "datetime" with the given value.
         [<Inline>]
-        static member datetime value = Attr.Create "datetime" value
+        let datetime value = Attr.Create "datetime" value
         /// Create an HTML attribute "declare" with the given value.
         [<Inline>]
-        static member declare value = Attr.Create "declare" value
+        let declare value = Attr.Create "declare" value
         /// Create an HTML attribute "default" with the given value.
         [<Inline>]
-        static member ``default`` value = Attr.Create "default" value
+        let ``default`` value = Attr.Create "default" value
         /// Create an HTML attribute "defer" with the given value.
         [<Inline>]
-        static member defer value = Attr.Create "defer" value
+        let defer value = Attr.Create "defer" value
         /// Create an HTML attribute "dir" with the given value.
         [<Inline>]
-        static member dir value = Attr.Create "dir" value
+        let dir value = Attr.Create "dir" value
         /// Create an HTML attribute "disabled" with the given value.
         [<Inline>]
-        static member disabled value = Attr.Create "disabled" value
+        let disabled value = Attr.Create "disabled" value
         /// Create an HTML attribute "download" with the given value.
         [<Inline>]
-        static member download value = Attr.Create "download" value
+        let download value = Attr.Create "download" value
         /// Create an HTML attribute "draggable" with the given value.
         [<Inline>]
-        static member draggable value = Attr.Create "draggable" value
+        let draggable value = Attr.Create "draggable" value
         /// Create an HTML attribute "dropzone" with the given value.
         [<Inline>]
-        static member dropzone value = Attr.Create "dropzone" value
+        let dropzone value = Attr.Create "dropzone" value
         /// Create an HTML attribute "enctype" with the given value.
         [<Inline>]
-        static member enctype value = Attr.Create "enctype" value
+        let enctype value = Attr.Create "enctype" value
         /// Create an HTML attribute "face" with the given value.
         [<Inline>]
-        static member face value = Attr.Create "face" value
+        let face value = Attr.Create "face" value
         /// Create an HTML attribute "for" with the given value.
         [<Inline>]
-        static member ``for`` value = Attr.Create "for" value
+        let ``for`` value = Attr.Create "for" value
         /// Create an HTML attribute "form" with the given value.
         [<Inline>]
-        static member form value = Attr.Create "form" value
+        let form value = Attr.Create "form" value
         /// Create an HTML attribute "formaction" with the given value.
         [<Inline>]
-        static member formaction value = Attr.Create "formaction" value
+        let formaction value = Attr.Create "formaction" value
         /// Create an HTML attribute "formenctype" with the given value.
         [<Inline>]
-        static member formenctype value = Attr.Create "formenctype" value
+        let formenctype value = Attr.Create "formenctype" value
         /// Create an HTML attribute "formmethod" with the given value.
         [<Inline>]
-        static member formmethod value = Attr.Create "formmethod" value
+        let formmethod value = Attr.Create "formmethod" value
         /// Create an HTML attribute "formnovalidate" with the given value.
         [<Inline>]
-        static member formnovalidate value = Attr.Create "formnovalidate" value
+        let formnovalidate value = Attr.Create "formnovalidate" value
         /// Create an HTML attribute "formtarget" with the given value.
         [<Inline>]
-        static member formtarget value = Attr.Create "formtarget" value
+        let formtarget value = Attr.Create "formtarget" value
         /// Create an HTML attribute "frame" with the given value.
         [<Inline>]
-        static member frame value = Attr.Create "frame" value
+        let frame value = Attr.Create "frame" value
         /// Create an HTML attribute "frameborder" with the given value.
         [<Inline>]
-        static member frameborder value = Attr.Create "frameborder" value
+        let frameborder value = Attr.Create "frameborder" value
         /// Create an HTML attribute "headers" with the given value.
         [<Inline>]
-        static member headers value = Attr.Create "headers" value
+        let headers value = Attr.Create "headers" value
         /// Create an HTML attribute "height" with the given value.
         [<Inline>]
-        static member height value = Attr.Create "height" value
+        let height value = Attr.Create "height" value
         /// Create an HTML attribute "hidden" with the given value.
         [<Inline>]
-        static member hidden value = Attr.Create "hidden" value
+        let hidden value = Attr.Create "hidden" value
         /// Create an HTML attribute "high" with the given value.
         [<Inline>]
-        static member high value = Attr.Create "high" value
+        let high value = Attr.Create "high" value
         /// Create an HTML attribute "href" with the given value.
         [<Inline>]
-        static member href value = Attr.Create "href" value
+        let href value = Attr.Create "href" value
         /// Create an HTML attribute "hreflang" with the given value.
         [<Inline>]
-        static member hreflang value = Attr.Create "hreflang" value
+        let hreflang value = Attr.Create "hreflang" value
         /// Create an HTML attribute "hspace" with the given value.
         [<Inline>]
-        static member hspace value = Attr.Create "hspace" value
+        let hspace value = Attr.Create "hspace" value
         /// Create an HTML attribute "http" with the given value.
         [<Inline>]
-        static member http value = Attr.Create "http" value
+        let http value = Attr.Create "http" value
         /// Create an HTML attribute "icon" with the given value.
         [<Inline>]
-        static member icon value = Attr.Create "icon" value
+        let icon value = Attr.Create "icon" value
         /// Create an HTML attribute "id" with the given value.
         [<Inline>]
-        static member id value = Attr.Create "id" value
+        let id value = Attr.Create "id" value
         /// Create an HTML attribute "ismap" with the given value.
         [<Inline>]
-        static member ismap value = Attr.Create "ismap" value
+        let ismap value = Attr.Create "ismap" value
         /// Create an HTML attribute "itemprop" with the given value.
         [<Inline>]
-        static member itemprop value = Attr.Create "itemprop" value
+        let itemprop value = Attr.Create "itemprop" value
         /// Create an HTML attribute "keytype" with the given value.
         [<Inline>]
-        static member keytype value = Attr.Create "keytype" value
+        let keytype value = Attr.Create "keytype" value
         /// Create an HTML attribute "kind" with the given value.
         [<Inline>]
-        static member kind value = Attr.Create "kind" value
+        let kind value = Attr.Create "kind" value
         /// Create an HTML attribute "label" with the given value.
         [<Inline>]
-        static member label value = Attr.Create "label" value
+        let label value = Attr.Create "label" value
         /// Create an HTML attribute "lang" with the given value.
         [<Inline>]
-        static member lang value = Attr.Create "lang" value
+        let lang value = Attr.Create "lang" value
         /// Create an HTML attribute "language" with the given value.
         [<Inline>]
-        static member language value = Attr.Create "language" value
+        let language value = Attr.Create "language" value
         /// Create an HTML attribute "link" with the given value.
         [<Inline>]
-        static member link value = Attr.Create "link" value
+        let link value = Attr.Create "link" value
         /// Create an HTML attribute "list" with the given value.
         [<Inline>]
-        static member list value = Attr.Create "list" value
+        let list value = Attr.Create "list" value
         /// Create an HTML attribute "longdesc" with the given value.
         [<Inline>]
-        static member longdesc value = Attr.Create "longdesc" value
+        let longdesc value = Attr.Create "longdesc" value
         /// Create an HTML attribute "loop" with the given value.
         [<Inline>]
-        static member loop value = Attr.Create "loop" value
+        let loop value = Attr.Create "loop" value
         /// Create an HTML attribute "low" with the given value.
         [<Inline>]
-        static member low value = Attr.Create "low" value
+        let low value = Attr.Create "low" value
         /// Create an HTML attribute "manifest" with the given value.
         [<Inline>]
-        static member manifest value = Attr.Create "manifest" value
+        let manifest value = Attr.Create "manifest" value
         /// Create an HTML attribute "marginheight" with the given value.
         [<Inline>]
-        static member marginheight value = Attr.Create "marginheight" value
+        let marginheight value = Attr.Create "marginheight" value
         /// Create an HTML attribute "marginwidth" with the given value.
         [<Inline>]
-        static member marginwidth value = Attr.Create "marginwidth" value
+        let marginwidth value = Attr.Create "marginwidth" value
         /// Create an HTML attribute "max" with the given value.
         [<Inline>]
-        static member max value = Attr.Create "max" value
+        let max value = Attr.Create "max" value
         /// Create an HTML attribute "maxlength" with the given value.
         [<Inline>]
-        static member maxlength value = Attr.Create "maxlength" value
+        let maxlength value = Attr.Create "maxlength" value
         /// Create an HTML attribute "media" with the given value.
         [<Inline>]
-        static member media value = Attr.Create "media" value
+        let media value = Attr.Create "media" value
         /// Create an HTML attribute "method" with the given value.
         [<Inline>]
-        static member ``method`` value = Attr.Create "method" value
+        let ``method`` value = Attr.Create "method" value
         /// Create an HTML attribute "min" with the given value.
         [<Inline>]
-        static member min value = Attr.Create "min" value
+        let min value = Attr.Create "min" value
         /// Create an HTML attribute "multiple" with the given value.
         [<Inline>]
-        static member multiple value = Attr.Create "multiple" value
+        let multiple value = Attr.Create "multiple" value
         /// Create an HTML attribute "name" with the given value.
         [<Inline>]
-        static member name value = Attr.Create "name" value
+        let name value = Attr.Create "name" value
         /// Create an HTML attribute "nohref" with the given value.
         [<Inline>]
-        static member nohref value = Attr.Create "nohref" value
+        let nohref value = Attr.Create "nohref" value
         /// Create an HTML attribute "noresize" with the given value.
         [<Inline>]
-        static member noresize value = Attr.Create "noresize" value
+        let noresize value = Attr.Create "noresize" value
         /// Create an HTML attribute "noshade" with the given value.
         [<Inline>]
-        static member noshade value = Attr.Create "noshade" value
+        let noshade value = Attr.Create "noshade" value
         /// Create an HTML attribute "novalidate" with the given value.
         [<Inline>]
-        static member novalidate value = Attr.Create "novalidate" value
+        let novalidate value = Attr.Create "novalidate" value
         /// Create an HTML attribute "nowrap" with the given value.
         [<Inline>]
-        static member nowrap value = Attr.Create "nowrap" value
+        let nowrap value = Attr.Create "nowrap" value
         /// Create an HTML attribute "object" with the given value.
         [<Inline>]
-        static member ``object`` value = Attr.Create "object" value
+        let ``object`` value = Attr.Create "object" value
         /// Create an HTML attribute "open" with the given value.
         [<Inline>]
-        static member ``open`` value = Attr.Create "open" value
+        let ``open`` value = Attr.Create "open" value
         /// Create an HTML attribute "optimum" with the given value.
         [<Inline>]
-        static member optimum value = Attr.Create "optimum" value
+        let optimum value = Attr.Create "optimum" value
         /// Create an HTML attribute "pattern" with the given value.
         [<Inline>]
-        static member pattern value = Attr.Create "pattern" value
+        let pattern value = Attr.Create "pattern" value
         /// Create an HTML attribute "ping" with the given value.
         [<Inline>]
-        static member ping value = Attr.Create "ping" value
+        let ping value = Attr.Create "ping" value
         /// Create an HTML attribute "placeholder" with the given value.
         [<Inline>]
-        static member placeholder value = Attr.Create "placeholder" value
+        let placeholder value = Attr.Create "placeholder" value
         /// Create an HTML attribute "poster" with the given value.
         [<Inline>]
-        static member poster value = Attr.Create "poster" value
+        let poster value = Attr.Create "poster" value
         /// Create an HTML attribute "preload" with the given value.
         [<Inline>]
-        static member preload value = Attr.Create "preload" value
+        let preload value = Attr.Create "preload" value
         /// Create an HTML attribute "profile" with the given value.
         [<Inline>]
-        static member profile value = Attr.Create "profile" value
+        let profile value = Attr.Create "profile" value
         /// Create an HTML attribute "prompt" with the given value.
         [<Inline>]
-        static member prompt value = Attr.Create "prompt" value
+        let prompt value = Attr.Create "prompt" value
         /// Create an HTML attribute "pubdate" with the given value.
         [<Inline>]
-        static member pubdate value = Attr.Create "pubdate" value
+        let pubdate value = Attr.Create "pubdate" value
         /// Create an HTML attribute "radiogroup" with the given value.
         [<Inline>]
-        static member radiogroup value = Attr.Create "radiogroup" value
+        let radiogroup value = Attr.Create "radiogroup" value
         /// Create an HTML attribute "readonly" with the given value.
         [<Inline>]
-        static member readonly value = Attr.Create "readonly" value
+        let readonly value = Attr.Create "readonly" value
         /// Create an HTML attribute "rel" with the given value.
         [<Inline>]
-        static member rel value = Attr.Create "rel" value
+        let rel value = Attr.Create "rel" value
         /// Create an HTML attribute "required" with the given value.
         [<Inline>]
-        static member required value = Attr.Create "required" value
+        let required value = Attr.Create "required" value
         /// Create an HTML attribute "rev" with the given value.
         [<Inline>]
-        static member rev value = Attr.Create "rev" value
+        let rev value = Attr.Create "rev" value
         /// Create an HTML attribute "reversed" with the given value.
         [<Inline>]
-        static member reversed value = Attr.Create "reversed" value
+        let reversed value = Attr.Create "reversed" value
         /// Create an HTML attribute "rows" with the given value.
         [<Inline>]
-        static member rows value = Attr.Create "rows" value
+        let rows value = Attr.Create "rows" value
         /// Create an HTML attribute "rowspan" with the given value.
         [<Inline>]
-        static member rowspan value = Attr.Create "rowspan" value
+        let rowspan value = Attr.Create "rowspan" value
         /// Create an HTML attribute "rules" with the given value.
         [<Inline>]
-        static member rules value = Attr.Create "rules" value
+        let rules value = Attr.Create "rules" value
         /// Create an HTML attribute "sandbox" with the given value.
         [<Inline>]
-        static member sandbox value = Attr.Create "sandbox" value
+        let sandbox value = Attr.Create "sandbox" value
         /// Create an HTML attribute "scheme" with the given value.
         [<Inline>]
-        static member scheme value = Attr.Create "scheme" value
+        let scheme value = Attr.Create "scheme" value
         /// Create an HTML attribute "scope" with the given value.
         [<Inline>]
-        static member scope value = Attr.Create "scope" value
+        let scope value = Attr.Create "scope" value
         /// Create an HTML attribute "scoped" with the given value.
         [<Inline>]
-        static member scoped value = Attr.Create "scoped" value
+        let scoped value = Attr.Create "scoped" value
         /// Create an HTML attribute "scrolling" with the given value.
         [<Inline>]
-        static member scrolling value = Attr.Create "scrolling" value
+        let scrolling value = Attr.Create "scrolling" value
         /// Create an HTML attribute "seamless" with the given value.
         [<Inline>]
-        static member seamless value = Attr.Create "seamless" value
+        let seamless value = Attr.Create "seamless" value
         /// Create an HTML attribute "selected" with the given value.
         [<Inline>]
-        static member selected value = Attr.Create "selected" value
+        let selected value = Attr.Create "selected" value
         /// Create an HTML attribute "shape" with the given value.
         [<Inline>]
-        static member shape value = Attr.Create "shape" value
+        let shape value = Attr.Create "shape" value
         /// Create an HTML attribute "size" with the given value.
         [<Inline>]
-        static member size value = Attr.Create "size" value
+        let size value = Attr.Create "size" value
         /// Create an HTML attribute "sizes" with the given value.
         [<Inline>]
-        static member sizes value = Attr.Create "sizes" value
+        let sizes value = Attr.Create "sizes" value
         /// Create an HTML attribute "span" with the given value.
         [<Inline>]
-        static member span value = Attr.Create "span" value
+        let span value = Attr.Create "span" value
         /// Create an HTML attribute "spellcheck" with the given value.
         [<Inline>]
-        static member spellcheck value = Attr.Create "spellcheck" value
+        let spellcheck value = Attr.Create "spellcheck" value
         /// Create an HTML attribute "src" with the given value.
         [<Inline>]
-        static member src value = Attr.Create "src" value
+        let src value = Attr.Create "src" value
         /// Create an HTML attribute "srcdoc" with the given value.
         [<Inline>]
-        static member srcdoc value = Attr.Create "srcdoc" value
+        let srcdoc value = Attr.Create "srcdoc" value
         /// Create an HTML attribute "srclang" with the given value.
         [<Inline>]
-        static member srclang value = Attr.Create "srclang" value
+        let srclang value = Attr.Create "srclang" value
         /// Create an HTML attribute "standby" with the given value.
         [<Inline>]
-        static member standby value = Attr.Create "standby" value
+        let standby value = Attr.Create "standby" value
         /// Create an HTML attribute "start" with the given value.
         [<Inline>]
-        static member start value = Attr.Create "start" value
+        let start value = Attr.Create "start" value
         /// Create an HTML attribute "step" with the given value.
         [<Inline>]
-        static member step value = Attr.Create "step" value
+        let step value = Attr.Create "step" value
         /// Create an HTML attribute "style" with the given value.
         [<Inline>]
-        static member style value = Attr.Create "style" value
+        let style value = Attr.Create "style" value
         /// Create an HTML attribute "subject" with the given value.
         [<Inline>]
-        static member subject value = Attr.Create "subject" value
+        let subject value = Attr.Create "subject" value
         /// Create an HTML attribute "summary" with the given value.
         [<Inline>]
-        static member summary value = Attr.Create "summary" value
+        let summary value = Attr.Create "summary" value
         /// Create an HTML attribute "tabindex" with the given value.
         [<Inline>]
-        static member tabindex value = Attr.Create "tabindex" value
+        let tabindex value = Attr.Create "tabindex" value
         /// Create an HTML attribute "target" with the given value.
         [<Inline>]
-        static member target value = Attr.Create "target" value
+        let target value = Attr.Create "target" value
         /// Create an HTML attribute "text" with the given value.
         [<Inline>]
-        static member text value = Attr.Create "text" value
+        let text value = Attr.Create "text" value
         /// Create an HTML attribute "title" with the given value.
         [<Inline>]
-        static member title value = Attr.Create "title" value
+        let title value = Attr.Create "title" value
         /// Create an HTML attribute "type" with the given value.
         [<Inline>]
-        static member ``type`` value = Attr.Create "type" value
+        let ``type`` value = Attr.Create "type" value
         /// Create an HTML attribute "usemap" with the given value.
         [<Inline>]
-        static member usemap value = Attr.Create "usemap" value
+        let usemap value = Attr.Create "usemap" value
         /// Create an HTML attribute "valign" with the given value.
         [<Inline>]
-        static member valign value = Attr.Create "valign" value
+        let valign value = Attr.Create "valign" value
         /// Create an HTML attribute "value" with the given value.
         [<Inline>]
-        static member value value = Attr.Create "value" value
+        let value value = Attr.Create "value" value
         /// Create an HTML attribute "valuetype" with the given value.
         [<Inline>]
-        static member valuetype value = Attr.Create "valuetype" value
+        let valuetype value = Attr.Create "valuetype" value
         /// Create an HTML attribute "version" with the given value.
         [<Inline>]
-        static member version value = Attr.Create "version" value
+        let version value = Attr.Create "version" value
         /// Create an HTML attribute "vlink" with the given value.
         [<Inline>]
-        static member vlink value = Attr.Create "vlink" value
+        let vlink value = Attr.Create "vlink" value
         /// Create an HTML attribute "vspace" with the given value.
         [<Inline>]
-        static member vspace value = Attr.Create "vspace" value
+        let vspace value = Attr.Create "vspace" value
         /// Create an HTML attribute "width" with the given value.
         [<Inline>]
-        static member width value = Attr.Create "width" value
+        let width value = Attr.Create "width" value
         /// Create an HTML attribute "wrap" with the given value.
         [<Inline>]
-        static member wrap value = Attr.Create "wrap" value
+        let wrap value = Attr.Create "wrap" value
+        // }}
+
+    [<JavaScript(false)>]
+    module on =
+        // {{ event
+        /// Add a handler for the event "abort".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Abort (f: Expression<System.Action<Dom.Element, Dom.UIEvent>>) = Attr.HandlerLinq "abort" f
+        /// Add a handler for the event "afterprint".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let AfterPrint (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "afterprint" f
+        /// Add a handler for the event "animationend".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let AnimationEnd (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "animationend" f
+        /// Add a handler for the event "animationiteration".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let AnimationIteration (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "animationiteration" f
+        /// Add a handler for the event "animationstart".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let AnimationStart (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "animationstart" f
+        /// Add a handler for the event "audioprocess".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let AudioProcess (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "audioprocess" f
+        /// Add a handler for the event "beforeprint".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let BeforePrint (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "beforeprint" f
+        /// Add a handler for the event "beforeunload".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let BeforeUnload (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "beforeunload" f
+        /// Add a handler for the event "beginEvent".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let BeginEvent (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "beginEvent" f
+        /// Add a handler for the event "blocked".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Blocked (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "blocked" f
+        /// Add a handler for the event "blur".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Blur (f: Expression<System.Action<Dom.Element, Dom.FocusEvent>>) = Attr.HandlerLinq "blur" f
+        /// Add a handler for the event "cached".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Cached (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "cached" f
+        /// Add a handler for the event "canplay".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let CanPlay (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "canplay" f
+        /// Add a handler for the event "canplaythrough".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let CanPlayThrough (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "canplaythrough" f
+        /// Add a handler for the event "change".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Change (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "change" f
+        /// Add a handler for the event "chargingchange".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let ChargingChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "chargingchange" f
+        /// Add a handler for the event "chargingtimechange".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let ChargingTimeChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "chargingtimechange" f
+        /// Add a handler for the event "checking".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Checking (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "checking" f
+        /// Add a handler for the event "click".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Click (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "click" f
+        /// Add a handler for the event "close".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Close (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "close" f
+        /// Add a handler for the event "complete".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Complete (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "complete" f
+        /// Add a handler for the event "compositionend".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let CompositionEnd (f: Expression<System.Action<Dom.Element, Dom.CompositionEvent>>) = Attr.HandlerLinq "compositionend" f
+        /// Add a handler for the event "compositionstart".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let CompositionStart (f: Expression<System.Action<Dom.Element, Dom.CompositionEvent>>) = Attr.HandlerLinq "compositionstart" f
+        /// Add a handler for the event "compositionupdate".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let CompositionUpdate (f: Expression<System.Action<Dom.Element, Dom.CompositionEvent>>) = Attr.HandlerLinq "compositionupdate" f
+        /// Add a handler for the event "contextmenu".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let ContextMenu (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "contextmenu" f
+        /// Add a handler for the event "copy".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Copy (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "copy" f
+        /// Add a handler for the event "cut".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Cut (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "cut" f
+        /// Add a handler for the event "dblclick".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let DblClick (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "dblclick" f
+        /// Add a handler for the event "devicelight".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let DeviceLight (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "devicelight" f
+        /// Add a handler for the event "devicemotion".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let DeviceMotion (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "devicemotion" f
+        /// Add a handler for the event "deviceorientation".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let DeviceOrientation (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "deviceorientation" f
+        /// Add a handler for the event "deviceproximity".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let DeviceProximity (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "deviceproximity" f
+        /// Add a handler for the event "dischargingtimechange".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let DischargingTimeChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "dischargingtimechange" f
+        /// Add a handler for the event "DOMActivate".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let DOMActivate (f: Expression<System.Action<Dom.Element, Dom.UIEvent>>) = Attr.HandlerLinq "DOMActivate" f
+        /// Add a handler for the event "DOMAttributeNameChanged".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let DOMAttributeNameChanged (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "DOMAttributeNameChanged" f
+        /// Add a handler for the event "DOMAttrModified".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let DOMAttrModified (f: Expression<System.Action<Dom.Element, Dom.MutationEvent>>) = Attr.HandlerLinq "DOMAttrModified" f
+        /// Add a handler for the event "DOMCharacterDataModified".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let DOMCharacterDataModified (f: Expression<System.Action<Dom.Element, Dom.MutationEvent>>) = Attr.HandlerLinq "DOMCharacterDataModified" f
+        /// Add a handler for the event "DOMContentLoaded".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let DOMContentLoaded (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "DOMContentLoaded" f
+        /// Add a handler for the event "DOMElementNameChanged".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let DOMElementNameChanged (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "DOMElementNameChanged" f
+        /// Add a handler for the event "DOMNodeInserted".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let DOMNodeInserted (f: Expression<System.Action<Dom.Element, Dom.MutationEvent>>) = Attr.HandlerLinq "DOMNodeInserted" f
+        /// Add a handler for the event "DOMNodeInsertedIntoDocument".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let DOMNodeInsertedIntoDocument (f: Expression<System.Action<Dom.Element, Dom.MutationEvent>>) = Attr.HandlerLinq "DOMNodeInsertedIntoDocument" f
+        /// Add a handler for the event "DOMNodeRemoved".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let DOMNodeRemoved (f: Expression<System.Action<Dom.Element, Dom.MutationEvent>>) = Attr.HandlerLinq "DOMNodeRemoved" f
+        /// Add a handler for the event "DOMNodeRemovedFromDocument".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let DOMNodeRemovedFromDocument (f: Expression<System.Action<Dom.Element, Dom.MutationEvent>>) = Attr.HandlerLinq "DOMNodeRemovedFromDocument" f
+        /// Add a handler for the event "DOMSubtreeModified".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let DOMSubtreeModified (f: Expression<System.Action<Dom.Element, Dom.MutationEvent>>) = Attr.HandlerLinq "DOMSubtreeModified" f
+        /// Add a handler for the event "downloading".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Downloading (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "downloading" f
+        /// Add a handler for the event "drag".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Drag (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "drag" f
+        /// Add a handler for the event "dragend".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let DragEnd (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "dragend" f
+        /// Add a handler for the event "dragenter".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let DragEnter (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "dragenter" f
+        /// Add a handler for the event "dragleave".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let DragLeave (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "dragleave" f
+        /// Add a handler for the event "dragover".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let DragOver (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "dragover" f
+        /// Add a handler for the event "dragstart".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let DragStart (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "dragstart" f
+        /// Add a handler for the event "drop".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Drop (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "drop" f
+        /// Add a handler for the event "durationchange".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let DurationChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "durationchange" f
+        /// Add a handler for the event "emptied".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Emptied (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "emptied" f
+        /// Add a handler for the event "ended".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Ended (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "ended" f
+        /// Add a handler for the event "endEvent".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let EndEvent (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "endEvent" f
+        /// Add a handler for the event "error".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Error (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "error" f
+        /// Add a handler for the event "focus".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Focus (f: Expression<System.Action<Dom.Element, Dom.FocusEvent>>) = Attr.HandlerLinq "focus" f
+        /// Add a handler for the event "fullscreenchange".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let FullScreenChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "fullscreenchange" f
+        /// Add a handler for the event "fullscreenerror".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let FullScreenError (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "fullscreenerror" f
+        /// Add a handler for the event "gamepadconnected".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let GamepadConnected (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "gamepadconnected" f
+        /// Add a handler for the event "gamepaddisconnected".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let GamepadDisconnected (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "gamepaddisconnected" f
+        /// Add a handler for the event "hashchange".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let HashChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "hashchange" f
+        /// Add a handler for the event "input".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Input (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "input" f
+        /// Add a handler for the event "invalid".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Invalid (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "invalid" f
+        /// Add a handler for the event "keydown".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let KeyDown (f: Expression<System.Action<Dom.Element, Dom.KeyboardEvent>>) = Attr.HandlerLinq "keydown" f
+        /// Add a handler for the event "keypress".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let KeyPress (f: Expression<System.Action<Dom.Element, Dom.KeyboardEvent>>) = Attr.HandlerLinq "keypress" f
+        /// Add a handler for the event "keyup".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let KeyUp (f: Expression<System.Action<Dom.Element, Dom.KeyboardEvent>>) = Attr.HandlerLinq "keyup" f
+        /// Add a handler for the event "languagechange".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let LanguageChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "languagechange" f
+        /// Add a handler for the event "levelchange".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let LevelChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "levelchange" f
+        /// Add a handler for the event "load".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Load (f: Expression<System.Action<Dom.Element, Dom.UIEvent>>) = Attr.HandlerLinq "load" f
+        /// Add a handler for the event "loadeddata".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let LoadedData (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "loadeddata" f
+        /// Add a handler for the event "loadedmetadata".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let LoadedMetadata (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "loadedmetadata" f
+        /// Add a handler for the event "loadend".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let LoadEnd (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "loadend" f
+        /// Add a handler for the event "loadstart".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let LoadStart (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "loadstart" f
+        /// Add a handler for the event "message".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Message (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "message" f
+        /// Add a handler for the event "mousedown".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let MouseDown (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "mousedown" f
+        /// Add a handler for the event "mouseenter".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let MouseEnter (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "mouseenter" f
+        /// Add a handler for the event "mouseleave".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let MouseLeave (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "mouseleave" f
+        /// Add a handler for the event "mousemove".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let MouseMove (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "mousemove" f
+        /// Add a handler for the event "mouseout".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let MouseOut (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "mouseout" f
+        /// Add a handler for the event "mouseover".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let MouseOver (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "mouseover" f
+        /// Add a handler for the event "mouseup".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let MouseUp (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "mouseup" f
+        /// Add a handler for the event "noupdate".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let NoUpdate (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "noupdate" f
+        /// Add a handler for the event "obsolete".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Obsolete (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "obsolete" f
+        /// Add a handler for the event "offline".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Offline (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "offline" f
+        /// Add a handler for the event "online".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Online (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "online" f
+        /// Add a handler for the event "open".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Open (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "open" f
+        /// Add a handler for the event "orientationchange".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let OrientationChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "orientationchange" f
+        /// Add a handler for the event "pagehide".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let PageHide (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "pagehide" f
+        /// Add a handler for the event "pageshow".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let PageShow (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "pageshow" f
+        /// Add a handler for the event "paste".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Paste (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "paste" f
+        /// Add a handler for the event "pause".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Pause (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "pause" f
+        /// Add a handler for the event "play".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Play (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "play" f
+        /// Add a handler for the event "playing".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Playing (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "playing" f
+        /// Add a handler for the event "pointerlockchange".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let PointerLockChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "pointerlockchange" f
+        /// Add a handler for the event "pointerlockerror".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let PointerLockError (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "pointerlockerror" f
+        /// Add a handler for the event "popstate".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let PopState (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "popstate" f
+        /// Add a handler for the event "progress".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Progress (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "progress" f
+        /// Add a handler for the event "ratechange".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let RateChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "ratechange" f
+        /// Add a handler for the event "readystatechange".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let ReadyStateChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "readystatechange" f
+        /// Add a handler for the event "repeatEvent".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let RepeatEvent (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "repeatEvent" f
+        /// Add a handler for the event "reset".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Reset (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "reset" f
+        /// Add a handler for the event "resize".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Resize (f: Expression<System.Action<Dom.Element, Dom.UIEvent>>) = Attr.HandlerLinq "resize" f
+        /// Add a handler for the event "scroll".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Scroll (f: Expression<System.Action<Dom.Element, Dom.UIEvent>>) = Attr.HandlerLinq "scroll" f
+        /// Add a handler for the event "seeked".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Seeked (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "seeked" f
+        /// Add a handler for the event "seeking".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Seeking (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "seeking" f
+        /// Add a handler for the event "select".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Select (f: Expression<System.Action<Dom.Element, Dom.UIEvent>>) = Attr.HandlerLinq "select" f
+        /// Add a handler for the event "show".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Show (f: Expression<System.Action<Dom.Element, Dom.MouseEvent>>) = Attr.HandlerLinq "show" f
+        /// Add a handler for the event "stalled".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Stalled (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "stalled" f
+        /// Add a handler for the event "storage".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Storage (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "storage" f
+        /// Add a handler for the event "submit".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Submit (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "submit" f
+        /// Add a handler for the event "success".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Success (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "success" f
+        /// Add a handler for the event "suspend".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Suspend (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "suspend" f
+        /// Add a handler for the event "SVGAbort".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let SVGAbort (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "SVGAbort" f
+        /// Add a handler for the event "SVGError".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let SVGError (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "SVGError" f
+        /// Add a handler for the event "SVGLoad".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let SVGLoad (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "SVGLoad" f
+        /// Add a handler for the event "SVGResize".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let SVGResize (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "SVGResize" f
+        /// Add a handler for the event "SVGScroll".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let SVGScroll (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "SVGScroll" f
+        /// Add a handler for the event "SVGUnload".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let SVGUnload (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "SVGUnload" f
+        /// Add a handler for the event "SVGZoom".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let SVGZoom (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "SVGZoom" f
+        /// Add a handler for the event "timeout".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let TimeOut (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "timeout" f
+        /// Add a handler for the event "timeupdate".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let TimeUpdate (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "timeupdate" f
+        /// Add a handler for the event "touchcancel".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let TouchCancel (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "touchcancel" f
+        /// Add a handler for the event "touchend".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let TouchEnd (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "touchend" f
+        /// Add a handler for the event "touchenter".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let TouchEnter (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "touchenter" f
+        /// Add a handler for the event "touchleave".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let TouchLeave (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "touchleave" f
+        /// Add a handler for the event "touchmove".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let TouchMove (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "touchmove" f
+        /// Add a handler for the event "touchstart".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let TouchStart (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "touchstart" f
+        /// Add a handler for the event "transitionend".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let TransitionEnd (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "transitionend" f
+        /// Add a handler for the event "unload".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Unload (f: Expression<System.Action<Dom.Element, Dom.UIEvent>>) = Attr.HandlerLinq "unload" f
+        /// Add a handler for the event "updateready".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let UpdateReady (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "updateready" f
+        /// Add a handler for the event "upgradeneeded".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let UpgradeNeeded (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "upgradeneeded" f
+        /// Add a handler for the event "userproximity".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let UserProximity (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "userproximity" f
+        /// Add a handler for the event "versionchange".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let VersionChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "versionchange" f
+        /// Add a handler for the event "visibilitychange".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let VisibilityChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "visibilitychange" f
+        /// Add a handler for the event "volumechange".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let VolumeChange (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "volumechange" f
+        /// Add a handler for the event "waiting".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Waiting (f: Expression<System.Action<Dom.Element, Dom.Event>>) = Attr.HandlerLinq "waiting" f
+        /// Add a handler for the event "wheel".
+        /// Event handler defined on server-side, lambda must be a call to a static member.
+        let Wheel (f: Expression<System.Action<Dom.Element, Dom.WheelEvent>>) = Attr.HandlerLinq "wheel" f
         // }}
 
     /// SVG attributes.
