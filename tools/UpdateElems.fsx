@@ -333,10 +333,10 @@ module Tags =
                 [|
                     sprintf "/// Add a handler for the event \"%s\"." e.Name
                     "[<Extension; Inline>]"
-                    sprintf "static member On%s(this: Elt, cb: System.Action<Dom.Element, Dom.%s>) = this.On%s(FSharpConvert.Fun cb)" e.PascalName e.Category e.PascalName
+                    sprintf "static member On%s(this: Elt, cb: System.Action<Dom.Element, Dom.%s>) = DocExtensions.On%s(this, FSharpConvert.Fun cb)" e.PascalName e.Category e.PascalName
                     sprintf "/// Add a handler for the event \"%s\" which also receives the value of a view at the time of the event." e.Name
                     "[<Extension; Inline>]"
-                    sprintf "static member On%sView(this: Elt, view: View<'T>, cb: System.Action<Dom.Element, Dom.%s, 'T>) = this.On%sView(view, FSharpConvert.Fun cb)" e.PascalName e.Category e.PascalName
+                    sprintf "static member On%sView(this: Elt, view: View<'T>, cb: System.Action<Dom.Element, Dom.%s, 'T>) = DocExtensions.On%sView(this, view, FSharpConvert.Fun cb)" e.PascalName e.Category e.PascalName
                 |]
 
 Tags.Run()
