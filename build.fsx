@@ -67,9 +67,6 @@ let cstest =
                 r.Project csharp
             ])
 
-let wslibdir =
-    sprintf "%s/build/net40/" __SOURCE_DIRECTORY__
-
 bt.Solution [
     main
     csharp
@@ -89,7 +86,6 @@ bt.Solution [
                 ProjectUrl = Some "https://github.com/intellifactory/websharper.ui.next"
                 Description = "Next-generation user interface combinators for WebSharper"
                 RequiresLicenseAcceptance = false })
-
 ]
 |> bt.Dispatch
 
@@ -99,6 +95,5 @@ try
     ]
     |> bt.Dispatch
 with err ->
-    printfn "Building C# test failed, but that is expected."  
-    printfn "It needs MSBuild 14.0 and also, something is wrong with IF.Build, it would need to be fixed or replaced."  
+    printfn "Building C# test failed, ignoring that"  
     printfn "Error: %s" err.Message

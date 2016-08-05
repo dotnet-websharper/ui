@@ -391,10 +391,6 @@ type AttrProxy with
     static member Empty =
         As<Attr> Attrs.EmptyAttr
 
-    [<Inline>]
-    static member StringConcat (strings: string[]) =
-        System.String.Concat(strings)
-
     static member Concat (xs: seq<Attr>) =
         Seq.toArray xs
         |> Array.MapReduce id Attr.Empty Attr.Append

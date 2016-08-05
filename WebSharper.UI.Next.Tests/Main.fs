@@ -4,6 +4,8 @@ open WebSharper
 open WebSharper.JavaScript
 open WebSharper.Testing
 open WebSharper.UI.Next
+open WebSharper.UI.Next.Html
+open WebSharper.UI.Next.Client
 
 [<JavaScript>]
 module Main =
@@ -23,9 +25,25 @@ module Main =
         View.Sink (fun x -> r := x) v
         fun () -> forceAsync(); !r
 
+    let TestAnim =
+        let linearAnim = Anim.Simple Interpolation.Double (Easing.Custom id) 300.
+        let cubicAnim = Anim.Simple Interpolation.Double Easing.CubicInOut 300.
+        let swipeTransition =
+            Trans.Create linearAnim
+            |> Trans.Enter (fun x -> cubicAnim (x - 100.) x)
+            |> Trans.Exit (fun x -> cubicAnim x (x + 100.))
+        let rvLeftPos = Var.Create 0.
+        
+        divAttr [
+            Attr.Style "position" "relative"
+            Attr.AnimatedStyle "left" swipeTransition rvLeftPos.View (fun pos -> string pos + "%")
+        ] [
+            Doc.TextNode "content"
+        ]
+
     let VarTest =
         TestCategory "Var" {
-        
+       
             Test "Create" {
                 let rv1 = Var.Create 1
                 let rv2 = Var.Create "a"

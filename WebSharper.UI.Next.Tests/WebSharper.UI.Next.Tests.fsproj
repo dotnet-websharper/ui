@@ -9,7 +9,7 @@
     <WebSharperProject>Bundle</WebSharperProject>
     <WebSharperBundleOutputDir>Content</WebSharperBundleOutputDir>
     <OutputType>Library</OutputType>
-    <OutputPath>bin</OutputPath>
+    <OutputPath>../build/net40</OutputPath>
     <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <UseIISExpress>true</UseIISExpress>

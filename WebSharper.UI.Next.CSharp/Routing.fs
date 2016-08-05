@@ -108,7 +108,7 @@ and private MetaRootShape =
 and private QueryItem =
     | NotQuery = 0
     | Mandatory = 1
-    | Option = 2
+    | Option = 2                                                                                       
     | Nullable = 3
 
 and private RouteMapBuilderMacro() =
