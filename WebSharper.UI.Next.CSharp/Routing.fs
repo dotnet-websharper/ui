@@ -95,7 +95,7 @@ and private RouteObjectArgs = array<string * QueryItem * ParseFunc * LinkFunc>
 
 and private RouteShape =
     | Base of ParseFunc // assuming string as LinkFunc
-    | Object of ctor: (unit -> obj) * name: option<string> * args: RouteObjectArgs
+    | Object of ctor: (unit -> obj) * name: option<string> * args: RouteObjectArgs 
     | Sequence of fromArray: (array<obj> -> obj) * parseItem: ParseFunc * linkItem: LinkFunc
     | Tuple of items: array<ParseFunc * LinkFunc>
 
@@ -146,11 +146,11 @@ and private RouteMapBuilderMacro() =
     let getDefaultCtor (t: Type) =
         match t with
         | ConcreteType ct ->
-            let t = Reflection.LoadType t
             let defaultCtor = Hashed { CtorParameters = [] }
+            let info = comp.GetClassInfo ct.Entity
             if comp.GetClassInfo ct.Entity |> Option.exists (fun cls -> cls.Constructors.ContainsKey defaultCtor) 
             then failwithf "Endpoint type must have a default constructor: %s" t.AssemblyQualifiedName
-            else Lambda([], Ctor (ct, defaultCtor, [])), t
+            else Lambda([], Ctor (ct, defaultCtor, [])), ct.Entity, info.Value
         // TODO: handle TupleType etc
         | _ -> failwithf "Generic endpoint type not supported for routing: %s" t.AssemblyQualifiedName
 
@@ -182,14 +182,17 @@ and private RouteMapBuilderMacro() =
 //        | _ -> comp.AddCompiledMethod(internals, meth, Metadata.Instance name, impl)
 //        meth
 
-    let isBaseType (ty: System.Type) =
-        match ty.FullName with
-        | "System.SByte"    | "System.Byte"
-        | "System.Int16"    | "System.UInt16"
-        | "System.Int32"    | "System.UInt32"
-        | "System.Int64"    | "System.UInt64"
-        | "System.Single"   | "System.Double"
-        | "System.String" -> true
+    let isBaseType (ty: Type) =
+        match ty with
+        | ConcreteType { Entity = td } ->
+            match td.Value.FullName with
+            | "System.SByte"    | "System.Byte"
+            | "System.Int16"    | "System.UInt16"
+            | "System.Int32"    | "System.UInt32"
+            | "System.Int64"    | "System.UInt64"
+            | "System.Single"   | "System.Double"
+            | "System.String" -> true
+            | _ -> false
         | _ -> false
 
     let getRouteShape (t: Type) =
@@ -221,37 +224,48 @@ and private RouteMapBuilderMacro() =
                 if comp.GetClassInfo parsersT |> Option.exists (fun cls -> cls.Methods.ContainsKey parseMeth)
                 then MetaBase parseMeth
                 else
-                    let ctor, t' = getDefaultCtor t
+                    let ctor, td, cls = getDefaultCtor t
                     let endpoint =
-                        match t'.GetCustomAttributes(typeof<EndPointAttribute>, false) with
-                        | [| :? EndPointAttribute as attr |] -> attr.EndPoint
+                        match comp.GetTypeAttributes td with
+                        | Some attrs ->
+                            match attrs |> List.tryFind (fun (at, _) -> at.Value.FullName = "WebSharper.Sitelets.EndPointAttribute") with
+                            | Some (_, [| Metadata.ParameterObject.String ep |]) -> ep
+                            | _ -> "/"
                         | _ -> "/"
                     let fields =
-                        t'.GetFields(BF.Instance ||| BF.Public ||| BF.NonPublic)
-                        |> Array.map (fun f ->
-                            let name = nameOf f
-                            f.GetCustomAttributesData()
-                            |> Seq.tryFind (fun cad ->
-                                cad.Constructor.DeclaringType = typeof<Sitelets.QueryAttribute> &&
-                                cad.ConstructorArguments.Count = 0)
-                            |> function
-                                | None -> name, QueryItem.NotQuery, Reflection.ReadType f.FieldType
-                                | Some cad ->
-                                    let queryItem, ty =
-                                        if f.FieldType.IsGenericType &&
-                                            f.FieldType.GetGenericTypeDefinition() = typedefof<option<_>> then
-                                            QueryItem.Option, f.FieldType.GetGenericArguments().[0]
-                                        elif f.FieldType.IsGenericType &&
-                                            f.FieldType.GetGenericTypeDefinition() = typedefof<Nullable<_>> then
-                                            QueryItem.Nullable, f.FieldType.GetGenericArguments().[0]
-                                        else
-                                            QueryItem.Mandatory, f.FieldType
-                                    if not (isBaseType ty) then
-                                        failwithf "Invalid query parameter type for %s: %s. Must be a number, string, or an option thereof."
-                                            name f.FieldType.FullName
-                                    name, queryItem, Reflection.ReadType ty
-                            )
-                        |> List.ofArray
+                        cls.Fields
+//                        t'.GetFields(BF.Instance ||| BF.Public ||| BF.NonPublic)
+                        |> Seq.choose (fun (KeyValue(compName, f)) ->
+                            match f with
+                            | Metadata.InstanceField name 
+                            | Metadata.OptionalField name -> 
+                                comp.GetFieldAttributes(td, compName) |> Option.map (fun (ftyp, fattrs) ->
+                                    let isQuery =
+                                        fattrs
+                                        |> Seq.exists (fun (at, args) ->
+                                            at.Value.FullName = "WebSharper.Sitelets.QueryAttribute" &&
+                                                Array.isEmpty args
+                                        )
+                                    if isQuery then
+                                        let queryItem, ty =
+                                            match ftyp with
+                                            | ConcreteType { Entity = ftd; Generics = [ g ] } ->
+                                                match ftd.Value.FullName with
+                                                | "Microsoft.FSharp.Core.FSharpOption`1" ->
+                                                    QueryItem.Option, g
+                                                | "System.Nullable`1" ->
+                                                    QueryItem.Nullable, g
+                                                | _ -> QueryItem.Mandatory, ftyp
+                                            | _ -> QueryItem.Mandatory, ftyp
+                                        if not (isBaseType ty) then
+                                            failwithf "Invalid query parameter type for %s: %s. Must be a number, string, or an option thereof."
+                                                name ty.AssemblyQualifiedName
+                                        name, queryItem, ty
+                                    else name, QueryItem.NotQuery, ftyp
+                                )
+                            | Metadata.StaticField _ -> None
+                        ) 
+                        |> List.ofSeq
                     let isHole (n: string) = n.StartsWith "{" && n.EndsWith "}"
                     match endpoint.[endpoint.IndexOf('/') + 1 ..].Split([|'/'|], StringSplitOptions.RemoveEmptyEntries) with
                     | [||] -> MetaObject (ctor, None, fields)
@@ -414,6 +428,7 @@ and [<JavaScript>] private RouteItemParsers =
                             match Map.tryFind name query with
                             | Some x -> v?(name) <- x; Some rest
                             | None -> None
+                        | _ -> failwith "invalid QueryItem enum value"
                 )
                 |> Option.map (fun rest -> (v, rest))
             match shape with
@@ -473,19 +488,21 @@ and [<JavaScript>] private RouteItemParsers =
                             match value?(name) with
                             | None -> ()
                             | Some x ->
-                                let [x], _ = link x
+                                let x = link x |> fst |> List.head
                                 map := Map.add name x !map
                             []
                         | QueryItem.Nullable ->
                             let v = As<Nullable<_>> (value?(name))
                             if v.HasValue then
-                                let [x], _ = link v.Value
+                                let x = link v.Value |> fst |> List.head
                                 map := Map.add name x !map
                             []
                         | QueryItem.Mandatory ->
-                            let [x], _ = link value?(name)
+                            let x = link value?(name) |> fst |> List.head
                             map := Map.add name x !map
-                            [])
+                            []
+                        | _ -> failwith "invalid QueryItem enum value"
+                    )
                     |> List.ofSeq)
                 l, !map
             | Sequence (_, _, linkItem) ->
