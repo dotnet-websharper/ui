@@ -151,7 +151,7 @@ namespace WebSharper.UI.Next.CSharp.Tests
         [SPAEntryPoint]
         public static void Main()
         {
-            var people = ListModelModule.FromSeq(new[] { "John", "Paul" });
+            var people = ListModel.FromSeq(new[] { "John", "Paul" });
             var newName = Var.Create("");
             var routed = new RouteMapBuilder()
                 .With<Home>((go, _) => {

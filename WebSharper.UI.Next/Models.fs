@@ -198,7 +198,7 @@ type ListModel<'Key, 'T when 'Key : equality>
 
 [<JavaScript>]
 module ListModels =
-
+               
     let Contains keyFn item xs =
         let t = keyFn item
         Array.exists (fun it -> keyFn it = t) xs
@@ -344,19 +344,19 @@ and [<JavaScript>]
             id
 
 [<JavaScript>]
-module ListModel =
+type ListModel =
 
-    let CreateWithStorage<'Key,'T when 'Key : equality>
+    static member CreateWithStorage<'Key,'T when 'Key : equality>
             (key: 'T -> 'Key) (storage : Storage<'T>) =
         ListModel<'Key, 'T>(key, storage)
 
-    let Create<'Key, 'T when 'Key : equality> (key: 'T -> 'Key) init =
-        CreateWithStorage key (Storage.InMemory <| Seq.toArray init)
+    static member Create<'Key, 'T when 'Key : equality> (key: 'T -> 'Key) init =
+        ListModel.CreateWithStorage key (Storage.InMemory <| Seq.toArray init)
 
-    let FromSeq init =
-        Create id init
+    static member FromSeq init =
+        ListModel.Create id init
 
-    let Wrap<'Key, 'T, 'U when 'Key : equality>
+    static member Wrap<'Key, 'T, 'U when 'Key : equality>
             (underlying: ListModel<'Key, 'U>)
             (extract: 'T -> 'U)
             (createItem: 'U -> 'T)
@@ -395,10 +395,10 @@ module ListModel =
                     us
         ListModel<'Key, 'T>(Func<_,_>(extract >> underlying.Key), var, Storage.InMemory init)
 
-    let View (m: ListModel<_,_>) =
+    static member View (m: ListModel<_,_>) =
         m.view
 
-    let Key (m: ListModel<_,_>) =
+    static member Key (m: ListModel<_,_>) =
         m.key
 
 type ListModel<'Key,'T> with

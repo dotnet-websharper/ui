@@ -182,15 +182,16 @@ type ListModel<'Key,'T when 'Key : equality> with
         -> ListModel<'Key, 'V>
 
 /// ListModel combinators.
-module ListModel =
+[<Class>]
+type ListModel =
     /// Creates a new instance.
-    val Create<'Key,'T when 'Key : equality> : ('T -> 'Key) -> seq<'T> -> ListModel<'Key,'T>
+    static member Create<'Key,'T when 'Key : equality> : ('T -> 'Key) -> seq<'T> -> ListModel<'Key,'T>
 
     /// Creates a new instance using the specified storage type.
-    val CreateWithStorage<'Key, 'T when 'Key : equality> : ('T -> 'Key) -> Storage<'T> -> ListModel<'Key,'T>
+    static member CreateWithStorage<'Key, 'T when 'Key : equality> : ('T -> 'Key) -> Storage<'T> -> ListModel<'Key,'T>
 
     /// Creates a new instance using intrinsic equality and in-memory storage.
-    val FromSeq<'T when 'T : equality> : 'T seq -> ListModel<'T,'T>
+    static member FromSeq<'T when 'T : equality> : 'T seq -> ListModel<'T,'T>
 
     /// <summary>
     /// Creates a new ListModel of 'T that is two-way bound to an underlying ListModel of 'U
@@ -200,7 +201,7 @@ module ListModel =
     /// <param name="extract">Extract the underlying item from a wrapped item</param>
     /// <param name="wrap">Construct a wrapped item from an underlying item</param>
     /// <param name="update">Update a wrapped item's underlying data</param>
-    val Wrap<'Key, 'T, 'U when 'Key : equality>
+    static member Wrap<'Key, 'T, 'U when 'Key : equality>
              : underlying: ListModel<'Key, 'U>
             -> extract: ('T -> 'U)
             -> wrap: ('U -> 'T)
@@ -208,7 +209,7 @@ module ListModel =
             -> ListModel<'Key, 'T>
 
     /// Views the current item sequence.
-    val View : ListModel<'Key,'T> -> View<seq<'T>>
+    static member View : ListModel<'Key,'T> -> View<seq<'T>>
 
     /// Get the key retrieval function.
-    val Key : ListModel<'Key, 'T> -> ('T -> 'Key)
+    static member Key : ListModel<'Key, 'T> -> ('T -> 'Key)
