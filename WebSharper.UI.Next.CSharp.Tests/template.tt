@@ -23,26 +23,4 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using WebSharper;
-using WebSharper.UI.Next;
-using WebSharper.UI.Next.CSharp.Client;
-using SDoc = WebSharper.UI.Next.Doc;
-using CDoc = WebSharper.UI.Next.Client.Doc;
-using DomElement = WebSharper.JavaScript.Dom.Element;
-using DomEvent = WebSharper.JavaScript.Dom.Event;
-using CAttr = WebSharper.UI.Next.Client.Attr;
-
-namespace Template
-{
-
-[JavaScript]
-public static class <#= templName #>
-{
-
-<#= WebSharper.UI.Next.CSharp.Templating.CodeGenerator.GetCode(htmlText) #>
-
-}
-}
+<#= WebSharper.UI.Next.CSharp.Templating.CodeGenerator.GetCode("Template", templName, htmlText) #>

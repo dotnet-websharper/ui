@@ -71,7 +71,7 @@ module internal Utils =
             | a -> VarUnchecked a.Value
         | a -> Var a.Value
 
-let GetCode htmlString =
+let GetCode namespaceName templateName htmlString =
     
     let parseXml s =
         try // Try to load the file as a whole XML document, ie. single root node with optional DTD.
@@ -353,8 +353,25 @@ let GetCode htmlString =
 //                yield "public static Elt Elt(" + pars + ") => " + mainExpr + ";" 
         ]
 
-    let methods = 
+    let lines = 
         [
+            yield "using System;"
+            yield "using System.Collections.Generic;"
+            yield "using System.Linq;"
+            yield "using WebSharper;"
+            yield "using WebSharper.UI.Next;"
+            yield "using WebSharper.UI.Next.CSharp.Client;"
+            yield "using SDoc = WebSharper.UI.Next.Doc;"
+            yield "using CDoc = WebSharper.UI.Next.Client.Doc;"
+            yield "using DomElement = WebSharper.JavaScript.Dom.Element;"
+            yield "using DomEvent = WebSharper.JavaScript.Dom.Event;"
+            yield "using CAttr = WebSharper.UI.Next.Client.Attr;"
+            yield "namespace " + namespaceName
+            yield "{"
+            yield "[JavaScript]"
+            yield "public static class " + templateName
+            yield "{"
+
             for name, e in innerTemplates do
                 yield "public static class " + name
                 yield "{"
@@ -362,5 +379,8 @@ let GetCode htmlString =
                 yield "}"
 
             yield! addTemplateMethod xml
+
+            yield "}"
+            yield "}"
         ]
-    String.concat Environment.NewLine methods
+    String.concat Environment.NewLine lines
