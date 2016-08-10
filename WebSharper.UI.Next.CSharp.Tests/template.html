@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta chartset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>My TODO list</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
+    <style>
+        h1 {
+            margin-top: 0;
+            margin-bottom: 30px;
+        }
+
+        ul {
+            border-bottom: 1px solid lightgray;
+            padding-bottom: 30px;
+        }
+
+            ul > li + li {
+                border-top: 1px dotted lightgray;
+            }
+
+        label {
+            width: 100%;
+            font-weight: bold !important;
+        }
+
+        body {
+            padding: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div style="width: 400px">
+        <h1>My TODO! list</h1>
+        <div id="tasks"></div>
+        <div style="display: none" data-children-template="Main">
+            <ul class="list-unstyled" data-hole="ListContainer">
+                <li data-template="ListItem">
+                    <div class="checkbox">
+                        <label data-attr="ShowDone">
+                            <input type="checkbox" data-var="Done" />
+                            ${Task}
+                            <button class="btn btn-danger btn-xs pull-right" type="button" data-event-click="Clear">X</button>
+                        </label>
+                    </div>
+                </li>
+            </ul>
+            <form onsubmit="return false">
+                <div class="form-group">
+                    <label>New task</label>
+                    <div class="input-group">
+                        <input class="form-control" data-var="NewTaskName" />
+                        <span class="input-group-btn">
+                            <button class="btn btn-primary" type="button" data-event-click="Add">Add</button>
+                        </span>
+                    </div>
+                    <p class="help-block">You are going to add: $!{NewTaskName}<span></span></p>
+                </div>
+                <button class="btn btn-default" type="button" data-event-click="ClearCompleted">Clear selected tasks</button>
+            </form>
+        </div>
+    </div>
+</body>
+<!--[BODY]-->
+</html>

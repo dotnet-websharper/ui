@@ -8,8 +8,8 @@ let bt =
         .WithFramework(fun fw -> fw.Net40)
         .WithFSharpVersion(FSharpVersion.FSharp30)
 
-let btcs =
-    BuildTool().PackageId("Zafir.UI.Next.CSharp")
+let btcstmpl =
+    BuildTool().PackageId("Zafir.UI.Next.CSharp.Templating")
         .VersionFrom("Zafir")
         .WithFramework(fun fw -> fw.Net40)
         .WithFSharpVersion(FSharpVersion.FSharp30)        
@@ -36,6 +36,15 @@ let csharp =
         .References(fun r ->
             [
                 r.Project main
+            ])
+
+let csharpTmpl =
+    bt.Zafir.Library("WebSharper.UI.Next.CSharp.Templating")
+        .SourcesFromProject()
+        .References(fun r ->
+            [
+                r.Assembly "System.Xml"
+                r.Assembly "System.Xml.Linq"
             ])
 
 let test = 
@@ -70,6 +79,7 @@ let cstest =
 bt.Solution [
     main
     csharp
+    csharpTmpl
     tmpl
     test
     tmplTest
@@ -85,6 +95,17 @@ bt.Solution [
                 LicenseUrl = Some "http://websharper.com/licensing"
                 ProjectUrl = Some "https://github.com/intellifactory/websharper.ui.next"
                 Description = "Next-generation user interface combinators for WebSharper"
+                RequiresLicenseAcceptance = false })
+
+    btcstmpl.NuGet.CreatePackage()
+        .Add(csharpTmpl)
+        .Configure(fun c -> 
+            { c with
+                Authors = [ "IntelliFactory" ]
+                Title = Some "Zafir.UI.Next.CSharp.Templating"
+                LicenseUrl = Some "http://websharper.com/licensing"
+                ProjectUrl = Some "https://github.com/intellifactory/websharper.ui.next"
+                Description = "C# Template code generator for WebSharper UI.Next"
                 RequiresLicenseAcceptance = false })
 ]
 |> bt.Dispatch

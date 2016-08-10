@@ -194,5 +194,46 @@ namespace WebSharper.UI.Next.CSharp.Tests
                 routed
             ).RunById("main");
         }
+
+        public class TaskItem
+        {
+            public string Name { get; private set; }
+            public Var<bool> Done { get; private set; }
+
+            public TaskItem(string name, bool done)
+            {
+                Name = name;
+                Done = Var.Create(done);
+            }
+        }
+
+        public void TodoApp()
+        {
+            var Tasks =
+                new ListModel<string, TaskItem>(task => task.Name) {
+                    new TaskItem("Have breakfast", true),
+                    new TaskItem("Have lunch", false)
+                };
+
+            var NewTaskName = Var.Create("");
+
+            Template.Template.Main.Doc(
+                ListContainer: Tasks.View.DocSeqCached((TaskItem task) =>
+                    Template.Template.ListItem.Doc(
+                        Task: task.Name, 
+                        Clear: (el, ev) => Tasks.RemoveByKey(task.Name), 
+                        Done: task.Done, 
+                        ShowDone: attr.@class("checked", task.Done.View, x => x)
+                    )
+                ),
+                NewTaskName: NewTaskName,
+                Add: (el, ev) =>
+                {
+                    Tasks.Add(new TaskItem(NewTaskName.Value, false));
+                    NewTaskName.Value = "";
+                },
+                ClearCompleted: (el, ev) => Tasks.RemoveBy(task => task.Done.Value)
+            ).RunById("tasks");
+        }
     }
 }

@@ -196,6 +196,13 @@ type ListModel<'Key, 'T when 'Key : equality>
     [<Inline>]
     member this.view = v
 
+    interface seq<'T> with
+        member this.GetEnumerator() =
+            (Seq.ofArray var.Value).GetEnumerator()
+
+        member this.GetEnumerator() =
+            var.Value.GetEnumerator()
+
 [<JavaScript>]
 module ListModels =
                

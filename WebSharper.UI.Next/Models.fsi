@@ -80,6 +80,8 @@ type ListModel<'Key,'T when 'Key : equality> =
     new : System.Func<'T, 'Key> * seq<'T> -> ListModel<'Key, 'T>
     new : System.Func<'T, 'Key> -> ListModel<'Key, 'T>
  
+    interface seq<'T>
+
 type ListModel<'Key,'T when 'Key : equality> with
 
     /// Same as ListModel.View.

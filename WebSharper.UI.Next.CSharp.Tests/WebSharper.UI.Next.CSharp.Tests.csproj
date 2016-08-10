@@ -21,8 +21,8 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-	<OutputPath>bin\</OutputPath>
-	<UseCommonOutputDirectory>true</UseCommonOutputDirectory>
+    <OutputPath>bin\</OutputPath>
+    <UseCommonOutputDirectory>true</UseCommonOutputDirectory>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -47,15 +47,19 @@
   <Import Project="../build/net45/$(Name).proj" />
   <ItemGroup>
     <Compile Include="Client.cs" />
-    <Compile Include="index.cs">
+    <Compile Include="template.g.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>index.tt</DependentUpon>
+      <DependentUpon>template.tt</DependentUpon>
     </Compile>
     <Content Include="index.html" />
-    <Content Include="index.tt">
+    <Content Include="template.tt">
+      <DependentUpon>template.html</DependentUpon>
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>index.cs</LastGenOutput>
+      <LastGenOutput>template.g.cs</LastGenOutput>
+    </Content>
+    <Content Include="template.html">
+      <RunCustomToolOn>template.tt</RunCustomToolOn>
     </Content>
     <Content Include="Web.config" />
   </ItemGroup>
