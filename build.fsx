@@ -88,6 +88,9 @@ bt.Solution [
         .Add(main)
         .Add(tmpl)
         .Add(csharp)
+        .AddFile("msbuild/Zafir.UI.Next.targets", "build/Zafir.UI.Next.targets")
+        .AddFile("build/net40/FSharp.Core.dll", "tools/FSharp.Core.dll")
+        .AddFile("build/net40/WebSharper.UI.Next.CSharp.Templating.dll", "tools/WebSharper.UI.Next.CSharp.Templating.dll")
         .Configure(fun c -> 
             { c with
                 Authors = [ "IntelliFactory" ]

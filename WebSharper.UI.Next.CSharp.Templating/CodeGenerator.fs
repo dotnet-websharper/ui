@@ -160,11 +160,12 @@ let GetCode namespaceName templateName htmlString =
                     if not hasView then
                         holes.Remove(name) |> ignore
                         holes.Add(name, Hole.IRef(valTy = valTy, hasView = true))
+                    name + ".View"
                 else
                     failwithf "Invalid multiple use of variable name for differently typed View and Var: %s" name
             | true, Hole.View valTy ->
                 if valTy = typ then
-                    ()
+                    name
                 else
                     failwithf "Invalid multiple use of variable name for differently typed Views: %s" name
             | true, Hole.Simple _
@@ -173,7 +174,7 @@ let GetCode namespaceName templateName htmlString =
                 failwithf "Invalid multiple use of variable name in the same template: %s" name
             | false, _ ->
                 holes.Add(name, Hole.View typ)
-            name
+                name
 
         let getEventHole name =
             match holes.TryGetValue(name) with
@@ -294,7 +295,7 @@ let GetCode namespaceName templateName htmlString =
                                 |> List.map (function
                                     | TextPart t -> "SDoc.TextNode(" + stringLiteral t + ")"
                                     | TextHole h -> "SDoc.TextNode(" + getSimpleHole h "string" + ")"
-                                    | TextViewHole h -> "CDoc.TextView(" + getViewHole h "string" + ".View)"
+                                    | TextViewHole h -> "CDoc.TextView(" + getViewHole h "string" + ")"
                                 )
                             | _ -> []
                         ) 
