@@ -19,6 +19,22 @@ let main =
         .SourcesFromProject()
         .Embed(["h5f.js"])
 
+do
+    use wc = new System.Net.WebClient()
+    let files = 
+        [|
+            "ProvidedTypes.fsi"
+            "ProvidedTypes.fs"
+            "AssemblyReader.fs"
+            "AssemblyReaderReflection.fs"
+            "ProvidedTypesContext.fs"
+        |]
+    for f in files do
+        wc.DownloadFile(
+            "https://raw.githubusercontent.com/fsprojects/FSharp.TypeProviders.StarterPack/master/src/" + f,
+            System.IO.Path.Combine(__SOURCE_DIRECTORY__, "WebSharper.UI.Next.Templating", f)
+        )
+
 let tmpl =
     bt.Zafir.Library("WebSharper.UI.Next.Templating")
         .SourcesFromProject()

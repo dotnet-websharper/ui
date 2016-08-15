@@ -32,7 +32,9 @@ open WebSharper.UI.Next
 open WebSharper.UI.Next.Client
 open WebSharper.UI.Next.TypeProviderHelpers 
 
+open ProviderImplementation
 open ProviderImplementation.ProvidedTypes
+open ProviderImplementation.AssemblyReader
 open System.Runtime.Caching
 
 [<AutoOpen>]
@@ -100,20 +102,10 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
     inherit TypeProviderForNamespaces()
 
     let thisAssembly = Assembly.GetExecutingAssembly()
-
-    do  System.AppDomain.CurrentDomain.add_AssemblyResolve(fun _ args ->
-            let name = AssemblyName(args.Name).Name.ToLowerInvariant()
-            let an =
-                cfg.ReferencedAssemblies
-                |> Seq.tryFind (fun an ->
-                    Path.GetFileNameWithoutExtension(an).ToLowerInvariant() = name)
-            match an with
-            | Some f -> Assembly.LoadFrom f
-            | None -> null
-        )
+    let ctx = ProvidedTypesContext.Create(cfg)
     
     let rootNamespace = "WebSharper.UI.Next.Templating"
-    let templateTy = ProvidedTypeDefinition(thisAssembly, rootNamespace, "Template", None)
+    let templateTy = ctx.ProvidedTypeDefinition(thisAssembly, rootNamespace, "Template", None)
 
     let mutable watcher: FileSystemWatcher = null
 
@@ -148,12 +140,12 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
             cache.Dispose()
 
         templateTy.DefineStaticParameters(
-            [ProvidedStaticParameter("pathOrXml", typeof<string>)],
+            [ctx.ProvidedStaticParameter("pathOrXml", typeof<string>)],
             fun typename pars ->
                 let value = lazy (
                 match pars with
                 | [| :? string as pathOrXml |] ->
-                    let ty = ProvidedTypeDefinition(thisAssembly, rootNamespace, typename, None)
+                    let ty = ctx.ProvidedTypeDefinition(thisAssembly, rootNamespace, typename, None)
 
                     let parseXml s =
                         try // Try to load the file as a whole XML document, ie. single root node with optional DTD.
@@ -445,7 +437,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                         
                         let mainExpr = t |> createNode true
 
-                        let pars = [ for KeyValue(name, h) in holes -> ProvidedParameter(name, h.ArgType) ]
+                        let pars = [ for KeyValue(name, h) in holes -> ctx.ProvidedParameter(name, h.ArgType) ]
 
                         let code (args: Expr list) =
                             let varMap = Dictionary()
@@ -471,21 +463,32 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                 match varMap.TryGetValue((v.Name, v.Type)) with
                                 | true, e -> Some e
                                 | false, _ -> None)
-                        
-                        ProvidedMethod("Doc", pars, typeof<Doc>, IsStaticMethod = true, InvokeCode = code)
+
+                        ctx.ProvidedMethod("Doc", pars, typeof<Doc>, isStatic = true, invokeCode = code)
                         |> toTy.AddMember
                         if isSingleElt then
-                            ProvidedMethod("Elt", pars, typeof<Elt>, IsStaticMethod = true,
-                                InvokeCode = fun args -> <@@ (%%code args : Doc) :?> Elt @@>)
+                            ctx.ProvidedMethod("Elt", pars, typeof<Elt>, isStatic = true,
+                                invokeCode = fun args -> <@@ (%%code args : Doc) :?> Elt @@>)
                             |> toTy.AddMember
 
                     for name, e in innerTemplates do
-                        ProvidedTypeDefinition(name, None) |>! addTemplateMethod e |> ty.AddMember
+                        ctx.ProvidedTypeDefinition(name, None) |>! addTemplateMethod e |> ty.AddMember
 
                     ty |>! addTemplateMethod xml
                 | _ -> failwith "Unexpected parameter values")
                 cache.GetOrAdd (typename, value))
         this.AddNamespace(rootNamespace, [ templateTy ])
+
+    override this.ResolveAssembly(args) =
+        let name = AssemblyName(args.Name).Name.ToLowerInvariant()
+        let an =
+            cfg.ReferencedAssemblies
+            |> Seq.tryFind (fun an ->
+                Path.GetFileNameWithoutExtension(an).ToLowerInvariant() = name)
+        match an with
+        | Some f -> Assembly.LoadFrom f
+        | None -> null
+
 
 [<TypeProviderAssembly>]
 do ()
