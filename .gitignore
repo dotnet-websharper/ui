@@ -7,3 +7,8 @@ bin/
 obj/
 .vs/
 *.g.cs
+/WebSharper.UI.Next.Templating/ProvidedTypesContext.fs
+/WebSharper.UI.Next.Templating/ProvidedTypes.fsi
+/WebSharper.UI.Next.Templating/ProvidedTypes.fs
+/WebSharper.UI.Next.Templating/AssemblyReaderReflection.fs
+/WebSharper.UI.Next.Templating/AssemblyReader.fs
