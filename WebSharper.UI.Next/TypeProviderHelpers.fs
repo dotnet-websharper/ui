@@ -43,3 +43,14 @@ module TypeProviderHelpers =
     let AttrDynamic a b = Attr.Dynamic a b
     [<JavaScript; Inline>]
     let DocElement a b c = Doc.Element a b c
+    [<Inline; JavaScript>]
+    let ViewAppendString v e : View<string> = View.Map (fun x -> x + e) v
+    [<Inline; JavaScript>]
+    let ViewPrependString s v : View<string> = View.Map (fun x -> s + x) v
+    [<Inline; JavaScript>]
+    let ViewPrependAppendString s v e : View<string> = View.Map (fun x -> s + x + e) v
+    [<Inline; JavaScript>]
+    let ViewConcatString v1 v2 : View<string> = View.Map2 (fun x1 x2 -> x1 + x2) v1 v2
+    [<Inline; JavaScript>]
+    let ViewPrependConcatString s v1 v2 : View<string> = View.Map2 (fun x1 x2 -> s + x1 + x2) v1 v2
+

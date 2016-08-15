@@ -364,15 +364,15 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                                     match parts with
                                                     | [ Choice2Of2 h ] -> h
                                                     | [ Choice2Of2 h; Choice1Of2 t ] -> 
-                                                        <@ ViewMap (fun s -> s + %t) %h @>
+                                                        <@ ViewAppendString %h %t @>
                                                     | [ Choice1Of2 t; Choice2Of2 h ] -> 
-                                                        <@ ViewMap (fun s -> %t + s) %h @>
+                                                        <@ ViewPrependString %t %h @>
                                                     | [ Choice1Of2 t1; Choice2Of2 h; Choice1Of2 t2 ] ->
-                                                        <@ ViewMap (fun s -> %t1 + s + %t2) %h @>
+                                                        <@ ViewPrependAppendString %t1 %h %t2 @>
                                                     | Choice2Of2 h :: rest ->
-                                                        <@ ViewMap2 (fun s1 s2 -> s1 + s2) %h %(collect rest) @>
+                                                        <@ ViewConcatString %h %(collect rest) @>
                                                     | Choice1Of2 t :: Choice2Of2 h :: rest ->
-                                                        <@ ViewMap2 (fun s1 s2 -> %t + s1 + s2) %h %(collect rest) @>
+                                                        <@ ViewPrependConcatString %t %h %(collect rest) @>
                                                     | _ -> failwithf "collecting attribute parts failure" // should not happen
                                                 <@ AttrDynamic n %(collect parts) @>
                                     )
@@ -432,7 +432,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                             | SpecialHole as a ->
                                 let elName = e.Name.LocalName
                                 let attrValue = a.Value
-                                <@ Doc.Element elName [| AttrCreate "data-replace" attrValue |] [||] :> _ @>
+                                <@ DocElement elName [| AttrCreate "data-replace" attrValue |] [||] :> _ @>
                             | a -> <@ Doc.Concat %(getSimpleHole a.Value : Expr<seq<Doc>>) @>
                         
                         let mainExpr = t |> createNode true
@@ -468,7 +468,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                         |> toTy.AddMember
                         if isSingleElt then
                             ctx.ProvidedMethod("Elt", pars, typeof<Elt>, isStatic = true,
-                                invokeCode = fun args -> <@@ (%%code args : Doc) :?> Elt @@>)
+                                invokeCode = fun args -> <@@ (%%(code args) : Doc) :?> Elt @@>)
                             |> toTy.AddMember
 
                     for name, e in innerTemplates do
