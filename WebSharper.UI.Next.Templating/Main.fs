@@ -102,7 +102,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
     inherit TypeProviderForNamespaces()
 
     let thisAssembly = Assembly.GetExecutingAssembly()
-    let ctx = ProvidedTypesContext.Create(cfg)
+    let ctx = ProvidedTypesContext(List.ofArray cfg.ReferencedAssemblies)
     
     let rootNamespace = "WebSharper.UI.Next.Templating"
     let templateTy = ctx.ProvidedTypeDefinition(thisAssembly, rootNamespace, "Template", None)
