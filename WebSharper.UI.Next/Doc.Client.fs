@@ -160,9 +160,6 @@ module Docs =
         Attrs.Sync el.El el.Attr
         if hasDirtyChildren el then
             DoSyncElement el
-        match el.Render with
-        | None -> ()
-        | Some f -> f el.El; el.Render <- None
 
     /// Links an element to children by inserting them.
     [<MethodImpl(MethodImplOptions.NoInlining)>]
@@ -174,12 +171,18 @@ module Docs =
     let LinkPrevElement (el: Node) children =
         InsertDoc (el.ParentNode :?> _) children (DU.BeforeNode el) |> ignore
 
+    /// Invokes and clears an element's afterRender callback(s).
+    let AfterRender (el: DocElemNode) =
+        match el.Render with
+        | None -> ()
+        | Some f -> f el.El; el.Render <- None
+
     /// Synchronizes the document (deep).
     let Sync doc =
         let rec sync doc =
             match doc with
             | AppendDoc (a, b) -> sync a; sync b
-            | ElemDoc el -> SyncElement el; sync el.Children
+            | ElemDoc el -> SyncElement el; sync el.Children; AfterRender el
             | EmbedDoc n -> sync n.Current
             | EmptyDoc
             | TextNodeDoc _ -> ()
@@ -194,6 +197,7 @@ module Docs =
     let SyncElemNode el =
         SyncElement el
         Sync el.Children
+        AfterRender el
 
     /// A set of node element nodes.
     type NodeSet =
