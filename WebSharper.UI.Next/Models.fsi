@@ -68,7 +68,11 @@ type Serializer<'T> =
     }
 
 module Serializer =
+    /// Identity for both Encode and Decode;
+    /// do not restore prototypes after a stringify/parse cycle.
     val Default : Serializer<'T>
+    /// Encode as prettified JSON and restore prototypes on Decode.
+    val Typed : Serializer<'T>
 
 module Storage =
     val InMemory : 'T[] -> Storage<'T>
