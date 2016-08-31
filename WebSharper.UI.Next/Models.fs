@@ -80,7 +80,7 @@ module Macro =
         inherit WebSharper.Core.Macro()
 
         override this.TranslateCall(call) =
-            match call.DefiningType.Generics with 
+            match call.Method.Generics with 
             | [t] ->
                 let warning = ref None
                 let warn msg = 

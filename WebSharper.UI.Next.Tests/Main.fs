@@ -247,6 +247,15 @@ module Main =
             }
         }
 
+    let SerializerTest =
+        TestCategory "Serializer" {
+            Test "Typed" {
+                let s = Serializer.Typed<int list>
+                let x = s.Encode [1; 2; 3] |> Json.Stringify |> Json.Parse |> s.Decode
+                equal (Seq.nth 2 x) 3
+            }
+        }
+
 #if ZAFIR
     [<SPAEntryPoint>]
     let Main() =
