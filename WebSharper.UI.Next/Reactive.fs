@@ -167,6 +167,17 @@ type View =
     static member MapAsync2 fn v1 v2 =
         View.Map2 fn v1 v2 |> View.MapAsync id
 
+    static member Get (f: 'T -> unit) (V observe) =
+        let ok = ref false
+        let rec obs () =
+            Snap.When (observe ())
+                (fun v ->
+                    if not !ok then
+                        ok := true
+                        f v)
+                (fun () -> if not !ok then obs ())
+        obs ()
+
     static member SnapshotOn def (V o1) (V o2) =
         let sInit = Snap.CreateWithValue def
 

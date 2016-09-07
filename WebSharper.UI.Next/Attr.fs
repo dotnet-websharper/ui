@@ -426,13 +426,10 @@ module Attr =
         As<Attr> (Attrs.Static (fun el -> el.AddEventListener(name, As<DomEvent -> unit> (callback el), false)))
 
     let HandlerView name (view: View<'T>) (callback: Element -> #DomEvent -> 'T -> unit) =
-        let id = Fresh.Id()
         let init (el: Element) =
             let callback = callback el
-            el.AddEventListener(name, (fun (ev: DomEvent) -> callback (ev :?> _) el?(id)), false)
-        let cb (el: Element) (x: 'T) =
-            el?(id) <- x
-        As<Attr> (Attrs.Dynamic view init cb)
+            el.AddEventListener(name, (fun (ev: DomEvent) -> View.Get (callback (As ev)) view), false)
+        As<Attr> (Attrs.Static init)
 
     let OnAfterRender (callback: Element -> unit) =
         As<Attr> (Attrs.Mk AttrFlags.Defaults (A4 callback))

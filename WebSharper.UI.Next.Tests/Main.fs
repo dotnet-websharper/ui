@@ -219,6 +219,22 @@ module Main =
                 equalMsg (!outerCount, !innerCount) (2, 3) "function call count"
             }
 
+            Test "Get" {
+                let rv = Var.Create 53
+                let get1 = Async.FromContinuations (fun (ok, _, _) -> View.Get ok rv.View)
+                equalMsgAsync get1 53 "initial"
+                rv.Value <- 84
+                equalMsgAsync get1 84 "after set"
+                let v = rv.View |> View.MapAsync (fun x -> async {
+                    do! Async.Sleep 100
+                    return x
+                })
+                let get2 = Async.FromContinuations (fun (ok, _, _) -> View.Get ok v)
+                equalMsgAsync get2 84 "async before set"
+                rv.Value <- 12
+                equalMsgAsync get2 12 "async after set"
+            }
+
         }
 
     let ListModelTest =

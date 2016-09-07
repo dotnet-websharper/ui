@@ -906,9 +906,8 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
         this
 
     member this.onView (ev: string, view: View<'T>, cb: Dom.Element -> #Dom.Event -> 'T -> unit) =
-        let id = Fresh.Id()
-        this.AppendDoc(Doc'.BindView (fun x -> this.Element?(id) <- x; Doc'.Empty') view)
-        elt.AddEventListener(ev, As<Dom.Event -> unit>(fun ev -> cb elt ev elt?(id)), false)
+        let cb = cb elt
+        elt.AddEventListener(ev, (fun (ev: Dom.Event) -> View.Get (cb (As ev)) view), false)
         this
 
     [<Name "On"; Inline>]
