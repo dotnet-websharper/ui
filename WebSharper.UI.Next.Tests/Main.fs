@@ -235,6 +235,22 @@ module Main =
                 equalMsgAsync get2 12 "async after set"
             }
 
+            Test "GetAsync" {
+                let rv = Var.Create 79
+                let get1 = View.GetAsync rv.View
+                equalMsgAsync get1 79 "initial"
+                rv.Value <- 62
+                equalMsgAsync get1 62 "after set"
+                let v = rv.View |> View.MapAsync (fun x -> async {
+                    do! Async.Sleep 100
+                    return x
+                })
+                let get2 = View.GetAsync v
+                equalMsgAsync get2 62 "async before set"
+                rv.Value <- 43
+                equalMsgAsync get2 43 "async after set"
+            }
+
         }
 
     let ListModelTest =

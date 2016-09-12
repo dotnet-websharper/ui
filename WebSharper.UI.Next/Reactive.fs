@@ -178,6 +178,9 @@ type View =
                 (fun () -> if not !ok then obs ())
         obs ()
 
+    static member GetAsync v =
+        Async.FromContinuations (fun (ok, _, _) -> View.Get ok v)
+
     static member SnapshotOn def (V o1) (V o2) =
         let sInit = Snap.CreateWithValue def
 

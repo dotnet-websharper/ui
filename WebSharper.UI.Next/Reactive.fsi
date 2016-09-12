@@ -180,6 +180,9 @@ type View =
     /// Retrieve the current value of the view, or as soon as it is ready if currently awaiting.
     static member Get : ('A -> unit) -> View<'A> -> unit
 
+    /// Retrieve the current value of the view, or as soon as it is ready if currently awaiting.
+    static member GetAsync : View<'A> -> Async<'A>
+
  // Collection transformations
 
     /// Starts a process doing stateful conversion with shallow memoization.
