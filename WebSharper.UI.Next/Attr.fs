@@ -106,12 +106,13 @@ type Attr =
             | None ->
                 match meta.Classes.TryGetValue declType with
                 | true, {Address = Some a} ->
-                    let rec mk acc a =
-                        let local :: parent = a
-                        let acc = local :: acc
-                        match parent with
-                        | [] -> acc
-                        | p -> mk acc p
+                    let rec mk acc = function
+                        | local :: parent ->
+                            let acc = local :: acc
+                            match parent with
+                            | [] -> acc
+                            | p -> mk acc p
+                        | [] -> failwith "Impossible"
                     let s = String.concat "." (mk [name] a.Value) + "(this, event)"
                     value := Some s
                     s
@@ -136,12 +137,13 @@ type Attr =
             | None ->
                 match meta.Classes.TryGetValue declType with
                 | true, {Address = Some a} ->
-                    let rec mk acc a =
-                        let local :: parent = a
-                        let acc = local :: acc
-                        match parent with
-                        | [] -> acc
-                        | p -> mk acc p
+                    let rec mk acc = function
+                        | local :: parent ->
+                            let acc = local :: acc
+                            match parent with
+                            | [] -> acc
+                            | p -> mk acc p
+                        | [] -> failwith "Impossible"
                     let s = String.concat "." (mk [name] a.Value) + "(this, event)"
                     value := Some s
                     s
@@ -263,7 +265,7 @@ type AttrFlags =
     | HasChangeAnim = 4
 
 [<JavaScript; Proxy(typeof<Attr>); Name "WebSharper.UI.Next.AttrProxy">]
-type AttrProxy =
+type internal AttrProxy =
     {
         Flags : AttrFlags
         Tree : AttrTree
@@ -347,16 +349,16 @@ module Attrs =
         | _ -> A2 (a, b)
 
     [<MethodImpl(MethodImplOptions.NoInlining)>]
-    let Mk flags tree =
+    let internal Mk flags tree =
         {
             Flags = flags
             Tree = tree
         }
 
-    let EmptyAttr =
+    let internal EmptyAttr =
         Mk AttrFlags.Defaults A0
 
-    let Animated tr view set =
+    let internal Animated tr view set =
         let node = AnimatedAttrNode (tr, view, set)
         let mutable flags = AttrFlags.HasChangeAnim
         if Trans.CanAnimateEnter tr then
@@ -366,12 +368,12 @@ module Attrs =
         Mk flags (A1 node)
 
     [<MethodImpl(MethodImplOptions.NoInlining)>]
-    let Dynamic view init set =
+    let internal Dynamic view init set =
         A1 (DynamicAttrNode (view, init, set))
         |> Mk AttrFlags.Defaults
 
     [<MethodImpl(MethodImplOptions.NoInlining)>]
-    let Static attr =
+    let internal Static attr =
         Mk AttrFlags.Defaults (A3 attr)
 
 

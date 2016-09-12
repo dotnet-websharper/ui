@@ -371,7 +371,7 @@ type CheckedInput<'T> =
 // all in this so that it all neatly looks like Doc.* in javascript.
 [<Name "WebSharper.UI.Next.Doc"; Proxy(typeof<Doc>)>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-type Doc' [<JavaScript>] (docNode, updates) =
+type private Doc' [<JavaScript>] (docNode, updates) =
 
     [<JavaScript; Inline "$this.docNode">]
     member this.DocNode = docNode
@@ -888,7 +888,7 @@ type Doc' [<JavaScript>] (docNode, updates) =
         As (Doc'.Verbatim' s)
 
 and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
-    Elt'(docNode, updates, elt: Dom.Element, rvUpdates: Var<View<unit>>, attrUpdates) =
+    private Elt'(docNode, updates, elt: Dom.Element, rvUpdates: Var<View<unit>>, attrUpdates) =
     inherit Doc'(docNode, updates)
 
     static member internal New(el: Dom.Element, attr: Attr, children: Doc') =
