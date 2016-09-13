@@ -26,12 +26,13 @@ open WebSharper.Core.Resources
 
 type H5F() =
     interface IResource with
-        member this.Render ctx html =
-            let html = html Scripts
-            html.WriteLine "<!--[if lte IE 9.0]>"
+        member this.Render ctx =
             let ren = ctx.GetWebResourceRendering typeof<H5F> "h5f.js"
-            ren.Emit(html, Js)
-            html.WriteLine "<![endif]-->"
+            fun html ->
+                let html = html Scripts
+                html.WriteLine "<!--[if lte IE 9.0]>"
+                ren.Emit(html, Js)
+                html.WriteLine "<![endif]-->"
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module internal H5F =

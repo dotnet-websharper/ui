@@ -17,6 +17,7 @@ let btcstmpl =
 let main =
     bt.Zafir.Library("WebSharper.UI.Next")
         .SourcesFromProject()
+        .WithSourceMap()
         .Embed(["h5f.js"])
 
 do
@@ -49,6 +50,7 @@ let tmpl =
 let csharp =
     bt.Zafir.Library("WebSharper.UI.Next.CSharp")
         .SourcesFromProject()
+        .WithSourceMap()
         .References(fun r ->
             [
                 r.Project main
@@ -66,6 +68,7 @@ let csharpTmpl =
 let test = 
     bt.Zafir.BundleWebsite("WebSharper.UI.Next.Tests")
         .SourcesFromProject()
+        .WithSourceMap()
         .References(fun r ->
             [
                 r.Project main
@@ -76,6 +79,7 @@ let tmplTest =
     bt.WithFSharpVersion(FSharpVersion.FSharp31)
         .Zafir.BundleWebsite("WebSharper.UI.Next.Templating.Tests")
         .SourcesFromProject()
+        .WithSourceMap()
         .References(fun r ->
             [
                 r.Project main
@@ -86,6 +90,7 @@ let cstest =
     bt.Zafir.CSharp.BundleWebsite("WebSharper.UI.Next.CSharp.Tests")
         .SourcesFromProject("WebSharper.UI.Next.CSharp.Tests.csproj")
         .WithFramework(fun fw -> fw.Net45)
+        .WithSourceMap()
         .References(fun r ->
             [
                 r.Project main
