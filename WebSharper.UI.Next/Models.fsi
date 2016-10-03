@@ -55,7 +55,10 @@ type Model =
 /// Basic store interface. ListModel uses this for operating on the backing array.
 [<Interface>]
 type Storage<'T> =
-    abstract member Add : 'T -> 'T [] -> 'T []
+    abstract member Append : appending: 'T -> ``to``: 'T[] -> 'T[]
+    abstract member AppendMany : appending: seq<'T> -> ``to``: 'T[] -> 'T[]
+    abstract member Prepend : appending: 'T -> ``to``: 'T[] -> 'T[]
+    abstract member PrependMany : appending: seq<'T> -> ``to``: 'T[] -> 'T[]
     abstract member Init : unit -> 'T[]
     abstract member RemoveIf : ('T -> bool) -> 'T [] -> 'T []
     abstract member SetAt : int -> 'T -> 'T [] -> 'T []
@@ -97,8 +100,26 @@ type ListModel<'Key,'T when 'Key : equality> with
     /// Get the key retrieval function.
     member Key : 'T -> 'Key
 
-    /// Adds an item. If an item with the given key exists, it is replaced.
+    /// Adds an item to the end of the collection.
+    /// If an item with the given key exists, it is replaced.
+    /// Synonym for Append.
     member Add : 'T -> unit
+
+    /// Adds an item to the end of the collection.
+    /// If an item with the given key exists, it is replaced.
+    member Append : 'T -> unit
+
+    /// Adds an item to the end of the collection.
+    /// If an item with the given key exists, it is replaced.
+    member AppendMany : seq<'T> -> unit
+
+    /// Adds an item to the beginning of the collection.
+    /// If an item with the given key exists, it is replaced.
+    member Prepend : 'T -> unit
+
+    /// Adds an item to the beginning of the collection.
+    /// If an item with the given key exists, it is replaced.
+    member PrependMany : seq<'T> -> unit
 
     /// Removes an item.
     member Remove : 'T -> unit
