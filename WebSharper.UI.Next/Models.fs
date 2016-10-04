@@ -71,34 +71,6 @@ type Serializer<'T> =
         Decode : obj -> 'T
     }
 
-module Macro =
-    module CJ = WebSharper.Json.Macro
-
-    open WebSharper.Core.AST
-
-    type M() =
-        inherit WebSharper.Core.Macro()
-
-        override this.TranslateCall(call) =
-            match call.Method.Generics with 
-            | [t] ->
-                let warning = ref None
-                let warn msg = 
-                    warning := Some msg
-                let param = CJ.Parameters.Default
-                let enc = CJ.EncodeLambda param warn call.Compilation t
-                let dec = CJ.DecodeLambda param warn call.Compilation t
-                match enc, dec with
-                | Some enc, Some dec ->
-                    let res =
-                        Object [ "Encode", enc; "Decode", dec ]
-                        |> WebSharper.Core.MacroOk
-                    match !warning with
-                    | None -> res
-                    | Some msg -> WebSharper.Core.MacroWarning(msg, res)
-                | _ -> WebSharper.Core.MacroNeedsResolvedTypeArg
-            | _ -> failwith "Invalid UI.Next.Serializer macro use"
-
 [<JavaScript>]
 module Serializer =
     open WebSharper
@@ -110,11 +82,11 @@ module Serializer =
             Decode = unbox
         }
 
-    [<Macro(typeof<Macro.M>)>]
+    [<Inline>]
     let Typed =
         {
-            Encode = box
-            Decode = unbox
+            Encode = WebSharper.Json.Encode<'T>
+            Decode = WebSharper.Json.Decode<'T>
         }
 
 [<JavaScript>]
