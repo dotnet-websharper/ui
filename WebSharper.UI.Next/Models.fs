@@ -54,16 +54,22 @@ type Model =
         m.View
 
 type Storage<'T> =
-    [<Name "SAdd">]
-    abstract member Add      : 'T -> 'T[] -> 'T[]
+    [<Name "SAppend">]
+    abstract member Append : appending: 'T -> ``to``: 'T[] -> 'T[]
+    [<Name "SAppendMany">]
+    abstract member AppendMany : appending: seq<'T> -> ``to``: 'T[] -> 'T[]
+    [<Name "SPrepend">]
+    abstract member Prepend : appending: 'T -> ``to``: 'T[] -> 'T[]
+    [<Name "SPrependMany">]
+    abstract member PrependMany : appending: seq<'T> -> ``to``: 'T[] -> 'T[]
     [<Name "SInit">]
-    abstract member Init     : unit -> 'T[]
+    abstract member Init : unit -> 'T[]
     [<Name "SRemoveIf">]
     abstract member RemoveIf : ('T -> bool) -> 'T [] -> 'T[]
     [<Name "SSetAt">]
-    abstract member SetAt    : int -> 'T -> 'T[] -> 'T[]
+    abstract member SetAt : int -> 'T -> 'T[] -> 'T[]
     [<Name "SSet">]
-    abstract member Set      : 'T seq -> 'T[]
+    abstract member Set : 'T seq -> 'T[]
 
 type Serializer<'T> =
     {
@@ -97,7 +103,10 @@ module Storage =
     type private ArrayStorage<'T>(init) =
 
         interface Storage<'T> with
-            member x.Add i arr = arr.JS.Push i |> ignore; arr
+            member x.Append i arr = arr.JS.Push i |> ignore; arr
+            member x.AppendMany is arr = arr.JS.Push (Array.ofSeq is) |> ignore; arr
+            member x.Prepend i arr = arr.JS.Unshift i |> ignore; arr
+            member x.PrependMany is arr = arr.JS.Unshift (Array.ofSeq is) |> ignore; arr
             member x.Init () = init
             member x.RemoveIf pred arr = Array.filter pred arr
             member x.SetAt idx elem arr = arr.[idx] <- elem; arr
@@ -111,7 +120,10 @@ module Storage =
         let clear () = storage.RemoveItem(id)
 
         interface Storage<'T> with
-            member x.Add i arr = arr.JS.Push i |> ignore; set arr
+            member x.Append i arr = arr.JS.Push i |> ignore; set arr
+            member x.AppendMany is arr = arr.JS.Push (Array.ofSeq is) |> ignore; set arr
+            member x.Prepend i arr = arr.JS.Unshift i |> ignore; set arr
+            member x.PrependMany is arr = arr.JS.Unshift (Array.ofSeq is) |> ignore; set arr
 
             member x.Init () =
                 let item = storage.GetItem(id)
@@ -191,13 +203,45 @@ type ListModel<'Key,'T> with
     [<Inline>]
     member m.Key x = m.key x
 
+    [<Inline>]
     member m.Add item =
+        m.Append item
+
+    member m.Append item =
         let v = m.Var.Value
-        if not (ListModels.Contains m.Key item v) then
-            m.Var.Value <- m.Storage.Add item v
-        else
-            let index = Array.findIndex (fun it -> m.Key it = m.Key item) v
-            m.Var.Value <- m.Storage.SetAt index item v
+        let t = m.Key item
+        match Array.tryFindIndex (fun it -> m.Key it = t) v with
+        | None -> m.Var.Value <- m.Storage.Append item v
+        | Some index -> m.Var.Value <- m.Storage.SetAt index item v
+
+    member m.AppendMany items =
+        let toAppend = ResizeArray()
+        let v =
+            (m.Var.Value, items)
+            ||> Seq.fold (fun v item ->
+                let t = m.Key item
+                match Array.tryFindIndex (fun it -> m.Key it = t) v with
+                | Some index -> m.Storage.SetAt index item v
+                | None -> toAppend.Add item; v)
+        m.Var.Value <- m.Storage.AppendMany toAppend v
+
+    member m.Prepend item =
+        let v = m.Var.Value
+        let t = m.Key item
+        match Array.tryFindIndex (fun it -> m.Key it = t) v with
+        | None -> m.Var.Value <- m.Storage.Prepend item v
+        | Some index -> m.Var.Value <- m.Storage.SetAt index item v
+
+    member m.PrependMany items =
+        let toPrepend = ResizeArray()
+        let v =
+            (m.Var.Value, items)
+            ||> Seq.fold (fun v item ->
+                let t = m.Key item
+                match Array.tryFindIndex (fun it -> m.Key it = t) v with
+                | Some index -> m.Storage.SetAt index item v
+                | None -> toPrepend.Add item; v)
+        m.Var.Value <- m.Storage.PrependMany toPrepend v
 
     member m.Remove item =
         let v = m.Var.Value
