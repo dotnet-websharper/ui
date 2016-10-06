@@ -148,10 +148,7 @@ module Snap =
 
     let CreateForeverAsync a =
         let o = Make (Waiting (Queue(), Queue()))
-        async {
-            let! v = a
-            return MarkForever o v
-        } |> Async.Start
+        Async.StartTo a (MarkForever o)
         o
 
     let Sequence (snaps : seq<Snap<'T>>) =
