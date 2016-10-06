@@ -888,7 +888,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
         As (Doc'.Verbatim' s)
 
 and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
-    private Elt'(docNode, updates, elt: Dom.Element, rvUpdates: Var<View<unit>>, attrUpdates) =
+    private Elt'(docNode, updates, elt: Dom.Element, rvUpdates: Var<View<unit>>) =
     inherit Doc'(docNode, updates)
 
     static member internal New(el: Dom.Element, attr: Attr, children: Doc') =
@@ -896,7 +896,7 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
         let rvUpdates = Var.Create children.Updates
         let attrUpdates = Attrs.Updates node.Attr
         let updates = View.Bind (View.Map2 (fun () () -> ()) attrUpdates) rvUpdates.View
-        new Elt'(ElemDoc node, updates, el, rvUpdates, attrUpdates)
+        new Elt'(ElemDoc node, updates, el, rvUpdates)
 
     [<Inline "$0.elt">]
     member this.Element = elt
@@ -1012,8 +1012,8 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
     member this.RemoveClass'(cls: string) =
         elt?className <-
             (elt?className: String).Replace(
-                new RegExp(@"(\s|^)" + cls + @"(\s|$)"),
-                " ")
+                new RegExp(@"(?:(\s|^)" + cls + @")+(\s|$)", "g"),
+                "$1")
 
     [<Name "HasClass">]
     member this.HasClass'(cls: string) =
