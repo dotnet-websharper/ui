@@ -190,12 +190,6 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
 
                             parseXml (File.ReadAllText htmlFile) 
                         
-                    let isSingleElt =
-                        let firstNode = xml.FirstNode
-                        isNull firstNode.NextNode &&
-                        firstNode.NodeType = Xml.XmlNodeType.Element &&
-                        isNull ((firstNode :?> XElement).Attribute(dataReplace))
-
                     let innerTemplates =
                         xml.Descendants() |> Seq.choose (fun e -> 
                             match e.Attribute(dataTemplate) with
@@ -470,6 +464,12 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
 
                         ctx.ProvidedMethod("Doc", pars, typeof<Doc>, isStatic = true, invokeCode = code)
                         |> toTy.AddMember
+
+                        let isSingleElt =
+                            let firstNode = t.FirstNode
+                            isNull firstNode.NextNode &&
+                            firstNode.NodeType = Xml.XmlNodeType.Element &&
+                            isNull ((firstNode :?> XElement).Attribute(dataReplace))
                         if isSingleElt then
                             ctx.ProvidedMethod("Elt", pars, typeof<Elt>, isStatic = true,
                                 invokeCode = fun args -> <@@ (%%(code args) : Doc) :?> Elt @@>)
