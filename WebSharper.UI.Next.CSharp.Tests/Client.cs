@@ -170,7 +170,7 @@ namespace WebSharper.UI.Next.CSharp.Tests
                 .With<Person>((go, p) =>
                     div(p.Name.First, " ", p.Name.Last,
                         p.Age == null ? " won't tell their age!" : $" is {p.Age} years old!",
-                        button("Back", () => go(new Home { }))
+                        button("Back", () => go(new Home()))
                     )
                 )
                 .With<People>((go, p) =>

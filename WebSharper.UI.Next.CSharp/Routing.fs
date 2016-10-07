@@ -148,9 +148,12 @@ and private RouteMapBuilderMacro() =
         | ConcreteType ct ->
             let defaultCtor = Hashed { CtorParameters = [] }
             let info = comp.GetClassInfo ct.Entity
-            if comp.GetClassInfo ct.Entity |> Option.exists (fun cls -> cls.Constructors.ContainsKey defaultCtor) 
-            then failwithf "Endpoint type must have a default constructor: %s" t.AssemblyQualifiedName
-            else Lambda([], Ctor (ct, defaultCtor, [])), ct.Entity, info.Value
+            match comp.GetClassInfo ct.Entity with
+            | None -> failwithf "Endpoint type must have JavaScript translation: %s" t.AssemblyQualifiedName
+            | Some cls ->
+                if cls.Constructors.ContainsKey defaultCtor 
+                then Lambda([], Ctor (ct, defaultCtor, [])), ct.Entity, info.Value
+                else failwithf "Endpoint type must have a default constructor: %s" t.AssemblyQualifiedName
         // TODO: handle TupleType etc
         | _ -> failwithf "Generic endpoint type not supported for routing: %s" t.AssemblyQualifiedName
 
