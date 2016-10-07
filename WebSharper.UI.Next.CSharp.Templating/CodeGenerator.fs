@@ -88,12 +88,6 @@ let GetCode namespaceName templateName htmlString =
 
     let xml = parseXml htmlString
 
-    let isSingleElt =
-        let firstNode = xml.FirstNode
-        isNull firstNode.NextNode &&
-        firstNode.NodeType = Xml.XmlNodeType.Element &&
-        isNull ((firstNode :?> XElement).Attribute(dataReplace))
-
     let innerTemplates =
         xml.Descendants() |> Seq.choose (fun e -> 
             match e.Attribute(dataTemplate) with
@@ -119,7 +113,7 @@ let GetCode namespaceName templateName htmlString =
             name, if wrap then XElement(xn"body", e) else e
         )
 
-    let addTemplateMethod (t: XElement) =
+    let addTemplateMethod (t: XElement) name =
         let holes = Dictionary()
 
         let getSimpleHole name typ =
@@ -226,6 +220,12 @@ let GetCode namespaceName templateName htmlString =
         let stringLiteral (t: string) =
             "\"" + t.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\r", "\\r") + "\""    
 
+        let isSingleElt =
+            let firstNode = t.FirstNode
+            isNull firstNode.NextNode &&
+            firstNode.NodeType = Xml.XmlNodeType.Element &&
+            isNull ((firstNode :?> XElement).Attribute(dataReplace))
+
         let rec createNode isRoot (e: XElement) =
             match e.Attribute(dataReplace) with
             | null ->
@@ -310,7 +310,10 @@ let GetCode namespaceName templateName htmlString =
                     if List.isEmpty a then "Enumerable.Empty<" + typ + ">()" else "new[]{ " + String.concat ", " a + " }"
 
                 if isRoot then 
-                    "SDoc.Concat(" + listToSeq nodes "Doc" + ")"
+                    if isSingleElt then 
+                        nodes.Head
+                    else    
+                        "SDoc.Concat(" + listToSeq nodes "Doc" + ")"
                 else
                     let n = e.Name.LocalName
                     let var a unchecked =
@@ -348,11 +351,8 @@ let GetCode namespaceName templateName htmlString =
 
         let pars = [ for KeyValue(name, h) in holes -> h.ArgType + " " + name ] |> String.concat ", "
         
-        [
-            yield "public static Doc Doc(" + pars + ") => " + mainExpr + ";" 
-//            if isSingleElt then
-//                yield "public static Elt Elt(" + pars + ") => " + mainExpr + ";" 
-        ]
+        let typ = if isSingleElt then "Elt" else "Doc"
+        "public static " + typ + " Doc(" + pars + ") => " + mainExpr + ";" 
 
     let lines = 
         [
@@ -369,19 +369,19 @@ let GetCode namespaceName templateName htmlString =
             yield "using CAttr = WebSharper.UI.Next.Client.Attr;"
             yield "namespace " + namespaceName
             yield "{"
-            yield "[JavaScript]"
-            yield "public static class " + templateName
-            yield "{"
+            yield "    [JavaScript]"
+            yield "    public static class " + templateName
+            yield "    {"
 
             for name, e in innerTemplates do
-                yield "public static class " + name
-                yield "{"
-                yield! addTemplateMethod e
-                yield "}"
+                yield "        public static class " + name
+                yield "        {"
+                yield "            " + addTemplateMethod e name
+                yield "        }"
 
-            yield! addTemplateMethod xml
+            yield "        " + addTemplateMethod xml templateName
 
-            yield "}"
-            yield "}"
+            yield "    }"
+            yield "    }"
         ]
     String.concat Environment.NewLine lines
