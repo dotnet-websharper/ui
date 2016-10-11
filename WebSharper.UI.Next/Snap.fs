@@ -181,10 +181,10 @@ module Snap =
             When sn (fn >> MarkDone res sn) (fun () -> MarkObsolete res)
             res
 
-    let MapCached prev fn sn =
+    let MapCachedBy eq prev fn sn =
         let fn x =
             match !prev with
-            | Some (x', y) when x = x' -> y
+            | Some (x', y) when eq x x' -> y
             | _ ->
                 let y = fn x
                 prev := Some (x, y)

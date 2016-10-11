@@ -56,8 +56,7 @@ module internal Snap =
     /// Maps a function.
     val Map : ('A -> 'B) -> Snap<'A> -> Snap<'B>
 
-    val internal MapCached : ref<option<'A * 'B>> -> ('A -> 'B) -> Snap<'A> -> Snap<'B>
-        when 'A : equality
+    val internal MapCachedBy : ('A -> 'A -> bool) -> ref<option<'A * 'B>> -> ('A -> 'B) -> Snap<'A> -> Snap<'B>
 
     /// Combines two snaps.
     val Map2 : ('A -> 'B -> 'C) -> Snap<'A> -> Snap<'B> -> Snap<'C>

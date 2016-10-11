@@ -129,6 +129,18 @@ module Main =
                 equalMsg !count 2 "function call count"
             }
 
+            Test "MapCachedBy" {
+                let count = ref 0
+                let rv = Var.Create 9
+                let v = View.MapCachedBy (fun x y -> x % 10 = y % 10) (fun x -> incr count; x + 21) rv.View |> observe
+                equalMsg (v()) (9 + 21) "initial"
+                rv.Value <- 66
+                equalMsg (v()) (66 + 21) "after set"
+                rv.Value <- 56
+                equalMsg (v()) (66 + 21) "after set to the same value"
+                equalMsg !count 2 "function call count"
+            }
+
             Test "MapAsync" {
                 let count = ref 0
                 let rv = Var.Create 11

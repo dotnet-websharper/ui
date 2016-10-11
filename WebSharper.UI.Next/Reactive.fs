@@ -146,10 +146,13 @@ type View =
         View.CreateLazy (fun () ->
             observe () |> Snap.Map fn)
 
-    static member MapCached fn (V observe) =
+    static member MapCachedBy eq fn (V observe) =
         let vref = ref None
         View.CreateLazy (fun () ->
-            observe () |> Snap.MapCached vref fn)
+            observe () |> Snap.MapCachedBy eq vref fn)
+
+    static member MapCached fn v =
+        View.MapCachedBy (=) fn v
 
     // Creates a lazy view using a given snap function and 2 views
     static member private CreateLazy2 snapFn (V o1) (V o2) =
