@@ -108,7 +108,7 @@ module Storage =
             member x.Prepend i arr = arr.JS.Unshift i |> ignore; arr
             member x.PrependMany is arr = arr.JS.Unshift (Array.ofSeq is) |> ignore; arr
             member x.Init () = init
-            member x.RemoveIf pred arr = Array.filter pred arr
+            member x.RemoveIf pred arr = Array.filter (pred >> not) arr
             member x.SetAt idx elem arr = arr.[idx] <- elem; arr
             member x.Set coll = Seq.toArray coll
 
@@ -134,7 +134,7 @@ module Storage =
                         arr |> Array.map serializer.Decode
                     with _ -> [||]
 
-            member x.RemoveIf pred arr = set <| Array.filter pred arr
+            member x.RemoveIf pred arr = set <| Array.filter (pred >> not) arr
             member x.SetAt idx elem arr = arr.[idx] <- elem; set arr
             member x.Set coll = set <| Seq.toArray coll
 
@@ -248,13 +248,13 @@ type ListModel<'Key,'T> with
         if ListModels.Contains m.key item v then
             let keyFn = m.key
             let k = keyFn item
-            m.Var.Value <- m.Storage.RemoveIf (fun i -> keyFn i <> k) v
+            m.Var.Value <- m.Storage.RemoveIf (fun i -> keyFn i = k) v
 
     member m.RemoveBy (f: 'T -> bool) =
-        m.Var.Value <- m.Storage.RemoveIf (f >> not) m.Var.Value
+        m.Var.Value <- m.Storage.RemoveIf f m.Var.Value
 
     member m.RemoveByKey key =
-        m.Var.Value <- m.Storage.RemoveIf (fun i -> m.Key i <> key) m.Var.Value
+        m.Var.Value <- m.Storage.RemoveIf (fun i -> m.Key i = key) m.Var.Value
 
     member m.Iter fn =
         Array.iter fn m.Var.Value
