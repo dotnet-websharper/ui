@@ -94,7 +94,7 @@ type Attr =
     static member Handler (event: string) (q: Expr<Dom.Element -> #Dom.Event -> unit>) =
         let declType, name, reqs =
             match q with
-            | Lambda (x1, Lambda (y1, Call(None, m, [Var x2; Var y2]))) when x1 = x2 && y1 = y2 ->
+            | Lambda (x1, Lambda (y1, Call(None, m, [Var x2; (Var y2 | Coerce(Var y2, _))]))) when x1 = x2 && y1 = y2 ->
                 let rm = R.ReadMethod m
                 let typ = R.ReadTypeDefinition m.DeclaringType
                 R.ReadTypeDefinition m.DeclaringType, rm.Value.MethodName, [M.MethodNode (typ, rm); M.TypeNode typ]
