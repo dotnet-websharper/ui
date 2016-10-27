@@ -29,10 +29,11 @@ type IRef<'T> =
     abstract Get : unit -> 'T
     [<Name "RSet">]
     abstract Set : 'T -> unit
+    [<Name "RVal">]
     abstract Value : 'T with get, set
-    [<Name "RUpdate">]
+    [<Name "RUpd">]
     abstract Update : ('T -> 'T) -> unit
-    [<Name "RUpdateMaybe">]
+    [<Name "RUpdM">]
     abstract UpdateMaybe : ('T -> 'T option) -> unit
     [<Name "RView">]
     abstract View : View<'T>
