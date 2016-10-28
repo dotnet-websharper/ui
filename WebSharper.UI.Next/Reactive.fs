@@ -339,6 +339,26 @@ type View =
                 Async.Schedule loop)
         Async.Schedule loop
 
+    static member RemovableSink act (V observe) =
+        let cont = ref true
+        let rec loop () =
+            let sn = observe ()
+            Snap.When sn
+                (fun x -> if !cont then act x)
+                (fun () -> if !cont then Async.Schedule loop)
+        Async.Schedule loop
+        fun () -> cont := false
+
+    static member AsyncAwait filter view =
+        Async.FromContinuations <| fun (ok, _, _) ->
+            let rec remove =
+                View.RemovableSink (fun value ->
+                    if filter value then
+                        remove ()
+                        ok value
+                ) view
+            ()
+
     static member Apply fn view =
         View.Map2 (fun f x -> f x) fn view
 

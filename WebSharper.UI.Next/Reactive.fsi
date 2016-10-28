@@ -143,6 +143,10 @@ type View =
     /// Calls the given sink function repeatedly with the latest view value.
     static member Sink : ('A -> unit) -> View<'A> -> unit
 
+    /// Calls the given sink function repeatedly with the latest view value.
+    /// Calling the returned function deactivates the sink.
+    static member RemovableSink : ('A -> unit) -> View<'A> -> (unit -> unit)
+
     /// Lifting functions.
     static member Map : ('A -> 'B) -> View<'A> -> View<'B>
 
@@ -186,6 +190,9 @@ type View =
 
     /// Retrieve the current value of the view, or as soon as it is ready if currently awaiting.
     static member GetAsync : View<'A> -> Async<'A>
+
+    /// Returns as soon as the given view's value matches the given filter.
+    static member AsyncAwait : filter: ('A -> bool) -> View<'A> -> Async<'A>
 
  // Collection transformations
 
