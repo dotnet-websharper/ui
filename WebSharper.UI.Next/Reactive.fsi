@@ -53,6 +53,9 @@ type View<'A> =
     /// Only keeps the latest value of the second view when the predicate is true
     member UpdateWhile : 'A -> View<bool> -> View<'A>
 
+    /// Bind this view's value inside the V macro.
+    member V : 'A
+
 /// An abstract time-varying variable than can be observed for changes
 /// by independent processes.
 [<Interface>]

@@ -263,6 +263,25 @@ module Main =
                 equalMsgAsync get2 43 "async after set"
             }
 
+            Test "V" {
+                let vconst = V("foo" + string 12)
+                // aka: let vconst = View.Const ("foo" + string 12)
+                equalMsg (observe vconst ()) "foo12" "Const"
+                let vmap = V("bar" + vconst.V)
+                // aka: let vmap = View.Map (fun x -> "bar" + x) vconst
+                equalMsg (observe vmap ()) "barfoo12" "Map"
+                let vmaptwice = V(vconst.V + vconst.V)
+                // should be: let vmaptwice = View.Map (fun x -> x + x) vconst
+                // currently: let vmaptwice = View.Map2 (fun x y -> x + y) vconst vconst    // semantically valid but sub-optimal
+                equalMsg (observe vmaptwice ()) "foo12foo12" "Map using the same view twice"
+                let vmap2 = V(vconst.V + "baz" + vmap.V)
+                // aka: let vmap2 = View.Map2 (fun x y -> x + "baz" + y) vconst vmap
+                equalMsg (observe vmap2 ()) "foo12bazbarfoo12" "Map2"
+                let vapply = V(vconst.V + "qux" + vmap.V + "quux" + vmap2.V)
+                // aka: let vapply = View.Const (fun x y z -> x + "qux" + y + "quux" + z) <*> vconst <*> vmap <*> vmap2
+                equalMsg (observe vapply ()) "foo12quxbarfoo12quuxfoo12bazbarfoo12" "Apply"
+            }
+
         }
 
     let ListModelTest =

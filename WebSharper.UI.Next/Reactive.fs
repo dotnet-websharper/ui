@@ -41,7 +41,7 @@ type IRef<'T> =
     abstract Id : string
 
 and [<JavaScript>] View<'T> =
-    | V of (unit -> Snap<'T>)
+    | View of (unit -> Snap<'T>)
 
 [<AutoOpen>]
 module ViewOptimization =
@@ -183,13 +183,13 @@ type View =
                         lv.Current <- jsNull()) 
                 c
             else c
-        V obs
+        View.View obs
 
-    static member Map fn (V observe) =
+    static member Map fn (View observe) =
         View.CreateLazy (fun () ->
             observe () |> Snap.Map fn)
 
-    static member MapCachedBy eq fn (V observe) =
+    static member MapCachedBy eq fn (View observe) =
         let vref = ref None
         View.CreateLazy (fun () ->
             observe () |> Snap.MapCachedBy eq vref fn)
@@ -198,7 +198,7 @@ type View =
         View.MapCachedBy (=) fn v
 
     // Creates a lazy view using a given snap function and 2 views
-    static member private CreateLazy2 snapFn (V o1) (V o2) =
+    static member private CreateLazy2 snapFn (View o1) (View o2) =
         View.CreateLazy (fun () ->
             let s1 = o1 ()
             let s2 = o2 ()
@@ -207,19 +207,18 @@ type View =
     static member Map2 fn v1 v2 =
         View.CreateLazy2 (Snap.Map2 fn) v1 v2
 
-    static member Map2Unit (V o1) (V o2) =
+    static member Map2Unit (View o1) (View o2) =
         View.CreateLazy (fun () ->
             let s1 = o1 ()
             let s2 = o2 ()
             Snap.Map2Unit s1 s2)
-
-    static member MapAsync fn (V observe) =
+    static member MapAsync fn (View observe) =
         View.CreateLazy (fun () -> observe () |> Snap.MapAsync fn)
 
     static member MapAsync2 fn v1 v2 =
         View.Map2 fn v1 v2 |> View.MapAsync id
 
-    static member Get (f: 'T -> unit) (V observe) =
+    static member Get (f: 'T -> unit) (View observe) =
         let ok = ref false
         let rec obs () =
             Snap.When (observe ())
@@ -233,7 +232,7 @@ type View =
     static member GetAsync v =
         Async.FromContinuations (fun (ok, _, _) -> View.Get ok v)
 
-    static member SnapshotOn def (V o1) (V o2) =
+    static member SnapshotOn def (View o1) (View o2) =
         let sInit = Snap.CreateWithValue def
 
         let obs () =
@@ -340,7 +339,7 @@ type View =
 
   // More cominators ------------------------------------------------------------
 
-    static member Join (V observe : View<View<'T>>) : View<'T> =
+    static member Join (View observe : View<View<'T>>) : View<'T> =
         View.CreateLazy (fun () ->
             Snap.Join (getSnapV (observe ())))
 
@@ -359,27 +358,27 @@ type View =
     static member Sequence views =
         View.CreateLazy(fun () ->
             views
-            |> Seq.map (fun (V observe) -> observe ())
+            |> Seq.map (fun (View observe) -> observe ())
             |> Snap.Sequence)
 
     static member Const x =
         let o = Snap.CreateForever x
-        V (fun () -> o)
+        View.View (fun () -> o)
 
     static member ConstAsync a =
         let o = Snap.CreateForeverAsync a
-        V (fun () -> o)
+        View.View (fun () -> o)
 
-    static member TryWith (f: exn -> View<'T>) (V observe: View<'T>) : View<'T> =
+    static member TryWith (f: exn -> View<'T>) (View observe: View<'T>) : View<'T> =
         View.CreateLazy (fun () ->
             try
                 observe ()
             with exn ->
-                let (V obs) = f exn
+                let (View obs) = f exn
                 obs ()
         )
 
-    static member TryFinally (f: unit -> unit) (V observe: View<'T>) : View<'T> =
+    static member TryFinally (f: unit -> unit) (View observe: View<'T>) : View<'T> =
         View.CreateLazy (fun () ->
             try
                 observe ()
@@ -387,14 +386,14 @@ type View =
                 f ()
         )
 
-    static member Sink act (V observe) =
+    static member Sink act (View observe) =
         let rec loop () =
             let sn = observe ()
             Snap.When sn act (fun () ->
                 Async.Schedule loop)
         Async.Schedule loop
 
-    static member RemovableSink act (V observe) =
+    static member RemovableSink act (View observe) =
         let cont = ref true
         let rec loop () =
             let sn = observe ()
@@ -496,6 +495,9 @@ type View<'A> with
 
     [<JavaScript; Inline>]
     member v.UpdateWhile init vPred = View.UpdateWhile init vPred v
+
+    [<JavaScript>]
+    member v.V = failwith "View<'T>.V can only be used within the V macro." : 'T
 
 // These methods apply to specific types of View (such as View<seq<'A>> when 'A : equality)
 /// so we need to use C#-style extension methods.
