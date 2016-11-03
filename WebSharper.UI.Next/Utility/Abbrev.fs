@@ -155,22 +155,31 @@ module internal Abbrev =
     [<JavaScript>]
     module Mailbox =
 
+        type MailboxState =
+            | Idle = 0
+            | Working = 1
+            | WorkingMore = 2
+
         /// Simplified MailboxProcessor implementation.
-        let StartProcessor proc =
-            let mail = Generic.Queue()
-            let isActive = ref false
-            let work =
+        let StartProcessor procAsync =
+            let st = ref MailboxState.Idle
+            let rec work() =
                 async {
-                    while mail.Count > 0 do
-                        let msg = mail.Dequeue()
-                        do! proc msg
-                    return isActive := false
+                    do! procAsync
+                    match !st with
+                    | MailboxState.Working -> 
+                        st := MailboxState.Idle
+                    | MailboxState.WorkingMore ->
+                        st := MailboxState.Working
+                        do! work() 
+                    | _ -> ()
                 }
-            let start () =
-                if not !isActive then
-                    isActive := true
-                    Async.Start work
-            let post msg =
-                mail.Enqueue msg
-                start ()
+            let post() =
+                match !st with
+                | MailboxState.Idle ->
+                    st := MailboxState.Working
+                    Async.Start (work()) 
+                | MailboxState.Working -> 
+                    st := MailboxState.WorkingMore
+                | _ -> ()
             post

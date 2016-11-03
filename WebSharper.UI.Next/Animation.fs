@@ -135,7 +135,13 @@ module Anims =
             | _ -> None)
         |> ConcatActions
 
+    let mutable UseAnimations = true
+
 type Anim with
+
+    static member UseAnimations 
+        with get() = Anims.UseAnimations
+        and set v = Anims.UseAnimations <- v 
 
     static member Append (Anim a) (Anim b) =
         Anim (AppendList.Append a b)

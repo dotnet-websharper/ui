@@ -90,6 +90,9 @@ type Anim with
 type Anim with
 
   // Using
+    /// Determines if handling animations is registered on using Doc.Run methods.
+    /// Default is true.
+    static member UseAnimations : bool with get, set
 
     /// Plays the animations.
     static member Play : Anim -> Async<unit>

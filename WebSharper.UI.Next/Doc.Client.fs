@@ -315,16 +315,23 @@ module Docs =
 
     /// The main function: how to perform an animated top-level document update.
     let PerformAnimatedUpdate st doc =
-        async {
-            let cur = NodeSet.FindAll doc
-            let change = ComputeChangeAnim st cur
-            let enter = ComputeEnterAnim st cur
-            let exit = ComputeExitAnim st cur
-            do! Anim.Play (Anim.Append change exit)
-            do SyncElemNode st.Top
-            do! Anim.Play enter
-            return st.PreviousNodes <- cur
-        }
+        if Anim.UseAnimations then
+            async {
+                let cur = NodeSet.FindAll doc
+                let change = ComputeChangeAnim st cur
+                let enter = ComputeEnterAnim st cur
+                let exit = ComputeExitAnim st cur
+                do! Anim.Play (Anim.Append change exit)
+                do SyncElemNode st.Top
+                do! Anim.Play enter
+                return st.PreviousNodes <- cur
+            }
+        else
+            Async.FromContinuations <| fun (ok, _, _) ->
+                JS.RequestAnimationFrame (fun _ ->
+                    SyncElemNode st.Top
+                    ok()
+                ) |> ignore
 
     /// EmbedNode constructor.
     [<MethodImpl(MethodImplOptions.NoInlining)>]
@@ -373,9 +380,9 @@ type CheckedInput<'T> =
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 type private Doc' [<JavaScript>] (docNode, updates) =
 
-    [<JavaScript; Inline "$this.docNode">]
+    [<JavaScript; Inline>]
     member this.DocNode = docNode
-    [<JavaScript; Inline "$this.updates">]
+    [<JavaScript; Inline>]
     member this.Updates = updates
 
     interface IControlBody with
@@ -454,7 +461,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
     static member RunBetween ldelim rdelim (doc: Doc') =
         Docs.LinkPrevElement rdelim doc.DocNode
         let st = Docs.CreateDelimitedRunState ldelim rdelim doc.DocNode
-        let p = Mailbox.StartProcessor (fun () -> Docs.PerformAnimatedUpdate st doc.DocNode)
+        let p = Mailbox.StartProcessor (Docs.PerformAnimatedUpdate st doc.DocNode)
         View.Sink p doc.Updates
 
     [<JavaScript>]
@@ -510,7 +517,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
         let d = doc.DocNode
         Docs.LinkElement parent d
         let st = Docs.CreateRunState parent d
-        let p = Mailbox.StartProcessor (fun () -> Docs.PerformAnimatedUpdate st d)
+        let p = Mailbox.StartProcessor (Docs.PerformAnimatedUpdate st d)
         View.Sink p doc.Updates
 
     [<JavaScript>]

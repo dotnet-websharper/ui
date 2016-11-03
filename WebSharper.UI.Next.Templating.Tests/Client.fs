@@ -91,6 +91,8 @@ module Client =
                 PRendered = (fun el -> var := el.GetAttribute("id"))
             )
 
+        Anim.UseAnimations <- false
+
         div [
             doc 
             Regression67.Doc
