@@ -417,6 +417,7 @@ type View =
 type RefImpl<'T, 'V>(baseRef: IRef<'T>, get: 'T -> 'V, update: 'T -> 'V -> 'T) =
 
     let id = Fresh.Id()
+    let view = baseRef.View |> View.Map get
 
     interface IRef<'V> with
 
@@ -437,7 +438,7 @@ type RefImpl<'T, 'V>(baseRef: IRef<'T>, get: 'T -> 'V, update: 'T -> 'V -> 'T) =
             baseRef.UpdateMaybe(fun t -> Option.map (update t) (f (get t)))
 
         member this.View =
-            baseRef.View |> View.Map get
+            view
 
         member this.Id =
             id

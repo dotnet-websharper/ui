@@ -344,6 +344,8 @@ and [<JavaScript>]
 
     let id = Fresh.Id()
 
+    let view = m.FindByKeyAsView(key) |> View.Map get
+    
     interface IRef<'V> with
 
         member r.Get() =
@@ -363,8 +365,7 @@ and [<JavaScript>]
             m.UpdateBy (fun i -> Option.map (update i) (f (get i))) key
 
         member r.View =
-            m.FindByKeyAsView(key)
-            |> View.Map get
+            view
 
         member r.Id =
             id
