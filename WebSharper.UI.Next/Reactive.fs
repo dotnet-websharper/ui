@@ -112,7 +112,7 @@ and [<JavaScript; Sealed>] Var =
 
     static member Set var value =
         if var.Const then
-            () // TODO: signal an error
+            JavaScript.Console.Log("WebSharper UI.Next: invalid attempt to change value of a Var after calling SetFinal")
         else
             Snap.MarkObsolete var.Snap
             var.Current <- value
@@ -120,8 +120,9 @@ and [<JavaScript; Sealed>] Var =
 
     static member SetFinal var value =
         if var.Const then
-            () // TODO: signal an error
+            JavaScript.Console.Log("WebSharper UI.Next: invalid attempt to change value of a Var after calling SetFinal")
         else
+            Snap.MarkObsolete var.Snap
             var.Const <- true
             var.Current <- value
             var.Snap <- Snap.CreateForever value
