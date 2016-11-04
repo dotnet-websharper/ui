@@ -43,15 +43,23 @@ type IRef<'T> =
 and [<JavaScript>] View<'T> =
     | V of (unit -> Snap<'T>)
 
+[<AutoOpen>]
+module ViewOptimization =
+    open WebSharper.JavaScript
+    [<Inline>]
+    let V (x: unit -> Snap<'T>) = As<View<'T>> x
+    [<Inline>]
+    let (|V|) (x: View<'T>) = As<unit -> Snap<'T>> x
+
 /// Var either holds a Snap or is in Const state.
 [<JavaScript>]
 type Var<'T> =
     {
-        mutable Const : bool
-        mutable Current : 'T
-        mutable Snap : Snap<'T>
-        Id : int
-        VarView : View<'T>
+        [<Name "o">] mutable Const : bool
+        [<Name "c">] mutable Current : 'T
+        [<Name "s">] mutable Snap : Snap<'T>
+        [<Name "i">] Id : int
+        [<Name "v">] VarView : View<'T>
     }
 
     [<Inline>]
@@ -131,9 +139,9 @@ and [<JavaScript; Sealed>] Var =
 
 type ViewNode<'A,'B> =
     {
-        NValue : 'B
-        NVar : Var<'A>
-        NView : View<'A>
+        [<Name "e">] NValue : 'B
+        [<Name "r">] NVar : Var<'A>
+        [<Name "w">] NView : View<'A>
     }
 
 [<JavaScript>]

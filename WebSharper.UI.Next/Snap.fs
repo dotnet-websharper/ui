@@ -53,7 +53,7 @@ type SnapState<'T> =
 
 type Snap<'T> =
     {
-        mutable State : SnapState<'T>
+        [<Name "s">] mutable State : SnapState<'T>
     }
 
 [<JavaScript>]
