@@ -46,11 +46,15 @@ and [<JavaScript>] View<'T> =
 [<AutoOpen>]
 module ViewOptimization =
     open WebSharper.JavaScript
-    [<Inline>]
-    let V (x: unit -> Snap<'T>) = As<View<'T>> x
-    [<Inline>]
-    let (|V|) (x: View<'T>) = As<unit -> Snap<'T>> x
-
+    [<Inline "$x">]
+    let V (x: unit -> Snap<'T>) = V x
+    [<Inline "$x">]
+    let (|V|) (x: View<'T>) = let (V v) = x in v
+    [<Inline "$x">]
+    let getSnapV (x: Snap<View<'T>>) = Snap.Map (|V|) x
+    [<Inline "null">]
+    let jsNull<'T>() = Unchecked.defaultof<'T>
+    
 /// Var either holds a Snap or is in Const state.
 [<JavaScript>]
 type Var<'T> =
@@ -145,6 +149,12 @@ type ViewNode<'A,'B> =
         [<Name "w">] NView : View<'A>
     }
 
+type LazyView<'T> =
+    {
+        [<Name "c">] mutable Current : Snap<'T>
+        [<Name "o">] mutable Observe : unit -> Snap<'T>  
+    } 
+
 [<JavaScript>]
 [<Sealed>]
 type View =
@@ -154,15 +164,23 @@ type View =
         var.View
 
     static member CreateLazy observe =
-        let cur = ref None
+        let lv =
+            {
+                Current = jsNull()
+                Observe = observe 
+            }
         let obs () =
-            match !cur with
-            | Some sn -> sn
-            | None ->
-                let sn = observe ()
-                cur := Some sn
-                Snap.WhenObsolete sn (fun () -> cur := None) 
-                sn
+            let mutable c = lv.Current
+            if obj.ReferenceEquals(c, null) then
+                c <- lv.Observe()
+                lv.Current <- c
+                if Snap.IsForever c then 
+                    lv.Observe <- jsNull()
+                else
+                    Snap.WhenObsolete c (fun () -> 
+                        lv.Current <- jsNull()) 
+                c
+            else c
         V obs
 
     static member Map fn (V observe) =
@@ -322,12 +340,17 @@ type View =
 
     static member Join (V observe : View<View<'T>>) : View<'T> =
         View.CreateLazy (fun () ->
-            observe ()
-            |> Snap.Bind (fun (V obs) ->
-                obs ()))
+            Snap.Join (getSnapV (observe ())))
 
     static member Bind fn view =
         View.Join (View.Map fn view)
+
+    static member JoinInner (V observe : View<View<'T>>) : View<'T> =
+        View.CreateLazy (fun () ->
+            Snap.JoinInner (getSnapV (observe ())))
+
+    static member BindInner fn view =
+        View.JoinInner (View.Map fn view)
 
     static member Sequence views =
         View.CreateLazy(fun () ->

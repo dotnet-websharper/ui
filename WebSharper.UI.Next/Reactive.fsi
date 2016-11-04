@@ -179,6 +179,12 @@ type View =
     /// Dynamic composition.
     static member Bind : ('A -> View<'B>) -> View<'A> -> View<'B>
 
+    /// Dynamic composition. Obsoletes inner result on outer change.
+    static member JoinInner : View<View<'A>> -> View<'A>
+
+    /// Dynamic composition. Obsoletes inner result on outer change.
+    static member BindInner : ('A -> View<'B>) -> View<'A> -> View<'B>
+
     /// Evaluate each action and collect the results
     static member Sequence : seq<View<'T>> -> View<seq<'T>>
 

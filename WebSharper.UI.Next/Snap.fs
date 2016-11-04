@@ -134,16 +134,30 @@ module Snap =
 
   // combinators
 
-    let Bind f snap =
+    let Join snap =
         let res = Create ()
         let onObs () = MarkObsolete res
         let onReady x =
-            let y = f x
+            let y = x ()
             When y (fun v ->
                 if IsForever y && IsForever snap then
                     MarkForever res v
                 else
                     MarkReady res v) onObs
+        When snap onReady onObs
+        res
+
+    let JoinInner snap =
+        let res = Create ()
+        let onObs () = MarkObsolete res
+        let onReady x =
+            let y = x ()
+            When y (fun v ->
+                if IsForever y && IsForever snap then
+                    MarkForever res v
+                else
+                    MarkReady res v) onObs
+            WhenObsolete snap (fun () -> MarkObsolete y)
         When snap onReady onObs
         res
 

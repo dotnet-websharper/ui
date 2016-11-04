@@ -27,6 +27,9 @@ type internal Snap<'T>
 /// Operations on snapshots.
 module internal Snap =
 
+    /// Gets if a snap is marked for no further changes.
+    val IsForever : Snap<'T> -> bool
+
   // constructors
 
     /// Creates a snapshot that holds the given value forever, never obsolete.
@@ -48,7 +51,10 @@ module internal Snap =
   // combinators
 
     /// Dynamic combination of snaps.
-    val Bind : ('A -> Snap<'B>) -> Snap<'A> -> Snap<'B>
+    val Join : Snap<unit -> Snap<'A>> -> Snap<'A>
+
+    /// Dynamic combination of snaps. Obsoletes inner result.
+    val JoinInner : Snap<unit -> Snap<'A>> -> Snap<'A>
 
     /// Evaluates each action in the sequence and collects the results
     val Sequence : seq<Snap<'A>> -> Snap<seq<'A>>
