@@ -51,10 +51,11 @@ type Var<'T> =
         mutable Current : 'T
         mutable Snap : Snap<'T>
         Id : int
+        VarView : View<'T>
     }
 
-    member this.View =
-        V (fun () -> Var.Observe this)
+    [<Inline>]
+    member this.View = this.VarView
 
     interface IRef<'T> with
         member this.Get() = Var.Get this
@@ -74,21 +75,30 @@ and [<JavaScript; Sealed>] Var =
 
     [<MethodImpl(MethodImplOptions.NoInlining)>]
     static member Create v =
-        {
-            Const = false
-            Current = v
-            Snap = Snap.CreateWithValue v
-            Id = Fresh.Int ()
-        }
+        let mutable var = JavaScript.JS.Undefined
+        var <-
+            {
+                Const = false
+                Current = v
+                Snap = Snap.CreateWithValue v
+                Id = Fresh.Int ()
+                VarView = V (fun () -> var.Snap)
+            }
+        var
 
     static member Create() =
-        {
-            Const = false
-            Current = ()
-            Snap = Snap.CreateWithValue ()
-            Id = Fresh.Int ()
-        }
+        let mutable var = JavaScript.JS.Undefined
+        var <-
+            {
+                Const = false
+                Current = ()
+                Snap = Snap.CreateWithValue ()
+                Id = Fresh.Int ()
+                VarView = V (fun () -> var.Snap)
+            }
+        var
 
+    [<Inline>]
     static member Get var =
         var.Current
 
@@ -111,9 +121,11 @@ and [<JavaScript; Sealed>] Var =
     static member Update var fn =
         Var.Set var (fn (Var.Get var))
 
+    [<Inline>]
     static member GetId var =
         var.Id
 
+    [<Inline>]
     static member Observe var =
         var.Snap
 
@@ -136,10 +148,11 @@ type View =
         let cur = ref None
         let obs () =
             match !cur with
-            | Some sn when not (Snap.IsObsolete sn) -> sn
-            | _ ->
+            | Some sn -> sn
+            | None ->
                 let sn = observe ()
                 cur := Some sn
+                Snap.WhenObsolete sn (fun () -> cur := None) 
                 sn
         V obs
 
@@ -164,6 +177,12 @@ type View =
 
     static member Map2 fn v1 v2 =
         View.CreateLazy2 (Snap.Map2 fn) v1 v2
+
+    static member Map2Unit (V o1) (V o2) =
+        View.CreateLazy (fun () ->
+            let s1 = o1 ()
+            let s2 = o2 ()
+            Snap.Map2Unit s1 s2)
 
     static member MapAsync fn (V observe) =
         View.CreateLazy (fun () -> observe () |> Snap.MapAsync fn)

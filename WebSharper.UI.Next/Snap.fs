@@ -125,6 +125,13 @@ module Snap =
         | Ready (v, q) -> q.Enqueue obsolete; avail v
         | Waiting (q1, q2) -> q1.Enqueue avail; q2.Enqueue obsolete
 
+    let WhenObsolete snap obsolete =
+        match snap.State with
+        | Forever v -> ()
+        | Obsolete -> obsolete ()
+        | Ready (v, q) -> q.Enqueue obsolete
+        | Waiting (q1, q2) -> q2.Enqueue obsolete
+
   // combinators
 
     let Bind f snap =
@@ -214,6 +221,31 @@ module Snap =
                 | _ -> ()
             When sn1 (fun x -> v1 := Some x; cont ()) obs
             When sn2 (fun y -> v2 := Some y; cont ()) obs
+            res
+
+    let Map2Unit sn1 sn2 =
+        match sn1.State, sn2.State with
+        | Forever (), Forever () -> CreateForever () // optimization
+        | Forever (), _ -> sn2 // optimize for known sn1
+        | _, Forever () -> sn1 // optimize for known s2
+        | _ ->
+            let res = Create ()
+            let v1 = ref false
+            let v2 = ref false
+            let obs () =
+                v1 := false
+                v2 := false
+                MarkObsolete res
+            let cont () =
+                match !v1, !v2 with
+                | true, true ->
+                    if IsForever sn1 && IsForever sn2 then
+                        MarkForever res ()
+                    else
+                        MarkReady res ()
+                | _ -> ()
+            When sn1 (fun () -> v1 := true; cont ()) obs
+            When sn2 (fun () -> v2 := true; cont ()) obs
             res
 
     let Map3 fn sn1 sn2 sn3 =

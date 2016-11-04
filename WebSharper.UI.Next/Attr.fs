@@ -321,9 +321,8 @@ module Attrs =
         }
 
     let Updates dyn =
-        let p x y = View.Map2 (fun () () -> ()) x y
         dyn.DynNodes
-        |> Array.MapReduce (fun x -> x.Changed) (View.Const ()) p
+        |> Array.MapReduce (fun x -> x.Changed) (View.Const ()) View.Map2Unit
 
     let GetAnim dyn f =
         dyn.DynNodes

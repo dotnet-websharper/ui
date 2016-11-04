@@ -167,6 +167,9 @@ type View =
     /// Static composition.
     static member Map2 : ('A -> 'B -> 'C) -> View<'A> -> View<'B> -> View<'C>
 
+    /// Static composition for unit views.
+    static member Map2Unit : View<unit> -> View<unit> -> View<unit>
+
     /// Static composition.
     static member Apply : View<'A -> 'B> -> View<'A> -> View<'B>
 

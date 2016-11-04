@@ -37,7 +37,9 @@ type Model<'I,'M>(var: Var<'M>, view: View<'I>) =
         let view = View.Map proj.Invoke var.View
         Model(var, view)
 
+    [<Inline>]
     member this.Var = var
+    [<Inline>]
     member this.View = view
 
 [<JavaScript>]
@@ -50,6 +52,7 @@ type Model =
     static member Update update (m: Model<'I, 'M>) =
         Var.Update m.Var (fun x -> update x; x)
 
+    [<Inline>]
     static member View (m: Model<'I, 'M>) =
         m.View
 
@@ -418,9 +421,11 @@ type ListModel =
                     us
         ListModel<'Key, 'T>(Func<_,_>(extract >> underlying.Key), var, Storage.InMemory init)
 
+    [<Inline>]
     static member View (m: ListModel<_,_>) =
         m.view
 
+    [<Inline>]
     static member Key (m: ListModel<_,_>) =
         m.key
 

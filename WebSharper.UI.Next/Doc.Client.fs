@@ -401,7 +401,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
     [<JavaScript; Name "Append">]
     static member Append' (a: Doc') (b: Doc') =
         (a.Updates, b.Updates)
-        ||> View.Map2 (fun () () -> ())
+        ||> View.Map2Unit
         |> Doc'.Mk (AppendDoc (a.DocNode, b.DocNode))
 
     [<JavaScript; Name "Concat">]
@@ -902,7 +902,7 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
         let node = Docs.CreateElemNode el attr children.DocNode
         let rvUpdates = Var.Create children.Updates
         let attrUpdates = Attrs.Updates node.Attr
-        let updates = View.Bind (View.Map2 (fun () () -> ()) attrUpdates) rvUpdates.View
+        let updates = View.Bind (View.Map2Unit attrUpdates) rvUpdates.View
         new Elt'(ElemDoc node, updates, el, rvUpdates)
 
     [<Inline "$0.elt">]
@@ -942,14 +942,14 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
     member this.AppendDoc(doc: Doc') =
         let e = this.DocElemNode
         e.Children <- AppendDoc(e.Children, doc.DocNode)
-        rvUpdates.Value <- View.Map2 (fun () () -> ()) rvUpdates.Value doc.Updates
+        rvUpdates.Value <- View.Map2Unit rvUpdates.Value doc.Updates
         Docs.InsertDoc elt doc.DocNode DU.AtEnd |> ignore
 
     [<Name "Prepend">]
     member this.PrependDoc(doc: Doc') =
         let e = this.DocElemNode
         e.Children <- AppendDoc(doc.DocNode, e.Children)
-        rvUpdates.Value <- View.Map2 (fun () () -> ()) rvUpdates.Value doc.Updates
+        rvUpdates.Value <- View.Map2Unit rvUpdates.Value doc.Updates
         let pos =
             match elt.FirstChild with
             | null -> DU.AtEnd

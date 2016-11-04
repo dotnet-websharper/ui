@@ -61,6 +61,9 @@ module internal Snap =
     /// Combines two snaps.
     val Map2 : ('A -> 'B -> 'C) -> Snap<'A> -> Snap<'B> -> Snap<'C>
 
+    /// Combines two unit snaps.
+    val Map2Unit : Snap<unit> -> Snap<unit> -> Snap<unit>
+
     /// Combines three snaps.
     val Map3 : ('A -> 'B -> 'C -> 'D) -> Snap<'A> -> Snap<'B> -> Snap<'C> -> Snap<'D>
 
@@ -77,6 +80,9 @@ module internal Snap =
 
     /// Schedule callbacks on lifecycle events.
     val When : Snap<'T> -> ready: ('T -> unit) -> obsolete: (unit -> unit) -> unit
+
+    /// Schedule callback on obsoleted event.
+    val WhenObsolete : Snap<'T> -> obsolete: (unit -> unit) -> unit
 
   // misc
 
