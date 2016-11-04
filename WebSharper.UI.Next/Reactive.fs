@@ -479,6 +479,9 @@ type View<'A> with
     [<JavaScript; Inline>]
     member v.Bind f = View.Bind f v
 
+    [<JavaScript; Inline>]
+    member v.BindInner f = View.BindInner f v
+
     //[<JavaScript; Inline>]
     //member v.Bind (f: System.Func<_, View<'B>>) =
     //    View.Bind (FSharpConvert.Fun f) v

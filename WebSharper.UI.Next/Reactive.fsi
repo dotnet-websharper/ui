@@ -44,6 +44,9 @@ type View<'A> =
     member Bind : ('A -> View<'B>) -> View<'B>
     //member Bind : (System.Func<'A, View<'B>>) -> View<'B>
 
+    /// Dynamic composition. Obsoletes inner result on outer change.
+    member BindInner : ('A -> View<'B>) -> View<'B>
+
     /// Snapshots the second view whenever the first updates
     member SnapshotOn : 'A -> View<'B> -> View<'A>
 
