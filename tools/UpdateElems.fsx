@@ -147,6 +147,7 @@ module Tags =
             | "attr" ->
                 [|
                     sprintf "/// Create an HTML attribute \"%s\" with the given value." e.Name
+                    sprintf "/// The value can be reactive using `view.V`."
                     sprintf """[<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "%s")>]""" e.Name
                     sprintf "static member %s value = Attr.Create \"%s\" value" e.LowNameEsc e.Name
                 |]

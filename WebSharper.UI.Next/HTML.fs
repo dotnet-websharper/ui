@@ -30,7 +30,7 @@ open WebSharper.JavaScript
 // be JavaScript because they are proxied.
 module Html =
 
-    /// Create a text node with constant content.
+    /// Create a text node with constant content, or with dynamic content using `view.V`.
     [<JavaScript; Inline; Macro(typeof<VMacro.TextView>)>]
     let text t = Doc.TextNode t
 
@@ -1080,471 +1080,627 @@ module Html =
 
         // {{ attr normal colliding deprecated
         /// Create an HTML attribute "accept" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "accept")>]
         static member accept value = Attr.Create "accept" value
         /// Create an HTML attribute "accept-charset" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "accept-charset")>]
         static member acceptCharset value = Attr.Create "accept-charset" value
         /// Create an HTML attribute "accesskey" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "accesskey")>]
         static member accesskey value = Attr.Create "accesskey" value
         /// Create an HTML attribute "action" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "action")>]
         static member action value = Attr.Create "action" value
         /// Create an HTML attribute "align" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "align")>]
         static member align value = Attr.Create "align" value
         /// Create an HTML attribute "alink" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "alink")>]
         static member alink value = Attr.Create "alink" value
         /// Create an HTML attribute "alt" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "alt")>]
         static member alt value = Attr.Create "alt" value
         /// Create an HTML attribute "altcode" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "altcode")>]
         static member altcode value = Attr.Create "altcode" value
         /// Create an HTML attribute "archive" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "archive")>]
         static member archive value = Attr.Create "archive" value
         /// Create an HTML attribute "async" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "async")>]
         static member async value = Attr.Create "async" value
         /// Create an HTML attribute "autocomplete" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "autocomplete")>]
         static member autocomplete value = Attr.Create "autocomplete" value
         /// Create an HTML attribute "autofocus" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "autofocus")>]
         static member autofocus value = Attr.Create "autofocus" value
         /// Create an HTML attribute "autoplay" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "autoplay")>]
         static member autoplay value = Attr.Create "autoplay" value
         /// Create an HTML attribute "autosave" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "autosave")>]
         static member autosave value = Attr.Create "autosave" value
         /// Create an HTML attribute "axis" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "axis")>]
         static member axis value = Attr.Create "axis" value
         /// Create an HTML attribute "background" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "background")>]
         static member background value = Attr.Create "background" value
         /// Create an HTML attribute "bgcolor" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "bgcolor")>]
         static member bgcolor value = Attr.Create "bgcolor" value
         /// Create an HTML attribute "border" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "border")>]
         static member border value = Attr.Create "border" value
         /// Create an HTML attribute "bordercolor" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "bordercolor")>]
         static member bordercolor value = Attr.Create "bordercolor" value
         /// Create an HTML attribute "buffered" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "buffered")>]
         static member buffered value = Attr.Create "buffered" value
         /// Create an HTML attribute "cellpadding" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "cellpadding")>]
         static member cellpadding value = Attr.Create "cellpadding" value
         /// Create an HTML attribute "cellspacing" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "cellspacing")>]
         static member cellspacing value = Attr.Create "cellspacing" value
         /// Create an HTML attribute "challenge" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "challenge")>]
         static member challenge value = Attr.Create "challenge" value
         /// Create an HTML attribute "char" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "char")>]
         static member char value = Attr.Create "char" value
         /// Create an HTML attribute "charoff" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "charoff")>]
         static member charoff value = Attr.Create "charoff" value
         /// Create an HTML attribute "charset" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "charset")>]
         static member charset value = Attr.Create "charset" value
         /// Create an HTML attribute "checked" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "checked")>]
         static member ``checked`` value = Attr.Create "checked" value
         /// Create an HTML attribute "cite" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "cite")>]
         static member cite value = Attr.Create "cite" value
         /// Create an HTML attribute "class" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "class")>]
         static member ``class`` value = Attr.Create "class" value
         /// Create an HTML attribute "classid" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "classid")>]
         static member classid value = Attr.Create "classid" value
         /// Create an HTML attribute "clear" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "clear")>]
         static member clear value = Attr.Create "clear" value
         /// Create an HTML attribute "code" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "code")>]
         static member code value = Attr.Create "code" value
         /// Create an HTML attribute "codebase" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "codebase")>]
         static member codebase value = Attr.Create "codebase" value
         /// Create an HTML attribute "codetype" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "codetype")>]
         static member codetype value = Attr.Create "codetype" value
         /// Create an HTML attribute "color" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "color")>]
         static member color value = Attr.Create "color" value
         /// Create an HTML attribute "cols" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "cols")>]
         static member cols value = Attr.Create "cols" value
         /// Create an HTML attribute "colspan" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "colspan")>]
         static member colspan value = Attr.Create "colspan" value
         /// Create an HTML attribute "compact" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "compact")>]
         static member compact value = Attr.Create "compact" value
         /// Create an HTML attribute "content" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "content")>]
         static member content value = Attr.Create "content" value
         /// Create an HTML attribute "contenteditable" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "contenteditable")>]
         static member contenteditable value = Attr.Create "contenteditable" value
         /// Create an HTML attribute "contextmenu" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "contextmenu")>]
         static member contextmenu value = Attr.Create "contextmenu" value
         /// Create an HTML attribute "controls" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "controls")>]
         static member controls value = Attr.Create "controls" value
         /// Create an HTML attribute "coords" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "coords")>]
         static member coords value = Attr.Create "coords" value
         /// Create an HTML attribute "data" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "data")>]
         static member data value = Attr.Create "data" value
         /// Create an HTML attribute "datetime" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "datetime")>]
         static member datetime value = Attr.Create "datetime" value
         /// Create an HTML attribute "declare" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "declare")>]
         static member declare value = Attr.Create "declare" value
         /// Create an HTML attribute "default" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "default")>]
         static member ``default`` value = Attr.Create "default" value
         /// Create an HTML attribute "defer" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "defer")>]
         static member defer value = Attr.Create "defer" value
         /// Create an HTML attribute "dir" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "dir")>]
         static member dir value = Attr.Create "dir" value
         /// Create an HTML attribute "disabled" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "disabled")>]
         static member disabled value = Attr.Create "disabled" value
         /// Create an HTML attribute "download" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "download")>]
         static member download value = Attr.Create "download" value
         /// Create an HTML attribute "draggable" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "draggable")>]
         static member draggable value = Attr.Create "draggable" value
         /// Create an HTML attribute "dropzone" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "dropzone")>]
         static member dropzone value = Attr.Create "dropzone" value
         /// Create an HTML attribute "enctype" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "enctype")>]
         static member enctype value = Attr.Create "enctype" value
         /// Create an HTML attribute "face" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "face")>]
         static member face value = Attr.Create "face" value
         /// Create an HTML attribute "for" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "for")>]
         static member ``for`` value = Attr.Create "for" value
         /// Create an HTML attribute "form" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "form")>]
         static member form value = Attr.Create "form" value
         /// Create an HTML attribute "formaction" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "formaction")>]
         static member formaction value = Attr.Create "formaction" value
         /// Create an HTML attribute "formenctype" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "formenctype")>]
         static member formenctype value = Attr.Create "formenctype" value
         /// Create an HTML attribute "formmethod" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "formmethod")>]
         static member formmethod value = Attr.Create "formmethod" value
         /// Create an HTML attribute "formnovalidate" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "formnovalidate")>]
         static member formnovalidate value = Attr.Create "formnovalidate" value
         /// Create an HTML attribute "formtarget" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "formtarget")>]
         static member formtarget value = Attr.Create "formtarget" value
         /// Create an HTML attribute "frame" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "frame")>]
         static member frame value = Attr.Create "frame" value
         /// Create an HTML attribute "frameborder" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "frameborder")>]
         static member frameborder value = Attr.Create "frameborder" value
         /// Create an HTML attribute "headers" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "headers")>]
         static member headers value = Attr.Create "headers" value
         /// Create an HTML attribute "height" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "height")>]
         static member height value = Attr.Create "height" value
         /// Create an HTML attribute "hidden" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "hidden")>]
         static member hidden value = Attr.Create "hidden" value
         /// Create an HTML attribute "high" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "high")>]
         static member high value = Attr.Create "high" value
         /// Create an HTML attribute "href" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "href")>]
         static member href value = Attr.Create "href" value
         /// Create an HTML attribute "hreflang" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "hreflang")>]
         static member hreflang value = Attr.Create "hreflang" value
         /// Create an HTML attribute "hspace" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "hspace")>]
         static member hspace value = Attr.Create "hspace" value
         /// Create an HTML attribute "http" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "http")>]
         static member http value = Attr.Create "http" value
         /// Create an HTML attribute "icon" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "icon")>]
         static member icon value = Attr.Create "icon" value
         /// Create an HTML attribute "id" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "id")>]
         static member id value = Attr.Create "id" value
         /// Create an HTML attribute "ismap" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "ismap")>]
         static member ismap value = Attr.Create "ismap" value
         /// Create an HTML attribute "itemprop" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "itemprop")>]
         static member itemprop value = Attr.Create "itemprop" value
         /// Create an HTML attribute "keytype" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "keytype")>]
         static member keytype value = Attr.Create "keytype" value
         /// Create an HTML attribute "kind" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "kind")>]
         static member kind value = Attr.Create "kind" value
         /// Create an HTML attribute "label" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "label")>]
         static member label value = Attr.Create "label" value
         /// Create an HTML attribute "lang" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "lang")>]
         static member lang value = Attr.Create "lang" value
         /// Create an HTML attribute "language" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "language")>]
         static member language value = Attr.Create "language" value
         /// Create an HTML attribute "link" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "link")>]
         static member link value = Attr.Create "link" value
         /// Create an HTML attribute "list" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "list")>]
         static member list value = Attr.Create "list" value
         /// Create an HTML attribute "longdesc" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "longdesc")>]
         static member longdesc value = Attr.Create "longdesc" value
         /// Create an HTML attribute "loop" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "loop")>]
         static member loop value = Attr.Create "loop" value
         /// Create an HTML attribute "low" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "low")>]
         static member low value = Attr.Create "low" value
         /// Create an HTML attribute "manifest" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "manifest")>]
         static member manifest value = Attr.Create "manifest" value
         /// Create an HTML attribute "marginheight" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "marginheight")>]
         static member marginheight value = Attr.Create "marginheight" value
         /// Create an HTML attribute "marginwidth" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "marginwidth")>]
         static member marginwidth value = Attr.Create "marginwidth" value
         /// Create an HTML attribute "max" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "max")>]
         static member max value = Attr.Create "max" value
         /// Create an HTML attribute "maxlength" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "maxlength")>]
         static member maxlength value = Attr.Create "maxlength" value
         /// Create an HTML attribute "media" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "media")>]
         static member media value = Attr.Create "media" value
         /// Create an HTML attribute "method" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "method")>]
         static member ``method`` value = Attr.Create "method" value
         /// Create an HTML attribute "min" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "min")>]
         static member min value = Attr.Create "min" value
         /// Create an HTML attribute "multiple" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "multiple")>]
         static member multiple value = Attr.Create "multiple" value
         /// Create an HTML attribute "name" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "name")>]
         static member name value = Attr.Create "name" value
         /// Create an HTML attribute "nohref" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "nohref")>]
         static member nohref value = Attr.Create "nohref" value
         /// Create an HTML attribute "noresize" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "noresize")>]
         static member noresize value = Attr.Create "noresize" value
         /// Create an HTML attribute "noshade" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "noshade")>]
         static member noshade value = Attr.Create "noshade" value
         /// Create an HTML attribute "novalidate" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "novalidate")>]
         static member novalidate value = Attr.Create "novalidate" value
         /// Create an HTML attribute "nowrap" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "nowrap")>]
         static member nowrap value = Attr.Create "nowrap" value
         /// Create an HTML attribute "object" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "object")>]
         static member ``object`` value = Attr.Create "object" value
         /// Create an HTML attribute "open" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "open")>]
         static member ``open`` value = Attr.Create "open" value
         /// Create an HTML attribute "optimum" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "optimum")>]
         static member optimum value = Attr.Create "optimum" value
         /// Create an HTML attribute "pattern" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "pattern")>]
         static member pattern value = Attr.Create "pattern" value
         /// Create an HTML attribute "ping" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "ping")>]
         static member ping value = Attr.Create "ping" value
         /// Create an HTML attribute "placeholder" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "placeholder")>]
         static member placeholder value = Attr.Create "placeholder" value
         /// Create an HTML attribute "poster" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "poster")>]
         static member poster value = Attr.Create "poster" value
         /// Create an HTML attribute "preload" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "preload")>]
         static member preload value = Attr.Create "preload" value
         /// Create an HTML attribute "profile" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "profile")>]
         static member profile value = Attr.Create "profile" value
         /// Create an HTML attribute "prompt" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "prompt")>]
         static member prompt value = Attr.Create "prompt" value
         /// Create an HTML attribute "pubdate" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "pubdate")>]
         static member pubdate value = Attr.Create "pubdate" value
         /// Create an HTML attribute "radiogroup" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "radiogroup")>]
         static member radiogroup value = Attr.Create "radiogroup" value
         /// Create an HTML attribute "readonly" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "readonly")>]
         static member readonly value = Attr.Create "readonly" value
         /// Create an HTML attribute "rel" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "rel")>]
         static member rel value = Attr.Create "rel" value
         /// Create an HTML attribute "required" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "required")>]
         static member required value = Attr.Create "required" value
         /// Create an HTML attribute "rev" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "rev")>]
         static member rev value = Attr.Create "rev" value
         /// Create an HTML attribute "reversed" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "reversed")>]
         static member reversed value = Attr.Create "reversed" value
         /// Create an HTML attribute "rows" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "rows")>]
         static member rows value = Attr.Create "rows" value
         /// Create an HTML attribute "rowspan" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "rowspan")>]
         static member rowspan value = Attr.Create "rowspan" value
         /// Create an HTML attribute "rules" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "rules")>]
         static member rules value = Attr.Create "rules" value
         /// Create an HTML attribute "sandbox" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "sandbox")>]
         static member sandbox value = Attr.Create "sandbox" value
         /// Create an HTML attribute "scheme" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "scheme")>]
         static member scheme value = Attr.Create "scheme" value
         /// Create an HTML attribute "scope" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "scope")>]
         static member scope value = Attr.Create "scope" value
         /// Create an HTML attribute "scoped" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "scoped")>]
         static member scoped value = Attr.Create "scoped" value
         /// Create an HTML attribute "scrolling" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "scrolling")>]
         static member scrolling value = Attr.Create "scrolling" value
         /// Create an HTML attribute "seamless" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "seamless")>]
         static member seamless value = Attr.Create "seamless" value
         /// Create an HTML attribute "selected" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "selected")>]
         static member selected value = Attr.Create "selected" value
         /// Create an HTML attribute "shape" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "shape")>]
         static member shape value = Attr.Create "shape" value
         /// Create an HTML attribute "size" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "size")>]
         static member size value = Attr.Create "size" value
         /// Create an HTML attribute "sizes" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "sizes")>]
         static member sizes value = Attr.Create "sizes" value
         /// Create an HTML attribute "span" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "span")>]
         static member span value = Attr.Create "span" value
         /// Create an HTML attribute "spellcheck" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "spellcheck")>]
         static member spellcheck value = Attr.Create "spellcheck" value
         /// Create an HTML attribute "src" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "src")>]
         static member src value = Attr.Create "src" value
         /// Create an HTML attribute "srcdoc" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "srcdoc")>]
         static member srcdoc value = Attr.Create "srcdoc" value
         /// Create an HTML attribute "srclang" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "srclang")>]
         static member srclang value = Attr.Create "srclang" value
         /// Create an HTML attribute "standby" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "standby")>]
         static member standby value = Attr.Create "standby" value
         /// Create an HTML attribute "start" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "start")>]
         static member start value = Attr.Create "start" value
         /// Create an HTML attribute "step" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "step")>]
         static member step value = Attr.Create "step" value
         /// Create an HTML attribute "style" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "style")>]
         static member style value = Attr.Create "style" value
         /// Create an HTML attribute "subject" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "subject")>]
         static member subject value = Attr.Create "subject" value
         /// Create an HTML attribute "summary" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "summary")>]
         static member summary value = Attr.Create "summary" value
         /// Create an HTML attribute "tabindex" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "tabindex")>]
         static member tabindex value = Attr.Create "tabindex" value
         /// Create an HTML attribute "target" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "target")>]
         static member target value = Attr.Create "target" value
         /// Create an HTML attribute "text" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "text")>]
         static member text value = Attr.Create "text" value
         /// Create an HTML attribute "title" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "title")>]
         static member title value = Attr.Create "title" value
         /// Create an HTML attribute "type" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "type")>]
         static member ``type`` value = Attr.Create "type" value
         /// Create an HTML attribute "usemap" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "usemap")>]
         static member usemap value = Attr.Create "usemap" value
         /// Create an HTML attribute "valign" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "valign")>]
         static member valign value = Attr.Create "valign" value
         /// Create an HTML attribute "value" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "value")>]
         static member value value = Attr.Create "value" value
         /// Create an HTML attribute "valuetype" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "valuetype")>]
         static member valuetype value = Attr.Create "valuetype" value
         /// Create an HTML attribute "version" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "version")>]
         static member version value = Attr.Create "version" value
         /// Create an HTML attribute "vlink" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "vlink")>]
         static member vlink value = Attr.Create "vlink" value
         /// Create an HTML attribute "vspace" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "vspace")>]
         static member vspace value = Attr.Create "vspace" value
         /// Create an HTML attribute "width" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "width")>]
         static member width value = Attr.Create "width" value
         /// Create an HTML attribute "wrap" with the given value.
+        /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "wrap")>]
         static member wrap value = Attr.Create "wrap" value
         // }}

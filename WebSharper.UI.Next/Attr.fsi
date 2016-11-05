@@ -76,6 +76,7 @@ module Attr =
     val Animated : name: string -> Trans<'T> -> view: View<'T> -> value: ('T -> string) -> Attr
 
     /// Sets a style attribute, such as `background-color`.
+    /// The value can be reactive using `view.V`.
     val Style : name: string -> value: string -> Attr
 
     /// Dynamic variant of Style.
