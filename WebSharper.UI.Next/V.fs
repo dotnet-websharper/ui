@@ -29,9 +29,19 @@ module V =
         open WebSharper.Core
         open WebSharper.Core.AST
 
-        let ty<'T> = ({ Assembly = typeof<View>.Assembly.GetName().Name; FullName = typedefof<'T>.FullName } : TypeDefinitionInfo) |> Hashed
+        let ty<'T> =
+            let t = typedefof<'T>
+            ({ Assembly = t.Assembly.GetName().Name; FullName = t.FullName } : TypeDefinitionInfo) |> Hashed
         let meth name gen param ret = ({ MethodName = name; Parameters = param; ReturnType = ret; Generics = gen } : MethodInfo) |> Hashed
         let TP = TypeParameter
+
+        let key = function
+            | Var x | ExprSourcePos (_, Var x) -> Choice1Of2 x
+            | e -> Choice2Of2 e
+
+        let (|Key|) = function
+            | Choice1Of2 x -> Var x
+            | Choice2Of2 e -> e
 
         type M() =
             inherit Macro()
@@ -51,11 +61,12 @@ module V =
                     { new Transformer() with
                         member v.TransformCall (this, ty, m, args) =
                             if isViewT ty.Entity && isV m.Entity then
-                                match env.TryFind this.Value with
+                                let k = key this.Value
+                                match env.TryFind k with
                                 | Some (id, _) -> Var id
                                 | None ->
                                     let id = Id.New()
-                                    env.[this.Value] <- (id, ty.Generics.[0])
+                                    env.[k] <- (id, ty.Generics.[0])
                                     Var id
                             else base.TransformCall (this, ty, m, args)
                     }.TransformExpression e
@@ -63,17 +74,14 @@ module V =
                 | [] ->
                     // View.Const body
                     Call(None, viewModule, constFnOf t, [body])
-                | [ KeyValue(v, (id, targ)) ] ->
+                | [ KeyValue(Key v, (id, targ)) ] ->
                     // View.Map (fun x -> body) v
                     Call(None, viewModule, mapFnOf targ t, [Lambda([id], body); v])
-                | [ KeyValue(v1, (id1, targ1)); KeyValue(v2, (id2, targ2)) ] ->
-                    // View.Map2 (fun x1 x2 -> body) v1 v2
-                    Call(None, viewModule, map2FnOf targ1 targ2 t, [Lambda([id1], Lambda([id2], body)); v1; v2])
-                | (KeyValue(v1, (id1, targ1)) :: KeyValue(v2, (id2, targ2)) :: rest) as n ->
+                | (KeyValue(Key v1, (id1, targ1)) :: KeyValue(Key v2, (id2, targ2)) :: rest) as n ->
                     // View.Map2 (fun x1 x2 ...xn -> body) v1 v2 <*> v3 <*> ...vn
                     let lambda = (n, body) ||> List.foldBack (fun (KeyValue(_, (id, _))) body -> Lambda([id], body))
                     let cnst = Call(None, viewModule, map2FnOf targ1 targ2 t, [lambda; v1; v2])
-                    (cnst, rest) ||> List.fold (fun e (KeyValue(v, (_, targ))) ->
+                    (cnst, rest) ||> List.fold (fun e (KeyValue(Key v, (_, targ))) ->
                         Call(None, viewModule, applyFnOf targ targ (* ??? *), [e; v]))
 
             override this.TranslateCall(call) =
