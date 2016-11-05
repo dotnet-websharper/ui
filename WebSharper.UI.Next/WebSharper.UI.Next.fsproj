@@ -34,6 +34,8 @@
     <Compile Include="Models.fs" />
     <Compile Include="Animation.fsi" />
     <Compile Include="Animation.fs" />
+    <Compile Include="V.fsi" />
+    <Compile Include="V.fs" />
     <Compile Include="Attr.fsi" />
     <Compile Include="Attr.fs" />
     <Compile Include="Doc.fsi" />
@@ -44,8 +46,6 @@
     <Compile Include="Doc.Client.fs" />
     <Compile Include="Flow.fsi" />
     <Compile Include="Flow.fs" />
-    <Compile Include="V.fsi" />
-    <Compile Include="V.fs" />
     <Compile Include="HTML.fs" />
     <Compile Include="HTML.Client.fs" />
     <Compile Include="Notation.fsi" />

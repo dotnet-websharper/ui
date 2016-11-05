@@ -22,15 +22,23 @@ namespace WebSharper.UI.Next
 
 open WebSharper
 
-module VMacro =
+module internal VMacro =
     open WebSharper.Core
     open WebSharper.Core.AST
 
-    let Ty<'T> =
-        let t = typedefof<'T>
-        ({ Assembly = t.Assembly.GetName().Name; FullName = t.FullName } : TypeDefinitionInfo) |> Hashed
-    let Meth name gen param ret = ({ MethodName = name; Parameters = param; ReturnType = ret; Generics = gen } : MethodInfo) |> Hashed
+    let ty' asm name = Hashed ({ Assembly = asm; FullName = name } : TypeDefinitionInfo)
+    let ty name = ty' "WebSharper.UI.Next" name
+    let meth name param ret gen = Hashed ({ MethodName = name; Parameters = param; ReturnType = ret; Generics = gen } : MethodInfo)
+    let gen tys meth =
+        match List.length tys with
+        | 0 -> NonGeneric (meth 0)
+        | n -> Generic (meth (List.length tys)) tys
     let TP = TypeParameter
+    let T0 = TP 0
+    let T1 = TP 1
+    let T2 = TP 2
+    let T = ConcreteType
+    let (^->) x y = FSharpFuncType(x, y)
 
     let key = function
         | Var x | ExprSourcePos (_, Var x) -> Choice1Of2 x
@@ -42,21 +50,22 @@ module VMacro =
 
     let isViewT (t: TypeDefinition) = t.Value.FullName = "WebSharper.UI.Next.View`1"
     let isV (m: Method) = m.Value.MethodName = "get_V"
-    let viewModule = NonGeneric Ty<View>
-    let viewOf t = GenericType Ty<View<_>> [t]
-    let constFnOf t = Generic (Meth "Const" 1 [TP 0] (viewOf (TP 0))) [t]
-    let mapFnOf t u = Generic (Meth "Map" 2 [FSharpFuncType(TP 0, TP 1); viewOf (TP 0)] (viewOf (TP 1))) [t; u]
-    let map2FnOf t u v = Generic (Meth "Map2" 3 [FSharpFuncType(TP 0, FSharpFuncType(TP 1, TP 2)); viewOf (TP 0); viewOf (TP 1)] (viewOf (TP 2))) [t; u; v]
-    let applyFnOf t u = Generic (Meth "Apply" 2 [viewOf (FSharpFuncType(TP 0, TP 1)); viewOf (TP 0)] (viewOf (TP 1))) [t; u]
-
-    let clientDocModule =
-        ({ Assembly = "WebSharper.UI.Next"; FullName = "WebSharper.UI.Next.Client.Doc" } : TypeDefinitionInfo)
-        |> Hashed
-        |> NonGeneric
-    let stringT = NonGenericType Ty<string>
-    let textViewFn =
-        Meth "TextView" 0 [GenericType Ty<View<_>> [stringT]] (NonGenericType Ty<Doc>)
-        |> NonGeneric
+    let stringT = NonGenericType (ty' "mscorlib" "System.String")
+    let viewModule = NonGeneric (ty "WebSharper.UI.Next.View")
+    let viewOf t = GenericType (ty "WebSharper.UI.Next.View`1") [t]
+    let docT = NonGenericType (ty "WebSharper.UI.Next.Doc")
+    let attrT = NonGenericType (ty "WebSharper.UI.Next.Attr")
+    let clientDocModule = NonGeneric (ty "WebSharper.UI.Next.Client.Doc")
+    let clientAttrModule = NonGeneric (ty "WebSharper.UI.Next.Client.Attr")
+    let V0 = viewOf T0
+    let V1 = viewOf T1
+    let V2 = viewOf T2
+    let constFnOf t =    gen[t]       (meth "Const"    [T0]                       V0)
+    let mapFnOf t u =    gen[t; u]    (meth "Map"      [T0 ^-> T1; V0]            V1)
+    let map2FnOf t u v = gen[t; u; v] (meth "Map2"     [T0 ^-> T1 ^-> T2; V0; V1] V2)
+    let applyFnOf t u =  gen[t; u]    (meth "Apply"    [viewOf (T0 ^-> T1); V0]   V1)
+    let textViewFn =     gen[]        (meth "TextView" [viewOf stringT]           docT)
+    let attrDynFn =      gen[]        (meth "Dynamic"  [stringT; viewOf stringT]  attrT)
 
     [<RequireQualifiedAccess>]
     type Kind =
@@ -110,8 +119,18 @@ module VMacro =
 
         override this.TranslateCall(call) =
             match Visit stringT call.Arguments.[0] with
-            | Kind.Const body -> MacroFallback
+            | Kind.Const _ -> MacroFallback
             | Kind.View e -> MacroOk (Call (None, clientDocModule, textViewFn, [e]))
+
+    type AttrCreate() =
+        inherit Macro()
+
+        override this.TranslateCall(call) =
+            match Visit stringT call.Arguments.[0] with
+            | Kind.Const _ -> MacroFallback
+            | Kind.View e ->
+                let name = call.Parameter.Value :?> string
+                MacroOk (Call (None, clientAttrModule, attrDynFn, [Value (String name); e]))
 
 [<AutoOpen>]
 module V =

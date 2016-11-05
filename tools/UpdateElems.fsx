@@ -147,7 +147,7 @@ module Tags =
             | "attr" ->
                 [|
                     sprintf "/// Create an HTML attribute \"%s\" with the given value." e.Name
-                    "[<JavaScript; Inline>]"
+                    sprintf """[<JavaScript; Inline; Macro(typeof<VMacro.AttrCreate>, "%s")>]""" e.Name
                     sprintf "static member %s value = Attr.Create \"%s\" value" e.LowNameEsc e.Name
                 |]
             | "svgattr" ->

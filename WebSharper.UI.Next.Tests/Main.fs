@@ -329,8 +329,8 @@ module Main =
         |> ignore
         let rv = Var.Create ""
         div [
-            text "Test text x.V: "
-            Doc.Input [] rv
+            text "Test text x.V: enter a color: "
+            Doc.Input [attr.style ("background: " + rv.View.V)] rv
             text (" You typed: " + rv.View.V)
         ]
         |> Doc.RunAppend JS.Document.Body
