@@ -194,16 +194,6 @@ module Snap =
         When snap onReady onObs
         res
 
-    // more optimal array access for circumventing
-    // array bounds check to get JS semantics
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
-    [<Inline "$arr[$i] = $v">]
-    let private setAt (i : int) (v : 'T) (arr : 'T[]) = arr.[i] <- v
-
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
-    [<Inline "$arr[$i]">]
-    let private getAt (i : int) (arr : 'T[]) = arr.[i]
-
     let CreateForeverAsync a =
         let o = Make (Waiting (Queue(), Queue()))
         Async.StartTo a (MarkForever o)
@@ -214,21 +204,25 @@ module Snap =
         else
             let res = Create ()
             let snaps = Array.ofSeq snaps
-            let c = snaps.Length
-            let d = ref 0
-            let vs = ref [||]
+            let w = ref snaps.Length
             let obs () = 
-                d := 0
-                vs := [||]
+                w := -1
                 MarkObsolete res
-            let cont () =
-                if !d = c then
-                    if Array.forall (fun x -> IsForever x) snaps then
-                        MarkForever res (!vs :> seq<_>)
+            let cont _ =
+                decr w
+                if !w = 0 then
+                    // all source snaps should have a value
+                    let vs = 
+                        snaps |> Array.map (fun s -> 
+                            match s.State with
+                            | Forever v | Ready (v, _) -> v
+                            | _ -> failwith "value not found by View.Sequence")
+                    if Array.forall IsForever snaps then
+                        MarkForever res (vs :> seq<_>)
                     else
-                        MarkReady res (!vs :> seq<_>)
+                        MarkReady res (vs :> seq<_>)
             snaps
-            |> Array.iteri (fun i s -> When s (fun x -> setAt i x !vs; incr d; cont ()) obs)
+            |> Array.iter (fun s -> When s cont obs)
             res
 
     let Map fn sn =
