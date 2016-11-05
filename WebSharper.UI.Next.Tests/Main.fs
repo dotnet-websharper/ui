@@ -264,21 +264,21 @@ module Main =
             }
 
             Test "V" {
-                let vconst = V("a" + string 12)
-                // aka: let vconst = View.Const ("a" + string 12)
-                equalMsg (observe vconst ()) "a12" "Const"
-                let vmap = V("b" + vconst.V)
+                let vconst = V(12)
+                // aka: let vconst = View.Const (12)
+                equalMsg (observe vconst ()) 12 "Const"
+                let vmap = V("b" + string vconst.V)
                 // aka: let vmap = View.Map (fun x -> "b" + x) vconst
-                equalMsg (observe vmap ()) "ba12" "Map"
+                equalMsg (observe vmap ()) "b12" "Map"
                 let vmaptwice = V(vconst.V + vconst.V)
                 // aka: let vmaptwice = View.Map (fun x -> x + x) vconst
-                equalMsg (observe vmaptwice ()) "a12a12" "Map using the same view twice"
-                let vmap2 = V(vconst.V + "c" + vmap.V)
+                equalMsg (observe vmaptwice ()) 24 "Map using the same view twice"
+                let vmap2 = V(string vconst.V + "c" + vmap.V)
                 // aka: let vmap2 = View.Map2 (fun x y -> x + "c" + y) vconst vmap
-                equalMsg (observe vmap2 ()) "a12cba12" "Map2"
-                let vapply = V(vconst.V + "d" + vmap.V + "e" + vmap2.V)
+                equalMsg (observe vmap2 ()) "12cb12" "Map2"
+                let vapply = V(vmap2.V + "d" + vmap.V + "e" + string vconst.V)
                 // aka: let vapply = View.Map2 (fun x y z -> x + "d" + y + "e" + z) vconst vmap <*> vmap2
-                equalMsg (observe vapply ()) "a12dba12ea12cba12" "Apply"
+                equalMsg (observe vapply ()) "12cb12db12e12" "Apply"
             }
 
         }
