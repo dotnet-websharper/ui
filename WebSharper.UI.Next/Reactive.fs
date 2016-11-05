@@ -52,6 +52,8 @@ module ViewOptimization =
     let (|V|) (x: View<'T>) = let (V v) = x in v
     [<Inline "$x">]
     let getSnapV (x: Snap<View<'T>>) = Snap.Map (|V|) x
+    [<Inline "$x">]
+    let getSnapF (x: 'A -> View<'T>) = x >> (|V|)
     [<Inline "null">]
     let jsNull<'T>() = Unchecked.defaultof<'T>
     
@@ -342,15 +344,17 @@ type View =
         View.CreateLazy (fun () ->
             Snap.Join (getSnapV (observe ())))
 
-    static member Bind fn view =
-        View.Join (View.Map fn view)
+    static member Bind (fn: 'A -> View<'B>) (V observe) =
+        View.CreateLazy (fun () ->
+            Snap.Bind (getSnapF fn) (observe ()))
 
     static member JoinInner (V observe : View<View<'T>>) : View<'T> =
         View.CreateLazy (fun () ->
             Snap.JoinInner (getSnapV (observe ())))
 
-    static member BindInner fn view =
-        View.JoinInner (View.Map fn view)
+    static member BindInner fn (V observe) =
+        View.CreateLazy (fun () ->
+            Snap.BindInner (getSnapF fn) (observe ()))
 
     static member Sequence views =
         View.CreateLazy(fun () ->

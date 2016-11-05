@@ -132,6 +132,12 @@ module Snap =
         | Ready (v, q) -> q.Enqueue obsolete
         | Waiting (q1, q2) -> q2.Enqueue obsolete
 
+    let ValueAndForever snap =
+        match snap.State with
+        | Forever v -> Some (v, true)
+        | Ready (v, _) -> Some (v, false)
+        | _ -> None
+
   // combinators
 
     let Join snap =
@@ -139,6 +145,19 @@ module Snap =
         let onObs () = MarkObsolete res
         let onReady x =
             let y = x ()
+            When y (fun v ->
+                if IsForever y && IsForever snap then
+                    MarkForever res v
+                else
+                    MarkReady res v) onObs
+        When snap onReady onObs
+        res
+
+    let Bind fn snap =
+        let res = Create ()
+        let onObs () = MarkObsolete res
+        let onReady x =
+            let y = (fn x) ()
             When y (fun v ->
                 if IsForever y && IsForever snap then
                     MarkForever res v
@@ -161,11 +180,29 @@ module Snap =
         When snap onReady onObs
         res
 
+    let BindInner fn snap =
+        let res = Create ()
+        let onObs () = MarkObsolete res
+        let onReady x =
+            let y = (fn x) ()
+            When y (fun v ->
+                if IsForever y && IsForever snap then
+                    MarkForever res v
+                else
+                    MarkReady res v) onObs
+            WhenObsolete snap (fun () -> MarkObsolete y)
+        When snap onReady onObs
+        res
+
     // more optimal array access for circumventing
     // array bounds check to get JS semantics
     [<MethodImpl(MethodImplOptions.NoInlining)>]
     [<Inline "$arr[$i] = $v">]
-    let private setAt (i : int) (v : 'T) (arr : 'T[]) = ()
+    let private setAt (i : int) (v : 'T) (arr : 'T[]) = arr.[i] <- v
+
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    [<Inline "$arr[$i]">]
+    let private getAt (i : int) (arr : 'T[]) = arr.[i]
 
     let CreateForeverAsync a =
         let o = Make (Waiting (Queue(), Queue()))
@@ -219,22 +256,18 @@ module Snap =
         | _, Forever y -> Map (fun x -> fn x y) sn1 // optimize for known s2
         | _ ->
             let res = Create ()
-            let v1 = ref None
-            let v2 = ref None
             let obs () =
-                v1 := None
-                v2 := None
                 MarkObsolete res
-            let cont () =
-                match !v1, !v2 with
-                | Some x, Some y ->
-                    if IsForever sn1 && IsForever sn2 then
+            let cont _ =
+                match ValueAndForever sn1, ValueAndForever sn2 with
+                | Some (x, f1), Some (y, f2) ->
+                    if f1 && f2 then
                         MarkForever res (fn x y)
                     else
-                        MarkReady res (fn x y)
+                        MarkReady res (fn x y) 
                 | _ -> ()
-            When sn1 (fun x -> v1 := Some x; cont ()) obs
-            When sn2 (fun y -> v2 := Some y; cont ()) obs
+            When sn1 cont obs
+            When sn2 cont obs
             res
 
     let Map2Unit sn1 sn2 =
@@ -244,22 +277,15 @@ module Snap =
         | _, Forever () -> sn1 // optimize for known s2
         | _ ->
             let res = Create ()
-            let v1 = ref false
-            let v2 = ref false
             let obs () =
-                v1 := false
-                v2 := false
                 MarkObsolete res
             let cont () =
-                match !v1, !v2 with
-                | true, true ->
-                    if IsForever sn1 && IsForever sn2 then
-                        MarkForever res ()
-                    else
-                        MarkReady res ()
-                | _ -> ()
-            When sn1 (fun () -> v1 := true; cont ()) obs
-            When sn2 (fun () -> v2 := true; cont ()) obs
+                if IsForever sn1 && IsForever sn2 then
+                    MarkForever res ()
+                else
+                    MarkReady res ()
+            When sn1 cont obs
+            When sn2 cont obs
             res
 
     let Map3 fn sn1 sn2 sn3 =
@@ -273,44 +299,35 @@ module Snap =
         | _,         _,         Forever z -> Map2 (fun x y -> fn x y z) sn1 sn2
         | _,         _,         _         ->
             let res = Create ()
-            let v1 = ref None
-            let v2 = ref None
-            let v3 = ref None
             let obs () =
-                v1 := None
-                v2 := None
-                v3 := None
                 MarkObsolete res
-            let cont () =
-                match !v1, !v2, !v3 with
-                | Some x, Some y, Some z ->
-                    if IsForever sn1 && IsForever sn2 && IsForever sn3 then
+            let cont _ =
+                match ValueAndForever sn1, ValueAndForever sn2, ValueAndForever sn3 with
+                | Some (x, f1), Some (y, f2), Some (z, f3) ->
+                    if f1 && f2 && f3 then
                         MarkForever res (fn x y z)
                     else
-                        MarkReady res (fn x y z)
+                        MarkReady res (fn x y z) 
                 | _ -> ()
-            When sn1 (fun x -> v1 := Some x; cont ()) obs
-            When sn2 (fun y -> v2 := Some y; cont ()) obs
-            When sn3 (fun z -> v3 := Some z; cont ()) obs
+            When sn1 cont obs
+            When sn2 cont obs
+            When sn3 cont obs
             res
 
     let SnapshotOn sn1 sn2 =
         let res = Create ()
-        let v = ref None
-        let triggered = ref false
-
         let obs () =
-            v := None
             MarkObsolete res
-
-        let cont () =
-            if !triggered then
-                match !v with
-                | Some y when IsForever sn1 -> MarkForever res y
-                | Some y -> MarkReady res y
-                | _ -> ()
-        When sn1 (fun x -> triggered := true; cont ()) obs
-        When sn2 (fun y -> v := Some y; cont ()) ignore
+        let cont _ =
+            match ValueAndForever sn1, ValueAndForever sn2 with
+            | Some (_, f1), Some (y, f2) ->
+                if f1 || f2 then
+                    MarkForever res y 
+                else
+                    MarkReady res y
+            | _ -> ()
+        When sn1 cont obs
+        When sn2 cont ignore
         res
 
     let MapAsync fn snap =
