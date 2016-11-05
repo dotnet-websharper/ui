@@ -327,4 +327,11 @@ module Main =
             ListModelTest
         |]
         |> ignore
+        let rv = Var.Create ""
+        div [
+            text "Test text x.V: "
+            Doc.Input [] rv
+            text (" You typed: " + rv.View.V)
+        ]
+        |> Doc.RunAppend JS.Document.Body
 #endif

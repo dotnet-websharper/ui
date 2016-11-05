@@ -25,3 +25,6 @@ module V =
 
     /// A macro that enables writing reactive code that looks like standard code.
     val V : 'T -> View<'T>
+
+module internal VMacro =
+    [<Class>] type TextView = inherit WebSharper.Core.Macro

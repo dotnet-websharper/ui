@@ -31,7 +31,7 @@ open WebSharper.JavaScript
 module Html =
 
     /// Create a text node with constant content.
-    [<JavaScript; Inline>]
+    [<JavaScript; Inline; Macro(typeof<VMacro.TextView>)>]
     let text t = Doc.TextNode t
 
     /// Create a text node with dynamic content.
