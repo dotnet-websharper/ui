@@ -402,6 +402,7 @@ type AttrProxy with
 [<JavaScript; Name "WebSharper.UI.Next.AttrModule">]
 module Attr =
 
+    [<JavaScript; Macro(typeof<VMacro.AttrStyle>)>]
     let Style name value =
         As<Attr> (Attrs.Static (fun el -> DU.SetStyle el name value))
 

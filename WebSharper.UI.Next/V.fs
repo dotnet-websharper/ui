@@ -60,12 +60,13 @@ module internal VMacro =
     let V0 = viewOf T0
     let V1 = viewOf T1
     let V2 = viewOf T2
-    let constFnOf t =    gen[t]       (meth "Const"    [T0]                       V0)
-    let mapFnOf t u =    gen[t; u]    (meth "Map"      [T0 ^-> T1; V0]            V1)
-    let map2FnOf t u v = gen[t; u; v] (meth "Map2"     [T0 ^-> T1 ^-> T2; V0; V1] V2)
-    let applyFnOf t u =  gen[t; u]    (meth "Apply"    [viewOf (T0 ^-> T1); V0]   V1)
-    let textViewFn =     gen[]        (meth "TextView" [viewOf stringT]           docT)
-    let attrDynFn =      gen[]        (meth "Dynamic"  [stringT; viewOf stringT]  attrT)
+    let constFnOf t =    gen[t]       (meth "Const"        [T0]                       V0)
+    let mapFnOf t u =    gen[t; u]    (meth "Map"          [T0 ^-> T1; V0]            V1)
+    let map2FnOf t u v = gen[t; u; v] (meth "Map2"         [T0 ^-> T1 ^-> T2; V0; V1] V2)
+    let applyFnOf t u =  gen[t; u]    (meth "Apply"        [viewOf (T0 ^-> T1); V0]   V1)
+    let textViewFn =     gen[]        (meth "TextView"     [viewOf stringT]           docT)
+    let attrDynFn =      gen[]        (meth "Dynamic"      [stringT; viewOf stringT]  attrT)
+    let attrDynStyleFn = gen[]        (meth "DynamicStyle" [stringT; viewOf stringT]  attrT)
 
     [<RequireQualifiedAccess>]
     type Kind =
@@ -131,6 +132,14 @@ module internal VMacro =
             | Kind.View e ->
                 let name = call.Parameter.Value :?> string
                 MacroOk (Call (None, clientAttrModule, attrDynFn, [Value (String name); e]))
+
+    type AttrStyle() =
+        inherit Macro()
+
+        override this.TranslateCall(call) =
+            match Visit stringT call.Arguments.[1] with
+            | Kind.Const _ -> MacroFallback
+            | Kind.View e -> MacroOk (Call (None, clientAttrModule, attrDynStyleFn, [call.Arguments.[0]; e]))
 
 [<AutoOpen>]
 module V =

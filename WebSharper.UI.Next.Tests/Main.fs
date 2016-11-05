@@ -328,7 +328,7 @@ module Main =
         |]
         |> ignore
         let rv = Var.Create ""
-        div [
+        divAttr [Attr.Style "color" rv.View.V] [
             text "Test text x.V: enter a color: "
             Doc.Input [attr.style ("background: " + rv.View.V)] rv
             text (" You typed: " + rv.View.V)

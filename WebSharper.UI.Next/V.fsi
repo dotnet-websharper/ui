@@ -30,3 +30,4 @@ module internal VMacro =
     [<Class>] type V = inherit WebSharper.Core.Macro
     [<Class>] type TextView = inherit WebSharper.Core.Macro
     [<Class>] type AttrCreate = inherit WebSharper.Core.Macro
+    [<Class>] type AttrStyle = inherit WebSharper.Core.Macro
