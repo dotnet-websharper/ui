@@ -407,7 +407,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
     [<JavaScript; Name "Concat">]
     static member Concat' xs =
         Seq.toArray xs
-        |> Array.MapReduce (fun x -> x) Doc'.Empty' Doc'.Append'
+        |> Array.TreeReduce Doc'.Empty' Doc'.Append'
 
     [<JavaScript; Name "Empty">]
     static member Empty'
@@ -434,7 +434,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             | a -> a
         let elem e = ElemDoc (Docs.CreateElemNode e Attr.Empty EmptyDoc)
         let append x y = AppendDoc (x, y)
-        let es = Array.MapReduce elem EmptyDoc append a
+        let es = Array.MapTreeReduce elem EmptyDoc append a
         Doc'.Mk es (View.Const ())
 
     [<JavaScript>]

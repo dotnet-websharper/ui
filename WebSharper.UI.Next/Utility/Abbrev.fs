@@ -28,7 +28,21 @@ open WebSharper.JavaScript
 module Array =
 
     [<JavaScript>]
-    let MapReduce (f: 'A -> 'B) (z: 'B) (re: 'B -> 'B -> 'B) (a: 'A[]) : 'B =
+    let TreeReduce (z: 'A) (re: 'A -> 'A -> 'A) (a: 'A[]) : 'A =
+        let rec loop off len =
+            match len with
+            | n when n <= 0 -> z
+            | 1 when off >= 0 && off < a.Length ->
+                a.[off]
+            | n ->
+                let l2 = len / 2
+                let a = loop off l2
+                let b = loop (off + l2) (len - l2)
+                re a b
+        loop 0 a.Length
+
+    [<JavaScript>]
+    let MapTreeReduce (f: 'A -> 'B) (z: 'B) (re: 'B -> 'B -> 'B) (a: 'A[]) : 'B =
         let rec loop off len =
             match len with
             | n when n <= 0 -> z

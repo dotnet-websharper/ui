@@ -322,7 +322,7 @@ module Attrs =
 
     let Updates dyn =
         dyn.DynNodes
-        |> Array.MapReduce (fun x -> x.Changed) (View.Const ()) View.Map2Unit
+        |> Array.MapTreeReduce (fun x -> x.Changed) (View.Const ()) View.Map2Unit
 
     let GetAnim dyn f =
         dyn.DynNodes
@@ -394,7 +394,7 @@ type AttrProxy with
 
     static member Concat (xs: seq<Attr>) =
         Seq.toArray xs
-        |> Array.MapReduce id Attr.Empty Attr.Append
+        |> Array.TreeReduce Attr.Empty Attr.Append
 
     static member Handler (event: string) (q: Expr<Element -> #DomEvent-> unit>) =
         As<Attr> (Attrs.Static (fun el -> el.AddEventListener(event, (As<Element -> DomEvent -> unit> q) el, false)))

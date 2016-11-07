@@ -217,7 +217,7 @@ module Main =
                 let rv1 = Var.Create 93
                 let rv2 = Var.Create 27
                 let v =
-                    View.Bind
+                    View.BindInner
                         (fun x ->
                             incr outerCount
                             View.Map (fun y -> incr innerCount; x + y) rv1.View)
@@ -229,6 +229,52 @@ module Main =
                 rv2.Value <- 22
                 equalMsg (v()) (74 + 22) "after set outer"
                 equalMsg (!outerCount, !innerCount) (2, 3) "function call count"
+            }
+
+            Test "UpdateWhile" {
+                let outerCount = ref 0
+                let innerCount = ref 0
+                let rv1 = Var.Create false
+                let v1 = rv1.View |> View.Map (fun x -> incr outerCount; x)
+                let rv2 = Var.Create 0
+                let v2 = rv2.View |> View.Map (fun x -> incr innerCount; x)
+                let v =
+                    View.UpdateWhile 1 v1 v2
+                    |> observe
+                equalMsg (v()) 1 "initial"
+                rv2.Value <- 27
+                equalMsg (v()) 1 "changing inner should have no effect"
+                rv1.Value <- true
+                equalMsg (v()) 27 "after set pred true"
+                rv2.Value <- 22
+                equalMsg (v()) 22 "after set inner"
+                rv1.Value <- false
+                equalMsg (v()) 22 "after set pred false"
+                rv2.Value <- 0
+                equalMsg (v()) 22 "changing inner should have no effect"
+                equalMsg (!outerCount, !innerCount) (3, 2) "function call count"
+            }
+
+            Test "SnapShotOn" {
+                let outerCount = ref 0
+                let innerCount = ref 0
+                let rv1 = Var.Create ()
+                let v1 = rv1.View |> View.Map (fun x -> incr outerCount; x)
+                let rv2 = Var.Create 0
+                let v2 = rv2.View |> View.Map (fun x -> Console.Log("SnapShotOn inner:", x); incr innerCount; x)
+                let v =
+                    View.SnapshotOn 1 v1 v2
+                    |> observe
+                equalMsg (v()) 1 "initial"
+                rv2.Value <- 27
+                equalMsg (v()) 1 "changing inner should have no effect"
+                rv1.Value <- ()
+                equalMsg (v()) 27 "after taking snapshot"
+                rv2.Value <- 22
+                equalMsg (v()) 27 "changing inner should have no effect"
+                rv1.Value <- ()
+                equalMsg (v()) 22 "after taking snapshot"
+                equalMsg (!outerCount, !innerCount) (3, 2) "function call count"
             }
 
             Test "Get" {

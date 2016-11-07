@@ -197,21 +197,24 @@ type View =
     static member MapCached fn v =
         View.MapCachedBy (=) fn v
 
-    // Creates a lazy view using a given snap function and 2 views
-    static member private CreateLazy2 snapFn (V o1) (V o2) =
+    static member Map2 fn (V o1) (V o2) =
         View.CreateLazy (fun () ->
             let s1 = o1 ()
             let s2 = o2 ()
-            snapFn s1 s2)
-
-    static member Map2 fn v1 v2 =
-        View.CreateLazy2 (Snap.Map2 fn) v1 v2
+            Snap.Map2 fn s1 s2)
 
     static member Map2Unit (V o1) (V o2) =
         View.CreateLazy (fun () ->
             let s1 = o1 ()
             let s2 = o2 ()
             Snap.Map2Unit s1 s2)
+
+    static member Map3 fn (V o1) (V o2) (V o3) =
+        View.CreateLazy (fun () ->
+            let s1 = o1 ()
+            let s2 = o2 ()
+            let s3 = o3 ()
+            Snap.Map3 fn s1 s2 s3)
 
     static member MapAsync fn (V observe) =
         View.CreateLazy (fun () -> observe () |> Snap.MapAsync fn)
@@ -238,25 +241,14 @@ type View =
 
         let obs () =
             let s1 = o1 ()
-            let s2 = o2 ()
-
             if Snap.IsObsolete sInit then
-                // Already initialised, do big grown up SnapshotOn
+                let s2 = o2 ()
                 Snap.SnapshotOn s1 s2
             else
-                let s = Snap.SnapshotOn s1 s2
-                Snap.When s ignore (fun () -> Snap.MarkObsolete sInit)
+                Snap.WhenObsolete s1 (fun () -> Snap.MarkObsolete sInit)
                 sInit
 
         View.CreateLazy obs
-
-    static member UpdateWhile def v1 v2 =
-        let value = ref def
-        View.Map2 (fun pred v ->
-            if pred then
-                value := v
-            !value
-        ) v1 v2
 
      // Collections --------------------------------------------------------------
 
@@ -344,17 +336,26 @@ type View =
         View.CreateLazy (fun () ->
             Snap.Join (getSnapV (observe ())))
 
-    static member Bind (fn: 'A -> View<'B>) (V observe) =
-        View.CreateLazy (fun () ->
-            Snap.Bind (getSnapF fn) (observe ()))
+    static member Bind (fn: 'A -> View<'B>) view =
+        View.Join (View.Map fn view)
 
     static member JoinInner (V observe : View<View<'T>>) : View<'T> =
         View.CreateLazy (fun () ->
             Snap.JoinInner (getSnapV (observe ())))
 
-    static member BindInner fn (V observe) =
-        View.CreateLazy (fun () ->
-            Snap.BindInner (getSnapF fn) (observe ()))
+    static member BindInner fn view =
+        View.JoinInner (View.Map fn view)
+
+    static member UpdateWhile def v1 v2 =
+        let value = ref def
+        View.BindInner (fun pred ->
+            if pred then
+                View.Map (fun v ->
+                    value := v
+                    v
+                ) v2   
+            else View.Const (!value) 
+        ) v1
 
     static member Sequence views =
         View.CreateLazy(fun () ->
