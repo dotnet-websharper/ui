@@ -183,7 +183,7 @@ module Snap =
         else
             let res = Create ()
             let snaps = Array.ofSeq snaps
-            let w = ref (snaps.Length - 0)
+            let w = ref (snaps.Length - 1)
             let obs () = 
                 w := -1
                 MarkObsolete res
