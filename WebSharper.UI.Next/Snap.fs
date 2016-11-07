@@ -179,10 +179,10 @@ module Snap =
         o
 
     let Sequence (snaps : seq<Snap<'T>>) =
-        if Seq.isEmpty snaps then CreateForever Seq.empty
+        let snaps = Array.ofSeq snaps
+        if Array.isEmpty snaps then CreateForever Seq.empty
         else
             let res = Create ()
-            let snaps = Array.ofSeq snaps
             let w = ref (snaps.Length - 1)
             let obs () = 
                 w := -1

@@ -261,7 +261,7 @@ module Main =
                 let rv1 = Var.Create ()
                 let v1 = rv1.View |> View.Map (fun x -> incr outerCount; x)
                 let rv2 = Var.Create 0
-                let v2 = rv2.View |> View.Map (fun x -> Console.Log("SnapShotOn inner:", x); incr innerCount; x)
+                let v2 = rv2.View |> View.Map (fun x -> incr innerCount; x)
                 let v =
                     View.SnapshotOn 1 v1 v2
                     |> observe
@@ -275,6 +275,32 @@ module Main =
                 rv1.Value <- ()
                 equalMsg (v()) 22 "after taking snapshot"
                 equalMsg (!outerCount, !innerCount) (3, 2) "function call count"
+            }
+
+            Test "Sequence" {
+                let seqCount = ref 0
+                let innerCount = ref 0
+                let rv1 = Var.Create 93
+                let rv2 = Var.Create 27                 
+                let v2 = rv2.View |> View.Map (fun x -> incr innerCount; x)
+                let rvs = 
+                    seq {
+                        incr seqCount
+                        yield rv1.View
+                        if !seqCount = 2 then
+                            yield v2
+                    }
+                let v = 
+                    View.Sequence rvs
+                    |> observe
+                equalMsg (v() |> List.ofSeq) [ 93 ] "initial"
+                rv1.Value <- 94
+                equalMsg (v() |> List.ofSeq) [ 94; 27 ] "setting an item"
+                rv2.Value <- 0
+                equalMsg (v() |> List.ofSeq) [ 94 ] "setting an item"
+                rv2.Value <- 1
+                equalMsg (v() |> List.ofSeq) [ 94 ] "setting an outside item"
+                equalMsg (!seqCount, !innerCount) (3, 1) "function call count"
             }
 
             Test "Get" {
