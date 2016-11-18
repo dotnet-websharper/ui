@@ -256,10 +256,13 @@ module Snap =
                 MarkObsolete res
             let cont () =
                 if not (IsDone res) then 
-                    if IsForever sn1 && IsForever sn2 then
-                        MarkForever res ()
-                    else
-                        MarkReady res ()
+                    match ValueAndForever sn1, ValueAndForever sn2 with
+                    | Some (_, f1), Some (_, f2) ->
+                        if f1 && f2 then
+                            MarkForever res ()
+                        else
+                            MarkReady res () 
+                    | _ -> ()
             When sn1 cont obs
             When sn2 cont obs
             res
