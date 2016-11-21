@@ -237,7 +237,7 @@ type AnimatedAttrNode<'T>(tr: Trans<'T>, view: View<'T>, push: Element -> 'T -> 
 [<JavaScript; Sealed; Name "WebSharper.UI.Next.DynamicAttrNode">]
 type DynamicAttrNode<'T>(view: View<'T>, push: Element -> 'T -> unit) =
     let mutable value = U
-    let mutable dirty = true
+    let mutable dirty = false
     let updates = view |> View.Map (fun x -> value <- x; dirty <- true)
     interface IAttrNode with
         member a.GetChangeAnim parent = Anim.Empty
