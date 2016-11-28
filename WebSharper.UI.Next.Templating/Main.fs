@@ -148,6 +148,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
             [ctx.ProvidedStaticParameter("pathOrXml", typeof<string>)],
             fun typename pars ->
                 let value = lazy (
+                try
                 match pars with
                 | [| :? string as pathOrXml |] ->
                     let ty = ctx.ProvidedTypeDefinition(thisAssembly, rootNamespace, typename, None)
@@ -480,8 +481,12 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                     for name, e in innerTemplates do
                         ctx.ProvidedTypeDefinition(name, None) |>! addTemplateMethod e |> ty.AddMember
 
-                    ty |>! addTemplateMethod xml
-                | _ -> failwith "Unexpected parameter values")
+                    if xml.HasElements then
+                        ty |> addTemplateMethod xml
+                    
+                    ty
+                | _ -> failwith "Unexpected parameter values"
+                with e -> failwithf "%s at %s" e.Message e.StackTrace)
                 cache.GetOrAdd (typename, value))
         this.AddNamespace(rootNamespace, [ templateTy ])
 
