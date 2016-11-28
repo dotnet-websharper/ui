@@ -111,7 +111,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
     let rootNamespace = "WebSharper.UI.Next.Templating"
     let templateTy = ctx.ProvidedTypeDefinition(thisAssembly, rootNamespace, "Template", None)
 
-    let mutable watcher: FileSystemWatcher = null
+    let watchers = Dictionary<string, FileSystemWatcher>()
 
     let textHoleRegex = Regex @"\$(!?)\{([^\}]+)\}" 
     let dataHole = xn"data-hole"
@@ -140,7 +140,8 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
 
     do
         this.Disposing.Add <| fun _ ->
-            if watcher <> null then watcher.Dispose()
+            for watcher in watchers.Values do watcher.Dispose()
+            watchers.Clear()
             cache.Dispose()
 
         templateTy.DefineStaticParameters(
@@ -166,10 +167,6 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
 
                     let xml =
                         if pathOrXml.Contains("<") then
-                            if watcher <> null then 
-                                watcher.Dispose()
-                                watcher <- null
-
                             parseXml pathOrXml    
                         else 
                             let htmlFile = 
@@ -177,16 +174,21 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                 else cfg.ResolutionFolder +/ pathOrXml
 
                             if cfg.IsInvalidationSupported then
-                                if watcher <> null then watcher.Dispose()
-                                watcher <-
-                                    new FileSystemWatcher(Path.GetDirectoryName htmlFile, Path.GetFileName htmlFile, 
-                                        NotifyFilter = (NotifyFilters.LastWrite ||| NotifyFilters.Security ||| NotifyFilters.FileName)
-                                    )
-                                watcher.Changed.Add <| fun _ -> this.Invalidate()
-                                watcher.Deleted.Add <| fun _ -> this.Invalidate()
-                                watcher.Renamed.Add <| fun _ -> this.Invalidate()
-                                watcher.Created.Add <| fun _ -> this.Invalidate()
-                                watcher.EnableRaisingEvents <- true
+                                if not (watchers.ContainsKey htmlFile) then
+                                    let watcher =
+                                        new FileSystemWatcher(Path.GetDirectoryName htmlFile, Path.GetFileName htmlFile, 
+                                            NotifyFilter = (NotifyFilters.LastWrite ||| NotifyFilters.Security ||| NotifyFilters.FileName)
+                                        )
+                                    let inv _ =
+                                        if watchers.Remove(htmlFile) then
+                                            watcher.Dispose()
+                                        this.Invalidate()
+                                    watcher.Changed.Add inv
+                                    watcher.Deleted.Add inv
+                                    watcher.Renamed.Add inv
+                                    watcher.Created.Add inv
+                                    watcher.EnableRaisingEvents <- true
+                                    watchers.Add(htmlFile, watcher)
 
                             parseXml (File.ReadAllText htmlFile) 
                         
