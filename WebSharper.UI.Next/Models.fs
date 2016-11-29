@@ -157,7 +157,6 @@ type ListModel<'Key, 'T when 'Key : equality>
 
     let v = 
         var.View |> View.Map (fun x ->
-            storage.Set x |> ignore
             Array.copy x :> seq<_>)
 
     new (key: System.Func<'T, 'Key>, init: seq<'T>) =
