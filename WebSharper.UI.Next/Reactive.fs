@@ -204,7 +204,7 @@ type View =
             Snap.Map2 fn s1 s2)
 
     static member Map2Unit (V o1) (V o2) =
-        V (fun () ->
+        View.CreateLazy (fun () ->
             let s1 = o1 ()
             let s2 = o2 ()
             Snap.Map2Unit s1 s2)
