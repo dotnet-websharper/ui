@@ -204,7 +204,7 @@ type View =
             Snap.Map2 fn s1 s2)
 
     static member Map2Unit (V o1) (V o2) =
-        View.CreateLazy (fun () ->
+        V (fun () ->
             let s1 = o1 ()
             let s2 = o2 ()
             Snap.Map2Unit s1 s2)
@@ -245,7 +245,7 @@ type View =
                 let s2 = o2 ()
                 Snap.SnapshotOn s1 s2
             else
-                Snap.WhenObsolete s1 (fun () -> Snap.MarkObsolete sInit)
+                Snap.WhenObsolete s1 (Snap.Obs sInit)
                 sInit
 
         View.CreateLazy obs

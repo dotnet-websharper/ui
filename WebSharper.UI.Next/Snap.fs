@@ -109,6 +109,10 @@ module Snap =
             sn.State <- Obsolete
             Seq.iter (fun k -> k ()) ks
 
+    let Obs sn =
+        ()
+        fun () -> MarkObsolete sn
+
     let MarkReady sn v =
         match sn.State with
         | Waiting (q1, q2) ->
@@ -148,29 +152,29 @@ module Snap =
 
     let Join snap =
         let res = Create ()
-        let onObs () = MarkObsolete res
+        let obs = Obs res
         let onReady x =
             let y = x ()
             When y (fun v ->
                 if IsForever y && IsForever snap then
                     MarkForever res v
                 else
-                    MarkReady res v) onObs
-        When snap onReady onObs
+                    MarkReady res v) obs
+        When snap onReady obs
         res
 
     let JoinInner snap =
         let res = Create ()
-        let onObs () = MarkObsolete res
+        let obs = Obs res
         let onReady x =
             let y = x ()
             When y (fun v ->
                 if IsForever y && IsForever snap then
                     MarkForever res v
                 else
-                    MarkReady res v) onObs
-            WhenObsolete snap (fun () -> MarkObsolete y)
-        When snap onReady onObs
+                    MarkReady res v) obs
+            WhenObsolete snap (Obs y)
+        When snap onReady obs
         res
 
     let CreateForeverAsync a =
@@ -184,9 +188,7 @@ module Snap =
         else
             let res = Create ()
             let w = ref (snaps.Length - 1)
-            let obs () = 
-                w := -1
-                MarkObsolete res
+            let obs = Obs res
             let cont _ =
                 if !w = 0 then
                     // all source snaps should have a value
@@ -210,7 +212,7 @@ module Snap =
         | Forever x -> CreateForever (fn x) // optimization
         | _ ->
             let res = Create ()
-            When sn (fn >> MarkDone res sn) (fun () -> MarkObsolete res)
+            When sn (fn >> MarkDone res sn) (Obs res)
             res
 
     let MapCachedBy eq prev fn sn =
@@ -230,8 +232,7 @@ module Snap =
         | _, Forever y -> Map (fun x -> fn x y) sn1 // optimize for known s2
         | _ ->
             let res = Create ()
-            let obs () =
-                MarkObsolete res
+            let obs = Obs res
             let cont _ =
                 if not (IsDone res) then 
                     match ValueAndForever sn1, ValueAndForever sn2 with
@@ -252,8 +253,7 @@ module Snap =
         | _, Forever () -> sn1 // optimize for known s2
         | _ ->
             let res = Create ()
-            let obs () =
-                MarkObsolete res
+            let obs = Obs res
             let cont () =
                 if not (IsDone res) then 
                     match ValueAndForever sn1, ValueAndForever sn2 with
@@ -278,8 +278,7 @@ module Snap =
         | _,         _,         Forever z -> Map2 (fun x y -> fn x y z) sn1 sn2
         | _,         _,         _         ->
             let res = Create ()
-            let obs () =
-                MarkObsolete res
+            let obs = Obs res
             let cont _ =
                 if not (IsDone res) then 
                     match ValueAndForever sn1, ValueAndForever sn2, ValueAndForever sn3 with
@@ -296,8 +295,7 @@ module Snap =
 
     let SnapshotOn sn1 sn2 =
         let res = Create ()
-        let obs () =
-            MarkObsolete res
+        let obs = Obs res
         let cont _ =
             if not (IsDone res) then 
                 match ValueAndForever sn1, ValueAndForever sn2 with
@@ -315,5 +313,5 @@ module Snap =
         let res = Create ()
         When snap
             (fun v -> Async.StartTo (fn v) (MarkDone res snap))
-            (fun () -> MarkObsolete res)
+            (Obs res)
         res

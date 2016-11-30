@@ -48,6 +48,9 @@ module internal Snap =
     /// Marks the snapshot as obsolete.
     val MarkObsolete : Snap<'T> -> unit
 
+    /// Creates function that marks the snapshot as obsolete.
+    val Obs : Snap<'T> -> (unit -> unit)
+
   // combinators
 
     /// Dynamic combination of snaps.
