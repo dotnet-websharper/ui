@@ -36,6 +36,8 @@
     <Compile Include="Animation.fs" />
     <Compile Include="Attr.fsi" />
     <Compile Include="Attr.fs" />
+    <Compile Include="Attr.Client.fsi" />
+    <Compile Include="Attr.Client.fs" />
     <Compile Include="Doc.fsi" />
     <Compile Include="Doc.fs" />
     <Compile Include="Doc.Server.fsi" />
