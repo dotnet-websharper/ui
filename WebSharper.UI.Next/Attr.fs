@@ -172,8 +172,6 @@ type IAttrNode =
     abstract GetExitAnim : Element -> Anim
     [<Name "NSync">]
     abstract Sync : Element -> unit
-    [<Name "NInit">]
-    abstract Init : Element -> unit
 
 [<JavaScript; Sealed; Name "WebSharper.UI.Next.AnimatedAttrNode">]
 type AnimatedAttrNode<'T>(tr: Trans<'T>, view: View<'T>, push: Element -> 'T -> unit) =
@@ -234,14 +232,12 @@ type AnimatedAttrNode<'T>(tr: Trans<'T>, view: View<'T>, push: Element -> 'T -> 
         /// NOTE: enter or change animation will do the sync.
         member a.Sync parent = ()
 
-        member a.Init parent = ()
-
         member a.Changed = updates
 
 [<JavaScript; Sealed; Name "WebSharper.UI.Next.DynamicAttrNode">]
-type DynamicAttrNode<'T>(view: View<'T>, init: Element -> unit, push: Element -> 'T -> unit) =
+type DynamicAttrNode<'T>(view: View<'T>, push: Element -> 'T -> unit) =
     let mutable value = U
-    let mutable dirty = true
+    let mutable dirty = false
     let updates = view |> View.Map (fun x -> value <- x; dirty <- true)
     interface IAttrNode with
         member a.GetChangeAnim parent = Anim.Empty
@@ -249,7 +245,6 @@ type DynamicAttrNode<'T>(view: View<'T>, init: Element -> unit, push: Element ->
         member a.GetExitAnim parent = Anim.Empty
         member a.Sync parent = if dirty then push parent value; dirty <- false
         member a.Changed = updates
-        member a.Init parent = init parent
 
 type AttrTree =
     | A0
@@ -305,7 +300,7 @@ module Attrs =
         let rec loop node =
             match node with
             | A0 -> ()
-            | A1 n -> n.Init elem; nodes.Enqueue n
+            | A1 n -> nodes.Enqueue n
             | A2 (a, b) -> loop a; loop b
             | A3 mk -> mk elem
             | A4 cb -> oar.Enqueue cb
@@ -322,7 +317,7 @@ module Attrs =
 
     let Updates dyn =
         dyn.DynNodes
-        |> Array.MapReduce (fun x -> x.Changed) (View.Const ()) View.Map2Unit
+        |> Array.MapTreeReduce (fun x -> x.Changed) (View.Const ()) View.Map2Unit
 
     let GetAnim dyn f =
         dyn.DynNodes
@@ -367,8 +362,8 @@ module Attrs =
         Mk flags (A1 node)
 
     [<MethodImpl(MethodImplOptions.NoInlining)>]
-    let internal Dynamic view init set =
-        A1 (DynamicAttrNode (view, init, set))
+    let internal Dynamic view set =
+        A1 (DynamicAttrNode (view, set))
         |> Mk AttrFlags.Defaults
 
     [<MethodImpl(MethodImplOptions.NoInlining)>]
@@ -394,7 +389,7 @@ type AttrProxy with
 
     static member Concat (xs: seq<Attr>) =
         Seq.toArray xs
-        |> Array.MapReduce id Attr.Empty Attr.Append
+        |> Array.TreeReduce Attr.Empty Attr.Append
 
     static member Handler (event: string) (q: Expr<Element -> #DomEvent-> unit>) =
         As<Attr> (Attrs.Static (fun el -> el.AddEventListener(event, (As<Element -> DomEvent -> unit> q) el, false)))
@@ -416,13 +411,13 @@ module Attr =
         As<Attr> (Attrs.Animated tr view (fun el v -> DU.SetStyle el name (attr v)))
 
     let Dynamic name view =
-        As<Attr> (Attrs.Dynamic view ignore (fun el v -> DU.SetAttr el name v))
+        As<Attr> (Attrs.Dynamic view (fun el v -> DU.SetAttr el name v))
 
     let DynamicCustom set view =
-        As<Attr> (Attrs.Dynamic view ignore set)
+        As<Attr> (Attrs.Dynamic view set)
 
     let DynamicStyle name view =
-        As<Attr> (Attrs.Dynamic view ignore (fun el v -> DU.SetStyle el name v))
+        As<Attr> (Attrs.Dynamic view (fun el v -> DU.SetStyle el name v))
 
     let Handler name (callback: Element -> #DomEvent -> unit) =
         As<Attr> (Attrs.Static (fun el -> el.AddEventListener(name, As<DomEvent -> unit> (callback el), false)))
@@ -443,7 +438,7 @@ module Attr =
             (DynamicCustom (fun el x -> el?(id) <- x) v)
 
     let DynamicClass name view ok =
-        As<Attr> (Attrs.Dynamic view ignore (fun el v ->
+        As<Attr> (Attrs.Dynamic view (fun el v ->
             if ok v then DU.AddClass el name else DU.RemoveClass el name))
 
     let DynamicPred name predView valView =
@@ -453,10 +448,10 @@ module Attr =
             else
                 DU.RemoveAttr el name
         let tupleView = View.Map2 (fun pred value -> (pred, value)) predView valView
-        As<Attr> (Attrs.Dynamic tupleView ignore viewFn)
+        As<Attr> (Attrs.Dynamic tupleView viewFn)
 
     let DynamicProp name view =
-        As<Attr> (Attrs.Dynamic view ignore (fun el v ->
+        As<Attr> (Attrs.Dynamic view (fun el v ->
             el?(name) <- v))
 
     let CustomVar (var: IRef<'a>) (set: Element -> 'a -> unit) (get: Element -> 'a option) =

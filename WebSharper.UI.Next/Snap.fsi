@@ -48,19 +48,16 @@ module internal Snap =
     /// Marks the snapshot as obsolete.
     val MarkObsolete : Snap<'T> -> unit
 
+    /// Creates function that marks the snapshot as obsolete.
+    val Obs : Snap<'T> -> (unit -> unit)
+
   // combinators
 
     /// Dynamic combination of snaps.
     val Join : Snap<unit -> Snap<'A>> -> Snap<'A>
 
-    /// Dynamic combination of snaps.
-    val Bind : ('A -> unit -> Snap<'B>) -> Snap<'A> -> Snap<'B>
-
     /// Dynamic combination of snaps. Obsoletes inner result.
     val JoinInner : Snap<unit -> Snap<'A>> -> Snap<'A>
-
-    /// Dynamic combination of snaps. Obsoletes inner result.
-    val BindInner : ('A -> unit -> Snap<'B>) -> Snap<'A> -> Snap<'B>
 
     /// Evaluates each action in the sequence and collects the results
     val Sequence : seq<Snap<'A>> -> Snap<seq<'A>>
