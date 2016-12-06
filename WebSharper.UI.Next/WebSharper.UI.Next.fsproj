@@ -28,14 +28,14 @@
     <Compile Include="Utility\Resources.fs" />
     <Compile Include="Snap.fsi" />
     <Compile Include="Snap.fs" />
+    <Compile Include="VMacro.fsi" />
+    <Compile Include="VMacro.fs" />
     <Compile Include="Reactive.fsi" />
     <Compile Include="Reactive.fs" />
     <Compile Include="Models.fsi" />
     <Compile Include="Models.fs" />
     <Compile Include="Animation.fsi" />
     <Compile Include="Animation.fs" />
-    <Compile Include="V.fsi" />
-    <Compile Include="V.fs" />
     <Compile Include="Attr.fsi" />
     <Compile Include="Attr.fs" />
     <Compile Include="Doc.fsi" />

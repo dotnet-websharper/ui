@@ -47,9 +47,9 @@ and [<JavaScript>] View<'T> =
 module ViewOptimization =
     open WebSharper.JavaScript
     [<Inline "$x">]
-    let V (x: unit -> Snap<'T>) = V x
+    let V (x: unit -> Snap<'T>) = View x
     [<Inline "$x">]
-    let (|V|) (x: View<'T>) = let (V v) = x in v
+    let (|V|) (x: View<'T>) = let (View v) = x in v
     [<Inline "$x">]
     let getSnapV (x: Snap<View<'T>>) = Snap.Map (|V|) x
     [<Inline "$x">]
@@ -96,7 +96,7 @@ and [<JavaScript; Sealed>] Var =
                 Current = v
                 Snap = Snap.CreateWithValue v
                 Id = Fresh.Int ()
-                VarView = V (fun () -> var.Snap)
+                VarView = View (fun () -> var.Snap)
             }
         var
 
@@ -108,7 +108,7 @@ and [<JavaScript; Sealed>] Var =
                 Current = ()
                 Snap = Snap.CreateWithValue ()
                 Id = Fresh.Int ()
-                VarView = V (fun () -> var.Snap)
+                VarView = View (fun () -> var.Snap)
             }
         var
 
@@ -343,15 +343,15 @@ type View =
         View.CreateLazy (fun () ->
             Snap.Join (getSnapV (observe ())))
 
-    static member Bind (fn: 'A -> View<'B>) (V observe) =
+    static member Bind (fn: 'A -> View<'B>) (View observe) =
         View.CreateLazy (fun () ->
             Snap.Bind (getSnapF fn) (observe ()))
 
-    static member JoinInner (V observe : View<View<'T>>) : View<'T> =
+    static member JoinInner (View observe : View<View<'T>>) : View<'T> =
         View.CreateLazy (fun () ->
             Snap.JoinInner (getSnapV (observe ())))
 
-    static member BindInner fn (V observe) =
+    static member BindInner fn (View observe) =
         View.CreateLazy (fun () ->
             Snap.BindInner (getSnapF fn) (observe ()))
 
@@ -496,8 +496,8 @@ type View<'A> with
     [<JavaScript; Inline>]
     member v.UpdateWhile init vPred = View.UpdateWhile init vPred v
 
-    [<JavaScript>]
-    member v.V = failwith "View<'T>.V can only be used within the V macro." : 'T
+    [<JavaScript; Macro(typeof<VMacro.VProp>)>]
+    member v.V = failwith "View<'T>.V can only be called in an argument to a V-enabled function or if 'T = Doc." : 'T
 
 // These methods apply to specific types of View (such as View<seq<'A>> when 'A : equality)
 /// so we need to use C#-style extension methods.
@@ -592,6 +592,12 @@ type Submitter =
     [<Inline>]
     static member Input (s: Submitter<_>) =
         s.Input
+
+[<AutoOpen>]
+module V =
+
+    [<Macro(typeof<VMacro.V>)>]
+    let V (x: 'T) = View.Const x
 
 [<assembly:System.Runtime.CompilerServices.Extension>]
 do ()

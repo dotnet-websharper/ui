@@ -348,3 +348,9 @@ type Submitter =
     /// Get the input view of a submitter.
     static member Input : Submitter<'A> -> View<'A>
 
+[<AutoOpen>]
+module V =
+
+    /// A macro that enables writing reactive code that looks like standard code.
+    /// Any use of `view.V` in the argument is a reactive map on that view.
+    val V : 'T -> View<'T>

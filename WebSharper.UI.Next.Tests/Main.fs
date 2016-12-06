@@ -332,6 +332,7 @@ module Main =
             text "Test text x.V: enter a color: "
             Doc.Input [attr.style ("background: " + rv.View.V)] rv
             text (" You typed: " + rv.View.V)
+            V(ul (rv.View.V |> Seq.map (fun c -> li [text (string c)] :> Doc))).V
         ]
         |> Doc.RunAppend JS.Document.Body
 #endif

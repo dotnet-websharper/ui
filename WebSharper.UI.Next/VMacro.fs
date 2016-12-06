@@ -49,6 +49,10 @@ module internal VMacro =
         | Choice2Of2 e -> e
 
     let isViewT (t: TypeDefinition) = t.Value.FullName = "WebSharper.UI.Next.View`1"
+    let isDocOrEltT (t: TypeDefinition) =
+        match t.Value.FullName with
+        | "WebSharper.UI.Next.Doc" | "WebSharper.UI.Next.Elt" -> true
+        | _ -> false
     let isV (m: Method) = m.Value.MethodName = "get_V"
     let stringT = NonGenericType (ty' "mscorlib" "System.String")
     let viewModule = NonGeneric (ty "WebSharper.UI.Next.View")
@@ -67,6 +71,7 @@ module internal VMacro =
     let textViewFn =     gen[]        (meth "TextView"     [viewOf stringT]           docT)
     let attrDynFn =      gen[]        (meth "Dynamic"      [stringT; viewOf stringT]  attrT)
     let attrDynStyleFn = gen[]        (meth "DynamicStyle" [stringT; viewOf stringT]  attrT)
+    let docEmbedFn t =   gen[t]       (meth "EmbedView"    [viewOf T0]                docT)
 
     [<RequireQualifiedAccess>]
     type Kind =
@@ -115,6 +120,17 @@ module internal VMacro =
             | Kind.View e -> e
             |> MacroOk
 
+    type VProp() =
+        inherit Macro()
+
+        override this.TranslateCall(call) =
+            match call.DefiningType.Generics.[0] with
+            | ConcreteType td as t when isDocOrEltT td.Entity ->
+                Call(None, clientDocModule, docEmbedFn t, [call.This.Value])
+                |> MacroOk
+            | _ ->
+                MacroError "View<'T>.V can only be called in an argument to a V-enabled function or if 'T = Doc."
+
     type TextView() =
         inherit Macro()
 
@@ -140,10 +156,3 @@ module internal VMacro =
             match Visit stringT call.Arguments.[1] with
             | Kind.Const _ -> MacroFallback
             | Kind.View e -> MacroOk (Call (None, clientAttrModule, attrDynStyleFn, [call.Arguments.[0]; e]))
-
-[<AutoOpen>]
-module V =
-
-    [<Macro(typeof<VMacro.V>)>]
-    let V (x: 'T) = View.Const x
-
