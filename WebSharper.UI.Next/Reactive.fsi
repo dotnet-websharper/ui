@@ -348,3 +348,5 @@ type Submitter =
     /// Get the input view of a submitter.
     static member Input : Submitter<'A> -> View<'A>
 
+module internal ViewOptimization =
+    val V : (unit -> Snap<'T>) -> View<'T>

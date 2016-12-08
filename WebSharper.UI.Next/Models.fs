@@ -172,6 +172,8 @@ type ListModel<'Key, 'T when 'Key : equality>
 
     let v = makeView var.View
 
+    let it = Dictionary<'Key, Snap<option<'T>>>()
+
     new (key: System.Func<'T, 'Key>, init: seq<'T>) =
         let init = Seq.toArray init
         ListModel<'Key, 'T>(key, Var.Create init, Storage.InMemory init)
@@ -194,6 +196,8 @@ type ListModel<'Key, 'T when 'Key : equality>
     member this.Storage = storage
     [<Inline>]
     member this.view = v
+    [<Inline>]
+    member this.itemSnaps = it
 
     interface seq<'T> with
         member this.GetEnumerator() =
@@ -227,12 +231,25 @@ type ListModel<'Key,'T> with
     member m.Add item =
         m.Append item
 
+    member m.ObsoleteKey key =           
+        match m.itemSnaps.TryGetValue(key) with
+        | true, sn ->
+            Snap.MarkObsolete sn 
+            m.itemSnaps.Remove key |> ignore
+        | _ -> ()
+
+    member m.ObsoleteAll() =
+        m.itemSnaps |> Seq.iter (fun ksn -> Snap.MarkObsolete ksn.Value)
+        m.itemSnaps.Clear()
+
     member m.Append item =
         let v = m.Var.Value
         let t = m.Key item
         match Array.tryFindIndex (fun it -> m.Key it = t) v with
         | None -> m.Var.Value <- m.Storage.Append item v
-        | Some index -> m.Var.Value <- m.Storage.SetAt index item v
+        | Some index -> 
+            m.Var.Value <- m.Storage.SetAt index item v
+        m.ObsoleteKey t
 
     member m.AppendMany items =
         let toAppend = ResizeArray()
@@ -240,8 +257,10 @@ type ListModel<'Key,'T> with
             (m.Var.Value, items)
             ||> Seq.fold (fun v item ->
                 let t = m.Key item
+                m.ObsoleteKey t
                 match Array.tryFindIndex (fun it -> m.Key it = t) v with
-                | Some index -> m.Storage.SetAt index item v
+                | Some index ->
+                    m.Storage.SetAt index item v
                 | None -> toAppend.Add item; v)
         m.Var.Value <- m.Storage.AppendMany toAppend v
 
@@ -250,7 +269,9 @@ type ListModel<'Key,'T> with
         let t = m.Key item
         match Array.tryFindIndex (fun it -> m.Key it = t) v with
         | None -> m.Var.Value <- m.Storage.Prepend item v
-        | Some index -> m.Var.Value <- m.Storage.SetAt index item v
+        | Some index -> 
+            m.Var.Value <- m.Storage.SetAt index item v
+        m.ObsoleteKey t
 
     member m.PrependMany items =
         let toPrepend = ResizeArray()
@@ -258,8 +279,10 @@ type ListModel<'Key,'T> with
             (m.Var.Value, items)
             ||> Seq.fold (fun v item ->
                 let t = m.Key item
+                m.ObsoleteKey t
                 match Array.tryFindIndex (fun it -> m.Key it = t) v with
-                | Some index -> m.Storage.SetAt index item v
+                | Some index -> 
+                    m.Storage.SetAt index item v
                 | None -> toPrepend.Add item; v)
         m.Var.Value <- m.Storage.PrependMany toPrepend v
 
@@ -269,18 +292,24 @@ type ListModel<'Key,'T> with
             let keyFn = m.key
             let k = keyFn item
             m.Var.Value <- m.Storage.RemoveIf (fun i -> keyFn i = k) v
+            m.ObsoleteKey k
 
     member m.RemoveBy (f: 'T -> bool) =
+        for v in m.Var.Value do
+            if f v then
+                m.ObsoleteKey (m.key v)
         m.Var.Value <- m.Storage.RemoveIf f m.Var.Value
 
     member m.RemoveByKey key =
         m.Var.Value <- m.Storage.RemoveIf (fun i -> m.Key i = key) m.Var.Value
+        m.ObsoleteKey key
 
     member m.Iter fn =
         Array.iter fn m.Var.Value
 
     member m.Set lst =
         m.Var.Value <- m.Storage.Set lst
+        m.ObsoleteAll()
 
     member m.ContainsKey key =
         Array.exists (fun it -> m.key it = key) m.Var.Value
@@ -306,17 +335,26 @@ type ListModel<'Key,'T> with
     member m.TryFindByKey key =
         Array.tryFind (fun it -> m.key it = key) m.Var.Value
 
-    member m.FindByKeyAsView key =
-        m.Var.View |> View.Map (Array.find (fun it -> m.key it = key))
-
     member m.TryFindByKeyAsView key =
-        m.Var.View |> View.Map (Array.tryFind (fun it -> m.key it = key))
+        ViewOptimization.V (fun () -> 
+            match m.itemSnaps.TryGetValue(key) with
+            | true, snap -> snap                
+            | _ ->
+                let it = m.TryFindByKey(key)
+                let sn = Snap.CreateWithValue it
+                m.itemSnaps.Add(key, sn)
+                sn
+        )
+
+    member m.FindByKeyAsView key =
+        m.TryFindByKeyAsView key |> View.Map Option.get
 
     member m.UpdateAll fn =
         m.Var.Update <| fun a ->
             a |> Array.iteri (fun i x ->
                 fn x |> Option.iter (fun y -> a.[i] <- y))
             m.Storage.Set a
+        m.ObsoleteAll()
 
     member m.UpdateBy fn key =
         let v = m.Var.Value
@@ -327,6 +365,7 @@ type ListModel<'Key,'T> with
             | None -> ()
             | Some value ->
                 m.Var.Value <- m.Storage.SetAt index value v
+                m.ObsoleteKey key
 
     [<Inline>]
     member m.UpdateByU(fn, key) =
@@ -334,6 +373,7 @@ type ListModel<'Key,'T> with
 
     member m.Clear () =
         m.Var.Value <- m.Storage.Set Seq.empty
+        m.ObsoleteAll()
 
     member m.Length =
         m.Var.Value.Length
@@ -353,7 +393,7 @@ type ListModel<'Key,'T> with
 
     member m.Value
         with [<Inline>] get () = m.Var.Value :> seq<_>
-        and [<Inline>] set v = m.Var.Value <- Array.ofSeq v
+        and [<Inline>] set v = m.Set(v)
 
 and [<JavaScript>]
     RefImpl<'K, 'T, 'V when 'K : equality>

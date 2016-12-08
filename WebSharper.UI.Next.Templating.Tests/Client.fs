@@ -17,7 +17,7 @@ module Client =
     type MyTemplate = Template<TemplateHtmlPath> 
 
     type Item =
-        { id : Key; name: string; description: string }
+        { id : int; name: string; description: string }
         static member Key x = x.id
 
 #if ZAFIR
@@ -52,11 +52,23 @@ module Client =
                  |> View.Map (fun e -> new string(Seq.toArray e))
         let btnSub = Submitter.Create var.View ""
  
+        let mutable lastKey = 0
+        let freshKey() =
+            lastKey <- lastKey + 1
+            lastKey
+
+        let findByKey = Var.Create ""
+        let found = 
+            findByKey.View.BindInner(fun s -> 
+                myItems.TryFindByKeyAsView(int s).Map(function 
+                    | None -> "none" 
+                    | Some a -> a.name + ":" + a.description))
+
         let doc =
             MyTemplate.Doc(
                 NewName = newName,
                 NewDescription = newDescr,
-                NewItem = (fun e v -> myItems.Add { id = Key.Fresh(); name = newName.Value; description = newDescr.Value }),
+                NewItem = (fun e v -> myItems.Add { id = freshKey(); name = newName.Value; description = newDescr.Value }),
                 Title = [
                     h1Attr [
                         attr.style "color: blue"
@@ -67,6 +79,7 @@ module Client =
                 ListContainer = [
                     myItems.SeqView.DocSeqCached(Item.Key, fun key item ->
                         MyTemplate.ListItem.Doc(
+                            Key = item.Map(fun i -> string i.id),
                             Name = item.Map(fun i -> i.name),
                             Description = myItems.LensInto (fun i -> i.description) (fun i d -> { i with description = d }) key,
                             FontStyle = "italic",
@@ -74,6 +87,9 @@ module Client =
                     )
                 ],
                 SubmitItems = (fun el ev -> itemsSub.Trigger ()),
+                ClearItems = (fun el ev -> myItems.Clear ()),
+                FindBy = findByKey,
+                Found = found,
                 ListView = [
                     itemsSub.View.DocSeqCached(Item.Key, fun key item ->
                         MyTemplate.ListViewItem.Doc(
