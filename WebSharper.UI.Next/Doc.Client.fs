@@ -829,9 +829,9 @@ type private Doc' [<JavaScript>] (docNode, updates) =
         | :? Doc as d -> d
         | :? string as t -> Doc.TextNode t
         | :? Element as e -> Doc'.Static e |> As<Doc>        
-        | :? View<obj> as v ->
+        | :? Function as v ->
             Doc'.EmbedView (
-                v.Map (As Doc'.ToMixedDoc)
+                (As<View<_>>v).Map (As Doc'.ToMixedDoc)
             ) |> As<Doc>
         | :? Var<obj> as v ->
             Doc'.EmbedView (
