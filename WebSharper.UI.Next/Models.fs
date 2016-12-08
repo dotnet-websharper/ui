@@ -147,6 +147,17 @@ module Storage =
     let LocalStorage id serializer =
         new LocalStorageBackend<_>(id, serializer) :> Storage<_>
 
+type ListModelState<'T> (arr: 'T[]) =
+    [<Inline "$arr.length">]
+    member this.Length = arr.Length
+    [<Inline "$this[$i]">]
+    member this.Item with get i = arr.[i]
+    [<Inline "$this.slice()">]
+    member this.ToArray() = Array.copy arr
+    interface seq<'T> with
+        member this.GetEnumerator() = arr.GetEnumerator()
+        member this.GetEnumerator() = (arr :> seq<_>).GetEnumerator()
+
 [<JavaScript>]
 type ListModel<'Key, 'T when 'Key : equality>
     (
@@ -155,9 +166,11 @@ type ListModel<'Key, 'T when 'Key : equality>
         storage : Storage<'T>
     ) =
 
-    let v = 
-        var.View |> View.Map (fun x ->
-            Array.copy x :> seq<_>)
+    [<Inline "$varView">]
+    let makeView varView =
+        varView |> View.Map ListModelState        
+
+    let v = makeView var.View
 
     new (key: System.Func<'T, 'Key>, init: seq<'T>) =
         let init = Seq.toArray init
@@ -196,11 +209,16 @@ module ListModels =
         let t = keyFn item
         Array.exists (fun it -> keyFn it = t) xs
 
+    [<Inline "$v">]
+    let toSeqView v = v |> View.Map (fun x -> x :> seq<_>)
 
 type ListModel<'Key,'T> with
 
     [<Inline>]
     member m.View = m.view
+
+    [<Inline>]
+    member m.SeqView = ListModels.toSeqView m.view
 
     [<Inline>]
     member m.Key x = m.key x
@@ -424,6 +442,10 @@ type ListModel =
     [<Inline>]
     static member View (m: ListModel<_,_>) =
         m.view
+
+    [<Inline>]
+    static member SeqView (m: ListModel<_,_>) =
+        m.SeqView
 
     [<Inline>]
     static member Key (m: ListModel<_,_>) =

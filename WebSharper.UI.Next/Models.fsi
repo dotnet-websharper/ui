@@ -81,6 +81,13 @@ module Storage =
     val InMemory : 'T[] -> Storage<'T>
     val LocalStorage : string -> Serializer<'T> -> Storage<'T>
 
+[<Class>]
+type ListModelState<'T> =
+    member Length : int
+    member Item : int -> 'T with get
+    member ToArray : unit -> 'T[]
+    interface seq<'T>
+
 /// A helper type for ResizeArray-like observable structures.
 type ListModel<'Key,'T when 'Key : equality> =
     new : System.Func<'T, 'Key> * Storage<'T> -> ListModel<'Key, 'T>
@@ -91,8 +98,11 @@ type ListModel<'Key,'T when 'Key : equality> =
 
 type ListModel<'Key,'T when 'Key : equality> with
 
-    /// Same as ListModel.View.
-    member View : View<seq<'T>>
+    /// Views the current items as a ListModelState.
+    member View : View<ListModelState<'T>>
+
+    /// Views the current item sequence.
+    member SeqView : View<seq<'T>>
 
     /// Get or set the current items.
     member Value : seq<'T> with get, set
@@ -235,8 +245,11 @@ type ListModel =
             -> update: ('T -> 'U -> 'T)
             -> ListModel<'Key, 'T>
 
+    /// Views the current items as a ListModelState.
+    static member View : ListModel<'Key,'T> -> View<ListModelState<'T>>
+
     /// Views the current item sequence.
-    static member View : ListModel<'Key,'T> -> View<seq<'T>>
+    static member SeqView : ListModel<'Key,'T> -> View<seq<'T>>
 
     /// Get the key retrieval function.
     static member Key : ListModel<'Key, 'T> -> ('T -> 'Key)

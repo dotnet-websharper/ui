@@ -31,7 +31,7 @@ module Client =
 
         let newName = Var.Create ""
         let newDescr = Var.Create ""
-        let itemsSub = Submitter.Create myItems.View Seq.empty
+        let itemsSub = Submitter.Create myItems.SeqView Seq.empty
  
         let stitle = "Starting titlo"
         let var = Var.Create ""
@@ -65,7 +65,7 @@ module Client =
                     ] [textView tv]
                 ],
                 ListContainer = [
-                    myItems.View.DocSeqCached(Item.Key, fun key item ->
+                    myItems.SeqView.DocSeqCached(Item.Key, fun key item ->
                         MyTemplate.ListItem.Doc(
                             Name = item.Map(fun i -> i.name),
                             Description = myItems.LensInto (fun i -> i.description) (fun i d -> { i with description = d }) key,
