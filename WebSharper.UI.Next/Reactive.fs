@@ -20,7 +20,8 @@
 
 namespace WebSharper.UI.Next
 
-open System.Runtime.CompilerServices
+#nowarn "40" // AsyncAwait let rec
+
 open WebSharper
 
 [<JavaScript>]
@@ -252,8 +253,8 @@ type View =
 
      // Collections --------------------------------------------------------------
 
-    static member MapSeqCachedBy<'A,'B,'K when 'K : equality>
-            (key: 'A -> 'K) (conv: 'A -> 'B) (view: View<seq<'A>>) =
+    static member MapSeqCachedBy<'A,'B,'K,'SeqA when 'K : equality and 'SeqA :> seq<'A>>
+            (key: 'A -> 'K) (conv: 'A -> 'B) (view: View<'SeqA>) =
         // Save history only for t - 1, discard older history.
         let state = ref (Dictionary())
         view
@@ -286,8 +287,8 @@ type View =
             NView = view
         }
 
-    static member MapSeqCachedViewBy<'A,'B,'K when 'K : equality>
-            (key: 'A -> 'K) (conv: 'K -> View<'A> -> 'B) (view: View<seq<'A>>) =
+    static member MapSeqCachedViewBy<'A,'B,'K,'SeqA when 'K : equality and 'SeqA :> seq<'A>>
+            (key: 'A -> 'K) (conv: 'K -> View<'A> -> 'B) (view: View<'SeqA>) =
         // Save history only for t - 1, discard older history.
         let state = ref (Dictionary())
         view
@@ -497,30 +498,6 @@ type View<'A> with
 
     [<JavaScript; Inline>]
     member v.UpdateWhile init vPred = View.UpdateWhile init vPred v
-
-// These methods apply to specific types of View (such as View<seq<'A>> when 'A : equality)
-/// so we need to use C#-style extension methods.
-[<Extension; JavaScript>]
-type ReactiveExtensions() =
-
-    [<Extension; Inline>]
-    static member MapCached (v, f) = View.MapCached f v
-
-    [<Extension; Inline>]
-    static member MapSeqCached<'A, 'B when 'A : equality>
-        (v: View<seq<'A>>, f: 'A -> 'B) = View.MapSeqCached f v
-
-    [<Extension; Inline>]
-    static member MapSeqCached<'A, 'B, 'K when 'K : equality>
-        (v: View<seq<'A>>, k: 'A -> 'K, f: 'A -> 'B) = View.MapSeqCachedBy k f v
-
-    [<Extension; Inline>]
-    static member MapSeqCached<'A, 'B when 'A : equality>
-        (v: View<seq<'A>>, f: View<'A> -> 'B) = View.MapSeqCachedView f v
-
-    [<Extension; Inline>]
-    static member MapSeqCached<'A, 'B, 'K when 'K : equality>
-        (v: View<seq<'A>>, k: 'A -> 'K, f: 'K -> View<'A> -> 'B) = View.MapSeqCachedViewBy k f v
 
 [<AutoOpen>]
 module IRefExtension =

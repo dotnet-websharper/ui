@@ -1129,32 +1129,32 @@ module Doc =
   // Collections ----------------------------------------------------------------
 
     [<Inline>]
-    let BindSeqCached (render: 'T -> #Doc) (view: View<seq<'T>>) : Doc =
+    let BindSeqCached (render: 'T -> #Doc) (view: View<#seq<'T>>) : Doc =
         As (Doc'.Convert (As render) view)
 
     [<Inline>]
-    let Convert f v = BindSeqCached f v
+    let Convert f (v: View<seq<_>>) = BindSeqCached f v
 
     [<Inline>]
-    let BindSeqCachedBy (key: 'T -> 'K) (render: 'T -> #Doc) (view: View<seq<'T>>) : Doc =
+    let BindSeqCachedBy (key: 'T -> 'K) (render: 'T -> #Doc) (view: View<#seq<'T>>) : Doc =
         As (Doc'.ConvertBy key (As render) view)
 
     [<Inline>]
-    let ConvertBy k f v = BindSeqCachedBy k f v
+    let ConvertBy k f (v: View<seq<_>>) = BindSeqCachedBy k f v
 
     [<Inline>]
-    let BindSeqCachedView (render: View<'T> -> #Doc) (view: View<seq<'T>>) : Doc =
+    let BindSeqCachedView (render: View<'T> -> #Doc) (view: View<#seq<'T>>) : Doc =
         As (Doc'.ConvertSeq (As render) view)
 
     [<Inline>]
-    let ConvertSeq f v = BindSeqCachedView f v
+    let ConvertSeq f (v: View<seq<_>>) = BindSeqCachedView f v
 
     [<Inline>]
-    let BindSeqCachedViewBy (key: 'T -> 'K) (render: 'K -> View<'T> -> #Doc) (view: View<seq<'T>>) : Doc =
+    let BindSeqCachedViewBy (key: 'T -> 'K) (render: 'K -> View<'T> -> #Doc) (view: View<#seq<'T>>) : Doc =
         As (Doc'.ConvertSeqBy key render view)
 
     [<Inline>]
-    let ConvertSeqBy k f v = BindSeqCachedViewBy k f v
+    let ConvertSeqBy k f (v: View<seq<_>>) = BindSeqCachedViewBy k f v
 
   // Form helpers ---------------------------------------------------------------
 
@@ -1258,16 +1258,52 @@ type DocExtensions =
     static member Doc(v, f) = Doc.BindView f v
 
     [<Extension; Inline>]
-    static member DocSeqCached(v, f) = Doc.BindSeqCached f v
+    static member DocSeqCached(v: View<seq<_>>, f) = Doc.BindSeqCached f v
 
     [<Extension; Inline>]
-    static member DocSeqCached(v, k, f) = Doc.BindSeqCachedBy k f v
+    static member DocSeqCached(v: View<seq<_>>, k, f) = Doc.BindSeqCachedBy k f v
 
     [<Extension; Inline>]
-    static member DocSeqCached(v, f) = Doc.BindSeqCachedView f v
+    static member DocSeqCached(v: View<seq<_>>, f) = Doc.BindSeqCachedView f v
 
     [<Extension; Inline>]
-    static member DocSeqCached(v, k, f) = Doc.BindSeqCachedViewBy k f v
+    static member DocSeqCached(v: View<seq<_>>, k, f) = Doc.BindSeqCachedViewBy k f v
+
+    [<Extension; Inline>]
+    static member DocSeqCached(v: View<list<_>>, f) = Doc.BindSeqCached f v
+
+    [<Extension; Inline>]
+    static member DocSeqCached(v: View<list<_>>, k, f) = Doc.BindSeqCachedBy k f v
+
+    [<Extension; Inline>]
+    static member DocSeqCached(v: View<list<_>>, f) = Doc.BindSeqCachedView f v
+
+    [<Extension; Inline>]
+    static member DocSeqCached(v: View<list<_>>, k, f) = Doc.BindSeqCachedViewBy k f v
+
+    [<Extension; Inline>]
+    static member DocSeqCached(v: View<array<_>>, f) = Doc.BindSeqCached f v
+
+    [<Extension; Inline>]
+    static member DocSeqCached(v: View<array<_>>, k, f) = Doc.BindSeqCachedBy k f v
+
+    [<Extension; Inline>]
+    static member DocSeqCached(v: View<array<_>>, f) = Doc.BindSeqCachedView f v
+
+    [<Extension; Inline>]
+    static member DocSeqCached(v: View<array<_>>, k, f) = Doc.BindSeqCachedViewBy k f v
+
+    [<Extension; Inline>]
+    static member DocSeqCached(v: View<ListModelState<_>>, f) = Doc.BindSeqCached f v
+
+    [<Extension; Inline>]
+    static member DocSeqCached(v: View<ListModelState<_>>, k, f) = Doc.BindSeqCachedBy k f v
+
+    [<Extension; Inline>]
+    static member DocSeqCached(v: View<ListModelState<_>>, f) = Doc.BindSeqCachedView f v
+
+    [<Extension; Inline>]
+    static member DocSeqCached(v: View<ListModelState<_>>, k, f) = Doc.BindSeqCachedViewBy k f v
 
     [<Extension; Inline>]
     static member RunById(doc: Doc, id: string) =

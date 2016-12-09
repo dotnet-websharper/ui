@@ -77,7 +77,7 @@ module Client =
                     ] [textView tv]
                 ],
                 ListContainer = [
-                    myItems.View.DocSeqCached(Item.Key, fun key item ->
+                    myItems.ViewState.DocSeqCached(Item.Key, fun key item ->
                         MyTemplate.ListItem.Doc(
                             Key = item.Map(fun i -> string i.id),
                             Name = item.Map(fun i -> i.name),

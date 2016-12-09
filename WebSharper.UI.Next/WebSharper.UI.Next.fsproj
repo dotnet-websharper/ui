@@ -32,6 +32,8 @@
     <Compile Include="Reactive.fs" />
     <Compile Include="Models.fsi" />
     <Compile Include="Models.fs" />
+    <Compile Include="ReactiveExtensions.fsi" />
+    <Compile Include="ReactiveExtensions.fs" />
     <Compile Include="Animation.fsi" />
     <Compile Include="Animation.fs" />
     <Compile Include="Attr.fsi" />
