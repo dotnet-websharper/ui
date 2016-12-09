@@ -148,11 +148,11 @@ module Storage =
         new LocalStorageBackend<_>(id, serializer) :> Storage<_>
 
 type ListModelState<'T> (arr: 'T[]) =
-    [<Inline "$arr.length">]
+    [<Inline "$this.arr.length">]
     member this.Length = arr.Length
-    [<Inline "$this[$i]">]
+    [<Inline "$this.arr[$i]">]
     member this.Item with get i = arr.[i]
-    [<Inline "$this.slice()">]
+    [<Inline "$this.arr.slice()">]
     member this.ToArray() = Array.copy arr
     interface seq<'T> with
         member this.GetEnumerator() = arr.GetEnumerator()
@@ -168,7 +168,7 @@ type ListModel<'Key, 'T when 'Key : equality>
 
     [<Inline "$varView">]
     let makeView varView =
-        varView |> View.Map ListModelState        
+        varView |> View.Map ListModelState
 
     let v = makeView var.View
 
@@ -195,7 +195,7 @@ type ListModel<'Key, 'T when 'Key : equality>
     [<Inline>]
     member this.Storage = storage
     [<Inline>]
-    member this.view = v
+    member this.ViewState = v
     [<Inline>]
     member this.itemSnaps = it
 
@@ -219,10 +219,7 @@ module ListModels =
 type ListModel<'Key,'T> with
 
     [<Inline>]
-    member m.View = m.view
-
-    [<Inline>]
-    member m.SeqView = ListModels.toSeqView m.view
+    member m.View = ListModels.toSeqView m.ViewState
 
     [<Inline>]
     member m.Key x = m.key x
@@ -231,7 +228,7 @@ type ListModel<'Key,'T> with
     member m.Add item =
         m.Append item
 
-    member m.ObsoleteKey key =           
+    member m.ObsoleteKey key =
         match m.itemSnaps.TryGetValue(key) with
         | true, sn ->
             Snap.MarkObsolete sn 
@@ -481,11 +478,11 @@ type ListModel =
 
     [<Inline>]
     static member View (m: ListModel<_,_>) =
-        m.view
+        m.ViewState
 
     [<Inline>]
     static member SeqView (m: ListModel<_,_>) =
-        m.SeqView
+        m.View
 
     [<Inline>]
     static member Key (m: ListModel<_,_>) =

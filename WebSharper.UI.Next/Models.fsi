@@ -99,10 +99,12 @@ type ListModel<'Key,'T when 'Key : equality> =
 type ListModel<'Key,'T when 'Key : equality> with
 
     /// Views the current items as a ListModelState.
-    member View : View<ListModelState<'T>>
+    /// This is fast but doesn't guarantee immutability if the ListModel is changed.
+    member ViewState : View<ListModelState<'T>>
 
     /// Views the current item sequence.
-    member SeqView : View<seq<'T>>
+    /// This is more expensive than ViewState, but the sequence can be safely used indefinitely.
+    member View : View<seq<'T>>
 
     /// Get or set the current items.
     member Value : seq<'T> with get, set

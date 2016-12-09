@@ -31,7 +31,7 @@ module Client =
 
         let newName = Var.Create ""
         let newDescr = Var.Create ""
-        let itemsSub = Submitter.Create myItems.SeqView Seq.empty
+        let itemsSub = Submitter.Create myItems.View Seq.empty
  
         let stitle = "Starting titlo"
         let var = Var.Create ""
@@ -77,13 +77,14 @@ module Client =
                     ] [textView tv]
                 ],
                 ListContainer = [
-                    myItems.SeqView.DocSeqCached(Item.Key, fun key item ->
+                    myItems.View.DocSeqCached(Item.Key, fun key item ->
                         MyTemplate.ListItem.Doc(
                             Key = item.Map(fun i -> string i.id),
                             Name = item.Map(fun i -> i.name),
                             Description = myItems.LensInto (fun i -> i.description) (fun i d -> { i with description = d }) key,
                             FontStyle = "italic",
-                            FontWeight = "bold")
+                            FontWeight = "bold",
+                            Remove = (fun _ _ -> myItems.RemoveByKey key))
                     )
                 ],
                 SubmitItems = (fun el ev -> itemsSub.Trigger ()),

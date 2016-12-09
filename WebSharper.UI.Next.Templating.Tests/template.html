@@ -1,7 +1,10 @@
 <h1 data-replace="Title"></h1>
 <ul data-hole="ListContainer">
     <li data-template="ListItem">
-        <span>($!{Key}) </span><span style="font-style: ${FontStyle}; font-weight: ${FontWeight}">$!{Name}</span>: <input data-var="Description" />
+        <span>($!{Key}) </span>
+        <span style="font-style: ${FontStyle}; font-weight: ${FontWeight}">$!{Name}</span>:
+        <input data-var="Description" />
+        <button data-event-click="Remove">Remove</button>
     </li>
 </ul>
 <div>
