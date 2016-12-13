@@ -85,7 +85,10 @@ module Storage =
 type ListModelState<'T> =
     member Length : int
     member Item : int -> 'T with get
+    // creates a copy of the current list model state as an array
     member ToArray : unit -> 'T[]
+    // creates a copy of the current list model state as an array with filtering
+    member ToArray : Predicate<'T> -> 'T[]
     interface seq<'T>
 
 /// A helper type for ResizeArray-like observable structures.
@@ -247,11 +250,13 @@ type ListModel =
             -> update: ('T -> 'U -> 'T)
             -> ListModel<'Key, 'T>
 
-    /// Views the current items as a ListModelState.
-    static member View : ListModel<'Key,'T> -> View<ListModelState<'T>>
-
     /// Views the current item sequence.
-    static member SeqView : ListModel<'Key,'T> -> View<seq<'T>>
+    /// This is more expensive than ViewState, but the sequence can be safely used indefinitely.
+    static member View : ListModel<'Key,'T> -> View<seq<'T>>
+
+    /// Views the current items as a ListModelState.
+    /// This is fast but doesn't guarantee immutability if the ListModel is changed.
+    static member ViewState : ListModel<'Key,'T> -> View<ListModelState<'T>>
 
     /// Get the key retrieval function.
     static member Key : ListModel<'Key, 'T> -> ('T -> 'Key)

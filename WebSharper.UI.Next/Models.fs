@@ -147,16 +147,22 @@ module Storage =
     let LocalStorage id serializer =
         new LocalStorageBackend<_>(id, serializer) :> Storage<_>
 
-type ListModelState<'T> (arr: 'T[]) =
-    [<Inline "$this.arr.length">]
-    member this.Length = arr.Length
-    [<Inline "$this.arr[$i]">]
-    member this.Item with get i = arr.[i]
-    [<Inline "$this.arr.slice()">]
-    member this.ToArray() = Array.copy arr
+type ListModelState<'T> =
+    [<Inline>]
+    member this.Length =
+        JavaScript.Pervasives.As<'T[]>(this).Length
+    [<Inline>]
+    member this.Item
+        with get i = JavaScript.Pervasives.As<'T[]>(this).[i]
+    [<Inline>]
+    member this.ToArray() =                             
+        Array.copy (JavaScript.Pervasives.As<'T[]>(this))
+    [<Inline>]
+    member this.ToArray(pred: Predicate<'T>) =
+        Array.filter pred.Invoke (JavaScript.Pervasives.As<'T[]>(this))
     interface seq<'T> with
-        member this.GetEnumerator() = arr.GetEnumerator()
-        member this.GetEnumerator() = (arr :> seq<_>).GetEnumerator()
+        member this.GetEnumerator() = (JavaScript.Pervasives.As<'T[]>(this)).GetEnumerator()
+        member this.GetEnumerator() = (JavaScript.Pervasives.As<'T seq>(this)).GetEnumerator()
 
 [<JavaScript>]
 type ListModel<'Key, 'T when 'Key : equality>
@@ -166,12 +172,8 @@ type ListModel<'Key, 'T when 'Key : equality>
         storage : Storage<'T>
     ) =
 
-    [<Inline "$varView">]
-    let makeView varView =
-        varView |> View.Map ListModelState
-
-    let v = makeView var.View
-
+    let v = var.View.Map(fun x -> Array.copy x :> _ seq)
+           
     let it = Dictionary<'Key, Snap<option<'T>>>()
 
     new (key: System.Func<'T, 'Key>, init: seq<'T>) =
@@ -195,7 +197,9 @@ type ListModel<'Key, 'T when 'Key : equality>
     [<Inline>]
     member this.Storage = storage
     [<Inline>]
-    member this.ViewState = v
+    member this.View = v
+    [<Inline>]
+    member this.ViewState = JavaScript.Pervasives.As<View<ListModelState<'T>>> var.View
     [<Inline>]
     member this.itemSnaps = it
 
@@ -213,13 +217,7 @@ module ListModels =
         let t = keyFn item
         Array.exists (fun it -> keyFn it = t) xs
 
-    [<Inline "$v">]
-    let toSeqView v = v |> View.Map (fun x -> x :> seq<_>)
-
 type ListModel<'Key,'T> with
-
-    [<Inline>]
-    member m.View = ListModels.toSeqView m.ViewState
 
     [<Inline>]
     member m.Key x = m.key x
@@ -478,11 +476,11 @@ type ListModel =
 
     [<Inline>]
     static member View (m: ListModel<_,_>) =
-        m.ViewState
+        m.View
 
     [<Inline>]
-    static member SeqView (m: ListModel<_,_>) =
-        m.View
+    static member ViewState (m: ListModel<_,_>) =
+        m.ViewState
 
     [<Inline>]
     static member Key (m: ListModel<_,_>) =

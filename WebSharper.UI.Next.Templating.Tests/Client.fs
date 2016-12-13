@@ -32,7 +32,6 @@ module Client =
         let newName = Var.Create ""
         let newDescr = Var.Create ""
         let itemsSub = Submitter.Create myItems.View Seq.empty
- 
         let stitle = "Starting titlo"
         let var = Var.Create ""
 
@@ -52,7 +51,7 @@ module Client =
                  |> View.Map (fun e -> new string(Seq.toArray e))
         let btnSub = Submitter.Create var.View ""
  
-        let mutable lastKey = 0
+        let mutable lastKey = myItems.Length
         let freshKey() =
             lastKey <- lastKey + 1
             lastKey
@@ -91,6 +90,13 @@ module Client =
                 ClearItems = (fun el ev -> myItems.Clear ()),
                 FindBy = findByKey,
                 Found = found,
+                Length = myItems.ViewState.Map(fun s -> printfn "mapping length"; string s.Length),
+                Names = 
+                    myItems.ViewState.Map(fun s -> 
+                        s.ToArray(fun i -> not (System.String.IsNullOrEmpty i.description))
+                        |> Seq.map (fun i -> i.name)
+                        |> String.concat ", "
+                    ),
                 ListView = [
                     itemsSub.View.DocSeqCached(Item.Key, fun key item ->
                         MyTemplate.ListViewItem.Doc(

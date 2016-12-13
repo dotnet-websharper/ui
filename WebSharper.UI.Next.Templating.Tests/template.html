@@ -16,6 +16,8 @@
     <p><button data-event-click="SubmitItems">Submit items</button></p>
     <p><button data-event-click="ClearItems">Clear items</button></p>
     <p>Find by key: <input data-var="FindBy" /> Found: $!{Found}</p>
+    <p>Number of items: $!{Length}</p>
+    <p>Names with non-empty values: $!{Names}</p>
     <table>
         <tbody data-hole="ListView" data-children-template="ListViewItem">
             <tr><td>$!{Name}</td><td>$!{Description}</td></tr>
