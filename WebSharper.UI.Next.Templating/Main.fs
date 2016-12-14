@@ -396,7 +396,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                         ) 
                                         |> ExprArray
                                     | SpecialHole -> <@ [||] @>
-                                    | a -> <@ Array.ofSeq %(getSimpleHole a.Value) @>
+                                    | a -> <@ Array.ofSeqNonCopying %(getSimpleHole a.Value) @>
 
                                 if isRoot then 
                                     <@ Doc.Concat %nodes @>

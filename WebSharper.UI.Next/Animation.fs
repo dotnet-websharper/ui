@@ -119,7 +119,7 @@ module Anims =
         }
 
     let ConcatActions xs =
-        let xs = Seq.toArray xs
+        let xs = Array.ofSeqNonCopying xs
         match xs.Length with
         | 0 -> Const ()
         | 1 -> xs.[0]

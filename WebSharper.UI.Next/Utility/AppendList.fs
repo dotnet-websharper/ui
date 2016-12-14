@@ -42,7 +42,7 @@ module AppendList =
         | _ -> AL2 (x, y)
 
     let Concat xs =
-        Seq.toArray xs
+        Array.ofSeqNonCopying xs
         |> Array.TreeReduce Empty Append
 
     let Single x =

@@ -25,7 +25,7 @@ module Svg =
 
     /// Vertical layout of multiple elements in SVG.
     let Vertical docs =
-        let docs = Seq.toArray docs
+        let docs = Array.ofSeqNonCopying docs
         match docs.Length with
         | 0 -> Doc.Empty
         | 1 -> docs.[0]

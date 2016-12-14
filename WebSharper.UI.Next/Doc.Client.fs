@@ -406,7 +406,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
 
     [<JavaScript; Name "Concat">]
     static member Concat' xs =
-        Seq.toArray xs
+        Array.ofSeqNonCopying xs
         |> Array.TreeReduce Doc'.Empty' Doc'.Append'
 
     [<JavaScript; Name "Empty">]

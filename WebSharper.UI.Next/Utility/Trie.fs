@@ -84,13 +84,13 @@ module Trie =
 
     /// Merges tries.
     let rec Merge (ts: seq<_>) =
-        let ts = Seq.toArray ts
+        let ts = Array.ofSeqNonCopying ts
         match ts.Length with
         | 0 -> Some TrieEmpty
         | 1 -> Some ts.[0]
         | _ ->
             // leaves do not merge
-            if Seq.exists IsLeaf ts then None else
+            if Array.exists IsLeaf ts then None else
                 ts
                 |> Seq.choose (function
                     | TrieBranch map -> Some map

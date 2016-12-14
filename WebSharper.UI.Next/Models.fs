@@ -107,9 +107,9 @@ module Storage =
 
         interface Storage<'T> with
             member x.Append i arr = arr.JS.Push i |> ignore; arr
-            member x.AppendMany is arr = arr.JS.Push (Array.ofSeq is) |> ignore; arr
+            member x.AppendMany is arr = arr.JS.Push (Array.ofSeqNonCopying is) |> ignore; arr
             member x.Prepend i arr = arr.JS.Unshift i |> ignore; arr
-            member x.PrependMany is arr = arr.JS.Unshift (Array.ofSeq is) |> ignore; arr
+            member x.PrependMany is arr = arr.JS.Unshift (Array.ofSeqNonCopying is) |> ignore; arr
             member x.Init () = init
             member x.RemoveIf pred arr = Array.filter (pred >> not) arr
             member x.SetAt idx elem arr = arr.[idx] <- elem; arr
@@ -124,9 +124,9 @@ module Storage =
 
         interface Storage<'T> with
             member x.Append i arr = arr.JS.Push i |> ignore; set arr
-            member x.AppendMany is arr = arr.JS.Push (Array.ofSeq is) |> ignore; set arr
+            member x.AppendMany is arr = arr.JS.Push (Array.ofSeqNonCopying is) |> ignore; set arr
             member x.Prepend i arr = arr.JS.Unshift i |> ignore; set arr
-            member x.PrependMany is arr = arr.JS.Unshift (Array.ofSeq is) |> ignore; set arr
+            member x.PrependMany is arr = arr.JS.Unshift (Array.ofSeqNonCopying is) |> ignore; set arr
 
             member x.Init () =
                 let item = storage.GetItem(id)

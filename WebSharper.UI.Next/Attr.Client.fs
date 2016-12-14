@@ -254,7 +254,7 @@ type AttrProxy with
         As<Attr> Attrs.EmptyAttr
 
     static member Concat (xs: seq<Attr>) =
-        Seq.toArray xs
+        Array.ofSeqNonCopying xs
         |> Array.TreeReduce Attr.Empty Attr.Append
 
     static member Handler (event: string) (q: Expr<Element -> #DomEvent-> unit>) =

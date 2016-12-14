@@ -263,7 +263,7 @@ type View =
             let newState = Dictionary()
             let result =
                 Seq.toArray xs
-                |> Array.map (fun x ->
+                |> Array.mapInPlace (fun x ->
                     let k = key x
                     let res =
                         if prevState.ContainsKey k
@@ -297,7 +297,7 @@ type View =
             let newState = Dictionary()
             let result =
                 Seq.toArray xs
-                |> Array.map (fun x ->
+                |> Array.mapInPlace (fun x ->
                     let k = key x
                     let node =
                         if prevState.ContainsKey k then
