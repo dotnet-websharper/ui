@@ -42,7 +42,7 @@ module AppendList =
 
     let Concat xs =
         Seq.toArray xs
-        |> Array.MapReduce (fun x -> x) Empty Append
+        |> Array.MapTreeReduce (fun x -> x) Empty Append
 
     let Single x =
         AL1 x

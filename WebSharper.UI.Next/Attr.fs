@@ -105,7 +105,7 @@ type Attr =
     static member Handler (event: string) (q: Expr<Dom.Element -> #Dom.Event -> unit>) =
         let declType, name, reqs =
             match q with
-            | Lambda (x1, Lambda (y1, Call(None, m, [Var x2; Var y2]))) when x1 = x2 && y1 = y2 ->
+            | Lambda (x1, Lambda (y1, Call(None, m, [Var x2; (Var y2 | Corce(Var y2, _))]))) when x1 = x2 && y1 = y2 ->
                 let rm = R.getMethod m
                 let typ = R.getTypeDefinition m.DeclaringType
                 R.getTypeDefinition m.DeclaringType, rm.MethodName, [M.MethodNode (typ, Hashed rm); M.TypeNode typ]
@@ -324,7 +324,7 @@ module Attrs =
     let Updates dyn =
         let p x y = View.Map2 (fun () () -> ()) x y
         dyn.DynNodes
-        |> Array.MapReduce (fun x -> x.Changed) (View.Const ()) p
+        |> Array.MapTreeReduce (fun x -> x.Changed) (View.Const ()) p
 
     let GetAnim dyn f =
         dyn.DynNodes
@@ -404,7 +404,7 @@ type AttrProxy with
 
     static member Concat (xs: seq<Attr>) =
         Seq.toArray xs
-        |> Array.MapReduce id Attr.Empty Attr.Append
+        |> Array.MapTreeReduce id Attr.Empty Attr.Append
 
     static member Handler (event: string) (q: Expr<Element -> #DomEvent-> unit>) =
         As<Attr> (Attrs.Static (fun el -> el.AddEventListener(event, (As<Element -> DomEvent -> unit> q) el, false)))
