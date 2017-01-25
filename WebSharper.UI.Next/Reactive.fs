@@ -90,7 +90,7 @@ and [<JavaScript; Sealed>] Var =
 
     [<MethodImpl(MethodImplOptions.NoInlining)>]
     static member Create v =
-        let mutable var = JavaScript.JS.Undefined
+        let mutable var = jsNull()
         var <-
             {
                 Const = false
@@ -102,7 +102,7 @@ and [<JavaScript; Sealed>] Var =
         var
 
     static member Create() =
-        let mutable var = JavaScript.JS.Undefined
+        let mutable var = jsNull()
         var <-
             {
                 Const = false
@@ -119,7 +119,7 @@ and [<JavaScript; Sealed>] Var =
 
     static member Set var value =
         if var.Const then
-            JavaScript.Console.Log("WebSharper UI.Next: invalid attempt to change value of a Var after calling SetFinal")
+            printfn "WebSharper UI.Next: invalid attempt to change value of a Var after calling SetFinal"
         else
             Snap.MarkObsolete var.Snap
             var.Current <- value
@@ -127,7 +127,7 @@ and [<JavaScript; Sealed>] Var =
 
     static member SetFinal var value =
         if var.Const then
-            JavaScript.Console.Log("WebSharper UI.Next: invalid attempt to change value of a Var after calling SetFinal")
+            printfn "WebSharper UI.Next: invalid attempt to change value of a Var after calling SetFinal"
         else
             Snap.MarkObsolete var.Snap
             var.Const <- true
