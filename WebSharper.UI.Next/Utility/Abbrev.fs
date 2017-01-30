@@ -67,9 +67,9 @@ module Array =
     /// Same as Array.ofSeq, but if argument is an array, it does not copy it.
     let ofSeqNonCopying (xs: seq<'T>) : 'T [] =
         if xs :? System.Array then
-            As<'T[]> xs
+            xs :?> 'T[]
         elif xs :? _ list then
-            Array.ofList (As<'T list> xs)
+            Array.ofList (xs :?> 'T list)
         else
             let q : 'T [] = [||]
             use o = xs.GetEnumerator()
@@ -80,9 +80,11 @@ module Array =
     [<JavaScript>]
     /// Unsafe operation, modifies each element of an array by a mapping function.
     let mapInPlace (f: 'T1 -> 'T2) (arr: 'T1 []) =
-        for i = 0 to Array.length arr - 1 do
-            arr.JS.[i] <- As (f arr.JS.[i])
-        As<'T2[]> arr
+        if IsClient then
+            for i = 0 to Array.length arr - 1 do
+                arr.JS.[i] <- As (f arr.JS.[i])
+            As<'T2[]> arr
+        else Array.map f arr
 
 module internal String =
 
