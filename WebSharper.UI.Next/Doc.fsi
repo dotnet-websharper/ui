@@ -39,10 +39,10 @@ type Doc =
     /// Constructs a reactive element node with mixed content. 
     static member ElementMixed : name: string -> seq<obj> -> Elt
 
-    /// Same as Element, but uses SVG namespace.
+    /// Constructs a reactive element node in the SVG namespace.
     static member SvgElement : name: string -> seq<Attr> -> seq<Doc> -> Elt
 
-    /// Same as ElementMixed, but uses SVG namespace.
+    /// Constructs a reactive element node with mixed content in the SVG namespace.
     static member SvgElementMixed : name: string -> seq<obj> -> Elt
 
     // Note: Empty, Append, Concat define a monoid on Doc.
