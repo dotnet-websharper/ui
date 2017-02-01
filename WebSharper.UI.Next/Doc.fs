@@ -306,6 +306,11 @@ and [<Sealed>] Elt(tag: string, attrs: list<Attr>, children: list<Doc>) =
 
 type Doc with
 
+    static member ListOfSeq (s: seq<'T>) =
+        match s with
+        | null -> []
+        | s -> List.ofSeq s
+
     static member ToMixedDoc (o: obj) =
         match o with
         | :? Doc as d -> d
@@ -316,7 +321,7 @@ type Doc with
         | o -> Doc.TextNode (string o)
 
     static member Element (tagname: string) (attrs: seq<Attr>) (children: seq<Doc>) =
-        Elt (tagname, List.ofSeq attrs, List.ofSeq children)
+        Elt (tagname, Doc.ListOfSeq attrs, Doc.ListOfSeq children)
 
     static member ElementMixed (tagname: string) (nodes: seq<obj>) =
         let attrs = ResizeArray()
@@ -328,7 +333,7 @@ type Doc with
         Doc.Element tagname attrs children 
 
     static member SvgElement (tagname: string) (attrs: seq<Attr>) (children: seq<Doc>) =
-        Elt (tagname, List.ofSeq attrs, List.ofSeq children)
+        Elt (tagname, Doc.ListOfSeq attrs, Doc.ListOfSeq children)
 
     static member SvgElementMixed (tagname: string) (nodes: seq<obj>) =
         Doc.ElementMixed tagname nodes
@@ -337,7 +342,7 @@ type Doc with
 
     static member Append d1 d2 = ConcreteDoc(AppendDoc [ d1; d2 ]) :> Doc
 
-    static member Concat (docs: seq<Doc>) = ConcreteDoc(AppendDoc (List.ofSeq docs)) :> Doc
+    static member Concat (docs: seq<Doc>) = ConcreteDoc(AppendDoc (Doc.ListOfSeq docs)) :> Doc
 
     static member ConcatMixed ([<ParamArray>] docs: obj[]) = Doc.Concat (Seq.map Doc.ToMixedDoc docs)
 

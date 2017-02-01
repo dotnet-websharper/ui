@@ -81,6 +81,7 @@ module internal Utils =
             | Simple t ->
                 if t = typeof<Attr> then Some null
                 elif t = typeof<string> then Some (box "")
+                elif t = typeof<seq<Doc>> then Some null
                 else None
             | _ -> None
 
