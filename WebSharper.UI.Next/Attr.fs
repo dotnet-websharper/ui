@@ -51,13 +51,16 @@ module private Internal =
 
     let gen = System.Random()
 
+[<CompilationRepresentation(CompilationRepresentationFlags.UseNullAsTrueValue)>]
 type Attr =
+    | EmptyAttr
     | AppendAttr of list<Attr>
     | SingleAttr of string * string
     | DepAttr of string * (M.Info -> string) * seq<M.Node>
 
     member this.Write(meta, w: HtmlTextWriter, removeDataHole) =
         match this with
+        | EmptyAttr -> ()
         | AppendAttr attrs ->
             attrs |> List.iter (fun a ->
                 a.Write(meta, w, removeDataHole))
@@ -86,7 +89,7 @@ type Attr =
         AppendAttr [a; b]
 
     static member Empty =
-        AppendAttr []
+        EmptyAttr
 
     static member Concat (xs: seq<Attr>) =
         AppendAttr (List.ofSeq xs)

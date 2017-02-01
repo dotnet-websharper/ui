@@ -65,6 +65,7 @@ module Client =
 
         let doc =
             MyTemplate.Doc(
+                PAttr = Attr.Style "font-weight" "bold",
                 NewName = newName,
                 NewDescription = newDescr,
                 NewItem = (fun e v -> myItems.Add { id = freshKey(); name = newName.Value; description = newDescr.Value }),

@@ -25,8 +25,10 @@ open WebSharper.JavaScript
 module M = WebSharper.Core.Metadata
 
 /// A potentially time-varying or animated attribute list.
+[<CompilationRepresentation(CompilationRepresentationFlags.UseNullAsTrueValue)>]
 type Attr =
     internal
+    | EmptyAttr
     | AppendAttr of list<Attr>
     | SingleAttr of string * string
     | DepAttr of string * (M.Info -> string) * seq<M.Node>

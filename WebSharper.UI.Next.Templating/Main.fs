@@ -76,6 +76,11 @@ module internal Utils =
             | ElemHandler -> ElemHandlerTy
             | Simple (ty = t) -> t
 
+        member this.OptionalDefaultValue : option<obj> =
+            match this with
+            | Simple t when t = typeof<Attr> -> Some null
+            | _ -> None
+
     type XElement with
         member this.AnyAttributeOf([<ParamArray>] names: XName[]) =
             (null, names)
@@ -445,7 +450,9 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                         
                         let mainExpr = t |> createNode true t.IsSvgTag
 
-                        let pars = [ for KeyValue(name, h) in holes -> ctx.ProvidedParameter(name, h.ArgType) ]
+                        let pars =
+                            [ for KeyValue(name, h) in holes ->
+                                ctx.ProvidedParameter(name, h.ArgType, ?optionalValue = h.OptionalDefaultValue) ]
 
                         let code (args: Expr list) =
                             let varMap = Dictionary()

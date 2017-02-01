@@ -7,13 +7,13 @@
         <button data-event-click="Remove">Remove</button>
     </li>
 </ul>
-<div>
+<div data-attr="Attr">
     <p id="paragraph" data-event-afterrender="PRendered">
         <input data-var="NewName" placeholder="Name" data-event-keyup="NameChanged" />
         <input data-var="NewDescription" placeholder="Description" data-event-keyup="NameChanged" />
         <button data-event-click="NewItem">Add item</button>
     </p>
-    <p><button data-event-click="SubmitItems">Submit items</button></p>
+    <p data-attr="PAttr"><button data-event-click="SubmitItems">Submit items</button></p>
     <p><button data-event-click="ClearItems">Clear items</button></p>
     <p>Find by key: <input data-var="FindBy" /> Found: $!{Found}</p>
     <p>Number of items: $!{Length}</p>

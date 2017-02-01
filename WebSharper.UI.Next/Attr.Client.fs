@@ -112,13 +112,6 @@ type DynamicAttrNode<'T>(view: View<'T>, push: Element -> 'T -> unit) =
         member a.Sync parent = if dirty then push parent value; dirty <- false
         member a.Changed = updates
 
-type AttrTree =
-    | A0
-    | A1 of IAttrNode
-    | A2 of AttrTree * AttrTree
-    | A3 of init: (Element -> unit)
-    | A4 of onAfterRender: (Element -> unit)
-
 type AttrFlags =
     | Defaults = 0
     | HasEnterAnim = 1
@@ -126,11 +119,13 @@ type AttrFlags =
     | HasChangeAnim = 4
 
 [<JavaScript; Proxy(typeof<Attr>); Name "WebSharper.UI.Next.AttrProxy">]
+[<CompilationRepresentation(CompilationRepresentationFlags.UseNullAsTrueValue)>]
 type internal AttrProxy =
-    {
-        Flags : AttrFlags
-        Tree : AttrTree
-    }
+    | [<Constant(null)>] A0
+    | A1 of IAttrNode
+    | A2 of AttrProxy * AttrProxy
+    | A3 of init: (Element -> unit)
+    | A4 of onAfterRender: (Element -> unit)
 
 [<JavaScript; Name "WebSharper.UI.Next.Attrs">]
 module Attrs =
@@ -153,6 +148,14 @@ module Attrs =
     let HasExitAnim attr =
         attr.DynFlags.HasFlag AttrFlags.HasExitAnim
 
+    let Flags a =
+        if a !==. null && JS.HasOwnProperty a "flags"
+        then a?flags
+        else AttrFlags.Defaults
+
+    let SetFlags (a: AttrProxy) (f: AttrFlags) =
+        a?flags <- f
+
     /// Synchronizes dynamic attributes.
     let Sync elem dyn =
         dyn.DynNodes
@@ -164,17 +167,18 @@ module Attrs =
         let nodes = Queue()
         let oar = Queue()
         let rec loop node =
+            if not (Object.ReferenceEquals(node, null)) then // work around WS issue with UseNullAsTrueValue
             match node with
             | A0 -> ()
             | A1 n -> nodes.Enqueue n
             | A2 (a, b) -> loop a; loop b
             | A3 mk -> mk elem
             | A4 cb -> oar.Enqueue cb
-        loop (As<AttrProxy> tree).Tree
+        loop (As<AttrProxy> tree)
         let arr = nodes.ToArray()
         {
             DynElem = elem
-            DynFlags = (As<AttrProxy> tree).Flags
+            DynFlags = Flags tree
             DynNodes = arr
             OnAfterRender =
                 if oar.Count = 0 then None else
@@ -204,19 +208,15 @@ module Attrs =
         dyn.OnAfterRender
 
     let AppendTree a b =
-        match a, b with
-        | A0, x | x, A0 -> x
-        | _ -> A2 (a, b)
+        // work around WS issue with UseNullAsTrueValue
+        if Object.ReferenceEquals(a, null) then b
+        elif Object.ReferenceEquals(b, null) then a
+        else A2 (a, b)
+//        match a, b with
+//        | A0, x | x, A0 -> x
+//        | _ -> A2 (a, b)
 
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
-    let internal Mk flags tree =
-        {
-            Flags = flags
-            Tree = tree
-        }
-
-    let internal EmptyAttr =
-        Mk AttrFlags.Defaults A0
+    let internal EmptyAttr = A0
 
     let internal Animated tr view set =
         let node = AnimatedAttrNode (tr, view, set)
@@ -225,16 +225,17 @@ module Attrs =
             flags <- flags ||| AttrFlags.HasEnterAnim
         if Trans.CanAnimateExit tr then
             flags <- flags ||| AttrFlags.HasExitAnim
-        Mk flags (A1 node)
+        let n = A1 node
+        SetFlags n flags
+        n
 
     [<MethodImpl(MethodImplOptions.NoInlining)>]
     let internal Dynamic view set =
         A1 (DynamicAttrNode (view, set))
-        |> Mk AttrFlags.Defaults
 
     [<MethodImpl(MethodImplOptions.NoInlining)>]
     let internal Static attr =
-        Mk AttrFlags.Defaults (A3 attr)
+        A3 attr
 
 
 [<JavaScript>]
@@ -244,10 +245,7 @@ type AttrProxy with
         As<Attr> (Attrs.Static (fun el -> DU.SetAttr el name value))
 
     static member Append (a: Attr) (b: Attr) =
-        As<Attr> (
-            Attrs.Mk
-                ((As<AttrProxy> a).Flags ||| (As<AttrProxy> b).Flags)
-                (Attrs.AppendTree (As<AttrProxy> a).Tree (As<AttrProxy> b).Tree))
+        As<Attr> (Attrs.AppendTree (As a) (As b))
 
     [<Inline>]
     static member Empty =
@@ -294,7 +292,7 @@ module Attr =
         As<Attr> (Attrs.Static init)
 
     let OnAfterRender (callback: Element -> unit) =
-        As<Attr> (Attrs.Mk AttrFlags.Defaults (A4 callback))
+        As<Attr> (A4 callback)
 
     let OnAfterRenderView (v: View<'T>) (callback: Element -> 'T -> unit) =
         let id = Fresh.Id()
