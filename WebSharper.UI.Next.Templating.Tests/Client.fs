@@ -109,6 +109,7 @@ module Client =
                 MyInput = var,
                 MyInputView = btnSub.View,
                 MyCallback = (fun el ev -> btnSub.Trigger ()),
+                ButtonExtraText = " now",
                 NameChanged = (fun el ev -> 
                     let key = if ev?which then ev?which else ev?keyCode
                     if key = 13 then newName := ""),

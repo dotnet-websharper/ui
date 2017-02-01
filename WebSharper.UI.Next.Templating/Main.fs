@@ -78,7 +78,10 @@ module internal Utils =
 
         member this.OptionalDefaultValue : option<obj> =
             match this with
-            | Simple t when t = typeof<Attr> -> Some null
+            | Simple t ->
+                if t = typeof<Attr> then Some null
+                elif t = typeof<string> then Some (box "")
+                else None
             | _ -> None
 
     type XElement with
