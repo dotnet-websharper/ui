@@ -178,19 +178,17 @@ module Docs =
         | Some f -> f el.El; el.Render <- None
 
     /// Synchronizes the document (deep).
-    let Sync doc =
-        let rec sync doc =
-            match doc with
-            | AppendDoc (a, b) -> sync a; sync b
-            | ElemDoc el -> SyncElement el; sync el.Children; AfterRender el
-            | EmbedDoc n -> sync n.Current
-            | EmptyDoc
-            | TextNodeDoc _ -> ()
-            | TextDoc d ->
-                if d.Dirty then
-                    d.Text.NodeValue <- d.Value
-                    d.Dirty <- false
-        sync doc
+    let rec Sync doc =
+        match doc with
+        | AppendDoc (a, b) -> Sync a; Sync b
+        | ElemDoc el -> SyncElement el; Sync el.Children; AfterRender el
+        | EmbedDoc n -> Sync n.Current
+        | EmptyDoc
+        | TextNodeDoc _ -> ()
+        | TextDoc d ->
+            if d.Dirty then
+                d.Text.NodeValue <- d.Value
+                d.Dirty <- false
 
     /// Synchronizes an element node (deep).
     [<MethodImpl(MethodImplOptions.NoInlining)>]
