@@ -70,6 +70,8 @@ module Array =
             xs :?> 'T[]
         elif xs :? _ list then
             Array.ofList (xs :?> 'T list)
+        elif Object.ReferenceEquals(xs, null) then
+            [||]
         else
             let q : 'T [] = [||]
             use o = xs.GetEnumerator()

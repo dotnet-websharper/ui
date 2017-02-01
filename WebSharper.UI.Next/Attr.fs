@@ -51,19 +51,21 @@ module private Internal =
 
     let gen = System.Random()
 
-[<CompilationRepresentation(CompilationRepresentationFlags.UseNullAsTrueValue)>]
+// We would have wanted to use UseNullAsTrueValue so that EmptyAttr = null,
+// which makes things much easier when it comes to optional arguments in Templating.
+// The problem is that for some reason UNATV is ignored if there are 4 or more cases.
+// So we end up having to do explicit null checks everywhere :(
 type Attr =
-    | EmptyAttr
     | AppendAttr of list<Attr>
     | SingleAttr of string * string
     | DepAttr of string * (M.Info -> string) * seq<M.Node>
 
     member this.Write(meta, w: HtmlTextWriter, removeDataHole) =
         match this with
-        | EmptyAttr -> ()
         | AppendAttr attrs ->
             attrs |> List.iter (fun a ->
-                a.Write(meta, w, removeDataHole))
+                if not (obj.ReferenceEquals(a, null))
+                then a.Write(meta, w, removeDataHole))
         | SingleAttr (n, v) ->
             if not (removeDataHole && n = "data-hole") then
                 w.WriteAttribute(n, v)
@@ -75,7 +77,10 @@ type Attr =
         member this.Requires =
             match this with
             | AppendAttr attrs ->
-                attrs |> Seq.collect (fun a -> (a :> IRequiresResources).Requires)
+                attrs |> Seq.collect (fun a ->
+                    if obj.ReferenceEquals(a, null)
+                    then Seq.empty
+                    else (a :> IRequiresResources).Requires)
             | DepAttr (_, _, reqs) -> reqs
             | _ -> Seq.empty
 
@@ -89,7 +94,7 @@ type Attr =
         AppendAttr [a; b]
 
     static member Empty =
-        EmptyAttr
+        AppendAttr []
 
     static member Concat (xs: seq<Attr>) =
         AppendAttr (List.ofSeq xs)

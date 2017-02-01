@@ -108,7 +108,9 @@ and [<Sealed>] Elt(tag: string, attrs: list<Attr>, children: list<Doc>) =
     override this.Write(meta, w, ?res) =
         let hole =
             res |> Option.bind (fun res ->
-                let rec findHole = function
+                let rec findHole a =
+                    if obj.ReferenceEquals(a, null) then None else
+                    match a with
                     | Attr.SingleAttr (name, value) ->
                         if (name = "data-replace" || name = "data-hole")
                             && (value = "scripts" || value = "styles" || value = "meta") then
@@ -129,7 +131,9 @@ and [<Sealed>] Elt(tag: string, attrs: list<Attr>, children: list<Doc>) =
         | Some _ -> () // can't happen
         | None ->
             w.WriteBeginTag(tag)
-            attrs |> List.iter (fun a -> a.Write(meta, w, false))
+            attrs |> List.iter (fun a ->
+                if not (obj.ReferenceEquals(a, null))
+                then a.Write(meta, w, false))
             if List.isEmpty children && HtmlTextWriter.IsSelfClosingTag tag then
                 w.Write(HtmlTextWriter.SelfClosingTagEnd)
             else
@@ -138,7 +142,9 @@ and [<Sealed>] Elt(tag: string, attrs: list<Attr>, children: list<Doc>) =
                 w.WriteEndTag(tag)
 
     override this.HasNonScriptSpecialTags =
-        let rec testAttr = function
+        let rec testAttr a =
+            if obj.ReferenceEquals(a, null) then false else
+            match a with
             | Attr.AppendAttr attrs -> List.exists testAttr attrs
             | Attr.SingleAttr (("data-replace" | "data-hole"), ("styles" | "meta")) -> true
             | Attr.SingleAttr _
@@ -153,7 +159,10 @@ and [<Sealed>] Elt(tag: string, attrs: list<Attr>, children: list<Doc>) =
 
     override this.Requires =
         Seq.append
-            (attrs |> Seq.collect (fun a -> (a :> IRequiresResources).Requires))
+            (attrs |> Seq.collect (fun a ->
+                if obj.ReferenceEquals(a, null)
+                then Seq.empty
+                else (a :> IRequiresResources).Requires))
             (children |> Seq.collect (fun e -> (e :> IRequiresResources).Requires))
 
     member this.On(ev, cb) =
