@@ -801,6 +801,10 @@ type Doc' [<JavaScript>] (docNode, updates) =
         let children = Doc'.Concat' (As children)
         As (Doc'.Elem (DU.CreateSvgElement name) attr children)
 
+    [<JavaScript; Inline>]
+    static member SvgElementU (tagname, attrs, children) =
+        Doc.SvgElement tagname attrs children
+
     [<JavaScript; Name "EmptyProxy">]
     static member Empty
         with [<Inline; MethodImpl(MethodImplOptions.NoInlining)>] get () : Doc =

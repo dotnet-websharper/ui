@@ -319,6 +319,9 @@ type Doc with
     static member SvgElement (tagname: string) (attrs: seq<Attr>) (children: seq<Doc>) =
         Elt (tagname, List.ofSeq attrs, List.ofSeq children)
 
+    static member SvgElementU (tagname, attrs, children) =
+        Doc.SvgElement tagname attrs children
+
     static member Empty = ConcreteDoc(EmptyDoc) :> Doc
 
     static member Append d1 d2 = ConcreteDoc(AppendDoc [ d1; d2 ]) :> Doc

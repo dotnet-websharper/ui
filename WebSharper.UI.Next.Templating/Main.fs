@@ -82,6 +82,9 @@ module internal Utils =
                 | a -> a
             )
 
+        member this.IsSvgTag =
+            this.Name.LocalName.ToLower() = "svg"
+
 [<AutoOpen>]
 module Cache =
     type MemoryCache with 
@@ -317,7 +320,11 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                         yield TextPart s
                                 ]   
 
-                        let rec createNode isRoot (e: XElement) =
+                        let rec createNode isRoot isSvg (e: XElement) =
+                            let mkElement name attrs children =
+                                if isSvg
+                                then <@ Doc.SvgElementU(%name, %attrs, %children) :> Doc @>
+                                else <@ Doc.ElementU(%name, %attrs, %children) :> Doc @>
                             match e.Attribute(dataReplace) with
                             | null ->
                                 let attrs =
@@ -379,7 +386,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                     match e.Attribute(dataHole) with
                                     | null ->
                                         e.Nodes() |> Seq.collect (function
-                                            | :? XElement as n -> [ createNode false n ]
+                                            | :? XElement as n -> [ createNode false (isSvg || n.IsSvgTag) n ]
                                             | :? XCData as n -> let v = n.Value in [ <@ Doc.Verbatim v @> ]
                                             | :? XText as n ->
                                                 getParts n.Value
@@ -415,24 +422,24 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                         elif n.ToLower() = "textarea" then
                                             <@ Doc.InputArea %attrs %(getVarHole a) :> _ @>
                                         elif n.ToLower() = "select" then
-                                            <@ Doc.ElementU ("select",
-                                                (Seq.append
+                                            mkElement <@ "select" @> 
+                                                <@ Seq.append
                                                     (Seq.singleton (Attr.Value %(getVarHole a)))
-                                                    %attrs),
-                                                %nodes) :> _ @>
+                                                    %attrs @>
+                                                nodes
                                         else failwithf "data-var attribute \"%s\" on invalid element \"%s\"" a n
                                     match e with
-                                    | NoVar -> <@ Doc.ElementU (n, %attrs, %nodes) :> _ @>
+                                    | NoVar -> mkElement <@ n @> attrs nodes
                                     | Var a -> var a false
                                     | VarUnchecked a -> var a true
 
                             | SpecialHole as a ->
                                 let elName = e.Name.LocalName
                                 let attrValue = a.Value
-                                <@ Doc.ElementU (elName, [|Attr.CreateU ("data-replace", attrValue) |], [||]) :> _ @>
+                                mkElement <@ elName @> <@ [|Attr.CreateU ("data-replace", attrValue) |] @> <@ [||] @>
                             | a -> <@ Doc.Concat %(getSimpleHole a.Value : Expr<seq<Doc>>) @>
                         
-                        let mainExpr = t |> createNode true
+                        let mainExpr = t |> createNode true t.IsSvgTag
 
                         let pars = [ for KeyValue(name, h) in holes -> ProvidedParameter(name, h.ArgType) ]
 

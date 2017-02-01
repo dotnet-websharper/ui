@@ -35,11 +35,14 @@ type Doc =
     /// Constructs a reactive element node.
     static member Element : name: string -> seq<Attr> -> seq<Doc> -> Elt
 
-    /// Same as Element, uncurried for Type Provider use
+    /// Constructs a reactive element node, uncurried for Type Provider use.
     static member ElementU : name: string * seq<Attr> * seq<Doc> -> Elt
 
-    /// Same as Element, but uses SVG namespace.
+    /// Constructs a reactive element node in the SVG namespace.
     static member SvgElement : name: string -> seq<Attr> -> seq<Doc> -> Elt
+
+    /// Constructs a reactive element node in the SVG namespace, uncurried for Type Provider use.
+    static member SvgElementU : name: string * seq<Attr> * seq<Doc> -> Elt
 
     // Note: Empty, Append, Concat define a monoid on Doc.
 
