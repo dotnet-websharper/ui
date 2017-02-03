@@ -375,10 +375,17 @@ module Main =
 #if ZAFIR
     [<SPAEntryPoint>]
     let Main() =
-        [|
-            VarTest
-            ViewTest
-            ListModelTest
-        |]
-        |> ignore
+        Runner.RunTests(
+            [|
+                VarTest
+                ViewTest
+                ListModelTest
+            |]
+        ).ReplaceInDom(JS.Document.QuerySelector "#main")
+        let var = Var.Create "init"
+        Doc.Template (JS.Document.QuerySelector "[data-template=TestTemplate]") [
+            TemplateEltHole "Input", Doc.Input [] var :> _
+            TemplateEltHole "Value", textView var.View
+        ]
+        |> Doc.RunAppend JS.Document.Body
 #endif

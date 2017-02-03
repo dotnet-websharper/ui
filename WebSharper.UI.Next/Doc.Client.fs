@@ -16,6 +16,7 @@ type DocNode =
     | EmptyDoc
     | TextDoc of DocTextNode
     | TextNodeDoc of TextNode
+    | TreeDoc of DocTreeNode
 
 and [<CustomEquality>]
     [<JavaScript>]
@@ -52,6 +53,15 @@ and DocTextNode =
         mutable Value : string
     }
 
+and DocTreeNode =
+    {
+        TEl : Element
+        Holes : DocNode[]
+    }
+
+type TemplateHole =
+    | TemplateEltHole of name: string
+
 [<JavaScript; Name "WebSharper.UI.Next.Docs">]
 module Docs =
 
@@ -83,6 +93,7 @@ module Docs =
                 | EmptyDoc -> ()
                 | TextNodeDoc tn -> q.Enqueue (tn :> Node)
                 | TextDoc t -> q.Enqueue (t.Text :> Node)
+                | TreeDoc t -> q.Enqueue (t.TEl :> Node)
             loop node.Children
             DomNodes (q.ToArray())
 
@@ -118,9 +129,10 @@ module Docs =
         | EmptyDoc -> pos
         | TextDoc t -> InsertNode parent t.Text pos
         | TextNodeDoc t -> InsertNode parent t pos
+        | TreeDoc t -> InsertNode parent t.TEl pos
 
     /// Synchronizes an element with its children (shallow).
-    let DoSyncElement el =
+    let DoSyncElement (el : DocElemNode) =
         let parent = el.El
         let rec ins doc pos =
             match doc with
@@ -135,6 +147,7 @@ module Docs =
             | EmptyDoc -> pos
             | TextDoc t -> DU.BeforeNode t.Text
             | TextNodeDoc t -> DU.BeforeNode t
+            | TreeDoc t -> DU.BeforeNode t.TEl
         let ch = DomNodes.DocChildren el
         // remove children that are not in the current set
         DomNodes.Children el.El el.Delimiters
@@ -148,13 +161,14 @@ module Docs =
         ins el.Children pos |> ignore
 
     /// Optimized version of DoSyncElement.
-    let SyncElement el =
+    let SyncElement (el: DocElemNode) =
         /// Test if any children have changed.
         let hasDirtyChildren el =
             let rec dirty doc =
                 match doc with
                 | AppendDoc (a, b) -> dirty a || dirty b
                 | EmbedDoc d -> d.Dirty || dirty d.Current
+                | TreeDoc t -> t.Holes |> Array.exists dirty
                 | _ -> false
             dirty el.Children
         Attrs.Sync el.El el.Attr
@@ -179,9 +193,13 @@ module Docs =
 
     /// Synchronizes the document (deep).
     let rec Sync doc =
+        let syncElemNode (el: DocElemNode) =
+            SyncElement el
+            Sync el.Children
+            AfterRender el
         match doc with
         | AppendDoc (a, b) -> Sync a; Sync b
-        | ElemDoc el -> SyncElement el; Sync el.Children; AfterRender el
+        | ElemDoc el -> syncElemNode el
         | EmbedDoc n -> Sync n.Current
         | EmptyDoc
         | TextNodeDoc _ -> ()
@@ -189,6 +207,7 @@ module Docs =
             if d.Dirty then
                 d.Text.NodeValue <- d.Value
                 d.Dirty <- false
+        | TreeDoc t -> Array.iter Sync t.Holes
 
     /// Synchronizes an element node (deep).
     [<MethodImpl(MethodImplOptions.NoInlining)>]
@@ -213,6 +232,7 @@ module Docs =
                 | AppendDoc (a, b) -> loop a; loop b
                 | ElemDoc el -> q.Enqueue el; loop el.Children
                 | EmbedDoc em -> loop em.Current
+                | TreeDoc t -> t.Holes |> Array.iter loop
                 | _ -> ()
             loop doc
             NodeSet (HashSet (q.ToArray()))
@@ -536,6 +556,46 @@ type private Doc' [<JavaScript>] (docNode, updates) =
         txt
         |> View.Map (Docs.UpdateTextNode node)
         |> Doc'.Mk (TextDoc node)
+
+    [<JavaScript>]
+    static member Template (el: Element) (fillWith: seq<TemplateHole * Doc'>) =
+        let holes : DocNode[] = [||]
+        let updates : View<unit>[] = [||]
+        for hole, doc in fillWith do
+            match hole with
+            | TemplateEltHole name ->
+                match el.QuerySelector ("[data-hole=" + name + "]") with
+                | null ->
+                    match el.QuerySelector ("[data-replace=" + name + "]") with
+                    | null ->
+                        Console.Warn("Template: could not find data-replace or data-hole", name)
+                    | e when e ===. el ->
+                        Console.Warn("Template: unsupported data-replace on the template node itself", name)
+                    | e ->
+                        let p = e.ParentNode :?> Element
+                        match e.NextSibling with
+                        | null -> Docs.LinkElement p doc.DocNode
+                        | n -> Docs.LinkPrevElement n doc.DocNode
+                        p.RemoveChild(e) |> ignore
+                        holes.JS.Push doc.DocNode |> ignore
+                        updates.JS.Push doc.Updates |> ignore
+                | p ->
+                    while (p.LastChild !==. null) do
+                        p.RemoveChild(p.LastChild) |> ignore
+                    Docs.LinkElement p doc.DocNode
+                    holes.JS.Push doc.DocNode |> ignore
+                    updates.JS.Push doc.Updates |> ignore
+        el.RemoveAttribute("data-template")
+        match el.ParentNode with
+        | null -> ()
+        | p -> p.RemoveChild el |> ignore
+        let dn = TreeDoc {
+            TEl = el
+            Holes = holes
+        }
+        updates
+        |> Array.TreeReduce (View.Const ()) View.Map2Unit
+        |> Doc'.Mk dn
 
     [<JavaScript>]
     static member Flatten view =
@@ -1071,6 +1131,10 @@ module Doc =
     [<Inline>]
     let Async (a: Async<#Doc>) : Doc =
         As (Doc'.Async (As a))
+
+    [<Inline>]
+    let Template (el: Element) (fillWith: seq<TemplateHole * Doc>) : Doc =
+        As (Doc'.Template el (As fillWith))
 
     [<Inline>]
     let Run parent (doc: Doc) =

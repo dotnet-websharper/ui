@@ -52,6 +52,9 @@ type CheckedInput<'T> =
 
     member Input : string
 
+type TemplateHole =
+    | TemplateEltHole of name: string
+
 // Extension methods
 [<Extension; Sealed>]
 type DocExtensions =
@@ -1114,6 +1117,9 @@ module Doc =
 
     /// Embeds an asynchronous Doc. The resulting Doc is empty until the Async returns.
     val Async : Async<#Doc> -> Doc
+
+    /// Construct a Doc using a given DOM element and template fillers.
+    val Template : Element -> seq<TemplateHole * Doc> -> Doc
 
   // Collections.
 
