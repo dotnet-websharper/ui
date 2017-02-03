@@ -12,7 +12,9 @@
     <div data-template="TestTemplate">
         This is a test. Let's put an input here: <div data-replace="Input"></div>
         <br />
-        And its value here in bold: <b data-replace="Value"></b>
+        And its value here in bold: <b data-hole="Value"></b>
+        <br />
+        Text: ${TValue} here ${TValue} again, and changing: you said $!{TDyn}
     </div>
     <script type="text/javascript" src="Content/WebSharper.UI.Next.Tests.js"></script>
 </body>

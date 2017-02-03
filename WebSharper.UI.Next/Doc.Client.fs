@@ -60,7 +60,9 @@ and DocTreeNode =
     }
 
 type TemplateHole =
-    | TemplateEltHole of name: string
+    | TemplateEltHole of name: string * fillWith: Doc
+    | TemplateTextHole of name: string * fillWith: string
+    | TemplateTextViewHole of name: string * fillWith: View<string>
 
 [<JavaScript; Name "WebSharper.UI.Next.Docs">]
 module Docs =
@@ -380,6 +382,8 @@ module Docs =
         n.Value <- t
         n.Dirty <- true
 
+    let LoadedTemplates = Dictionary()
+
 [<JavaScript; Name "WebSharper.UI.Next.CheckedInput">]
 type CheckedInput<'T> =
     | Valid of value: 'T * inputText: string
@@ -558,37 +562,39 @@ type private Doc' [<JavaScript>] (docNode, updates) =
         |> Doc'.Mk (TextDoc node)
 
     [<JavaScript>]
-    static member Template (el: Element) (fillWith: seq<TemplateHole * Doc'>) =
+    static member Template (el: Element) (fillWith: seq<TemplateHole>) =
         let holes : DocNode[] = [||]
         let updates : View<unit>[] = [||]
-        for hole, doc in fillWith do
-            match hole with
-            | TemplateEltHole name ->
-                match el.QuerySelector ("[data-hole=" + name + "]") with
+        let fillEltHole (name: string) (doc: Doc') err =
+            match el.QuerySelector ("[data-hole=" + name + "]") with
+            | null ->
+                match el.QuerySelector ("[data-replace=" + name + "]") with
                 | null ->
-                    match el.QuerySelector ("[data-replace=" + name + "]") with
-                    | null ->
-                        Console.Warn("Template: could not find data-replace or data-hole", name)
-                    | e when e ===. el ->
-                        Console.Warn("Template: unsupported data-replace on the template node itself", name)
-                    | e ->
-                        let p = e.ParentNode :?> Element
-                        match e.NextSibling with
-                        | null -> Docs.LinkElement p doc.DocNode
-                        | n -> Docs.LinkPrevElement n doc.DocNode
-                        p.RemoveChild(e) |> ignore
-                        holes.JS.Push doc.DocNode |> ignore
-                        updates.JS.Push doc.Updates |> ignore
-                | p ->
-                    while (p.LastChild !==. null) do
-                        p.RemoveChild(p.LastChild) |> ignore
-                    Docs.LinkElement p doc.DocNode
+                    Console.Warn("Template: " + err, name)
+                | e when e ===. el ->
+                    Console.Warn("Template: unsupported data-replace on the template node itself", name)
+                | e ->
+                    let p = e.ParentNode :?> Element
+                    match e.NextSibling with
+                    | null -> Docs.LinkElement p doc.DocNode
+                    | n -> Docs.LinkPrevElement n doc.DocNode
+                    p.RemoveChild(e) |> ignore  
                     holes.JS.Push doc.DocNode |> ignore
                     updates.JS.Push doc.Updates |> ignore
-        el.RemoveAttribute("data-template")
-        match el.ParentNode with
-        | null -> ()
-        | p -> p.RemoveChild el |> ignore
+            | p ->
+                while (p.LastChild !==. null) do
+                    p.RemoveChild(p.LastChild) |> ignore
+                Docs.LinkElement p doc.DocNode
+                holes.JS.Push doc.DocNode |> ignore
+                updates.JS.Push doc.Updates |> ignore
+        for hole in fillWith do
+            match hole with
+            | TemplateEltHole (name, doc) ->
+                fillEltHole name (As doc) "could not find data-replace or data-hole"
+            | TemplateTextHole (name, value) ->
+                fillEltHole name (Doc'.TextNode' value) "could not find text hole"
+            | TemplateTextViewHole (name, value) ->
+                fillEltHole name (Doc'.TextView value) "could not find reactive text hole"
         let dn = TreeDoc {
             TEl = el
             Holes = holes
@@ -596,6 +602,49 @@ type private Doc' [<JavaScript>] (docNode, updates) =
         updates
         |> Array.TreeReduce (View.Const ()) View.Map2Unit
         |> Doc'.Mk dn
+
+    [<JavaScript>]
+    static member PrepareTemplate (name: string) (el: Element) =
+        let strRE = RegExp(@"\$(!?){([^}]+)}", "g")
+        let rec prepareTemplate (name: string) (el: Element) =
+            if not (Docs.LoadedTemplates.ContainsKey name) then
+                el.RemoveAttribute("data-template")
+                Docs.LoadedTemplates.Add(name, el)
+                match el.ParentNode with
+                | null -> ()
+                | p -> p.RemoveChild el |> ignore
+                let rec replaceText (p: Element) (el: Node) =
+                    if el !==. null then
+                        if el.NodeType = Dom.NodeType.Text then
+                            let mutable m = null
+                            let mutable li = 0
+                            let s = el.TextContent
+                            while (m <- strRE.Exec s; m !==. null) do
+                                p.InsertBefore(JS.Document.CreateTextNode(s.[li..strRE.LastIndex-m.[0].Length-1]), el) |> ignore
+                                li <- strRE.LastIndex
+                                let hole = JS.Document.CreateElement("span")
+                                hole.SetAttribute("data-replace", m.[2])
+                                p.InsertBefore(hole, el) |> ignore
+                            strRE.LastIndex <- 0
+                            el.TextContent <- s.[li..]
+                        elif el.NodeType = Dom.NodeType.Element then
+                            let n = el :?> Dom.Element
+                            match n.GetAttribute("data-template") with
+                            | null -> replaceText n n.FirstChild
+                            | name -> prepareTemplate name n
+                        replaceText p el.NextSibling
+                replaceText el el.FirstChild
+        prepareTemplate name el
+
+    [<JavaScript>]
+    static member LoadLocalTemplates () =
+        let rec run () =
+            match JS.Document.QuerySelector "[data-template]" with
+            | null -> ()
+            | n ->
+                Doc'.PrepareTemplate (n.GetAttribute "data-template") n
+                run ()
+        run ()
 
     [<JavaScript>]
     static member Flatten view =
@@ -1133,8 +1182,18 @@ module Doc =
         As (Doc'.Async (As a))
 
     [<Inline>]
-    let Template (el: Element) (fillWith: seq<TemplateHole * Doc>) : Doc =
+    let Template (el: Element) (fillWith: seq<TemplateHole>) : Doc =
         As (Doc'.Template el (As fillWith))
+
+    [<Inline>]
+    let LoadLocalTemplates () =
+        Doc'.LoadLocalTemplates ()
+
+    [<Inline>]
+    let NamedTemplate (name: string) (fillWith: seq<TemplateHole>) : Doc =
+        match Docs.LoadedTemplates.TryGetValue name with
+        | true, t -> Template (t.CloneNode(true) :?> Element) fillWith
+        | false, _ -> Console.Warn("Local template doesn't exist", name); Doc.Empty
 
     [<Inline>]
     let Run parent (doc: Doc) =

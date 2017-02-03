@@ -53,7 +53,9 @@ type CheckedInput<'T> =
     member Input : string
 
 type TemplateHole =
-    | TemplateEltHole of name: string
+    | TemplateEltHole of name: string * fillWith: Doc
+    | TemplateTextHole of name: string * fillWith: string
+    | TemplateTextViewHole of name: string * fillWith: View<string>
 
 // Extension methods
 [<Extension; Sealed>]
@@ -1119,7 +1121,13 @@ module Doc =
     val Async : Async<#Doc> -> Doc
 
     /// Construct a Doc using a given DOM element and template fillers.
-    val Template : Element -> seq<TemplateHole * Doc> -> Doc
+    val Template : Element -> seq<TemplateHole> -> Doc
+
+    /// Load templates declared in the current document with `data-template="name"`.
+    val LoadLocalTemplates : unit -> unit
+
+    /// Construct a Doc using a given loaded template by name and template fillers.
+    val NamedTemplate : string -> seq<TemplateHole> -> Doc
 
   // Collections.
 

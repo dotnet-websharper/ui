@@ -382,10 +382,19 @@ module Main =
                 ListModelTest
             |]
         ).ReplaceInDom(JS.Document.QuerySelector "#main")
+
+        Doc.LoadLocalTemplates()
         let var = Var.Create "init"
-        Doc.Template (JS.Document.QuerySelector "[data-template=TestTemplate]") [
-            TemplateEltHole "Input", Doc.Input [] var :> _
-            TemplateEltHole "Value", textView var.View
+        Doc.NamedTemplate "TestTemplate" [
+            TemplateEltHole ("Input", Doc.Input [] var)
+            TemplateEltHole ("Value", textView var.View)
+            TemplateTextHole ("TValue", "Hi")
+            TemplateTextViewHole ("TDyn", var.View)
+        ]
+        |> Doc.RunAppend JS.Document.Body
+        Doc.NamedTemplate "TestTemplate" [
+            TemplateEltHole ("Input", Doc.Input [] var)
+            TemplateEltHole ("Value", textView var.View)
         ]
         |> Doc.RunAppend JS.Document.Body
 #endif
