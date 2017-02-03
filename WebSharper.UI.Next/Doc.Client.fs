@@ -595,6 +595,15 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 fillEltHole name (Doc'.TextNode' value) "could not find text hole"
             | TemplateTextViewHole (name, value) ->
                 fillEltHole name (Doc'.TextView value) "could not find reactive text hole"
+        let unfilled = el.QuerySelectorAll "[data-hole],[data-replace]"
+        for i = 0 to unfilled.Length - 1 do
+            let e = unfilled.[i] :?> Dom.Element
+            let a =
+                match e.GetAttribute "data-hole" with
+                | null -> e.GetAttribute "data-replace"
+                | s -> s
+            Console.Warn("Template: unfilled hole: ", a)
+            if e !==. el then e.ParentNode.RemoveChild e |> ignore
         let dn = TreeDoc {
             TEl = el
             Holes = holes
@@ -612,7 +621,16 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 Docs.LoadedTemplates.Add(name, el)
                 match el.ParentNode with
                 | null -> ()
-                | p -> p.RemoveChild el |> ignore
+                | p ->
+                    // data-replace on the root belongs to a parent template, so we need to leave a dummy.
+                    match el.GetAttribute("data-replace") with
+                    | null -> ()
+                    | r ->
+                        let n = JS.Document.CreateElement("div")
+                        n.SetAttribute("data-replace", r)
+                        p.InsertBefore(n, el) |> ignore
+                        el.RemoveAttribute("data-replace")
+                    p.RemoveChild el |> ignore
                 let rec replaceText (p: Element) (el: Node) =
                     if el !==. null then
                         if el.NodeType = Dom.NodeType.Text then

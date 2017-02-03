@@ -395,6 +395,11 @@ module Main =
         Doc.NamedTemplate "TestTemplate" [
             TemplateEltHole ("Input", Doc.Input [] var)
             TemplateEltHole ("Value", textView var.View)
+            TemplateEltHole ("Item",
+                Doc.NamedTemplate "Item" [
+                    TemplateTextHole ("Text", "This is an item")
+                ]
+            )
         ]
         |> Doc.RunAppend JS.Document.Body
 #endif
