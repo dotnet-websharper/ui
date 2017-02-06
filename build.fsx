@@ -45,6 +45,7 @@ let tmpl =
                 r.Assembly "System.Xml"
                 r.Assembly "System.Xml.Linq"
                 r.Assembly "System.Runtime.Caching"
+                r.NuGet("HtmlAgilityPack").Reference()
             ])
 
 let csharp =

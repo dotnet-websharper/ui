@@ -55,14 +55,33 @@ and DocTextNode =
 
 and DocTreeNode =
     {
-        TEl : Element
-        Holes : DocNode[]
+        Els : Node[]
+        Holes : DocElemNode[]
+        Attrs : (Element * Attrs.Dyn)[]
+        [<OptionalField>]
+        mutable Render : option<Dom.Element -> unit>
     }
 
+[<RequireQualifiedAccess>]
 type TemplateHole =
-    | TemplateEltHole of name: string * fillWith: Doc
-    | TemplateTextHole of name: string * fillWith: string
-    | TemplateTextViewHole of name: string * fillWith: View<string>
+    | Elt of name: string * fillWith: Doc
+    | Text of name: string * fillWith: string
+    | TextView of name: string * fillWith: View<string>
+    | Attribute of name: string * fillWith: Attr
+    | Event of name: string * fillWith: (Element -> Dom.Event -> unit)
+    | AfterRender of name: string * fillWith: (Element -> unit)
+    | VarStr of name: string * fillWith: IRef<string>
+
+    [<JavaScript>]
+    static member Name x =
+        match x with
+        | TemplateHole.Elt (name, _)
+        | TemplateHole.Text (name, _)
+        | TemplateHole.TextView (name, _)
+        | TemplateHole.VarStr (name, _)
+        | TemplateHole.Event (name, _)
+        | TemplateHole.AfterRender (name, _)
+        | TemplateHole.Attribute (name, _) -> name
 
 [<JavaScript; Name "WebSharper.UI.Next.Docs">]
 module Docs =
@@ -95,7 +114,7 @@ module Docs =
                 | EmptyDoc -> ()
                 | TextNodeDoc tn -> q.Enqueue (tn :> Node)
                 | TextDoc t -> q.Enqueue (t.Text :> Node)
-                | TreeDoc t -> q.Enqueue (t.TEl :> Node)
+                | TreeDoc t -> Array.iter q.Enqueue t.Els
             loop node.Children
             DomNodes (q.ToArray())
 
@@ -131,7 +150,7 @@ module Docs =
         | EmptyDoc -> pos
         | TextDoc t -> InsertNode parent t.Text pos
         | TextNodeDoc t -> InsertNode parent t pos
-        | TreeDoc t -> InsertNode parent t.TEl pos
+        | TreeDoc t -> Array.foldBack (InsertNode parent) t.Els pos
 
     /// Synchronizes an element with its children (shallow).
     let DoSyncElement (el : DocElemNode) =
@@ -149,7 +168,7 @@ module Docs =
             | EmptyDoc -> pos
             | TextDoc t -> DU.BeforeNode t.Text
             | TextNodeDoc t -> DU.BeforeNode t
-            | TreeDoc t -> DU.BeforeNode t.TEl
+            | TreeDoc t -> DU.BeforeNode t.Els.[0]
         let ch = DomNodes.DocChildren el
         // remove children that are not in the current set
         DomNodes.Children el.El el.Delimiters
@@ -165,12 +184,12 @@ module Docs =
     /// Optimized version of DoSyncElement.
     let SyncElement (el: DocElemNode) =
         /// Test if any children have changed.
-        let hasDirtyChildren el =
+        let rec hasDirtyChildren el =
             let rec dirty doc =
                 match doc with
                 | AppendDoc (a, b) -> dirty a || dirty b
                 | EmbedDoc d -> d.Dirty || dirty d.Current
-                | TreeDoc t -> t.Holes |> Array.exists dirty
+                | TreeDoc t -> Array.exists hasDirtyChildren t.Holes
                 | _ -> false
             dirty el.Children
         Attrs.Sync el.El el.Attr
@@ -209,7 +228,10 @@ module Docs =
             if d.Dirty then
                 d.Text.NodeValue <- d.Value
                 d.Dirty <- false
-        | TreeDoc t -> Array.iter Sync t.Holes
+        | TreeDoc t ->
+            Array.iter syncElemNode t.Holes
+            Array.iter (fun (e, a) -> Attrs.Sync e a) t.Attrs
+            AfterRender (As t)
 
     /// Synchronizes an element node (deep).
     [<MethodImpl(MethodImplOptions.NoInlining)>]
@@ -234,7 +256,7 @@ module Docs =
                 | AppendDoc (a, b) -> loop a; loop b
                 | ElemDoc el -> q.Enqueue el; loop el.Children
                 | EmbedDoc em -> loop em.Current
-                | TreeDoc t -> t.Holes |> Array.iter loop
+                | TreeDoc t -> t.Holes |> Array.iter (fun el -> loop el.Children)
                 | _ -> ()
             loop doc
             NodeSet (HashSet (q.ToArray()))
@@ -562,107 +584,222 @@ type private Doc' [<JavaScript>] (docNode, updates) =
         |> Doc'.Mk (TextDoc node)
 
     [<JavaScript>]
-    static member Template (el: Element) (fillWith: seq<TemplateHole>) =
-        let holes : DocNode[] = [||]
+    static member Template (els: Node[]) (fillWith: seq<TemplateHole>) =
+        Doc'.ChildrenTemplate (Doc'.FakeRoot els) fillWith
+
+    [<JavaScript>]
+    static member ChildrenTemplate (el: Element) (fillWith: seq<TemplateHole>) =
+        let holes : DocElemNode[] = [||]
         let updates : View<unit>[] = [||]
-        let fillEltHole (name: string) (doc: Doc') err =
-            match el.QuerySelector ("[data-hole=" + name + "]") with
-            | null ->
-                match el.QuerySelector ("[data-replace=" + name + "]") with
-                | null ->
-                    Console.Warn("Template: " + err, name)
-                | e when e ===. el ->
-                    Console.Warn("Template: unsupported data-replace on the template node itself", name)
-                | e ->
-                    let p = e.ParentNode :?> Element
-                    match e.NextSibling with
-                    | null -> Docs.LinkElement p doc.DocNode
-                    | n -> Docs.LinkPrevElement n doc.DocNode
-                    p.RemoveChild(e) |> ignore  
-                    holes.JS.Push doc.DocNode |> ignore
-                    updates.JS.Push doc.Updates |> ignore
-            | p ->
+        let attrs : (Element * Attrs.Dyn)[] = [||]
+        let afterRender : (Element -> unit)[] = [||]
+        let fw = Dictionary()
+        for x in fillWith do fw.[TemplateHole.Name x] <- x
+        let addAttr (el: Element) (attr: Attr) =
+            let attr = Attrs.Insert el attr
+            updates.JS.Push (Attrs.Updates attr) |> ignore
+            attrs.JS.Push ((el, attr)) |> ignore
+            Attrs.GetOnAfterRender attr |> Option.iter (fun f ->
+                afterRender.JS.Push(fun _ -> f el) |> ignore)
+
+        DomUtility.IterSelector el "[ws-hole]" <| fun p ->
+            let name = p.GetAttribute("ws-hole")
+            let doc =
+                match fw.TryGetValue(name) with
+                | true, TemplateHole.Elt (_, doc) -> Some (As<Doc'> doc)
+                | true, TemplateHole.Text (_, text) -> Some (Doc'.TextNode' text)
+                | true, TemplateHole.TextView (_, tv) -> Some (Doc'.TextView tv)
+                | _ -> None
+            match doc with
+            | None -> Console.Log("Unfilled hole", name)
+            | Some doc ->
+                p.RemoveAttribute("ws-hole")
                 while (p.LastChild !==. null) do
                     p.RemoveChild(p.LastChild) |> ignore
                 Docs.LinkElement p doc.DocNode
-                holes.JS.Push doc.DocNode |> ignore
+                holes.JS.Push {
+                    Attr = Attrs.Insert p Attr.Empty
+                    Children = doc.DocNode
+                    Delimiters = None
+                    El = p
+                    ElKey = Fresh.Int()
+                    Render = None
+                } |> ignore
                 updates.JS.Push doc.Updates |> ignore
-        for hole in fillWith do
-            match hole with
-            | TemplateEltHole (name, doc) ->
-                fillEltHole name (As doc) "could not find data-replace or data-hole"
-            | TemplateTextHole (name, value) ->
-                fillEltHole name (Doc'.TextNode' value) "could not find text hole"
-            | TemplateTextViewHole (name, value) ->
-                fillEltHole name (Doc'.TextView value) "could not find reactive text hole"
-        let unfilled = el.QuerySelectorAll "[data-hole],[data-replace]"
-        for i = 0 to unfilled.Length - 1 do
-            let e = unfilled.[i] :?> Dom.Element
-            let a =
-                match e.GetAttribute "data-hole" with
-                | null -> e.GetAttribute "data-replace"
-                | s -> s
-            Console.Warn("Template: unfilled hole: ", a)
-            if e !==. el then e.ParentNode.RemoveChild e |> ignore
-        let dn = TreeDoc {
-            TEl = el
-            Holes = holes
-        }
+
+        DomUtility.IterSelector el "[ws-replace]" <| fun e ->
+            let name = e.GetAttribute("ws-replace")
+            let doc =
+                match fw.TryGetValue(name) with
+                | true, TemplateHole.Elt (_, doc) -> Some (As<Doc'> doc)
+                | true, TemplateHole.Text (_, text) -> Some (Doc'.TextNode' text)
+                | true, TemplateHole.TextView (_, tv) -> Some (Doc'.TextView tv)
+                | _ -> None
+            match doc with
+            | None -> Console.Log("Unfilled replace", name)
+            | Some doc ->
+                e.RemoveAttribute("ws-replace")
+                let p = e.ParentNode :?> Element
+                match e.NextSibling with
+                | null -> Docs.LinkElement p doc.DocNode
+                | n -> Docs.LinkPrevElement n doc.DocNode
+                p.RemoveChild(e) |> ignore  
+                holes.JS.Push {
+                    Attr = Attrs.Insert p Attr.Empty
+                    Children = doc.DocNode
+                    Delimiters = None
+                    El = p
+                    ElKey = Fresh.Int()
+                    Render = None
+                } |> ignore
+                updates.JS.Push doc.Updates |> ignore
+
+        DomUtility.IterSelector el "[ws-attr]" <| fun e ->
+            let name = e.GetAttribute("ws-attr")
+            match fw.TryGetValue(name) with
+            | true, TemplateHole.Attribute (_, attr) ->
+                e.RemoveAttribute("ws-attr")
+                addAttr e attr
+            | _ -> Console.Log("Unfilled attr", name)
+
+        DomUtility.IterSelector el "[ws-on]" <| fun e ->
+            e.GetAttribute("ws-on").Split(' ')
+            |> Array.choose (fun x ->
+                let a = x.Split(':')
+                match fw.TryGetValue(a.[1]) with
+                | true, TemplateHole.Event (_, handler) -> Some (Attr.Handler a.[0] handler)
+                | _ ->
+                    Console.Log("Unfilled on" + a.[0], a.[1])
+                    None
+            )
+            |> Attr.Concat
+            |> addAttr e
+            e.RemoveAttribute("ws-on")
+
+        DomUtility.IterSelector el "[ws-onafterrender]" <| fun e ->
+            let name = e.GetAttribute("ws-onafterrender")
+            match fw.TryGetValue(name) with
+            | true, TemplateHole.AfterRender (_, handler) ->
+                e.RemoveAttribute("ws-onafterrender")
+                addAttr e (Attr.OnAfterRender handler)
+            | _ -> Console.Log("Unfilled onafterrender", name)
+
+        DomUtility.IterSelector el "[ws-var]" <| fun e ->
+            let name = e.GetAttribute("ws-var")
+            match fw.TryGetValue(name) with
+            | true, TemplateHole.VarStr (_, var) ->
+                e.RemoveAttribute("ws-var")
+                addAttr e (Attr.Value var)
+            | _ -> Console.Log("Unfilled var", name)
+
         updates
         |> Array.TreeReduce (View.Const ()) View.Map2Unit
-        |> Doc'.Mk dn
+        |> Doc'.Mk (TreeDoc {
+            Els = DomUtility.ChildrenArray el
+            Holes = holes
+            Attrs = attrs
+            Render =
+                if Array.isEmpty afterRender
+                then None
+                else Some (fun el -> Array.iter (fun f -> f el) afterRender)
+        })
 
     [<JavaScript>]
-    static member PrepareTemplate (name: string) (el: Element) =
+    static member FakeRoot (els: Node[]) =
+        let fakeroot = JS.Document.CreateElement("div")
+        for el in els do fakeroot.AppendChild el |> ignore
+        fakeroot
+
+    [<JavaScript>]
+    static member PrepareSingleTemplate (name: string) (el: Element) =
+        el.RemoveAttribute("ws-template")
+        match el.GetAttribute("ws-replace") with
+        | null -> ()
+        | replace ->
+            el.RemoveAttribute("ws-replace")
+            match el.ParentNode with
+            | null -> ()
+            | p ->
+                let n = JS.Document.CreateElement(el.TagName)
+                n.SetAttribute("ws-replace", replace)
+                p.InsertBefore(n, el) |> ignore
+        Doc'.PrepareTemplate name (fun () -> [| el |])
+
+    [<JavaScript>]
+    static member PrepareTemplateStrict (name: string) (els: Node[]) =
         let strRE = RegExp(@"\$(!?){([^}]+)}", "g")
-        let rec prepareTemplate (name: string) (el: Element) =
-            if not (Docs.LoadedTemplates.ContainsKey name) then
-                el.RemoveAttribute("data-template")
-                Docs.LoadedTemplates.Add(name, el)
-                match el.ParentNode with
-                | null -> ()
-                | p ->
-                    // data-replace on the root belongs to a parent template, so we need to leave a dummy.
-                    match el.GetAttribute("data-replace") with
-                    | null -> ()
-                    | r ->
-                        let n = JS.Document.CreateElement("div")
-                        n.SetAttribute("data-replace", r)
-                        p.InsertBefore(n, el) |> ignore
-                        el.RemoveAttribute("data-replace")
-                    p.RemoveChild el |> ignore
-                let rec replaceText (p: Element) (el: Node) =
-                    if el !==. null then
-                        if el.NodeType = Dom.NodeType.Text then
-                            let mutable m = null
-                            let mutable li = 0
-                            let s = el.TextContent
-                            while (m <- strRE.Exec s; m !==. null) do
-                                p.InsertBefore(JS.Document.CreateTextNode(s.[li..strRE.LastIndex-m.[0].Length-1]), el) |> ignore
-                                li <- strRE.LastIndex
-                                let hole = JS.Document.CreateElement("span")
-                                hole.SetAttribute("data-replace", m.[2])
-                                p.InsertBefore(hole, el) |> ignore
-                            strRE.LastIndex <- 0
-                            el.TextContent <- s.[li..]
-                        elif el.NodeType = Dom.NodeType.Element then
-                            let n = el :?> Dom.Element
-                            match n.GetAttribute("data-template") with
-                            | null -> replaceText n n.FirstChild
-                            | name -> prepareTemplate name n
-                        replaceText p el.NextSibling
-                replaceText el el.FirstChild
-        prepareTemplate name el
+        let convertEventAttrs (el: Dom.Element) =
+            let attrs = el.Attributes
+            let out = [||]
+            for i = 0 to attrs.Length - 1 do
+                let a = attrs.[i]
+                if a.NodeName.StartsWith "ws-on" && a.NodeName <> "ws-onafterrender" then
+                    out.JS.Push(a.NodeName.["ws-on".Length..] + ":" + a.NodeValue) |> ignore
+            if not (Array.isEmpty out) then
+                el.SetAttribute("ws-on", String.concat " " out)
+        let rec convert (p: Element) (n: Node) =
+            if n !==. null then
+                if n.NodeType = Dom.NodeType.Text then
+                    let mutable m = null
+                    let mutable li = 0
+                    let s = n.TextContent
+                    while (m <- strRE.Exec s; m !==. null) do
+                        n.ParentNode.InsertBefore(JS.Document.CreateTextNode(s.[li..strRE.LastIndex-m.[0].Length-1]), n) |> ignore
+                        li <- strRE.LastIndex
+                        let hole = JS.Document.CreateElement("span")
+                        hole.SetAttribute("ws-replace", m.[2])
+                        n.ParentNode.InsertBefore(hole, n) |> ignore
+                    strRE.LastIndex <- 0
+                    n.TextContent <- s.[li..]
+                elif n.NodeType = Dom.NodeType.Element then
+                    let el = n :?> Dom.Element
+                    convertEventAttrs el
+                    match el.GetAttribute("ws-template") with
+                    | null ->
+                        match el.GetAttribute("ws-children-template") with
+                        | null -> convert el el.FirstChild
+                        | name ->
+                            el.RemoveAttribute("ws-children-template")
+                            Doc'.PrepareTemplate name (fun () -> DomUtility.ChildrenArray el)
+                    | name -> Doc'.PrepareSingleTemplate name el
+                convert p n.NextSibling
+        let fakeroot = Doc'.FakeRoot els
+        Docs.LoadedTemplates.Add(name, fakeroot)
+        convert fakeroot els.[0]
+
+    [<JavaScript>]
+    static member PrepareTemplate (name: string) (els: unit -> Node[]) =
+        if not (Docs.LoadedTemplates.ContainsKey name) then
+            Doc'.PrepareTemplateStrict name (els())
 
     [<JavaScript>]
     static member LoadLocalTemplates () =
         let rec run () =
-            match JS.Document.QuerySelector "[data-template]" with
-            | null -> ()
+            match JS.Document.QuerySelector "[ws-template]" with
+            | null ->
+                match JS.Document.QuerySelector "[ws-children-template]" with
+                | null -> ()
+                | n ->
+                    let name = n.GetAttribute "ws-children-template"
+                    n.RemoveAttribute "ws-children-template"
+                    Doc'.PrepareTemplate name (fun () -> DomUtility.ChildrenArray n)
+                    run ()
             | n ->
-                Doc'.PrepareTemplate (n.GetAttribute "data-template") n
+                let name = n.GetAttribute "ws-template"
+                Doc'.PrepareSingleTemplate name n
                 run ()
         run ()
+
+    [<JavaScript>]
+    static member NamedTemplate (name: string) (fillWith: seq<TemplateHole>) =
+        match Docs.LoadedTemplates.TryGetValue name with
+        | true, t -> Doc'.ChildrenTemplate (t.CloneNode(true) :?> Dom.Element) fillWith
+        | false, _ -> Console.Warn("Local template doesn't exist", name); Doc'.Empty'
+
+    [<JavaScript>]
+    static member GetOrLoadTemplate (name: string) (els: unit -> Node[]) (fillWith: seq<TemplateHole>) =
+        Doc'.PrepareTemplate name els
+        Doc'.NamedTemplate name fillWith
 
     [<JavaScript>]
     static member Flatten view =
@@ -1058,7 +1195,7 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
         this.AppendDoc(Doc'.BindView (fun x -> this.Element?(id) <- x; Doc'.Empty') view)
         this.OnAfterRender(fun e -> cb e e?(id))
 
-    member private this.DocElemNode =
+    member private this.DocElemNode : DocElemNode =
         match docNode with
         | ElemDoc e -> e
         | _ -> failwith "Elt: Invalid docNode"
@@ -1200,8 +1337,8 @@ module Doc =
         As (Doc'.Async (As a))
 
     [<Inline>]
-    let Template (el: Element) (fillWith: seq<TemplateHole>) : Doc =
-        As (Doc'.Template el (As fillWith))
+    let Template (el: Node[]) (fillWith: seq<TemplateHole>) : Doc =
+        As (Doc'.Template el fillWith)
 
     [<Inline>]
     let LoadLocalTemplates () =
@@ -1209,9 +1346,11 @@ module Doc =
 
     [<Inline>]
     let NamedTemplate (name: string) (fillWith: seq<TemplateHole>) : Doc =
-        match Docs.LoadedTemplates.TryGetValue name with
-        | true, t -> Template (t.CloneNode(true) :?> Element) fillWith
-        | false, _ -> Console.Warn("Local template doesn't exist", name); Doc.Empty
+        As (Doc'.NamedTemplate name fillWith)
+
+    [<Inline>]
+    let GetOrLoadTemplate (name: string) (el: unit -> Node[]) (fillWith: seq<TemplateHole>) : Doc =
+        As (Doc'.GetOrLoadTemplate name el fillWith)
 
     [<Inline>]
     let Run parent (doc: Doc) =

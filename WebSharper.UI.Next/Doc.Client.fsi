@@ -52,10 +52,15 @@ type CheckedInput<'T> =
 
     member Input : string
 
+[<RequireQualifiedAccess>]
 type TemplateHole =
-    | TemplateEltHole of name: string * fillWith: Doc
-    | TemplateTextHole of name: string * fillWith: string
-    | TemplateTextViewHole of name: string * fillWith: View<string>
+    | Elt of name: string * fillWith: Doc
+    | Text of name: string * fillWith: string
+    | TextView of name: string * fillWith: View<string>
+    | Attribute of name: string * fillWith: Attr
+    | Event of name: string * fillWith: (Element -> Dom.Event -> unit)
+    | AfterRender of name: string * fillWith: (Element -> unit)
+    | VarStr of name: string * fillWith: IRef<string>
 
 // Extension methods
 [<Extension; Sealed>]
@@ -1120,14 +1125,17 @@ module Doc =
     /// Embeds an asynchronous Doc. The resulting Doc is empty until the Async returns.
     val Async : Async<#Doc> -> Doc
 
-    /// Construct a Doc using a given DOM element and template fillers.
-    val Template : Element -> seq<TemplateHole> -> Doc
+    /// Construct a Doc using a given set of DOM nodes and template fillers.
+    val Template : Node[] -> seq<TemplateHole> -> Doc
 
     /// Load templates declared in the current document with `data-template="name"`.
     val LoadLocalTemplates : unit -> unit
 
     /// Construct a Doc using a given loaded template by name and template fillers.
     val NamedTemplate : string -> seq<TemplateHole> -> Doc
+
+    /// Construct a Doc using a given loaded template by name and template fillers.
+    val GetOrLoadTemplate : string -> (unit -> Node[]) -> seq<TemplateHole> -> Doc
 
   // Collections.
 

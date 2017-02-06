@@ -18,7 +18,7 @@
 //
 // $end{copyright}
 
-namespace WebSharper.UI.Next.Templating
+namespace WebSharper.UI.Next.Templating.Old
 
 open System
 open System.Collections.Generic
