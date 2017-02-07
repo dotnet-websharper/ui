@@ -9,5 +9,6 @@
       "../ProvidedTypesContextFunc.fs"
       "../AST.fs"
       "../Parsing.fs"
-      "../Client.fs"
+      "../Runtime.fs"
+      "../RuntimeClient.fs"
       "../TemplatingProvider.fs"

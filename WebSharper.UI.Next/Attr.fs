@@ -60,14 +60,14 @@ type Attr =
     | SingleAttr of string * string
     | DepAttr of string * (M.Info -> string) * seq<M.Node>
 
-    member this.Write(meta, w: HtmlTextWriter, removeDataHole) =
+    member this.Write(meta, w: HtmlTextWriter, removeWsHole) =
         match this with
         | AppendAttr attrs ->
             attrs |> List.iter (fun a ->
                 if not (obj.ReferenceEquals(a, null))
-                then a.Write(meta, w, removeDataHole))
+                then a.Write(meta, w, removeWsHole))
         | SingleAttr (n, v) ->
-            if not (removeDataHole && n = "data-hole") then
+            if not (removeWsHole && n = "ws-hole") then
                 w.WriteAttribute(n, v)
         | DepAttr (n, v, _) ->
             w.WriteAttribute(n, v meta)

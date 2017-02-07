@@ -47,19 +47,12 @@ type StringPart =
     | Hole of HoleName
 
 [<RequireQualifiedAccess>]
-type SpecialHole =
-    | Scripts
-    | Meta
-    | Styles
-
-[<RequireQualifiedAccess>]
 type Attr =
     | Simple of name: string * value: string
     | Compound of name: string * value: StringPart[]
     | Attr of holeName: HoleName
     | Event of eventName: string * HoleName
     | OnAfterRender of HoleName
-    | SpecialHole of SpecialHole * HoleName
 
 [<RequireQualifiedAccess>]
 type Node =
@@ -72,8 +65,8 @@ type Template =
     {
         Holes : Map<HoleName, HoleKind>
         Value : Node[]
-        Name : string
         Src : string
+        HasNonScriptSpecialTags : bool
     }
 
 let [<Literal>] TemplateAttr            = "ws-template"

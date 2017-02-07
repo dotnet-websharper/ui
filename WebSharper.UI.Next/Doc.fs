@@ -112,7 +112,7 @@ and [<Sealed>] Elt(tag: string, attrs: list<Attr>, children: list<Doc>) =
                     if obj.ReferenceEquals(a, null) then None else
                     match a with
                     | Attr.SingleAttr (name, value) ->
-                        if (name = "data-replace" || name = "data-hole")
+                        if (name = "ws-replace" || name = "ws-hole")
                             && (value = "scripts" || value = "styles" || value = "meta") then
                             Some (name, value, res)
                         else None
@@ -121,8 +121,8 @@ and [<Sealed>] Elt(tag: string, attrs: list<Attr>, children: list<Doc>) =
                 List.tryPick findHole attrs
             )
         match hole with
-        | Some ("data-replace", name, res) -> w.Write(res.[name])
-        | Some ("data-hole", name, res) ->
+        | Some ("ws-replace", name, res) -> w.Write(res.[name])
+        | Some ("ws-hole", name, res) ->
             w.WriteBeginTag(tag)
             attrs |> List.iter (fun a -> a.Write(meta, w, true))
             w.Write(HtmlTextWriter.TagRightChar)
@@ -146,7 +146,7 @@ and [<Sealed>] Elt(tag: string, attrs: list<Attr>, children: list<Doc>) =
             if obj.ReferenceEquals(a, null) then false else
             match a with
             | Attr.AppendAttr attrs -> List.exists testAttr attrs
-            | Attr.SingleAttr (("data-replace" | "data-hole"), ("styles" | "meta")) -> true
+            | Attr.SingleAttr (("ws-replace" | "ws-hole"), ("styles" | "meta")) -> true
             | Attr.SingleAttr _
             | Attr.DepAttr _ -> false
         (attrs |> List.exists testAttr)
@@ -366,3 +366,24 @@ type Doc with
     static member Verbatim t = ConcreteDoc(VerbatimDoc t) :> Doc
 
     static member OfINode n = ConcreteDoc(INodeDoc n) :> Doc
+
+[<RequireQualifiedAccess>]
+type TemplateHole =
+    | Elt of name: string * fillWith: Doc
+    | Text of name: string * fillWith: string
+    | TextView of name: string * fillWith: View<string>
+    | Attribute of name: string * fillWith: Attr
+    | Event of name: string * fillWith: (Element -> Dom.Event -> unit)
+    | AfterRender of name: string * fillWith: (Element -> unit)
+    | VarStr of name: string * fillWith: IRef<string>
+
+    [<JavaScript>]
+    static member Name x =
+        match x with
+        | TemplateHole.Elt (name, _)
+        | TemplateHole.Text (name, _)
+        | TemplateHole.TextView (name, _)
+        | TemplateHole.VarStr (name, _)
+        | TemplateHole.Event (name, _)
+        | TemplateHole.AfterRender (name, _)
+        | TemplateHole.Attribute (name, _) -> name

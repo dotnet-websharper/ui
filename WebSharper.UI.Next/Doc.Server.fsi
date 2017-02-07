@@ -21,6 +21,7 @@
 namespace WebSharper.UI.Next.Server
 
 open System
+open WebSharper
 open WebSharper.Web
 open WebSharper.UI.Next
 open WebSharper.Sitelets
@@ -55,3 +56,16 @@ type Content =
 
     /// Converts a Page record to a sitelet Page.
     static member inline Page : Page -> Async<Content<'Action>>
+
+module Internal =
+
+    [<Class>]
+    type TemplateDoc =
+        inherit Doc
+
+        new
+            : name: option<string>
+            * fillWith: System.Collections.Generic.Dictionary<string, TemplateHole>
+            * hasNonScriptSpecialTags: bool
+            * write: (Core.Metadata.Info -> System.Web.UI.HtmlTextWriter -> option<RenderedResources> -> unit)
+            -> TemplateDoc

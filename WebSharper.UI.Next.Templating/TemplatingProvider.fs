@@ -55,9 +55,17 @@ module private Impl =
     type Attr = WebSharper.UI.Next.Attr
     type View<'T> = WebSharper.UI.Next.View<'T>
     type IRef<'T> = WebSharper.UI.Next.IRef<'T>
-    type TemplateHole = WebSharper.UI.Next.Client.TemplateHole
+    type TemplateHole = WebSharper.UI.Next.TemplateHole
     type DomElement = WebSharper.JavaScript.Dom.Element
     type DomEvent = WebSharper.JavaScript.Dom.Event
+
+    type Ctx =
+        {
+            Template : Template
+            BaseName : TemplateName
+            Name : option<TemplateName>
+            PT : PT.Ctx
+        }
 
     module XmlDoc =
         let TemplateType n =
@@ -71,12 +79,12 @@ module private Impl =
         | _ -> false
 
     let BuildMethod<'T> (holeName: HoleName) (resTy: Type)
-            (wrapArg: Expr<'T> -> Expr<TemplateHole>) (ctx: PT.Ctx) =
-        ctx.ProvidedMethod(holeName, [ProvidedParameter(holeName, typeof<'T>)], resTy, function
+            (wrapArg: Expr<'T> -> Expr<TemplateHole>) (ctx: Ctx) =
+        ctx.PT.ProvidedMethod(holeName, [ProvidedParameter(holeName, typeof<'T>)], resTy, function
             | [this; arg] -> <@@ (%wrapArg (Expr.Cast arg)) :: %%this @@>
             | _ -> failwith "Incorrect invoke")
 
-    let BuildHoleMethods (holeName: HoleName) (holeKind: HoleKind) (resTy: Type) (ctx: PT.Ctx)
+    let BuildHoleMethods (holeName: HoleName) (holeKind: HoleKind) (resTy: Type) (ctx: Ctx)
             : list<MemberInfo> =
         let mk wrapArg = BuildMethod holeName resTy wrapArg ctx
         let mkStrings() : list<MemberInfo> =
@@ -129,14 +137,14 @@ module private Impl =
                 mk <| fun (x: Expr<DomElement -> unit>) ->
                     <@ TemplateHole.AfterRender(holeName, %x) @>
                 mk <| fun (x: Expr<unit -> unit>) ->
-                    <@ TemplateHole.AfterRender(holeName, Client.WrapAfterRender %x) @>
+                    <@ TemplateHole.AfterRender(holeName, RuntimeClient.WrapAfterRender %x) @>
             ]
         | HoleKind.Event ->
             [
                 mk <| fun (x: Expr<DomElement -> DomEvent -> unit>) ->
                     <@ TemplateHole.Event(holeName, %x) @>
                 mk <| fun (x: Expr<unit -> unit>) ->
-                    <@ TemplateHole.Event(holeName, Client.WrapEvent %x) @>
+                    <@ TemplateHole.Event(holeName, RuntimeClient.WrapEvent %x) @>
             ]
         | HoleKind.Simple ValTy.Any -> List.concat [mkStrings(); mkNumbers(); mkBools()]
         | HoleKind.Simple ValTy.String -> mkStrings()
@@ -147,39 +155,43 @@ module private Impl =
         | HoleKind.Var ValTy.Number -> []
         | HoleKind.Var ValTy.Bool -> []
 
-    let BuildFinalMethods (template: Template) (ctx: PT.Ctx) : list<MemberInfo> =
+    let BuildFinalMethods (ctx: Ctx) : list<MemberInfo> =
         [
-            yield ctx.ProvidedMethod("Doc", [], typeof<Doc>, fun args ->
-                let name = Expr.Value template.Name
-                let src = Expr.Value template.Src
-                <@@ WebSharper.UI.Next.Client.Doc.GetOrLoadTemplate (%%name)
-                        (Client.LazyParseHtml %%src)
-                        (%%args.[0] : list<TemplateHole>) @@>
+            yield ctx.PT.ProvidedMethod("Doc", [], typeof<Doc>, fun args ->
+                let name =
+                    match ctx.Name with
+                    | None -> <@ None @>
+                    | Some x -> <@ Some (%%Expr.Value x : string) @>
+                let baseName = Expr.Value ctx.BaseName
+                let src = Expr.Value ctx.Template.Src
+                <@@ Runtime.GetOrLoadTemplate(%%baseName, %name, %%src, (%%args.[0] : list<TemplateHole>)) @@>
             ) :> _
-            if IsElt template then
+            if IsElt ctx.Template then
                 () // TODO: yield Elt
         ]
 
-    let BuildOneTemplate (template: Template) (ty: PT.Type) (ctx: PT.Ctx) =
+    let BuildOneTemplate (ty: PT.Type) (ctx: Ctx) =
         ty.AddMembers [
-            for KeyValue (holeName, holeKind) in template.Holes do
+            for KeyValue (holeName, holeKind) in ctx.Template.Holes do
                 yield! BuildHoleMethods holeName holeKind ty ctx
-            yield! BuildFinalMethods template ctx
-            yield ctx.ProvidedConstructor([], fun _ ->
+            yield! BuildFinalMethods ctx
+            yield ctx.PT.ProvidedConstructor([], fun _ ->
                 <@@ [] : list<TemplateHole> @@>) :> _
         ]
 
     let BuildTP (templates: IDictionary<option<TemplateName>, Template>)
-            (containerTy: PT.Type) (ctx: PT.Ctx) =
+            (containerTy: PT.Type) (ptCtx: PT.Ctx) =
+        let baseName = "T" + string (Guid.NewGuid().ToString("N"))
         for KeyValue (tn, t) in templates do
+            let ctx = { PT = ptCtx; Template = t; BaseName = baseName; Name = tn }
             match tn with
             | None ->
-                BuildOneTemplate t containerTy ctx
+                BuildOneTemplate containerTy ctx
             | Some n ->
                 let ty =
-                    ctx.ProvidedTypeDefinition(n, Some typeof<list<TemplateHole>>)
+                    ptCtx.ProvidedTypeDefinition(n, Some typeof<list<TemplateHole>>)
                         .WithXmlDoc(XmlDoc.TemplateType n)
-                BuildOneTemplate t ty ctx
+                BuildOneTemplate ty ctx
                 containerTy.AddMember ty
 
 [<TypeProvider>]

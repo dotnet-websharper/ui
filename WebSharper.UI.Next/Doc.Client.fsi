@@ -22,6 +22,7 @@ namespace WebSharper.UI.Next.Client
 
 open System
 open System.Runtime.CompilerServices
+open WebSharper
 open WebSharper.JavaScript
 open WebSharper.UI.Next
 
@@ -51,16 +52,6 @@ type CheckedInput<'T> =
     | Blank of inputText: string
 
     member Input : string
-
-[<RequireQualifiedAccess>]
-type TemplateHole =
-    | Elt of name: string * fillWith: Doc
-    | Text of name: string * fillWith: string
-    | TextView of name: string * fillWith: View<string>
-    | Attribute of name: string * fillWith: Attr
-    | Event of name: string * fillWith: (Element -> Dom.Event -> unit)
-    | AfterRender of name: string * fillWith: (Element -> unit)
-    | VarStr of name: string * fillWith: IRef<string>
 
 // Extension methods
 [<Extension; Sealed>]
@@ -1135,7 +1126,7 @@ module Doc =
     val NamedTemplate : string -> seq<TemplateHole> -> Doc
 
     /// Construct a Doc using a given loaded template by name and template fillers.
-    val GetOrLoadTemplate : string -> (unit -> Node[]) -> seq<TemplateHole> -> Doc
+    val GetOrLoadTemplate : string -> option<string> -> (unit -> Node[]) -> seq<TemplateHole> -> Doc
 
   // Collections.
 
@@ -1284,3 +1275,4 @@ module Doc =
     /// Radio button.
     val Radio : seq<Attr> -> 'T -> IRef<'T> -> Elt
         when 'T : equality
+

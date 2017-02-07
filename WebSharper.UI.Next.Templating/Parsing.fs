@@ -149,9 +149,10 @@ module Impl =
                 | None -> fail()
             | HoleKind.Simple _, _ -> fail()
 
-    let parseNodeAndSiblingsAsTemplate (name: string) (node: HtmlNode) =
+    let parseNodeAndSiblingsAsTemplate (node: HtmlNode) =
         let holes = Dictionary()
         let addHole = addHole holes
+        let hasNonScriptSpecialTags = ref false
         let rec parseNodeAndSiblings isSvg (node: HtmlNode) =
             (isSvg, node)
             |> Seq.unfold (fun (isSvg, node) ->
@@ -184,6 +185,9 @@ module Impl =
                                 Node.Input (node.Name, varAttr.Value, attr, children)
                         Some ([|doc|], (isSvg, node.NextSibling))
                     | replaceAttr ->
+                        match replaceAttr.Value with
+                        | "styles" | "meta" -> hasNonScriptSpecialTags := true
+                        | _ -> ()
                         addHole replaceAttr.Value HoleKind.Doc
                         Some ([| Node.DocHole replaceAttr.Value |], (isSvg, node.NextSibling))
             )
@@ -196,9 +200,10 @@ module Impl =
             l node
         let value = parseNodeAndSiblings false node
         let holes = Map [ for KeyValue(k, v) in holes -> k, v ]
-        { Holes = holes; Value = value; Src = src; Name = name }
+        { Holes = holes; Value = value; Src = src
+          HasNonScriptSpecialTags = !hasNonScriptSpecialTags }
 
-    let extractTemplate (name: string) (n: HtmlNode) =
+    let extractTemplate (n: HtmlNode) =
         match n.Attributes.[ReplaceAttr] with
         | null ->
             // If a node has ws-template and no ws-replace,
@@ -213,9 +218,9 @@ module Impl =
             n'.Attributes.Add(replaceAttr)
             n.ParentNode.ReplaceChild(n', n) |> ignore
         n.Attributes.Remove(TemplateAttr)
-        parseNodeAndSiblingsAsTemplate name n
+        parseNodeAndSiblingsAsTemplate n
 
-    let extractChildrenTemplate (name: string) (n: HtmlNode) =
+    let extractChildrenTemplate (n: HtmlNode) =
         // If a node has ws-children-template,
         // we leave a node in place with all its other attributes
         // and detach the original as a template.
@@ -224,49 +229,46 @@ module Impl =
             if a.Name <> ChildrenTemplateAttr then
                 n'.Attributes.Add(a)
         n.ParentNode.ReplaceChild(n', n) |> ignore
-        parseNodeAndSiblingsAsTemplate name n.FirstChild
+        parseNodeAndSiblingsAsTemplate n.FirstChild
 
     let mkName =
         let rand = System.Random()
         fun () -> "t" + string (rand.Next())
 
-    let parseTemplate (src: string) (includeRootTemplate: bool) =
-        let name = mkName()
-        let html = HtmlDocument()
-        html.LoadHtml(src)
-        // We search for the nodes first to avoid missing some nested templates
-        // due to detaching their parent earlier.
-        let templateNodes = html.DocumentNode.SelectNodes("//*[@"+TemplateAttr+"]")
-        let childrenTemplateNodes = html.DocumentNode.SelectNodes("//*[@"+ChildrenTemplateAttr+"]")
-        let templates =
-            if includeRootTemplate
-            then [None, parseNodeAndSiblingsAsTemplate name html.DocumentNode.FirstChild]
-            else []
-            |> Map
-        let templates =
-            (templates, match templateNodes with null -> Seq.empty | t -> t :> _)
-            ||> Seq.fold (fun templates n ->
-                let templateName = n.GetAttributeValue(TemplateAttr, "")
-                if Map.containsKey (Some templateName) templates then
-                    failwithf "Template defined multiple times: %s" templateName
-                Map.add (Some templateName)
-                    (extractTemplate (name + "_" + templateName) n) templates
-            )
-        let templates =
-            (templates, match childrenTemplateNodes with null -> Seq.empty | t -> t :> _)
-            ||> Seq.fold (fun templates n ->
-                let templateName = n.GetAttributeValue(ChildrenTemplateAttr, "")
-                if Map.containsKey (Some templateName) templates then
-                    failwithf "Template defined multiple times: %s" templateName
-                Map.add (Some templateName)
-                    (extractChildrenTemplate (name + "_" + templateName) n) templates
-            )
-        templates
+let ParseSource (src: string) (includeRootTemplate: bool) =
+    let html = HtmlDocument()
+    html.LoadHtml(src)
+    // We search for the nodes first to avoid missing some nested templates
+    // due to detaching their parent earlier.
+    let templateNodes = html.DocumentNode.SelectNodes("//*[@"+TemplateAttr+"]")
+    let childrenTemplateNodes = html.DocumentNode.SelectNodes("//*[@"+ChildrenTemplateAttr+"]")
+    let templates =
+        if includeRootTemplate
+        then [None, parseNodeAndSiblingsAsTemplate html.DocumentNode.FirstChild]
+        else []
+        |> Map
+    let templates =
+        (templates, match templateNodes with null -> Seq.empty | t -> t :> _)
+        ||> Seq.fold (fun templates n ->
+            let templateName = n.GetAttributeValue(TemplateAttr, "")
+            if Map.containsKey (Some templateName) templates then
+                failwithf "Template defined multiple times: %s" templateName
+            Map.add (Some templateName) (extractTemplate n) templates
+        )
+    let templates =
+        (templates, match childrenTemplateNodes with null -> Seq.empty | t -> t :> _)
+        ||> Seq.fold (fun templates n ->
+            let templateName = n.GetAttributeValue(ChildrenTemplateAttr, "")
+            if Map.containsKey (Some templateName) templates then
+                failwithf "Template defined multiple times: %s" templateName
+            Map.add (Some templateName) (extractChildrenTemplate n) templates
+        )
+    templates
 
 let Parse (pathOrXml: string) (rootFolder: string) (includeRootTemplate: bool) =
     if pathOrXml.Contains("<") then
         {
-            Templates = parseTemplate pathOrXml includeRootTemplate
+            Templates = ParseSource pathOrXml includeRootTemplate
             ParseKind = ParseKind.Inline
         }
     else
@@ -274,7 +276,7 @@ let Parse (pathOrXml: string) (rootFolder: string) (includeRootTemplate: bool) =
             if Path.IsPathRooted pathOrXml
             then pathOrXml
             else Path.Combine(rootFolder, pathOrXml)
-        let templates = parseTemplate (File.ReadAllText path) includeRootTemplate
+        let templates = ParseSource (File.ReadAllText path) includeRootTemplate
         {
             Templates = templates
             ParseKind = ParseKind.File path

@@ -62,27 +62,6 @@ and DocTreeNode =
         mutable Render : option<Dom.Element -> unit>
     }
 
-[<RequireQualifiedAccess>]
-type TemplateHole =
-    | Elt of name: string * fillWith: Doc
-    | Text of name: string * fillWith: string
-    | TextView of name: string * fillWith: View<string>
-    | Attribute of name: string * fillWith: Attr
-    | Event of name: string * fillWith: (Element -> Dom.Event -> unit)
-    | AfterRender of name: string * fillWith: (Element -> unit)
-    | VarStr of name: string * fillWith: IRef<string>
-
-    [<JavaScript>]
-    static member Name x =
-        match x with
-        | TemplateHole.Elt (name, _)
-        | TemplateHole.Text (name, _)
-        | TemplateHole.TextView (name, _)
-        | TemplateHole.VarStr (name, _)
-        | TemplateHole.Event (name, _)
-        | TemplateHole.AfterRender (name, _)
-        | TemplateHole.Attribute (name, _) -> name
-
 [<JavaScript; Name "WebSharper.UI.Next.Docs">]
 module Docs =
 
@@ -711,7 +690,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
         fakeroot
 
     [<JavaScript>]
-    static member PrepareSingleTemplate (name: string) (el: Element) =
+    static member PrepareSingleTemplate (baseName: string) (name: option<string>) (el: Element) =
         el.RemoveAttribute("ws-template")
         match el.GetAttribute("ws-replace") with
         | null -> ()
@@ -723,10 +702,14 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 let n = JS.Document.CreateElement(el.TagName)
                 n.SetAttribute("ws-replace", replace)
                 p.InsertBefore(n, el) |> ignore
-        Doc'.PrepareTemplate name (fun () -> [| el |])
+        Doc'.PrepareTemplate baseName name (fun () -> [| el |])
 
     [<JavaScript>]
-    static member PrepareTemplateStrict (name: string) (els: Node[]) =
+    static member ComposeName baseName name =
+        baseName + "/" + defaultArg name ""
+
+    [<JavaScript>]
+    static member PrepareTemplateStrict (baseName: string) (name: option<string>) (els: Node[]) =
         let strRE = RegExp(@"\$(!?){([^}]+)}", "g")
         let convertEventAttrs (el: Dom.Element) =
             let attrs = el.Attributes
@@ -760,17 +743,17 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                         | null -> convert el el.FirstChild
                         | name ->
                             el.RemoveAttribute("ws-children-template")
-                            Doc'.PrepareTemplate name (fun () -> DomUtility.ChildrenArray el)
-                    | name -> Doc'.PrepareSingleTemplate name el
+                            Doc'.PrepareTemplate baseName (Some name) (fun () -> DomUtility.ChildrenArray el)
+                    | name -> Doc'.PrepareSingleTemplate baseName (Some name) el
                 convert p n.NextSibling
         let fakeroot = Doc'.FakeRoot els
-        Docs.LoadedTemplates.Add(name, fakeroot)
+        Docs.LoadedTemplates.Add(Doc'.ComposeName baseName name, fakeroot)
         convert fakeroot els.[0]
 
     [<JavaScript>]
-    static member PrepareTemplate (name: string) (els: unit -> Node[]) =
-        if not (Docs.LoadedTemplates.ContainsKey name) then
-            Doc'.PrepareTemplateStrict name (els())
+    static member PrepareTemplate (baseName: string) (name: option<string>) (els: unit -> Node[]) =
+        if not (Docs.LoadedTemplates.ContainsKey(Doc'.ComposeName baseName name)) then
+            Doc'.PrepareTemplateStrict baseName name (els())
 
     [<JavaScript>]
     static member LoadLocalTemplates () =
@@ -782,11 +765,11 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 | n ->
                     let name = n.GetAttribute "ws-children-template"
                     n.RemoveAttribute "ws-children-template"
-                    Doc'.PrepareTemplate name (fun () -> DomUtility.ChildrenArray n)
+                    Doc'.PrepareTemplate "<local>" (Some name) (fun () -> DomUtility.ChildrenArray n)
                     run ()
             | n ->
                 let name = n.GetAttribute "ws-template"
-                Doc'.PrepareSingleTemplate name n
+                Doc'.PrepareSingleTemplate "<local>" (Some name) n
                 run ()
         run ()
 
@@ -797,9 +780,9 @@ type private Doc' [<JavaScript>] (docNode, updates) =
         | false, _ -> Console.Warn("Local template doesn't exist", name); Doc'.Empty'
 
     [<JavaScript>]
-    static member GetOrLoadTemplate (name: string) (els: unit -> Node[]) (fillWith: seq<TemplateHole>) =
-        Doc'.PrepareTemplate name els
-        Doc'.NamedTemplate name fillWith
+    static member GetOrLoadTemplate (baseName: string) (name: option<string>) (els: unit -> Node[]) (fillWith: seq<TemplateHole>) =
+        Doc'.PrepareTemplate baseName name els
+        Doc'.NamedTemplate (Doc'.ComposeName baseName name) fillWith
 
     [<JavaScript>]
     static member Flatten view =
@@ -1349,8 +1332,8 @@ module Doc =
         As (Doc'.NamedTemplate name fillWith)
 
     [<Inline>]
-    let GetOrLoadTemplate (name: string) (el: unit -> Node[]) (fillWith: seq<TemplateHole>) : Doc =
-        As (Doc'.GetOrLoadTemplate name el fillWith)
+    let GetOrLoadTemplate (baseName: string) (name: option<string>) (el: unit -> Node[]) (fillWith: seq<TemplateHole>) : Doc =
+        As (Doc'.GetOrLoadTemplate baseName name el fillWith)
 
     [<Inline>]
     let Run parent (doc: Doc) =

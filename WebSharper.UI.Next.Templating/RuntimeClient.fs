@@ -18,11 +18,12 @@
 //
 // $end{copyright}
 
-module internal WebSharper.UI.Next.Templating.Client
+module internal WebSharper.UI.Next.Templating.RuntimeClient
 
 open WebSharper
 open WebSharper.JavaScript
 open WebSharper.JQuery
+open WebSharper.UI.Next
 open System.Runtime.CompilerServices
 
 [<Inline; MethodImpl(MethodImplOptions.NoInlining)>]
@@ -39,3 +40,10 @@ let WrapAfterRender (f: unit -> unit) =
 let LazyParseHtml (src: string) =
     ()
     fun () -> As<Dom.Node[]>(JQuery.ParseHTML src)
+
+[<Proxy(typeof<WebSharper.UI.Next.Templating.Runtime>)>]
+type RuntimeProxy =
+
+    [<Inline>]
+    static member GetOrLoadTemplate(baseName: string, name: option<string>, src: string, holes: list<TemplateHole>) : Doc =
+        WebSharper.UI.Next.Client.Doc.GetOrLoadTemplate baseName name (LazyParseHtml src) holes
