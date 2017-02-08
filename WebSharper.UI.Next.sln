@@ -27,6 +27,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebSharper.UI.Next.Tests", 
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebSharper.UI.Next.CSharp.Templating", "WebSharper.UI.Next.CSharp.Templating\WebSharper.UI.Next.CSharp.Templating.fsproj", "{B84D3163-0E80-488E-B47C-D0750859C024}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebSharper.UI.Next.Templating.ServerSide.Tests", "WebSharper.UI.Next.Templating.ServerSide.Tests\WebSharper.UI.Next.Templating.ServerSide.Tests.fsproj", "{89FAD4A9-B3E6-442C-9080-E859719DF870}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +63,10 @@ Global
 		{B84D3163-0E80-488E-B47C-D0750859C024}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B84D3163-0E80-488E-B47C-D0750859C024}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{B84D3163-0E80-488E-B47C-D0750859C024}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{89FAD4A9-B3E6-442C-9080-E859719DF870}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89FAD4A9-B3E6-442C-9080-E859719DF870}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89FAD4A9-B3E6-442C-9080-E859719DF870}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{89FAD4A9-B3E6-442C-9080-E859719DF870}.Release|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

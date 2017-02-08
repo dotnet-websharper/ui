@@ -3,6 +3,7 @@ packages/
 *.suo
 *.user
 *.Tests/Content/
+*.Tests/Scripts/
 bin/
 obj/
 .vs/

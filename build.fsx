@@ -85,6 +85,17 @@ let tmplTest =
             [
                 r.Project main
                 r.Project tmpl
+                r.NuGet("HtmlAgilityPack").Reference()
+            ])
+
+let serverTest =
+    bt.Zafir.SiteletWebsite("WebSharper.UI.Next.Templating.ServerSide.Tests")
+        .SourcesFromProject()
+        .WithSourceMap()
+        .References(fun r ->
+            [
+                r.Project main
+                r.Project tmpl
             ])
 
 let cstest =
@@ -105,6 +116,7 @@ bt.Solution [
     tmpl
     test
     tmplTest
+    serverTest
 
     bt.NuGet.CreatePackage()
         .Add(main)
