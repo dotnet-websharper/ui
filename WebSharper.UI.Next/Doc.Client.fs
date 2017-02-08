@@ -580,16 +580,17 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             attrs.JS.Push ((el, attr)) |> ignore
             Attrs.GetOnAfterRender attr |> Option.iter (fun f ->
                 afterRender.JS.Push(fun _ -> f el) |> ignore)
+        let tryGetAsDoc name =
+            match fw.TryGetValue(name) with
+            | true, TemplateHole.Elt (_, doc) -> Some (As<Doc'> doc)
+            | true, TemplateHole.Text (_, text) -> Some (Doc'.TextNode' text)
+            | true, TemplateHole.TextView (_, tv) -> Some (Doc'.TextView tv)
+            | true, TemplateHole.VarStr (_, v) -> Some (Doc'.TextView v.View)
+            | _ -> None
 
         DomUtility.IterSelector el "[ws-hole]" <| fun p ->
             let name = p.GetAttribute("ws-hole")
-            let doc =
-                match fw.TryGetValue(name) with
-                | true, TemplateHole.Elt (_, doc) -> Some (As<Doc'> doc)
-                | true, TemplateHole.Text (_, text) -> Some (Doc'.TextNode' text)
-                | true, TemplateHole.TextView (_, tv) -> Some (Doc'.TextView tv)
-                | _ -> None
-            match doc with
+            match tryGetAsDoc name with
             | None -> Console.Log("Unfilled hole", name)
             | Some doc ->
                 p.RemoveAttribute("ws-hole")
@@ -608,13 +609,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
 
         DomUtility.IterSelector el "[ws-replace]" <| fun e ->
             let name = e.GetAttribute("ws-replace")
-            let doc =
-                match fw.TryGetValue(name) with
-                | true, TemplateHole.Elt (_, doc) -> Some (As<Doc'> doc)
-                | true, TemplateHole.Text (_, text) -> Some (Doc'.TextNode' text)
-                | true, TemplateHole.TextView (_, tv) -> Some (Doc'.TextView tv)
-                | _ -> None
-            match doc with
+            match tryGetAsDoc name with
             | None -> Console.Log("Unfilled replace", name)
             | Some doc ->
                 e.RemoveAttribute("ws-replace")
@@ -765,11 +760,11 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 | n ->
                     let name = n.GetAttribute "ws-children-template"
                     n.RemoveAttribute "ws-children-template"
-                    Doc'.PrepareTemplate "<local>" (Some name) (fun () -> DomUtility.ChildrenArray n)
+                    Doc'.PrepareTemplate "" (Some name) (fun () -> DomUtility.ChildrenArray n)
                     run ()
             | n ->
                 let name = n.GetAttribute "ws-template"
-                Doc'.PrepareSingleTemplate "<local>" (Some name) n
+                Doc'.PrepareSingleTemplate "" (Some name) n
                 run ()
         run ()
 

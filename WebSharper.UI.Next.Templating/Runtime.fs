@@ -29,6 +29,26 @@ open WebSharper.UI.Next.Server
 open WebSharper.UI.Next.Templating.AST
 open WebSharper.Sitelets.Content
 
+/// Decide how the HTML is loaded when the template is used on the client side.
+/// This only has an effect when passing a path to the provider, not inline HTML. (default: Inline)
+type ClientLoad =
+    /// The HTML is built into the compiled JavaScript.
+    | Inline = 1
+    /// The HTML is loaded from the current document.
+    | FromDocument = 2
+    /// The HTML is downloaded upon first instantiation.
+    | Download = 3
+
+/// Decide how the HTML is loaded when the template is used on the server side.
+/// This only has an effect when passing a path to the provider, not inline HTML. (default: Once)
+type ServerLoad =
+    /// The HTML is loaded from the file system on first use.
+    | Once = 1
+    /// The HTML is loaded from the file system on every use.
+    | PerRequest = 3
+    /// The HTML file is watched for changes and reloaded accordingly.
+    | WhenChanged = 2
+
 type private Holes = Dictionary<HoleName, TemplateHole>
 
 type Runtime private () =
@@ -54,7 +74,15 @@ type Runtime private () =
             if holes.ContainsKey name then d.[name] <- f
         d
 
-    static member GetOrLoadTemplate
+    static member GetOrLoadTemplateDynamic
+        (
+            baseName: string, name: option<string>,
+            path: string, fillWith: list<TemplateHole>,
+            clientLoad: ClientLoad, serverLoad: ServerLoad
+        ) : Doc =
+        Doc.Empty
+
+    static member GetOrLoadTemplateStatic
         (
             baseName: string, name: option<string>,
             src: string, fillWith: list<TemplateHole>

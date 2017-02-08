@@ -385,18 +385,18 @@ module Main =
 
         Doc.LoadLocalTemplates()
         let var = Var.Create "init"
-        Doc.NamedTemplate "TestTemplate" [
+        Doc.NamedTemplate "/TestTemplate" [
             TemplateHole.Elt ("Input", Doc.Input [] var)
             TemplateHole.Elt ("Value", textView var.View)
             TemplateHole.Text ("TValue", "Hi")
             TemplateHole.TextView ("TDyn", var.View)
         ]
         |> Doc.RunAppend JS.Document.Body
-        Doc.NamedTemplate "TestTemplate" [
+        Doc.NamedTemplate "/TestTemplate" [
             TemplateHole.Elt ("Input", Doc.Input [] var)
             TemplateHole.Elt ("Value", textView var.View)
             TemplateHole.Elt ("Item",
-                Doc.NamedTemplate "Item" [
+                Doc.NamedTemplate "/Item" [
                     TemplateHole.Text ("Text", "This is an item")
                 ]
             )

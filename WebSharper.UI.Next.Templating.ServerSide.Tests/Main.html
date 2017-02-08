@@ -9,6 +9,16 @@
 <body>
     <div ws-replace="Main"></div>
     <div ws-replace="Client"></div>
+    <div style="display:none">
+        <div ws-template="ClientTemplate">
+            <input ws-var="Input" />
+            ${Input}
+        </div>
+        <div data-template="OldTemplate">
+            <input data-var="Input" />
+            $!{Input}
+        </div>
+    </div>
     <script ws-replace="scripts"></script>
 </body>
 </html>

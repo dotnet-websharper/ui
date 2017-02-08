@@ -65,6 +65,8 @@ module private Impl =
             BaseName : TemplateName
             Name : option<TemplateName>
             PT : PT.Ctx
+            ClientLoad : ClientLoad
+            ServerLoad : ServerLoad
         }
 
     module XmlDoc =
@@ -162,9 +164,12 @@ module private Impl =
                     match ctx.Name with
                     | None -> <@ None @>
                     | Some x -> <@ Some (%%Expr.Value x : string) @>
-                let baseName = Expr.Value ctx.BaseName
-                let src = Expr.Value ctx.Template.Src
-                <@@ Runtime.GetOrLoadTemplate(%%baseName, %name, %%src, (%%args.[0] : list<TemplateHole>)) @@>
+                <@@ Runtime.GetOrLoadTemplateStatic(
+                        %%Expr.Value ctx.BaseName,
+                        %name,
+                        %%Expr.Value ctx.Template.Src,
+                        (%%args.[0] : list<TemplateHole>)
+                    ) @@>
             ) :> _
             if IsElt ctx.Template then
                 () // TODO: yield Elt
@@ -180,10 +185,15 @@ module private Impl =
         ]
 
     let BuildTP (templates: IDictionary<option<TemplateName>, Template>)
-            (containerTy: PT.Type) (ptCtx: PT.Ctx) =
+            (containerTy: PT.Type) (ptCtx: PT.Ctx)
+            (clientLoad: ClientLoad) (serverLoad: ServerLoad) =
         let baseName = "T" + string (Guid.NewGuid().ToString("N"))
         for KeyValue (tn, t) in templates do
-            let ctx = { PT = ptCtx; Template = t; BaseName = baseName; Name = tn }
+            let ctx = {
+                PT = ptCtx; Template = t
+                BaseName = baseName; Name = tn
+                ClientLoad = clientLoad; ServerLoad = serverLoad
+            }
             match tn with
             | None ->
                 BuildOneTemplate containerTy ctx
@@ -245,13 +255,17 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
                 ctx.ProvidedStaticParameter("rootIsATemplate", typeof<bool>, true)
                     .WithXmlDoc("If true, provide the root document as a template, \
                                 otherwise only child templates (default: true)")
+                ctx.ProvidedStaticParameter("clientLoad", typeof<ClientLoad>, ClientLoad.Inline)
+                    .WithXmlDoc("Decide how the HTML is loaded when the template is used on the client side")
+                ctx.ProvidedStaticParameter("serverLoad", typeof<ServerLoad>, ServerLoad.Once)
+                    .WithXmlDoc("Decide how the HTML is loaded when the template is used on the server side")
             ],
             fun typename pars ->
             try
-                let pathOrHtml, rootIsATemplate =
+                let pathOrHtml, rootIsATemplate, clientLoad, serverLoad =
                     match pars with
-                    | [| :? string as pathOrHtml; :? bool as rootIsATemplate |] ->
-                        pathOrHtml, rootIsATemplate
+                    | [| :? string as pathOrHtml; :? bool as rootIsATemplate; :? ClientLoad as clientLoad; :? ServerLoad as serverLoad |] ->
+                        pathOrHtml, rootIsATemplate, clientLoad, serverLoad
                     | _ -> failwith "Unexpected parameter values"
                 let ty = //lazy (
                     let template = Parsing.Parse pathOrHtml cfg.ResolutionFolder rootIsATemplate
@@ -260,7 +274,9 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
                         ctx.ProvidedTypeDefinition(thisAssembly, rootNamespace, typename,
                             Some typeof<list<TemplateHole>>)
                             .WithXmlDoc(XmlDoc.TemplateType "")
-                    BuildTP template.Templates ty ctx
+                    try OldProvider.RunOldProvider pathOrHtml cfg ctx ty
+                    with _ -> reraise()
+                    BuildTP template.Templates ty ctx clientLoad serverLoad
                     ty
                 //)
                 //cache.AddOrGetExisting(typename, ty)

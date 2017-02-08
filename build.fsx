@@ -89,7 +89,8 @@ let tmplTest =
             ])
 
 let serverTest =
-    bt.Zafir.SiteletWebsite("WebSharper.UI.Next.Templating.ServerSide.Tests")
+    bt.WithFSharpVersion(FSharpVersion.FSharp31)
+        .Zafir.SiteletWebsite("WebSharper.UI.Next.Templating.ServerSide.Tests")
         .SourcesFromProject()
         .WithSourceMap()
         .References(fun r ->

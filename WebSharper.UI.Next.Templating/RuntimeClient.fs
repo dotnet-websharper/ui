@@ -45,5 +45,24 @@ let LazyParseHtml (src: string) =
 type RuntimeProxy =
 
     [<Inline>]
-    static member GetOrLoadTemplate(baseName: string, name: option<string>, src: string, holes: list<TemplateHole>) : Doc =
+    static member GetOrLoadTemplateStatic
+        (
+            baseName: string, name: option<string>,
+            src: string, holes: list<TemplateHole>
+        ) : Doc =
         WebSharper.UI.Next.Client.Doc.GetOrLoadTemplate baseName name (LazyParseHtml src) holes
+
+    [<Inline>]
+    static member GetOrLoadTemplateDynamic
+        (
+            baseName: string, name: option<string>,
+            path: string, fillWith: list<TemplateHole>,
+            clientLoad: ClientLoad, serverLoad: ServerLoad
+        ) : Doc =
+        match clientLoad with
+        | ClientLoad.FromDocument ->
+            WebSharper.UI.Next.Client.Doc.LoadLocalTemplates ()
+            WebSharper.UI.Next.Client.Doc.NamedTemplate (baseName + "/" + defaultArg name "") fillWith
+        | ClientLoad.Download ->
+            failwith "Not implemented yet"
+        | _ -> failwith "Invalid ClientLoad"

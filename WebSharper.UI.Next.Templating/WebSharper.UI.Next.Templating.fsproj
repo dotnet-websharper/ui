@@ -38,6 +38,7 @@
     <Compile Include="Parsing.fs" />
     <Compile Include="Runtime.fs" />
     <Compile Include="RuntimeClient.fs" />
+    <Compile Include="OldProvider.fs" />
     <Compile Include="TemplatingProvider.fs" />
     <None Include="Scripts\load-references-debug.fsx" />
     <None Include="Scripts\load-project-debug.fsx" />

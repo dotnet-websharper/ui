@@ -11,4 +11,5 @@
       "../Parsing.fs"
       "../Runtime.fs"
       "../RuntimeClient.fs"
+      "../OldProvider.fs"
       "../TemplatingProvider.fs"

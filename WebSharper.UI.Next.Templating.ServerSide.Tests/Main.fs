@@ -15,14 +15,23 @@ type Template = Templating.Template<TemplateHtmlPath>
 module Client =
 
     let Main() =
-        button [text "Click me!"]
+        Template.ClientTemplate()
+            .Input(Var.Create "type here")
+            .Doc()
+
+    let OldMain() =
+        Template.OldTemplate.Doc(Input = Var.Create "type here")
 
 [<Website>]
 let Main = Application.SinglePage(fun ctx ->
     Content.Page(
         Template()
             .Main(b [text "Hello world!"])
-            .Client(client <@ Client.Main() @>)
+            .Client(
+                [
+                    client <@ Client.Main() @>
+                    client <@ Client.OldMain() @>
+                ])
             .Doc()
     )
 )
