@@ -96,6 +96,7 @@ let serverTest =
             [
                 r.Project main
                 r.Project tmpl
+                r.NuGet("HtmlAgilityPack").Reference()
             ])
 
 let cstest =

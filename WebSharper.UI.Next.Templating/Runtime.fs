@@ -71,42 +71,44 @@ type Runtime private () =
             | _ -> None
         Server.Internal.TemplateDoc(name, fillWith, template.HasNonScriptSpecialTags, fun m w r ->
             let stringParts text =
-                text |> Array.map (fun p ->
-                    match p with
+                text
+                |> Array.map (function
                     | StringPart.Text t -> t
                     | StringPart.Hole holeName ->
                         match fillWith.TryGetValue holeName with
                         | true, TemplateHole.Text (_, t) -> t
-                        | _ -> failwithf "Invalid hole, expected text: %s" holeName
+                        | true, _ -> failwithf "Invalid hole, expected text: %s" holeName
+                        | false, _ -> ""
                 )
                 |> String.concat ""
             let writeAttr = function
                 | Attr.Attr holeName ->
                     match fillWith.TryGetValue holeName with
                     | true, TemplateHole.Attribute (_, a) -> a.Write(m, w, true)
-                    | _ -> failwithf "Invalid hole, expected attribute: %s" holeName
+                    | true, _ -> failwithf "Invalid hole, expected attribute: %s" holeName
+                    | false, _ -> ()
                 | Attr.Simple(name, value) -> w.WriteAttribute(name, value)
                 | Attr.Compound(name, value) -> w.WriteAttribute(name, stringParts value)
                 | Attr.Event _
                 | Attr.OnAfterRender _ -> failwithf "Event handlers not supported"
-            let rec writeNode = function
-                | Node.Element (tag, _, attrs, children) ->
-                    w.WriteBeginTag(tag)
-                    attrs |> Array.iter writeAttr
-                    if Array.isEmpty children && HtmlTextWriter.IsSelfClosingTag tag then
-                        w.Write(HtmlTextWriter.SelfClosingTagEnd)
-                    else
-                        w.Write(HtmlTextWriter.TagRightChar)
-                        children |> Array.iter writeNode
-                        w.WriteEndTag(tag)
-                | Node.Text text ->
-                    w.WriteEncodedText(stringParts text)
-                | Node.Input (nodeName, _, attrs, children) ->
-                    writeNode (Node.Element (nodeName, false, attrs, children))
+            let rec writeElement tag attrs children =
+                w.WriteBeginTag(tag)
+                Array.iter writeAttr attrs
+                if Array.isEmpty children && HtmlTextWriter.IsSelfClosingTag tag then
+                    w.Write(HtmlTextWriter.SelfClosingTagEnd)
+                else
+                    w.Write(HtmlTextWriter.TagRightChar)
+                    Array.iter writeNode children
+                    w.WriteEndTag(tag)
+            and writeNode = function
+                | Node.Element (tag, _, attrs, children)
+                | Node.Input (tag, _, attrs, children) -> writeElement tag attrs children
+                | Node.Text text -> w.WriteEncodedText(stringParts text)
                 | Node.DocHole ("scripts" | "styles" | "meta" as name) when Option.isSome r ->
                     w.Write(r.Value.[name])
                 | Node.DocHole holeName ->
                     match fillWith.TryGetValue holeName with
                     | true, TemplateHole.Elt (_, doc) -> doc.Write(m, w, ?res = r)
-                    | _ -> failwithf "Invalid hole, expected Doc: %s" holeName
+                    | true, _ -> failwithf "Invalid hole, expected Doc: %s" holeName
+                    | false, _ -> ()
             Array.iter writeNode template.Value) :> _
