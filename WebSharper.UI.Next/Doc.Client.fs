@@ -565,36 +565,72 @@ type private Doc' [<JavaScript>] (docNode, updates) =
     static member Template (el: Element) (fillWith: seq<TemplateHole>) =
         let holes : DocNode[] = [||]
         let updates : View<unit>[] = [||]
-        let fillEltHole (name: string) (doc: Doc') err =
-            match el.QuerySelector ("[data-hole=" + name + "]") with
-            | null ->
-                match el.QuerySelector ("[data-replace=" + name + "]") with
-                | null ->
-                    Console.Warn("Template: " + err, name)
-                | e when e ===. el ->
-                    Console.Warn("Template: unsupported data-replace on the template node itself", name)
-                | e ->
-                    let p = e.ParentNode :?> Element
-                    match e.NextSibling with
-                    | null -> Docs.LinkElement p doc.DocNode
-                    | n -> Docs.LinkPrevElement n doc.DocNode
-                    p.RemoveChild(e) |> ignore  
-                    holes.JS.Push doc.DocNode |> ignore
-                    updates.JS.Push doc.Updates |> ignore
-            | p ->
-                while (p.LastChild !==. null) do
-                    p.RemoveChild(p.LastChild) |> ignore
-                Docs.LinkElement p doc.DocNode
-                holes.JS.Push doc.DocNode |> ignore
-                updates.JS.Push doc.Updates |> ignore
-        for hole in fillWith do
-            match hole with
-            | TemplateEltHole (name, doc) ->
-                fillEltHole name (As doc) "could not find data-replace or data-hole"
-            | TemplateTextHole (name, value) ->
-                fillEltHole name (Doc'.TextNode' value) "could not find text hole"
-            | TemplateTextViewHole (name, value) ->
-                fillEltHole name (Doc'.TextView value) "could not find reactive text hole"
+        let tofill = el.QuerySelectorAll "[data-hole],[data-replace]"
+
+        let fillReplaceHole (e: Element) (name: string) (doc: Doc') err =
+            let p = e.ParentNode :?> Element
+            match e.NextSibling with
+            | null -> Docs.LinkElement p doc.DocNode
+            | n -> Docs.LinkPrevElement n doc.DocNode
+            p.RemoveChild(e) |> ignore  
+            holes.JS.Push doc.DocNode |> ignore
+            updates.JS.Push doc.Updates |> ignore
+
+        let fillHole (p: Element) (name: string) (doc: Doc') err =            
+            while (p.LastChild !==. null) do
+                p.RemoveChild(p.LastChild) |> ignore
+            Docs.LinkElement p doc.DocNode
+            p.RemoveAttribute("data-hole")
+            holes.JS.Push doc.DocNode |> ignore
+            updates.JS.Push doc.Updates |> ignore
+
+        for i = 0 to (tofill.Length-1) do
+            let felem = tofill.[i] :?> Element
+
+            match felem.HasAttribute("data-hole") with
+            | true -> 
+                let attrVal = felem.GetAttribute("data-hole") 
+                Console.Log (sprintf "attr-hole-value: %s" attrVal)
+                let fillwElem = 
+                    fillWith
+                    |> Seq.tryFind (fun e -> 
+                        match e with
+                        | TemplateEltHole (name, _) -> name = attrVal
+                        | TemplateTextHole (name, _) -> name = attrVal
+                        | TemplateTextViewHole (name, value) -> name = attrVal)
+
+                match fillwElem with
+                | Some fwelem ->
+                    match fwelem with
+                    | TemplateEltHole (name, doc) ->
+                        fillHole felem name (As doc) "could not find data-replace or data-hole"
+                    | TemplateTextHole (name, value) ->
+                        fillHole felem name (Doc'.TextNode' value) "could not find text hole"
+                    | TemplateTextViewHole (name, value) ->
+                        fillHole felem name (Doc'.TextView value) "could not find reactive text hole"
+                | None -> ()
+            | false -> 
+                let attrVal = felem.GetAttribute("data-replace") 
+                Console.Log (sprintf "attr-replace-value: %s" attrVal)
+                let fillwElem = 
+                    fillWith
+                    |> Seq.tryFind (fun e -> 
+                        match e with
+                        | TemplateEltHole (name, _) -> name = attrVal
+                        | TemplateTextHole (name, _) -> name = attrVal
+                        | TemplateTextViewHole (name, value) -> name = attrVal)
+
+                match fillwElem with
+                | Some fwelem ->
+                    match fwelem with
+                    | TemplateEltHole (name, doc) ->
+                        fillReplaceHole felem name (As doc) "could not find data-replace or data-hole"
+                    | TemplateTextHole (name, value) ->
+                        fillReplaceHole felem name (Doc'.TextNode' value) "could not find text hole"
+                    | TemplateTextViewHole (name, value) ->
+                        fillReplaceHole felem name (Doc'.TextView value) "could not find reactive text hole"
+                | None -> ()
+
         let unfilled = el.QuerySelectorAll "[data-hole],[data-replace]"
         for i = 0 to unfilled.Length - 1 do
             let e = unfilled.[i] :?> Dom.Element
@@ -637,6 +673,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                             let mutable m = null
                             let mutable li = 0
                             let s = el.TextContent
+                            
                             while (m <- strRE.Exec s; m !==. null) do
                                 p.InsertBefore(JS.Document.CreateTextNode(s.[li..strRE.LastIndex-m.[0].Length-1]), el) |> ignore
                                 li <- strRE.LastIndex
