@@ -20,6 +20,7 @@
 
 module WebSharper.UI.Next.Templating.AST
 
+open System.Collections.Generic
 open System.Text.RegularExpressions
 
 type HoleName = string
@@ -63,7 +64,7 @@ type Node =
 
 type Template =
     {
-        Holes : Map<HoleName, HoleKind>
+        Holes : Dictionary<HoleName, HoleKind>
         Value : Node[]
         Src : string
         HasNonScriptSpecialTags : bool

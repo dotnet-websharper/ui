@@ -6,32 +6,36 @@ open WebSharper.UI.Next
 open WebSharper.UI.Next.Server
 open WebSharper.UI.Next.Html
 open WebSharper.UI.Next.Notation
+open WebSharper.UI.Next.Templating
 
 let [<Literal>] TemplateHtmlPath = __SOURCE_DIRECTORY__ + "/Main.html"
 
-type Template = Templating.Template<TemplateHtmlPath>
+type MainTemplate = Template<TemplateHtmlPath, ClientLoad.FromDocument, ServerLoad.PerRequest>
 
 [<JavaScript>]
 module Client =
 
-    let Main() =
-        Template.ClientTemplate()
-            .Input(Var.Create "type here")
+    let Main (init: string) =
+        MainTemplate.ClientTemplate()
+            .Before(init)
+            .Input(Var.Create init)
             .Doc()
 
-    let OldMain() =
-        Template.OldTemplate.Doc(Input = Var.Create "type here")
+    let OldMain (init) =
+        MainTemplate.OldTemplate.Doc(Input = Var.Create init)
 
 [<Website>]
 let Main = Application.SinglePage(fun ctx ->
     Content.Page(
-        Template()
+        MainTemplate()
             .Main(b [text "Hello world!"])
             .Client(
                 [
-                    client <@ Client.Main() @>
-                    client <@ Client.OldMain() @>
+                    client <@ Client.Main("type here") @>
+                    client <@ Client.Main("here too") @>
+                    client <@ Client.OldMain("old template") @>
                 ])
+            .TBody([MainTemplate.Row().Doc(); MainTemplate.Row().Doc()])
             .Doc()
     )
 )

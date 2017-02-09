@@ -697,7 +697,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 let n = JS.Document.CreateElement(el.TagName)
                 n.SetAttribute("ws-replace", replace)
                 p.InsertBefore(n, el) |> ignore
-        Doc'.PrepareTemplate baseName name (fun () -> [| el |])
+        Doc'.PrepareTemplateStrict baseName name [| el |]
 
     [<JavaScript>]
     static member ComposeName baseName name =
@@ -705,7 +705,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
 
     [<JavaScript>]
     static member PrepareTemplateStrict (baseName: string) (name: option<string>) (els: Node[]) =
-        let strRE = RegExp(@"\$(!?){([^}]+)}", "g")
+        let strRE = RegExp("""\${([^}]+)}""", "g")
         let convertEventAttrs (el: Dom.Element) =
             let attrs = el.Attributes
             let out = [||]
@@ -725,7 +725,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                         n.ParentNode.InsertBefore(JS.Document.CreateTextNode(s.[li..strRE.LastIndex-m.[0].Length-1]), n) |> ignore
                         li <- strRE.LastIndex
                         let hole = JS.Document.CreateElement("span")
-                        hole.SetAttribute("ws-replace", m.[2])
+                        hole.SetAttribute("ws-replace", m.[1])
                         n.ParentNode.InsertBefore(hole, n) |> ignore
                     strRE.LastIndex <- 0
                     n.TextContent <- s.[li..]
@@ -738,7 +738,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                         | null -> convert el el.FirstChild
                         | name ->
                             el.RemoveAttribute("ws-children-template")
-                            Doc'.PrepareTemplate baseName (Some name) (fun () -> DomUtility.ChildrenArray el)
+                            Doc'.PrepareTemplateStrict baseName (Some name) (DomUtility.ChildrenArray el)
                     | name -> Doc'.PrepareSingleTemplate baseName (Some name) el
                 convert p n.NextSibling
         let fakeroot = Doc'.FakeRoot els
@@ -751,7 +751,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             Doc'.PrepareTemplateStrict baseName name (els())
 
     [<JavaScript>]
-    static member LoadLocalTemplates () =
+    static member LoadLocalTemplates baseName =
         let rec run () =
             match JS.Document.QuerySelector "[ws-template]" with
             | null ->
@@ -760,16 +760,18 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 | n ->
                     let name = n.GetAttribute "ws-children-template"
                     n.RemoveAttribute "ws-children-template"
-                    Doc'.PrepareTemplate "" (Some name) (fun () -> DomUtility.ChildrenArray n)
+                    Doc'.PrepareTemplateStrict baseName (Some name) (DomUtility.ChildrenArray n)
                     run ()
             | n ->
                 let name = n.GetAttribute "ws-template"
-                Doc'.PrepareSingleTemplate "" (Some name) n
+                n.RemoveAttribute "ws-template"
+                Doc'.PrepareSingleTemplate baseName (Some name) n
                 run ()
         run ()
 
     [<JavaScript>]
-    static member NamedTemplate (name: string) (fillWith: seq<TemplateHole>) =
+    static member NamedTemplate (baseName: string) (name: option<string>) (fillWith: seq<TemplateHole>) =
+        let name = Doc'.ComposeName baseName name
         match Docs.LoadedTemplates.TryGetValue name with
         | true, t -> Doc'.ChildrenTemplate (t.CloneNode(true) :?> Dom.Element) fillWith
         | false, _ -> Console.Warn("Local template doesn't exist", name); Doc'.Empty'
@@ -777,7 +779,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
     [<JavaScript>]
     static member GetOrLoadTemplate (baseName: string) (name: option<string>) (els: unit -> Node[]) (fillWith: seq<TemplateHole>) =
         Doc'.PrepareTemplate baseName name els
-        Doc'.NamedTemplate (Doc'.ComposeName baseName name) fillWith
+        Doc'.NamedTemplate baseName name fillWith
 
     [<JavaScript>]
     static member Flatten view =
@@ -1319,12 +1321,12 @@ module Doc =
         As (Doc'.Template el fillWith)
 
     [<Inline>]
-    let LoadLocalTemplates () =
-        Doc'.LoadLocalTemplates ()
+    let LoadLocalTemplates baseName =
+        Doc'.LoadLocalTemplates baseName
 
     [<Inline>]
-    let NamedTemplate (name: string) (fillWith: seq<TemplateHole>) : Doc =
-        As (Doc'.NamedTemplate name fillWith)
+    let NamedTemplate (baseName: string) (name: option<string>) (fillWith: seq<TemplateHole>) : Doc =
+        As (Doc'.NamedTemplate baseName name fillWith)
 
     [<Inline>]
     let GetOrLoadTemplate (baseName: string) (name: option<string>) (el: unit -> Node[]) (fillWith: seq<TemplateHole>) : Doc =

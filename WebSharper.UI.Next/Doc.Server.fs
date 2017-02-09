@@ -47,7 +47,7 @@ type Content =
                 Status = Http.Status.Ok,
                 Headers = [Http.Header.Custom "Content-Type" "text/html; charset=utf-8"],
                 WriteBody = fun s ->
-                    use w = new System.IO.StreamWriter(s)
+                    use w = new System.IO.StreamWriter(s, Text.Encoding.UTF8)
                     use w = new System.Web.UI.HtmlTextWriter(w)
                     w.WriteLine("<!DOCTYPE html>")
                     doc.Write(ctx.Metadata, w, res)

@@ -28,6 +28,7 @@ open WebSharper.UI.Next
 open WebSharper.UI.Next.Server
 open WebSharper.UI.Next.Templating.AST
 open WebSharper.Sitelets.Content
+open System.Collections.Concurrent
 
 /// Decide how the HTML is loaded when the template is used on the client side.
 /// This only has an effect when passing a path to the provider, not inline HTML. (default: Inline)
@@ -53,41 +54,41 @@ type private Holes = Dictionary<HoleName, TemplateHole>
 
 type Runtime private () =
 
-    static let loaded = Dictionary()
+    static let loaded = ConcurrentDictionary<string, Map<option<string>, Template>>()
 
-    static let find baseName name src =
-        let templates =
-            match loaded.TryGetValue baseName with
-            | true, t -> t
-            | false, _ ->
-                let t = Parsing.ParseSource src true
-                loaded.[baseName] <- t
-                t
+    static let getTemplate baseName name templates : Template =
         match Map.tryFind name templates with
         | None -> failwithf "Template not defined: %s/%A" baseName name
         | Some template -> template
 
-    static let buildFillDict fillWith (holes: Map<HoleName, HoleKind>) =
+    static let buildFillDict fillWith (holes: IDictionary<HoleName, HoleKind>) =
         let d : Holes = Dictionary()
         for f in fillWith do
             let name = TemplateHole.Name f
             if holes.ContainsKey name then d.[name] <- f
         d
 
-    static member GetOrLoadTemplateDynamic
-        (
-            baseName: string, name: option<string>,
-            path: string, fillWith: list<TemplateHole>,
-            clientLoad: ClientLoad, serverLoad: ServerLoad
-        ) : Doc =
-        Doc.Empty
-
-    static member GetOrLoadTemplateStatic
-        (
-            baseName: string, name: option<string>,
-            src: string, fillWith: list<TemplateHole>
-        ) : Doc =
-        let template = find baseName name src
+    static let GetOrLoadTemplate
+            (baseName: string) (name: option<string>)
+            (path: option<string>) (src: string) (fillWith: list<TemplateHole>)
+            (clientLoad: ClientLoad) (serverLoad: ServerLoad)
+            : Doc =
+        let subTemplatesHandling =
+            if clientLoad = ClientLoad.FromDocument
+            then Parsing.KeepSubTemplatesInRoot
+            else Parsing.ExtractSubTemplatesFromRoot
+        let load src =
+            loaded.GetOrAdd(baseName, fun _ -> Parsing.ParseSource src subTemplatesHandling)
+        let templates =
+            match path with
+            | None -> load src
+            | Some path ->
+            match serverLoad with
+            | ServerLoad.Once -> load src
+            | ServerLoad.PerRequest ->
+                Parsing.ParseSource (System.IO.File.ReadAllText path) subTemplatesHandling
+            | _ -> failwith "ServerLoad.WhenChanged not implemented yet"
+        let template = getTemplate baseName name templates
         let fillWith = buildFillDict fillWith template.Holes
         let name =
             match template.Value with
@@ -97,12 +98,13 @@ type Runtime private () =
                 | TemplateHole.Elt (_, doc) -> (doc :> Web.INode).Name
                 | _ -> None
             | _ -> None
-        Server.Internal.TemplateDoc(name, fillWith, template.HasNonScriptSpecialTags, fun m w r ->
+        let rec writeTemplate (template: Template) (plain: bool) m (w: System.Web.UI.HtmlTextWriter) (r: option<RenderedResources>) =
             let stringParts text =
                 text
                 |> Array.map (function
                     | StringPart.Text t -> t
                     | StringPart.Hole holeName ->
+                        if plain then "${" + holeName + "}" else
                         match fillWith.TryGetValue holeName with
                         | true, TemplateHole.Text (_, t) -> t
                         | true, _ -> failwithf "Invalid hole, expected text: %s" holeName
@@ -110,28 +112,56 @@ type Runtime private () =
                 )
                 |> String.concat ""
             let writeAttr = function
+                | Attr.Attr holeName when plain ->
+                    w.WriteAttribute(AttrAttr, holeName)
                 | Attr.Attr holeName ->
                     match fillWith.TryGetValue holeName with
                     | true, TemplateHole.Attribute (_, a) -> a.Write(m, w, true)
                     | true, _ -> failwithf "Invalid hole, expected attribute: %s" holeName
                     | false, _ -> ()
-                | Attr.Simple(name, value) -> w.WriteAttribute(name, value)
-                | Attr.Compound(name, value) -> w.WriteAttribute(name, stringParts value)
-                | Attr.Event _
-                | Attr.OnAfterRender _ -> failwithf "Event handlers not supported"
-            let rec writeElement tag attrs children =
+                | Attr.Simple(name, value) ->
+                    w.WriteAttribute(name, value)
+                | Attr.Compound(name, value) ->
+                    w.WriteAttribute(name, stringParts value)
+                | Attr.Event(event, holeName) ->
+                    if plain then w.WriteAttribute(EventAttrPrefix + event, holeName)
+                | Attr.OnAfterRender holeName ->
+                    if plain then w.WriteAttribute(AfterRenderAttr, holeName)
+            let rec writeElement tag attrs dataVar children =
                 w.WriteBeginTag(tag)
                 Array.iter writeAttr attrs
+                dataVar |> Option.iter (fun v -> w.WriteAttribute("ws-var", v))
                 if Array.isEmpty children && HtmlTextWriter.IsSelfClosingTag tag then
                     w.Write(HtmlTextWriter.SelfClosingTagEnd)
                 else
                     w.Write(HtmlTextWriter.TagRightChar)
                     Array.iter writeNode children
+                    if subTemplatesHandling = Parsing.KeepSubTemplatesInRoot && tag = "body" && Option.isNone name then
+                        templates |> Map.iter (fun k v ->
+                            match k with
+                            | Some templateName ->
+                                w.WriteBeginTag("div")
+                                w.WriteAttribute("style", "display:none")
+                                w.WriteAttribute(ChildrenTemplateAttr, templateName)
+                                w.Write(HtmlTextWriter.TagRightChar)
+                                writeTemplate v true m w r
+                                w.WriteEndTag("div")
+                            | None -> ()
+                        )
                     w.WriteEndTag(tag)
             and writeNode = function
+                | Node.Input (tag, holeName, attrs, children) when plain ->
+                    writeElement tag attrs (Some holeName) children
                 | Node.Element (tag, _, attrs, children)
-                | Node.Input (tag, _, attrs, children) -> writeElement tag attrs children
-                | Node.Text text -> w.WriteEncodedText(stringParts text)
+                | Node.Input (tag, _, attrs, children) ->
+                    writeElement tag attrs None children
+                | Node.Text text ->
+                    w.WriteEncodedText(stringParts text)
+                | Node.DocHole holeName when plain ->
+                    w.WriteBeginTag("div")
+                    w.WriteAttribute(HoleAttr, holeName)
+                    w.Write(HtmlTextWriter.TagRightChar)
+                    w.WriteEndTag("div")
                 | Node.DocHole ("scripts" | "styles" | "meta" as name) when Option.isSome r ->
                     w.Write(r.Value.[name])
                 | Node.DocHole holeName ->
@@ -139,4 +169,11 @@ type Runtime private () =
                     | true, TemplateHole.Elt (_, doc) -> doc.Write(m, w, ?res = r)
                     | true, _ -> failwithf "Invalid hole, expected Doc: %s" holeName
                     | false, _ -> ()
-            Array.iter writeNode template.Value) :> _
+            Array.iter writeNode template.Value
+        Server.Internal.TemplateDoc(name, fillWith, template.HasNonScriptSpecialTags, writeTemplate template false) :> _
+
+    static member GetOrLoadTemplateInline(baseName, name, path, src, fillWith, serverLoad) =
+        GetOrLoadTemplate baseName name path src fillWith ClientLoad.Inline serverLoad
+
+    static member GetOrLoadTemplateFromDocument(baseName, name, path, src, fillWith, serverLoad) =
+        GetOrLoadTemplate baseName name path src fillWith ClientLoad.FromDocument serverLoad

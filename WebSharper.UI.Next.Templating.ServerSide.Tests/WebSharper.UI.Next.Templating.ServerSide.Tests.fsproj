@@ -7,7 +7,6 @@
     <RootNamespace>$(Name)</RootNamespace>
     <AssemblyName>$(Name)</AssemblyName>
     <WebSharperProject>Website</WebSharperProject>
-    <WebSharperBundleOutputDir>Content</WebSharperBundleOutputDir>
     <OutputType>Library</OutputType>
     <OutputPath>bin</OutputPath>
     <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>

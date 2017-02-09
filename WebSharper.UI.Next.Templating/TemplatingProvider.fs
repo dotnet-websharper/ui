@@ -64,6 +64,7 @@ module private Impl =
             Template : Template
             BaseName : TemplateName
             Name : option<TemplateName>
+            Path : option<string>
             PT : PT.Ctx
             ClientLoad : ClientLoad
             ServerLoad : ServerLoad
@@ -157,19 +158,38 @@ module private Impl =
         | HoleKind.Var ValTy.Number -> []
         | HoleKind.Var ValTy.Bool -> []
 
+    let OptionValue (x: option<'T>) : Expr<option<'T>> =
+        match x with
+        | None -> <@ None @>
+        | Some x -> <@ Some (%%Expr.Value x : 'T) @>
+
     let BuildFinalMethods (ctx: Ctx) : list<MemberInfo> =
         [
             yield ctx.PT.ProvidedMethod("Doc", [], typeof<Doc>, fun args ->
-                let name =
-                    match ctx.Name with
-                    | None -> <@ None @>
-                    | Some x -> <@ Some (%%Expr.Value x : string) @>
-                <@@ Runtime.GetOrLoadTemplateStatic(
-                        %%Expr.Value ctx.BaseName,
-                        %name,
-                        %%Expr.Value ctx.Template.Src,
-                        (%%args.[0] : list<TemplateHole>)
-                    ) @@>
+                // We use separate methods, rather than just passing clientLoad as argument,
+                // because the client-side implementation is [<Inline>] so it can drop
+                // any arguments it doesn't need (in particular src can be quite big)
+                // and each clientLoad needs different arguments.
+                match ctx.ClientLoad with
+                | ClientLoad.Inline ->
+                    <@@ Runtime.GetOrLoadTemplateInline(
+                            %%Expr.Value ctx.BaseName,
+                            %OptionValue ctx.Name,
+                            %OptionValue ctx.Path,
+                            %%Expr.Value ctx.Template.Src,
+                            (%%args.[0] : list<TemplateHole>),
+                            %%Expr.Value ctx.ServerLoad
+                        ) @@>
+                | ClientLoad.FromDocument ->
+                    <@@ Runtime.GetOrLoadTemplateFromDocument(
+                            %%Expr.Value ctx.BaseName,
+                            %OptionValue ctx.Name,
+                            %OptionValue ctx.Path,
+                            %%Expr.Value ctx.Template.Src,
+                            (%%args.[0] : list<TemplateHole>),
+                            %%Expr.Value ctx.ServerLoad
+                        ) @@>
+                | _ -> failwith "ClientLoad.Download not implemented yet"
             ) :> _
             if IsElt ctx.Template then
                 () // TODO: yield Elt
@@ -185,13 +205,13 @@ module private Impl =
         ]
 
     let BuildTP (templates: IDictionary<option<TemplateName>, Template>)
-            (containerTy: PT.Type) (ptCtx: PT.Ctx)
+            (containerTy: PT.Type) (ptCtx: PT.Ctx) (path: option<string>)
             (clientLoad: ClientLoad) (serverLoad: ServerLoad) =
         let baseName = "T" + string (Guid.NewGuid().ToString("N"))
         for KeyValue (tn, t) in templates do
             let ctx = {
                 PT = ptCtx; Template = t
-                BaseName = baseName; Name = tn
+                BaseName = baseName; Name = tn; Path = path
                 ClientLoad = clientLoad; ServerLoad = serverLoad
             }
             match tn with
@@ -252,9 +272,6 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
             [
                 ctx.ProvidedStaticParameter("pathOrHtml", typeof<string>)
                     .WithXmlDoc("Inline HTML or a path to an HTML file")
-                ctx.ProvidedStaticParameter("rootIsATemplate", typeof<bool>, true)
-                    .WithXmlDoc("If true, provide the root document as a template, \
-                                otherwise only child templates (default: true)")
                 ctx.ProvidedStaticParameter("clientLoad", typeof<ClientLoad>, ClientLoad.Inline)
                     .WithXmlDoc("Decide how the HTML is loaded when the template is used on the client side")
                 ctx.ProvidedStaticParameter("serverLoad", typeof<ServerLoad>, ServerLoad.Once)
@@ -262,13 +279,19 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
             ],
             fun typename pars ->
             try
-                let pathOrHtml, rootIsATemplate, clientLoad, serverLoad =
+                let pathOrHtml, clientLoad, serverLoad =
                     match pars with
-                    | [| :? string as pathOrHtml; :? bool as rootIsATemplate; :? ClientLoad as clientLoad; :? ServerLoad as serverLoad |] ->
-                        pathOrHtml, rootIsATemplate, clientLoad, serverLoad
-                    | _ -> failwith "Unexpected parameter values"
+                    | [| :? string as pathOrHtml; :? ClientLoad as clientLoad; :? ServerLoad as serverLoad |] ->
+                        pathOrHtml, clientLoad, serverLoad
+                    | [| :? string as pathOrHtml; :? int as clientLoad; :? ServerLoad as serverLoad |] ->
+                        pathOrHtml, enum clientLoad, serverLoad
+                    | [| :? string as pathOrHtml; :? ClientLoad as clientLoad; :? int as serverLoad |] ->
+                        pathOrHtml, clientLoad, enum serverLoad
+                    | [| :? string as pathOrHtml; :? int as clientLoad; :? int as serverLoad |] ->
+                        pathOrHtml, enum clientLoad, enum serverLoad
+                    | a -> failwithf "Unexpected parameter values: %A" a
                 let ty = //lazy (
-                    let template = Parsing.Parse pathOrHtml cfg.ResolutionFolder rootIsATemplate
+                    let template = Parsing.Parse pathOrHtml cfg.ResolutionFolder Parsing.ExtractSubTemplatesFromRoot
                     setupWatcher template.ParseKind
                     let ty =
                         ctx.ProvidedTypeDefinition(thisAssembly, rootNamespace, typename,
@@ -276,7 +299,7 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
                             .WithXmlDoc(XmlDoc.TemplateType "")
                     try OldProvider.RunOldProvider pathOrHtml cfg ctx ty
                     with _ -> reraise()
-                    BuildTP template.Templates ty ctx clientLoad serverLoad
+                    BuildTP template.Templates ty ctx template.Path clientLoad serverLoad
                     ty
                 //)
                 //cache.AddOrGetExisting(typename, ty)

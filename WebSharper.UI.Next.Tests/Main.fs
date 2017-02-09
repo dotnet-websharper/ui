@@ -383,20 +383,20 @@ module Main =
             |]
         ).ReplaceInDom(JS.Document.QuerySelector "#main")
 
-        Doc.LoadLocalTemplates()
+        Doc.LoadLocalTemplates "local"
         let var = Var.Create "init"
-        Doc.NamedTemplate "/TestTemplate" [
+        Doc.NamedTemplate "local" (Some "TestTemplate") [
             TemplateHole.Elt ("Input", Doc.Input [] var)
             TemplateHole.Elt ("Value", textView var.View)
             TemplateHole.Text ("TValue", "Hi")
             TemplateHole.TextView ("TDyn", var.View)
         ]
         |> Doc.RunAppend JS.Document.Body
-        Doc.NamedTemplate "/TestTemplate" [
+        Doc.NamedTemplate "local" (Some "TestTemplate") [
             TemplateHole.Elt ("Input", Doc.Input [] var)
             TemplateHole.Elt ("Value", textView var.View)
             TemplateHole.Elt ("Item",
-                Doc.NamedTemplate "/Item" [
+                Doc.NamedTemplate "local" (Some "Item") [
                     TemplateHole.Text ("Text", "This is an item")
                 ]
             )

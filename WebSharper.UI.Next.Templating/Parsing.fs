@@ -31,11 +31,16 @@ type ParseKind =
     | Inline
     | File of fullPath: string
 
+type SubTemplatesHandling =
+    | KeepSubTemplatesInRoot
+    | ExtractSubTemplatesFromRoot
+
 type ParseResult =
     {
         /// None is the root template, Some x is a child template.
         Templates : IDictionary<option<TemplateName>, Template>
         ParseKind : ParseKind
+        Path : option<string>
     }
 
 type WatcherParams =
@@ -80,7 +85,8 @@ module Impl =
                 | AfterRenderAttr ->
                     addHole attr.Value HoleKind.ElemHandler
                     yield Attr.OnAfterRender attr.Value
-                | VarAttr | HoleAttr -> () // These are handled separately in parseNode*
+                | VarAttr | HoleAttr | ReplaceAttr | TemplateAttr | ChildrenTemplateAttr ->
+                    () // These are handled separately in parseNode*
                 | s when s.StartsWith EventAttrPrefix ->
                     let eventName = s.[EventAttrPrefix.Length..]
                     addHole attr.Value HoleKind.Event
@@ -149,6 +155,18 @@ module Impl =
                 | None -> fail()
             | HoleKind.Simple _, _ -> fail()
 
+    let isNonScriptSpecialTag n =
+        n = "styles" || n = "meta"
+
+    let normalElement (n: HtmlNode) isSvg children addHole =
+        let attrs = parseAttributesOf n addHole
+        match n.Attributes.[VarAttr] with
+        | null ->
+            Node.Element (n.Name, isSvg, attrs, children)
+        | varAttr ->
+            addHole varAttr.Value (HoleKind.Var (varTypeOf n))
+            Node.Input (n.Name, varAttr.Value, attrs, children)
+
     let parseNodeAndSiblingsAsTemplate (node: HtmlNode) =
         let holes = Dictionary()
         let addHole = addHole holes
@@ -159,35 +177,30 @@ module Impl =
                 match node with
                 | null -> None
                 | :? HtmlTextNode as node ->
-                    let out = Node.Text (getParts addHole node.Text)
-                    Some ([|out|], (isSvg, node.NextSibling))
+                    let text = getParts addHole node.Text
+                    Some ([| Node.Text text |], (isSvg, node.NextSibling))
                 | :? HtmlCommentNode ->
                     Some ([||], (isSvg, node.NextSibling))
                 | node ->
+                    let thisIsSvg = isSvg || node.Name = "svg"
                     match node.Attributes.[ReplaceAttr] with
                     | null ->
-                        let thisIsSvg = isSvg || node.Name = "svg"
+                        if node.Attributes.Contains(TemplateAttr) then
+                            Some ([||], (isSvg, node.NextSibling))
+                        else
                         let children =
+                            if node.Attributes.Contains(ChildrenTemplateAttr) then [||] else
                             match node.Attributes.[HoleAttr] with
                             | null ->
                                 parseNodeAndSiblings thisIsSvg node.FirstChild
                             | holeAttr ->
+                                if isNonScriptSpecialTag holeAttr.Value then hasNonScriptSpecialTags := true
                                 addHole holeAttr.Value HoleKind.Doc
                                 [| Node.DocHole holeAttr.Value |]
-                        let doc =
-                            match node.Attributes.[VarAttr] with
-                            | null ->
-                                let attr = parseAttributesOf node addHole
-                                Node.Element (node.Name, thisIsSvg, attr, children)
-                            | varAttr ->
-                                addHole varAttr.Value (HoleKind.Var (varTypeOf node))
-                                let attr = parseAttributesOf node addHole
-                                Node.Input (node.Name, varAttr.Value, attr, children)
-                        Some ([|doc|], (isSvg, node.NextSibling))
+                        let doc = normalElement node thisIsSvg children addHole
+                        Some ([| doc |], (isSvg, node.NextSibling))
                     | replaceAttr ->
-                        match replaceAttr.Value with
-                        | "styles" | "meta" -> hasNonScriptSpecialTags := true
-                        | _ -> ()
+                        if isNonScriptSpecialTag replaceAttr.Value then hasNonScriptSpecialTags := true
                         addHole replaceAttr.Value HoleKind.Doc
                         Some ([| Node.DocHole replaceAttr.Value |], (isSvg, node.NextSibling))
             )
@@ -199,85 +212,79 @@ module Impl =
                 | (n : HtmlNode) -> n.WriteTo s; l n.NextSibling
             l node
         let value = parseNodeAndSiblings false node
-        let holes = Map [ for KeyValue(k, v) in holes -> k, v ]
         { Holes = holes; Value = value; Src = src
           HasNonScriptSpecialTags = !hasNonScriptSpecialTags }
 
-    let extractTemplate (n: HtmlNode) =
-        match n.Attributes.[ReplaceAttr] with
+    let parseNodeAsTemplate (n: HtmlNode) =
+        match n.Attributes.[HoleAttr] with
         | null ->
-            // If a node has ws-template and no ws-replace,
-            // we just detach it as a template.
-            n.Remove()
-        | replaceAttr ->
-            // If a node has both ws-template and ws-replace,
-            // we leave a node in place with just ws-replace
-            // and detach the original as a template.
-            n.Attributes.Remove(replaceAttr)
-            let n' = n.OwnerDocument.CreateElement(n.Name)
-            n'.Attributes.Add(replaceAttr)
-            n.ParentNode.ReplaceChild(n', n) |> ignore
-        n.Attributes.Remove(TemplateAttr)
-        parseNodeAndSiblingsAsTemplate n
+            let templateForChildren = parseNodeAndSiblingsAsTemplate n.FirstChild
+            let isSvg = n.Name = "svg"
+            let addHole = addHole templateForChildren.Holes
+            let el = normalElement n isSvg templateForChildren.Value addHole
+            let a = n.GetAttributeValue(TemplateAttr, null)
+            n.Attributes.Remove(TemplateAttr)
+            let t =
+                { templateForChildren with
+                    Value = [| el |]
+                    Src = n.WriteTo()
+                }
+            if a <> null then n.Attributes.Add(TemplateAttr, a)
+            t
+        | hole ->
+            let holeName = hole.Value
+            let holes = Dictionary()
+            holes.Add(holeName, HoleKind.Doc)
+            let el = normalElement n (n.Name = "svg") [| Node.DocHole holeName |] (addHole holes)
+            {
+                Value = [| el |]
+                Holes = holes
+                Src = n.WriteTo()
+                HasNonScriptSpecialTags = isNonScriptSpecialTag holeName
+            }
 
-    let extractChildrenTemplate (n: HtmlNode) =
-        // If a node has ws-children-template,
-        // we leave a node in place with all its other attributes
-        // and detach the original as a template.
-        let n' = n.OwnerDocument.CreateElement(n.Name)
-        for a in n.Attributes do
-            if a.Name <> ChildrenTemplateAttr then
-                n'.Attributes.Add(a)
-        n.ParentNode.ReplaceChild(n', n) |> ignore
-        parseNodeAndSiblingsAsTemplate n.FirstChild
-
-    let mkName =
-        let rand = System.Random()
-        fun () -> "t" + string (rand.Next())
-
-let ParseSource (src: string) (includeRootTemplate: bool) =
+let ParseSource (src: string) (sub: SubTemplatesHandling) =
     let html = HtmlDocument()
     html.LoadHtml(src)
-    // We search for the nodes first to avoid missing some nested templates
-    // due to detaching their parent earlier.
-    let templateNodes = html.DocumentNode.SelectNodes("//*[@"+TemplateAttr+"]")
-    let childrenTemplateNodes = html.DocumentNode.SelectNodes("//*[@"+ChildrenTemplateAttr+"]")
+    let templates = Map.empty
     let templates =
-        if includeRootTemplate
-        then [None, parseNodeAndSiblingsAsTemplate html.DocumentNode.FirstChild]
-        else []
-        |> Map
+        match html.DocumentNode.SelectNodes("//*[@"+TemplateAttr+"]") with
+        | null -> templates
+        | nodes ->
+            (templates, nodes) ||> Seq.fold (fun templates n ->
+                let templateName = n.GetAttributeValue(TemplateAttr, "")
+                if Map.containsKey (Some templateName) templates then
+                    failwithf "Template defined multiple times: %s" templateName
+                Map.add (Some templateName) (parseNodeAsTemplate n) templates
+            )
     let templates =
-        (templates, match templateNodes with null -> Seq.empty | t -> t :> _)
-        ||> Seq.fold (fun templates n ->
-            let templateName = n.GetAttributeValue(TemplateAttr, "")
-            if Map.containsKey (Some templateName) templates then
-                failwithf "Template defined multiple times: %s" templateName
-            Map.add (Some templateName) (extractTemplate n) templates
-        )
-    let templates =
-        (templates, match childrenTemplateNodes with null -> Seq.empty | t -> t :> _)
-        ||> Seq.fold (fun templates n ->
-            let templateName = n.GetAttributeValue(ChildrenTemplateAttr, "")
-            if Map.containsKey (Some templateName) templates then
-                failwithf "Template defined multiple times: %s" templateName
-            Map.add (Some templateName) (extractChildrenTemplate n) templates
-        )
-    templates
+        match html.DocumentNode.SelectNodes("//*[@"+ChildrenTemplateAttr+"]") with
+        | null -> templates
+        | nodes ->
+            (templates, nodes) ||> Seq.fold (fun templates n ->
+                let templateName = n.GetAttributeValue(ChildrenTemplateAttr, "")
+                if Map.containsKey (Some templateName) templates then
+                    failwithf "Template defined multiple times: %s" templateName
+                Map.add (Some templateName) (parseNodeAndSiblingsAsTemplate n.FirstChild) templates
+            )
+    let rootTemplate = parseNodeAndSiblingsAsTemplate html.DocumentNode.FirstChild
+    Map.add None rootTemplate templates
 
-let Parse (pathOrXml: string) (rootFolder: string) (includeRootTemplate: bool) =
+let Parse (pathOrXml: string) (rootFolder: string) (sub: SubTemplatesHandling) =
     if pathOrXml.Contains("<") then
         {
-            Templates = ParseSource pathOrXml includeRootTemplate
+            Templates = ParseSource pathOrXml sub
             ParseKind = ParseKind.Inline
+            Path = None
         }
     else
         let path =
             if Path.IsPathRooted pathOrXml
             then pathOrXml
             else Path.Combine(rootFolder, pathOrXml)
-        let templates = ParseSource (File.ReadAllText path) includeRootTemplate
+        let templates = ParseSource (File.ReadAllText path) sub
         {
             Templates = templates
             ParseKind = ParseKind.File path
+            Path = Some pathOrXml
         }
