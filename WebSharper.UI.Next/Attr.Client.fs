@@ -58,7 +58,7 @@ type AnimatedAttrNode<'T>(tr: Trans<'T>, view: View<'T>, push: Element -> 'T -> 
 
     let sync p =
         if dirty then
-            Option.iter (push p) logical
+            Option.iter (fun v -> push p v) logical
             visible <- logical
             dirty <- false
 
@@ -167,7 +167,6 @@ module Attrs =
         let nodes = Queue()
         let oar = Queue()
         let rec loop node =
-            if not (Object.ReferenceEquals(node, null)) then // work around WS issue with UseNullAsTrueValue
             match node with
             | A0 -> ()
             | A1 n -> nodes.Enqueue n
@@ -208,13 +207,9 @@ module Attrs =
         dyn.OnAfterRender
 
     let AppendTree a b =
-        // work around WS issue with UseNullAsTrueValue
-        if Object.ReferenceEquals(a, null) then b
-        elif Object.ReferenceEquals(b, null) then a
-        else A2 (a, b)
-//        match a, b with
-//        | A0, x | x, A0 -> x
-//        | _ -> A2 (a, b)
+        match a, b with
+        | A0, x | x, A0 -> x
+        | _ -> A2 (a, b)
 
     let internal EmptyAttr = A0
 
@@ -283,12 +278,11 @@ module Attr =
         As<Attr> (Attrs.Dynamic view (fun el v -> DU.SetStyle el name v))
 
     let Handler name (callback: Element -> #DomEvent -> unit) =
-        As<Attr> (Attrs.Static (fun el -> el.AddEventListener(name, As<DomEvent -> unit> (callback el), false)))
+        As<Attr> (Attrs.Static (fun el -> el.AddEventListener(name, (fun (ev: DomEvent) -> callback (As ev.Target) (As ev)), false)))
 
     let HandlerView name (view: View<'T>) (callback: Element -> #DomEvent -> 'T -> unit) =
         let init (el: Element) =
-            let callback = callback el
-            el.AddEventListener(name, (fun (ev: DomEvent) -> View.Get (callback (As ev)) view), false)
+            el.AddEventListener(name, (fun (ev: DomEvent) -> View.Get (callback (As ev.Target) (As ev)) view), false)
         As<Attr> (Attrs.Static init)
 
     let OnAfterRender (callback: Element -> unit) =

@@ -228,7 +228,7 @@ module Snap =
     let Map2 fn sn1 sn2 =
         match sn1.State, sn2.State with
         | Forever x, Forever y -> CreateForever (fn x y) // optimization
-        | Forever x, _ -> Map (fn x) sn2 // optimize for known sn1
+        | Forever x, _ -> Map (fun y -> fn x y) sn2 // optimize for known sn1
         | _, Forever y -> Map (fun x -> fn x y) sn1 // optimize for known s2
         | _ ->
             let res = Create ()

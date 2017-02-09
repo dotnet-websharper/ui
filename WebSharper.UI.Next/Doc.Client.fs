@@ -907,7 +907,7 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
     member this.Element = elt
 
     member this.on (ev: string, cb: Dom.Element -> #Dom.Event -> unit) =
-        elt.AddEventListener(ev, As<Dom.Event -> unit> (cb elt), false)
+        elt.AddEventListener(ev, As<Dom.Event -> unit>(fun ev -> cb (As<Dom.Element>((ev :> Dom.Event).Target)) ev), false)
         this
 
     member this.onView (ev: string, view: View<'T>, cb: Dom.Element -> #Dom.Event -> 'T -> unit) =
