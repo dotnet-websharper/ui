@@ -188,9 +188,9 @@ module Impl =
                             Some ([||], (isSvg, node.NextSibling))
                         else
                         let children =
-                            if node.Attributes.Contains(ChildrenTemplateAttr) then [||] else
                             match node.Attributes.[HoleAttr] with
                             | null ->
+                                if node.Attributes.Contains(ChildrenTemplateAttr) then [||] else
                                 parseNodeAndSiblings thisIsSvg node.FirstChild
                             | holeAttr ->
                                 if isNonScriptSpecialTag holeAttr.Value then hasNonScriptSpecialTags := true
