@@ -8,9 +8,7 @@ open WebSharper.UI.Next.Html
 open WebSharper.UI.Next.Notation
 open WebSharper.UI.Next.Templating
 
-let [<Literal>] TemplateHtmlPath = __SOURCE_DIRECTORY__ + "/Main.html"
-
-type MainTemplate = Template<TemplateHtmlPath, ClientLoad.FromDocument, ServerLoad.PerRequest>
+type MainTemplate = Template<"Main.html", ClientLoad.FromDocument, ServerLoad.PerRequest>
 
 [<JavaScript>]
 module Client =
