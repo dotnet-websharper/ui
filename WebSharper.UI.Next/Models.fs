@@ -377,7 +377,34 @@ type ListModel<'Key,'T> with
         m.Var.View |> View.Map (fun arr -> arr.Length)
 
     member m.LensInto (get: 'T -> 'V) (update: 'T -> 'V -> 'T) (key : 'Key) : IRef<'V> =
-        new RefImpl<'Key, 'T, 'V>(m, key, get, update) :> IRef<'V>
+        let id = Fresh.Id()
+
+        let view = m.FindByKeyAsView(key) |> View.Map get
+    
+        { new IRef<'V> with
+
+            member r.Get() =
+                m.FindByKey key |> get
+
+            member r.Set(v) =
+                m.UpdateBy (fun i -> Some (update i v)) key
+
+            member r.Value
+                with get() = r.Get()
+                and set v = r.Set v
+
+            member r.Update(f) =
+                m.UpdateBy (fun i -> Some (update i (f (get i)))) key
+
+            member r.UpdateMaybe(f) =
+                m.UpdateBy (fun i -> Option.map (fun v -> update i v) (f (get i))) key
+
+            member r.View =
+                view
+
+            member r.Id =
+                id
+        }
 
     [<Inline>]
     member m.LensIntoU (get: 'T -> 'V, update: 'T -> 'V -> 'T, key : 'Key) : IRef<'V> =
@@ -389,38 +416,6 @@ type ListModel<'Key,'T> with
     member m.Value
         with [<Inline>] get () = m.Var.Value :> seq<_>
         and [<Inline>] set v = m.Set(v)
-
-and [<JavaScript>]
-    RefImpl<'K, 'T, 'V when 'K : equality>
-        (m: ListModel<'K, 'T>, key: 'K, get: 'T -> 'V, update: 'T -> 'V -> 'T) =
-
-    let id = Fresh.Id()
-
-    let view = m.FindByKeyAsView(key) |> View.Map get
-    
-    interface IRef<'V> with
-
-        member r.Get() =
-            m.FindByKey key |> get
-
-        member r.Set(v) =
-            m.UpdateBy (fun i -> Some (update i v)) key
-
-        member r.Value
-            with get() = (r :> IRef<'V>).Get()
-            and set v = (r :> IRef<'V>).Set v
-
-        member r.Update(f) =
-            m.UpdateBy (fun i -> Some (update i (f (get i)))) key
-
-        member r.UpdateMaybe(f) =
-            m.UpdateBy (fun i -> Option.map (update i) (f (get i))) key
-
-        member r.View =
-            view
-
-        member r.Id =
-            id
 
 [<JavaScript>]
 type ListModel =

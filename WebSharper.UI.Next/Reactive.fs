@@ -419,41 +419,37 @@ type View =
     static member Apply fn view =
         View.Map2 (fun f x -> f x) fn view
 
-[<JavaScript>]
-type RefImpl<'T, 'V>(baseRef: IRef<'T>, get: 'T -> 'V, update: 'T -> 'V -> 'T) =
-
-    let id = Fresh.Id()
-    let view = baseRef.View |> View.Map get
-
-    interface IRef<'V> with
-
-        member this.Get() =
-            get (baseRef.Get())
-
-        member this.Set(v) =
-            baseRef.Update(fun t -> update t v)
-
-        member this.Value
-            with get () = get (baseRef.Get())
-            and set v = baseRef.Update(fun t -> update t v)
-
-        member this.Update(f) =
-            baseRef.Update(fun t -> update t (f (get t)))
-
-        member this.UpdateMaybe(f) =
-            baseRef.UpdateMaybe(fun t -> Option.map (update t) (f (get t)))
-
-        member this.View =
-            view
-
-        member this.Id =
-            id
-
 type Var with
 
     [<JavaScript>]
     static member Lens (iref: IRef<_>) get update =
-        new RefImpl<_, _>(iref, get, update) :> IRef<_>
+        let id = Fresh.Id()
+        let view = iref.View |> View.Map get
+
+        { new IRef<'V> with
+
+            member this.Get() =
+                get (iref.Get())
+
+            member this.Set(v) =
+                iref.Update(fun t -> update t v)
+
+            member this.Value
+                with get () = get (iref.Get())
+                and set v = iref.Update(fun t -> update t v)
+
+            member this.Update(f) =
+                iref.Update(fun t -> update t (f (get t)))
+
+            member this.UpdateMaybe(f) =
+                iref.UpdateMaybe(fun t -> Option.map (fun x -> update t x) (f (get t)))
+
+            member this.View =
+                view
+
+            member this.Id =
+                id
+        }
 
 type Var<'T> with
 

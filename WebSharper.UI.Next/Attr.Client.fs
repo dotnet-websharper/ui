@@ -1,4 +1,4 @@
-﻿// $begin{copyright}
+// $begin{copyright}
 //
 // This file is part of WebSharper
 //
@@ -58,7 +58,7 @@ type AnimatedAttrNode<'T>(tr: Trans<'T>, view: View<'T>, push: Element -> 'T -> 
 
     let sync p =
         if dirty then
-            Option.iter (push p) logical
+            Option.iter (fun v -> push p v) logical
             visible <- logical
             dirty <- false
 
