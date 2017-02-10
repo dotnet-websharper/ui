@@ -46,13 +46,6 @@ module EltExtensions =
         /// Get or set the element's text content.
         member Text : string with get, set
 
-type CheckedInput<'T> =
-    | Valid of value: 'T * inputText: string
-    | Invalid of inputText: string
-    | Blank of inputText: string
-
-    member Input : string
-
 // Extension methods
 [<Extension; Sealed>]
 type DocExtensions =

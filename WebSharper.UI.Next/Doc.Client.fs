@@ -385,18 +385,6 @@ module Docs =
 
     let LoadedTemplates = Dictionary()
 
-[<JavaScript; Name "WebSharper.UI.Next.CheckedInput">]
-type CheckedInput<'T> =
-    | Valid of value: 'T * inputText: string
-    | Invalid of inputText: string
-    | Blank of inputText: string
-
-    member this.Input =
-        match this with
-        | Valid (_, x)
-        | Invalid x
-        | Blank x -> x
-
 // We implement the Doc interface, the Doc module proxy and the Client.Doc module proxy
 // all in this so that it all neatly looks like Doc.* in javascript.
 [<Name "WebSharper.UI.Next.Doc"; Proxy(typeof<Doc>)>]
@@ -586,12 +574,17 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             | true, TemplateHole.Text (_, text) -> Some (Doc'.TextNode' text)
             | true, TemplateHole.TextView (_, tv) -> Some (Doc'.TextView tv)
             | true, TemplateHole.VarStr (_, v) -> Some (Doc'.TextView v.View)
+            | true, TemplateHole.VarBool (_, v) -> Some (Doc'.TextView (v.View.Map string))
+            | true, TemplateHole.VarInt (_, v) -> Some (Doc'.TextView (v.View.Map (fun i -> i.Input)))
+            | true, TemplateHole.VarIntUnchecked (_, v) -> Some (Doc'.TextView (v.View.Map string))
+            | true, TemplateHole.VarFloat (_, v) -> Some (Doc'.TextView (v.View.Map (fun i -> i.Input)))
+            | true, TemplateHole.VarFloatUnchecked (_, v) -> Some (Doc'.TextView (v.View.Map string))
             | _ -> None
 
         DomUtility.IterSelector el "[ws-hole]" <| fun p ->
             let name = p.GetAttribute("ws-hole")
             match tryGetAsDoc name with
-            | None -> Console.Log("Unfilled hole", name)
+            | None -> Console.Warn("Unfilled hole", name)
             | Some doc ->
                 p.RemoveAttribute("ws-hole")
                 while (p.LastChild !==. null) do
@@ -610,7 +603,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
         DomUtility.IterSelector el "[ws-replace]" <| fun e ->
             let name = e.GetAttribute("ws-replace")
             match tryGetAsDoc name with
-            | None -> Console.Log("Unfilled replace", name)
+            | None -> Console.Warn("Unfilled replace", name)
             | Some doc ->
                 e.RemoveAttribute("ws-replace")
                 let p = e.ParentNode :?> Element
@@ -634,7 +627,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             | true, TemplateHole.Attribute (_, attr) ->
                 e.RemoveAttribute("ws-attr")
                 addAttr e attr
-            | _ -> Console.Log("Unfilled attr", name)
+            | _ -> Console.Warn("Unfilled attr", name)
 
         DomUtility.IterSelector el "[ws-on]" <| fun e ->
             e.GetAttribute("ws-on").Split(' ')
@@ -643,7 +636,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 match fw.TryGetValue(a.[1]) with
                 | true, TemplateHole.Event (_, handler) -> Some (Attr.Handler a.[0] handler)
                 | _ ->
-                    Console.Log("Unfilled on" + a.[0], a.[1])
+                    Console.Warn("Unfilled on" + a.[0], a.[1])
                     None
             )
             |> Attr.Concat
@@ -664,7 +657,18 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             | true, TemplateHole.VarStr (_, var) ->
                 e.RemoveAttribute("ws-var")
                 addAttr e (Attr.Value var)
-            | _ -> Console.Log("Unfilled var", name)
+            | true, TemplateHole.VarBool (_, var) ->
+                e.RemoveAttribute("ws-var")
+                addAttr e (Attr.Checked var)
+            | true, TemplateHole.VarInt (_, var) ->
+                addAttr e (Attr.IntValue var)
+            | true, TemplateHole.VarIntUnchecked (_, var) ->
+                addAttr e (Attr.IntValueUnchecked var)
+            | true, TemplateHole.VarFloat (_, var) ->
+                addAttr e (Attr.FloatValue var)
+            | true, TemplateHole.VarFloatUnchecked (_, var) ->
+                addAttr e (Attr.FloatValueUnchecked var)
+            | _ -> Console.Warn("Unfilled var", name)
 
         updates
         |> Array.TreeReduce (View.Const ()) View.Map2Unit
@@ -823,62 +827,35 @@ type private Doc' [<JavaScript>] (docNode, updates) =
 
     [<JavaScript>]
     static member IntInputUnchecked attr (var: IRef<int>) =
-        let parseInt (s: string) =
-            if String.isBlank s then Some 0 else
-            let pd : int = JS.Plus s
-            if pd !==. (pd >>. 0) then None else Some pd
         Doc'.InputInternal "input" (fun _ ->
             Seq.append attr [|
                 (if var.Get() = 0 then Attr.Create "value" "0" else Attr.Empty)
-                Attr.CustomValue var string parseInt
+                Attr.IntValueUnchecked var
                 Attr.Create "type" "number"
-                Attr.Create "step" "1"
             |])
-
-    [<JavaScript; Inline "$e.checkValidity?$e.checkValidity():true">]
-    static member CheckValidity (e: Dom.Element) = X<bool>
 
     [<JavaScript>]
     static member IntInput attr (var: IRef<CheckedInput<int>>) =
-        let parseCheckedInt (el: Dom.Element) (s: string) : option<CheckedInput<int>> =
-            if String.isBlank s then
-                if Doc'.CheckValidity el then Blank s else Invalid s
-            else
-                let i = JS.Plus s
-                if JS.IsNaN i then Invalid s else Valid (i, s)
-            |> Some
         Doc'.InputInternal "input" (fun el ->
             Seq.append attr [|
-                Attr.CustomValue var (fun i -> i.Input) (parseCheckedInt el)
+                Attr.IntValue var
                 Attr.Create "type" "number"
-                Attr.Create "step" "1"
             |])
 
     [<JavaScript>]
     static member FloatInputUnchecked attr (var: IRef<float>) =
-        let parseFloat (s: string) =
-            if String.isBlank s then Some 0. else
-            let pd : float = JS.Plus s
-            if JS.IsNaN pd then None else Some pd
         Doc'.InputInternal "input" (fun _ ->
             Seq.append attr [|
                 (if var.Get() = 0. then Attr.Create "value" "0" else Attr.Empty)
-                Attr.CustomValue var string parseFloat
+                Attr.FloatValueUnchecked var
                 Attr.Create "type" "number"
             |])
 
     [<JavaScript>]
     static member FloatInput attr (var: IRef<CheckedInput<float>>) =
-        let parseCheckedFloat (el: Dom.Element) (s: string) : option<CheckedInput<float>> =
-            if String.isBlank s then
-                if Doc'.CheckValidity el then Blank s else Invalid s
-            else
-                let i = JS.Plus s
-                if JS.IsNaN i then Invalid s else Valid (i, s)
-            |> Some
         Doc'.InputInternal "input" (fun el ->
             Seq.append attr [|
-                Attr.CustomValue var (fun i -> i.Input) (parseCheckedFloat el)
+                Attr.FloatValue var
                 Attr.Create "type" "number"
             |])
 
@@ -966,47 +943,23 @@ type private Doc' [<JavaScript>] (docNode, updates) =
 
     [<JavaScript>]
     static member CheckBox attrs (chk: IRef<bool>) =
-        let el = DU.CreateElement "input"
-        let onClick (x: DomEvent) =
-            chk.Set el?``checked``
-        el.AddEventListener("click", onClick, false)
-        let attrs =
-            Attr.Concat [
-                yield! attrs
-                yield Attr.Create "type" "checkbox"
-                yield Attr.DynamicProp "checked" chk.View
-            ]
-        Doc'.Elem el attrs Doc'.Empty'
+        Doc'.InputInternal "input" (fun _ ->
+            Seq.append attrs [
+                Attr.Checked chk
+            ])
 
     [<JavaScript>]
     static member CheckBoxGroup attrs (item: 'T) (chk: IRef<list<'T>>) =
-        // Create RView for the list of checked items
-        let rvi = chk.View
-        // Update list of checked items, given an item and whether it's checked or not.
-        let updateList chkd =
-            chk.Update (fun obs ->
-                let obs =
-                    if chkd then
-                        obs @ [item]
+        let rv =
+            chk.Lens
+                (List.exists ((=) item))
+                (fun l b ->
+                    if b then
+                        if List.exists ((=) item) l then l else item :: l
                     else
-                        List.filter (fun x -> x <> item) obs
-                Seq.distinct obs
-                |> Seq.toList)
-        let checkedView = View.Map (List.exists (fun x -> x = item)) rvi
-        let attrs =
-            [
-                Attr.Create "type" "checkbox"
-                Attr.Create "name" chk.Id
-                Attr.Create "value" (Fresh.Id ())
-                Attr.DynamicProp "checked" checkedView
-            ] @ (List.ofSeq attrs) |> Attr.Concat
-        let el = DU.CreateElement "input"
-        let onClick (x: DomEvent) =
-            let chkd = el?``checked``
-            updateList chkd
-        el.AddEventListener("click", onClick, false)
-
-        Doc'.Elem el attrs Doc'.Empty'
+                        List.filter ((<>) item) l
+                )
+        Doc'.CheckBox attrs rv
 
     [<JavaScript>]
     static member Clickable elem action =

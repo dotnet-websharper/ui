@@ -522,5 +522,10 @@ type TemplateHole =
     | Event of name: string * fillWith: (Element -> Dom.Event -> unit)
     | AfterRender of name: string * fillWith: (Element -> unit)
     | VarStr of name: string * fillWith: IRef<string>
+    | VarBool of name: string * fillWith: IRef<bool>
+    | VarInt of name: string * fillWith: IRef<Client.CheckedInput<int>>
+    | VarIntUnchecked of name: string * fillWith: IRef<int>
+    | VarFloat of name: string * fillWith: IRef<Client.CheckedInput<float>>
+    | VarFloatUnchecked of name: string * fillWith: IRef<float>
 
     static member Name : TemplateHole -> string

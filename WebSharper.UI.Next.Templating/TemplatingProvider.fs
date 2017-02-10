@@ -58,6 +58,7 @@ module private Impl =
     type TemplateHole = WebSharper.UI.Next.TemplateHole
     type DomElement = WebSharper.JavaScript.Dom.Element
     type DomEvent = WebSharper.JavaScript.Dom.Event
+    type CheckedInput<'T> = WebSharper.UI.Next.Client.CheckedInput<'T>
 
     type Ctx =
         {
@@ -113,12 +114,28 @@ module private Impl =
                 mk <| fun (x: Expr<View<float>>) ->
                     <@ TemplateHole.TextView(holeName, (%x).Map string) @>
             ]
+        let mkVarNumbers() : list<MemberInfo> =
+            [
+                mk <| fun (x: Expr<IRef<int>>) ->
+                    <@ TemplateHole.VarIntUnchecked(holeName, %x) @>
+                mk <| fun (x: Expr<IRef<CheckedInput<int>>>) ->
+                    <@ TemplateHole.VarInt(holeName, %x) @>
+                mk <| fun (x: Expr<IRef<float>>) ->
+                    <@ TemplateHole.VarFloatUnchecked(holeName, %x) @>
+                mk <| fun (x: Expr<IRef<CheckedInput<float>>>) ->
+                    <@ TemplateHole.VarFloat(holeName, %x) @>
+            ]
         let mkBools() : list<MemberInfo> =
             [
                 mk <| fun (x: Expr<bool>) ->
                     <@ TemplateHole.Text(holeName, string %x) @>
                 mk <| fun (x: Expr<View<bool>>) ->
                     <@ TemplateHole.TextView(holeName, (%x).Map string) @>
+            ]
+        let mkVarBools() : list<MemberInfo> =
+            [
+                mk <| fun (x: Expr<IRef<bool>>) ->
+                    <@ TemplateHole.VarBool(holeName, %x) @>
             ]
         match holeKind with
         | HoleKind.Attr ->
@@ -153,10 +170,10 @@ module private Impl =
         | HoleKind.Simple ValTy.String -> mkStrings()
         | HoleKind.Simple ValTy.Number -> mkNumbers()
         | HoleKind.Simple ValTy.Bool -> mkBools()
-        | HoleKind.Var ValTy.Any -> List.concat [mkVarStrings()]
+        | HoleKind.Var ValTy.Any -> List.concat [mkVarStrings(); mkVarNumbers(); mkVarBools()]
         | HoleKind.Var ValTy.String -> mkVarStrings()
-        | HoleKind.Var ValTy.Number -> []
-        | HoleKind.Var ValTy.Bool -> []
+        | HoleKind.Var ValTy.Number -> mkVarNumbers()
+        | HoleKind.Var ValTy.Bool -> mkVarBools()
 
     let OptionValue (x: option<'T>) : Expr<option<'T>> =
         match x with

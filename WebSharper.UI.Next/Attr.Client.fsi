@@ -22,6 +22,15 @@ namespace WebSharper.UI.Next.Client
 
 open WebSharper.UI.Next
 
+type CheckedInput<'T> =
+    | Valid of value: 'T * inputText: string
+    | Invalid of inputText: string
+    | Blank of inputText: string
+
+    member Input : string
+
+    static member Make : 'T -> CheckedInput<'T>
+
 module Attr =
 
     /// Dynamic variant of Create.
@@ -83,6 +92,21 @@ module Attr =
 
     /// Gets and sets the value of the element according to a Var.
     val Value : IRef<string> -> Attr
+
+    /// Gets and sets the value of the element according to a Var.
+    val IntValueUnchecked : IRef<int> -> Attr
+
+    /// Gets and sets the value of the element according to a Var.
+    val IntValue : IRef<CheckedInput<int>> -> Attr
+
+    /// Gets and sets the value of the element according to a Var.
+    val FloatValueUnchecked : IRef<float> -> Attr
+
+    /// Gets and sets the value of the element according to a Var.
+    val FloatValue : IRef<CheckedInput<float>> -> Attr
+
+    /// Gets and sets the checked status of the element according to a Var.
+    val Checked : IRef<bool> -> Attr
 
     /// Add this attribute to any <form> element that contains validation
     /// (including Doc.IntInput and Doc.FloatInput) for compatibility in Internet Explorer 9 and older.

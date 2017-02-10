@@ -14,11 +14,13 @@ type MainTemplate = Template<TemplateHtmlPath, ClientLoad.FromDocument, ServerLo
 
 [<JavaScript>]
 module Client =
+    open WebSharper.UI.Next.Client
 
     let Main (init: string) =
         MainTemplate.ClientTemplate()
             .Before(init)
             .Input(Var.Create init)
+            .Count(Var.Create init.Length)
             .Doc()
 
     let OldMain (init) =

@@ -376,14 +376,24 @@ type TemplateHole =
     | Event of name: string * fillWith: (Element -> Dom.Event -> unit)
     | AfterRender of name: string * fillWith: (Element -> unit)
     | VarStr of name: string * fillWith: IRef<string>
+    | VarBool of name: string * fillWith: IRef<bool>
+    | VarInt of name: string * fillWith: IRef<Client.CheckedInput<int>>
+    | VarIntUnchecked of name: string * fillWith: IRef<int>
+    | VarFloat of name: string * fillWith: IRef<Client.CheckedInput<float>>
+    | VarFloatUnchecked of name: string * fillWith: IRef<float>
 
-    [<JavaScript>]
+    [<JavaScript; Inline "$x.$0">]
     static member Name x =
         match x with
         | TemplateHole.Elt (name, _)
         | TemplateHole.Text (name, _)
         | TemplateHole.TextView (name, _)
         | TemplateHole.VarStr (name, _)
+        | TemplateHole.VarBool (name, _)
+        | TemplateHole.VarInt (name, _)
+        | TemplateHole.VarIntUnchecked (name, _)
+        | TemplateHole.VarFloat (name, _)
+        | TemplateHole.VarFloatUnchecked (name, _)
         | TemplateHole.Event (name, _)
         | TemplateHole.AfterRender (name, _)
         | TemplateHole.Attribute (name, _) -> name
