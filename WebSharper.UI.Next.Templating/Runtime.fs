@@ -68,6 +68,22 @@ type Runtime private () =
             if holes.ContainsKey name then d.[name] <- f
         d
 
+    /// Different nodes need to be wrapped in different container to be handled properly.
+    /// See http://krasimirtsonev.com/blog/article/Revealing-the-magic-how-to-properly-convert-HTML-string-to-a-DOM-element
+    static let templateWrappers =
+        Map [
+            Some "option", ("""<select multiple="multiple" display="none" {0}="{1}">""", "</select>")
+            Some "legend", ("""<fieldset display="none" {0}="{1}">""", "</fieldset>")
+            Some "area", ("""<map display="none" {0}="{1}">""", "</map>")
+            Some "param", ("""<object display="none" {0}="{1}">""", "</object>")
+            Some "thead", ("""<table display="none" {0}="{1}">""", "</table>")
+            Some "tbody", ("""<table display="none" {0}="{1}">""", "</table>")
+            Some "tr", ("""<table display="none"><tbody {0}="{1}">""", """</tbody></table>""")
+            Some "col", ("""<table display="none"><tbody></tbody><colgroup {0}="{1}">""", """</colgroup></table>""")
+            Some "td", ("""<table display="none"><tbody><tr {0}="{1}">""", """</tr></tbody></table>""")
+        ]
+    static let defaultTemplateWrappers = ("""<div display="none" {0}="{1}">""", "</div>")
+
     static let GetOrLoadTemplate
             (baseName: string) (name: option<string>)
             (path: option<string>) (src: string) (fillWith: list<TemplateHole>)
@@ -90,15 +106,19 @@ type Runtime private () =
             | _ -> failwith "ServerLoad.WhenChanged not implemented yet"
         let template = getTemplate baseName name templates
         let fillWith = buildFillDict fillWith template.Holes
-        let name =
-            match template.Value with
-            | [| Node.Element (name, _, _, _) |] -> Some name
-            | [| Node.DocHole h |] ->
-                match fillWith.[h] with
-                | TemplateHole.Elt (_, doc) -> (doc :> Web.INode).Name
-                | _ -> None
-            | _ -> None
-        let rec writeTemplate (template: Template) (plain: bool) m (w: System.Web.UI.HtmlTextWriter) (r: option<RenderedResources>) =
+
+        let rec writeWrappedTemplate templateName (template: Template) m (w: HtmlTextWriter) r =
+            let tagName = template.Value |> Array.tryPick (function
+                | Node.Element (name, _, _, _)
+                | Node.Input (name, _, _, _) -> Some name
+                | Node.Text _ | Node.DocHole _ -> None
+            )
+            let before, after = defaultArg (Map.tryFind tagName templateWrappers) defaultTemplateWrappers
+            w.Write(before, ChildrenTemplateAttr, templateName)
+            writeTemplate template true m w r
+            w.Write(after)
+
+        and writeTemplate (template: Template) (plain: bool) m (w: HtmlTextWriter) (r: option<RenderedResources>) =
             let stringParts text =
                 text
                 |> Array.map (function
@@ -139,13 +159,7 @@ type Runtime private () =
                     if subTemplatesHandling = Parsing.KeepSubTemplatesInRoot && tag = "body" && Option.isNone name then
                         templates |> Map.iter (fun k v ->
                             match k with
-                            | Some templateName ->
-                                w.WriteBeginTag("div")
-                                w.WriteAttribute("style", "display:none")
-                                w.WriteAttribute(ChildrenTemplateAttr, templateName)
-                                w.Write(HtmlTextWriter.TagRightChar)
-                                writeTemplate v true m w r
-                                w.WriteEndTag("div")
+                            | Some templateName -> writeWrappedTemplate templateName v m w r
                             | None -> ()
                         )
                     w.WriteEndTag(tag)
