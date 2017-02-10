@@ -68,7 +68,7 @@ module Impl =
                 for name, i in holes do
                     if i > !l then
                         yield StringPart.Text t.[!l .. i - 1]
-                    addHole name (HoleKind.Simple ValTy.Any)
+                    addHole name HoleKind.Simple
                     yield StringPart.Hole name
                     l := i + name.Length + 3 // 3 = "${}".Length
                 if t.Length > !l then
@@ -140,19 +140,18 @@ module Impl =
             | HoleKind.Event, HoleKind.Event -> ()
             | HoleKind.Event, _ -> fail()
             // A Var can be used several times if the types are compatible.
-            // Additionally, it can also be viewed.
-            | HoleKind.Var ty', HoleKind.Var ty
-            | HoleKind.Var ty', HoleKind.Simple ty
-            | HoleKind.Simple ty', HoleKind.Var ty ->
+            | HoleKind.Var ty', HoleKind.Var ty ->
                 match mergeValTy ty ty' with
                 | Some ty -> holes.[name] <- HoleKind.Var ty
                 | None -> fail()
+            // A Var can be viewed by a Simple hole.
+            | HoleKind.Var _, HoleKind.Simple -> ()
             | HoleKind.Var _, _ -> fail()
-            // A value can be used several times if the types are compatible.
-            | HoleKind.Simple ty', HoleKind.Simple ty ->
-                match mergeValTy ty ty' with
-                | Some ty -> holes.[name] <- HoleKind.Simple ty
-                | None -> fail()
+            // A value can be used several times.
+            | HoleKind.Simple, HoleKind.Simple -> ()
+            // A Var can be viewed by a Simple hole.
+            | HoleKind.Simple, HoleKind.Var ty ->
+                holes.[name] <- HoleKind.Var ty
             | HoleKind.Simple _, _ -> fail()
 
     let isNonScriptSpecialTag n =

@@ -35,7 +35,7 @@ type ValTy =
 
 [<RequireQualifiedAccess>]
 type HoleKind =
-    | Simple of valTy: ValTy
+    | Simple
     | Var of valTy: ValTy
     | Attr
     | Doc

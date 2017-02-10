@@ -385,6 +385,8 @@ module Docs =
 
     let LoadedTemplates = Dictionary()
 
+    let TextHoleRE = """\${([^}]+)}"""
+
 // We implement the Doc interface, the Doc module proxy and the Client.Doc module proxy
 // all in this so that it all neatly looks like Doc.* in javascript.
 [<Name "WebSharper.UI.Next.Doc"; Proxy(typeof<Doc>)>]
@@ -653,22 +655,41 @@ type private Doc' [<JavaScript>] (docNode, updates) =
 
         DomUtility.IterSelector el "[ws-var]" <| fun e ->
             let name = e.GetAttribute("ws-var")
+            e.RemoveAttribute("ws-var")
             match fw.TryGetValue(name) with
-            | true, TemplateHole.VarStr (_, var) ->
-                e.RemoveAttribute("ws-var")
-                addAttr e (Attr.Value var)
-            | true, TemplateHole.VarBool (_, var) ->
-                e.RemoveAttribute("ws-var")
-                addAttr e (Attr.Checked var)
-            | true, TemplateHole.VarInt (_, var) ->
-                addAttr e (Attr.IntValue var)
-            | true, TemplateHole.VarIntUnchecked (_, var) ->
-                addAttr e (Attr.IntValueUnchecked var)
-            | true, TemplateHole.VarFloat (_, var) ->
-                addAttr e (Attr.FloatValue var)
-            | true, TemplateHole.VarFloatUnchecked (_, var) ->
-                addAttr e (Attr.FloatValueUnchecked var)
+            | true, TemplateHole.VarStr (_, var) -> addAttr e (Attr.Value var)
+            | true, TemplateHole.VarBool (_, var) -> addAttr e (Attr.Checked var)
+            | true, TemplateHole.VarInt (_, var) -> addAttr e (Attr.IntValue var)
+            | true, TemplateHole.VarIntUnchecked (_, var) -> addAttr e (Attr.IntValueUnchecked var)
+            | true, TemplateHole.VarFloat (_, var) -> addAttr e (Attr.FloatValue var)
+            | true, TemplateHole.VarFloatUnchecked (_, var) -> addAttr e (Attr.FloatValueUnchecked var)
             | _ -> Console.Warn("Unfilled var", name)
+
+        DomUtility.IterSelector el "[ws-attr-holes]" <| fun e ->
+            let re = new RegExp(Docs.TextHoleRE, "g")
+            let holeAttrs = e.GetAttribute("ws-attr-holes").Split(' ')
+            e.RemoveAttribute("ws-attr-holes")
+            for attrName in holeAttrs do
+                let s = e.GetAttribute(attrName)
+                let mutable m = null
+                let mutable lastIndex = 0
+                let res : (string * string)[] = [||]
+                while (m <- re.Exec s; m !==. null) do
+                    let textBefore = s.[lastIndex .. re.LastIndex-m.[0].Length-1]
+                    lastIndex <- re.LastIndex
+                    let holeName = m.[1]
+                    res.JS.Push((textBefore, holeName)) |> ignore
+                let finalText = s.[lastIndex..]
+                re.LastIndex <- 0
+                let value =
+                    (finalText, res) ||> Array.fold (fun textAfter (textBefore, holeName) ->
+                        let holeContent =
+                            match fw.TryGetValue(holeName) with
+                            | true, TemplateHole.Text (_, t) -> t
+                            | _ -> Console.Warn "${View} in attribute value not implemented yet"; ""
+                        textBefore + holeContent + textAfter
+                    )
+                addAttr e (Attr.Create attrName value)
 
         updates
         |> Array.TreeReduce (View.Const ()) View.Map2Unit
@@ -709,22 +730,27 @@ type private Doc' [<JavaScript>] (docNode, updates) =
 
     [<JavaScript>]
     static member PrepareTemplateStrict (baseName: string) (name: option<string>) (els: Node[]) =
-        let strRE = RegExp("""\${([^}]+)}""", "g")
-        let convertEventAttrs (el: Dom.Element) =
+        let convertAttrs (el: Dom.Element) =
             let attrs = el.Attributes
-            let out = [||]
+            let events = [||]
+            let holedAttrs = [||]
             for i = 0 to attrs.Length - 1 do
                 let a = attrs.[i]
                 if a.NodeName.StartsWith "ws-on" && a.NodeName <> "ws-onafterrender" then
-                    out.JS.Push(a.NodeName.["ws-on".Length..] + ":" + a.NodeValue) |> ignore
-            if not (Array.isEmpty out) then
-                el.SetAttribute("ws-on", String.concat " " out)
+                    events.JS.Push(a.NodeName.["ws-on".Length..] + ":" + a.NodeValue) |> ignore
+                elif not (a.NodeName.StartsWith "ws-") && RegExp(Docs.TextHoleRE).Test(a.NodeValue) then
+                    holedAttrs.JS.Push(a.NodeName) |> ignore
+            if not (Array.isEmpty events) then
+                el.SetAttribute("ws-on", String.concat " " events)
+            if not (Array.isEmpty holedAttrs) then
+                el.SetAttribute("ws-attr-holes", String.concat " " holedAttrs)
         let rec convert (p: Element) (n: Node) =
             if n !==. null then
                 if n.NodeType = Dom.NodeType.Text then
                     let mutable m = null
                     let mutable li = 0
                     let s = n.TextContent
+                    let strRE = RegExp(Docs.TextHoleRE, "g")
                     while (m <- strRE.Exec s; m !==. null) do
                         n.ParentNode.InsertBefore(JS.Document.CreateTextNode(s.[li..strRE.LastIndex-m.[0].Length-1]), n) |> ignore
                         li <- strRE.LastIndex
@@ -735,7 +761,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                     n.TextContent <- s.[li..]
                 elif n.NodeType = Dom.NodeType.Element then
                     let el = n :?> Dom.Element
-                    convertEventAttrs el
+                    convertAttrs el
                     match el.GetAttribute("ws-template") with
                     | null ->
                         match el.GetAttribute("ws-children-template") with

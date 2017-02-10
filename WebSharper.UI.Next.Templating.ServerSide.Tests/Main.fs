@@ -33,8 +33,8 @@ let Main = Application.SinglePage(fun ctx ->
             .Main(b [text "Hello world!"])
             .Client(
                 [
-                    client <@ Client.Main("type here") @>
-                    client <@ Client.Main("here too") @>
+                    client <@ Client.Main("green") @>
+                    client <@ Client.Main("blue") @>
                     client <@ Client.OldMain("old template") @>
                 ])
             .TBody([MainTemplate.Row().Doc(); MainTemplate.Row().Doc()])

@@ -166,10 +166,7 @@ module private Impl =
                 mk <| fun (x: Expr<unit -> unit>) ->
                     <@ TemplateHole.Event(holeName, RuntimeClient.WrapEvent %x) @>
             ]
-        | HoleKind.Simple ValTy.Any -> List.concat [mkStrings(); mkNumbers(); mkBools()]
-        | HoleKind.Simple ValTy.String -> mkStrings()
-        | HoleKind.Simple ValTy.Number -> mkNumbers()
-        | HoleKind.Simple ValTy.Bool -> mkBools()
+        | HoleKind.Simple -> List.concat [mkStrings(); mkNumbers(); mkBools()]
         | HoleKind.Var ValTy.Any -> List.concat [mkVarStrings(); mkVarNumbers(); mkVarBools()]
         | HoleKind.Var ValTy.String -> mkVarStrings()
         | HoleKind.Var ValTy.Number -> mkVarNumbers()

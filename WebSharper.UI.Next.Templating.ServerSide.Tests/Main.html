@@ -8,7 +8,7 @@
 </head>
 <body>
     <div ws-replace="Main">
-        <div ws-template="ClientTemplate">
+        <div ws-template="ClientTemplate" data-test="just ${Before} this ${Input} and this" style="color:${Before}">
             ${Before}
             <input ws-var="Input" />
             ${Input} ${Input}
