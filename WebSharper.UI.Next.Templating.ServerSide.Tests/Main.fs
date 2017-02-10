@@ -20,7 +20,7 @@ module Client =
         MainTemplate.ClientTemplate()
             .Before(init)
             .Input(Var.Create init)
-            .Count(Var.Create init.Length)
+            .Opacity(Var.Create (float init.Length / 10.))
             .Doc()
 
     let OldMain (init) =

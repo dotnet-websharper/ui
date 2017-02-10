@@ -5,14 +5,19 @@
     <meta charset="utf-8" />
     <meta ws-replace="meta" />
     <style ws-replace="styles"></style>
+    <style>
+        td {
+            border: solid 1px gray;
+        }
+    </style>
 </head>
 <body>
     <div ws-replace="Main">
-        <div ws-template="ClientTemplate" data-test="just ${Before} this ${Input} and this" style="color:${Before}">
-            ${Before}
-            <input ws-var="Input" />
-            ${Input} ${Input}
-            <input ws-var="Count" type="number" />
+        <div ws-template="ClientTemplate" style="color:${Input};opacity:${Opacity}">
+            This started as ${Before}, but let's make it
+            <input ws-var="Input" style="color: ${Before}" />
+            (you said ${Input}) with opacity
+            <input ws-var="Opacity" type="number" />
             ${Count}
         </div>
     </div>

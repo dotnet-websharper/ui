@@ -682,14 +682,36 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 let finalText = s.[lastIndex..]
                 re.LastIndex <- 0
                 let value =
-                    (finalText, res) ||> Array.fold (fun textAfter (textBefore, holeName) ->
+                    (res, (finalText, [])) ||> Array.foldBack (fun (textBefore, holeName) (textAfter, views) ->
                         let holeContent =
                             match fw.TryGetValue(holeName) with
-                            | true, TemplateHole.Text (_, t) -> t
-                            | _ -> Console.Warn "${View} in attribute value not implemented yet"; ""
-                        textBefore + holeContent + textAfter
+                            | true, TemplateHole.Text (_, t) -> Choice1Of2 t
+                            | true, TemplateHole.TextView (_, v) -> Choice2Of2 v
+                            | true, TemplateHole.VarStr (_, v) -> Choice2Of2 v.View
+                            | true, TemplateHole.VarBool (_, v) -> Choice2Of2 (v.View.Map string)
+                            | true, TemplateHole.VarInt (_, v) -> Choice2Of2 (v.View.Map (fun i -> i.Input))
+                            | true, TemplateHole.VarIntUnchecked (_, v) -> Choice2Of2 (v.View.Map string)
+                            | true, TemplateHole.VarFloat (_, v) -> Choice2Of2 (v.View.Map (fun i -> i.Input))
+                            | true, TemplateHole.VarFloatUnchecked (_, v) -> Choice2Of2 (v.View.Map string)
+                            | _ -> Console.Warn "${View} in attribute value not implemented yet"; Choice1Of2 ""
+                        match holeContent with
+                        | Choice1Of2 text -> textBefore + text + textAfter, views
+                        | Choice2Of2 v ->
+                            let v =
+                                if textAfter = "" then v else
+                                View.Map (fun s -> s + textAfter) v
+                            textBefore, v :: views
                     )
-                addAttr e (Attr.Create attrName value)
+                match value with
+                | s, [] -> Attr.Create attrName s
+                | "", [v] -> Attr.Dynamic attrName v
+                | s, [v] -> Attr.Dynamic attrName (View.Map (fun v -> s + v) v)
+                | s, [v1; v2] -> Attr.Dynamic attrName (View.Map2 (fun v1 v2 -> s + v1 + v2) v1 v2)
+                | s, vs ->
+                    View.Sequence vs
+                    |> View.Map (fun vs -> s + String.concat "" vs)
+                    |> Attr.Dynamic attrName
+                |> addAttr e
 
         updates
         |> Array.TreeReduce (View.Const ()) View.Map2Unit
