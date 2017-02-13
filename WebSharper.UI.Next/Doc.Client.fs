@@ -430,7 +430,11 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             match JQuery.JQuery.ParseHTML html with
             | null -> [||]
             | a -> a
-        let elem e = ElemDoc (Docs.CreateElemNode e Attr.Empty EmptyDoc)
+        let elem (n: Dom.Node) =
+            if n.NodeType = Dom.NodeType.Text then
+                TextNodeDoc (n :?> Dom.Text)
+            else
+                ElemDoc (Docs.CreateElemNode (n :?> Element) Attr.Empty EmptyDoc)
         let append x y = AppendDoc (x, y)
         let es = Array.MapTreeReduce elem EmptyDoc append a
         Doc'.Mk es (View.Const ())
