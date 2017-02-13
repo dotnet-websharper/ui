@@ -353,39 +353,38 @@ and private RouteMapBuilderMacro() =
 
     override __.TranslateCall(c) =
         comp <- c.Compilation
-        match c.Method.Generics.[0] with
-        | TypeParameter _ -> MacroNeedsResolvedTypeArg
-        | targ ->
-            try
-                match c.Method.Entity.Value.MethodName with
-                | "Link" ->
-                    let mk = Id.New()
-                    let action = Id.New()
-                    let routeShape = getRouteShape targ |> convertRouteShape
-                    Let (mk, Call (None, routeItemParsersT, makeLinkM, [routeShape]),
-                        Lambda ([action],
-                            Conditional (TypeCheck (Var action, targ),
-                                some (listOf stringT) (Application (Var mk, [Var action], true, Some 1)),
-                                none (listOf stringT)
-                            )
-                        )
-                    )
-                | "Route" ->
-                    let routeShape = getRouteShape targ |> convertRouteShape
-                    Call (None, routeItemParsersT, parseRouteM, [routeShape])
-                | "Render" ->
-                    let go = Id.New()
-                    let action = Id.New()
-                    let render = c.Arguments.[0]
-                    Lambda([go; action],
+        let targ = c.Method.Generics.[0] 
+        if targ.IsParameter then MacroNeedsResolvedTypeArg targ else
+        try
+            match c.Method.Entity.Value.MethodName with
+            | "Link" ->
+                let mk = Id.New()
+                let action = Id.New()
+                let routeShape = getRouteShape targ |> convertRouteShape
+                Let (mk, Call (None, routeItemParsersT, makeLinkM, [routeShape]),
+                    Lambda ([action],
                         Conditional (TypeCheck (Var action, targ),
-                            some targ (Application (render, [Var go; Var action], true, Some 2)),
-                            none targ
+                            some (listOf stringT) (Application (Var mk, [Var action], true, Some 1)),
+                            none (listOf stringT)
                         )
                     )
-                | _ -> failwith "Invalid use of RouteMapBuilder macro"
-                |> MacroOk
-            with e -> MacroError e.Message
+                )
+            | "Route" ->
+                let routeShape = getRouteShape targ |> convertRouteShape
+                Call (None, routeItemParsersT, parseRouteM, [routeShape])
+            | "Render" ->
+                let go = Id.New()
+                let action = Id.New()
+                let render = c.Arguments.[0]
+                Lambda([go; action],
+                    Conditional (TypeCheck (Var action, targ),
+                        some targ (Application (render, [Var go; Var action], true, Some 2)),
+                        none targ
+                    )
+                )
+            | _ -> failwith "Invalid use of RouteMapBuilder macro"
+            |> MacroOk
+        with e -> MacroError e.Message
 
 and [<JavaScript>] private RouteItemParsers =
 
