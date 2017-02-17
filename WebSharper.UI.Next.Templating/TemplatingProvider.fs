@@ -85,7 +85,7 @@ module private Impl =
     let BuildMethod<'T> (holeName: HoleName) (resTy: Type)
             (wrapArg: Expr<'T> -> Expr<TemplateHole>) (ctx: Ctx) =
         ctx.PT.ProvidedMethod(holeName, [ProvidedParameter(holeName, typeof<'T>)], resTy, function
-            | [this; arg] -> <@@ (%wrapArg (Expr.Cast arg)) :: %%this @@>
+            | [this; arg] -> <@@ box ((%wrapArg (Expr.Cast arg)) :: ((%%this : obj) :?> list<TemplateHole>)) @@>
             | _ -> failwith "Incorrect invoke")
 
     let BuildHoleMethods (holeName: HoleName) (holeKind: HoleKind) (resTy: Type) (ctx: Ctx)
@@ -191,7 +191,7 @@ module private Impl =
                             %OptionValue ctx.Name,
                             %OptionValue ctx.Path,
                             %%Expr.Value ctx.Template.Src,
-                            (%%args.[0] : list<TemplateHole>),
+                            ((%%args.[0] : obj) :?> list<TemplateHole>),
                             %%Expr.Value ctx.ServerLoad
                         ) @@>
                 | ClientLoad.FromDocument ->
@@ -200,7 +200,7 @@ module private Impl =
                             %OptionValue ctx.Name,
                             %OptionValue ctx.Path,
                             %%Expr.Value ctx.Template.Src,
-                            (%%args.[0] : list<TemplateHole>),
+                            ((%%args.[0] : obj) :?> list<TemplateHole>),
                             %%Expr.Value ctx.ServerLoad
                         ) @@>
                 | _ -> failwith "ClientLoad.Download not implemented yet"
@@ -215,7 +215,7 @@ module private Impl =
                 yield! BuildHoleMethods holeName holeKind ty ctx
             yield! BuildFinalMethods ctx
             yield ctx.PT.ProvidedConstructor([], fun _ ->
-                <@@ [] : list<TemplateHole> @@>) :> _
+                <@@ box ([] : list<TemplateHole>) @@>) :> _
         ]
 
     let BuildTP (templates: IDictionary<option<TemplateName>, Template>)
@@ -233,7 +233,7 @@ module private Impl =
                 BuildOneTemplate containerTy ctx
             | Some n ->
                 let ty =
-                    ptCtx.ProvidedTypeDefinition(n, Some typeof<list<TemplateHole>>)
+                    ptCtx.ProvidedTypeDefinition(n, None)
                         .WithXmlDoc(XmlDoc.TemplateType n)
                 BuildOneTemplate ty ctx
                 containerTy.AddMember ty
@@ -308,8 +308,7 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
                     let template = Parsing.Parse pathOrHtml cfg.ResolutionFolder Parsing.ExtractSubTemplatesFromRoot
                     setupWatcher template.ParseKind
                     let ty =
-                        ctx.ProvidedTypeDefinition(thisAssembly, rootNamespace, typename,
-                            Some typeof<list<TemplateHole>>)
+                        ctx.ProvidedTypeDefinition(thisAssembly, rootNamespace, typename, None)
                             .WithXmlDoc(XmlDoc.TemplateType "")
                     try OldProvider.RunOldProvider pathOrHtml cfg ctx ty
                     with _ -> reraise()
