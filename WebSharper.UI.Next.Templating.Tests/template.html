@@ -1,33 +1,33 @@
-<h1 data-replace="Title"></h1>
-<ul data-hole="ListContainer">
-    <li data-template="ListItem">
-        <span>($!{Key}) </span>
-        <span style="font-style: ${FontStyle}; font-weight: ${FontWeight}">$!{Name}</span>:
-        <input data-var="Description" />
-        <button data-event-click="Remove">Remove</button>
+<h1 ws-replace="Title"></h1>
+<ul ws-hole="ListContainer">
+    <li ws-template="ListItem">
+        <span>(${Key}) </span>
+        <span style="font-style: ${FontStyle}; font-weight: ${FontWeight}">${Name}</span>:
+        <input ws-var="Description" />
+        <button ws-onclick="Remove">Remove</button>
     </li>
 </ul>
-<div data-attr="Attr">
-    <p id="paragraph" data-event-afterrender="PRendered">
-        <input data-var="NewName" placeholder="Name" data-event-keyup="NameChanged" />
-        <input data-var="NewDescription" placeholder="Description" data-event-keyup="NameChanged" />
-        <button data-event-click="NewItem">Add item</button>
+<div ws-attr="Attr">
+    <p id="paragraph" ws-onafterrender="PRendered">
+        <input ws-var="NewName" placeholder="Name" ws-onkeyup="NameChanged" />
+        <input ws-var="NewDescription" placeholder="Description" ws-onkeyup="NameChanged" />
+        <button ws-onclick="NewItem">Add item</button>
     </p>
-    <p data-attr="PAttr"><button data-event-click="SubmitItems">Submit items</button></p>
-    <p><button data-event-click="ClearItems">Clear items</button></p>
-    <p>Find by key: <input data-var="FindBy" /> Found: $!{Found}</p>
-    <p>Number of items: $!{Length}</p>
-    <p>Names with non-empty values: $!{Names}</p>
+    <p ws-attr="PAttr"><button ws-onclick="SubmitItems">Submit items</button></p>
+    <p><button ws-onclick="ClearItems">Clear items</button></p>
+    <p>Find by key: <input ws-var="FindBy" /> Found: ${Found}</p>
+    <p>Number of items: ${Length}</p>
+    <p>Names with non-empty values: ${Names}</p>
     <table>
-        <tbody data-hole="ListView" data-children-template="ListViewItem">
-            <tr><td>$!{Name}</td><td>$!{Description}</td></tr>
+        <tbody ws-hole="ListView" ws-children-template="ListViewItem">
+            <tr><td>${Name}</td><td>${Description}</td></tr>
         </tbody>
     </table>
     <hr />
-    <input data-var="MyInput" placeholder="Type here" />
-    <button data-event-click="MyCallback">Click me${ButtonExtraText}!</button>
-    <div><b>You</b> <b>said</b>: $!{MyInputView}</div>
-    <div data-replace="LeaveThisEmpty"></div>
+    <input ws-var="MyInput" placeholder="Type here" />
+    <button ws-onclick="MyCallback">Click me${ButtonExtraText}!</button>
+    <div><b>You</b> <b>said</b>: ${MyInputView}</div>
+    <div ws-replace="LeaveThisEmpty"></div>
     <p>Here's some SVG:</p>
     <svg width="250" height="250">
         <rect x="25" y="25" width="200" height="200" fill="lime" stroke-width="4" stroke="pink" />

@@ -45,6 +45,7 @@ let tmpl =
                 r.Assembly "System.Xml"
                 r.Assembly "System.Xml.Linq"
                 r.Assembly "System.Runtime.Caching"
+                r.NuGet("HtmlAgilityPack").Reference()
             ])
 
 let csharp =
@@ -84,6 +85,19 @@ let tmplTest =
             [
                 r.Project main
                 r.Project tmpl
+                r.NuGet("HtmlAgilityPack").Reference()
+            ])
+
+let serverTest =
+    bt.WithFSharpVersion(FSharpVersion.FSharp31)
+        .Zafir.SiteletWebsite("WebSharper.UI.Next.Templating.ServerSide.Tests")
+        .SourcesFromProject()
+        .WithSourceMap()
+        .References(fun r ->
+            [
+                r.Project main
+                r.Project tmpl
+                r.NuGet("HtmlAgilityPack").Reference()
             ])
 
 let cstest =
@@ -104,6 +118,7 @@ bt.Solution [
     tmpl
     test
     tmplTest
+    serverTest
 
     bt.NuGet.CreatePackage()
         .Add(main)

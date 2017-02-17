@@ -122,3 +122,15 @@ module internal DomUtility =
     /// Removes a class.
     let RemoveClass (element: Element) (cl: string) =
         JQuery.Of(element).RemoveClass(cl) |> ignore
+
+    /// Retrieve the children of an element as an array.
+    let ChildrenArray (element: Element) =
+        let a = [||]
+        for i = 0 to element.ChildNodes.Length - 1 do
+            a.JS.Push(element.ChildNodes.[i]) |> ignore
+        a
+
+    /// Iterate through a NodeList assuming it's all Elements.
+    let IterSelector (el: Element) (selector: string) (f: Element -> unit) =
+        let l = el.QuerySelectorAll(selector)
+        for i = 0 to l.Length - 1 do f (l.[i] :?> Element)

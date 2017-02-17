@@ -21,6 +21,7 @@
 namespace WebSharper.UI.Next.Server
 
 open System
+open WebSharper
 open WebSharper.UI.Next
 open WebSharper.Sitelets
 open WebSharper.Sitelets.Content
@@ -46,7 +47,7 @@ type Content =
                 Status = Http.Status.Ok,
                 Headers = [Http.Header.Custom "Content-Type" "text/html; charset=utf-8"],
                 WriteBody = fun s ->
-                    use w = new System.IO.StreamWriter(s)
+                    use w = new System.IO.StreamWriter(s, Text.Encoding.UTF8)
                     use w = new System.Web.UI.HtmlTextWriter(w)
                     w.WriteLine("<!DOCTYPE html>")
                     doc.Write(ctx.Metadata, w, res)
@@ -60,3 +61,43 @@ type Content =
 
     static member inline Page (page: Page) : Async<Content<'Action>> =
         Content<_>.Page page
+
+module Internal =
+
+    type TemplateDoc
+        (
+            name: option<string>,
+            fillWith: Dictionary<string, TemplateHole>,
+            hasNonScriptSpecialTags: bool,
+            write: Core.Metadata.Info -> System.Web.UI.HtmlTextWriter -> option<RenderedResources> -> unit
+        ) =
+        inherit Doc()
+
+        override this.HasNonScriptSpecialTags = hasNonScriptSpecialTags
+
+        override this.Name = name
+
+        override this.Encode(m, j) =
+            [
+                for d in fillWith.Values do
+                    match d with
+                    | TemplateHole.Elt (_, doc) -> yield! (doc :> IRequiresResources).Encode(m, j)
+                    | TemplateHole.Attribute (_, a) ->
+                        if not (obj.ReferenceEquals(a, null)) then
+                            yield! (a :> IRequiresResources).Encode(m, j)
+                    | _ -> ()
+            ]
+
+        override this.Requires =
+            seq {
+                for d in fillWith.Values do
+                    match d with
+                    | TemplateHole.Elt (_, doc) -> yield! (doc :> IRequiresResources).Requires
+                    | TemplateHole.Attribute (_, a) ->
+                        if not (obj.ReferenceEquals(a, null)) then
+                            yield! (a :> IRequiresResources).Requires
+                    | _ -> ()
+            }
+
+        override this.Write(m, h, ?res) = 
+            write m h res

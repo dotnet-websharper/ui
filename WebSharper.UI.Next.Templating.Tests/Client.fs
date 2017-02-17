@@ -12,9 +12,7 @@ open WebSharper.UI.Next.Templating
 module Client =    
     open WebSharper.UI.Next.Client
 
-    let [<Literal>] TemplateHtmlPath = __SOURCE_DIRECTORY__ + "/template.html"
-
-    type MyTemplate = Template<TemplateHtmlPath> 
+    type MyTemplate = Template<"template.html">
 
     type Item =
         { id : int; name: string; description: string }
@@ -64,57 +62,59 @@ module Client =
                     | Some a -> a.name + ":" + a.description))
 
         let doc =
-            MyTemplate.Doc(
-                PAttr = Attr.Style "font-weight" "bold",
-                NewName = newName,
-                NewDescription = newDescr,
-                NewItem = (fun e v -> myItems.Add { id = freshKey(); name = newName.Value; description = newDescr.Value }),
-                Title = [
+            MyTemplate()
+                .Attr(Attr.Style "font-weight" "bold")
+                .Title(
                     h1Attr [
                         attr.style "color: blue"
                         attr.classDynPred var.View (View.Const true)
                         on.click (fun el ev -> Console.Log ev)
                     ] [textView tv]
-                ],
-                ListContainer = [
+                )
+                .ListContainer(
                     myItems.ViewState.DocSeqCached(Item.Key, fun key item ->
-                        MyTemplate.ListItem.Doc(
-                            Key = item.Map(fun i -> string i.id),
-                            Name = item.Map(fun i -> i.name),
-                            Description = myItems.LensInto (fun i -> i.description) (fun i d -> { i with description = d }) key,
-                            FontStyle = "italic",
-                            FontWeight = "bold",
-                            Remove = (fun _ _ -> myItems.RemoveByKey key))
+                        MyTemplate.ListItem()
+                            .Key(item.Map(fun i -> string i.id))
+                            .Name(item.Map(fun i -> i.name))
+                            .Description(myItems.LensInto (fun i -> i.description) (fun i d -> { i with description = d }) key)
+                            .FontStyle("italic")
+                            .FontWeight("bold")
+                            .Remove(fun _ _ -> myItems.RemoveByKey key)
+                            .Doc()
                     )
-                ],
-                SubmitItems = (fun el ev -> itemsSub.Trigger ()),
-                ClearItems = (fun el ev -> myItems.Clear ()),
-                FindBy = findByKey,
-                Found = found,
-                Length = myItems.ViewState.Map(fun s -> printfn "mapping length"; string s.Length),
-                Names = 
+                )
+                .NewName(newName)
+                .NewDescription(newDescr)
+                .NewItem(fun () -> myItems.Add { id = freshKey(); name = newName.Value; description = newDescr.Value })
+                .SubmitItems(itemsSub.Trigger)
+                .ClearItems(myItems.Clear)
+                .FindBy(findByKey)
+                .Found(found)
+                .Length(myItems.ViewState.Map(fun s -> printfn "mapping length"; string s.Length))
+                .Names(
                     myItems.ViewState.Map(fun s -> 
                         s.ToArray(fun i -> not (System.String.IsNullOrEmpty i.description))
                         |> Seq.map (fun i -> i.name)
                         |> String.concat ", "
-                    ),
-                ListView = [
-                    itemsSub.View.DocSeqCached(Item.Key, fun key item ->
-                        MyTemplate.ListViewItem.Doc(
-                            Name = item.Map(fun i -> i.name),
-                            Description = item.Map(fun i -> i.description)
-                        )
                     )
-                ],
-                MyInput = var,
-                MyInputView = btnSub.View,
-                MyCallback = (fun el ev -> btnSub.Trigger ()),
-                ButtonExtraText = " now",
-                NameChanged = (fun el ev -> 
-                    let key = if ev?which then ev?which else ev?keyCode
-                    if key = 13 then newName := ""),
-                PRendered = (fun el -> var := el.GetAttribute("id"))
-            )
+                )
+                .ListView(
+                    itemsSub.View.DocSeqCached(Item.Key, fun key item ->
+                        MyTemplate.ListViewItem()
+                            .Name(item.Map(fun i -> i.name))
+                            .Description(item.Map(fun i -> i.description))
+                            .Doc()
+                    )
+                )
+                .MyInput(var)
+                .MyInputView(btnSub.View)
+                .MyCallback(btnSub.Trigger)
+                .ButtonExtraText(" now")
+                .NameChanged(fun el ev -> 
+                   let key = if ev?which then ev?which else ev?keyCode
+                   if key = 13 then newName := "")
+                .PRendered(fun (el: Dom.Element) -> var := el.GetAttribute("id"))
+                .Doc()
 
         Anim.UseAnimations <- false
 

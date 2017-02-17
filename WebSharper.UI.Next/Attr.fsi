@@ -33,7 +33,7 @@ type Attr =
 
     interface WebSharper.IRequiresResources
 
-    member internal Write : M.Info * System.Web.UI.HtmlTextWriter * bool -> unit
+    member Write : M.Info * System.Web.UI.HtmlTextWriter * bool -> unit
 
     /// Sets a basic DOM attribute, such as `id` to a text value.
     static member Create : name: string -> value: string -> Attr

@@ -22,6 +22,7 @@ namespace WebSharper.UI.Next.Client
 
 open System
 open System.Runtime.CompilerServices
+open WebSharper
 open WebSharper.JavaScript
 open WebSharper.UI.Next
 
@@ -44,13 +45,6 @@ module EltExtensions =
 
         /// Get or set the element's text content.
         member Text : string with get, set
-
-type CheckedInput<'T> =
-    | Valid of value: 'T * inputText: string
-    | Invalid of inputText: string
-    | Blank of inputText: string
-
-    member Input : string
 
 // Extension methods
 [<Extension; Sealed>]
@@ -1115,6 +1109,18 @@ module Doc =
     /// Embeds an asynchronous Doc. The resulting Doc is empty until the Async returns.
     val Async : Async<#Doc> -> Doc
 
+    /// Construct a Doc using a given set of DOM nodes and template fillers.
+    val Template : Node[] -> seq<TemplateHole> -> Doc
+
+    /// Load templates declared in the current document with `data-template="name"`.
+    val LoadLocalTemplates : string -> unit
+
+    /// Construct a Doc using a given loaded template by name and template fillers.
+    val NamedTemplate : string -> option<string> -> seq<TemplateHole> -> Doc
+
+    /// Construct a Doc using a given loaded template by name and template fillers.
+    val GetOrLoadTemplate : string -> option<string> -> (unit -> Node[]) -> seq<TemplateHole> -> Doc
+
   // Collections.
 
     /// Converts a collection to Doc using View.MapSeqCached and embeds the concatenated result.
@@ -1262,3 +1268,4 @@ module Doc =
     /// Radio button.
     val Radio : seq<Attr> -> 'T -> IRef<'T> -> Elt
         when 'T : equality
+

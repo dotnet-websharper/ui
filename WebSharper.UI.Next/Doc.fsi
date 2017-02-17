@@ -80,6 +80,8 @@ type Doc =
     abstract Requires : seq<Core.Metadata.Node>
     static member internal OfINode : Web.INode -> Doc
 
+    internal new : unit -> Doc
+
 and [<Sealed; Class>] Elt =
     inherit Doc
 
@@ -510,3 +512,20 @@ and [<Sealed; Class>] Elt =
     /// When called on the server side, the handler must be a top-level function or a static member.
     member OnWheel : cb: Expr<Dom.Element -> Dom.WheelEvent -> unit> -> Elt
     // }}
+
+[<RequireQualifiedAccess>]
+type TemplateHole =
+    | Elt of name: string * fillWith: Doc
+    | Text of name: string * fillWith: string
+    | TextView of name: string * fillWith: View<string>
+    | Attribute of name: string * fillWith: Attr
+    | Event of name: string * fillWith: (Element -> Dom.Event -> unit)
+    | AfterRender of name: string * fillWith: (Element -> unit)
+    | VarStr of name: string * fillWith: IRef<string>
+    | VarBool of name: string * fillWith: IRef<bool>
+    | VarInt of name: string * fillWith: IRef<Client.CheckedInput<int>>
+    | VarIntUnchecked of name: string * fillWith: IRef<int>
+    | VarFloat of name: string * fillWith: IRef<Client.CheckedInput<float>>
+    | VarFloatUnchecked of name: string * fillWith: IRef<float>
+
+    static member Name : TemplateHole -> string

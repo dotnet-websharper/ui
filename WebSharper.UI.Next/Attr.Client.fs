@@ -1,4 +1,4 @@
-﻿// $begin{copyright}
+// $begin{copyright}
 //
 // This file is part of WebSharper
 //
@@ -167,6 +167,7 @@ module Attrs =
         let nodes = Queue()
         let oar = Queue()
         let rec loop node =
+            if not (Object.ReferenceEquals(node, null)) then // work around WS issue with UseNullAsTrueValue
             match node with
             | A0 -> ()
             | A1 n -> nodes.Enqueue n
@@ -207,9 +208,13 @@ module Attrs =
         dyn.OnAfterRender
 
     let AppendTree a b =
-        match a, b with
-        | A0, x | x, A0 -> x
-        | _ -> A2 (a, b)
+        // work around WS issue with UseNullAsTrueValue
+        if Object.ReferenceEquals(a, null) then b
+        elif Object.ReferenceEquals(b, null) then a
+        else A2 (a, b)
+//        match a, b with
+//        | A0, x | x, A0 -> x
+//        | _ -> A2 (a, b)
 
     let internal EmptyAttr = A0
 
@@ -253,6 +258,21 @@ type AttrProxy with
     static member Handler (event: string) (q: Expr<Element -> #DomEvent-> unit>) =
         As<Attr> (Attrs.Static (fun el -> el.AddEventListener(event, (As<Element -> DomEvent -> unit> q) el, false)))
 
+[<JavaScript; Name "WebSharper.UI.Next.CheckedInput">]
+type CheckedInput<'T> =
+    | Valid of value: 'T * inputText: string
+    | Invalid of inputText: string
+    | Blank of inputText: string
+
+    static member Make(x: 'T) =
+        Valid (x, x.ToString())
+
+    member this.Input =
+        match this with
+        | Valid (_, x)
+        | Invalid x
+        | Blank x -> x
+
 [<JavaScript; Name "WebSharper.UI.Next.AttrModule">]
 module Attr =
 
@@ -278,11 +298,12 @@ module Attr =
         As<Attr> (Attrs.Dynamic view (fun el v -> DU.SetStyle el name v))
 
     let Handler name (callback: Element -> #DomEvent -> unit) =
-        As<Attr> (Attrs.Static (fun el -> el.AddEventListener(name, (fun (ev: DomEvent) -> callback (As ev.Target) (As ev)), false)))
+        As<Attr> (Attrs.Static (fun el -> el.AddEventListener(name, As<DomEvent -> unit> (callback el), false)))
 
     let HandlerView name (view: View<'T>) (callback: Element -> #DomEvent -> 'T -> unit) =
         let init (el: Element) =
-            el.AddEventListener(name, (fun (ev: DomEvent) -> View.Get (callback (As ev.Target) (As ev)) view), false)
+            let callback = callback el
+            el.AddEventListener(name, (fun (ev: DomEvent) -> View.Get (callback (As ev)) view), false)
         As<Attr> (Attrs.Static init)
 
     let OnAfterRender (callback: Element -> unit) =
@@ -341,6 +362,63 @@ module Attr =
 
     let Value (var: IRef<string>) =
         CustomValue var id (id >> Some)
+
+    [<JavaScript; Inline "$e.checkValidity?$e.checkValidity():true">]
+    let CheckValidity (e: Dom.Element) = X<bool>
+
+    let IntValueUnchecked (var: IRef<int>) =
+        let parseInt (s: string) =
+            if String.isBlank s then Some 0 else
+            let pd : int = JS.Plus s
+            if pd !==. (pd >>. 0) then None else Some pd
+        CustomValue var string parseInt
+
+    let IntValue (var: IRef<CheckedInput<int>>) =
+        let parseCheckedInt (el: Dom.Element) : option<CheckedInput<int>> =
+            let s = el?value
+            if String.isBlank s then
+                if CheckValidity el then Blank s else Invalid s
+            else
+                let i : float = JS.Plus s
+                if JS.IsNaN i then Invalid s else Valid (int i, s)
+            |> Some
+        CustomVar var
+            (fun el i ->
+                let i = i.Input
+                if el?value <> i then el?value <- i)
+            parseCheckedInt
+
+    let FloatValueUnchecked (var: IRef<float>) =
+        let parseFloat (s: string) =
+            if String.isBlank s then Some 0. else
+            let pd : float = JS.Plus s
+            if JS.IsNaN pd then None else Some pd
+        CustomValue var string parseFloat
+
+    let FloatValue (var: IRef<CheckedInput<float>>) =
+        let parseCheckedFloat (el: Dom.Element) : option<CheckedInput<float>> =
+            let s = el?value
+            if String.isBlank s then
+                if CheckValidity el then Blank s else Invalid s
+            else
+                let i = JS.Plus s
+                if JS.IsNaN i then Invalid s else Valid (i, s)
+            |> Some
+        CustomVar var
+            (fun el i ->
+                let i = i.Input
+                if el?value <> i then el?value <- i)
+            parseCheckedFloat
+
+    let Checked (var: IRef<bool>) =
+        let onSet (el: Dom.Element) (ev: Dom.Event) =
+            if var.Value <> el?``checked`` then
+                var.Value <- el?``checked``
+        Attr.Concat [
+            DynamicProp "checked" var.View
+            Handler "change" onSet
+            Handler "click" onSet
+        ]
 
     let ValidateForm () =
         OnAfterRender Resources.H5F.Setup
