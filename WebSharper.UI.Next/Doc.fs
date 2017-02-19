@@ -102,6 +102,8 @@ and DynDoc =
     | VerbatimDoc of string
     | INodeDoc of INode
 
+and HoleName = Replace | Hole
+
 and [<Sealed>] Elt(tag: string, attrs: list<Attr>, children: list<Doc>) =
     inherit Doc()
 
@@ -111,24 +113,24 @@ and [<Sealed>] Elt(tag: string, attrs: list<Attr>, children: list<Doc>) =
                 let rec findHole a =
                     if obj.ReferenceEquals(a, null) then None else
                     match a with
-                    | Attr.SingleAttr (name, value) ->
-                        if (name = "ws-replace" || name = "ws-hole")
-                            && (value = "scripts" || value = "styles" || value = "meta") then
-                            Some (name, value, res)
-                        else None
+                    | Attr.SingleAttr (("ws-replace" | "data-replace"), value)
+                        when (value = "scripts" || value = "styles" || value = "meta") ->
+                        Some (HoleName.Replace, value, res)
+                    | Attr.SingleAttr (("ws-hole" | "data-hole"), value)
+                        when (value = "scripts" || value = "styles" || value = "meta") ->
+                        Some (HoleName.Hole, value, res)
+                    | Attr.SingleAttr _ | Attr.DepAttr _ -> None
                     | Attr.AppendAttr attrs -> List.tryPick findHole attrs
-                    | Attr.DepAttr _ -> None
                 List.tryPick findHole attrs
             )
         match hole with
-        | Some ("ws-replace", name, res) -> w.Write(res.[name])
-        | Some ("ws-hole", name, res) ->
+        | Some (HoleName.Replace, name, res) -> w.Write(res.[name])
+        | Some (HoleName.Hole, name, res) ->
             w.WriteBeginTag(tag)
             attrs |> List.iter (fun a -> a.Write(meta, w, true))
             w.Write(HtmlTextWriter.TagRightChar)
             w.Write(res.[name])
             w.WriteEndTag(tag)
-        | Some _ -> () // can't happen
         | None ->
             w.WriteBeginTag(tag)
             attrs |> List.iter (fun a ->
@@ -146,7 +148,7 @@ and [<Sealed>] Elt(tag: string, attrs: list<Attr>, children: list<Doc>) =
             if obj.ReferenceEquals(a, null) then false else
             match a with
             | Attr.AppendAttr attrs -> List.exists testAttr attrs
-            | Attr.SingleAttr (("ws-replace" | "ws-hole"), ("styles" | "meta")) -> true
+            | Attr.SingleAttr (("ws-replace" | "ws-hole" | "data-replace" | "data-hole"), ("styles" | "meta")) -> true
             | Attr.SingleAttr _
             | Attr.DepAttr _ -> false
         (attrs |> List.exists testAttr)
