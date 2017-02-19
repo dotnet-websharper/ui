@@ -758,11 +758,13 @@ type private Doc' [<JavaScript>] (docNode, updates) =
     static member PrepareTemplateStrict (baseName: string) (name: option<string>) (els: Node[]) =
         let convertAttrs (el: Dom.Element) =
             let attrs = el.Attributes
+            let toRemove = [||]
             let events = [||]
             let holedAttrs = [||]
             for i = 0 to attrs.Length - 1 do
                 let a = attrs.[i]
                 if a.NodeName.StartsWith "ws-on" && a.NodeName <> "ws-onafterrender" then
+                    toRemove.JS.Push(a.NodeName) |> ignore
                     events.JS.Push(a.NodeName.["ws-on".Length..] + ":" + a.NodeValue) |> ignore
                 elif not (a.NodeName.StartsWith "ws-") && RegExp(Docs.TextHoleRE).Test(a.NodeValue) then
                     holedAttrs.JS.Push(a.NodeName) |> ignore
@@ -770,6 +772,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 el.SetAttribute("ws-on", String.concat " " events)
             if not (Array.isEmpty holedAttrs) then
                 el.SetAttribute("ws-attr-holes", String.concat " " holedAttrs)
+            Array.iter el.RemoveAttribute toRemove
         let rec convert (p: Element) (n: Node) =
             if n !==. null then
                 if n.NodeType = Dom.NodeType.Text then
