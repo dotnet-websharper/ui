@@ -37,8 +37,9 @@ type ClientLoad =
     | Inline = 1
     /// The HTML is loaded from the current document.
     | FromDocument = 2
-    /// The HTML is downloaded upon first instantiation.
-    | Download = 3
+    // Not implemented yet:
+//    /// The HTML is downloaded upon first instantiation.
+//    | Download = 3
 
 /// Decide how the HTML is loaded when the template is used on the server side.
 /// This only has an effect when passing a path to the provider, not inline HTML. (default: Once)
@@ -47,8 +48,9 @@ type ServerLoad =
     | Once = 1
     /// The HTML is loaded from the file system on every use.
     | PerRequest = 3
-    /// The HTML file is watched for changes and reloaded accordingly.
-    | WhenChanged = 2
+    // Not implemented yet:
+//    /// The HTML file is watched for changes and reloaded accordingly.
+//    | WhenChanged = 2
 
 type private Holes = Dictionary<HoleName, TemplateHole>
 
