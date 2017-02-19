@@ -91,52 +91,6 @@ module private Impl =
     let BuildHoleMethods (holeName: HoleName) (holeKind: HoleKind) (resTy: Type) (ctx: Ctx)
             : list<MemberInfo> =
         let mk wrapArg = BuildMethod holeName resTy wrapArg ctx
-        let mkStrings() : list<MemberInfo> =
-            [
-                mk <| fun (x: Expr<string>) ->
-                    <@ TemplateHole.Text(holeName, %x) @>
-                mk <| fun (x: Expr<View<string>>) ->
-                    <@ TemplateHole.TextView(holeName, %x) @>
-            ]
-        let mkVarStrings() : list<MemberInfo> =
-            [
-                mk <| fun (x: Expr<IRef<string>>) ->
-                    <@ TemplateHole.VarStr(holeName, %x) @>
-            ]
-        let mkNumbers() : list<MemberInfo> =
-            [
-                mk <| fun (x: Expr<int>) ->
-                    <@ TemplateHole.Text(holeName, string %x) @>
-                mk <| fun (x: Expr<View<int>>) ->
-                    <@ TemplateHole.TextView(holeName, (%x).Map string) @>
-                mk <| fun (x: Expr<float>) ->
-                    <@ TemplateHole.Text(holeName, string %x) @>
-                mk <| fun (x: Expr<View<float>>) ->
-                    <@ TemplateHole.TextView(holeName, (%x).Map string) @>
-            ]
-        let mkVarNumbers() : list<MemberInfo> =
-            [
-                mk <| fun (x: Expr<IRef<int>>) ->
-                    <@ TemplateHole.VarIntUnchecked(holeName, %x) @>
-                mk <| fun (x: Expr<IRef<CheckedInput<int>>>) ->
-                    <@ TemplateHole.VarInt(holeName, %x) @>
-                mk <| fun (x: Expr<IRef<float>>) ->
-                    <@ TemplateHole.VarFloatUnchecked(holeName, %x) @>
-                mk <| fun (x: Expr<IRef<CheckedInput<float>>>) ->
-                    <@ TemplateHole.VarFloat(holeName, %x) @>
-            ]
-        let mkBools() : list<MemberInfo> =
-            [
-                mk <| fun (x: Expr<bool>) ->
-                    <@ TemplateHole.Text(holeName, string %x) @>
-                mk <| fun (x: Expr<View<bool>>) ->
-                    <@ TemplateHole.TextView(holeName, (%x).Map string) @>
-            ]
-        let mkVarBools() : list<MemberInfo> =
-            [
-                mk <| fun (x: Expr<IRef<bool>>) ->
-                    <@ TemplateHole.VarBool(holeName, %x) @>
-            ]
         match holeKind with
         | HoleKind.Attr ->
             [
@@ -166,11 +120,34 @@ module private Impl =
                 mk <| fun (x: Expr<unit -> unit>) ->
                     <@ TemplateHole.Event(holeName, RuntimeClient.WrapEvent %x) @>
             ]
-        | HoleKind.Simple -> List.concat [mkStrings(); mkNumbers(); mkBools()]
-        | HoleKind.Var ValTy.Any -> List.concat [mkVarStrings(); mkVarNumbers(); mkVarBools()]
-        | HoleKind.Var ValTy.String -> mkVarStrings()
-        | HoleKind.Var ValTy.Number -> mkVarNumbers()
-        | HoleKind.Var ValTy.Bool -> mkVarBools()
+        | HoleKind.Simple ->
+            [
+                mk <| fun (x: Expr<string>) ->
+                    <@ TemplateHole.Text(holeName, %x) @>
+                mk <| fun (x: Expr<View<string>>) ->
+                    <@ TemplateHole.TextView(holeName, %x) @>
+            ]
+        | HoleKind.Var (ValTy.Any | ValTy.String) ->
+            [
+                mk <| fun (x: Expr<IRef<string>>) ->
+                    <@ TemplateHole.VarStr(holeName, %x) @>
+            ]
+        | HoleKind.Var ValTy.Number ->
+            [
+                mk <| fun (x: Expr<IRef<int>>) ->
+                    <@ TemplateHole.VarIntUnchecked(holeName, %x) @>
+                mk <| fun (x: Expr<IRef<CheckedInput<int>>>) ->
+                    <@ TemplateHole.VarInt(holeName, %x) @>
+                mk <| fun (x: Expr<IRef<float>>) ->
+                    <@ TemplateHole.VarFloatUnchecked(holeName, %x) @>
+                mk <| fun (x: Expr<IRef<CheckedInput<float>>>) ->
+                    <@ TemplateHole.VarFloat(holeName, %x) @>
+            ]
+        | HoleKind.Var ValTy.Bool ->
+            [
+                mk <| fun (x: Expr<IRef<bool>>) ->
+                    <@ TemplateHole.VarBool(holeName, %x) @>
+            ]
 
     let OptionValue (x: option<'T>) : Expr<option<'T>> =
         match x with
