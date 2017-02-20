@@ -20,6 +20,7 @@
 
 namespace WebSharper.UI.Next.Templating
 
+open System.IO
 open System.Collections.Generic
 open System.Web.UI
 open WebSharper
@@ -104,7 +105,9 @@ type Runtime private () =
             match serverLoad with
             | ServerLoad.Once -> load src
             | ServerLoad.PerRequest ->
-                Parsing.ParseSource (System.IO.File.ReadAllText path) subTemplatesHandling
+                let basepath = System.AppDomain.CurrentDomain.BaseDirectory
+                let path = Path.Combine(basepath, path)
+                Parsing.ParseSource (File.ReadAllText path) subTemplatesHandling
             | _ -> failwith "ServerLoad.WhenChanged not implemented yet"
         let template = getTemplate baseName name templates
         let fillWith = buildFillDict fillWith template.Holes
