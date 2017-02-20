@@ -57,9 +57,6 @@ type private Holes = Dictionary<HoleName, TemplateHole>
 
 type Runtime private () =
 
-    static let logfn fmt =
-        Printf.kprintf (fun txt -> File.AppendAllText("f:/out.txt", txt + "\n")) fmt
-
     static let loaded = ConcurrentDictionary<string, Map<option<string>, Template>>()
 
     static let watchers = ConcurrentDictionary<string, FileSystemWatcher>()
@@ -108,7 +105,6 @@ type Runtime private () =
         let reload fullPath =
             let src = File.ReadAllText fullPath
             let parsed = Parsing.ParseSource src subTemplatesHandling
-            logfn "Reload:\n%s" src
             loaded.AddOrUpdate(baseName, parsed, fun _ _ -> parsed)
         let templates =
             match path with
@@ -118,15 +114,12 @@ type Runtime private () =
             | ServerLoad.Once -> getOrLoadSrc src
             | ServerLoad.PerRequest ->
                 let fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path)
-                logfn "[PerRequest] Reloading %s" fullPath
                 Parsing.ParseSource (File.ReadAllText fullPath) subTemplatesHandling
             | ServerLoad.WhenChanged ->
                 let fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path)
-                logfn "[WhenChanged] Using %s" fullPath
                 let watcher = watchers.GetOrAdd(baseName, fun _ ->
                     let dir = Path.GetDirectoryName fullPath
                     let file = Path.GetFileName fullPath
-                    logfn "[WhenChanged] Creating watcher for %s / %s" dir file
                     let watcher =
                         new FileSystemWatcher(
                             Path = dir,
@@ -134,7 +127,6 @@ type Runtime private () =
                             NotifyFilter = (NotifyFilters.LastWrite ||| NotifyFilters.Security ||| NotifyFilters.FileName),
                             EnableRaisingEvents = true)
                     let handler _ =
-                        logfn "[WhenChanged] Reloading %s" fullPath
                         reload fullPath |> ignore
                     watcher.Changed.Add handler
                     watcher)
