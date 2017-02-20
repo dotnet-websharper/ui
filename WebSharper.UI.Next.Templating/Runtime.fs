@@ -20,6 +20,7 @@
 
 namespace WebSharper.UI.Next.Templating
 
+open System
 open System.IO
 open System.Collections.Generic
 open System.Web.UI
@@ -49,15 +50,19 @@ type ServerLoad =
     | Once = 1
     /// The HTML is loaded from the file system on every use.
     | PerRequest = 3
-    // Not implemented yet:
-//    /// The HTML file is watched for changes and reloaded accordingly.
-//    | WhenChanged = 2
+    /// The HTML file is watched for changes and reloaded accordingly.
+    | WhenChanged = 2
 
 type private Holes = Dictionary<HoleName, TemplateHole>
 
 type Runtime private () =
 
+    static let logfn fmt =
+        Printf.kprintf (fun txt -> File.AppendAllText("f:/out.txt", txt + "\n")) fmt
+
     static let loaded = ConcurrentDictionary<string, Map<option<string>, Template>>()
+
+    static let watchers = ConcurrentDictionary<string, FileSystemWatcher>()
 
     static let getTemplate baseName name templates : Template =
         match Map.tryFind name templates with
@@ -96,19 +101,45 @@ type Runtime private () =
             if clientLoad = ClientLoad.FromDocument
             then Parsing.KeepSubTemplatesInRoot
             else Parsing.ExtractSubTemplatesFromRoot
-        let load src =
+        let getOrLoadSrc src =
             loaded.GetOrAdd(baseName, fun _ -> Parsing.ParseSource src subTemplatesHandling)
+        let getOrLoadPath fullPath =
+            loaded.GetOrAdd(baseName, fun _ -> Parsing.ParseSource (File.ReadAllText fullPath) subTemplatesHandling)
+        let reload fullPath =
+            let src = File.ReadAllText fullPath
+            let parsed = Parsing.ParseSource src subTemplatesHandling
+            logfn "Reload:\n%s" src
+            loaded.AddOrUpdate(baseName, parsed, fun _ _ -> parsed)
         let templates =
             match path with
-            | None -> load src
+            | None -> getOrLoadSrc src
             | Some path ->
             match serverLoad with
-            | ServerLoad.Once -> load src
+            | ServerLoad.Once -> getOrLoadSrc src
             | ServerLoad.PerRequest ->
-                let basepath = System.AppDomain.CurrentDomain.BaseDirectory
-                let path = Path.Combine(basepath, path)
-                Parsing.ParseSource (File.ReadAllText path) subTemplatesHandling
-            | _ -> failwith "ServerLoad.WhenChanged not implemented yet"
+                let fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path)
+                logfn "[PerRequest] Reloading %s" fullPath
+                Parsing.ParseSource (File.ReadAllText fullPath) subTemplatesHandling
+            | ServerLoad.WhenChanged ->
+                let fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path)
+                logfn "[WhenChanged] Using %s" fullPath
+                let watcher = watchers.GetOrAdd(baseName, fun _ ->
+                    let dir = Path.GetDirectoryName fullPath
+                    let file = Path.GetFileName fullPath
+                    logfn "[WhenChanged] Creating watcher for %s / %s" dir file
+                    let watcher =
+                        new FileSystemWatcher(
+                            Path = dir,
+                            Filter = file,
+                            NotifyFilter = (NotifyFilters.LastWrite ||| NotifyFilters.Security ||| NotifyFilters.FileName),
+                            EnableRaisingEvents = true)
+                    let handler _ =
+                        logfn "[WhenChanged] Reloading %s" fullPath
+                        reload fullPath |> ignore
+                    watcher.Changed.Add handler
+                    watcher)
+                getOrLoadPath fullPath
+            | _ -> failwith "Invalid ServerLoad"
         let template = getTemplate baseName name templates
         let fillWith = buildFillDict fillWith template.Holes
 

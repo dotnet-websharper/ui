@@ -8,7 +8,7 @@ open WebSharper.UI.Next.Html
 open WebSharper.UI.Next.Notation
 open WebSharper.UI.Next.Templating
 
-type MainTemplate = Template<"Main.html", ClientLoad.FromDocument, ServerLoad.PerRequest>
+type MainTemplate = Template<"Main.html", ClientLoad.FromDocument, ServerLoad.WhenChanged>
 
 [<JavaScript>]
 module Client =
