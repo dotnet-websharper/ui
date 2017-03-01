@@ -27,7 +27,11 @@
     <input ws-var="MyInput" placeholder="Type here" />
     <button ws-onclick="MyCallback">Click me${ButtonExtraText}!</button>
     <div><b>You</b> <b>said</b>: ${MyInputView}</div>
+    <input type="checkbox" ws-var="Checked" />
+    <div>Checkbox status: ${IsChecked}</div>
     <div ws-replace="LeaveThisEmpty"></div>
+    <p>Test Doc.X controls:</p>
+    <div ws-replace="ControlTests"></div>
     <p>Here's some SVG:</p>
     <svg width="250" height="250">
         <rect x="25" y="25" width="200" height="200" fill="lime" stroke-width="4" stroke="pink" />

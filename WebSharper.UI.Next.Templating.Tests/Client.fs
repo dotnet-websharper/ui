@@ -61,6 +61,8 @@ module Client =
                     | None -> "none" 
                     | Some a -> a.name + ":" + a.description))
 
+        let chk = Var.Create true
+
         let doc =
             MyTemplate()
                 .Attr(Attr.Style "font-weight" "bold")
@@ -110,10 +112,48 @@ module Client =
                 .MyInputView(btnSub.View)
                 .MyCallback(btnSub.Trigger)
                 .ButtonExtraText(" now")
+                .Checked(chk)
+                .IsChecked(chk.View.Map(function true -> "checked" | false -> "not checked"))
                 .NameChanged(fun el ev -> 
                    let key = if ev?which then ev?which else ev?keyCode
                    if key = 13 then newName := "")
                 .PRendered(fun (el: Dom.Element) -> var := el.GetAttribute("id"))
+                .ControlTests(
+                    let clk = Var.Create ""
+                    let chk = Var.Create true
+                    let chkl = Var.Create [ 2 ]
+                    let inp = Var.Create "hello"
+                    let iinp = Var.Create (CheckedInput.Make 42)
+                    let ri = Var.Create 0
+                    [ 
+                        p [
+                            Doc.Button "Click me" [] (fun () -> clk := "Clicked!")
+                            textView clk.View
+                        ] :> Doc
+                        p [
+                            Doc.CheckBox [] chk 
+                            textView (chk.View.Map(function false -> "Check this" | true -> "Uncheck this"))
+                        ] :> Doc
+                        p [
+                            for i in 1 .. 5 ->
+                                Doc.CheckBoxGroup [] i chkl :> Doc 
+                            yield textView (chkl.View.Map(fun l -> "Checked indices:" + (l |> List.map string |> String.concat ", ")))
+                        ] :> Doc
+                        p [
+                            Doc.Input [] inp 
+                            textView (inp.View.Map(fun s -> "You said: " + s))
+                        ] :> Doc
+                        p [
+                            Doc.IntInput [] iinp 
+                            textView (iinp.View.Map(function Valid (i, _) -> "It's an int: " + string i | Invalid _ -> "Can't parse" | Blank _ -> "Empty" ))
+                        ] :> Doc
+                        p [
+                            for i in 1 .. 5 ->
+                                Doc.Radio [] i ri :> Doc 
+                            yield textView (ri.View.Map(fun i -> "Checked index:" + string i))
+                        ] :> Doc
+                    ]
+                )
                 .Doc()
 
         Anim.UseAnimations <- false

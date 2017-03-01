@@ -1000,6 +1000,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
     static member CheckBox attrs (chk: IRef<bool>) =
         Doc'.InputInternal "input" (fun _ ->
             Seq.append attrs [
+                Attr.Create "type" "checkbox"
                 Attr.Checked chk
             ])
 
