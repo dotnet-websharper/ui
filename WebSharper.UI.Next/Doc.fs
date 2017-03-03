@@ -369,7 +369,7 @@ type Doc with
 
     static member OfINode n = ConcreteDoc(INodeDoc n) :> Doc
 
-[<RequireQualifiedAccess>]
+[<RequireQualifiedAccess; JavaScript false>]
 type TemplateHole =
     | Elt of name: string * fillWith: Doc
     | Text of name: string * fillWith: string
@@ -384,7 +384,7 @@ type TemplateHole =
     | VarFloat of name: string * fillWith: IRef<Client.CheckedInput<float>>
     | VarFloatUnchecked of name: string * fillWith: IRef<float>
 
-    [<JavaScript; Inline "$x.$0">]
+    [<Inline "$x.$0">]
     static member Name x =
         match x with
         | TemplateHole.Elt (name, _)
