@@ -45,7 +45,7 @@ let tmpl =
                 r.Assembly "System.Xml"
                 r.Assembly "System.Xml.Linq"
                 r.Assembly "System.Runtime.Caching"
-                r.NuGet("HtmlAgilityPack").Reference()
+                r.NuGet("HtmlAgilityPack").Version("1.4.9.5").Reference()
             ])
 
 let csharp =
@@ -85,7 +85,7 @@ let tmplTest =
             [
                 r.Project main
                 r.Project tmpl
-                r.NuGet("HtmlAgilityPack").Reference()
+                r.NuGet("HtmlAgilityPack").Version("1.4.9.5").Reference()
             ])
 
 let serverTest =
@@ -97,7 +97,7 @@ let serverTest =
             [
                 r.Project main
                 r.Project tmpl
-                r.NuGet("HtmlAgilityPack").Reference()
+                r.NuGet("HtmlAgilityPack").Version("1.4.9.5").Reference()
             ])
 
 let cstest =
