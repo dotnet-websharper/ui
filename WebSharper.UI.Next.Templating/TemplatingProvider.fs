@@ -267,19 +267,30 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
                     .WithXmlDoc("Decide how the HTML is loaded when the template is used on the client side")
                 ctx.ProvidedStaticParameter("serverLoad", typeof<ServerLoad>, ServerLoad.Once)
                     .WithXmlDoc("Decide how the HTML is loaded when the template is used on the server side")
+                ctx.ProvidedStaticParameter("legacyMode", typeof<LegacyMode>, LegacyMode.Both)
+                    .WithXmlDoc("Use WebSharper 3 or Zafir templating engine or both")
             ],
             fun typename pars ->
             try
-                let pathOrHtml, clientLoad, serverLoad =
+                let (|ClientLoad|) (o: obj) =
+                    match o with
+                    | :? ClientLoad as clientLoad -> clientLoad  
+                    | :? int as clientLoad -> enum clientLoad
+                    | _ ->  failwithf "Expecting a ClientLoad or int static parameter value for clientLoad"
+                let (|ServerLoad|) (o: obj) =
+                    match o with
+                    | :? ServerLoad as serverLoad -> serverLoad  
+                    | :? int as serverLoad -> enum serverLoad
+                    | _ ->  failwithf "Expecting a ServerLoad or int static parameter value for serverLoad"
+                let (|LegacyMode|) (o: obj) =
+                    match o with
+                    | :? LegacyMode as legacyMode -> legacyMode  
+                    | :? int as legacyMode -> enum legacyMode
+                    | _ ->  failwithf "Expecting a LegacyMode or int static parameter value for legacyMode"
+                let pathOrHtml, clientLoad, serverLoad, legacyMode =
                     match pars with
-                    | [| :? string as pathOrHtml; :? ClientLoad as clientLoad; :? ServerLoad as serverLoad |] ->
-                        pathOrHtml, clientLoad, serverLoad
-                    | [| :? string as pathOrHtml; :? int as clientLoad; :? ServerLoad as serverLoad |] ->
-                        pathOrHtml, enum clientLoad, serverLoad
-                    | [| :? string as pathOrHtml; :? ClientLoad as clientLoad; :? int as serverLoad |] ->
-                        pathOrHtml, clientLoad, enum serverLoad
-                    | [| :? string as pathOrHtml; :? int as clientLoad; :? int as serverLoad |] ->
-                        pathOrHtml, enum clientLoad, enum serverLoad
+                    | [| :? string as pathOrHtml; ClientLoad clientLoad; ServerLoad serverLoad; LegacyMode legacyMode |] ->
+                        pathOrHtml, clientLoad, serverLoad, legacyMode
                     | a -> failwithf "Unexpected parameter values: %A" a
                 let ty = //lazy (
                     let template = Parsing.Parse pathOrHtml cfg.ResolutionFolder Parsing.ExtractSubTemplatesFromRoot
@@ -287,9 +298,15 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
                     let ty =
                         ctx.ProvidedTypeDefinition(thisAssembly, rootNamespace, typename, None)
                             .WithXmlDoc(XmlDoc.TemplateType "")
-                    try OldProvider.RunOldProvider pathOrHtml cfg ctx ty
-                    with _ -> reraise()
-                    BuildTP template.Templates ty ctx template.Path clientLoad serverLoad
+                    match legacyMode with
+                    | LegacyMode.Both ->
+                        try OldProvider.RunOldProvider true pathOrHtml cfg ctx ty
+                        with _ -> ()
+                        BuildTP template.Templates ty ctx template.Path clientLoad serverLoad
+                    | LegacyMode.Old ->
+                        OldProvider.RunOldProvider false pathOrHtml cfg ctx ty
+                    | _ ->
+                        BuildTP template.Templates ty ctx template.Path clientLoad serverLoad
                     ty
                 //)
                 //cache.AddOrGetExisting(typename, ty)

@@ -120,7 +120,7 @@ module internal Utils =
             | a -> VarUnchecked a.Value
         | a -> Var a.Value
 
-let RunOldProvider (pathOrXml: string) (cfg: TypeProviderConfig) (ctx: ProvidedTypesContext) (ty: ProvidedTypeDefinition) =
+let RunOldProvider addWarnings (pathOrXml: string) (cfg: TypeProviderConfig) (ctx: ProvidedTypesContext) (ty: ProvidedTypeDefinition) =
     let parseXml s =
         try // Try to load the file as a whole XML document, ie. single root node with optional DTD.
             let xmlDoc = XDocument.Parse(s, LoadOptions.PreserveWhitespace)
@@ -439,8 +439,12 @@ let RunOldProvider (pathOrXml: string) (cfg: TypeProviderConfig) (ctx: ProvidedT
                 | true, e -> Some e
                 | false, _ -> None)
 
+        let warnObsolete (m: ProvidedMethod) =
+            if addWarnings then m else
+                m.WithObsolete("This version of the templating provider is obsolete. Use the class's constructor instead.")        
+
         ctx.ProvidedMethod("Doc", pars, typeof<Doc>, isStatic = true, invokeCode = code)
-            .WithObsolete("This version of the templating provider is obsolete. Use the class's constructor instead.")
+        |> warnObsolete
         |> toTy.AddMember
 
         let isSingleElt =
@@ -451,7 +455,7 @@ let RunOldProvider (pathOrXml: string) (cfg: TypeProviderConfig) (ctx: ProvidedT
         if isSingleElt then
             ctx.ProvidedMethod("Elt", pars, typeof<Elt>, isStatic = true,
                 invokeCode = fun args -> <@@ (%%(code args) : Doc) :?> Elt @@>)
-                .WithObsolete("This version of the templating provider is obsolete. Use the class's constructor instead.")
+            |> warnObsolete
             |> toTy.AddMember
 
     for name, e in innerTemplates do

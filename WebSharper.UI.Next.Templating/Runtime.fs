@@ -53,6 +53,14 @@ type ServerLoad =
     /// The HTML file is watched for changes and reloaded accordingly.
     | WhenChanged = 2
 
+type LegacyMode =
+    /// Both old and new-style template construction methods are generated, warnings on old syntax
+    | Both = 1
+    /// Use the templating syntax inherited from WebSharper 3
+    | Old = 2
+    /// Use Zafir templating engine (experimental)
+    | New = 3
+
 type private Holes = Dictionary<HoleName, TemplateHole>
 
 type Runtime private () =
