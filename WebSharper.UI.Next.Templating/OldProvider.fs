@@ -440,8 +440,9 @@ let RunOldProvider addWarnings (pathOrXml: string) (cfg: TypeProviderConfig) (ct
                 | false, _ -> None)
 
         let warnObsolete (m: ProvidedMethod) =
-            if addWarnings then m else
-                m.WithObsolete("This version of the templating provider is obsolete. Use the class's constructor instead.")        
+            if addWarnings then
+                m.WithObsolete("This version of the templating provider is obsolete. Use the class's constructor instead.")   
+            else m     
 
         ctx.ProvidedMethod("Doc", pars, typeof<Doc>, isStatic = true, invokeCode = code)
         |> warnObsolete
