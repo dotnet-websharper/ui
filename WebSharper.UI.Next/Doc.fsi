@@ -82,7 +82,7 @@ type Doc =
 
     internal new : unit -> Doc
 
-and [<Sealed; Class>] Elt =
+and [<Class>] Elt =
     inherit Doc
 
     /// Add an event handler.

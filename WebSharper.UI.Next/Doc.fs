@@ -104,7 +104,7 @@ and DynDoc =
 
 and HoleName = Replace | Hole
 
-and [<Sealed>] Elt(tag: string, attrs: list<Attr>, children: list<Doc>) =
+and Elt(tag: string, attrs: list<Attr>, children: list<Doc>) =
     inherit Doc()
 
     override this.Write(meta, w, ?res) =

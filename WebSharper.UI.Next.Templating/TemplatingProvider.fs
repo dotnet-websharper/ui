@@ -154,36 +154,40 @@ module private Impl =
         | None -> <@ None @>
         | Some x -> <@ Some (%%Expr.Value x : 'T) @>
 
+    let finalMethodBody (ctx: Ctx) (wrap: Expr<Doc> -> Expr) = fun (args: list<Expr>) ->
+        // We use separate methods, rather than just passing clientLoad as argument,
+        // because the client-side implementation is [<Inline>] so it can drop
+        // any arguments it doesn't need (in particular src can be quite big)
+        // and each clientLoad needs different arguments.
+        match ctx.ClientLoad with
+        | ClientLoad.Inline ->
+            <@ Runtime.GetOrLoadTemplateInline(
+                    %%Expr.Value ctx.BaseName,
+                    %OptionValue ctx.Name,
+                    %OptionValue ctx.Path,
+                    %%Expr.Value ctx.Template.Src,
+                    ((%%args.[0] : obj) :?> list<TemplateHole>),
+                    %%Expr.Value ctx.ServerLoad
+                ) @>
+        | ClientLoad.FromDocument ->
+            <@ Runtime.GetOrLoadTemplateFromDocument(
+                    %%Expr.Value ctx.BaseName,
+                    %OptionValue ctx.Name,
+                    %OptionValue ctx.Path,
+                    %%Expr.Value ctx.Template.Src,
+                    ((%%args.[0] : obj) :?> list<TemplateHole>),
+                    %%Expr.Value ctx.ServerLoad
+                ) @>
+        | _ -> failwith "ClientLoad.Download not implemented yet"
+        |> wrap
+            
+
     let BuildFinalMethods (ctx: Ctx) : list<MemberInfo> =
         [
-            yield ctx.PT.ProvidedMethod("Doc", [], typeof<Doc>, fun args ->
-                // We use separate methods, rather than just passing clientLoad as argument,
-                // because the client-side implementation is [<Inline>] so it can drop
-                // any arguments it doesn't need (in particular src can be quite big)
-                // and each clientLoad needs different arguments.
-                match ctx.ClientLoad with
-                | ClientLoad.Inline ->
-                    <@@ Runtime.GetOrLoadTemplateInline(
-                            %%Expr.Value ctx.BaseName,
-                            %OptionValue ctx.Name,
-                            %OptionValue ctx.Path,
-                            %%Expr.Value ctx.Template.Src,
-                            ((%%args.[0] : obj) :?> list<TemplateHole>),
-                            %%Expr.Value ctx.ServerLoad
-                        ) @@>
-                | ClientLoad.FromDocument ->
-                    <@@ Runtime.GetOrLoadTemplateFromDocument(
-                            %%Expr.Value ctx.BaseName,
-                            %OptionValue ctx.Name,
-                            %OptionValue ctx.Path,
-                            %%Expr.Value ctx.Template.Src,
-                            ((%%args.[0] : obj) :?> list<TemplateHole>),
-                            %%Expr.Value ctx.ServerLoad
-                        ) @@>
-                | _ -> failwith "ClientLoad.Download not implemented yet"
-            ) :> _
+            yield ctx.PT.ProvidedMethod("Doc", [], typeof<Doc>, finalMethodBody ctx (fun x -> x :> _)) :> _
             if IsElt ctx.Template then
-                () // TODO: yield Elt
+                yield ctx.PT.ProvidedMethod("Elt", [], typeof<Elt>,
+                    finalMethodBody ctx <| fun e -> <@@ %e :?> Elt @@>) :> _
         ]
 
     let BuildOneTemplate (ty: PT.Type) (ctx: Ctx) =

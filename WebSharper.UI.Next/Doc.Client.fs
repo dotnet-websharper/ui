@@ -55,8 +55,8 @@ and DocTextNode =
 
 and DocTreeNode =
     {
-        Els : Node[]
-        Holes : DocElemNode[]
+        mutable Els : Node[]
+        mutable Holes : DocNode[]
         Attrs : (Element * Attrs.Dyn)[]
         [<OptionalField>]
         mutable Render : option<Dom.Element -> unit>
@@ -168,7 +168,7 @@ module Docs =
                 match doc with
                 | AppendDoc (a, b) -> dirty a || dirty b
                 | EmbedDoc d -> d.Dirty || dirty d.Current
-                | TreeDoc t -> Array.exists hasDirtyChildren t.Holes
+                | TreeDoc t -> Array.exists dirty t.Holes
                 | _ -> false
             dirty el.Children
         Attrs.Sync el.El el.Attr
@@ -208,7 +208,7 @@ module Docs =
                 d.Text.NodeValue <- d.Value
                 d.Dirty <- false
         | TreeDoc t ->
-            Array.iter syncElemNode t.Holes
+            Array.iter Sync t.Holes
             Array.iter (fun (e, a) -> Attrs.Sync e a) t.Attrs
             AfterRender (As t)
 
@@ -235,7 +235,7 @@ module Docs =
                 | AppendDoc (a, b) -> loop a; loop b
                 | ElemDoc el -> q.Enqueue el; loop el.Children
                 | EmbedDoc em -> loop em.Current
-                | TreeDoc t -> t.Holes |> Array.iter (fun el -> loop el.Children)
+                | TreeDoc t -> t.Holes |> Array.iter loop
                 | _ -> ()
             loop doc
             NodeSet (HashSet (q.ToArray()))
@@ -562,7 +562,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
 
     [<JavaScript>]
     static member ChildrenTemplate (el: Element) (fillWith: seq<TemplateHole>) =
-        let holes : DocElemNode[] = [||]
+        let holes : DocNode[] = [||]
         let updates : View<unit>[] = [||]
         let attrs : (Element * Attrs.Dyn)[] = [||]
         let afterRender : (Element -> unit)[] = [||]
@@ -596,14 +596,16 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 while (p.LastChild !==. null) do
                     p.RemoveChild(p.LastChild) |> ignore
                 Docs.LinkElement p doc.DocNode
-                holes.JS.Push {
+                ElemDoc {
                     Attr = Attrs.Insert p Attr.Empty
                     Children = doc.DocNode
                     Delimiters = None
                     El = p
                     ElKey = Fresh.Int()
                     Render = None
-                } |> ignore
+                }
+                |> holes.JS.Push
+                |> ignore
                 updates.JS.Push doc.Updates |> ignore
 
         DomUtility.IterSelector el "[ws-replace]" <| fun e ->
@@ -617,14 +619,16 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 | null -> Docs.LinkElement p doc.DocNode
                 | n -> Docs.LinkPrevElement n doc.DocNode
                 p.RemoveChild(e) |> ignore  
-                holes.JS.Push {
+                ElemDoc {
                     Attr = Attrs.Insert p Attr.Empty
                     Children = doc.DocNode
                     Delimiters = None
                     El = p
                     ElKey = Fresh.Int()
                     Render = None
-                } |> ignore
+                }
+                |> holes.JS.Push
+                |> ignore
                 updates.JS.Push doc.Updates |> ignore
 
         DomUtility.IterSelector el "[ws-attr]" <| fun e ->
@@ -717,17 +721,25 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                     |> Attr.Dynamic attrName
                 |> addAttr e
 
-        updates
-        |> Array.TreeReduce (View.Const ()) View.Map2Unit
-        |> Doc'.Mk (TreeDoc {
-            Els = DomUtility.ChildrenArray el
-            Holes = holes
-            Attrs = attrs
-            Render =
-                if Array.isEmpty afterRender
-                then None
-                else Some (fun el -> Array.iter (fun f -> f el) afterRender)
-        })
+        let els = DomUtility.ChildrenArray el
+        let docTreeNode : DocTreeNode =
+            {
+                Els = els
+                Holes = holes
+                Attrs = attrs
+                Render =
+                    if Array.isEmpty afterRender
+                    then None
+                    else Some (fun el -> Array.iter (fun f -> f el) afterRender)
+            }
+        let updates =
+            updates |> Array.TreeReduce (View.Const ()) View.Map2Unit
+
+
+        if els.Length = 1 && els.[0].NodeType = Dom.NodeType.Element then
+            Elt'.TreeNode(docTreeNode, updates) :> Doc'
+        else
+            Doc'.Mk (TreeDoc docTreeNode) updates
 
     [<JavaScript>]
     static member FakeRoot (els: Node[]) =
@@ -1156,6 +1168,15 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
         let updates = View.Bind (View.Map2Unit attrUpdates) rvUpdates.View
         new Elt'(ElemDoc node, updates, el, rvUpdates)
 
+    static member internal TreeNode(tree: DocTreeNode, updates) =
+        let rvUpdates = Var.Create updates
+        let attrUpdates =
+            tree.Attrs
+            |> Array.map (snd >> Attrs.Updates)
+            |> Array.TreeReduce (View.Const ()) View.Map2Unit
+        let updates = View.Bind (View.Map2Unit attrUpdates) rvUpdates.View
+        new Elt'(TreeDoc tree, updates, downcast tree.Els.[0], rvUpdates)
+
     [<Inline "$0.elt">]
     member this.Element = elt
 
@@ -1173,10 +1194,18 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
         this.on (ev, As<_ -> _ -> _> cb)
 
     member this.OnAfterRender (cb: Dom.Element -> unit) =
-        this.DocElemNode.Render <-
-            match this.DocElemNode.Render with
-            | None -> Some cb
-            | Some f -> Some (fun el -> f el; cb el)
+        match docNode with
+        | ElemDoc e ->
+            e.Render <-
+                match e.Render with
+                | None -> Some cb
+                | Some f -> Some (fun el -> f el; cb el)
+        | TreeDoc e ->
+            e.Render <-
+                match e.Render with
+                | None -> Some cb
+                | Some f -> Some (fun el -> f el; cb el)
+        | _ -> failwith "Invalid docNode in Elt"
         this
 
     member this.OnAfterRenderView (view: View<'T>, cb: Dom.Element -> 'T -> unit) =
@@ -1184,22 +1213,25 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
         this.AppendDoc(Doc'.BindView (fun x -> this.Element?(id) <- x; Doc'.Empty') view)
         this.OnAfterRender(fun e -> cb e e?(id))
 
-    member private this.DocElemNode : DocElemNode =
-        match docNode with
-        | ElemDoc e -> e
-        | _ -> failwith "Elt: Invalid docNode"
-
     [<Name "Append">]
     member this.AppendDoc(doc: Doc') =
-        let e = this.DocElemNode
-        e.Children <- AppendDoc(e.Children, doc.DocNode)
+        match docNode with
+        | ElemDoc e ->
+            e.Children <- AppendDoc(e.Children, doc.DocNode)
+        | TreeDoc e ->
+            e.Holes.JS.Push(doc.DocNode) |> ignore
+        | _ -> failwith "Invalid docNode in Elt"
         rvUpdates.Value <- View.Map2Unit rvUpdates.Value doc.Updates
         Docs.InsertDoc elt doc.DocNode DU.AtEnd |> ignore
 
     [<Name "Prepend">]
     member this.PrependDoc(doc: Doc') =
-        let e = this.DocElemNode
-        e.Children <- AppendDoc(doc.DocNode, e.Children)
+        match docNode with
+        | ElemDoc e ->
+            e.Children <- AppendDoc(doc.DocNode, e.Children)
+        | TreeDoc e ->
+            e.Holes.JS.Push(doc.DocNode) |> ignore
+        | _ -> failwith "Invalid docNode in Elt"
         rvUpdates.Value <- View.Map2Unit rvUpdates.Value doc.Updates
         let pos =
             match elt.FirstChild with
@@ -1209,7 +1241,13 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
 
     [<Name "Clear">]
     member this.Clear'() =
-        this.DocElemNode.Children <- EmptyDoc
+        match docNode with
+        | ElemDoc e ->
+            e.Children <- EmptyDoc
+        | TreeDoc e ->
+            e.Els <- [||]
+            e.Holes <- [||]
+        | _ -> failwith "Invalid docNode in Elt"
         rvUpdates.Value <- View.Const()
         while (elt.HasChildNodes()) do elt.RemoveChild(elt.FirstChild) |> ignore
 
@@ -1235,7 +1273,13 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
 
     [<Name "SetText">]
     member this.SetText(v: string) : unit =
-        this.DocElemNode.Children <- EmptyDoc
+        match docNode with
+        | ElemDoc e ->
+            e.Children <- EmptyDoc
+        | TreeDoc e ->
+            e.Els <- [||]
+            e.Holes <- [||]
+        | _ -> failwith "Invalid docNode in Elt"
         rvUpdates.Value <- View.Const()
         elt.TextContent <- v
 
