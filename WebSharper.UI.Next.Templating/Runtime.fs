@@ -217,6 +217,7 @@ type Runtime private () =
                 | Node.DocHole holeName ->
                     match fillWith.TryGetValue holeName with
                     | true, TemplateHole.Elt (_, doc) -> doc.Write(m, w, ?res = r)
+                    | true, TemplateHole.Text (_, txt) -> w.WriteEncodedText(txt)
                     | true, _ -> failwithf "Invalid hole, expected Doc: %s" holeName
                     | false, _ -> ()
             Array.iter writeNode template.Value

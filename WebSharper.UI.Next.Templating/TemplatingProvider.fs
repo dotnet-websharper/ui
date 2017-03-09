@@ -105,6 +105,10 @@ module private Impl =
                     <@ TemplateHole.Elt(holeName, %x) @>
                 mk <| fun (x: Expr<seq<Doc>>) ->
                     <@ TemplateHole.Elt(holeName, Doc.Concat %x) @>
+                mk <| fun (x: Expr<string>) ->
+                    <@ TemplateHole.Text(holeName, %x) @>
+                mk <| fun (x: Expr<View<string>>) ->
+                    <@ TemplateHole.TextView(holeName, %x) @>
             ]
         | HoleKind.ElemHandler ->
             [
