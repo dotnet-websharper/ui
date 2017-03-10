@@ -124,7 +124,7 @@ module internal DomUtility =
         JQuery.Of(element).RemoveClass(cl) |> ignore
 
     /// Retrieve the children of an element as an array.
-    let ChildrenArray (element: Element) =
+    let ChildrenArray (element: Element) : Dom.Node[] =
         let a = [||]
         for i = 0 to element.ChildNodes.Length - 1 do
             a.JS.Push(element.ChildNodes.[i]) |> ignore

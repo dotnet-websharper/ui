@@ -104,74 +104,90 @@ and DynDoc =
 
 and HoleName = Replace | Hole
 
-and [<Sealed>] Elt(tag: string, attrs: list<Attr>, children: list<Doc>) =
+and Elt
+    (
+        tag: string, attrs: list<Attr>,
+        encode, requires, hasNonScriptSpecialTags,
+        write: list<Attr> -> Core.Metadata.Info -> System.Web.UI.HtmlTextWriter -> option<Sitelets.Content.RenderedResources> -> unit
+    ) =
     inherit Doc()
 
-    override this.Write(meta, w, ?res) =
-        let hole =
-            res |> Option.bind (fun res ->
-                let rec findHole a =
-                    if obj.ReferenceEquals(a, null) then None else
-                    match a with
-                    | Attr.SingleAttr (("ws-replace" | "data-replace"), value)
-                        when (value = "scripts" || value = "styles" || value = "meta") ->
-                        Some (HoleName.Replace, value, res)
-                    | Attr.SingleAttr (("ws-hole" | "data-hole"), value)
-                        when (value = "scripts" || value = "styles" || value = "meta") ->
-                        Some (HoleName.Hole, value, res)
-                    | Attr.SingleAttr _ | Attr.DepAttr _ -> None
-                    | Attr.AppendAttr attrs -> List.tryPick findHole attrs
-                List.tryPick findHole attrs
-            )
-        match hole with
-        | Some (HoleName.Replace, name, res) -> w.Write(res.[name])
-        | Some (HoleName.Hole, name, res) ->
-            w.WriteBeginTag(tag)
-            attrs |> List.iter (fun a -> a.Write(meta, w, true))
-            w.Write(HtmlTextWriter.TagRightChar)
-            w.Write(res.[name])
-            w.WriteEndTag(tag)
-        | None ->
-            w.WriteBeginTag(tag)
-            attrs |> List.iter (fun a ->
-                if not (obj.ReferenceEquals(a, null))
-                then a.Write(meta, w, false))
-            if List.isEmpty children && HtmlTextWriter.IsSelfClosingTag tag then
-                w.Write(HtmlTextWriter.SelfClosingTagEnd)
-            else
-                w.Write(HtmlTextWriter.TagRightChar)
-                children |> List.iter (fun e -> e.Write(meta, w, ?res = res))
-                w.WriteEndTag(tag)
-
-    override this.HasNonScriptSpecialTags =
-        let rec testAttr a =
-            if obj.ReferenceEquals(a, null) then false else
-            match a with
-            | Attr.AppendAttr attrs -> List.exists testAttr attrs
-            | Attr.SingleAttr (("ws-replace" | "ws-hole" | "data-replace" | "data-hole"), ("styles" | "meta")) -> true
-            | Attr.SingleAttr _
-            | Attr.DepAttr _ -> false
-        (attrs |> List.exists testAttr)
-        || (children |> List.exists (fun d -> d.HasNonScriptSpecialTags))
+    override this.HasNonScriptSpecialTags = hasNonScriptSpecialTags attrs
 
     override this.Name = Some tag
 
-    override this.Encode(meta, json) =
-        children |> List.collect (fun e -> (e :> IRequiresResources).Encode(meta, json))
+    override this.Encode(m, j) = encode m j
 
-    override this.Requires =
-        Seq.append
-            (attrs |> Seq.collect (fun a ->
-                if obj.ReferenceEquals(a, null)
-                then Seq.empty
-                else (a :> IRequiresResources).Requires))
-            (children |> Seq.collect (fun e -> (e :> IRequiresResources).Requires))
+    override this.Requires = requires attrs
+
+    override this.Write(m, h, ?res) = write attrs m h res
+
+    new (tag: string, attrs: list<Attr>, children: list<Doc>) =
+        let write attrs meta (w: HtmlTextWriter) (res: option<Sitelets.Content.RenderedResources>) =
+            let hole =
+                res |> Option.bind (fun res ->
+                    let rec findHole a =
+                        if obj.ReferenceEquals(a, null) then None else
+                        match a with
+                        | Attr.SingleAttr (("ws-replace" | "data-replace"), value)
+                            when (value = "scripts" || value = "styles" || value = "meta") ->
+                            Some (HoleName.Replace, value, res)
+                        | Attr.SingleAttr (("ws-hole" | "data-hole"), value)
+                            when (value = "scripts" || value = "styles" || value = "meta") ->
+                            Some (HoleName.Hole, value, res)
+                        | Attr.SingleAttr _ | Attr.DepAttr _ -> None
+                        | Attr.AppendAttr attrs -> List.tryPick findHole attrs
+                    List.tryPick findHole attrs
+                )
+            match hole with
+            | Some (HoleName.Replace, name, res) -> w.Write(res.[name])
+            | Some (HoleName.Hole, name, res) ->
+                w.WriteBeginTag(tag)
+                attrs |> List.iter (fun a -> a.Write(meta, w, true))
+                w.Write(HtmlTextWriter.TagRightChar)
+                w.Write(res.[name])
+                w.WriteEndTag(tag)
+            | None ->
+                w.WriteBeginTag(tag)
+                attrs |> List.iter (fun a ->
+                    if not (obj.ReferenceEquals(a, null))
+                    then a.Write(meta, w, false))
+                if List.isEmpty children && HtmlTextWriter.IsSelfClosingTag tag then
+                    w.Write(HtmlTextWriter.SelfClosingTagEnd)
+                else
+                    w.Write(HtmlTextWriter.TagRightChar)
+                    children |> List.iter (fun e -> e.Write(meta, w, ?res = res))
+                    w.WriteEndTag(tag)
+
+        let hasNonScriptSpecialTags attrs =
+            let rec testAttr a =
+                if obj.ReferenceEquals(a, null) then false else
+                match a with
+                | Attr.AppendAttr attrs -> List.exists testAttr attrs
+                | Attr.SingleAttr (("ws-replace" | "ws-hole" | "data-replace" | "data-hole"), ("styles" | "meta")) -> true
+                | Attr.SingleAttr _
+                | Attr.DepAttr _ -> false
+            (attrs |> List.exists testAttr)
+            || (children |> List.exists (fun d -> d.HasNonScriptSpecialTags))
+
+        let encode meta json =
+            children |> List.collect (fun e -> (e :> IRequiresResources).Encode(meta, json))
+
+        let requires attrs =
+            Seq.append
+                (attrs |> Seq.collect (fun a ->
+                    if obj.ReferenceEquals(a, null)
+                    then Seq.empty
+                    else (a :> IRequiresResources).Requires))
+                (children |> Seq.collect (fun e -> (e :> IRequiresResources).Requires))
+
+        Elt(tag, attrs, encode, requires, hasNonScriptSpecialTags, write)
 
     member this.On(ev, cb) =
-        Elt(tag, Attr.Handler ev cb :: attrs, children)
+        Elt(tag, Attr.Handler ev cb :: attrs, encode, requires, hasNonScriptSpecialTags, write)
 
     member this.OnLinq(ev, cb) =
-        Elt(tag, Attr.HandlerLinq ev cb :: attrs, children)
+        Elt(tag, Attr.HandlerLinq ev cb :: attrs, encode, requires, hasNonScriptSpecialTags, write)
 
     // {{ event
     member this.OnAbort(cb: Expr<Dom.Element -> Dom.UIEvent -> unit>) = this.On("abort", cb)
@@ -315,6 +331,36 @@ and [<Sealed>] Elt(tag: string, attrs: list<Attr>, children: list<Doc>) =
     member this.OnWheel(cb: Expr<Dom.Element -> Dom.WheelEvent -> unit>) = this.On("wheel", cb)
     // }}
 
+and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
+    | Elt of name: string * fillWith: Doc
+    | Text of name: string * fillWith: string
+    | TextView of name: string * fillWith: View<string>
+    | Attribute of name: string * fillWith: Attr
+    | Event of name: string * fillWith: (Element -> Dom.Event -> unit)
+    | AfterRender of name: string * fillWith: (Element -> unit)
+    | VarStr of name: string * fillWith: IRef<string>
+    | VarBool of name: string * fillWith: IRef<bool>
+    | VarInt of name: string * fillWith: IRef<Client.CheckedInput<int>>
+    | VarIntUnchecked of name: string * fillWith: IRef<int>
+    | VarFloat of name: string * fillWith: IRef<Client.CheckedInput<float>>
+    | VarFloatUnchecked of name: string * fillWith: IRef<float>
+
+    [<Inline "$x.$0">]
+    static member Name x =
+        match x with
+        | TemplateHole.Elt (name, _)
+        | TemplateHole.Text (name, _)
+        | TemplateHole.TextView (name, _)
+        | TemplateHole.VarStr (name, _)
+        | TemplateHole.VarBool (name, _)
+        | TemplateHole.VarInt (name, _)
+        | TemplateHole.VarIntUnchecked (name, _)
+        | TemplateHole.VarFloat (name, _)
+        | TemplateHole.VarFloatUnchecked (name, _)
+        | TemplateHole.Event (name, _)
+        | TemplateHole.AfterRender (name, _)
+        | TemplateHole.Attribute (name, _) -> name
+
 type Doc with
 
     static member ListOfSeq (s: seq<'T>) =
@@ -368,34 +414,3 @@ type Doc with
     static member Verbatim t = ConcreteDoc(VerbatimDoc t) :> Doc
 
     static member OfINode n = ConcreteDoc(INodeDoc n) :> Doc
-
-[<RequireQualifiedAccess; JavaScript false>]
-type TemplateHole =
-    | Elt of name: string * fillWith: Doc
-    | Text of name: string * fillWith: string
-    | TextView of name: string * fillWith: View<string>
-    | Attribute of name: string * fillWith: Attr
-    | Event of name: string * fillWith: (Element -> Dom.Event -> unit)
-    | AfterRender of name: string * fillWith: (Element -> unit)
-    | VarStr of name: string * fillWith: IRef<string>
-    | VarBool of name: string * fillWith: IRef<bool>
-    | VarInt of name: string * fillWith: IRef<Client.CheckedInput<int>>
-    | VarIntUnchecked of name: string * fillWith: IRef<int>
-    | VarFloat of name: string * fillWith: IRef<Client.CheckedInput<float>>
-    | VarFloatUnchecked of name: string * fillWith: IRef<float>
-
-    [<Inline "$x.$0">]
-    static member Name x =
-        match x with
-        | TemplateHole.Elt (name, _)
-        | TemplateHole.Text (name, _)
-        | TemplateHole.TextView (name, _)
-        | TemplateHole.VarStr (name, _)
-        | TemplateHole.VarBool (name, _)
-        | TemplateHole.VarInt (name, _)
-        | TemplateHole.VarIntUnchecked (name, _)
-        | TemplateHole.VarFloat (name, _)
-        | TemplateHole.VarFloatUnchecked (name, _)
-        | TemplateHole.Event (name, _)
-        | TemplateHole.AfterRender (name, _)
-        | TemplateHole.Attribute (name, _) -> name

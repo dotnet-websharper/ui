@@ -66,7 +66,6 @@ module Internal =
 
     type TemplateDoc
         (
-            name: option<string>,
             fillWith: Dictionary<string, TemplateHole>,
             hasNonScriptSpecialTags: bool,
             write: Core.Metadata.Info -> System.Web.UI.HtmlTextWriter -> option<RenderedResources> -> unit
@@ -75,7 +74,7 @@ module Internal =
 
         override this.HasNonScriptSpecialTags = hasNonScriptSpecialTags
 
-        override this.Name = name
+        override this.Name = None
 
         override this.Encode(m, j) =
             [
@@ -101,3 +100,30 @@ module Internal =
 
         override this.Write(m, h, ?res) = 
             write m h res
+
+    type TemplateElt =
+        inherit Elt
+
+        new (name, fillWith: Dictionary<string, TemplateHole>, hasNonScriptSpecialTags, write) =
+            let encode m j =
+                [
+                    for d in fillWith.Values do
+                        match d with
+                        | TemplateHole.Elt (_, doc) -> yield! (doc :> IRequiresResources).Encode(m, j)
+                        | TemplateHole.Attribute (_, a) ->
+                            if not (obj.ReferenceEquals(a, null)) then
+                                yield! (a :> IRequiresResources).Encode(m, j)
+                        | _ -> ()
+                ]
+            let requires (attrs: list<Attr>) =
+                seq {
+                    for a in attrs do yield! (a :> IRequiresResources).Requires
+                    for d in fillWith.Values do
+                        match d with
+                        | TemplateHole.Elt (_, doc) -> yield! (doc :> IRequiresResources).Requires
+                        | TemplateHole.Attribute (_, a) ->
+                            if not (obj.ReferenceEquals(a, null)) then
+                                yield! (a :> IRequiresResources).Requires
+                        | _ -> ()
+                }
+            { inherit Elt(name, [], encode, requires, (fun _ -> hasNonScriptSpecialTags), write) }
