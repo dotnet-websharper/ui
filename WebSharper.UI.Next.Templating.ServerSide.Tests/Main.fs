@@ -13,6 +13,7 @@ type MainTemplate = Template<"Main.html", ClientLoad.FromDocument, ServerLoad.Wh
 [<JavaScript>]
 module Client =
     open WebSharper.UI.Next.Client
+    open WebSharper.JavaScript
 
     let Main (init: string) =
         MainTemplate.ClientTemplate()
@@ -24,6 +25,9 @@ module Client =
     let OldMain (init) =
         MainTemplate.OldTemplate.Doc(Input = Var.Create init)
 
+    let OnClick (el: Dom.Element) (ev: Dom.Event) =
+        JS.Alert "clicked!"
+
 [<Website>]
 let Main = Application.SinglePage(fun ctx ->
     Content.Page(
@@ -34,6 +38,9 @@ let Main = Application.SinglePage(fun ctx ->
                     client <@ Client.Main("green") @>
                     client <@ Client.Main("blue") @>
                     client <@ Client.OldMain("old template") @>
+                    MainTemplate.ServerTemplate().Elt()
+                        .OnClick(<@ Client.OnClick @>)
+                    :> Doc
                 ])
             .TBody([MainTemplate.Row().Doc(); MainTemplate.Row().Doc()])
             .Doc()

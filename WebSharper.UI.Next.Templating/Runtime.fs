@@ -151,10 +151,10 @@ type Runtime private () =
             )
             let before, after = defaultArg (Map.tryFind tagName templateWrappers) defaultTemplateWrappers
             w.Write(before, ChildrenTemplateAttr, templateName)
-            writeTemplate template true m w r
+            writeTemplate template true [] m w r
             w.Write(after)
 
-        and writeTemplate (template: Template) (plain: bool) m (w: HtmlTextWriter) (r: option<RenderedResources>) =
+        and writeTemplate (template: Template) (plain: bool) (extraAttrs: list<UI.Next.Attr>) m (w: HtmlTextWriter) (r: option<RenderedResources>) =
             let stringParts text =
                 text
                 |> Array.map (function
@@ -185,7 +185,8 @@ type Runtime private () =
                     if plain then w.WriteAttribute(AfterRenderAttr, holeName)
             let rec writeElement tag attrs dataVar children =
                 w.WriteBeginTag(tag)
-                Array.iter writeAttr attrs
+                attrs |> Array.iter writeAttr
+                extraAttrs |> List.iter (fun a -> a.Write(m, w, true))
                 dataVar |> Option.iter (fun v -> w.WriteAttribute("ws-var", v))
                 if Array.isEmpty children && HtmlTextWriter.IsSelfClosingTag tag then
                     w.Write(HtmlTextWriter.SelfClosingTagEnd)
@@ -220,7 +221,12 @@ type Runtime private () =
                     | true, _ -> failwithf "Invalid hole, expected Doc: %s" holeName
                     | false, _ -> ()
             Array.iter writeNode template.Value
-        Server.Internal.TemplateDoc(name, fillWith, template.HasNonScriptSpecialTags, writeTemplate template false) :> _
+        let write = writeTemplate template false
+        match template.Value with
+        | [| Node.Element (tag, _, _, _) | Node.Input (tag, _, _, _) |] ->
+            Server.Internal.TemplateElt(tag, fillWith, template.HasNonScriptSpecialTags, write) :> _
+        | _ ->
+            Server.Internal.TemplateDoc(fillWith, template.HasNonScriptSpecialTags, write []) :> _
 
     static member GetOrLoadTemplateInline(baseName, name, path, src, fillWith, serverLoad) =
         GetOrLoadTemplate baseName name path src fillWith ClientLoad.Inline serverLoad

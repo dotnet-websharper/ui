@@ -85,6 +85,21 @@ type Doc =
 and [<Class>] Elt =
     inherit Doc
 
+    internal new
+        : tag: string
+        * attrs: list<Attr>
+        * encode: (Core.Metadata.Info -> Core.Json.Provider -> list<string * Core.Json.Encoded>)
+        * requires: (list<Attr> -> seq<Core.Metadata.Node>)
+        * hasNonScriptSpecialTags: (list<Attr> -> bool)
+        * write: (list<Attr> -> Core.Metadata.Info -> System.Web.UI.HtmlTextWriter -> option<Sitelets.Content.RenderedResources> -> unit)
+        -> Elt
+
+    override Write : Core.Metadata.Info * System.Web.UI.HtmlTextWriter * ?res: Sitelets.Content.RenderedResources -> unit
+    override HasNonScriptSpecialTags : bool
+    override Name : option<string>
+    override Encode : Core.Metadata.Info * Core.Json.Provider -> list<string * Core.Json.Encoded>
+    override Requires : seq<Core.Metadata.Node>
+
     /// Add an event handler.
     /// When called on the server side, the handler must be a top-level function or a static member.
     member On : event: string * callback: Expr<Dom.Element -> #Dom.Event -> unit> -> Elt
