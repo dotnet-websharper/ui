@@ -38,3 +38,6 @@ type internal ProvidedTypesFunc =
         p.AddObsoleteAttribute(msg, ?isError = isError); p
     [<Extension>]
     static member AddTo (m: #MemberInfo, t: ProvidedTypeDefinition) = t.AddMember m; m
+    [<Extension>]
+    static member WithDefinitionLocation (p: ProvidedMethod, line: int, column: int, filePath: string) =
+        p.AddDefinitionLocation(line, column, filePath); p

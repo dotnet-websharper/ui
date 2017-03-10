@@ -42,6 +42,13 @@ type HoleKind =
     | Event
     | ElemHandler
 
+type HoleDefinition =
+    {
+        Kind : HoleKind
+        Line : int
+        Column : int
+    }
+
 [<RequireQualifiedAccess>]
 type StringPart =
     | Text of text: string
@@ -64,10 +71,12 @@ type Node =
 
 type Template =
     {
-        Holes : Dictionary<HoleName, HoleKind>
+        Holes : Dictionary<HoleName, HoleDefinition>
         Value : Node[]
         Src : string
         HasNonScriptSpecialTags : bool
+        Line : int
+        Column : int
     }
 
 let [<Literal>] TemplateAttr            = "ws-template"

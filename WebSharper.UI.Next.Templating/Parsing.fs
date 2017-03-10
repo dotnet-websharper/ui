@@ -75,24 +75,30 @@ module Impl =
                     yield StringPart.Text t.[!l ..]
             |]
 
-    let parseAttributesOf (node: HtmlNode) (addHole: HoleName -> HoleKind -> unit) =
+    let parseAttributesOf (node: HtmlNode) (addHole: HoleName -> HoleDefinition -> unit) =
         [|
             for attr in node.Attributes do
+                let holeDef kind : HoleDefinition =
+                    {
+                        Kind = kind
+                        Line = attr.Line
+                        Column = attr.LinePosition + attr.Name.Length
+                    }
                 match attr.Name with
                 | AttrAttr ->
-                    addHole attr.Value HoleKind.Attr
+                    addHole attr.Value (holeDef HoleKind.Attr)
                     yield Attr.Attr attr.Value
                 | AfterRenderAttr ->
-                    addHole attr.Value HoleKind.ElemHandler
+                    addHole attr.Value (holeDef HoleKind.ElemHandler)
                     yield Attr.OnAfterRender attr.Value
                 | VarAttr | HoleAttr | ReplaceAttr | TemplateAttr | ChildrenTemplateAttr ->
                     () // These are handled separately in parseNode*
                 | s when s.StartsWith EventAttrPrefix ->
                     let eventName = s.[EventAttrPrefix.Length..]
-                    addHole attr.Value HoleKind.Event
+                    addHole attr.Value (holeDef HoleKind.Event)
                     yield Attr.Event (eventName, attr.Value)
                 | n ->
-                    match getParts addHole attr.Value with
+                    match getParts (fun n h -> addHole n (holeDef h)) attr.Value with
                     | [| StringPart.Text t |] -> yield Attr.Simple (n, t)
                     | parts -> yield Attr.Compound (n, parts)
         |]
@@ -120,15 +126,15 @@ module Impl =
             | _ -> ValTy.Any
         | n -> failwithf "Using %s on a <%s> node" VarAttr n
 
-    let addHole (holes: Dictionary<HoleName, HoleKind>) (name: HoleName) (kind: HoleKind) =
+    let addHole (holes: Dictionary<HoleName, HoleDefinition>) (name: HoleName) (def: HoleDefinition) =
         if not (HoleNameRegex.IsMatch(name)) then
             failwithf "Hole name invalid: %s" name
         let fail() =
             failwithf "Hole name reused with incompatible types: %s" name
         match holes.TryGetValue name with
-        | false, _ -> holes.[name] <- kind
-        | true, kind' ->
-            match kind', kind with
+        | false, _ -> holes.[name] <- def
+        | true, def' ->
+            match def'.Kind, def.Kind with
             // An Attr can only be used once.
             | HoleKind.Attr, _ -> fail()
             // A Doc can only be used once.
@@ -142,7 +148,7 @@ module Impl =
             // A Var can be used several times if the types are compatible.
             | HoleKind.Var ty', HoleKind.Var ty ->
                 match mergeValTy ty ty' with
-                | Some ty -> holes.[name] <- HoleKind.Var ty
+                | Some ty -> holes.[name] <- def
                 | None -> fail()
             // A Var can be viewed by a Simple hole.
             | HoleKind.Var _, HoleKind.Simple -> ()
@@ -151,7 +157,7 @@ module Impl =
             | HoleKind.Simple, HoleKind.Simple -> ()
             // A Var can be viewed by a Simple hole.
             | HoleKind.Simple, HoleKind.Var ty ->
-                holes.[name] <- HoleKind.Var ty
+                holes.[name] <- def
             | HoleKind.Simple _, _ -> fail()
 
     let isNonScriptSpecialTag n =
@@ -163,7 +169,12 @@ module Impl =
         | null ->
             Node.Element (n.Name, isSvg, attrs, children)
         | varAttr ->
-            addHole varAttr.Value (HoleKind.Var (varTypeOf n))
+            addHole varAttr.Value (
+                {
+                    Kind = HoleKind.Var (varTypeOf n)
+                    Line = varAttr.Line
+                    Column = varAttr.LinePosition + varAttr.Name.Length
+                } : HoleDefinition)
             Node.Input (n.Name, varAttr.Value, attrs, children)
 
     let parseNodeAndSiblingsAsTemplate (node: HtmlNode) =
@@ -173,10 +184,16 @@ module Impl =
         let rec parseNodeAndSiblings isSvg (node: HtmlNode) =
             (isSvg, node)
             |> Seq.unfold (fun (isSvg, node) ->
+                let addHole' name k =
+                    addHole name {
+                        Kind = k
+                        Line = node.Line
+                        Column = node.LinePosition
+                    }
                 match node with
                 | null -> None
                 | :? HtmlTextNode as node ->
-                    let text = getParts addHole node.Text
+                    let text = getParts addHole' node.Text
                     Some ([| Node.Text text |], (isSvg, node.NextSibling))
                 | :? HtmlCommentNode ->
                     Some ([||], (isSvg, node.NextSibling))
@@ -194,13 +211,13 @@ module Impl =
                                 parseNodeAndSiblings thisIsSvg node.FirstChild
                             | holeAttr ->
                                 if isNonScriptSpecialTag holeAttr.Value then hasNonScriptSpecialTags := true
-                                addHole holeAttr.Value HoleKind.Doc
+                                addHole' holeAttr.Value HoleKind.Doc
                                 [| Node.DocHole holeAttr.Value |]
                         let doc = normalElement node thisIsSvg children addHole
                         Some ([| doc |], (isSvg, node.NextSibling))
                     | replaceAttr ->
                         if isNonScriptSpecialTag replaceAttr.Value then hasNonScriptSpecialTags := true
-                        addHole replaceAttr.Value HoleKind.Doc
+                        addHole' replaceAttr.Value HoleKind.Doc
                         Some ([| Node.DocHole replaceAttr.Value |], (isSvg, node.NextSibling))
             )
             |> Array.concat
@@ -212,7 +229,8 @@ module Impl =
             l node
         let value = parseNodeAndSiblings false node
         { Holes = holes; Value = value; Src = src
-          HasNonScriptSpecialTags = !hasNonScriptSpecialTags }
+          HasNonScriptSpecialTags = !hasNonScriptSpecialTags
+          Line = node.ParentNode.Line; Column = node.ParentNode.LinePosition }
 
     let parseNodeAsTemplate (n: HtmlNode) =
         match n.Attributes.[HoleAttr] with
@@ -233,13 +251,19 @@ module Impl =
         | hole ->
             let holeName = hole.Value
             let holes = Dictionary()
-            holes.Add(holeName, HoleKind.Doc)
+            holes.Add(holeName, {
+                Kind = HoleKind.Doc
+                Line = hole.Line
+                Column = hole.LinePosition
+            })
             let el = normalElement n (n.Name = "svg") [| Node.DocHole holeName |] (addHole holes)
             {
                 Value = [| el |]
                 Holes = holes
                 Src = n.WriteTo()
                 HasNonScriptSpecialTags = isNonScriptSpecialTag holeName
+                Line = n.Line
+                Column = n.LinePosition
             }
 
 let ParseSource (src: string) (sub: SubTemplatesHandling) =

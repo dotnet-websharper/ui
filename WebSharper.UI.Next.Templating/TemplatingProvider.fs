@@ -83,15 +83,20 @@ module private Impl =
         | _ -> false
 
     let BuildMethod<'T> (holeName: HoleName) (resTy: Type)
-            (wrapArg: Expr<'T> -> Expr<TemplateHole>) (ctx: Ctx) =
-        ctx.PT.ProvidedMethod(holeName, [ProvidedParameter(holeName, typeof<'T>)], resTy, function
-            | [this; arg] -> <@@ box ((%wrapArg (Expr.Cast arg)) :: ((%%this : obj) :?> list<TemplateHole>)) @@>
-            | _ -> failwith "Incorrect invoke")
+            (wrapArg: Expr<'T> -> Expr<TemplateHole>) line column (ctx: Ctx) =
+        let m =
+            ctx.PT.ProvidedMethod(holeName, [ProvidedParameter(holeName, typeof<'T>)], resTy, function
+                | [this; arg] -> <@@ box ((%wrapArg (Expr.Cast arg)) :: ((%%this : obj) :?> list<TemplateHole>)) @@>
+                | _ -> failwith "Incorrect invoke")
+        match ctx.Path with
+        | Some p -> m.AddDefinitionLocation(line, column, p)
+        | None -> ()
+        m
 
-    let BuildHoleMethods (holeName: HoleName) (holeKind: HoleKind) (resTy: Type) (ctx: Ctx)
+    let BuildHoleMethods (holeName: HoleName) (holeDef: HoleDefinition) (resTy: Type) (ctx: Ctx)
             : list<MemberInfo> =
-        let mk wrapArg = BuildMethod holeName resTy wrapArg ctx
-        match holeKind with
+        let mk wrapArg = BuildMethod holeName resTy wrapArg holeDef.Line holeDef.Column ctx
+        match holeDef.Kind with
         | HoleKind.Attr ->
             [
                 mk <| fun (x: Expr<Attr>) ->
@@ -199,8 +204,13 @@ module private Impl =
             for KeyValue (holeName, holeKind) in ctx.Template.Holes do
                 yield! BuildHoleMethods holeName holeKind ty ctx
             yield! BuildFinalMethods ctx
-            yield ctx.PT.ProvidedConstructor([], fun _ ->
-                <@@ box ([] : list<TemplateHole>) @@>) :> _
+            let ctor =
+                ctx.PT.ProvidedConstructor([], fun _ ->
+                    <@@ box ([] : list<TemplateHole>) @@>)
+            match ctx.Path with
+            | Some path -> ctor.AddDefinitionLocation(ctx.Template.Line, ctx.Template.Column, path)
+            | None -> ()
+            yield ctor :> _
         ]
 
     let BuildTP (templates: IDictionary<option<TemplateName>, Template>)

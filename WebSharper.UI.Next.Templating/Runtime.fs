@@ -74,7 +74,7 @@ type Runtime private () =
         | None -> failwithf "Template not defined: %s/%A" baseName name
         | Some template -> template
 
-    static let buildFillDict fillWith (holes: IDictionary<HoleName, HoleKind>) =
+    static let buildFillDict fillWith (holes: IDictionary<HoleName, HoleDefinition>) =
         let d : Holes = Dictionary()
         for f in fillWith do
             let name = TemplateHole.Name f
