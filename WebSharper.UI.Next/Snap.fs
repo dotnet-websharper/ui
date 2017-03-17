@@ -29,8 +29,9 @@ Snap implements a snapshot of a time-varying value.
 
 Final states:
 
-    Forever     -- will never be obsolete
-    Obsolete    -- is obsolete
+    Forever       -- will never be obsolete
+    Obsolete      -- is obsolete
+    FailedForever -- will never be obsolete or ready
 
 Distinguishing Forever state is important as it avoids a class of
 memory leaks connected with waiting on a Snap to become obsolete
@@ -38,11 +39,14 @@ when it will never do so.
 
 State transitions:
 
-    Waiting         -> Forever      // MarkForever
-    Waiting         -> Obsolete     // MarkObsolete
-    Waiting         -> Ready        // MarkReady
-    Ready           -> Obsolete     // MarkObsolete
-
+    Waiting         -> Ready         // MarkReady false
+    WaitingOnce     -> Forever       // MarkReady _
+    Waiting         -> Forever       // MarkReady true
+    Waiting         -> Obsolete      // MarkObsolete
+    Ready           -> Obsolete      // MarkObsolete
+    Waiting         -> Failed        // MarkFailed false
+    WaitingOnce     -> FailedForever // MarkFailed _
+    Waiting         -> FailedForever // MarkFailed true
 *)
 
 type SnapState<'T> =
@@ -50,6 +54,9 @@ type SnapState<'T> =
     | Obsolete
     | Ready of 'T * Queue<unit -> unit>
     | Waiting of Queue<'T -> unit> * Queue<unit -> unit>
+    | WaitingOnce of Queue<'T -> unit>
+    | Failed of Queue<unit -> unit>
+    | FailedForever
 
 type Snap<'T> =
     {
@@ -61,51 +68,56 @@ module Snap =
 
   // constructors
 
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    [<Inline>]
     let Make st = { State = st }
 
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    [<Inline>]
     let Create () = Make (Waiting (Queue(), Queue()))
 
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    [<Inline>]
+    let CreateOnce () = Make (WaitingOnce (Queue()))
+
+    [<Inline>]
     let CreateForever v = Make (Forever v)
 
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    [<Inline>]
+    let CreateFailed () : Snap<'T> = Make (Failed (Queue()))
+
+    [<Inline>]
+    let CreateFailedForever<'T> : Snap<'T> = Make FailedForever
+
+    let CreateForeverSafe fn =
+        try CreateForever (fn ())
+        with e -> 
+            JavaScript.Console.Log("WebSharper UI.Next final value failed:", e)
+            CreateFailedForever
+
+    [<Inline>]
     let CreateWithValue v = Make (Ready (v, Queue()))
 
   // misc
 
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
     let IsForever snap =
         match snap.State with
         | Forever _ -> true
         | _ -> false
 
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
     let IsObsolete snap =
         match snap.State with
         | Obsolete -> true
         | _ -> false
 
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
     let IsDone snap =
         match snap.State with
-        | Forever _ | Ready _ -> true
+        | Forever _ | Ready _ | Failed _ | FailedForever -> true
         | _ -> false
 
   // transitions
 
-    let MarkForever sn v =
-        match sn.State with
-        | Waiting (q, _) ->
-            sn.State <- Forever v
-            Seq.iter (fun k -> k v) q
-        | _ -> ()
-
     let MarkObsolete sn =
         match sn.State with
-        | Forever _ | Obsolete -> ()
-        | Ready (_, ks) | Waiting (_, ks) ->
+        | Forever _ | WaitingOnce _ | Obsolete | FailedForever -> ()
+        | Ready (_, ks) | Waiting (_, ks) | Failed ks ->
             sn.State <- Obsolete
             Seq.iter (fun k -> k ()) ks
 
@@ -113,18 +125,42 @@ module Snap =
         ()
         fun () -> MarkObsolete sn
 
-    let MarkReady sn v =
+    let MarkReady isForever sn v =
         match sn.State with
         | Waiting (q1, q2) ->
-            sn.State <- Ready (v, q2)
+            if isForever then
+                sn.State <- Forever v
+            else
+                sn.State <- Ready (v, q2)
             Seq.iter (fun k -> k v) q1
+        | WaitingOnce q ->
+            sn.State <- Forever v
+            Seq.iter (fun k -> k v) q
         | _ -> ()
+    
+    let MarkFailedForever sn (err: exn) =
+        JavaScript.Console.Log("WebSharper UI.Next final value failed:", err)
+        sn.State <- SnapState.FailedForever
 
-    let MarkDone res sn v =
-        if IsForever sn then
-            MarkForever res v
-        else
-            MarkReady res v
+    let MarkFailed isForever sn err =
+        match sn.State with
+        | Waiting (_, q) ->
+            if isForever then
+                MarkFailedForever sn err
+            else
+                JavaScript.Console.Log("WebSharper UI.Next value mapping failed:", err)
+                sn.State <- Failed q
+        | WaitingOnce _ ->
+            MarkFailedForever sn err
+        | _ -> ()
+        
+    let MarkReadySafe isForever sn fn =
+        let c =
+            try Choice1Of2 (fn()) 
+            with e -> Choice2Of2 e            
+        match c with 
+        | Choice1Of2 v -> MarkReady isForever sn v
+        | Choice2Of2 e -> MarkFailed isForever sn e 
 
   // eliminators
 
@@ -134,13 +170,14 @@ module Snap =
         | Obsolete -> obsolete ()
         | Ready (v, q) -> q.Enqueue obsolete; avail v
         | Waiting (q1, q2) -> q1.Enqueue avail; q2.Enqueue obsolete
+        | WaitingOnce q -> q.Enqueue avail
+        | Failed _ | FailedForever -> ()
 
     let WhenObsolete snap obsolete =
         match snap.State with
-        | Forever v -> ()
+        | Forever _ | FailedForever | WaitingOnce _ -> ()
         | Obsolete -> obsolete ()
-        | Ready (v, q) -> q.Enqueue obsolete
-        | Waiting (q1, q2) -> q2.Enqueue obsolete
+        | Ready (_, q) | Waiting (_, q) | Failed q -> q.Enqueue obsolete
 
     let ValueAndForever snap =
         match snap.State with
@@ -155,11 +192,7 @@ module Snap =
         let obs = Obs res
         let onReady x =
             let y = x ()
-            When y (fun v ->
-                if IsForever y && IsForever snap then
-                    MarkForever res v
-                else
-                    MarkReady res v) obs
+            When y (MarkReady (IsForever y && IsForever snap) res) obs
         When snap onReady obs
         res
 
@@ -168,19 +201,10 @@ module Snap =
         let obs = Obs res
         let onReady x =
             let y = x ()
-            When y (fun v ->
-                if IsForever y && IsForever snap then
-                    MarkForever res v
-                else
-                    MarkReady res v) obs
-            WhenObsolete snap (Obs y)
+            When y (MarkReady (IsForever y && IsForever snap) res) obs
+            WhenObsolete snap (fun () -> MarkObsolete y)
         When snap onReady obs
         res
-
-    let CreateForeverAsync a =
-        let o = Make (Waiting (Queue(), Queue()))
-        Async.StartTo a (MarkForever o)
-        o
 
     let Sequence (snaps : seq<Snap<'T>>) =
         let snaps = Array.ofSeq snaps
@@ -197,10 +221,7 @@ module Snap =
                             match s.State with
                             | Forever v | Ready (v, _) -> v
                             | _ -> failwith "value not found by View.Sequence")
-                    if Array.forall IsForever snaps then
-                        MarkForever res (vs :> seq<_>)
-                    else
-                        MarkReady res (vs :> seq<_>)
+                    MarkReady (Array.forall IsForever snaps) res (vs :> seq<_>)
                 else
                     decr w
             snaps
@@ -209,67 +230,61 @@ module Snap =
 
     let Map fn sn =
         match sn.State with
-        | Forever x -> CreateForever (fn x) // optimization
+        | Forever x -> CreateForeverSafe (fun () -> fn x) // optimization
         | _ ->
-            let res = Create ()
-            When sn (fn >> MarkDone res sn) (Obs res)
+            let res = 
+                match sn.State with 
+                | WaitingOnce _ -> CreateOnce ()
+                | _ -> Create ()
+            let cont v =
+                MarkReadySafe (IsForever sn) res (fun () -> fn v)
+            When sn cont (fun () -> MarkObsolete res)
             res
 
     let MapCachedBy eq prev fn sn =
-        let fn x =
+        let cachingFn x =
             match !prev with
             | Some (x', y) when eq x x' -> y
             | _ ->
                 let y = fn x
                 prev := Some (x, y)
                 y
-        Map fn sn
+        Map cachingFn sn
 
     let Map2 fn sn1 sn2 =
         match sn1.State, sn2.State with
-        | Forever x, Forever y -> CreateForever (fn x y) // optimization
+        | Forever x, Forever y -> CreateForeverSafe (fun () -> fn x y) // optimization
         | Forever x, _ -> Map (fun y -> fn x y) sn2 // optimize for known sn1
         | _, Forever y -> Map (fun x -> fn x y) sn1 // optimize for known s2
         | _ ->
-            let res = Create ()
+            let res = 
+                match sn1.State, sn2.State with 
+                | WaitingOnce _, WaitingOnce _ -> CreateOnce ()
+                | _ -> Create ()
             let obs = Obs res
             let cont _ =
                 if not (IsDone res) then 
                     match ValueAndForever sn1, ValueAndForever sn2 with
                     | Some (x, f1), Some (y, f2) ->
-                        if f1 && f2 then
-                            MarkForever res (fn x y)
-                        else
-                            MarkReady res (fn x y) 
+                        MarkReadySafe (f1 && f2) res (fun () -> fn x y) 
                     | _ -> ()
             When sn1 cont obs
             When sn2 cont obs
             res
 
     let Map2Unit sn1 sn2 =
-        match sn1.State, sn2.State with
-        | Forever (), Forever () -> CreateForever () // optimization
-        | Forever (), _ -> sn2 // optimize for known sn1
-        | _, Forever () -> sn1 // optimize for known s2
-        | _ ->
-            let res = Create ()
-            let obs = Obs res
-            let cont () =
-                if not (IsDone res) then 
-                    match ValueAndForever sn1, ValueAndForever sn2 with
-                    | Some (_, f1), Some (_, f2) ->
-                        if f1 && f2 then
-                            MarkForever res ()
-                        else
-                            MarkReady res () 
-                    | _ -> ()
-            When sn1 cont obs
-            When sn2 cont obs
-            res
+        let res = Create ()
+        let obs = Obs res
+        let cont () =
+            if not (IsDone res) then 
+                MarkReady (IsForever sn1 && IsForever sn2) res ()
+        When sn1 cont obs
+        When sn2 cont obs
+        res
 
     let Map3 fn sn1 sn2 sn3 =
         match sn1.State, sn2.State, sn3.State with
-        | Forever x, Forever y, Forever z -> CreateForever (fn x y z)
+        | Forever x, Forever y, Forever z -> CreateForeverSafe (fun () -> fn x y z)
         | Forever x, Forever y, _         -> Map (fun z -> fn x y z) sn3
         | Forever x, _,         Forever z -> Map (fun y -> fn x y z) sn2
         | Forever x, _,         _         -> Map2 (fun y z -> fn x y z) sn2 sn3
@@ -277,16 +292,16 @@ module Snap =
         | _,         Forever y, _         -> Map2 (fun x z -> fn x y z) sn1 sn3
         | _,         _,         Forever z -> Map2 (fun x y -> fn x y z) sn1 sn2
         | _,         _,         _         ->
-            let res = Create ()
+            let res = 
+                match sn1.State, sn2.State, sn3.State with 
+                | WaitingOnce _, WaitingOnce _, WaitingOnce _ -> CreateOnce ()
+                | _ -> Create ()
             let obs = Obs res
             let cont _ =
                 if not (IsDone res) then 
                     match ValueAndForever sn1, ValueAndForever sn2, ValueAndForever sn3 with
                     | Some (x, f1), Some (y, f2), Some (z, f3) ->
-                        if f1 && f2 && f3 then
-                            MarkForever res (fn x y z)
-                        else
-                            MarkReady res (fn x y z) 
+                        MarkReadySafe (f1 && f2 && f3) res (fun () -> fn x y z) 
                     | _ -> ()
             When sn1 cont obs
             When sn2 cont obs
@@ -294,24 +309,43 @@ module Snap =
             res
 
     let SnapshotOn sn1 sn2 =
-        let res = Create ()
+        let res = 
+            match sn1.State, sn2.State with 
+            | WaitingOnce _, _ 
+            | _, WaitingOnce _ -> CreateOnce ()
+            | _ -> Create ()
         let obs = Obs res
         let cont _ =
             if not (IsDone res) then 
                 match ValueAndForever sn1, ValueAndForever sn2 with
                 | Some (_, f1), Some (y, f2) ->
-                    if f1 || f2 then
-                        MarkForever res y 
-                    else
-                        MarkReady res y
+                    MarkReady (f1 || f2) res y
                 | _ -> ()
         When sn1 cont obs
         When sn2 cont ignore
         res
 
-    let MapAsync fn snap =
-        let res = Create ()
-        When snap
-            (fun v -> Async.StartTo (fn v) (MarkDone res snap))
-            (Obs res)
+    let CreateForeverAsync a =
+        let res = CreateOnce ()
+        Async.StartWithContinuations (a, 
+            MarkReady true res, 
+            MarkFailed true res,
+            MarkFailed true res)
+        res
+
+    let MapAsync fn sn =
+        let res = 
+            match sn.State with 
+            | WaitingOnce _ -> CreateOnce ()
+            | _ -> Create ()
+        let cts = new System.Threading.CancellationTokenSource()
+        When sn
+            (fun v -> 
+                Async.StartWithContinuations (fn v, 
+                    MarkReady (IsForever sn) res, 
+                    MarkFailed (IsForever sn) res,
+                    (fun _ -> MarkObsolete res)
+                )
+            )
+            (fun () -> MarkObsolete res; cts.Cancel())
         res

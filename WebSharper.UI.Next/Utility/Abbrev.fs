@@ -189,12 +189,6 @@ module internal Abbrev =
     [<JavaScript>]
     module Async =
 
-        [<Direct "console.log('WebSharper UI.Next: Uncaught asynchronous exception', $e)">]
-        let OnError (e: exn) = ()
-
-        let StartTo comp k =
-            Async.StartWithContinuations (comp, k, OnError, ignore)
-
         let Schedule f =
             async { return f () }
             |> Async.Start
