@@ -379,8 +379,9 @@ module Attr =
             if String.isBlank s then
                 if CheckValidity el then Blank s else Invalid s
             else
-                let i : float = JS.Plus s
-                if JS.IsNaN i then Invalid s else Valid (int i, s)
+                match System.Int32.TryParse(s) with
+                | true, i -> Valid (i, s)
+                | false, _ -> Invalid s
             |> Some
         CustomVar var
             (fun el i ->
