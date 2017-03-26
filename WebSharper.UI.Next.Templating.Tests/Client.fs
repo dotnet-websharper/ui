@@ -91,6 +91,10 @@ module Client =
                 .NewItem(fun () -> myItems.Add { id = freshKey(); name = newName.Value; description = newDescr.Value })
                 .SubmitItems(itemsSub.Trigger)
                 .ClearItems(myItems.Clear)
+                .LeaveThisEmpty(
+                    // Test #102: this would empty the whole containing div
+                    View.Const Doc.Empty |> Doc.EmbedView
+                )
                 .FindBy(findByKey)
                 .Found(found)
                 .Length(myItems.ViewState.Map(fun s -> printfn "mapping length"; string s.Length))
