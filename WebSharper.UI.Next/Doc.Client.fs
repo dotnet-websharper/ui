@@ -768,6 +768,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
 
     [<JavaScript>]
     static member PrepareTemplateStrict (baseName: string) (name: option<string>) (els: Node[]) =
+        if Docs.LoadedTemplates.ContainsKey(Doc'.ComposeName baseName name) then () else
         let convertAttrs (el: Dom.Element) =
             let attrs = el.Attributes
             let toRemove = [||]
