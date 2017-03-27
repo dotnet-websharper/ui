@@ -9,10 +9,10 @@ open WebSharper.UI.Next.Notation
 open WebSharper.UI.Next.Templating
 
 [<JavaScript>]
-module Client =    
+module Client =
     open WebSharper.UI.Next.Client
 
-    type MyTemplate = Template<"template.html">
+    type MyTemplate = Template<"template.html,index.html", legacyMode = LegacyMode.New>
 
     type Item =
         { id : int; name: string; description: string }
@@ -64,7 +64,7 @@ module Client =
         let chk = Var.Create true
 
         let doc =
-            MyTemplate()
+            MyTemplate.template()
                 .Attr(Attr.Style "font-weight" "bold")
                 .Title(
                     h1Attr [
@@ -75,7 +75,7 @@ module Client =
                 )
                 .ListContainer(
                     myItems.ViewState.DocSeqCached(Item.Key, fun key item ->
-                        MyTemplate.ListItem()
+                        MyTemplate.template.ListItem()
                             .Key(item.Map(fun i -> string i.id))
                             .Name(item.Map(fun i -> i.name))
                             .Description(myItems.LensInto (fun i -> i.description) (fun i d -> { i with description = d }) key)
@@ -107,7 +107,7 @@ module Client =
                 )
                 .ListView(
                     itemsSub.View.DocSeqCached(Item.Key, fun key item ->
-                        MyTemplate.ListViewItem()
+                        MyTemplate.template.ListViewItem()
                             .Name(item.Map(fun i -> i.name))
                             .Description(item.Map(fun i -> i.description))
                             .Doc()
@@ -163,8 +163,24 @@ module Client =
 
         Anim.UseAnimations <- false
 
+        let fromIndex =
+            let rvUsername = Var.Create ""
+            let rvPassword = Var.Create ""
+            let submit =
+                View.Map2 (fun u p -> u, p) rvUsername.View rvUsername.View
+                |> Submitter.CreateOption
+            MyTemplate.index.Form()
+                .Username(rvUsername)
+                .Password(rvPassword)
+                .Submit(submit.Trigger)
+                .Welcome(submit.View.Map(function
+                    | None -> ""
+                    | Some (u, _) -> sprintf "Welcome, %s!" u))
+                .Doc()
+
         div [
-            doc 
+            doc
+            fromIndex
             Regression67.Doc
         ]
         |> Doc.RunById "main"

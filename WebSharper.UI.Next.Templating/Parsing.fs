@@ -20,6 +20,7 @@
 
 module WebSharper.UI.Next.Templating.Parsing
 
+open System
 open System.IO
 open System.Collections.Generic
 open System.Text.RegularExpressions
@@ -29,18 +30,19 @@ open WebSharper.UI.Next.Templating.AST
 [<RequireQualifiedAccess>]
 type ParseKind =
     | Inline
-    | File of fullPath: string
+    | Files of fullPaths: string[]
 
-type SubTemplatesHandling =
-    | KeepSubTemplatesInRoot
-    | ExtractSubTemplatesFromRoot
-
-type ParseResult =
+type ParseItem =
     {
         /// None is the root template, Some x is a child template.
         Templates : IDictionary<option<TemplateName>, Template>
-        ParseKind : ParseKind
         Path : option<string>
+    }
+
+type ParseResult =
+    {
+        Items : ParseItem[]
+        ParseKind : ParseKind
     }
 
 type WatcherParams =
@@ -266,7 +268,7 @@ module Impl =
                 Column = n.LinePosition
             }
 
-let ParseSource (src: string) (sub: SubTemplatesHandling) =
+let ParseSource (src: string) =
     let html = HtmlDocument()
     html.LoadHtml(src)
     let templates = Map.empty
@@ -293,21 +295,28 @@ let ParseSource (src: string) (sub: SubTemplatesHandling) =
     let rootTemplate = parseNodeAndSiblingsAsTemplate html.DocumentNode.FirstChild
     Map.add None rootTemplate templates
 
-let Parse (pathOrXml: string) (rootFolder: string) (sub: SubTemplatesHandling) =
+let Parse (pathOrXml: string) (rootFolder: string) =
     if pathOrXml.Contains("<") then
         {
-            Templates = ParseSource pathOrXml sub
             ParseKind = ParseKind.Inline
-            Path = None
+            Items = [| { Templates = ParseSource pathOrXml; Path = None } |]
         }
     else
-        let path =
-            if Path.IsPathRooted pathOrXml
-            then pathOrXml
-            else Path.Combine(rootFolder, pathOrXml)
-        let templates = ParseSource (File.ReadAllText path) sub
+        let paths =
+            pathOrXml.Split([|','|], StringSplitOptions.RemoveEmptyEntries)
+            |> Array.map (fun path ->
+                let path = path.Trim()
+                if Path.IsPathRooted path
+                then path
+                else Path.Combine(rootFolder, path)
+            )
         {
-            Templates = templates
-            ParseKind = ParseKind.File path
-            Path = Some pathOrXml
+            ParseKind = ParseKind.Files paths
+            Items = paths |> Array.map (fun path ->
+                let templates = ParseSource (File.ReadAllText path)
+                {
+                    Templates = templates
+                    Path = Some path
+                }
+            )
         }

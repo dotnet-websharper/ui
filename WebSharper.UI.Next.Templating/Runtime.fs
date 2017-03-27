@@ -102,17 +102,13 @@ type Runtime private () =
             (path: option<string>) (src: string) (fillWith: list<TemplateHole>)
             (clientLoad: ClientLoad) (serverLoad: ServerLoad)
             : Doc =
-        let subTemplatesHandling =
-            if clientLoad = ClientLoad.FromDocument
-            then Parsing.KeepSubTemplatesInRoot
-            else Parsing.ExtractSubTemplatesFromRoot
         let getOrLoadSrc src =
-            loaded.GetOrAdd(baseName, fun _ -> Parsing.ParseSource src subTemplatesHandling)
+            loaded.GetOrAdd(baseName, fun _ -> Parsing.ParseSource src)
         let getOrLoadPath fullPath =
-            loaded.GetOrAdd(baseName, fun _ -> Parsing.ParseSource (File.ReadAllText fullPath) subTemplatesHandling)
+            loaded.GetOrAdd(baseName, fun _ -> Parsing.ParseSource (File.ReadAllText fullPath))
         let reload fullPath =
             let src = File.ReadAllText fullPath
-            let parsed = Parsing.ParseSource src subTemplatesHandling
+            let parsed = Parsing.ParseSource src
             loaded.AddOrUpdate(baseName, parsed, fun _ _ -> parsed)
         let templates =
             match path with
@@ -122,7 +118,7 @@ type Runtime private () =
             | ServerLoad.Once -> getOrLoadSrc src
             | ServerLoad.PerRequest ->
                 let fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path)
-                Parsing.ParseSource (File.ReadAllText fullPath) subTemplatesHandling
+                Parsing.ParseSource (File.ReadAllText fullPath)
             | ServerLoad.WhenChanged ->
                 let fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path)
                 let watcher = watchers.GetOrAdd(baseName, fun _ ->
@@ -193,7 +189,7 @@ type Runtime private () =
                 else
                     w.Write(HtmlTextWriter.TagRightChar)
                     Array.iter writeNode children
-                    if subTemplatesHandling = Parsing.KeepSubTemplatesInRoot && tag = "body" && Option.isNone name then
+                    if tag = "body" && Option.isNone name then
                         templates |> Map.iter (fun k v ->
                             match k with
                             | Some templateName -> writeWrappedTemplate templateName v m w r
