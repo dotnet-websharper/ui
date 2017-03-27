@@ -192,7 +192,7 @@ module Snap =
         let obs = Obs res
         let onReady x =
             let y = x ()
-            When y (MarkReady (IsForever y && IsForever snap) res) obs
+            When y (fun v -> MarkReady (IsForever y && IsForever snap) res v) obs
         When snap onReady obs
         res
 
@@ -201,7 +201,7 @@ module Snap =
         let obs = Obs res
         let onReady x =
             let y = x ()
-            When y (MarkReady (IsForever y && IsForever snap) res) obs
+            When y (fun v -> MarkReady (IsForever y && IsForever snap) res v) obs
             WhenObsolete snap (fun () -> MarkObsolete y)
         When snap onReady obs
         res
@@ -344,7 +344,8 @@ module Snap =
                 Async.StartWithContinuations (fn v, 
                     MarkReady (IsForever sn) res, 
                     MarkFailed (IsForever sn) res,
-                    (fun _ -> MarkObsolete res)
+                    (fun _ -> MarkObsolete res),
+                    cts.Token
                 )
             )
             (fun () -> MarkObsolete res; cts.Cancel())
