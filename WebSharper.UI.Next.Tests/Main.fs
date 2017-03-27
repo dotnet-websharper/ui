@@ -216,6 +216,56 @@ module Main =
                 equalMsg (!outerCount, !innerCount) (2, 3) "function call count"
             }
 
+            Test "Bind with outside Map" {
+                let outerCount = ref 0
+                let innerCount1 = ref 0
+                let innerCount2 = ref 0
+                let o = Var.Create true
+                let i1 = Var.Create 1
+                let i2 = Var.Create 2
+                let m1 =  i1.View |> View.Map (fun x -> incr innerCount1; x * x)
+                let m2 =  i2.View |> View.Map (fun x -> incr innerCount2; x * x)
+                let v =
+                    o.View |> View.Bind (fun x ->
+                        incr outerCount
+                        if x then m1 else m2
+                    )
+                    |> View.GetAsync
+                equalMsgAsync v 1 "initial"
+                i1.Value <- 3
+                equalMsgAsync v 9 "after set inner"
+                o.Value <- true // this should have no effect on innerCount1
+                equalMsgAsync v 9 "after set outer unchanged"
+                o.Value <- false
+                equalMsgAsync v 4 "after set outer"
+                equalMsg (!outerCount, !innerCount1, !innerCount2) (3, 2, 1) "function call count"
+            }
+
+            Test "BindInner with outside Map" {
+                let outerCount = ref 0
+                let innerCount1 = ref 0
+                let innerCount2 = ref 0
+                let o = Var.Create true
+                let i1 = Var.Create 1
+                let i2 = Var.Create 2
+                let m1 =  i1.View |> View.Map (fun x -> incr innerCount1; x * x)
+                let m2 =  i2.View |> View.Map (fun x -> incr innerCount2; x * x)
+                let v =
+                    o.View |> View.BindInner (fun x ->
+                        incr outerCount
+                        if x then m1 else m2
+                    )
+                    |> View.GetAsync
+                equalMsgAsync v 1 "initial"
+                i1.Value <- 3
+                equalMsgAsync v 9 "after set inner"
+                o.Value <- true // this has an effect on innerCount1, one extra recalculation, as BindInner is optimalization for using Map inside
+                equalMsgAsync v 9 "after set outer unchanged"
+                o.Value <- false
+                equalMsgAsync v 4 "after set outer"
+                equalMsg (!outerCount, !innerCount1, !innerCount2) (3, 3, 1) "function call count"
+            }
+
             Test "UpdateWhile" {
                 let outerCount = ref 0
                 let innerCount = ref 0
