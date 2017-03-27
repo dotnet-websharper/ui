@@ -56,6 +56,9 @@ type EltUpdater =
     /// Desubscribes an element added by AddUpdated
     member RemoveUpdated : Elt -> unit
 
+    /// Desubscribes all elements added by AddUpdated
+    member RemoveAllUpdated : unit -> unit
+
 // Extension methods
 [<Extension; Sealed>]
 type DocExtensions =

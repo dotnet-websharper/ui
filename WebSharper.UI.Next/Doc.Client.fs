@@ -67,6 +67,7 @@ type EltUpdater =
 
     member this.AddUpdated(doc: Elt) = ()
     member this.RemoveUpdated(doc: Elt) = ()
+    member this.RemoveAllUpdated() = ()
 
 [<JavaScript; Name "WebSharper.UI.Next.Docs">]
 module Docs =
@@ -1383,6 +1384,10 @@ and [<JavaScript; Proxy(typeof<EltUpdater>)>]
                     | _ -> true
                 )                
         | _ -> failwith "DocUpdater.RemoveUpdated expects a single element node"
+
+    member this.RemoveAllUpdated() =
+        treeNode.Holes <- [||]
+        holeUpdates.Value <- [||]
 
 [<AutoOpen; JavaScript>]
 module EltExtensions =
