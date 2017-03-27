@@ -67,7 +67,8 @@ let csharpTmpl =
             ])
 
 let test = 
-    bt.Zafir.BundleWebsite("WebSharper.UI.Next.Tests")
+    bt.WithFSharpVersion(FSharpVersion.FSharp31)
+        .Zafir.BundleWebsite("WebSharper.UI.Next.Tests")
         .SourcesFromProject()
         .WithSourceMap()
         .References(fun r ->

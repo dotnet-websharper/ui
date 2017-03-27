@@ -615,14 +615,16 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             | Some doc ->
                 e.RemoveAttribute("ws-replace")
                 let p = e.ParentNode :?> Element
-                match e.NextSibling with
-                | null -> Docs.LinkElement p doc.DocNode
-                | n -> Docs.LinkPrevElement n doc.DocNode
+                let before = Dom.Text "" :> Node
+                let after = Dom.Text "" :> Node
+                p.InsertBefore(before, e) |> ignore
+                p.InsertBefore(after, e.NextSibling) |> ignore
+                Docs.LinkPrevElement after doc.DocNode
                 p.RemoveChild(e) |> ignore  
                 ElemDoc {
                     Attr = Attrs.Insert p Attr.Empty
                     Children = doc.DocNode
-                    Delimiters = None
+                    Delimiters = Some (before, after)
                     El = p
                     ElKey = Fresh.Int()
                     Render = None
@@ -768,6 +770,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
 
     [<JavaScript>]
     static member PrepareTemplateStrict (baseName: string) (name: option<string>) (els: Node[]) =
+        if Docs.LoadedTemplates.ContainsKey(Doc'.ComposeName baseName name) then () else
         let convertAttrs (el: Dom.Element) =
             let attrs = el.Attributes
             let toRemove = [||]
