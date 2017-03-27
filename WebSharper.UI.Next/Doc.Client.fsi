@@ -46,6 +46,16 @@ module EltExtensions =
         /// Get or set the element's text content.
         member Text : string with get, set
 
+[<Class>]
+type EltUpdater =
+    inherit Elt
+
+    /// Subscribes an element inserted by outside DOM changes to be updated with this element
+    member AddUpdated : Elt -> unit
+    
+    /// Desubscribes an element added by AddUpdated
+    member RemoveUpdated : Elt -> unit
+
 // Extension methods
 [<Extension; Sealed>]
 type DocExtensions =
@@ -251,6 +261,10 @@ type DocExtensions =
     /// Sets an inline style.
     [<Extension>]
     static member SetStyle : Elt * name: string * value: string -> unit
+
+    /// Creates a wrapper that allows subscribing elements for DOM syncronization inserted through other means than UI.Next combinators.
+    [<Extension>]
+    static member ToUpdater : Elt -> EltUpdater
 
     // {{ event
     /// Add a handler for the event "abort".
@@ -1268,4 +1282,7 @@ module Doc =
     /// Radio button.
     val Radio : seq<Attr> -> 'T -> IRef<'T> -> Elt
         when 'T : equality
+
+    /// Creates a wrapper that allows subscribing elements for DOM syncronization inserted through other means than UI.Next combinators.
+    val ToUpdater : Elt -> EltUpdater
 
