@@ -6,6 +6,7 @@ open WebSharper.Testing
 open WebSharper.UI.Next
 open WebSharper.UI.Next.Html
 open WebSharper.UI.Next.Client
+open WebSharper.UI.Next.Notation
 
 [<JavaScript>]
 module Main =
@@ -320,6 +321,37 @@ module Main =
                 equalMsgAsync get2 43 "async after set"
             }
 
+
+            Test "Stress test" {
+                // we simulate a spreadsheet with changeable formulas of size n x n
+                let n = 500
+                let sheet = 
+                    Array2D.init n n (fun _ _ ->
+                        Var.Create (View.Const 0)
+                    )
+                do
+                    for i = 1 to n - 1 do
+                        sheet.[0, i] := sheet.[0, i - 1].View |> View.Join
+                        sheet.[i, 0] := sheet.[i - 1, 0].View |> View.Join
+                        for j = 1 to n - 1 do
+                            sheet.[i, j] := 
+                                (sheet.[i - 1, j].View |> View.Join, sheet.[i, j - 1].View |> View.Join) 
+                                ||> View.Map2 (
+                                    if i = 100 && j = 100 then
+                                        fun a b ->
+                                            Console.Log "calculating value at (100, 100)"
+                                            (a + b) % 1000000
+                                    elif i = n - 1 && j = n - 1 then
+                                        fun a b ->
+                                            Console.Log "calculating final value"
+                                            (a + b) % 1000000
+                                    else
+                                        fun a b -> (a + b) % 1000000
+                                )
+                equalAsync (sheet.[n - 1, n - 1].View |> View.Join |> View.GetAsync) 0
+                sheet.[0, 0] := View.Const 1
+                equalAsync (sheet.[n - 1, n - 1].View |> View.Join |> View.GetAsync) 920000
+            }
         }
 
     let ListModelTest =
