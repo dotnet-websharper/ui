@@ -62,6 +62,13 @@ and DocTreeNode =
         mutable Render : option<Dom.Element -> unit>
     }
 
+type EltUpdater =
+    inherit Elt
+
+    member this.AddUpdated(doc: Elt) = ()
+    member this.RemoveUpdated(doc: Elt) = ()
+    member this.RemoveAllUpdated() = ()
+
 [<JavaScript; Name "WebSharper.UI.Next.Docs">]
 module Docs =
 
@@ -95,7 +102,7 @@ module Docs =
                 | TextDoc t -> q.Enqueue (t.Text :> Node)
                 | TreeDoc t -> Array.iter q.Enqueue t.Els
             loop node.Children
-            DomNodes (q.ToArray())
+            DomNodes (Array.ofSeqNonCopying q)
 
         /// Set difference - currently only using equality O(N^2).
         /// Can do better? Can store <hash> data on every node?
@@ -238,7 +245,7 @@ module Docs =
                 | TreeDoc t -> t.Holes |> Array.iter loop
                 | _ -> ()
             loop doc
-            NodeSet (HashSet (q.ToArray()))
+            NodeSet (HashSet q)
 
         /// Set difference.
         static member Except (NodeSet excluded) (NodeSet included) =
@@ -1254,6 +1261,22 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
         rvUpdates.Value <- View.Const()
         while (elt.HasChildNodes()) do elt.RemoveChild(elt.FirstChild) |> ignore
 
+    [<JavaScript>]
+    member this.ToUpdater() =
+        let docTreeNode : DocTreeNode =
+            match docNode with
+            | ElemDoc e ->
+                {
+                    Els = [| elt |]
+                    Holes = [| docNode |]
+                    Attrs = [||]
+                    Render = None
+                }
+            | TreeDoc e -> e
+            | _ -> failwith "Invalid docNode in Elt"
+
+        EltUpdater'(docTreeNode, updates, elt, rvUpdates, Var.Create [||])
+
     [<Name "Html">]
     member this.Html'() : string =
         elt?outerHTML
@@ -1327,6 +1350,44 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
     [<Name "SetStyle">]
     member this.SetStyle'(style: string, value: string) =
         elt?style?(style) <- value
+                                                                  
+and [<JavaScript; Proxy(typeof<EltUpdater>)>] 
+    private EltUpdater'(treeNode : DocTreeNode, updates, elt, rvUpdates: Var<View<unit>>, holeUpdates: Var<(int * View<unit>)[]>) =
+    inherit Elt'(
+        TreeDoc treeNode, 
+        View.Map2Unit updates (holeUpdates.View |> View.BindInner (Array.map snd >> Array.TreeReduce (View.Const ()) View.Map2Unit)),
+        elt, rvUpdates)
+
+    member this.AddUpdated(doc: Elt) =
+        let d = As<Elt'> doc
+        match d.DocNode with
+        | ElemDoc e ->
+            treeNode.Holes.JS.Push(d.DocNode) |> ignore
+            let hu = holeUpdates.Value
+            hu.JS.Push ((e.ElKey, d.Updates)) |> ignore
+            holeUpdates.Value <- hu
+        | _ -> failwith "DocUpdater.AddUpdated expects a single element node"
+
+    member this.RemoveUpdated(doc: Elt) =
+        let d = As<Elt'> doc
+        match d.DocNode with
+        | ElemDoc e ->
+            let k = e.ElKey
+            treeNode.Holes <-
+                treeNode.Holes |> Array.filter (function
+                    | ElemDoc h when h.ElKey = k -> false
+                    | _ -> true
+                )
+            holeUpdates.Value <-
+                holeUpdates.Value |> Array.filter (function
+                    | uk, _ when uk = k -> false
+                    | _ -> true
+                )                
+        | _ -> failwith "DocUpdater.RemoveUpdated expects a single element node"
+
+    member this.RemoveAllUpdated() =
+        treeNode.Holes <- [||]
+        holeUpdates.Value <- [||]
 
 [<AutoOpen; JavaScript>]
 module EltExtensions =
@@ -1469,6 +1530,9 @@ module Doc =
 
     [<Inline>]
     let ConvertSeqBy k f (v: View<seq<_>>) = BindSeqCachedViewBy k f v
+
+    [<Inline>]
+    let ToUpdater (e: Elt) = As<EltUpdater>((As<Elt'> e).ToUpdater() )
 
   // Form helpers ---------------------------------------------------------------
 
@@ -1626,6 +1690,10 @@ type DocExtensions =
     [<Extension; Inline>]
     static member Run(doc: Doc, elt: Dom.Element) =
         Doc'.Run elt (As<Doc'> doc)
+
+    [<Extension; Inline>]
+    static member ToUpdater(elt:Elt) =
+        As<EltUpdater> ((As<Elt'> elt).ToUpdater())
 
     [<Extension; Inline>]
     static member Append(this: Elt, doc: Doc) =

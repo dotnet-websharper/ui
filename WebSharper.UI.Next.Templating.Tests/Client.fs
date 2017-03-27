@@ -63,6 +63,31 @@ module Client =
 
         let chk = Var.Create true
 
+        let eltUpdater = (div []).ToUpdater()
+        let testCounter = Var.Create 0
+        let testCounterStr = testCounter.View.Map(string)
+        let added = System.Collections.Generic.Queue<Elt>()
+        let removed = System.Collections.Generic.Queue<Elt>()
+
+        let addDiv () =
+            let child =
+                div [ textView testCounterStr ]  
+            added.Enqueue child
+            eltUpdater.Dom.AppendChild(child.Dom) |> ignore
+            eltUpdater.AddUpdated child
+
+        let removeUpdater () =
+            if added.Count > 0 then
+                let rem = added.Dequeue()
+                eltUpdater.RemoveUpdated rem
+                removed.Enqueue rem
+
+        let reAddUpdater () =
+            if removed.Count > 0 then
+                let readd = removed.Dequeue()
+                eltUpdater.AddUpdated readd
+                added.Enqueue readd
+
         let doc =
             MyTemplate()
                 .Attr(Attr.Style "font-weight" "bold")
@@ -159,6 +184,11 @@ module Client =
                         ] :> Doc
                     ]
                 )
+                .AddDiv(fun _ _ -> addDiv())
+                .RemoveUpdater(fun _ _ -> removeUpdater())
+                .ReAddUpdater(fun _ _ -> reAddUpdater())
+                .IncrEltUpdaterTest(fun _ _ -> testCounter := !testCounter + 1)
+                .EltUpdaterTest(eltUpdater)
                 .Doc()
 
         Anim.UseAnimations <- false
