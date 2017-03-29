@@ -777,7 +777,6 @@ type private Doc' [<JavaScript>] (docNode, updates) =
 
     [<JavaScript>]
     static member PrepareTemplateStrict (baseName: string) (name: option<string>) (els: Node[]) =
-        if Docs.LoadedTemplates.ContainsKey(Doc'.ComposeName baseName name) then () else
         let convertAttrs (el: Dom.Element) =
             let attrs = el.Attributes
             let toRemove = [||]
@@ -797,6 +796,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             Array.iter el.RemoveAttribute toRemove
         let rec convert (p: Element) (n: Node) =
             if n !==. null then
+                let next = n.NextSibling
                 if n.NodeType = Dom.NodeType.Text then
                     let mutable m = null
                     let mutable li = 0
@@ -819,17 +819,22 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                         | null -> convert el el.FirstChild
                         | name ->
                             el.RemoveAttribute("ws-children-template")
-                            Doc'.PrepareTemplateStrict baseName (Some name) (DomUtility.ChildrenArray el)
+                            Doc'.PrepareTemplate baseName (Some name) (fun () -> DomUtility.ChildrenArray el)
                     | name -> Doc'.PrepareSingleTemplate baseName (Some name) el
-                convert p n.NextSibling
+                convert p next
         let fakeroot = Doc'.FakeRoot els
-        Docs.LoadedTemplates.Add(Doc'.ComposeName baseName name, fakeroot)
+        Docs.LoadedTemplates.[Doc'.ComposeName baseName name] <- fakeroot
         convert fakeroot els.[0]
 
     [<JavaScript>]
     static member PrepareTemplate (baseName: string) (name: option<string>) (els: unit -> Node[]) =
         if not (Docs.LoadedTemplates.ContainsKey(Doc'.ComposeName baseName name)) then
-            Doc'.PrepareTemplateStrict baseName name (els())
+            let els = els()
+            for el in els do
+                match el.ParentElement with
+                | null -> ()
+                | p -> p.RemoveChild(el) |> ignore
+            Doc'.PrepareTemplateStrict baseName name els
 
     [<JavaScript>]
     static member LoadLocalTemplates baseName =
@@ -841,7 +846,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 | n ->
                     let name = n.GetAttribute "ws-children-template"
                     n.RemoveAttribute "ws-children-template"
-                    Doc'.PrepareTemplateStrict baseName (Some name) (DomUtility.ChildrenArray n)
+                    Doc'.PrepareTemplate baseName (Some name) (fun () -> DomUtility.ChildrenArray n)
                     run ()
             | n ->
                 let name = n.GetAttribute "ws-template"
