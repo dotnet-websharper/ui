@@ -227,10 +227,14 @@ module Impl =
                 | null -> s.ToString()
                 | (n : HtmlNode) -> n.WriteTo s; l n.NextSibling
             l node
+        let line, col =
+            match node with
+            | null -> 0, 0
+            | node -> node.ParentNode.Line, node.ParentNode.LinePosition
         let value = parseNodeAndSiblings false node
         { Holes = holes; Value = value; Src = src
           HasNonScriptSpecialTags = !hasNonScriptSpecialTags
-          Line = node.ParentNode.Line; Column = node.ParentNode.LinePosition }
+          Line = line; Column = col }
 
     let parseNodeAsTemplate (n: HtmlNode) =
         match n.Attributes.[HoleAttr] with
@@ -245,6 +249,8 @@ module Impl =
                 { templateForChildren with
                     Value = [| el |]
                     Src = n.WriteTo()
+                    Line = n.Line
+                    Column = n.LinePosition
                 }
             if a <> null then n.Attributes.Add(TemplateAttr, a)
             t
