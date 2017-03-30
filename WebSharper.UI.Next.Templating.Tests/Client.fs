@@ -118,7 +118,8 @@ module Client =
                 .ClearItems(myItems.Clear)
                 .LeaveThisEmpty(
                     // Test #102: this would empty the whole containing div
-                    View.Const Doc.Empty |> Doc.EmbedView
+                    myItems.ViewState
+                    |> Doc.BindSeqCached (fun x -> p [text x.description])
                 )
                 .FindBy(findByKey)
                 .Found(found)

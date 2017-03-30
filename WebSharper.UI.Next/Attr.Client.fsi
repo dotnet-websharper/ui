@@ -121,6 +121,8 @@ module internal Attrs =
     /// Inserts static attributes and computes dynamic attributes.
     val Insert : Element -> Attr -> Dyn
 
+    val Empty : Element -> Dyn
+
     /// Synchronizes dynamic attributes.
     /// Exception: does not sync nodes that animate change transitions.
     /// Those synchronize when the relevant transition is played.

@@ -185,6 +185,14 @@ module Attrs =
                 Some (fun el -> Seq.iter (fun f -> f el) oar)
         }
 
+    let Empty e =
+        {
+            DynElem = e
+            DynFlags = AttrFlags.Defaults
+            DynNodes = [||]
+            OnAfterRender = None
+        }
+
     let Updates dyn =
         dyn.DynNodes
         |> Array.MapTreeReduce (fun x -> x.Changed) (View.Const ()) View.Map2Unit
