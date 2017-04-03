@@ -96,67 +96,71 @@ module private Impl =
     let BuildHoleMethods (holeName: HoleName) (holeDef: HoleDefinition) (resTy: Type) (ctx: Ctx)
             : list<MemberInfo> =
         let mk wrapArg = BuildMethod holeName resTy wrapArg holeDef.Line holeDef.Column ctx
-        match holeDef.Kind with
-        | HoleKind.Attr ->
-            [
-                mk <| fun (x: Expr<Attr>) ->
-                    <@ TemplateHole.Attribute(holeName, %x) @>
-                mk <| fun (x: Expr<seq<Attr>>) ->
-                    <@ TemplateHole.Attribute(holeName, Attr.Concat %x) @>
-            ]
-        | HoleKind.Doc ->
-            [
-                mk <| fun (x: Expr<Doc>) ->
-                    <@ TemplateHole.Elt(holeName, %x) @>
-                mk <| fun (x: Expr<seq<Doc>>) ->
-                    <@ TemplateHole.Elt(holeName, Doc.Concat %x) @>
-                mk <| fun (x: Expr<string>) ->
-                    <@ TemplateHole.Text(holeName, %x) @>
-                mk <| fun (x: Expr<View<string>>) ->
-                    <@ TemplateHole.TextView(holeName, %x) @>
-            ]
-        | HoleKind.ElemHandler ->
-            [
-                mk <| fun (x: Expr<DomElement -> unit>) ->
-                    <@ TemplateHole.AfterRender(holeName, %x) @>
-                mk <| fun (x: Expr<unit -> unit>) ->
-                    <@ TemplateHole.AfterRender(holeName, RuntimeClient.WrapAfterRender %x) @>
-            ]
-        | HoleKind.Event ->
-            [
-                mk <| fun (x: Expr<DomElement -> DomEvent -> unit>) ->
-                    <@ TemplateHole.Event(holeName, %x) @>
-                mk <| fun (x: Expr<unit -> unit>) ->
-                    <@ TemplateHole.Event(holeName, RuntimeClient.WrapEvent %x) @>
-            ]
-        | HoleKind.Simple ->
-            [
-                mk <| fun (x: Expr<string>) ->
-                    <@ TemplateHole.Text(holeName, %x) @>
-                mk <| fun (x: Expr<View<string>>) ->
-                    <@ TemplateHole.TextView(holeName, %x) @>
-            ]
-        | HoleKind.Var (ValTy.Any | ValTy.String) ->
-            [
-                mk <| fun (x: Expr<IRef<string>>) ->
-                    <@ TemplateHole.VarStr(holeName, %x) @>
-            ]
-        | HoleKind.Var ValTy.Number ->
-            [
-                mk <| fun (x: Expr<IRef<int>>) ->
-                    <@ TemplateHole.VarIntUnchecked(holeName, %x) @>
-                mk <| fun (x: Expr<IRef<CheckedInput<int>>>) ->
-                    <@ TemplateHole.VarInt(holeName, %x) @>
-                mk <| fun (x: Expr<IRef<float>>) ->
-                    <@ TemplateHole.VarFloatUnchecked(holeName, %x) @>
-                mk <| fun (x: Expr<IRef<CheckedInput<float>>>) ->
-                    <@ TemplateHole.VarFloat(holeName, %x) @>
-            ]
-        | HoleKind.Var ValTy.Bool ->
-            [
-                mk <| fun (x: Expr<IRef<bool>>) ->
-                    <@ TemplateHole.VarBool(holeName, %x) @>
-            ]
+        let holeName = holeName.ToLowerInvariant()
+        let rec build : _ -> list<MemberInfo> = function
+            | HoleKind.Attr ->
+                [
+                    mk <| fun (x: Expr<Attr>) ->
+                        <@ TemplateHole.Attribute(holeName, %x) @>
+                    mk <| fun (x: Expr<seq<Attr>>) ->
+                        <@ TemplateHole.Attribute(holeName, Attr.Concat %x) @>
+                ]
+            | HoleKind.Doc ->
+                [
+                    mk <| fun (x: Expr<Doc>) ->
+                        <@ TemplateHole.Elt(holeName, %x) @>
+                    mk <| fun (x: Expr<seq<Doc>>) ->
+                        <@ TemplateHole.Elt(holeName, Doc.Concat %x) @>
+                    mk <| fun (x: Expr<string>) ->
+                        <@ TemplateHole.Text(holeName, %x) @>
+                    mk <| fun (x: Expr<View<string>>) ->
+                        <@ TemplateHole.TextView(holeName, %x) @>
+                ]
+            | HoleKind.ElemHandler ->
+                [
+                    mk <| fun (x: Expr<DomElement -> unit>) ->
+                        <@ TemplateHole.AfterRender(holeName, %x) @>
+                    mk <| fun (x: Expr<unit -> unit>) ->
+                        <@ TemplateHole.AfterRender(holeName, RuntimeClient.WrapAfterRender %x) @>
+                ]
+            | HoleKind.Event ->
+                [
+                    mk <| fun (x: Expr<DomElement -> DomEvent -> unit>) ->
+                        <@ TemplateHole.Event(holeName, %x) @>
+                    mk <| fun (x: Expr<unit -> unit>) ->
+                        <@ TemplateHole.Event(holeName, RuntimeClient.WrapEvent %x) @>
+                ]
+            | HoleKind.Simple ->
+                [
+                    mk <| fun (x: Expr<string>) ->
+                        <@ TemplateHole.Text(holeName, %x) @>
+                    mk <| fun (x: Expr<View<string>>) ->
+                        <@ TemplateHole.TextView(holeName, %x) @>
+                ]
+            | HoleKind.Var (ValTy.Any | ValTy.String) ->
+                [
+                    mk <| fun (x: Expr<IRef<string>>) ->
+                        <@ TemplateHole.VarStr(holeName, %x) @>
+                ]
+            | HoleKind.Var ValTy.Number ->
+                [
+                    mk <| fun (x: Expr<IRef<int>>) ->
+                        <@ TemplateHole.VarIntUnchecked(holeName, %x) @>
+                    mk <| fun (x: Expr<IRef<CheckedInput<int>>>) ->
+                        <@ TemplateHole.VarInt(holeName, %x) @>
+                    mk <| fun (x: Expr<IRef<float>>) ->
+                        <@ TemplateHole.VarFloatUnchecked(holeName, %x) @>
+                    mk <| fun (x: Expr<IRef<CheckedInput<float>>>) ->
+                        <@ TemplateHole.VarFloat(holeName, %x) @>
+                ]
+            | HoleKind.Var ValTy.Bool ->
+                [
+                    mk <| fun (x: Expr<IRef<bool>>) ->
+                        <@ TemplateHole.VarBool(holeName, %x) @>
+                ]
+            | HoleKind.Mapped (_, _, k) -> build k
+            | HoleKind.Unknown -> failwithf "Error: Unknown HoleKind"
+        build holeDef.Kind
 
     let OptionValue (x: option<'T>) : Expr<option<'T>> =
         match x with
@@ -213,17 +217,22 @@ module private Impl =
             yield ctor :> _
         ]
 
-    let BuildTP (templates: IDictionary<option<TemplateName>, Template>)
+    let BuildTP (templates: IDictionary<Parsing.WrappedTemplateName, Template>)
             (containerTy: PT.Type) (ptCtx: PT.Ctx) (path: option<string>)
             (clientLoad: ClientLoad) (serverLoad: ServerLoad) =
-        let baseName = "T" + string (Guid.NewGuid().ToString("N"))
+        let baseName =
+            match path with
+            | None -> "T" + string (Guid.NewGuid().ToString("N"))
+            | Some p ->
+                let p = Path.GetFileNameWithoutExtension(p)
+                if p.EndsWith ".ui.next" then p.[..".ui.next".Length] else p
         for KeyValue (tn, t) in templates do
             let ctx = {
                 PT = ptCtx; Template = t
-                BaseName = baseName; Name = tn; Path = path
+                BaseName = baseName; Name = tn.AsOption; Path = path
                 ClientLoad = clientLoad; ServerLoad = serverLoad
             }
-            match tn with
+            match tn.AsOption with
             | None ->
                 BuildOneTemplate containerTy ctx
             | Some n ->

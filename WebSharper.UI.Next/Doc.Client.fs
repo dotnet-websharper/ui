@@ -709,7 +709,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 let finalText = s.[lastIndex..]
                 re.LastIndex <- 0
                 let value =
-                    Array.foldBack (fun (textBefore, holeName) (textAfter, views) ->
+                    Array.foldBack (fun (textBefore, holeName: string) (textAfter, views) ->
                         let holeContent =
                             match fw.TryGetValue(holeName) with
                             | true, TemplateHole.Text (_, t) -> Choice1Of2 t
@@ -783,7 +783,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
 
     [<JavaScript>]
     static member ComposeName baseName name =
-        baseName + "/" + defaultArg name ""
+        (baseName + "/" + defaultArg name "").ToLower()
 
     [<JavaScript>]
     static member PrepareTemplateStrict (baseName: string) (name: option<string>) (els: Node[]) =
@@ -796,42 +796,170 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 let a = attrs.[i]
                 if a.NodeName.StartsWith "ws-on" && a.NodeName <> "ws-onafterrender" then
                     toRemove.JS.Push(a.NodeName) |> ignore
-                    events.JS.Push(a.NodeName.["ws-on".Length..] + ":" + a.NodeValue) |> ignore
+                    events.JS.Push(a.NodeName.["ws-on".Length..] + ":" + a.NodeValue.ToLower()) |> ignore
                 elif not (a.NodeName.StartsWith "ws-") && RegExp(Docs.TextHoleRE).Test(a.NodeValue) then
+                    a.NodeValue <-
+                        RegExp(Docs.TextHoleRE, "g")
+                            .Replace(a.NodeValue, FuncWithArgs (fun (_, h: string) ->
+                                "${" + h.ToLower() + "}"))
                     holedAttrs.JS.Push(a.NodeName) |> ignore
             if not (Array.isEmpty events) then
                 el.SetAttribute("ws-on", String.concat " " events)
             if not (Array.isEmpty holedAttrs) then
                 el.SetAttribute("ws-attr-holes", String.concat " " holedAttrs)
+            let lowercaseAttr name =
+                match el.GetAttribute(name) with
+                | null -> ()
+                | x -> el.SetAttribute(name, x.ToLower())
+            lowercaseAttr "ws-hole"
+            lowercaseAttr "ws-replace"
+            lowercaseAttr "ws-attr"
+            lowercaseAttr "ws-onafterrender"
+            lowercaseAttr "ws-var"
             Array.iter el.RemoveAttribute toRemove
-        let rec convert (p: Element) (n: Node) =
+
+        let convertTextNode (n: Dom.Node) =
+            let mutable m = null
+            let mutable li = 0
+            let s = n.TextContent
+            let strRE = RegExp(Docs.TextHoleRE, "g")
+            while (m <- strRE.Exec s; m !==. null) do
+                n.ParentNode.InsertBefore(JS.Document.CreateTextNode(s.[li..strRE.LastIndex-m.[0].Length-1]), n) |> ignore
+                li <- strRE.LastIndex
+                let hole = JS.Document.CreateElement("span")
+                hole.SetAttribute("ws-replace", m.[1].ToLower())
+                n.ParentNode.InsertBefore(hole, n) |> ignore
+            strRE.LastIndex <- 0
+            n.TextContent <- s.[li..]
+
+        let mapHoles (t: Dom.Element) (mappings: Dictionary<string, string>) =
+            let run attrName =
+                DomUtility.IterSelector t ("[" + attrName + "]") <| fun e ->
+                    match mappings.TryGetValue(e.GetAttribute(attrName).ToLower()) with
+                    | true, m -> e.SetAttribute(attrName, m)
+                    | false, _ -> ()
+            run "ws-hole"
+            run "ws-replace"
+            run "ws-attr"
+            run "ws-onafterrender"
+            run "ws-var"
+            DomUtility.IterSelector t "[ws-on]" <| fun e ->
+                let a =
+                    e.GetAttribute("ws-on").Split(' ')
+                    |> Array.map (fun x ->
+                        let a = x.Split(':')
+                        match mappings.TryGetValue(a.[1]) with
+                        | true, x -> a.[0] + ":" + x
+                        | false, _ -> x
+                    )
+                    |> String.concat " "
+                e.SetAttribute("ws-on", a)
+            DomUtility.IterSelector t "[ws-attr-holes]" <| fun e ->
+                let holeAttrs = e.GetAttribute("ws-attr-holes").Split(' ')
+                for attrName in holeAttrs do
+                    let s =
+                        (e.GetAttribute(attrName), mappings)
+                        ||> Seq.fold (fun s (KeyValue(a, m)) ->
+                            RegExp("\\${" + a + "}", "ig").Replace(s, "${" + m + "}")
+                        )
+                    e.SetAttribute(attrName, s)
+
+        let fillInstanceAttrs (instance: Dom.Element) (fillWith: Dom.Element) =
+            convertAttrs fillWith
+            let name = fillWith.NodeName.ToLower()
+            match instance.QuerySelector("[ws-attr=" + name + "]") with
+            | null -> Console.Warn("Filling non-existent attr hole", name)
+            | e ->
+                e.RemoveAttribute("ws-attr")
+                for i = 0 to fillWith.Attributes.Length - 1 do
+                    let a = fillWith.Attributes.[i]
+                    if a.Name = "class" && e.HasAttribute("class") then
+                        e.SetAttribute("class", e.GetAttribute("class") + " " + a.NodeValue)
+                    else
+                        e.SetAttribute(a.Name, a.NodeValue)
+
+        let rec fillDocHole (instance: Dom.Element) (fillWith: Dom.Element) =
+            let name = fillWith.NodeName.ToLower()
+            DomUtility.IterSelector instance "[ws-attr-holes]" <| fun e ->
+                let holeAttrs = e.GetAttribute("ws-attr-holes").Split(' ')
+                for attrName in holeAttrs do
+                    e.SetAttribute(attrName,
+                        RegExp("\\${" + name + "}", "ig").
+                            Replace(e.GetAttribute(attrName), fillWith.TextContent)
+                    )
+            convertElement fillWith
+            let rec fill (p: Dom.Element) n =
+                if fillWith.HasChildNodes() then
+                    p.InsertBefore(fillWith.LastChild, n)
+                    |> fill p
+            match instance.QuerySelector("[ws-hole=" + name + "]") with
+            | null ->
+                match instance.QuerySelector("[ws-replace=" + name + "]") with
+                | null -> ()
+                | e ->
+                    fill e.ParentElement e
+                    e.ParentElement.RemoveChild(e) |> ignore
+            | e ->
+                while e.HasChildNodes() do
+                    e.RemoveChild(e.LastChild) |> ignore
+                e.RemoveAttribute("ws-hole")
+                fill e null
+
+        and convertInstantiation (el: Dom.Element) =
+            let name = el.NodeName.[3..].ToLower()
+            let name =
+                match name.IndexOf('.') with
+                | -1 -> baseName + "/" + name
+                | _ -> name.Replace(".", "/")
+            if not (Docs.LoadedTemplates.ContainsKey name) then
+                Console.Warn("Instantiating non-loaded template", name)
+            else
+                let t = Docs.LoadedTemplates.[name] : Dom.Element
+//            match Docs.LoadedTemplates.TryGetValue name with
+//            | false, _ -> Console.Warn("Instantiating non-loaded template", name)
+//            | true, (t: Dom.Element) ->
+                let instance = t.CloneNode(true) :?> Dom.Element
+                for i = 0 to el.ChildNodes.Length - 1 do
+                    let n = el.ChildNodes.[i]
+                    if n.NodeType = Dom.NodeType.Element then
+                        let n = n :?> Dom.Element
+                        if n.HasAttributes() then
+                            fillInstanceAttrs instance n
+                        else
+                            fillDocHole instance n
+                if el.HasAttributes() then
+                    let mappings = Dictionary()
+                    let attrs = el.Attributes
+                    for i = 0 to attrs.Length - 1 do
+                        mappings.[attrs.[i].Name.ToLower()] <- attrs.[i].NodeValue.ToLower()
+                    mapHoles instance mappings
+                while instance.HasChildNodes() do
+                    el.ParentElement.InsertBefore(instance.LastChild, el) |> ignore
+                el.ParentElement.RemoveChild(el) |> ignore
+
+        and convertElement (el: Dom.Element) =
+            if el.NodeName.ToLower().StartsWith "ws-" then
+                convertInstantiation el
+            else
+                convertAttrs el
+                match el.GetAttribute("ws-template") with
+                | null ->
+                    match el.GetAttribute("ws-children-template") with
+                    | null -> convert el el.FirstChild
+                    | name ->
+                        el.RemoveAttribute("ws-children-template")
+                        Doc'.PrepareTemplate baseName (Some name) (fun () -> DomUtility.ChildrenArray el)
+                | name -> Doc'.PrepareSingleTemplate baseName (Some name) el
+
+        and convert (p: Element) (n: Node) =
             if n !==. null then
                 let next = n.NextSibling
                 if n.NodeType = Dom.NodeType.Text then
-                    let mutable m = null
-                    let mutable li = 0
-                    let s = n.TextContent
-                    let strRE = RegExp(Docs.TextHoleRE, "g")
-                    while (m <- strRE.Exec s; m !==. null) do
-                        n.ParentNode.InsertBefore(JS.Document.CreateTextNode(s.[li..strRE.LastIndex-m.[0].Length-1]), n) |> ignore
-                        li <- strRE.LastIndex
-                        let hole = JS.Document.CreateElement("span")
-                        hole.SetAttribute("ws-replace", m.[1])
-                        n.ParentNode.InsertBefore(hole, n) |> ignore
-                    strRE.LastIndex <- 0
-                    n.TextContent <- s.[li..]
+                    convertTextNode n
                 elif n.NodeType = Dom.NodeType.Element then
-                    let el = n :?> Dom.Element
-                    convertAttrs el
-                    match el.GetAttribute("ws-template") with
-                    | null ->
-                        match el.GetAttribute("ws-children-template") with
-                        | null -> convert el el.FirstChild
-                        | name ->
-                            el.RemoveAttribute("ws-children-template")
-                            Doc'.PrepareTemplate baseName (Some name) (fun () -> DomUtility.ChildrenArray el)
-                    | name -> Doc'.PrepareSingleTemplate baseName (Some name) el
+                    convertElement (n :?> Dom.Element)
                 convert p next
+
         let fakeroot = Doc'.FakeRoot els
         Docs.LoadedTemplates.[Doc'.ComposeName baseName name] <- fakeroot
         if els.Length > 0 then convert fakeroot els.[0]

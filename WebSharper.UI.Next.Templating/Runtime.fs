@@ -65,7 +65,7 @@ type private Holes = Dictionary<HoleName, TemplateHole>
 
 type Runtime private () =
 
-    static let loaded = ConcurrentDictionary<string, Map<option<string>, Template>>()
+    static let loaded = ConcurrentDictionary<string, Map<Parsing.WrappedTemplateName, Template>>()
 
     static let watchers = ConcurrentDictionary<string, FileSystemWatcher>()
 
@@ -140,14 +140,14 @@ type Runtime private () =
                     watcher)
                 getOrLoadPath fullPath
             | _ -> failwith "Invalid ServerLoad"
-        let template = getTemplate baseName name templates
+        let template = getTemplate baseName (Parsing.WrappedTemplateName.OfOption name) templates
         let fillWith = buildFillDict fillWith template.Holes
 
         let rec writeWrappedTemplate templateName (template: Template) m (w: HtmlTextWriter) r =
             let tagName = template.Value |> Array.tryPick (function
                 | Node.Element (name, _, _, _)
                 | Node.Input (name, _, _, _) -> Some name
-                | Node.Text _ | Node.DocHole _ -> None
+                | Node.Text _ | Node.DocHole _ | Node.Instantiate _ -> None
             )
             let before, after = defaultArg (Map.tryFind tagName templateWrappers) defaultTemplateWrappers
             w.Write(before, ChildrenTemplateAttr, templateName)
@@ -195,7 +195,7 @@ type Runtime private () =
                     Array.iter writeNode children
                     if subTemplatesHandling = Parsing.KeepSubTemplatesInRoot && tag = "body" && Option.isNone name then
                         templates |> Map.iter (fun k v ->
-                            match k with
+                            match k.AsOption with
                             | Some templateName -> writeWrappedTemplate templateName v m w r
                             | None -> ()
                         )
@@ -221,6 +221,8 @@ type Runtime private () =
                     | true, TemplateHole.Text (_, txt) -> w.WriteEncodedText(txt)
                     | true, _ -> failwithf "Invalid hole, expected Doc: %s" holeName
                     | false, _ -> ()
+                | Node.Instantiate _ ->
+                    failwithf "Template instantiation not yet supported on the server side"
             Array.iter writeNode template.Value
         let write = writeTemplate template false
         match template.Value with

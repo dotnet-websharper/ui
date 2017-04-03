@@ -41,6 +41,8 @@ type HoleKind =
     | Doc
     | Event
     | ElemHandler
+    | Mapped of templateName: string * holeName: string * kind: HoleKind
+    | Unknown
 
 type HoleDefinition =
     {
@@ -68,6 +70,7 @@ type Node =
     | Element of nodeName: string * isSvg: bool * Attr[] * children: Node[]
     | Input of nodeName: string * var: HoleName * Attr[] * children: Node[]
     | DocHole of HoleName
+    | Instantiate of templateName: string * holeMaps: Dictionary<string, string> * attrs: Dictionary<string, Attr[]> * contentHoles: Dictionary<string, Node[]>
 
 type Template =
     {

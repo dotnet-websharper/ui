@@ -1,12 +1,20 @@
 <h1 ws-replace="Title"></h1>
 <ul ws-hole="ListContainer">
     <li ws-template="ListItem">
-        <span>(${Key}) </span>
+        <span ws-attr="KeyAttr" class="class1">(${Key}) </span>
         <span style="font-style: ${FontStyle}; font-weight: ${FontWeight}">${Name}</span>:
         <input ws-var="Description" />
         <button ws-onclick="Remove">Remove</button>
+        <span ws-replace="Replace"></span>
+        <span ws-hole="Hole"></span>
     </li>
 </ul>
+<ws-ListItem Key="LIKey" FontStyle="LIFontStyle" Name="LIName">
+    <KeyAttr style="color: blue" class="class2 ${Class3}" ws-attr="LIExtraAttr" />
+    <FontWeight>bold</FontWeight>
+    <Replace>hello ${Replace2}!</Replace>
+    <Hole>hello hole!</Hole>
+</ws-ListItem>
 <div ws-attr="Attr">
     <p id="paragraph" ws-onafterrender="PRendered">
         <input ws-var="NewName" placeholder="Name" ws-onkeyup="NameChanged" />
