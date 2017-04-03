@@ -834,7 +834,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 convert p next
         let fakeroot = Doc'.FakeRoot els
         Docs.LoadedTemplates.[Doc'.ComposeName baseName name] <- fakeroot
-        convert fakeroot els.[0]
+        if els.Length > 0 then convert fakeroot els.[0]
 
     [<JavaScript>]
     static member PrepareTemplate (baseName: string) (name: option<string>) (els: unit -> Node[]) =
