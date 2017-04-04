@@ -158,7 +158,7 @@ module private Impl =
                     mk <| fun (x: Expr<IRef<bool>>) ->
                         <@ TemplateHole.VarBool(holeName, %x) @>
                 ]
-            | HoleKind.Mapped (_, _, k) -> build k
+            | HoleKind.Mapped (kind = k) -> build k
             | HoleKind.Unknown -> failwithf "Error: Unknown HoleKind"
         build holeDef.Kind
 
@@ -223,9 +223,7 @@ module private Impl =
         let baseName =
             match item.Path with
             | None -> "T" + string (Guid.NewGuid().ToString("N"))
-            | Some p ->
-                let p = Path.GetFileNameWithoutExtension(p)
-                if p.EndsWith ".ui.next" then p.[..".ui.next".Length] else p
+            | Some p -> Parsing.ParseItem.GetNameFromPath p
         for KeyValue (tn, t) in item.Templates do
             let ctx = {
                 PT = ptCtx; Template = t
@@ -242,12 +240,6 @@ module private Impl =
                 BuildOneTemplate ty ctx
                 containerTy.AddMember ty
 
-    let private getNameFromPath p =
-        let s = Path.GetFileNameWithoutExtension p
-        if s.ToLowerInvariant().EndsWith(".ui.next") then
-            s.[..s.Length - ".ui.next".Length - 1]
-        else s
-
     let BuildTP (parsed: Parsing.ParseItem[])
             (containerTy: PT.Type) (ptCtx: PT.Ctx)
             (clientLoad: ClientLoad) (serverLoad: ServerLoad) =
@@ -259,7 +251,7 @@ module private Impl =
                     match item.Path with
                     | None -> containerTy
                     | Some path ->
-                        ptCtx.ProvidedTypeDefinition(getNameFromPath path, None)
+                        ptCtx.ProvidedTypeDefinition(Parsing.ParseItem.GetNameFromPath path, None)
                             .AddTo(containerTy)
                 BuildOneFile item containerTy ptCtx clientLoad serverLoad
             )

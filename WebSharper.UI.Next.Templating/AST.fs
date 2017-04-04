@@ -41,7 +41,7 @@ type HoleKind =
     | Doc
     | Event
     | ElemHandler
-    | Mapped of templateName: string * holeName: string * kind: HoleKind
+    | Mapped of fileName: option<string> * templateName: string * holeName: string * kind: HoleKind
     | Unknown
 
 type HoleDefinition =

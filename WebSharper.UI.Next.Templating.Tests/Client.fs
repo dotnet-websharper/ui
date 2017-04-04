@@ -196,28 +196,29 @@ module Client =
                 .ReAddUpdater(fun _ _ -> reAddUpdater())
                 .IncrEltUpdaterTest(fun _ _ -> testCounter := !testCounter + 1)
                 .EltUpdaterTest(eltUpdater)
+                .Username1("test")
                 .Doc()
 
         Anim.UseAnimations <- false
 
-        let fromIndex =
-            let rvUsername = Var.Create ""
-            let rvPassword = Var.Create ""
-            let submit =
-                View.Map2 (fun u p -> u, p) rvUsername.View rvUsername.View
-                |> Submitter.CreateOption
-            MyTemplate.index.Form()
-                .Username(rvUsername)
-                .Password(rvPassword)
-                .Submit(submit.Trigger)
-                .Welcome(submit.View.Map(function
-                    | None -> ""
-                    | Some (u, _) -> sprintf "Welcome, %s!" u))
-                .Doc()
+//        let fromIndex =
+//            let rvUsername = Var.Create ""
+//            let rvPassword = Var.Create ""
+//            let submit =
+//                View.Map2 (fun u p -> u, p) rvUsername.View rvUsername.View
+//                |> Submitter.CreateOption
+//            MyTemplate.index.Form()
+//                .Username(rvUsername)
+//                .Password(rvPassword)
+//                .Submit(submit.Trigger)
+//                .Welcome(submit.View.Map(function
+//                    | None -> ""
+//                    | Some (u, _) -> sprintf "Welcome, %s!" u))
+//                .Doc()
 
         div [
             doc
-            fromIndex
+//            fromIndex
             Regression67.Doc
         ]
         |> Doc.RunById "main"

@@ -85,6 +85,17 @@ type ParseItem =
         Path : option<string>
     }
 
+    static member GetNameFromPath p =
+        let s = Path.GetFileNameWithoutExtension p
+        if s.ToLowerInvariant().EndsWith(".ui.next") then
+            s.[..s.Length - ".ui.next".Length - 1]
+        else s
+
+    member this.IsNamed n =
+        match this.Path with
+        | None -> false
+        | Some p -> ParseItem.GetNameFromPath p = n
+
 type ParseResult =
     {
         Items : ParseItem[]
@@ -229,13 +240,17 @@ module Impl =
 
     let rec (|Instantiation|_|) addHole hasNonScriptSpecialTags (node: HtmlNode) =
         if node.Name.StartsWith "ws-" then
-            let templateName = node.Name.[3..]
+            let rawTemplateName = node.Name.[3..]
+            let fileName, templateName =
+                match rawTemplateName.IndexOf '.' with
+                | -1 -> None, rawTemplateName
+                | i -> Some rawTemplateName.[..i-1], rawTemplateName.[i+1..]
             let holeMaps = Dictionary(System.StringComparer.InvariantCultureIgnoreCase)
             let attrs = Dictionary(System.StringComparer.InvariantCultureIgnoreCase)
             let contentHoles = Dictionary(System.StringComparer.InvariantCultureIgnoreCase)
             for a in node.Attributes do
                 addHole a.Value {
-                    HoleDefinition.Kind = HoleKind.Mapped (templateName, a.Name, HoleKind.Unknown)
+                    HoleDefinition.Kind = HoleKind.Mapped (fileName, templateName, a.Name, HoleKind.Unknown)
                     HoleDefinition.Line = a.Line
                     HoleDefinition.Column = a.LinePosition
                 }
@@ -373,38 +388,48 @@ let ParseSource (src: string) =
                 Map.add w (parseNodeAndSiblingsAsTemplate n.FirstChild) templates
             )
     let rootTemplate = parseNodeAndSiblingsAsTemplate html.DocumentNode.FirstChild
-    let templates = Map.add (WrappedTemplateName null) rootTemplate templates
-    let doContinue = ref true
-    while !doContinue do
-        doContinue := false
-        templates |> Map.iter (fun _ t ->
-            t.Holes.Keys
-            |> Array.ofSeq
-            |> Array.iter (fun k ->
-                match t.Holes.[k].Kind with
-                | HoleKind.Mapped (templateName, holeName, m) ->
-                    match m with
-                    | HoleKind.Mapped (_, _, HoleKind.Unknown) -> doContinue := true
+    Map.add (WrappedTemplateName null) rootTemplate templates
+
+let private checkMappedHoles (items: ParseItem[]) =
+    for item in items do
+        let doContinue = ref true
+        while !doContinue do
+            doContinue := false
+            item.Templates |> Seq.iter (fun (KeyValue(_, t)) ->
+                t.Holes.Keys
+                |> Array.ofSeq
+                |> Array.iter (fun k ->
+                    match t.Holes.[k].Kind with
+                    | HoleKind.Mapped (fileName, templateName, holeName, m) ->
+                        match m with
+                        | HoleKind.Mapped (_, _, _, HoleKind.Unknown) -> doContinue := true
+                        | _ -> ()
+                        let templates =
+                            match fileName with
+                            | None -> item.Templates
+                            | Some f ->
+                                match items |> Array.tryFind (fun it -> it.IsNamed f) with
+                                | Some item -> item.Templates
+                                | None -> failwithf "Trying to instantiate a template from a file that doesn't exist: %s" f
+                        match templates.TryGetValue (WrappedTemplateName templateName) with
+                        | true, t' ->
+                            match t'.Holes.TryGetValue holeName with
+                            | true, h ->
+                                t.Holes.[k] <-
+                                    { t.Holes.[k] with Kind = HoleKind.Mapped(fileName, templateName, holeName, h.Kind) }
+                            | false, _ ->
+                                failwithf "Cannot map hole %s from template %s" holeName templateName
+                        | false, _ -> failwithf "Trying to instantiate a template that doesn't exist: %s" templateName
                     | _ -> ()
-                    match templates.TryFind (WrappedTemplateName templateName) with
-                    | Some t' ->
-                        match t'.Holes.TryGetValue holeName with
-                        | true, h ->
-                            t.Holes.[k] <-
-                                { t.Holes.[k] with Kind = HoleKind.Mapped(templateName, holeName, h.Kind) }
-                        | false, _ ->
-                            failwithf "Cannot map hole %s from template %s" holeName templateName
-                    | None -> failwithf "Trying to instantiate a template that doesn't exist: %s" templateName
-                | _ -> ()
+                )
             )
-        )
-    templates
+    items
 
 let Parse (pathOrXml: string) (rootFolder: string) =
     if pathOrXml.Contains("<") then
         {
             ParseKind = ParseKind.Inline
-            Items = [| { Templates = ParseSource pathOrXml; Path = None } |]
+            Items = checkMappedHoles [| { Templates = ParseSource pathOrXml; Path = None } |]
         }
     else
         let paths =
@@ -417,11 +442,14 @@ let Parse (pathOrXml: string) (rootFolder: string) =
             )
         {
             ParseKind = ParseKind.Files paths
-            Items = paths |> Array.map (fun path ->
-                let templates = ParseSource (File.ReadAllText path)
-                {
-                    Templates = templates
-                    Path = Some path
-                }
-            )
+            Items =
+                paths
+                |> Array.map (fun path ->
+                    let templates = ParseSource (File.ReadAllText path)
+                    {
+                        Templates = templates
+                        Path = Some path
+                    }
+                )
+                |> checkMappedHoles
         }
