@@ -399,7 +399,7 @@ module Docs =
         n.Value <- t
         n.Dirty <- true
 
-    let LoadedTemplates = Dictionary()
+    let LoadedTemplates = Dictionary<string, Dom.Element>()
 
     let TextHoleRE = """\${([^}]+)}"""
 
@@ -878,6 +878,37 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                     else
                         e.SetAttribute(a.Name, a.NodeValue)
 
+        let removeHolesExcept (instance: Dom.Element) (dontRemove: HashSet<string>) =
+            let run attrName =
+                DomUtility.IterSelector instance ("[" + attrName + "]") <| fun e ->
+                    if not (dontRemove.Contains(e.GetAttribute attrName)) then
+                        e.RemoveAttribute(attrName)
+            run "ws-hole"
+            run "ws-attr"
+            run "ws-onafterrender"
+            run "ws-var"
+            DomUtility.IterSelector instance "[ws-replace]" <| fun e ->
+                if not (dontRemove.Contains(e.GetAttribute "ws-replace")) then
+                    e.ParentElement.RemoveChild(e) |> ignore
+            DomUtility.IterSelector instance "[ws-on]" <| fun e ->
+                let a =
+                    e.GetAttribute("ws-on").Split(' ')
+                    |> Array.filter (fun x ->
+                        let a = x.Split(':')
+                        not (dontRemove.Contains a.[1])
+                    )
+                    |> String.concat " "
+                e.SetAttribute("ws-on", a)
+            DomUtility.IterSelector instance "[ws-attr-holes]" <| fun e ->
+                let holeAttrs = e.GetAttribute("ws-attr-holes").Split(' ')
+                for attrName in holeAttrs do
+                    let s =
+                        RegExp(Docs.TextHoleRE, "g")
+                            .Replace(e.GetAttribute(attrName), FuncWithArgs(fun (full: string, h: string) ->
+                                if dontRemove.Contains h then full else ""
+                            ))
+                    e.SetAttribute(attrName, s)
+
         let rec fillDocHole (instance: Dom.Element) (fillWith: Dom.Element) =
             let name = fillWith.NodeName.ToLower()
             DomUtility.IterSelector instance "[ws-attr-holes]" <| fun e ->
@@ -914,11 +945,29 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             if not (Docs.LoadedTemplates.ContainsKey name) then
                 Console.Warn("Instantiating non-loaded template", name)
             else
-                let t = Docs.LoadedTemplates.[name] : Dom.Element
+                let t = Docs.LoadedTemplates.[name]
 //            match Docs.LoadedTemplates.TryGetValue name with
 //            | false, _ -> Console.Warn("Instantiating non-loaded template", name)
 //            | true, (t: Dom.Element) ->
                 let instance = t.CloneNode(true) :?> Dom.Element
+                let usedHoles = HashSet()
+                let mappings = Dictionary()
+                // 1. gather mapped and filled holes.
+                let attrs = el.Attributes
+                for i = 0 to attrs.Length - 1 do
+                    let name = attrs.[i].Name.ToLower()
+                    mappings.[name] <- attrs.[i].NodeValue.ToLower()
+                    if not (usedHoles.Add(name)) then
+                        Console.Warn("Hole mapped twice", name)
+                for i = 0 to el.ChildNodes.Length - 1 do
+                    let n = el.ChildNodes.[i]
+                    if n.NodeType = Dom.NodeType.Element then
+                        let n = n :?> Dom.Element
+                        if not (usedHoles.Add(n.NodeName.ToLower())) then
+                            Console.Warn("Hole filled twice", name)
+                // 2. eliminate non-mapped/filled holes.
+                removeHolesExcept instance usedHoles
+                // 3. apply mappings/fillings.
                 for i = 0 to el.ChildNodes.Length - 1 do
                     let n = el.ChildNodes.[i]
                     if n.NodeType = Dom.NodeType.Element then
@@ -927,12 +976,8 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                             fillInstanceAttrs instance n
                         else
                             fillDocHole instance n
-                if el.HasAttributes() then
-                    let mappings = Dictionary()
-                    let attrs = el.Attributes
-                    for i = 0 to attrs.Length - 1 do
-                        mappings.[attrs.[i].Name.ToLower()] <- attrs.[i].NodeValue.ToLower()
-                    mapHoles instance mappings
+                mapHoles instance mappings
+                // 4. insert result.
                 while instance.HasChildNodes() do
                     el.ParentElement.InsertBefore(instance.LastChild, el) |> ignore
                 el.ParentElement.RemoveChild(el) |> ignore
