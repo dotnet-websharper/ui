@@ -32,11 +32,6 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
   <Import Project="bin/$(Name).proj" />
-  <ItemGroup>
-    <Compile Include="Main.fs" />
-    <Content Include="Main.html" />
-    <Content Include="Web.config" />
-  </ItemGroup>
   <ProjectExtensions>
     <VisualStudio>
       <FlavorProperties Guid="{349c5851-65df-11da-9384-00065b846f21}">
@@ -76,4 +71,10 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
+  <ItemGroup>
+    <Compile Include="Main.fs" />
+    <Content Include="Main.html" />
+    <Content Include="Web.config" />
+    <Content Include="template.html" />
+  </ItemGroup>
 </Project>
