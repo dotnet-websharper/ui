@@ -217,19 +217,19 @@ module private Impl =
             yield ctor :> _
         ]
 
-    let BuildTP (templates: IDictionary<Parsing.WrappedTemplateName, Template>)
-            (containerTy: PT.Type) (ptCtx: PT.Ctx) (path: option<string>)
+    let BuildOneFile (item: Parsing.ParseItem)
+            (containerTy: PT.Type) (ptCtx: PT.Ctx)
             (clientLoad: ClientLoad) (serverLoad: ServerLoad) =
         let baseName =
-            match path with
+            match item.Path with
             | None -> "T" + string (Guid.NewGuid().ToString("N"))
             | Some p ->
                 let p = Path.GetFileNameWithoutExtension(p)
                 if p.EndsWith ".ui.next" then p.[..".ui.next".Length] else p
-        for KeyValue (tn, t) in templates do
+        for KeyValue (tn, t) in item.Templates do
             let ctx = {
                 PT = ptCtx; Template = t
-                BaseName = baseName; Name = tn.AsOption; Path = path
+                BaseName = baseName; Name = tn.AsOption; Path = item.Path
                 ClientLoad = clientLoad; ServerLoad = serverLoad
             }
             match tn.AsOption with
@@ -241,6 +241,28 @@ module private Impl =
                         .WithXmlDoc(XmlDoc.TemplateType n)
                 BuildOneTemplate ty ctx
                 containerTy.AddMember ty
+
+    let private getNameFromPath p =
+        let s = Path.GetFileNameWithoutExtension p
+        if s.ToLowerInvariant().EndsWith(".ui.next") then
+            s.[..s.Length - ".ui.next".Length - 1]
+        else s
+
+    let BuildTP (parsed: Parsing.ParseItem[])
+            (containerTy: PT.Type) (ptCtx: PT.Ctx)
+            (clientLoad: ClientLoad) (serverLoad: ServerLoad) =
+        match parsed with
+        | [| item |] -> BuildOneFile item containerTy ptCtx clientLoad serverLoad
+        | items ->
+            items |> Array.iter (fun item ->
+                let containerTy =
+                    match item.Path with
+                    | None -> containerTy
+                    | Some path ->
+                        ptCtx.ProvidedTypeDefinition(getNameFromPath path, None)
+                            .AddTo(containerTy)
+                BuildOneFile item containerTy ptCtx clientLoad serverLoad
+            )
 
 [<TypeProvider>]
 type TemplatingProvider (cfg: TypeProviderConfig) as this =
@@ -272,18 +294,20 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
 
     let setupWatcher = function
         | Parsing.ParseKind.Inline -> ()
-        | Parsing.ParseKind.File path ->
-            if not (watchers.ContainsKey path) then
-                let watcher =
-                    new FileSystemWatcher(Path.GetDirectoryName path, Path.GetFileName path,
-                        NotifyFilter = watcherNotifyFilter, EnableRaisingEvents = true
-                    )
-                let inv _ = invalidateFile path watcher
-                watcher.Changed.Add inv
-                watcher.Deleted.Add inv
-                watcher.Renamed.Add inv
-                watcher.Created.Add inv
-                watchers.Add(path, watcher)
+        | Parsing.ParseKind.Files paths ->
+            paths |> Array.iter (fun path ->
+                if not (watchers.ContainsKey path) then
+                    let watcher =
+                        new FileSystemWatcher(Path.GetDirectoryName path, Path.GetFileName path,
+                            NotifyFilter = watcherNotifyFilter, EnableRaisingEvents = true
+                        )
+                    let inv _ = invalidateFile path watcher
+                    watcher.Changed.Add inv
+                    watcher.Deleted.Add inv
+                    watcher.Renamed.Add inv
+                    watcher.Created.Add inv
+                    watchers.Add(path, watcher)
+            )
 
     let setupTP () =
         templateTy.DefineStaticParameters(
@@ -320,8 +344,8 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
                         pathOrHtml, clientLoad, serverLoad, legacyMode
                     | a -> failwithf "Unexpected parameter values: %A" a
                 let ty = //lazy (
-                    let template = Parsing.Parse pathOrHtml cfg.ResolutionFolder Parsing.ExtractSubTemplatesFromRoot
-                    setupWatcher template.ParseKind
+                    let parsed = Parsing.Parse pathOrHtml cfg.ResolutionFolder
+                    setupWatcher parsed.ParseKind
                     let ty =
                         ctx.ProvidedTypeDefinition(thisAssembly, rootNamespace, typename, None)
                             .WithXmlDoc(XmlDoc.TemplateType "")
@@ -329,11 +353,11 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
                     | LegacyMode.Both ->
                         try OldProvider.RunOldProvider true pathOrHtml cfg ctx ty
                         with _ -> ()
-                        BuildTP template.Templates ty ctx template.Path clientLoad serverLoad
+                        BuildTP parsed.Items ty ctx clientLoad serverLoad
                     | LegacyMode.Old ->
                         OldProvider.RunOldProvider false pathOrHtml cfg ctx ty
                     | _ ->
-                        BuildTP template.Templates ty ctx template.Path clientLoad serverLoad
+                        BuildTP parsed.Items ty ctx clientLoad serverLoad
                     ty
                 //)
                 //cache.AddOrGetExisting(typename, ty)
