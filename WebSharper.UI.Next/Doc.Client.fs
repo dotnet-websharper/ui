@@ -1,5 +1,6 @@
 namespace WebSharper.UI.Next.Client
 
+open System
 open System.Collections.Generic
 open System.Runtime.CompilerServices
 open WebSharper
@@ -659,9 +660,9 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             | _ -> Console.Warn("Unfilled attr", name)
 
         DomUtility.IterSelector el "[ws-on]" <| fun e ->
-            e.GetAttribute("ws-on").Split(' ')
+            e.GetAttribute("ws-on").Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
             |> Array.choose (fun x ->
-                let a = x.Split(':')
+                let a = x.Split([|':'|], StringSplitOptions.RemoveEmptyEntries)
                 match fw.TryGetValue(a.[1]) with
                 | true, TemplateHole.Event (_, handler) -> Some (Attr.Handler a.[0] handler)
                 | _ ->
@@ -694,7 +695,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
 
         DomUtility.IterSelector el "[ws-attr-holes]" <| fun e ->
             let re = new RegExp(Docs.TextHoleRE, "g")
-            let holeAttrs = e.GetAttribute("ws-attr-holes").Split(' ')
+            let holeAttrs = e.GetAttribute("ws-attr-holes").Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
             e.RemoveAttribute("ws-attr-holes")
             for attrName in holeAttrs do
                 let s = e.GetAttribute(attrName)
@@ -845,9 +846,9 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             run "ws-var"
             DomUtility.IterSelector t "[ws-on]" <| fun e ->
                 let a =
-                    e.GetAttribute("ws-on").Split(' ')
+                    e.GetAttribute("ws-on").Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
                     |> Array.map (fun x ->
-                        let a = x.Split(':')
+                        let a = x.Split([|':'|], StringSplitOptions.RemoveEmptyEntries)
                         match mappings.TryGetValue(a.[1]) with
                         | true, x -> a.[0] + ":" + x
                         | false, _ -> x
@@ -855,7 +856,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                     |> String.concat " "
                 e.SetAttribute("ws-on", a)
             DomUtility.IterSelector t "[ws-attr-holes]" <| fun e ->
-                let holeAttrs = e.GetAttribute("ws-attr-holes").Split(' ')
+                let holeAttrs = e.GetAttribute("ws-attr-holes").Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
                 for attrName in holeAttrs do
                     let s =
                         (e.GetAttribute(attrName), mappings)
@@ -892,15 +893,15 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                     e.ParentElement.RemoveChild(e) |> ignore
             DomUtility.IterSelector instance "[ws-on]" <| fun e ->
                 let a =
-                    e.GetAttribute("ws-on").Split(' ')
+                    e.GetAttribute("ws-on").Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
                     |> Array.filter (fun x ->
-                        let a = x.Split(':')
+                        let a = x.Split([|':'|], StringSplitOptions.RemoveEmptyEntries)
                         not (dontRemove.Contains a.[1])
                     )
                     |> String.concat " "
                 e.SetAttribute("ws-on", a)
             DomUtility.IterSelector instance "[ws-attr-holes]" <| fun e ->
-                let holeAttrs = e.GetAttribute("ws-attr-holes").Split(' ')
+                let holeAttrs = e.GetAttribute("ws-attr-holes").Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
                 for attrName in holeAttrs do
                     let s =
                         RegExp(Docs.TextHoleRE, "g")
@@ -912,7 +913,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
         let rec fillDocHole (instance: Dom.Element) (fillWith: Dom.Element) =
             let name = fillWith.NodeName.ToLower()
             DomUtility.IterSelector instance "[ws-attr-holes]" <| fun e ->
-                let holeAttrs = e.GetAttribute("ws-attr-holes").Split(' ')
+                let holeAttrs = e.GetAttribute("ws-attr-holes").Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
                 for attrName in holeAttrs do
                     e.SetAttribute(attrName,
                         RegExp("\\${" + name + "}", "ig").
@@ -1628,6 +1629,10 @@ module Doc =
     [<Inline>]
     let LoadLocalTemplates baseName =
         Doc'.LoadLocalTemplates baseName
+
+    [<Inline>]
+    let LoadTemplate (baseName: string) (name: option<string>) (el: unit -> Node[]) =
+        Doc'.PrepareTemplate baseName name el
 
     [<Inline>]
     let NamedTemplate (baseName: string) (name: option<string>) (fillWith: seq<TemplateHole>) : Doc =

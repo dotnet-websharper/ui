@@ -38,13 +38,21 @@ type SubTemplatesHandling =
 
 type WrappedTemplateName(name: string) =
 
-    member this.Name = name
+    member private this.Name = name
 
-    member this.AsOption =
+    /// None is the root template, Some x is a child template.
+    member this.NameAsOption =
         match name with
         | null -> None
         | s -> Some s
 
+    /// None is the root template, Some x is a child template.
+    member this.IdAsOption =
+        match name with
+        | null -> None
+        | s -> Some (s.ToLowerInvariant())
+
+    /// None is the root template, Some x is a child template.
     static member OfOption x =
         match x with
         | None -> null
@@ -78,23 +86,39 @@ type WrappedTemplateName(name: string) =
         | null -> 0
         | n -> n.ToLowerInvariant().GetHashCode()
 
+    override this.ToString() =
+        match name with
+        | null -> "(root)"
+        | s -> s
+
 type ParseItem =
     {
-        /// None is the root template, Some x is a child template.
-        Templates : IDictionary<WrappedTemplateName, Template>
+        Templates : Map<WrappedTemplateName, Template>
         Path : option<string>
+        References : IDictionary<WrappedTemplateName, Set<string * WrappedTemplateName>>
     }
 
-    static member GetNameFromPath p =
-        let s = Path.GetFileNameWithoutExtension p
+    static member GetNameFromPath(p: string) =
+        let s = Path.GetFileNameWithoutExtension(p)
         if s.ToLowerInvariant().EndsWith(".ui.next") then
             s.[..s.Length - ".ui.next".Length - 1]
         else s
 
-    member this.IsNamed n =
+    static member GetIdFromPath(p: string) =
+        ParseItem.GetNameFromPath(p).ToLowerInvariant()
+
+    member this.IsNamed(n: string) =
         match this.Path with
         | None -> false
-        | Some p -> ParseItem.GetNameFromPath p = n
+        | Some p -> String.Equals(ParseItem.GetNameFromPath p, n, StringComparison.InvariantCultureIgnoreCase)
+
+    member this.Name =
+        Option.map ParseItem.GetNameFromPath this.Path
+
+    member this.Id =
+        match this.Path with
+        | Some p -> ParseItem.GetIdFromPath p
+        | None -> ""
 
 type ParseResult =
     {
@@ -238,13 +262,17 @@ module Impl =
                 } : HoleDefinition)
             Node.Input (n.Name, varAttr.Value, attrs, children)
 
-    let rec (|Instantiation|_|) addHole hasNonScriptSpecialTags (node: HtmlNode) =
+    let rec (|Instantiation|_|) addHole addRef hasNonScriptSpecialTags (node: HtmlNode) =
         if node.Name.StartsWith "ws-" then
             let rawTemplateName = node.Name.[3..]
             let fileName, templateName =
                 match rawTemplateName.IndexOf '.' with
-                | -1 -> None, rawTemplateName
-                | i -> Some rawTemplateName.[..i-1], rawTemplateName.[i+1..]
+                | -1 -> None, Some rawTemplateName
+                | i ->
+                    let fileName = Some rawTemplateName.[..i-1]
+                    let templateName =
+                        if i = rawTemplateName.Length - 1 then None else Some rawTemplateName.[i+1..]
+                    fileName, templateName
             let holeMaps = Dictionary(System.StringComparer.InvariantCultureIgnoreCase)
             let attrs = Dictionary(System.StringComparer.InvariantCultureIgnoreCase)
             let contentHoles = Dictionary(System.StringComparer.InvariantCultureIgnoreCase)
@@ -260,11 +288,11 @@ module Impl =
                     if c.HasAttributes then
                         attrs.[c.Name] <- parseAttributesOf c addHole
                     else
-                        contentHoles.[c.Name] <- parseNodeAndSiblings false addHole hasNonScriptSpecialTags c
-            Some (Node.Instantiate(templateName, holeMaps, attrs, contentHoles))
+                        contentHoles.[c.Name] <- parseNodeAndSiblings false addHole addRef hasNonScriptSpecialTags c
+            Some (fileName, templateName, Node.Instantiate(fileName, templateName, holeMaps, attrs, contentHoles))
         else None
 
-    and parseNodeAndSiblings isSvg addHole hasNonScriptSpecialTags (node: HtmlNode) =
+    and parseNodeAndSiblings isSvg addHole addRef hasNonScriptSpecialTags (node: HtmlNode) =
         (isSvg, node)
         |> Seq.unfold (fun (isSvg, node) ->
             let addHole' name k =
@@ -280,7 +308,9 @@ module Impl =
                 Some ([| Node.Text text |], (isSvg, node.NextSibling))
             | :? HtmlCommentNode ->
                 Some ([||], (isSvg, node.NextSibling))
-            | Instantiation addHole hasNonScriptSpecialTags n -> Some ([| n |], (isSvg, node.NextSibling))
+            | Instantiation addHole addRef hasNonScriptSpecialTags (fileName, templateName, n) ->
+                addRef (fileName, templateName)
+                Some ([| n |], (isSvg, node.NextSibling))
             | node ->
                 let thisIsSvg = isSvg || node.Name = "svg"
                 match node.Attributes.[ReplaceAttr] with
@@ -292,7 +322,7 @@ module Impl =
                         match node.Attributes.[HoleAttr] with
                         | null ->
                             if node.Attributes.Contains(ChildrenTemplateAttr) then [||] else
-                            parseNodeAndSiblings thisIsSvg addHole hasNonScriptSpecialTags node.FirstChild
+                            parseNodeAndSiblings thisIsSvg addHole addRef hasNonScriptSpecialTags node.FirstChild
                         | holeAttr ->
                             if isNonScriptSpecialTag holeAttr.Value then hasNonScriptSpecialTags := true
                             addHole' holeAttr.Value HoleKind.Doc
@@ -306,8 +336,11 @@ module Impl =
         )
         |> Array.concat
 
-    let parseNodeAndSiblingsAsTemplate (node: HtmlNode) =
+    let parseNodeAndSiblingsAsTemplate fileId (node: HtmlNode) =
         let holes = Dictionary(System.StringComparer.InvariantCultureIgnoreCase)
+        let refs = ref Set.empty
+        let lower = Option.map (fun (s: string) -> s.ToLowerInvariant())
+        let addRef (x, y) = refs := Set.add (defaultArg (lower x) fileId, lower y) !refs
         let addHole = addHole holes
         let hasNonScriptSpecialTags = ref false
         let src =
@@ -320,15 +353,15 @@ module Impl =
             match node with
             | null -> 0, 0
             | node -> node.ParentNode.Line, node.ParentNode.LinePosition
-        let value = parseNodeAndSiblings false addHole hasNonScriptSpecialTags node
-        { Holes = holes; Value = value; Src = src
+        let value = parseNodeAndSiblings false addHole addRef hasNonScriptSpecialTags node
+        { Holes = holes; Value = value; Src = src; References = !refs
           HasNonScriptSpecialTags = !hasNonScriptSpecialTags
           Line = line; Column = col }
 
-    let parseNodeAsTemplate (n: HtmlNode) =
+    let parseNodeAsTemplate fileId (n: HtmlNode) =
         match n.Attributes.[HoleAttr] with
         | null ->
-            let templateForChildren = parseNodeAndSiblingsAsTemplate n.FirstChild
+            let templateForChildren = parseNodeAndSiblingsAsTemplate fileId n.FirstChild
             let isSvg = n.Name = "svg"
             let addHole = addHole templateForChildren.Holes
             let el = normalElement n isSvg templateForChildren.Value addHole
@@ -355,42 +388,66 @@ module Impl =
             {
                 Value = [| el |]
                 Holes = holes
+                References = Set.empty
                 Src = n.WriteTo()
                 HasNonScriptSpecialTags = isNonScriptSpecialTag holeName
                 Line = n.Line
                 Column = n.LinePosition
             }
 
-let ParseSource (src: string) =
+let ParseSource fileId (src: string) =
     let html = HtmlDocument()
     html.LoadHtml(src)
-    let templates = Map.empty
-    let templates =
-        match html.DocumentNode.SelectNodes("//*[@"+TemplateAttr+"]") with
-        | null -> templates
-        | nodes ->
-            (templates, nodes) ||> Seq.fold (fun templates n ->
-                let templateName = n.GetAttributeValue(TemplateAttr, "")
-                let w = WrappedTemplateName(templateName)
-                if Map.containsKey w templates then
-                    failwithf "Template defined multiple times: %s" templateName
-                Map.add w (parseNodeAsTemplate n) templates
+    let templates = Dictionary()
+    match html.DocumentNode.SelectNodes("//*[@"+TemplateAttr+"]") with
+    | null -> ()
+    | nodes ->
+        for n in nodes do
+            let templateName = n.GetAttributeValue(TemplateAttr, "")
+            let w = WrappedTemplateName(templateName)
+            if templates.ContainsKey w then
+                failwithf "Template defined multiple times: %s" templateName
+            templates.Add(w, parseNodeAsTemplate fileId n)
+    match html.DocumentNode.SelectNodes("//*[@"+ChildrenTemplateAttr+"]") with
+    | null -> ()
+    | nodes ->
+        for n in nodes do
+            let templateName = n.GetAttributeValue(ChildrenTemplateAttr, "")
+            let w = WrappedTemplateName(templateName)
+            if templates.ContainsKey w then
+                failwithf "Template defined multiple times: %s" templateName
+            templates.Add(w, parseNodeAndSiblingsAsTemplate fileId n.FirstChild)
+    let rootTemplate = parseNodeAndSiblingsAsTemplate fileId html.DocumentNode.FirstChild
+    templates.Add(WrappedTemplateName null, rootTemplate)
+    Map [ for KeyValue(k, v) in templates -> k, v ]
+
+let transitiveClosure err (direct: Map<'A, Set<'A>>) : Map<'A, Set<'A>> =
+    let rec closureOf (k: 'A) (directs: Set<'A>) (knownClosures: Map<'A, Set<'A>>) =
+        match Map.tryFind k knownClosures with
+        | Some l -> knownClosures
+        | None ->
+            ((directs, knownClosures), directs)
+            ||> Seq.fold (fun (closure, knownClosures) k' ->
+                if k = k' then err k
+                let knownClosures = closureOf k' (defaultArg (direct.TryFind k') Set.empty) knownClosures
+                let l' = knownClosures.[k']
+                if Set.contains k l' then err k
+                Set.union l' closure, knownClosures
             )
-    let templates =
-        match html.DocumentNode.SelectNodes("//*[@"+ChildrenTemplateAttr+"]") with
-        | null -> templates
-        | nodes ->
-            (templates, nodes) ||> Seq.fold (fun templates n ->
-                let templateName = n.GetAttributeValue(ChildrenTemplateAttr, "")
-                let w = WrappedTemplateName(templateName)
-                if Map.containsKey w templates then
-                    failwithf "Template defined multiple times: %s" templateName
-                Map.add w (parseNodeAndSiblingsAsTemplate n.FirstChild) templates
-            )
-    let rootTemplate = parseNodeAndSiblingsAsTemplate html.DocumentNode.FirstChild
-    Map.add (WrappedTemplateName null) rootTemplate templates
+            ||> Map.add k
+    Map.foldBack closureOf direct Map.empty
 
 let private checkMappedHoles (items: ParseItem[]) =
+    let closedReferences =
+        Map [
+            for item in items do
+                for KeyValue(tid, t) in item.Templates do
+                    yield (item.Id, tid.IdAsOption), t.References
+        ]
+        |> transitiveClosure (fun (path, tpl) ->
+            failwithf "Template references itself: %s/%s"
+                path
+                (defaultArg tpl ""))
     for item in items do
         let doContinue = ref true
         while !doContinue do
@@ -411,25 +468,43 @@ let private checkMappedHoles (items: ParseItem[]) =
                                 match items |> Array.tryFind (fun it -> it.IsNamed f) with
                                 | Some item -> item.Templates
                                 | None -> failwithf "Trying to instantiate a template from a file that doesn't exist: %s" f
-                        match templates.TryGetValue (WrappedTemplateName templateName) with
-                        | true, t' ->
+                        let wtemplateName = WrappedTemplateName.OfOption templateName
+                        match templates.TryFind wtemplateName with
+                        | Some t' ->
                             match t'.Holes.TryGetValue holeName with
                             | true, h ->
                                 t.Holes.[k] <-
                                     { t.Holes.[k] with Kind = HoleKind.Mapped(fileName, templateName, holeName, h.Kind) }
                             | false, _ ->
-                                failwithf "Cannot map hole %s from template %s" holeName templateName
-                        | false, _ -> failwithf "Trying to instantiate a template that doesn't exist: %s" templateName
+                                failwithf "Cannot map hole %s from template %O" holeName wtemplateName
+                        | None -> failwithf "Trying to instantiate a template that doesn't exist: %O" wtemplateName
                     | _ -> ()
                 )
             )
     items
+    |> Array.map (fun item ->
+        let fileId = item.Id
+        { item with
+            Templates =
+                item.Templates |> Map.map (fun tid t ->
+                    { t with References = closedReferences.[(fileId, tid.IdAsOption)] }
+                )
+         }
+    )
 
 let Parse (pathOrXml: string) (rootFolder: string) =
     if pathOrXml.Contains("<") then
         {
             ParseKind = ParseKind.Inline
-            Items = checkMappedHoles [| { Templates = ParseSource pathOrXml; Path = None } |]
+            Items =
+                [|
+                    {
+                        Templates = ParseSource "" pathOrXml
+                        Path = None
+                        References = Map.empty
+                    }
+                |]
+                |> checkMappedHoles
         }
     else
         let paths =
@@ -445,10 +520,11 @@ let Parse (pathOrXml: string) (rootFolder: string) =
             Items =
                 paths
                 |> Array.map (fun path ->
-                    let templates = ParseSource (File.ReadAllText path)
+                    let templates = ParseSource (ParseItem.GetIdFromPath path) (File.ReadAllText path)
                     {
                         Templates = templates
                         Path = Some path
+                        References = Map.empty
                     }
                 )
                 |> checkMappedHoles

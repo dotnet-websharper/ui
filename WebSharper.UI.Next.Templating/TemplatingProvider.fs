@@ -63,12 +63,13 @@ module private Impl =
     type Ctx =
         {
             Template : Template
-            BaseName : TemplateName
-            Name : option<TemplateName>
+            FileId : TemplateName
+            Id : option<TemplateName>
             Path : option<string>
             PT : PT.Ctx
             ClientLoad : ClientLoad
             ServerLoad : ServerLoad
+            AllTemplates : Map<string, Map<option<string>, Template>>
         }
 
     module XmlDoc =
@@ -172,24 +173,44 @@ module private Impl =
         // because the client-side implementation is [<Inline>] so it can drop
         // any arguments it doesn't need (in particular src can be quite big)
         // and each clientLoad needs different arguments.
+        let name = ctx.Id |> Option.map (fun s -> s.ToLowerInvariant())
+        let references =
+            Expr.NewArray(typeof<string * option<string> * string>,
+                [ for (fileId, templateId) in ctx.Template.References do
+                    let src =
+                        match ctx.AllTemplates.TryFind fileId with
+                        | Some m ->
+                            match m.TryFind templateId with
+                            | Some t -> t.Src
+                            | None -> failwithf "Template %A not found in file %A" templateId fileId
+                        | None -> failwithf "File %A not found, expecting it with template %A" fileId templateId
+                    yield Expr.NewTuple [
+                        Expr.Value fileId
+                        OptionValue templateId
+                        Expr.Value src
+                    ]
+                ]
+            )
         match ctx.ClientLoad with
         | ClientLoad.Inline ->
             <@ Runtime.GetOrLoadTemplateInline(
-                    %%Expr.Value ctx.BaseName,
-                    %OptionValue ctx.Name,
+                    %%Expr.Value ctx.FileId,
+                    %OptionValue name,
                     %OptionValue ctx.Path,
                     %%Expr.Value ctx.Template.Src,
                     ((%%args.[0] : obj) :?> list<TemplateHole>),
-                    %%Expr.Value ctx.ServerLoad
+                    %%Expr.Value ctx.ServerLoad,
+                    %%references
                 ) @>
         | ClientLoad.FromDocument ->
             <@ Runtime.GetOrLoadTemplateFromDocument(
-                    %%Expr.Value ctx.BaseName,
-                    %OptionValue ctx.Name,
+                    %%Expr.Value ctx.FileId,
+                    %OptionValue name,
                     %OptionValue ctx.Path,
                     %%Expr.Value ctx.Template.Src,
                     ((%%args.[0] : obj) :?> list<TemplateHole>),
-                    %%Expr.Value ctx.ServerLoad
+                    %%Expr.Value ctx.ServerLoad,
+                    %%references
                 ) @>
         | _ -> failwith "ClientLoad.Download not implemented yet"
         |> wrap
@@ -218,19 +239,21 @@ module private Impl =
         ]
 
     let BuildOneFile (item: Parsing.ParseItem)
+            (allTemplates: Map<string, Map<option<string>, Template>>)
             (containerTy: PT.Type) (ptCtx: PT.Ctx)
             (clientLoad: ClientLoad) (serverLoad: ServerLoad) =
-        let baseName =
-            match item.Path with
-            | None -> "T" + string (Guid.NewGuid().ToString("N"))
-            | Some p -> Parsing.ParseItem.GetNameFromPath p
+        let baseId =
+            match item.Id with
+            | "" -> "t" + string (Guid.NewGuid().ToString("N"))
+            | p -> p
         for KeyValue (tn, t) in item.Templates do
             let ctx = {
                 PT = ptCtx; Template = t
-                BaseName = baseName; Name = tn.AsOption; Path = item.Path
+                FileId = baseId; Id = tn.IdAsOption; Path = item.Path
                 ClientLoad = clientLoad; ServerLoad = serverLoad
+                AllTemplates = allTemplates
             }
-            match tn.AsOption with
+            match tn.NameAsOption with
             | None ->
                 BuildOneTemplate containerTy ctx
             | Some n ->
@@ -243,17 +266,19 @@ module private Impl =
     let BuildTP (parsed: Parsing.ParseItem[])
             (containerTy: PT.Type) (ptCtx: PT.Ctx)
             (clientLoad: ClientLoad) (serverLoad: ServerLoad) =
+        let allTemplates =
+            Map [for p in parsed -> p.Id, Map [for KeyValue(tid, t) in p.Templates -> tid.IdAsOption, t]]
         match parsed with
-        | [| item |] -> BuildOneFile item containerTy ptCtx clientLoad serverLoad
+        | [| item |] -> BuildOneFile item allTemplates containerTy ptCtx clientLoad serverLoad
         | items ->
             items |> Array.iter (fun item ->
                 let containerTy =
-                    match item.Path with
+                    match item.Name with
                     | None -> containerTy
-                    | Some path ->
-                        ptCtx.ProvidedTypeDefinition(Parsing.ParseItem.GetNameFromPath path, None)
+                    | Some name ->
+                        ptCtx.ProvidedTypeDefinition(name, None)
                             .AddTo(containerTy)
-                BuildOneFile item containerTy ptCtx clientLoad serverLoad
+                BuildOneFile item allTemplates containerTy ptCtx clientLoad serverLoad
             )
 
 [<TypeProvider>]

@@ -53,8 +53,13 @@
         <polyline points="50,150 50,200 200,200 200,100" stroke="red" stroke-width="4" fill="none" />
         <line x1="50" y1="50" x2="200" y2="200" stroke="blue" stroke-width="4" />
     </svg>
+    <div ws-replace="NestedInstantiationTest"></div>
 </div>
 <div ws-template="EmptyTemplate" class="test-for-issue-104"></div>
 <ws-index.Form Username="Username" Password="Password" Submit="Submit">
     <Welcome>Welcome, ${Username1}!</Welcome>
 </ws-index.Form>
+<!-- Testing recursive instantiation; don't call L1 or L2 from F# -->
+<div ws-template="L1">Nested instantiation: OK</div>
+<div ws-template="L2"><ws-L1 /></div>
+<div ws-template="L3"><ws-L2 /></div>

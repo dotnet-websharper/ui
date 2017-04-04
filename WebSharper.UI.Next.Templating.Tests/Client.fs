@@ -63,6 +63,10 @@ module Client =
 
         let chk = Var.Create true
 
+        let username = Var.Create ""
+        let password = Var.Create ""
+        let submit = Submitter.CreateOption (View.Map2 (fun x y -> x, y) username.View password.View)
+
         let eltUpdater = (div []).ToUpdater()
         let testCounter = Var.Create 0
         let testCounterStr = testCounter.View.Map(string)
@@ -196,29 +200,17 @@ module Client =
                 .ReAddUpdater(fun _ _ -> reAddUpdater())
                 .IncrEltUpdaterTest(fun _ _ -> testCounter := !testCounter + 1)
                 .EltUpdaterTest(eltUpdater)
-                .Username1("test")
+                .Username(username)
+                .Password(password)
+                .Username1(username.View)
+                .Submit(submit.Trigger)
+                .NestedInstantiationTest(MyTemplate.template.L3().Doc())
                 .Doc()
 
         Anim.UseAnimations <- false
 
-//        let fromIndex =
-//            let rvUsername = Var.Create ""
-//            let rvPassword = Var.Create ""
-//            let submit =
-//                View.Map2 (fun u p -> u, p) rvUsername.View rvUsername.View
-//                |> Submitter.CreateOption
-//            MyTemplate.index.Form()
-//                .Username(rvUsername)
-//                .Password(rvPassword)
-//                .Submit(submit.Trigger)
-//                .Welcome(submit.View.Map(function
-//                    | None -> ""
-//                    | Some (u, _) -> sprintf "Welcome, %s!" u))
-//                .Doc()
-
         div [
             doc
-//            fromIndex
             Regression67.Doc
         ]
         |> Doc.RunById "main"

@@ -69,10 +69,10 @@ type Runtime private () =
 
     static let watchers = ConcurrentDictionary<string, FileSystemWatcher>()
 
-    static let getTemplate baseName name templates : Template =
-        match Map.tryFind name templates with
-        | None -> failwithf "Template not defined: %s/%A" baseName name
-        | Some template -> template
+    static let getTemplate baseName name (templates: IDictionary<_,_>) : Template =
+        match templates.TryGetValue name with
+        | false, _ -> failwithf "Template not defined: %s/%A" baseName name
+        | true, template -> template
 
     static let buildFillDict fillWith (holes: IDictionary<HoleName, HoleDefinition>) =
         let d : Holes = Dictionary()
@@ -103,12 +103,12 @@ type Runtime private () =
             (clientLoad: ClientLoad) (serverLoad: ServerLoad)
             : Doc =
         let getOrLoadSrc src =
-            loaded.GetOrAdd(baseName, fun _ -> Parsing.ParseSource src)
+            loaded.GetOrAdd(baseName, fun _ -> Parsing.ParseSource baseName src)
         let getOrLoadPath fullPath =
-            loaded.GetOrAdd(baseName, fun _ -> Parsing.ParseSource (File.ReadAllText fullPath))
+            loaded.GetOrAdd(baseName, fun _ -> Parsing.ParseSource baseName (File.ReadAllText fullPath))
         let reload fullPath =
             let src = File.ReadAllText fullPath
-            let parsed = Parsing.ParseSource src
+            let parsed = Parsing.ParseSource baseName src
             loaded.AddOrUpdate(baseName, parsed, fun _ _ -> parsed)
         let templates =
             match path with
@@ -118,7 +118,7 @@ type Runtime private () =
             | ServerLoad.Once -> getOrLoadSrc src
             | ServerLoad.PerRequest ->
                 let fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path)
-                Parsing.ParseSource (File.ReadAllText fullPath)
+                Parsing.ParseSource baseName (File.ReadAllText fullPath)
             | ServerLoad.WhenChanged ->
                 let fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path)
                 let watcher = watchers.GetOrAdd(baseName, fun _ ->
@@ -190,8 +190,8 @@ type Runtime private () =
                     w.Write(HtmlTextWriter.TagRightChar)
                     Array.iter writeNode children
                     if tag = "body" && Option.isNone name then
-                        templates |> Map.iter (fun k v ->
-                            match k.AsOption with
+                        templates |> Seq.iter (fun (KeyValue(k, v)) ->
+                            match k.NameAsOption with
                             | Some templateName -> writeWrappedTemplate templateName v m w r
                             | None -> ()
                         )
@@ -227,8 +227,8 @@ type Runtime private () =
         | _ ->
             Server.Internal.TemplateDoc(fillWith, template.HasNonScriptSpecialTags, write []) :> _
 
-    static member GetOrLoadTemplateInline(baseName, name, path, src, fillWith, serverLoad) =
+    static member GetOrLoadTemplateInline(baseName, name, path, src, fillWith, serverLoad, refs: array<string * option<string> * string>) =
         GetOrLoadTemplate baseName name path src fillWith ClientLoad.Inline serverLoad
 
-    static member GetOrLoadTemplateFromDocument(baseName, name, path, src, fillWith, serverLoad) =
+    static member GetOrLoadTemplateFromDocument(baseName, name, path, src, fillWith, serverLoad, refs: array<string * option<string> * string>) =
         GetOrLoadTemplate baseName name path src fillWith ClientLoad.FromDocument serverLoad
