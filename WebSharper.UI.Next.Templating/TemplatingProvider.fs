@@ -67,7 +67,7 @@ module private Impl =
             Id : option<TemplateName>
             Path : option<string>
             PT : PT.Ctx
-            ClientLoad : ClientLoad
+            InlineFileId : option<TemplateName>
             ServerLoad : ServerLoad
             AllTemplates : Map<string, Map<option<string>, Template>>
         }
@@ -191,28 +191,16 @@ module private Impl =
                     ]
                 ]
             )
-        match ctx.ClientLoad with
-        | ClientLoad.Inline ->
-            <@ Runtime.GetOrLoadTemplateInline(
-                    %%Expr.Value ctx.FileId,
-                    %OptionValue name,
-                    %OptionValue ctx.Path,
-                    %%Expr.Value ctx.Template.Src,
-                    ((%%args.[0] : obj) :?> list<TemplateHole>),
-                    %%Expr.Value ctx.ServerLoad,
-                    %%references
-                ) @>
-        | ClientLoad.FromDocument ->
-            <@ Runtime.GetOrLoadTemplateFromDocument(
-                    %%Expr.Value ctx.FileId,
-                    %OptionValue name,
-                    %OptionValue ctx.Path,
-                    %%Expr.Value ctx.Template.Src,
-                    ((%%args.[0] : obj) :?> list<TemplateHole>),
-                    %%Expr.Value ctx.ServerLoad,
-                    %%references
-                ) @>
-        | _ -> failwith "ClientLoad.Download not implemented yet"
+        <@ Runtime.GetOrLoadTemplate(
+                %%Expr.Value ctx.FileId,
+                %OptionValue name,
+                %OptionValue ctx.Path,
+                %%Expr.Value ctx.Template.Src,
+                ((%%args.[0] : obj) :?> list<TemplateHole>),
+                %OptionValue ctx.InlineFileId,
+                %%Expr.Value ctx.ServerLoad,
+                %%references
+            ) @>
         |> wrap
             
 
@@ -241,7 +229,7 @@ module private Impl =
     let BuildOneFile (item: Parsing.ParseItem)
             (allTemplates: Map<string, Map<option<string>, Template>>)
             (containerTy: PT.Type) (ptCtx: PT.Ctx)
-            (clientLoad: ClientLoad) (serverLoad: ServerLoad) =
+            (inlineFileId: option<string>) (serverLoad: ServerLoad) =
         let baseId =
             match item.Id with
             | "" -> "t" + string (Guid.NewGuid().ToString("N"))
@@ -250,7 +238,7 @@ module private Impl =
             let ctx = {
                 PT = ptCtx; Template = t
                 FileId = baseId; Id = tn.IdAsOption; Path = item.Path
-                ClientLoad = clientLoad; ServerLoad = serverLoad
+                InlineFileId = inlineFileId; ServerLoad = serverLoad
                 AllTemplates = allTemplates
             }
             match tn.NameAsOption with
@@ -268,8 +256,13 @@ module private Impl =
             (clientLoad: ClientLoad) (serverLoad: ServerLoad) =
         let allTemplates =
             Map [for p in parsed -> p.Id, Map [for KeyValue(tid, t) in p.Templates -> tid.IdAsOption, t]]
+        let inlineFileId =
+            match clientLoad with
+            | ClientLoad.FromDocument -> Some parsed.[0].Id
+            | _ -> None
         match parsed with
-        | [| item |] -> BuildOneFile item allTemplates containerTy ptCtx clientLoad serverLoad
+        | [| item |] ->
+            BuildOneFile item allTemplates containerTy ptCtx inlineFileId serverLoad
         | items ->
             items |> Array.iter (fun item ->
                 let containerTy =
@@ -278,7 +271,7 @@ module private Impl =
                     | Some name ->
                         ptCtx.ProvidedTypeDefinition(name, None)
                             .AddTo(containerTy)
-                BuildOneFile item allTemplates containerTy ptCtx clientLoad serverLoad
+                BuildOneFile item allTemplates containerTy ptCtx inlineFileId serverLoad
             )
 
 [<TypeProvider>]

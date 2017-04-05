@@ -97,11 +97,17 @@ type Runtime private () =
         ]
     static let defaultTemplateWrappers = ("""<div display="none" {0}="{1}">""", "</div>")
 
-    static let GetOrLoadTemplate
-            (baseName: string) (name: option<string>)
-            (path: option<string>) (src: string) (fillWith: list<TemplateHole>)
-            (clientLoad: ClientLoad) (serverLoad: ServerLoad)
-            : Doc =
+    static member GetOrLoadTemplate
+            (
+                baseName: string,
+                name: option<string>,
+                path: option<string>,
+                src: string,
+                fillWith: list<TemplateHole>,
+                inlineBaseName: option<string>,
+                serverLoad: ServerLoad,
+                refs: array<string * option<string> * string>
+            ) : Doc =
         let getOrLoadSrc src =
             loaded.GetOrAdd(baseName, fun _ -> Parsing.ParseSource baseName src)
         let getOrLoadPath fullPath =
@@ -226,9 +232,3 @@ type Runtime private () =
             Server.Internal.TemplateElt(tag, fillWith, template.HasNonScriptSpecialTags, write) :> _
         | _ ->
             Server.Internal.TemplateDoc(fillWith, template.HasNonScriptSpecialTags, write []) :> _
-
-    static member GetOrLoadTemplateInline(baseName, name, path, src, fillWith, serverLoad, refs: array<string * option<string> * string>) =
-        GetOrLoadTemplate baseName name path src fillWith ClientLoad.Inline serverLoad
-
-    static member GetOrLoadTemplateFromDocument(baseName, name, path, src, fillWith, serverLoad, refs: array<string * option<string> * string>) =
-        GetOrLoadTemplate baseName name path src fillWith ClientLoad.FromDocument serverLoad

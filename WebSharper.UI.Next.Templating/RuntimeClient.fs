@@ -46,23 +46,46 @@ let LazyParseHtml (src: string) =
     ()
     fun () -> As<Dom.Node[]>(JQuery.ParseHTML src)
 
-let DocModule, NamedTemplateMethod, GetOrLoadTemplateMethod, LoadTemplateMethod =
-    match <@ WebSharper.UI.Next.Client.Doc.NamedTemplate "" None [] @> with
-    | FSharp.Quotations.Patterns.Call (_, mi, _) ->
-        let glmi = mi.DeclaringType.GetMethod("GetOrLoadTemplate")
-        let lmi = mi.DeclaringType.GetMethod("LoadTemplate")
-        Reflection.ReadTypeDefinition mi.DeclaringType,
-        Reflection.ReadMethod mi,
-        Reflection.ReadMethod glmi,
-        Reflection.ReadMethod lmi
-    | _ -> failwith "Expecting a Call pattern"
+[<AutoOpen>]
+module private MacroHelpers =
 
-let RuntimeClientModule, LazyParseHtmlMethod =
-    match <@ LazyParseHtml "" @> with
-    | FSharp.Quotations.Patterns.Call (_, mi, _) ->
-        Reflection.ReadTypeDefinition mi.DeclaringType,
-        Reflection.ReadMethod mi
-    | _ -> failwith "Expecting a Call pattern"
+    let DocModule, LoadLocalTemplatesMethod, NamedTemplateMethod, GetOrLoadTemplateMethod, LoadTemplateMethod =
+        match <@ WebSharper.UI.Next.Client.Doc.LoadLocalTemplates "" @> with
+        | FSharp.Quotations.Patterns.Call (_, mi, _) ->
+            let nmi = mi.DeclaringType.GetMethod("NamedTemplate")
+            let glmi = mi.DeclaringType.GetMethod("GetOrLoadTemplate")
+            let lmi = mi.DeclaringType.GetMethod("LoadTemplate")
+            Reflection.ReadTypeDefinition mi.DeclaringType,
+            Reflection.ReadMethod mi,
+            Reflection.ReadMethod nmi,
+            Reflection.ReadMethod glmi,
+            Reflection.ReadMethod lmi
+        | _ -> failwith "Expecting a Call pattern"
+
+    let RuntimeClientModule, LazyParseHtmlMethod =
+        match <@ LazyParseHtml "" @> with
+        | FSharp.Quotations.Patterns.Call (_, mi, _) ->
+            Reflection.ReadTypeDefinition mi.DeclaringType,
+            Reflection.ReadMethod mi
+        | _ -> failwith "Expecting a Call pattern"
+
+    let (|MethodNamed|) (x: Concrete<Method>) =
+        x.Entity.Value.MethodName
+
+    let (|TypeNamed|) (x: Concrete<TypeDefinition>) =
+        x.Entity.Value.FullName
+
+    let (|StaticCall|_|) = function
+        | I.Call(None, TypeNamed t, MethodNamed m, args) -> Some (t, m, args)
+        | _ -> None
+
+    let ExtractOption = function
+        | StaticCall(_, "Some", [e])
+        | I.NewUnionCase(_, _, [e]) -> Some e
+        | StaticCall(_, "get_None", [])
+        | I.NewUnionCase(_, _, [])
+        | I.Value Null -> None
+        | e -> failwithf "Not an option: %A" e
 
 type GetOrLoadTemplateMacro() = 
     inherit Macro()
@@ -74,53 +97,70 @@ type GetOrLoadTemplateMacro() =
             | I.Value (String s) -> 
                 M.StringEntry s
             | _ -> failwith "Expecting a string value for src argument"
-        let rec loadRef = function
-            | I.NewArray [baseName; name; src] ->
-                let td, m = getOrAddFunc baseName name src (NewArray [])
+        let rec loadRef inlineBaseName = function
+            | I.NewArray [I.Value (String baseName); name; src] ->
+                let td, m = getOrAddFunc baseName name src (NewArray []) inlineBaseName
                 Call(None, NonGeneric td, NonGeneric m, [])
             | _ -> failwith "Expecting an array of 3-tuple literals for refs argument"
-        and getOrAddFunc baseName name src refs =
+        and getOrAddFunc baseName name src refs inlineBaseName =
             let meKey = keyOf src
             match comp.GetMetadataEntries(meKey) with
             | [ M.CompositeEntry [ M.TypeDefinitionEntry td; M.MethodEntry m ] ] -> td, m
             | _ ->
                 let loadRefs =
                     match refs with
-                    | I.NewArray ls -> List.map loadRef ls
+                    | I.NewArray ls -> List.map (loadRef inlineBaseName) ls
                     | x -> failwithf "Expecting an array literal for refs argument, got %A" x
                 let n =
-                    match name with
-                    | I.Call(_, _, _, [I.Value (Literal.String n)])
-                    | I.NewUnionCase(_, _, [I.Value (Literal.String n)]) -> n
+                    match ExtractOption name with
+                    | Some (I.Value (String n)) -> n
                     | _ -> "t"
                 let td, m, _ = comp.NewGenerated [ "WebSharper"; "UI"; "Next"; "Templates"; n ]
-                let holes = Id.New "h"
-                let elId = Id.New "e"
-                let el = Call(None, NonGeneric RuntimeClientModule, NonGeneric LazyParseHtmlMethod, [src])
+                let holesId = Id.New "h"
                 let nameId = Id.New "n"
-                comp.AddGeneratedCode(m,
-                    Lambda([ holes ],
-                        Let(elId, el,
-                            Let(nameId, name,
+                let expr =
+                    let eBaseName = Value (Literal.String baseName)
+                    let name = Var nameId
+                    let holes = Var holesId
+                    Sequential(
+                        loadRefs @
+                        match inlineBaseName with
+                        | Some n when n = baseName ->
+                            [
+                                Call(None, NonGeneric DocModule, NonGeneric LoadLocalTemplatesMethod, [eBaseName])
                                 Conditional(
-                                    Var holes ^=== Expression.Undefined,
-                                    Call(None, NonGeneric DocModule, NonGeneric LoadTemplateMethod, [baseName; Var nameId; Var elId]),
-                                    Sequential (
-                                        loadRefs
-                                        @ [Call(None, NonGeneric DocModule, NonGeneric GetOrLoadTemplateMethod, [baseName; Var nameId; Var elId; Var holes])]
-                                    )
+                                    holes,
+                                    Call(None, NonGeneric DocModule, NonGeneric NamedTemplateMethod, [eBaseName; name; holes]),
+                                    Expression.Undefined
                                 )
-                            )
-                        )
-                    ) 
-                )
+                            ]
+                        | _ ->
+                            let elId = Id.New "e"
+                            let el = Call(None, NonGeneric RuntimeClientModule, NonGeneric LazyParseHtmlMethod, [src])
+                            [Let(elId, el,
+                                Conditional(
+                                    holes,
+                                    Call(None, NonGeneric DocModule, NonGeneric GetOrLoadTemplateMethod, [eBaseName; name; Var elId; holes]),
+                                    Call(None, NonGeneric DocModule, NonGeneric LoadTemplateMethod, [eBaseName; name; Var elId])
+                                )
+                            )]
+                    )
+                comp.AddGeneratedCode(m, Lambda([ holesId ], Let(nameId, name, expr)))
                 comp.AddMetadataEntry(meKey, M.CompositeEntry [ M.TypeDefinitionEntry td; M.MethodEntry m ])
                 td, m
         match call.Arguments with
-        | [ baseName; name; path; src; fillWith; serverLoad; refs ] ->
+        | [ baseName; name; path; src; fillWith; inlineBaseName; serverLoad; refs ] ->
+            let inlineBaseName =
+                match ExtractOption inlineBaseName with
+                | Some (I.Value (String n)) -> Some n
+                | _ -> None
+            let baseName =
+                match baseName with
+                | I.Value (String n) -> n
+                | x -> failwithf "Expecting a string literal for baseName argument, got %A" x
             // store location of generated code in metadata keyed by the source
             let meKey = keyOf src
-            let td, m = getOrAddFunc baseName name src refs
+            let td, m = getOrAddFunc baseName name src refs inlineBaseName
             Call(None, NonGeneric td, NonGeneric m, [ fillWith ])
             |> MacroOk
         | _ -> failwith "LoadTemplateMacro error"
@@ -129,20 +169,15 @@ type GetOrLoadTemplateMacro() =
 type RuntimeProxy =
 
     [<Macro(typeof<GetOrLoadTemplateMacro>)>]
-    static member GetOrLoadTemplateInline
-        (
-            baseName: string, name: option<string>,
-            path: option<string>, src: string, fillWith: list<TemplateHole>,
-            serverLoad: ServerLoad, refs: array<string * option<string> * string>
-        ) : Doc =
-            X<Doc>
-
-    [<Inline>]
-    static member GetOrLoadTemplateFromDocument
-        (
-            baseName: string, name: option<string>,
-            path: option<string>, src: string, fillWith: list<TemplateHole>,
-            serverLoad: ServerLoad, refs: array<string * option<string> * string>
-        ) : Doc =
-        WebSharper.UI.Next.Client.Doc.LoadLocalTemplates baseName
-        WebSharper.UI.Next.Client.Doc.NamedTemplate baseName name fillWith
+    static member GetOrLoadTemplate
+            (
+                baseName: string,
+                name: option<string>,
+                path: option<string>,
+                src: string,
+                fillWith: list<TemplateHole>,
+                inlineBaseName: option<string>,
+                serverLoad: ServerLoad,
+                refs: array<string * option<string> * string>
+            ) : Doc =
+        X<Doc>

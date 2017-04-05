@@ -12,7 +12,7 @@ open WebSharper.UI.Next.Templating
 module Client =
     open WebSharper.UI.Next.Client
 
-    type MyTemplate = Template<"template.html,index.html", legacyMode = LegacyMode.New>
+    type MyTemplate = Template<"index.html,template.html", clientLoad = ClientLoad.FromDocument, legacyMode = LegacyMode.New>
 
     type Item =
         { id : int; name: string; description: string }
