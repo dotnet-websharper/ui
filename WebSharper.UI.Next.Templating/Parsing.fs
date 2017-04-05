@@ -422,20 +422,20 @@ let ParseSource fileId (src: string) =
     Map [ for KeyValue(k, v) in templates -> k, v ]
 
 let transitiveClosure err (direct: Map<'A, Set<'A>>) : Map<'A, Set<'A>> =
-    let rec closureOf (k: 'A) (directs: Set<'A>) (knownClosures: Map<'A, Set<'A>>) =
+    let rec closureOf (pathToHere: list<'A>) (k: 'A) (directs: Set<'A>) (knownClosures: Map<'A, Set<'A>>) =
+        let pathToHere' = k :: pathToHere
         match Map.tryFind k knownClosures with
         | Some l -> knownClosures
         | None ->
             ((directs, knownClosures), directs)
             ||> Seq.fold (fun (closure, knownClosures) k' ->
-                if k = k' then err k
-                let knownClosures = closureOf k' (defaultArg (direct.TryFind k') Set.empty) knownClosures
+                if List.exists ((=) k') pathToHere' then err k
+                let knownClosures = closureOf pathToHere' k' (defaultArg (direct.TryFind k') Set.empty) knownClosures
                 let l' = knownClosures.[k']
-                if Set.contains k l' then err k
                 Set.union l' closure, knownClosures
             )
             ||> Map.add k
-    Map.foldBack closureOf direct Map.empty
+    Map.foldBack (closureOf []) direct Map.empty
 
 let private checkMappedHoles (items: ParseItem[]) =
     let closedReferences =
@@ -445,9 +445,7 @@ let private checkMappedHoles (items: ParseItem[]) =
                     yield (item.Id, tid.IdAsOption), t.References
         ]
         |> transitiveClosure (fun (path, tpl) ->
-            failwithf "Template references itself: %s/%s"
-                path
-                (defaultArg tpl ""))
+            failwithf "Template references itself: %s/%s" path (defaultArg tpl ""))
     for item in items do
         let doContinue = ref true
         while !doContinue do
