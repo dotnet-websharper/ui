@@ -126,10 +126,24 @@ module Client =
                 .NewItem(fun () -> myItems.Add { id = freshKey(); name = newName.Value; description = newDescr.Value })
                 .SubmitItems(itemsSub.Trigger)
                 .ClearItems(myItems.Clear)
-                .LeaveThisEmpty(
+                .Test102(
                     // Test #102: this would empty the whole containing div
                     myItems.ViewState
                     |> Doc.BindSeqCached (fun x -> p [text x.description])
+                )
+                .Test106(
+                    MyTemplate.template.Test106Tpl()
+                        .DynamicReplace(
+                            divAttr [
+                                on.afterRender (fun _ ->
+                                    let e = JS.Document.QuerySelector(".test-106")
+                                    e.ParentElement.RemoveChild(e) |> ignore
+                                )
+                            ] [text "#106 OK"]
+                            |> View.Const
+                            |> Doc.EmbedView
+                        )
+                        .Doc()
                 )
                 .FindBy(findByKey)
                 .Found(found)

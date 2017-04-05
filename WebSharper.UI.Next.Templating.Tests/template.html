@@ -37,7 +37,11 @@
     <div><b>You</b> <b>said</b>: ${MyInputView}</div>
     <input type="checkbox" ws-var="Checked" />
     <div>Checkbox status: ${IsChecked}</div>
-    <div ws-replace="LeaveThisEmpty"></div>
+    <div ws-replace="Test102"></div>
+    <div class="test-106-container">
+        <div class="test-106">#106 KO</div>
+        <div ws-replace="Test106"></div>
+    </div>
     <p>Test Doc.X controls:</p>
     <div ws-replace="ControlTests"></div>
     <p>Test EltUpdater</p>
@@ -56,6 +60,9 @@
     <div ws-replace="NestedInstantiationTest"></div>
 </div>
 <div ws-template="EmptyTemplate" class="test-for-issue-104"></div>
+<div ws-children-template="Test106Tpl">
+  <div ws-replace="DynamicReplace"></div>
+</div>
 <ws-index.Form Username="Username" Password="Password" Submit="Submit">
     <Welcome>Welcome, ${Username1}!</Welcome>
 </ws-index.Form>

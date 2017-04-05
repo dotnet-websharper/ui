@@ -57,7 +57,8 @@ and DocTextNode =
 and DocTreeNode =
     {
         mutable Els : Union<Node, DocNode>[]
-        mutable Holes : DocNode[]
+        mutable Dirty : bool
+        mutable Holes : DocElemNode[]
         Attrs : (Element * Attrs.Dyn)[]
         [<OptionalField>]
         mutable Render : option<Dom.Element -> unit>
@@ -165,6 +166,7 @@ module Docs =
             | TextDoc t -> DU.BeforeNode t.Text
             | TextNodeDoc t -> DU.BeforeNode t
             | TreeDoc t ->
+                if t.Dirty then t.Dirty <- false
                 Array.foldBack (fun el pos ->
                     match el with
                     | Union1Of2 e -> DU.BeforeNode e
@@ -190,7 +192,7 @@ module Docs =
                 match doc with
                 | AppendDoc (a, b) -> dirty a || dirty b
                 | EmbedDoc d -> d.Dirty || dirty d.Current
-                | TreeDoc t -> Array.exists dirty t.Holes
+                | TreeDoc t -> t.Dirty || Array.exists hasDirtyChildren t.Holes
                 | _ -> false
             dirty el.Children
         Attrs.Sync el.El el.Attr
@@ -206,6 +208,13 @@ module Docs =
     [<MethodImpl(MethodImplOptions.NoInlining)>]
     let LinkPrevElement (el: Node) children =
         InsertDoc el.ParentElement children (DU.BeforeNode el) |> ignore
+
+    let InsertBeforeDelim (afterDelim: Dom.Node) (doc: DocNode) =
+        let p = afterDelim.ParentElement
+        let before = JS.Document.CreateTextNode("") :> Dom.Node
+        p.InsertBefore(before, afterDelim) |> ignore
+        LinkPrevElement afterDelim doc
+        before
 
     /// Invokes and clears an element's afterRender callback(s).
     let AfterRender (el: DocElemNode) =
@@ -226,7 +235,7 @@ module Docs =
                 d.Text.NodeValue <- d.Value
                 d.Dirty <- false
         | TreeDoc t ->
-            Array.iter Sync t.Holes
+            Array.iter SyncElemNode t.Holes
             Array.iter (fun (e, a) -> Attrs.Sync e a) t.Attrs
             AfterRender (As t)
 
@@ -250,10 +259,13 @@ module Docs =
             let rec loop node =
                 match node with
                 | AppendDoc (a, b) -> loop a; loop b
-                | ElemDoc el -> q.Enqueue el; loop el.Children
+                | ElemDoc el -> loopEN el
                 | EmbedDoc em -> loop em.Current
-                | TreeDoc t -> t.Holes |> Array.iter loop
+                | TreeDoc t -> t.Holes |> Array.iter loopEN
                 | _ -> ()
+            and loopEN el =
+                q.Enqueue el
+                loop el.Children
             loop doc
             NodeSet (HashSet q)
 
@@ -579,7 +591,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
 
     [<JavaScript>]
     static member ChildrenTemplate (el: Element) (fillWith: seq<TemplateHole>) =
-        let holes : DocNode[] = [||]
+        let holes : DocElemNode[] = [||]
         let updates : View<unit>[] = [||]
         let attrs : (Element * Attrs.Dyn)[] = [||]
         let afterRender : (Element -> unit)[] = [||]
@@ -614,7 +626,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 while (p.LastChild !==. null) do
                     p.RemoveChild(p.LastChild) |> ignore
                 Docs.LinkElement p doc.DocNode
-                ElemDoc {
+                holes.JS.Push {
                     Attr = Attrs.Empty p
                     Children = doc.DocNode
                     Delimiters = None
@@ -622,7 +634,6 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                     ElKey = Fresh.Int()
                     Render = None
                 }
-                |> holes.JS.Push
                 |> ignore
                 updates.JS.Push doc.Updates |> ignore
 
@@ -632,15 +643,13 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             | None -> Console.Warn("Unfilled replace", name)
             | Some doc ->
                 let p = e.ParentElement
-                let before = JS.Document.CreateTextNode("") :> Dom.Node
                 let after = JS.Document.CreateTextNode("") :> Dom.Node
                 p.ReplaceChild(after, e) |> ignore
-                p.InsertBefore(before, after) |> ignore
-                Docs.LinkPrevElement after doc.DocNode
+                let before = Docs.InsertBeforeDelim after doc.DocNode
                 els
                 |> Array.tryFindIndex ((===.) e)
                 |> Option.iter (fun i -> els.[i] <- Union2Of2 doc.DocNode)
-                ElemDoc {
+                holes.JS.Push {
                     Attr = Attrs.Empty p
                     Children = doc.DocNode
                     Delimiters = Some (before, after)
@@ -648,7 +657,6 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                     ElKey = Fresh.Int()
                     Render = None
                 }
-                |> holes.JS.Push
                 |> ignore
                 updates.JS.Push doc.Updates |> ignore
 
@@ -751,6 +759,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                     if Array.isEmpty afterRender
                     then None
                     else Some (fun el -> Array.iter (fun f -> f el) afterRender)
+                Dirty = true
             }
         let updates =
             updates |> Array.TreeReduce (View.Const ()) View.Map2Unit
@@ -1417,26 +1426,44 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
         match docNode with
         | ElemDoc e ->
             e.Children <- AppendDoc(e.Children, doc.DocNode)
+            Docs.InsertDoc elt doc.DocNode DU.AtEnd |> ignore
         | TreeDoc e ->
-            e.Holes.JS.Push(doc.DocNode) |> ignore
+            let after = elt.AppendChild(JS.Document.CreateTextNode "")
+            let before = Docs.InsertBeforeDelim after doc.DocNode
+            e.Holes.JS.Push {
+                El = elt
+                Attr = Attrs.Empty elt
+                Children = doc.DocNode
+                Delimiters = Some (before, after)
+                ElKey = Fresh.Int()
+                Render = None
+            } |> ignore
         | _ -> failwith "Invalid docNode in Elt"
         rvUpdates.Value <- View.Map2Unit rvUpdates.Value doc.Updates
-        Docs.InsertDoc elt doc.DocNode DU.AtEnd |> ignore
 
     [<Name "Prepend">]
     member this.PrependDoc(doc: Doc') =
         match docNode with
         | ElemDoc e ->
             e.Children <- AppendDoc(doc.DocNode, e.Children)
+            let pos =
+                match elt.FirstChild with
+                | null -> DU.AtEnd
+                | n -> DU.BeforeNode n
+            Docs.InsertDoc elt doc.DocNode pos |> ignore
         | TreeDoc e ->
-            e.Holes.JS.Push(doc.DocNode) |> ignore
+            let after = elt.InsertBefore(JS.Document.CreateTextNode "", elt.FirstChild)
+            let before = Docs.InsertBeforeDelim after doc.DocNode
+            e.Holes.JS.Push {
+                El = elt
+                Attr = Attrs.Empty elt
+                Children = doc.DocNode
+                Delimiters = Some (before, after)
+                ElKey = Fresh.Int()
+                Render = None
+            } |> ignore
         | _ -> failwith "Invalid docNode in Elt"
         rvUpdates.Value <- View.Map2Unit rvUpdates.Value doc.Updates
-        let pos =
-            match elt.FirstChild with
-            | null -> DU.AtEnd
-            | n -> DU.BeforeNode n
-        Docs.InsertDoc elt doc.DocNode pos |> ignore
 
     [<Name "Clear">]
     member this.Clear'() =
@@ -1457,9 +1484,10 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
             | ElemDoc e ->
                 {
                     Els = [| Union1Of2 (upcast elt) |]
-                    Holes = [| docNode |]
+                    Holes = [| e |]
                     Attrs = [||]
                     Render = None
+                    Dirty = true
                 }
             | TreeDoc e -> e
             | _ -> failwith "Invalid docNode in Elt"
@@ -1551,7 +1579,7 @@ and [<JavaScript; Proxy(typeof<EltUpdater>)>]
         let d = As<Elt'> doc
         match d.DocNode with
         | ElemDoc e ->
-            treeNode.Holes.JS.Push(d.DocNode) |> ignore
+            treeNode.Holes.JS.Push(e) |> ignore
             let hu = holeUpdates.Value
             hu.JS.Push ((e.ElKey, d.Updates)) |> ignore
             holeUpdates.Value <- hu
@@ -1563,10 +1591,7 @@ and [<JavaScript; Proxy(typeof<EltUpdater>)>]
         | ElemDoc e ->
             let k = e.ElKey
             treeNode.Holes <-
-                treeNode.Holes |> Array.filter (function
-                    | ElemDoc h when h.ElKey = k -> false
-                    | _ -> true
-                )
+                treeNode.Holes |> Array.filter (fun h -> h.ElKey <> k)
             holeUpdates.Value <-
                 holeUpdates.Value |> Array.filter (function
                     | uk, _ when uk = k -> false
