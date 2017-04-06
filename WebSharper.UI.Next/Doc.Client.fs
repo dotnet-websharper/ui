@@ -966,7 +966,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 let attrs = el.Attributes
                 for i = 0 to attrs.Length - 1 do
                     let name = attrs.[i].Name.ToLower()
-                    let mappedName = match attrs.[i].NodeValue with "" -> name | s -> s
+                    let mappedName = match attrs.[i].NodeValue with "" -> name | s -> s.ToLower()
                     mappings.[name] <- mappedName
                     if not (usedHoles.Add(name)) then
                         Console.Warn("Hole mapped twice", name)

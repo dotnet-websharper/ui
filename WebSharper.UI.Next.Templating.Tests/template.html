@@ -63,10 +63,10 @@
 <div ws-children-template="Test106Tpl">
   <div ws-replace="DynamicReplace"></div>
 </div>
-<ws-index.Form Username="Username" Password="Password" Submit="Submit">
+<ws-index.Form Username Password Submit>
     <Welcome>Welcome, ${Username1}!</Welcome>
 </ws-index.Form>
 <!-- Testing recursive instantiation; don't call L1 or L2 from F# -->
-<div ws-template="L1">Nested instantiation: OK</div>
-<div ws-template="L2"><ws-L1 /></div>
-<div ws-template="L3"><ws-L2 /></div>
+<div ws-template="L1">Nested instantiation: ${Ok}</div>
+<ws-L1 ws-template="L2" Ok></ws-L1>
+<ws-L2 ws-template="L3"><Ok>OK</Ok></ws-L2>
