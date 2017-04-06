@@ -277,7 +277,8 @@ module Impl =
             let attrs = Dictionary(System.StringComparer.InvariantCultureIgnoreCase)
             let contentHoles = Dictionary(System.StringComparer.InvariantCultureIgnoreCase)
             for a in node.Attributes do
-                addHole a.Value {
+                let holeName = match a.Value with "" -> a.OriginalName | s -> s
+                addHole holeName {
                     HoleDefinition.Kind = HoleKind.Mapped (fileName, templateName, a.Name, HoleKind.Unknown)
                     HoleDefinition.Line = a.Line
                     HoleDefinition.Column = a.LinePosition
