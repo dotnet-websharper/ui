@@ -63,12 +63,13 @@ module private Impl =
     type Ctx =
         {
             Template : Template
-            BaseName : TemplateName
-            Name : option<TemplateName>
+            FileId : TemplateName
+            Id : option<TemplateName>
             Path : option<string>
             PT : PT.Ctx
-            ClientLoad : ClientLoad
+            InlineFileId : option<TemplateName>
             ServerLoad : ServerLoad
+            AllTemplates : Map<string, Map<option<string>, Template>>
         }
 
     module XmlDoc =
@@ -96,67 +97,71 @@ module private Impl =
     let BuildHoleMethods (holeName: HoleName) (holeDef: HoleDefinition) (resTy: Type) (ctx: Ctx)
             : list<MemberInfo> =
         let mk wrapArg = BuildMethod holeName resTy wrapArg holeDef.Line holeDef.Column ctx
-        match holeDef.Kind with
-        | HoleKind.Attr ->
-            [
-                mk <| fun (x: Expr<Attr>) ->
-                    <@ TemplateHole.Attribute(holeName, %x) @>
-                mk <| fun (x: Expr<seq<Attr>>) ->
-                    <@ TemplateHole.Attribute(holeName, Attr.Concat %x) @>
-            ]
-        | HoleKind.Doc ->
-            [
-                mk <| fun (x: Expr<Doc>) ->
-                    <@ TemplateHole.Elt(holeName, %x) @>
-                mk <| fun (x: Expr<seq<Doc>>) ->
-                    <@ TemplateHole.Elt(holeName, Doc.Concat %x) @>
-                mk <| fun (x: Expr<string>) ->
-                    <@ TemplateHole.Text(holeName, %x) @>
-                mk <| fun (x: Expr<View<string>>) ->
-                    <@ TemplateHole.TextView(holeName, %x) @>
-            ]
-        | HoleKind.ElemHandler ->
-            [
-                mk <| fun (x: Expr<DomElement -> unit>) ->
-                    <@ TemplateHole.AfterRender(holeName, %x) @>
-                mk <| fun (x: Expr<unit -> unit>) ->
-                    <@ TemplateHole.AfterRender(holeName, RuntimeClient.WrapAfterRender %x) @>
-            ]
-        | HoleKind.Event ->
-            [
-                mk <| fun (x: Expr<DomElement -> DomEvent -> unit>) ->
-                    <@ TemplateHole.Event(holeName, %x) @>
-                mk <| fun (x: Expr<unit -> unit>) ->
-                    <@ TemplateHole.Event(holeName, RuntimeClient.WrapEvent %x) @>
-            ]
-        | HoleKind.Simple ->
-            [
-                mk <| fun (x: Expr<string>) ->
-                    <@ TemplateHole.Text(holeName, %x) @>
-                mk <| fun (x: Expr<View<string>>) ->
-                    <@ TemplateHole.TextView(holeName, %x) @>
-            ]
-        | HoleKind.Var (ValTy.Any | ValTy.String) ->
-            [
-                mk <| fun (x: Expr<IRef<string>>) ->
-                    <@ TemplateHole.VarStr(holeName, %x) @>
-            ]
-        | HoleKind.Var ValTy.Number ->
-            [
-                mk <| fun (x: Expr<IRef<int>>) ->
-                    <@ TemplateHole.VarIntUnchecked(holeName, %x) @>
-                mk <| fun (x: Expr<IRef<CheckedInput<int>>>) ->
-                    <@ TemplateHole.VarInt(holeName, %x) @>
-                mk <| fun (x: Expr<IRef<float>>) ->
-                    <@ TemplateHole.VarFloatUnchecked(holeName, %x) @>
-                mk <| fun (x: Expr<IRef<CheckedInput<float>>>) ->
-                    <@ TemplateHole.VarFloat(holeName, %x) @>
-            ]
-        | HoleKind.Var ValTy.Bool ->
-            [
-                mk <| fun (x: Expr<IRef<bool>>) ->
-                    <@ TemplateHole.VarBool(holeName, %x) @>
-            ]
+        let holeName = holeName.ToLowerInvariant()
+        let rec build : _ -> list<MemberInfo> = function
+            | HoleKind.Attr ->
+                [
+                    mk <| fun (x: Expr<Attr>) ->
+                        <@ TemplateHole.Attribute(holeName, %x) @>
+                    mk <| fun (x: Expr<seq<Attr>>) ->
+                        <@ TemplateHole.Attribute(holeName, Attr.Concat %x) @>
+                ]
+            | HoleKind.Doc ->
+                [
+                    mk <| fun (x: Expr<Doc>) ->
+                        <@ TemplateHole.Elt(holeName, %x) @>
+                    mk <| fun (x: Expr<seq<Doc>>) ->
+                        <@ TemplateHole.Elt(holeName, Doc.Concat %x) @>
+                    mk <| fun (x: Expr<string>) ->
+                        <@ TemplateHole.Text(holeName, %x) @>
+                    mk <| fun (x: Expr<View<string>>) ->
+                        <@ TemplateHole.TextView(holeName, %x) @>
+                ]
+            | HoleKind.ElemHandler ->
+                [
+                    mk <| fun (x: Expr<DomElement -> unit>) ->
+                        <@ TemplateHole.AfterRender(holeName, %x) @>
+                    mk <| fun (x: Expr<unit -> unit>) ->
+                        <@ TemplateHole.AfterRender(holeName, RuntimeClient.WrapAfterRender %x) @>
+                ]
+            | HoleKind.Event ->
+                [
+                    mk <| fun (x: Expr<DomElement -> DomEvent -> unit>) ->
+                        <@ TemplateHole.Event(holeName, %x) @>
+                    mk <| fun (x: Expr<unit -> unit>) ->
+                        <@ TemplateHole.Event(holeName, RuntimeClient.WrapEvent %x) @>
+                ]
+            | HoleKind.Simple ->
+                [
+                    mk <| fun (x: Expr<string>) ->
+                        <@ TemplateHole.Text(holeName, %x) @>
+                    mk <| fun (x: Expr<View<string>>) ->
+                        <@ TemplateHole.TextView(holeName, %x) @>
+                ]
+            | HoleKind.Var (ValTy.Any | ValTy.String) ->
+                [
+                    mk <| fun (x: Expr<IRef<string>>) ->
+                        <@ TemplateHole.VarStr(holeName, %x) @>
+                ]
+            | HoleKind.Var ValTy.Number ->
+                [
+                    mk <| fun (x: Expr<IRef<int>>) ->
+                        <@ TemplateHole.VarIntUnchecked(holeName, %x) @>
+                    mk <| fun (x: Expr<IRef<CheckedInput<int>>>) ->
+                        <@ TemplateHole.VarInt(holeName, %x) @>
+                    mk <| fun (x: Expr<IRef<float>>) ->
+                        <@ TemplateHole.VarFloatUnchecked(holeName, %x) @>
+                    mk <| fun (x: Expr<IRef<CheckedInput<float>>>) ->
+                        <@ TemplateHole.VarFloat(holeName, %x) @>
+                ]
+            | HoleKind.Var ValTy.Bool ->
+                [
+                    mk <| fun (x: Expr<IRef<bool>>) ->
+                        <@ TemplateHole.VarBool(holeName, %x) @>
+                ]
+            | HoleKind.Mapped (kind = k) -> build k
+            | HoleKind.Unknown -> failwithf "Error: Unknown HoleKind"
+        build holeDef.Kind
 
     let OptionValue (x: option<'T>) : Expr<option<'T>> =
         match x with
@@ -168,26 +173,34 @@ module private Impl =
         // because the client-side implementation is [<Inline>] so it can drop
         // any arguments it doesn't need (in particular src can be quite big)
         // and each clientLoad needs different arguments.
-        match ctx.ClientLoad with
-        | ClientLoad.Inline ->
-            <@ Runtime.GetOrLoadTemplateInline(
-                    %%Expr.Value ctx.BaseName,
-                    %OptionValue ctx.Name,
-                    %OptionValue ctx.Path,
-                    %%Expr.Value ctx.Template.Src,
-                    ((%%args.[0] : obj) :?> list<TemplateHole>),
-                    %%Expr.Value ctx.ServerLoad
-                ) @>
-        | ClientLoad.FromDocument ->
-            <@ Runtime.GetOrLoadTemplateFromDocument(
-                    %%Expr.Value ctx.BaseName,
-                    %OptionValue ctx.Name,
-                    %OptionValue ctx.Path,
-                    %%Expr.Value ctx.Template.Src,
-                    ((%%args.[0] : obj) :?> list<TemplateHole>),
-                    %%Expr.Value ctx.ServerLoad
-                ) @>
-        | _ -> failwith "ClientLoad.Download not implemented yet"
+        let name = ctx.Id |> Option.map (fun s -> s.ToLowerInvariant())
+        let references =
+            Expr.NewArray(typeof<string * option<string> * string>,
+                [ for (fileId, templateId) in ctx.Template.References do
+                    let src =
+                        match ctx.AllTemplates.TryFind fileId with
+                        | Some m ->
+                            match m.TryFind templateId with
+                            | Some t -> t.Src
+                            | None -> failwithf "Template %A not found in file %A" templateId fileId
+                        | None -> failwithf "File %A not found, expecting it with template %A" fileId templateId
+                    yield Expr.NewTuple [
+                        Expr.Value fileId
+                        OptionValue templateId
+                        Expr.Value src
+                    ]
+                ]
+            )
+        <@ Runtime.GetOrLoadTemplate(
+                %%Expr.Value ctx.FileId,
+                %OptionValue name,
+                %OptionValue ctx.Path,
+                %%Expr.Value ctx.Template.Src,
+                ((%%args.[0] : obj) :?> list<TemplateHole>),
+                %OptionValue ctx.InlineFileId,
+                %%Expr.Value ctx.ServerLoad,
+                %%references
+            ) @>
         |> wrap
             
 
@@ -213,17 +226,22 @@ module private Impl =
             yield ctor :> _
         ]
 
-    let BuildTP (templates: IDictionary<option<TemplateName>, Template>)
-            (containerTy: PT.Type) (ptCtx: PT.Ctx) (path: option<string>)
-            (clientLoad: ClientLoad) (serverLoad: ServerLoad) =
-        let baseName = "T" + string (Guid.NewGuid().ToString("N"))
-        for KeyValue (tn, t) in templates do
+    let BuildOneFile (item: Parsing.ParseItem)
+            (allTemplates: Map<string, Map<option<string>, Template>>)
+            (containerTy: PT.Type) (ptCtx: PT.Ctx)
+            (inlineFileId: option<string>) (serverLoad: ServerLoad) =
+        let baseId =
+            match item.Id with
+            | "" -> "t" + string (Guid.NewGuid().ToString("N"))
+            | p -> p
+        for KeyValue (tn, t) in item.Templates do
             let ctx = {
                 PT = ptCtx; Template = t
-                BaseName = baseName; Name = tn; Path = path
-                ClientLoad = clientLoad; ServerLoad = serverLoad
+                FileId = baseId; Id = tn.IdAsOption; Path = item.Path
+                InlineFileId = inlineFileId; ServerLoad = serverLoad
+                AllTemplates = allTemplates
             }
-            match tn with
+            match tn.NameAsOption with
             | None ->
                 BuildOneTemplate containerTy ctx
             | Some n ->
@@ -232,6 +250,29 @@ module private Impl =
                         .WithXmlDoc(XmlDoc.TemplateType n)
                 BuildOneTemplate ty ctx
                 containerTy.AddMember ty
+
+    let BuildTP (parsed: Parsing.ParseItem[])
+            (containerTy: PT.Type) (ptCtx: PT.Ctx)
+            (clientLoad: ClientLoad) (serverLoad: ServerLoad) =
+        let allTemplates =
+            Map [for p in parsed -> p.Id, Map [for KeyValue(tid, t) in p.Templates -> tid.IdAsOption, t]]
+        let inlineFileId =
+            match clientLoad with
+            | ClientLoad.FromDocument -> Some parsed.[0].Id
+            | _ -> None
+        match parsed with
+        | [| item |] ->
+            BuildOneFile item allTemplates containerTy ptCtx inlineFileId serverLoad
+        | items ->
+            items |> Array.iter (fun item ->
+                let containerTy =
+                    match item.Name with
+                    | None -> containerTy
+                    | Some name ->
+                        ptCtx.ProvidedTypeDefinition(name, None)
+                            .AddTo(containerTy)
+                BuildOneFile item allTemplates containerTy ptCtx inlineFileId serverLoad
+            )
 
 [<TypeProvider>]
 type TemplatingProvider (cfg: TypeProviderConfig) as this =
@@ -263,18 +304,20 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
 
     let setupWatcher = function
         | Parsing.ParseKind.Inline -> ()
-        | Parsing.ParseKind.File path ->
-            if not (watchers.ContainsKey path) then
-                let watcher =
-                    new FileSystemWatcher(Path.GetDirectoryName path, Path.GetFileName path,
-                        NotifyFilter = watcherNotifyFilter, EnableRaisingEvents = true
-                    )
-                let inv _ = invalidateFile path watcher
-                watcher.Changed.Add inv
-                watcher.Deleted.Add inv
-                watcher.Renamed.Add inv
-                watcher.Created.Add inv
-                watchers.Add(path, watcher)
+        | Parsing.ParseKind.Files paths ->
+            paths |> Array.iter (fun path ->
+                if not (watchers.ContainsKey path) then
+                    let watcher =
+                        new FileSystemWatcher(Path.GetDirectoryName path, Path.GetFileName path,
+                            NotifyFilter = watcherNotifyFilter, EnableRaisingEvents = true
+                        )
+                    let inv _ = invalidateFile path watcher
+                    watcher.Changed.Add inv
+                    watcher.Deleted.Add inv
+                    watcher.Renamed.Add inv
+                    watcher.Created.Add inv
+                    watchers.Add(path, watcher)
+            )
 
     let setupTP () =
         templateTy.DefineStaticParameters(
@@ -311,8 +354,8 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
                         pathOrHtml, clientLoad, serverLoad, legacyMode
                     | a -> failwithf "Unexpected parameter values: %A" a
                 let ty = //lazy (
-                    let template = Parsing.Parse pathOrHtml cfg.ResolutionFolder Parsing.ExtractSubTemplatesFromRoot
-                    setupWatcher template.ParseKind
+                    let parsed = Parsing.Parse pathOrHtml cfg.ResolutionFolder
+                    setupWatcher parsed.ParseKind
                     let ty =
                         ctx.ProvidedTypeDefinition(thisAssembly, rootNamespace, typename, None)
                             .WithXmlDoc(XmlDoc.TemplateType "")
@@ -320,11 +363,11 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
                     | LegacyMode.Both ->
                         try OldProvider.RunOldProvider true pathOrHtml cfg ctx ty
                         with _ -> ()
-                        BuildTP template.Templates ty ctx template.Path clientLoad serverLoad
+                        BuildTP parsed.Items ty ctx clientLoad serverLoad
                     | LegacyMode.Old ->
                         OldProvider.RunOldProvider false pathOrHtml cfg ctx ty
                     | _ ->
-                        BuildTP template.Templates ty ctx template.Path clientLoad serverLoad
+                        BuildTP parsed.Items ty ctx clientLoad serverLoad
                     ty
                 //)
                 //cache.AddOrGetExisting(typename, ty)

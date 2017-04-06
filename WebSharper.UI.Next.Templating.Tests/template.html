@@ -1,12 +1,20 @@
 <h1 ws-replace="Title"></h1>
 <ul ws-hole="ListContainer">
-    <li ws-template="ListItem">
-        <span>(${Key}) </span>
+    <li ws-template="ListItem" ws-attr="Attr">
+        <span ws-attr="KeyAttr" class="class1">(${Key}) </span>
         <span style="font-style: ${FontStyle}; font-weight: ${FontWeight}">${Name}</span>:
         <input ws-var="Description" />
         <button ws-onclick="Remove">Remove</button>
+        <span ws-replace="Replace"></span>
+        <span ws-hole="Hole"></span>
     </li>
 </ul>
+<ws-ListItem Key="LIKey" FontStyle="LIFontStyle" Name="LIName">
+    <KeyAttr style="color: blue" class="class2 ${Class3}" ws-attr="LIExtraAttr" />
+    <FontWeight>bold</FontWeight>
+    <Replace>hello ${Replace2}!</Replace>
+    <Hole>hello hole!</Hole>
+</ws-ListItem>
 <div ws-attr="Attr">
     <p id="paragraph" ws-onafterrender="PRendered">
         <input ws-var="NewName" placeholder="Name" ws-onkeyup="NameChanged" />
@@ -29,7 +37,11 @@
     <div><b>You</b> <b>said</b>: ${MyInputView}</div>
     <input type="checkbox" ws-var="Checked" />
     <div>Checkbox status: ${IsChecked}</div>
-    <div ws-replace="LeaveThisEmpty"></div>
+    <div ws-replace="Test102"></div>
+    <div class="test-106-container">
+        <div class="test-106">#106 KO</div>
+        <div ws-replace="Test106"></div>
+    </div>
     <p>Test Doc.X controls:</p>
     <div ws-replace="ControlTests"></div>
     <p>Test EltUpdater</p>
@@ -45,5 +57,16 @@
         <polyline points="50,150 50,200 200,200 200,100" stroke="red" stroke-width="4" fill="none" />
         <line x1="50" y1="50" x2="200" y2="200" stroke="blue" stroke-width="4" />
     </svg>
+    <div ws-replace="NestedInstantiationTest"></div>
 </div>
 <div ws-template="EmptyTemplate" class="test-for-issue-104"></div>
+<div ws-children-template="Test106Tpl">
+  <div ws-replace="DynamicReplace"></div>
+</div>
+<ws-index.Form Username="Username" Password="Password" Submit="Submit">
+    <Welcome>Welcome, ${Username1}!</Welcome>
+</ws-index.Form>
+<!-- Testing recursive instantiation; don't call L1 or L2 from F# -->
+<div ws-template="L1">Nested instantiation: OK</div>
+<div ws-template="L2"><ws-L1 /></div>
+<div ws-template="L3"><ws-L2 /></div>

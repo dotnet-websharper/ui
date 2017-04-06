@@ -65,14 +65,14 @@ type private Holes = Dictionary<HoleName, TemplateHole>
 
 type Runtime private () =
 
-    static let loaded = ConcurrentDictionary<string, Map<option<string>, Template>>()
+    static let loaded = ConcurrentDictionary<string, Map<Parsing.WrappedTemplateName, Template>>()
 
     static let watchers = ConcurrentDictionary<string, FileSystemWatcher>()
 
-    static let getTemplate baseName name templates : Template =
-        match Map.tryFind name templates with
-        | None -> failwithf "Template not defined: %s/%A" baseName name
-        | Some template -> template
+    static let getTemplate baseName name (templates: IDictionary<_,_>) : Template =
+        match templates.TryGetValue name with
+        | false, _ -> failwithf "Template not defined: %s/%A" baseName name
+        | true, template -> template
 
     static let buildFillDict fillWith (holes: IDictionary<HoleName, HoleDefinition>) =
         let d : Holes = Dictionary()
@@ -97,22 +97,24 @@ type Runtime private () =
         ]
     static let defaultTemplateWrappers = ("""<div display="none" {0}="{1}">""", "</div>")
 
-    static let GetOrLoadTemplate
-            (baseName: string) (name: option<string>)
-            (path: option<string>) (src: string) (fillWith: list<TemplateHole>)
-            (clientLoad: ClientLoad) (serverLoad: ServerLoad)
-            : Doc =
-        let subTemplatesHandling =
-            if clientLoad = ClientLoad.FromDocument
-            then Parsing.KeepSubTemplatesInRoot
-            else Parsing.ExtractSubTemplatesFromRoot
+    static member GetOrLoadTemplate
+            (
+                baseName: string,
+                name: option<string>,
+                path: option<string>,
+                src: string,
+                fillWith: list<TemplateHole>,
+                inlineBaseName: option<string>,
+                serverLoad: ServerLoad,
+                refs: array<string * option<string> * string>
+            ) : Doc =
         let getOrLoadSrc src =
-            loaded.GetOrAdd(baseName, fun _ -> Parsing.ParseSource src subTemplatesHandling)
+            loaded.GetOrAdd(baseName, fun _ -> Parsing.ParseSource baseName src)
         let getOrLoadPath fullPath =
-            loaded.GetOrAdd(baseName, fun _ -> Parsing.ParseSource (File.ReadAllText fullPath) subTemplatesHandling)
+            loaded.GetOrAdd(baseName, fun _ -> Parsing.ParseSource baseName (File.ReadAllText fullPath))
         let reload fullPath =
             let src = File.ReadAllText fullPath
-            let parsed = Parsing.ParseSource src subTemplatesHandling
+            let parsed = Parsing.ParseSource baseName src
             loaded.AddOrUpdate(baseName, parsed, fun _ _ -> parsed)
         let templates =
             match path with
@@ -122,7 +124,7 @@ type Runtime private () =
             | ServerLoad.Once -> getOrLoadSrc src
             | ServerLoad.PerRequest ->
                 let fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path)
-                Parsing.ParseSource (File.ReadAllText fullPath) subTemplatesHandling
+                Parsing.ParseSource baseName (File.ReadAllText fullPath)
             | ServerLoad.WhenChanged ->
                 let fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path)
                 let watcher = watchers.GetOrAdd(baseName, fun _ ->
@@ -140,14 +142,14 @@ type Runtime private () =
                     watcher)
                 getOrLoadPath fullPath
             | _ -> failwith "Invalid ServerLoad"
-        let template = getTemplate baseName name templates
+        let template = getTemplate baseName (Parsing.WrappedTemplateName.OfOption name) templates
         let fillWith = buildFillDict fillWith template.Holes
 
         let rec writeWrappedTemplate templateName (template: Template) m (w: HtmlTextWriter) r =
             let tagName = template.Value |> Array.tryPick (function
                 | Node.Element (name, _, _, _)
                 | Node.Input (name, _, _, _) -> Some name
-                | Node.Text _ | Node.DocHole _ -> None
+                | Node.Text _ | Node.DocHole _ | Node.Instantiate _ -> None
             )
             let before, after = defaultArg (Map.tryFind tagName templateWrappers) defaultTemplateWrappers
             w.Write(before, ChildrenTemplateAttr, templateName)
@@ -193,9 +195,9 @@ type Runtime private () =
                 else
                     w.Write(HtmlTextWriter.TagRightChar)
                     Array.iter writeNode children
-                    if subTemplatesHandling = Parsing.KeepSubTemplatesInRoot && tag = "body" && Option.isNone name then
-                        templates |> Map.iter (fun k v ->
-                            match k with
+                    if tag = "body" && Option.isNone name then
+                        templates |> Seq.iter (fun (KeyValue(k, v)) ->
+                            match k.NameAsOption with
                             | Some templateName -> writeWrappedTemplate templateName v m w r
                             | None -> ()
                         )
@@ -221,6 +223,8 @@ type Runtime private () =
                     | true, TemplateHole.Text (_, txt) -> w.WriteEncodedText(txt)
                     | true, _ -> failwithf "Invalid hole, expected Doc: %s" holeName
                     | false, _ -> ()
+                | Node.Instantiate _ ->
+                    failwithf "Template instantiation not yet supported on the server side"
             Array.iter writeNode template.Value
         let write = writeTemplate template false
         match template.Value with
@@ -228,9 +232,3 @@ type Runtime private () =
             Server.Internal.TemplateElt(tag, fillWith, template.HasNonScriptSpecialTags, write) :> _
         | _ ->
             Server.Internal.TemplateDoc(fillWith, template.HasNonScriptSpecialTags, write []) :> _
-
-    static member GetOrLoadTemplateInline(baseName, name, path, src, fillWith, serverLoad) =
-        GetOrLoadTemplate baseName name path src fillWith ClientLoad.Inline serverLoad
-
-    static member GetOrLoadTemplateFromDocument(baseName, name, path, src, fillWith, serverLoad) =
-        GetOrLoadTemplate baseName name path src fillWith ClientLoad.FromDocument serverLoad

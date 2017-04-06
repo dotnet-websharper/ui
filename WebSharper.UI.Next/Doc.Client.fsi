@@ -1132,6 +1132,9 @@ module Doc =
     /// Load templates declared in the current document with `data-template="name"`.
     val LoadLocalTemplates : string -> unit
 
+    /// Load a template with the given name, if it wasn't loaded yet.
+    val LoadTemplate : string -> option<string> -> (unit -> Node[]) -> unit
+
     /// Construct a Doc using a given loaded template by name and template fillers.
     val NamedTemplate : string -> option<string> -> seq<TemplateHole> -> Doc
 

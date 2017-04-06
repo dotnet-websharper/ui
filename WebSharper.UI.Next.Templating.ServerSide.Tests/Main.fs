@@ -8,7 +8,8 @@ open WebSharper.UI.Next.Html
 open WebSharper.UI.Next.Notation
 open WebSharper.UI.Next.Templating
 
-type MainTemplate = Template<"Main.html", ClientLoad.FromDocument, ServerLoad.WhenChanged>
+type LegacyTemplate = Template<"Main.html", legacyMode = LegacyMode.Old>
+type MainTemplate = Template<"Main.html,template.html", ClientLoad.FromDocument, ServerLoad.WhenChanged>
 
 [<JavaScript>]
 module Client =
@@ -16,14 +17,14 @@ module Client =
     open WebSharper.JavaScript
 
     let Main (init: string) =
-        MainTemplate.ClientTemplate()
+        MainTemplate.Main.ClientTemplate()
             .Before(init)
             .Input(Var.Create init)
             .Opacity(Var.Create (float init.Length / 10.))
             .Doc()
 
     let OldMain (init) =
-        MainTemplate.OldTemplate.Doc(Input = Var.Create init)
+        LegacyTemplate.OldTemplate.Doc(Input = Var.Create init)
 
     let OnClick (el: Dom.Element) (ev: Dom.Event) =
         JS.Alert "clicked!"
@@ -31,18 +32,18 @@ module Client =
 [<Website>]
 let Main = Application.SinglePage(fun ctx ->
     Content.Page(
-        MainTemplate()
-            .Main(b [text "Hello world!"])
+        MainTemplate.Main()
+            .Main(MainTemplate.template().Who("world").Doc())
             .Client(
                 [
                     client <@ Client.Main("green") @>
                     client <@ Client.Main("blue") @>
                     client <@ Client.OldMain("old template") @>
-                    MainTemplate.ServerTemplate().Elt()
+                    MainTemplate.Main.ServerTemplate().Elt()
                         .OnClick(<@ Client.OnClick @>)
                     :> Doc
                 ])
-            .TBody([MainTemplate.Row().Doc(); MainTemplate.Row().Doc()])
+            .TBody([MainTemplate.Main.Row().Doc(); MainTemplate.Main.Row().Doc()])
             .Doc()
     )
 )

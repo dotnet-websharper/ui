@@ -41,6 +41,8 @@ type HoleKind =
     | Doc
     | Event
     | ElemHandler
+    | Mapped of fileName: option<string> * templateName: option<string> * holeName: string * kind: HoleKind
+    | Unknown
 
 type HoleDefinition =
     {
@@ -68,6 +70,7 @@ type Node =
     | Element of nodeName: string * isSvg: bool * Attr[] * children: Node[]
     | Input of nodeName: string * var: HoleName * Attr[] * children: Node[]
     | DocHole of HoleName
+    | Instantiate of fileName: option<string> * templateName: option<string> * holeMaps: Dictionary<string, string> * attrs: Dictionary<string, Attr[]> * contentHoles: Dictionary<string, Node[]>
 
 type Template =
     {
@@ -77,6 +80,7 @@ type Template =
         HasNonScriptSpecialTags : bool
         Line : int
         Column : int
+        References : Set<string * option<string>>
     }
 
 let [<Literal>] TemplateAttr            = "ws-template"

@@ -9,10 +9,10 @@ open WebSharper.UI.Next.Notation
 open WebSharper.UI.Next.Templating
 
 [<JavaScript>]
-module Client =    
+module Client =
     open WebSharper.UI.Next.Client
 
-    type MyTemplate = Template<"template.html">
+    type MyTemplate = Template<"index.html,template.html", clientLoad = ClientLoad.FromDocument, legacyMode = LegacyMode.New>
 
     type Item =
         { id : int; name: string; description: string }
@@ -63,6 +63,10 @@ module Client =
 
         let chk = Var.Create true
 
+        let username = Var.Create ""
+        let password = Var.Create ""
+        let submit = Submitter.CreateOption (View.Map2 (fun x y -> x, y) username.View password.View)
+
         let eltUpdater = (div []).ToUpdater()
         let testCounter = Var.Create 0
         let testCounterStr = testCounter.View.Map(string)
@@ -89,7 +93,7 @@ module Client =
                 added.Enqueue readd
 
         let doc =
-            MyTemplate()
+            MyTemplate.template()
                 .Attr(Attr.Style "font-weight" "bold")
                 .Title(
                     h1Attr [
@@ -100,7 +104,7 @@ module Client =
                 )
                 .ListContainer(
                     myItems.ViewState.DocSeqCached(Item.Key, fun key item ->
-                        MyTemplate.ListItem()
+                        MyTemplate.template.ListItem()
                             .Key(item.Map(fun i -> string i.id))
                             .Name(item.Map(fun i -> i.name))
                             .Description(myItems.LensInto (fun i -> i.description) (fun i d -> { i with description = d }) key)
@@ -112,14 +116,34 @@ module Client =
                     )
                 )
                 .NewName(newName)
+                .LIKey("test1234")
+                .LIFontStyle("italic")
+                .LIName("liname")
+                .Class3("class3")
+                .LIExtraAttr(Attr.Class "class4")
+                .Replace2("Replace2")
                 .NewDescription(newDescr)
                 .NewItem(fun () -> myItems.Add { id = freshKey(); name = newName.Value; description = newDescr.Value })
                 .SubmitItems(itemsSub.Trigger)
                 .ClearItems(myItems.Clear)
-                .LeaveThisEmpty(
+                .Test102(
                     // Test #102: this would empty the whole containing div
                     myItems.ViewState
                     |> Doc.BindSeqCached (fun x -> p [text x.description])
+                )
+                .Test106(
+                    MyTemplate.template.Test106Tpl()
+                        .DynamicReplace(
+                            divAttr [
+                                on.afterRender (fun _ ->
+                                    let e = JS.Document.QuerySelector(".test-106")
+                                    e.ParentElement.RemoveChild(e) |> ignore
+                                )
+                            ] [text "#106 OK"]
+                            |> View.Const
+                            |> Doc.EmbedView
+                        )
+                        .Doc()
                 )
                 .FindBy(findByKey)
                 .Found(found)
@@ -133,7 +157,7 @@ module Client =
                 )
                 .ListView(
                     itemsSub.View.DocSeqCached(Item.Key, fun key item ->
-                        MyTemplate.ListViewItem()
+                        MyTemplate.template.ListViewItem()
                             .Name(item.Map(fun i -> i.name))
                             .Description(item.Map(fun i -> i.description))
                             .Doc()
@@ -190,12 +214,17 @@ module Client =
                 .ReAddUpdater(fun _ _ -> reAddUpdater())
                 .IncrEltUpdaterTest(fun _ _ -> testCounter := !testCounter + 1)
                 .EltUpdaterTest(eltUpdater)
+                .Username(username)
+                .Password(password)
+                .Username1(username.View)
+                .Submit(submit.Trigger)
+                .NestedInstantiationTest(MyTemplate.template.L3().Doc())
                 .Doc()
 
         Anim.UseAnimations <- false
 
         div [
-            doc 
+            doc
             Regression67.Doc
         ]
         |> Doc.RunById "main"
