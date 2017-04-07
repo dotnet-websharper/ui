@@ -905,7 +905,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                     e.GetAttribute("ws-on").Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
                     |> Array.filter (fun x ->
                         let a = x.Split([|':'|], StringSplitOptions.RemoveEmptyEntries)
-                        not (dontRemove.Contains a.[1])
+                        dontRemove.Contains a.[1]
                     )
                     |> String.concat " "
                 e.SetAttribute("ws-on", a)
@@ -928,6 +928,10 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 n.ParentElement.ReplaceChild(Dom.Text fillWith, n) |> ignore
                 Some <| n.GetAttribute("ws-replace")
 
+        let rec fill (fillWith: Dom.Element) (p: Dom.Element) n =
+            if fillWith.HasChildNodes() then
+                fill fillWith p (p.InsertBefore(fillWith.LastChild, n))
+
         let rec fillDocHole (instance: Dom.Element) (fillWith: Dom.Element) =
             let name = fillWith.NodeName.ToLower()
             DomUtility.IterSelector instance "[ws-attr-holes]" <| fun e ->
@@ -938,22 +942,18 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                             Replace(e.GetAttribute(attrName), fillWith.TextContent)
                     )
             convertElement fillWith
-            let rec fill (p: Dom.Element) n =
-                if fillWith.HasChildNodes() then
-                    p.InsertBefore(fillWith.LastChild, n)
-                    |> fill p
             match instance.QuerySelector("[ws-hole=" + name + "]") with
             | null ->
                 match instance.QuerySelector("[ws-replace=" + name + "]") with
                 | null -> ()
                 | e ->
-                    fill e.ParentElement e
+                    fill fillWith e.ParentElement e
                     e.ParentElement.RemoveChild(e) |> ignore
             | e ->
                 while e.HasChildNodes() do
                     e.RemoveChild(e.LastChild) |> ignore
                 e.RemoveAttribute("ws-hole")
-                fill e null
+                fill fillWith e null
 
         and convertInstantiation (el: Dom.Element) =
             let name = el.NodeName.[3..].ToLower()
@@ -990,9 +990,9 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 if singleTextFill then
                     fillTextHole instance el.FirstChild.TextContent
                     |> Option.iter (usedHoles.Add >> ignore)
-                // 2. eliminate non-mapped/filled holes.
+                // 3. eliminate non-mapped/filled holes.
                 removeHolesExcept instance usedHoles
-                // 3. apply mappings/fillings.
+                // 4. apply mappings/fillings.
                 if not singleTextFill then
                     for i = 0 to el.ChildNodes.Length - 1 do
                         let n = el.ChildNodes.[i]
@@ -1003,9 +1003,8 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                             else
                                 fillDocHole instance n
                 mapHoles instance mappings
-                // 4. insert result.
-                while instance.HasChildNodes() do
-                    el.ParentElement.InsertBefore(instance.LastChild, el) |> ignore
+                // 5. insert result.
+                fill instance el.ParentElement el
                 el.ParentElement.RemoveChild(el) |> ignore
 
         and convertElement (el: Dom.Element) =
@@ -1020,6 +1019,8 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                     | name ->
                         el.RemoveAttribute("ws-children-template")
                         Doc'.PrepareTemplate baseName (Some name) (fun () -> DomUtility.ChildrenArray el)
+                        // if it was already prepared, the above does nothing, so always clean anyway!
+                        while el.HasChildNodes() do el.RemoveChild(el.LastChild) |> ignore
                 | name -> Doc'.PrepareSingleTemplate baseName (Some name) el
 
         and convert (p: Element) (n: Node) =

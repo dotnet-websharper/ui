@@ -219,7 +219,7 @@ module Client =
                 .Password(password)
                 .Username1(username.View)
                 .Submit(submit.Trigger)
-                .NestedInstantiationTest(MyTemplate.template.L3().MIAttr(Attr.Style "color" "red").Doc())
+                .NestedInstantiationTest(MyTemplate.template.L3().MIAttr(Attr.Style "color" "red").Ok("Ok").Doc())
                 .Doc()
 
         Anim.UseAnimations <- false
