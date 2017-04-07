@@ -118,7 +118,7 @@ type AttrFlags =
     | HasExitAnim = 2
     | HasChangeAnim = 4
 
-[<JavaScript; Proxy(typeof<Attr>); Name "WebSharper.UI.Next.AttrProxy">]
+[<JavaScript; Proxy(typeof<Attr>); Name "WebSharper.UI.Next.AttrProxy"; Prototype>]
 [<CompilationRepresentation(CompilationRepresentationFlags.UseNullAsTrueValue)>]
 type internal AttrProxy =
     | [<Constant(null)>] A0
