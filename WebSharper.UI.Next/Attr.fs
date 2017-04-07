@@ -99,63 +99,41 @@ type Attr =
     static member Concat (xs: seq<Attr>) =
         AppendAttr (List.ofSeq xs)
 
-    static member Handler (event: string) (q: Expr<Dom.Element -> #Dom.Event -> unit>) =
-        let declType, name, reqs =
-            match q with
-            | Lambda (x1, Lambda (y1, Call(None, m, [Var x2; (Var y2 | Coerce(Var y2, _))]))) when x1 = x2 && y1 = y2 ->
-                let rm = R.ReadMethod m
-                let typ = R.ReadTypeDefinition m.DeclaringType
-                R.ReadTypeDefinition m.DeclaringType, rm.Value.MethodName, [M.MethodNode (typ, rm); M.TypeNode typ]
-            | _ -> failwithf "Invalid handler function: %A" q
-        let loc = Internal.getLocation q
+    static member HandlerImpl(event, m, location) =
+        let meth = R.ReadMethod m
+        let declType = R.ReadTypeDefinition m.DeclaringType
+        let reqs = [M.MethodNode (declType, meth); M.TypeNode declType]
         let value = ref None
+        let fail() =
+            failwithf "Error in Handler%s: Couldn't find JavaScript address for method %s.%s"
+                location declType.Value.FullName meth.Value.MethodName
         let func (meta: M.Info) =
             match !value with
             | None ->
                 match meta.Classes.TryGetValue declType with
-                | true, {Address = Some a} ->
-                    let rec mk acc = function
-                        | local :: parent ->
-                            let acc = local :: acc
-                            match parent with
-                            | [] -> acc
-                            | p -> mk acc p
-                        | [] -> failwith "Impossible"
-                    let s = String.concat "." (mk [name] a.Value) + "(this, event)"
+                | true, c ->
+                    let addr =
+                        match c.Methods.TryGetValue meth with
+                        | true, (M.CompiledMember.Static x, _, _) -> x.Value
+                        | _ -> fail()
+                    let s = String.concat "." (List.rev addr) + "(this, event)"
                     value := Some s
                     s
-                | _ ->
-                    failwithf "Error in Handler at %s: Couldn't find JavaScript address for method" loc
+                | _ -> fail()
             | Some v -> v
         DepAttr ("on" + event, func, reqs)
 
-    static member HandlerLinq (event: string) (q: Expression<Action<Dom.Element, #Dom.Event>>) =
-        let declType, name, reqs =
-            match q.Body with
-            | :? MethodCallExpression as e -> 
-                let m = e.Method
-                let rm = R.ReadMethod m
-                let typ = R.ReadTypeDefinition m.DeclaringType
-                R.ReadTypeDefinition m.DeclaringType, rm.Value.MethodName, [M.MethodNode (typ, rm); M.TypeNode typ]
+    static member Handler (event: string) (q: Expr<Dom.Element -> #Dom.Event -> unit>) =
+        let meth =
+            match q with
+            | Lambda (x1, Lambda (y1, Call(None, m, [Var x2; (Var y2 | Coerce(Var y2, _))]))) when x1 = x2 && y1 = y2 -> m
             | _ -> failwithf "Invalid handler function: %A" q
-//        let loc = Internal.getLocation q
-        let value = ref None
-        let func (meta: M.Info) =
-            match !value with
-            | None ->
-                match meta.Classes.TryGetValue declType with
-                | true, {Address = Some a} ->
-                    let rec mk acc = function
-                        | local :: parent ->
-                            let acc = local :: acc
-                            match parent with
-                            | [] -> acc
-                            | p -> mk acc p
-                        | [] -> failwith "Impossible"
-                    let s = String.concat "." (mk [name] a.Value) + "(this, event)"
-                    value := Some s
-                    s
-                | _ ->
-                    failwithf "Error in Handler: Couldn't find JavaScript address for method %s.%s" declType.Value.FullName name
-            | Some v -> v
-        DepAttr ("on" + event, func, reqs)
+        let loc = Internal.getLocation q
+        Attr.HandlerImpl(event, meth, " at " + loc)
+
+    static member HandlerLinq (event: string) (q: Expression<Action<Dom.Element, #Dom.Event>>) =
+        let meth =
+            match q.Body with
+            | :? MethodCallExpression as e -> e.Method
+            | _ -> failwithf "Invalid handler function: %A" q
+        Attr.HandlerImpl(event, meth, "")
