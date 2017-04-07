@@ -67,6 +67,6 @@
     <Welcome>Welcome, ${Username1}!</Welcome>
 </ws-index.Form>
 <!-- Testing recursive instantiation; don't call L1 or L2 from F# -->
-<div ws-template="L1">Nested instantiation: ${Ok}</div>
-<ws-L1 ws-template="L2" Ok></ws-L1>
-<ws-L2 ws-template="L3"><Ok>OK</Ok></ws-L2>
+<i ws-template="L1" ws-attr="Attr">Nested instantiation: ${Ok}</i>
+<ws-L1 ws-template="L2" Ok Attr></ws-L1>
+<ws-L2 ws-template="L3" Attr><Ok>OK</Ok></ws-L2>

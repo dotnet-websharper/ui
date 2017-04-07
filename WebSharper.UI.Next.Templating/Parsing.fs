@@ -248,23 +248,42 @@ module Impl =
     let isNonScriptSpecialTag n =
         n = "styles" || n = "meta"
 
-    let rec normalElement (n: HtmlNode) isSvg (children: Lazy<_>) addHole addRef hasNonScriptSpecialTags =
+    let mkRefs thisFileId =
+        let refs = ref Set.empty
+        let lower = Option.map (fun (s: string) -> s.ToLowerInvariant())
+        let addRef (x, y) = refs := Set.add (defaultArg (lower x) thisFileId, lower y) !refs
+        refs, addRef
+
+    type ParseState(fileId: string, ?holes: Dictionary<HoleName, HoleDefinition>, ?hasNonScriptSpecialTags: bool) =
+        let refs, addRef = mkRefs fileId
+        let mutable hasNonScriptSpecialTags = defaultArg hasNonScriptSpecialTags false
+        let holes = match holes with Some h -> h | None -> Dictionary(System.StringComparer.InvariantCultureIgnoreCase)
+
+        member this.Holes = holes
+        member this.References = !refs
+        member this.HasNonScriptSpecialTags = hasNonScriptSpecialTags
+
+        member this.AddHole name def = addHole holes name def
+        member this.AddRef ref = addRef ref
+        member this.AddNonScriptSpecialTags() = hasNonScriptSpecialTags <- true
+
+    let rec normalElement (n: HtmlNode) isSvg (children: Lazy<_>) (state: ParseState) =
         match n with
-        | Instantiation addHole addRef hasNonScriptSpecialTags n -> n
+        | Instantiation state n -> n
         | n ->
-        let attrs = parseAttributesOf n addHole
+        let attrs = parseAttributesOf n state.AddHole
         match n.Attributes.[VarAttr] with
         | null ->
             Node.Element (n.Name, isSvg, attrs, children.Value)
         | varAttr ->
-            addHole varAttr.Value {
+            state.AddHole varAttr.Value {
                 HoleDefinition.Kind = HoleKind.Var (varTypeOf n)
                 HoleDefinition.Line = varAttr.Line
                 HoleDefinition.Column = varAttr.LinePosition + varAttr.Name.Length
             }
             Node.Input (n.Name, varAttr.Value, attrs, children.Value)
 
-    and (|Instantiation|_|) addHole addRef hasNonScriptSpecialTags (node: HtmlNode) =
+    and (|Instantiation|_|) (state: ParseState) (node: HtmlNode) =
         if node.Name.StartsWith "ws-" then
             let rawTemplateName = node.Name.[3..]
             let fileName, templateName =
@@ -281,7 +300,7 @@ module Impl =
             for a in node.Attributes do
                 if a.Name.StartsWith "ws-" then () else
                 let holeName = match a.Value with "" -> a.OriginalName | s -> s
-                addHole holeName {
+                state.AddHole holeName {
                     HoleDefinition.Kind = HoleKind.Mapped (fileName, templateName, a.Name, HoleKind.Unknown)
                     HoleDefinition.Line = a.Line
                     HoleDefinition.Column = a.LinePosition
@@ -290,18 +309,18 @@ module Impl =
             for c in node.ChildNodes do
                 if not (c :? HtmlTextNode || c :? HtmlCommentNode) then
                     if c.HasAttributes then
-                        attrs.[c.Name] <- parseAttributesOf c addHole
+                        attrs.[c.Name] <- parseAttributesOf c state.AddHole
                     else
-                        contentHoles.[c.Name] <- parseNodeAndSiblings false addHole addRef hasNonScriptSpecialTags c
-            addRef (fileName, templateName)
+                        contentHoles.[c.Name] <- parseNodeAndSiblings false state c
+            state.AddRef (fileName, templateName)
             Some (Node.Instantiate(fileName, templateName, holeMaps, attrs, contentHoles))
         else None
 
-    and parseNodeAndSiblings isSvg addHole addRef hasNonScriptSpecialTags (node: HtmlNode) =
+    and parseNodeAndSiblings isSvg (state: ParseState) (node: HtmlNode) =
         (isSvg, node)
         |> Seq.unfold (fun (isSvg, node) ->
             let addHole' name k =
-                addHole name {
+                state.AddHole name {
                     Kind = k
                     Line = node.Line
                     Column = node.LinePosition
@@ -325,31 +344,22 @@ module Impl =
                         match node.Attributes.[HoleAttr] with
                         | null ->
                             if node.Attributes.Contains(ChildrenTemplateAttr) then [||] else
-                            parseNodeAndSiblings thisIsSvg addHole addRef hasNonScriptSpecialTags node.FirstChild
+                            parseNodeAndSiblings thisIsSvg state node.FirstChild
                         | holeAttr ->
-                            if isNonScriptSpecialTag holeAttr.Value then hasNonScriptSpecialTags := true
+                            if isNonScriptSpecialTag holeAttr.Value then state.AddNonScriptSpecialTags()
                             addHole' holeAttr.Value HoleKind.Doc
                             [| Node.DocHole holeAttr.Value |]
-                    let doc = normalElement node thisIsSvg children addHole addRef hasNonScriptSpecialTags
+                    let doc = normalElement node thisIsSvg children state
                     Some ([| doc |], (isSvg, node.NextSibling))
                 | replaceAttr ->
-                    if isNonScriptSpecialTag replaceAttr.Value then hasNonScriptSpecialTags := true
+                    if isNonScriptSpecialTag replaceAttr.Value then state.AddNonScriptSpecialTags()
                     addHole' replaceAttr.Value HoleKind.Doc
                     Some ([| Node.DocHole replaceAttr.Value |], (isSvg, node.NextSibling))
         )
         |> Array.concat
 
-    let mkRefs thisFileId =
-        let refs = ref Set.empty
-        let lower = Option.map (fun (s: string) -> s.ToLowerInvariant())
-        let addRef (x, y) = refs := Set.add (defaultArg (lower x) thisFileId, lower y) !refs
-        refs, addRef
-
     let parseNodeAndSiblingsAsTemplate fileId (node: HtmlNode) =
-        let holes = Dictionary(System.StringComparer.InvariantCultureIgnoreCase)
-        let refs, addRef = mkRefs fileId
-        let addHole = addHole holes
-        let hasNonScriptSpecialTags = ref false
+        let state = ParseState(fileId)
         let src =
             use s = new StringWriter()
             let rec l = function
@@ -360,20 +370,31 @@ module Impl =
             match node with
             | null -> 0, 0
             | node -> node.ParentNode.Line, node.ParentNode.LinePosition
-        let value = parseNodeAndSiblings false addHole addRef hasNonScriptSpecialTags node
-        { Holes = holes; Value = value; Src = src; References = !refs
-          HasNonScriptSpecialTags = !hasNonScriptSpecialTags
+        let value = parseNodeAndSiblings false state node
+        { Holes = state.Holes; Value = value; Src = src; References = state.References
+          HasNonScriptSpecialTags = state.HasNonScriptSpecialTags
           Line = line; Column = col }
 
     let parseNodeAsTemplate fileId (n: HtmlNode) =
         match n.Attributes.[HoleAttr] with
         | null ->
+            let instState = ParseState(fileId)
+            match n with
+            | Instantiation instState el ->
+                {
+                    Value = [| el |]
+                    Holes = instState.Holes
+                    Src = n.WriteTo()
+                    HasNonScriptSpecialTags = instState.HasNonScriptSpecialTags
+                    Line = n.Line
+                    Column = n.LinePosition
+                    References = instState.References
+                }
+            | _ ->
             let templateForChildren = parseNodeAndSiblingsAsTemplate fileId n.FirstChild
             let isSvg = n.Name = "svg"
-            let addHole = addHole templateForChildren.Holes
-            let refs, addRef = mkRefs fileId
-            let hasNonScriptSpecialTags = ref templateForChildren.HasNonScriptSpecialTags
-            let el = normalElement n isSvg (lazy templateForChildren.Value) addHole addRef hasNonScriptSpecialTags
+            let state = ParseState(fileId, templateForChildren.Holes, templateForChildren.HasNonScriptSpecialTags)
+            let el = normalElement n isSvg (lazy templateForChildren.Value) state
             let a = n.GetAttributeValue(TemplateAttr, null)
             n.Attributes.Remove(TemplateAttr)
             let t =
@@ -382,29 +403,27 @@ module Impl =
                     Src = n.WriteTo()
                     Line = n.Line
                     Column = n.LinePosition
-                    References = Set.union templateForChildren.References !refs
-                    HasNonScriptSpecialTags = !hasNonScriptSpecialTags
+                    References = Set.union templateForChildren.References state.References
+                    HasNonScriptSpecialTags = state.HasNonScriptSpecialTags
                     Holes = templateForChildren.Holes
                 }
             if a <> null then n.Attributes.Add(TemplateAttr, a)
             t
         | hole ->
             let holeName = hole.Value
-            let holes = Dictionary(System.StringComparer.InvariantCultureIgnoreCase)
-            holes.Add(holeName, {
+            let state = ParseState(fileId)
+            state.AddHole holeName {
                 Kind = HoleKind.Doc
                 Line = hole.Line
                 Column = hole.LinePosition
-            })
-            let refs, addRef = mkRefs fileId
-            let hasNonScriptSpecialTags = ref false
-            let el = normalElement n (n.Name = "svg") (lazy [| Node.DocHole holeName |]) (addHole holes) addRef hasNonScriptSpecialTags
+            }
+            let el = normalElement n (n.Name = "svg") (lazy [| Node.DocHole holeName |]) state
             {
                 Value = [| el |]
-                Holes = holes
-                References = Set.empty
+                Holes = state.Holes
+                References = state.References
                 Src = n.WriteTo()
-                HasNonScriptSpecialTags = isNonScriptSpecialTag holeName
+                HasNonScriptSpecialTags = state.HasNonScriptSpecialTags || isNonScriptSpecialTag holeName
                 Line = n.Line
                 Column = n.LinePosition
             }

@@ -994,7 +994,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 el.ParentElement.RemoveChild(el) |> ignore
 
         and convertElement (el: Dom.Element) =
-            if el.NodeName.ToLower().StartsWith "ws-" then
+            if el.NodeName.ToLower().StartsWith "ws-" && not (el.HasAttribute "ws-template") then
                 convertInstantiation el
             else
                 convertAttrs el
