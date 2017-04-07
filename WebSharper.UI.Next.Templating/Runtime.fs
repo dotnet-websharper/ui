@@ -75,7 +75,7 @@ type Runtime private () =
         | true, template -> template
 
     static let buildFillDict fillWith (holes: IDictionary<HoleName, HoleDefinition>) =
-        let d : Holes = Dictionary()
+        let d : Holes = Dictionary(StringComparer.InvariantCultureIgnoreCase)
         for f in fillWith do
             let name = TemplateHole.Name f
             if holes.ContainsKey name then d.[name] <- f

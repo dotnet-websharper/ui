@@ -119,6 +119,7 @@ module Client =
                 .LIKey("test1234")
                 .LIFontStyle("italic")
                 .LIName("liname")
+                .MIAttr(Attr.Style "font-family" "monospace")
                 .Class3("class3")
                 .LIExtraAttr(Attr.Class "class4")
                 .Replace2("Replace2")
@@ -218,7 +219,7 @@ module Client =
                 .Password(password)
                 .Username1(username.View)
                 .Submit(submit.Trigger)
-                .NestedInstantiationTest(MyTemplate.template.L3().Attr(Attr.Style "color" "red").Doc())
+                .NestedInstantiationTest(MyTemplate.template.L3().MIAttr(Attr.Style "color" "red").Doc())
                 .Doc()
 
         Anim.UseAnimations <- false

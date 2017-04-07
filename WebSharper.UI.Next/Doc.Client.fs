@@ -919,6 +919,15 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                             ))
                     e.SetAttribute(attrName, s)
 
+        let fillTextHole (instance: Dom.Element) (fillWith: string) =
+            match instance.QuerySelector "[ws-replace]" with
+            | null ->
+                Console.Warn("Filling non-existent text hole", name)
+                None
+            | n ->
+                n.ParentElement.ReplaceChild(Dom.Text fillWith, n) |> ignore
+                Some <| n.GetAttribute("ws-replace")
+
         let rec fillDocHole (instance: Dom.Element) (fillWith: Dom.Element) =
             let name = fillWith.NodeName.ToLower()
             DomUtility.IterSelector instance "[ws-attr-holes]" <| fun e ->
@@ -976,17 +985,23 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                         let n = n :?> Dom.Element
                         if not (usedHoles.Add(n.NodeName.ToLower())) then
                             Console.Warn("Hole filled twice", name)
+                // 2. If single text hole, apply it.
+                let singleTextFill = el.ChildNodes.Length = 1 && el.FirstChild.NodeType = Dom.NodeType.Text
+                if singleTextFill then
+                    fillTextHole instance el.FirstChild.TextContent
+                    |> Option.iter (usedHoles.Add >> ignore)
                 // 2. eliminate non-mapped/filled holes.
                 removeHolesExcept instance usedHoles
                 // 3. apply mappings/fillings.
-                for i = 0 to el.ChildNodes.Length - 1 do
-                    let n = el.ChildNodes.[i]
-                    if n.NodeType = Dom.NodeType.Element then
-                        let n = n :?> Dom.Element
-                        if n.HasAttributes() then
-                            fillInstanceAttrs instance n
-                        else
-                            fillDocHole instance n
+                if not singleTextFill then
+                    for i = 0 to el.ChildNodes.Length - 1 do
+                        let n = el.ChildNodes.[i]
+                        if n.NodeType = Dom.NodeType.Element then
+                            let n = n :?> Dom.Element
+                            if n.HasAttributes() then
+                                fillInstanceAttrs instance n
+                            else
+                                fillDocHole instance n
                 mapHoles instance mappings
                 // 4. insert result.
                 while instance.HasChildNodes() do

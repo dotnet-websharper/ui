@@ -244,6 +244,7 @@ module Impl =
             | HoleKind.Simple, HoleKind.Var ty ->
                 holes.[name] <- def
             | HoleKind.Simple _, _ -> fail()
+            | HoleKind.Unknown, _ -> failwith "Unknown hole kind; should not happen."
 
     let isNonScriptSpecialTag n =
         n = "styles" || n = "meta"
@@ -301,19 +302,24 @@ module Impl =
                 if a.Name.StartsWith "ws-" then () else
                 let holeName = match a.Value with "" -> a.OriginalName | s -> s
                 state.AddHole holeName {
-                    HoleDefinition.Kind = HoleKind.Mapped (fileName, templateName, a.Name, HoleKind.Unknown)
+                    HoleDefinition.Kind = HoleKind.Mapped (fileName, templateName, a.OriginalName, HoleKind.Unknown)
                     HoleDefinition.Line = a.Line
                     HoleDefinition.Column = a.LinePosition
                 }
-                holeMaps.[a.Name] <- a.Value
-            for c in node.ChildNodes do
-                if not (c :? HtmlTextNode || c :? HtmlCommentNode) then
-                    if c.HasAttributes then
-                        attrs.[c.Name] <- parseAttributesOf c state.AddHole
-                    else
-                        contentHoles.[c.Name] <- parseNodeAndSiblings false state c
+                holeMaps.[a.OriginalName] <- holeName
             state.AddRef (fileName, templateName)
-            Some (Node.Instantiate(fileName, templateName, holeMaps, attrs, contentHoles))
+            let textHole =
+                if node.ChildNodes.Count = 1 && node.FirstChild.NodeType = HtmlNodeType.Text then
+                    Some (node.FirstChild :?> HtmlTextNode).Text
+                else
+                    for c in node.ChildNodes do
+                        if not (c :? HtmlTextNode || c :? HtmlCommentNode) then
+                            if c.HasAttributes then
+                                attrs.[c.Name] <- parseAttributesOf c state.AddHole
+                            else
+                                contentHoles.[c.Name] <- parseNodeAndSiblings false state c.FirstChild
+                    None
+            Some (Node.Instantiate(fileName, templateName, holeMaps, attrs, contentHoles, textHole))
         else None
 
     and parseNodeAndSiblings isSvg (state: ParseState) (node: HtmlNode) =
@@ -470,6 +476,68 @@ let transitiveClosure err (direct: Map<'A, Set<'A>>) : Map<'A, Set<'A>> =
             ||> Map.add k
     Map.foldBack (closureOf []) direct Map.empty
 
+let private checkInstantiations (items: ParseItem[]) =
+    for item in items do
+        item.Templates |> Seq.iter (fun (KeyValue(_, t)) ->
+            let rec checkNode = function
+                | Node.DocHole _
+                | Node.Text _ -> ()
+                | Node.Input(children = children)
+                | Node.Element(children = children) -> Array.iter checkNode children
+                | Node.Instantiate(fileName, templateName, holeMaps, attrHoles, contentHoles, textHole) ->
+                    match fileName with
+                    | None -> Some item
+                    | Some fileId -> items |> Array.tryFind (fun i -> i.Id = fileId)
+                    |> Option.bind (fun it -> it.Templates.TryFind (WrappedTemplateName.OfOption templateName))
+                    |> Option.iter (fun t' ->
+                        let fail holeId fmt = failwithf fmt (defaultArg fileName "") (defaultArg templateName "") holeId
+                        let findAndTest test holeId =
+                            match t'.Holes.TryGetValue holeId with
+                            | false, _ -> fail holeId "Instantiation of %s/%s fills hole that doesn't exist: %s."
+                            | true, { Kind = kind } -> test kind
+                        contentHoles |> Seq.iter (fun (KeyValue(holeId, nodes)) ->
+                            let rec test = function
+                                | HoleKind.ElemHandler | HoleKind.Event | HoleKind.Unknown | HoleKind.Var _ ->
+                                    fail holeId "Instantiation of %s/%s fills hole that can only be mapped: %s."
+                                | HoleKind.Attr ->
+                                    fail holeId "Instantiation of %s/%s fills attr hole with doc content: %s."
+                                | HoleKind.Doc -> ()
+                                | HoleKind.Mapped (kind = kind) -> test kind
+                                | HoleKind.Simple ->
+                                    match nodes with
+                                    | [| Node.Text _ |] -> ()
+                                    | _ -> fail holeId "Instantiation of %s/%s fills text hole with non-text content: %s."
+                            findAndTest test holeId
+                        )
+                        attrHoles |> Seq.iter (fun (KeyValue(holeId, _)) ->
+                            let rec test = function
+                                | HoleKind.Attr -> ()
+                                | HoleKind.Mapped (kind = kind) -> test kind
+                                | _ -> fail holeId "Instantiation of %s/%s fills non-attr hole as an attr: %s."
+                            findAndTest test holeId
+                        )
+                        textHole |> Option.iter (fun _ ->
+                            if
+                                (false, t'.Holes)
+                                ||> Seq.fold (fun isSet (KeyValue(holeId, holeDef)) ->
+                                    let rec test = function
+                                        | HoleKind.ElemHandler | HoleKind.Event | HoleKind.Unknown | HoleKind.Var _ | HoleKind.Attr -> isSet
+                                        | HoleKind.Doc -> fail holeId "Instantiation of %s/%s fills a text hole, but there is a Doc hole: %s."
+                                        | HoleKind.Simple ->
+                                            if isSet then fail "" "Instantiation of %s/%s fills a text hole, but there are several.%s"
+                                            true
+                                        | HoleKind.Mapped (kind = kind) -> test kind
+                                    test holeDef.Kind
+                                )
+                                |> not
+                            then
+                                fail "" "Instantiation of %s/%s fills a text hole, but there is none.%s"
+                        )
+                    )
+            Array.iter checkNode t.Value
+        )
+    items
+
 let private checkMappedHoles (items: ParseItem[]) =
     let closedReferences =
         Map [
@@ -479,19 +547,22 @@ let private checkMappedHoles (items: ParseItem[]) =
         ]
         |> transitiveClosure (fun (path, tpl) ->
             failwithf "Template references itself: %s/%s" path (defaultArg tpl ""))
-    for item in items do
-        let doContinue = ref true
-        while !doContinue do
-            doContinue := false
-            item.Templates |> Seq.iter (fun (KeyValue(_, t)) ->
+    let doContinue = ref true
+    while !doContinue do
+        doContinue := false
+        for item in items do
+            item.Templates |> Seq.iter (fun (KeyValue(tname, t)) ->
                 t.Holes.Keys
                 |> Array.ofSeq
                 |> Array.iter (fun k ->
-                    match t.Holes.[k].Kind with
-                    | HoleKind.Mapped (fileName, templateName, holeName, m) ->
-                        match m with
-                        | HoleKind.Mapped (_, _, _, HoleKind.Unknown) -> doContinue := true
-                        | _ -> ()
+                    let rec f = function
+                        | HoleKind.Mapped (_, _, _, (HoleKind.Mapped _ as m)) -> f m
+                        | HoleKind.Mapped (fileName, templateName, holeName, HoleKind.Unknown) -> Some (fileName, templateName, holeName)
+                        | _ -> None
+                    ()
+                    match f t.Holes.[k].Kind with
+                    | Some (fileName, templateName, holeName) ->
+                        doContinue := true
                         let templates =
                             match fileName with
                             | None -> item.Templates
@@ -536,6 +607,7 @@ let Parse (pathOrXml: string) (rootFolder: string) =
                     }
                 |]
                 |> checkMappedHoles
+                |> checkInstantiations
         }
     else
         let paths =
@@ -559,4 +631,5 @@ let Parse (pathOrXml: string) (rootFolder: string) =
                     }
                 )
                 |> checkMappedHoles
+                |> checkInstantiations
         }

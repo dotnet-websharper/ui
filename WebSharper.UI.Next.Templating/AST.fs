@@ -67,10 +67,10 @@ type Attr =
 [<RequireQualifiedAccess>]
 type Node =
     | Text of StringPart[]
-    | Element of nodeName: string * isSvg: bool * Attr[] * children: Node[]
-    | Input of nodeName: string * var: HoleName * Attr[] * children: Node[]
+    | Element of nodeName: string * isSvg: bool * attrs: Attr[] * children: Node[]
+    | Input of nodeName: string * var: HoleName * attrs: Attr[] * children: Node[]
     | DocHole of HoleName
-    | Instantiate of fileName: option<string> * templateName: option<string> * holeMaps: Dictionary<string, string> * attrs: Dictionary<string, Attr[]> * contentHoles: Dictionary<string, Node[]>
+    | Instantiate of fileName: option<string> * templateName: option<string> * holeMaps: Dictionary<string, string> * attrHoles: Dictionary<string, Attr[]> * contentHoles: Dictionary<string, Node[]> * textHole: option<string>
 
 type Template =
     {
