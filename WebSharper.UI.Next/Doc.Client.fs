@@ -804,7 +804,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             let holedAttrs = [||]
             for i = 0 to attrs.Length - 1 do
                 let a = attrs.[i]
-                if a.NodeName.StartsWith "ws-on" && a.NodeName <> "ws-onafterrender" then
+                if a.NodeName.StartsWith "ws-on" && a.NodeName <> "ws-onafterrender" && a.NodeName <> "ws-on" then
                     toRemove.JS.Push(a.NodeName) |> ignore
                     events.JS.Push(a.NodeName.["ws-on".Length..] + ":" + a.NodeValue.ToLower()) |> ignore
                 elif not (a.NodeName.StartsWith "ws-") && RegExp(Docs.TextHoleRE).Test(a.NodeValue) then
