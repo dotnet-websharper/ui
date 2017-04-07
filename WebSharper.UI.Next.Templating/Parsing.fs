@@ -403,10 +403,16 @@ module Impl =
             let el = normalElement n isSvg (lazy templateForChildren.Value) state
             let a = n.GetAttributeValue(TemplateAttr, null)
             n.Attributes.Remove(TemplateAttr)
+            let txt =
+                let replace = n.Attributes.["ws-replace"]
+                if replace <> null then n.Attributes.Remove(replace)
+                let s = n.WriteTo()
+                if replace <> null then n.Attributes.Add(replace)
+                s
             let t =
                 {
                     Value = [| el |]
-                    Src = n.WriteTo()
+                    Src = txt
                     Line = n.Line
                     Column = n.LinePosition
                     References = Set.union templateForChildren.References state.References

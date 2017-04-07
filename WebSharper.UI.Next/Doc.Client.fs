@@ -619,12 +619,12 @@ type private Doc' [<JavaScript>] (docNode, updates) =
 
         DomUtility.IterSelector el "[ws-hole]" <| fun p ->
             let name = p.GetAttribute("ws-hole")
+            p.RemoveAttribute("ws-hole")
+            while (p.HasChildNodes()) do
+                p.RemoveChild(p.LastChild) |> ignore
             match tryGetAsDoc name with
             | None -> Console.Warn("Unfilled hole", name)
             | Some doc ->
-                p.RemoveAttribute("ws-hole")
-                while (p.LastChild !==. null) do
-                    p.RemoveChild(p.LastChild) |> ignore
                 Docs.LinkElement p doc.DocNode
                 holes.JS.Push {
                     Attr = Attrs.Empty p
