@@ -85,17 +85,17 @@ type Runtime private () =
     /// See http://krasimirtsonev.com/blog/article/Revealing-the-magic-how-to-properly-convert-HTML-string-to-a-DOM-element
     static let templateWrappers =
         Map [
-            Some "option", ("""<select multiple="multiple" display="none" {0}="{1}">""", "</select>")
-            Some "legend", ("""<fieldset display="none" {0}="{1}">""", "</fieldset>")
-            Some "area", ("""<map display="none" {0}="{1}">""", "</map>")
-            Some "param", ("""<object display="none" {0}="{1}">""", "</object>")
-            Some "thead", ("""<table display="none" {0}="{1}">""", "</table>")
-            Some "tbody", ("""<table display="none" {0}="{1}">""", "</table>")
-            Some "tr", ("""<table display="none"><tbody {0}="{1}">""", """</tbody></table>""")
-            Some "col", ("""<table display="none"><tbody></tbody><colgroup {0}="{1}">""", """</colgroup></table>""")
-            Some "td", ("""<table display="none"><tbody><tr {0}="{1}">""", """</tr></tbody></table>""")
+            Some "option", ("""<select multiple="multiple" style="display:none" {0}="{1}">""", "</select>")
+            Some "legend", ("""<fieldset style="display:none" {0}="{1}">""", "</fieldset>")
+            Some "area", ("""<map style="display:none" {0}="{1}">""", "</map>")
+            Some "param", ("""<object style="display:none" {0}="{1}">""", "</object>")
+            Some "thead", ("""<table style="display:none" {0}="{1}">""", "</table>")
+            Some "tbody", ("""<table style="display:none" {0}="{1}">""", "</table>")
+            Some "tr", ("""<table style="display:none"><tbody {0}="{1}">""", """</tbody></table>""")
+            Some "col", ("""<table style="display:none"><tbody></tbody><colgroup {0}="{1}">""", """</colgroup></table>""")
+            Some "td", ("""<table style="display:none"><tbody><tr {0}="{1}">""", """</tr></tbody></table>""")
         ]
-    static let defaultTemplateWrappers = ("""<div display="none" {0}="{1}">""", "</div>")
+    static let defaultTemplateWrappers = ("""<div style="display:none" {0}="{1}">""", "</div>")
 
     static member GetOrLoadTemplate
             (
