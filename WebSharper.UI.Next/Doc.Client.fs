@@ -893,10 +893,14 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 DomUtility.IterSelector instance ("[" + attrName + "]") <| fun e ->
                     if not (dontRemove.Contains(e.GetAttribute attrName)) then
                         e.RemoveAttribute(attrName)
-            run "ws-hole"
             run "ws-attr"
             run "ws-onafterrender"
             run "ws-var"
+            DomUtility.IterSelector instance "[ws-hole]" <| fun e ->
+                if not (dontRemove.Contains(e.GetAttribute "ws-hole")) then
+                    e.RemoveAttribute("ws-hole")
+                    while e.HasChildNodes() do
+                        e.RemoveChild(e.LastChild) |> ignore
             DomUtility.IterSelector instance "[ws-replace]" <| fun e ->
                 if not (dontRemove.Contains(e.GetAttribute "ws-replace")) then
                     e.ParentElement.RemoveChild(e) |> ignore
