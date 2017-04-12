@@ -937,16 +937,13 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             let fillHole (p: Dom.Element) (n: Dom.Node) =
                 // The "title" node is treated specially by HTML, its content is considered pure text,
                 // so we need to re-parse it.
-                if name = "title" then
-                    (JQuery.JQuery.ParseHTML fillWith.TextContent, n)
-                    ||> Array.foldBack (fun e n ->
-                        if e.NodeType = Dom.NodeType.Element then
-                            convertElement (e :?> Dom.Element)
-                        p.InsertBefore(e, n))
-                    |> ignore
-                else
-                    convertElement fillWith
-                    fill fillWith p n
+                if name = "title" && fillWith.HasChildNodes() then
+                    let parsed = JQuery.JQuery.ParseHTML fillWith.TextContent
+                    fillWith.RemoveChild(fillWith.FirstChild) |> ignore
+                    for i in parsed do
+                        fillWith.AppendChild(i) |> ignore
+                convertElement fillWith
+                fill fillWith p n
             DomUtility.IterSelector instance "[ws-attr-holes]" <| fun e ->
                 let holeAttrs = e.GetAttribute("ws-attr-holes").Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
                 for attrName in holeAttrs do

@@ -9,10 +9,11 @@
         <span ws-hole="Hole"></span>
     </li>
 </ul>
+<p ws-children-template="Replace2"><b>hello</b><b> ${Replace2}!</b></p>
 <ws-ListItem Key="LIKey" FontStyle="LIFontStyle" Name="LIName">
     <KeyAttr style="color: blue" class="class2 ${Class3}" ws-attr="LIExtraAttr" />
     <FontWeight>bold</FontWeight>
-    <Title><b>hello</b><b> ${Replace2}!</b></Title>
+    <Title><ws-Replace2 Replace2></ws-Replace2></Title>
     <Hole><ws-L3 MIAttr>Ok</ws-L3></Hole>
 </ws-ListItem>
 <div ws-attr="Attr">
