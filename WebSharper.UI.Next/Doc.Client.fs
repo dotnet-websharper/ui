@@ -934,6 +934,19 @@ type private Doc' [<JavaScript>] (docNode, updates) =
 
         let rec fillDocHole (instance: Dom.Element) (fillWith: Dom.Element) =
             let name = fillWith.NodeName.ToLower()
+            let fillHole (p: Dom.Element) (n: Dom.Node) =
+                // The "title" node is treated specially by HTML, its content is considered pure text,
+                // so we need to re-parse it.
+                if name = "title" then
+                    (JQuery.JQuery.ParseHTML fillWith.TextContent, n)
+                    ||> Array.foldBack (fun e n ->
+                        if e.NodeType = Dom.NodeType.Element then
+                            convertElement (e :?> Dom.Element)
+                        p.InsertBefore(e, n))
+                    |> ignore
+                else
+                    convertElement fillWith
+                    fill fillWith p n
             DomUtility.IterSelector instance "[ws-attr-holes]" <| fun e ->
                 let holeAttrs = e.GetAttribute("ws-attr-holes").Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
                 for attrName in holeAttrs do
@@ -941,19 +954,18 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                         RegExp("\\${" + name + "}", "ig").
                             Replace(e.GetAttribute(attrName), fillWith.TextContent)
                     )
-            convertElement fillWith
             match instance.QuerySelector("[ws-hole=" + name + "]") with
             | null ->
                 match instance.QuerySelector("[ws-replace=" + name + "]") with
                 | null -> ()
                 | e ->
-                    fill fillWith e.ParentElement e
+                    fillHole e.ParentElement e
                     e.ParentElement.RemoveChild(e) |> ignore
             | e ->
                 while e.HasChildNodes() do
                     e.RemoveChild(e.LastChild) |> ignore
                 e.RemoveAttribute("ws-hole")
-                fill fillWith e null
+                fillHole e null
 
         and convertInstantiation (el: Dom.Element) =
             let name = el.NodeName.[3..].ToLower()
