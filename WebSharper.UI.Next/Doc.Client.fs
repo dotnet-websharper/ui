@@ -615,7 +615,8 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             | true, TemplateHole.VarIntUnchecked (_, v) -> Some (Doc'.TextView (v.View.Map string))
             | true, TemplateHole.VarFloat (_, v) -> Some (Doc'.TextView (v.View.Map (fun i -> i.Input)))
             | true, TemplateHole.VarFloatUnchecked (_, v) -> Some (Doc'.TextView (v.View.Map string))
-            | _ -> None
+            | true, _ -> Console.Warn("Content hole filled with attribute data", name); None
+            | false, _ -> None
 
         DomUtility.IterSelector el "[ws-hole]" <| fun p ->
             let name = p.GetAttribute("ws-hole")
@@ -623,7 +624,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             while (p.HasChildNodes()) do
                 p.RemoveChild(p.LastChild) |> ignore
             match tryGetAsDoc name with
-            | None -> Console.Warn("Unfilled hole", name)
+            | None -> ()
             | Some doc ->
                 Docs.LinkElement p doc.DocNode
                 holes.JS.Push {
@@ -640,7 +641,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
         DomUtility.IterSelector el "[ws-replace]" <| fun e ->
             let name = e.GetAttribute("ws-replace")
             match tryGetAsDoc name with
-            | None -> Console.Warn("Unfilled replace", name)
+            | None -> ()
             | Some doc ->
                 let p = e.ParentElement
                 let after = JS.Document.CreateTextNode("") :> Dom.Node
@@ -665,7 +666,8 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             e.RemoveAttribute("ws-attr")
             match fw.TryGetValue(name) with
             | true, TemplateHole.Attribute (_, attr) -> addAttr e attr
-            | _ -> Console.Warn("Unfilled attr", name)
+            | true, _ -> Console.Warn("Attribute hole filled with non-attribute data", name)
+            | false, _ -> ()
 
         DomUtility.IterSelector el "[ws-on]" <| fun e ->
             e.GetAttribute("ws-on").Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
@@ -673,9 +675,10 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 let a = x.Split([|':'|], StringSplitOptions.RemoveEmptyEntries)
                 match fw.TryGetValue(a.[1]) with
                 | true, TemplateHole.Event (_, handler) -> Some (Attr.Handler a.[0] handler)
-                | _ ->
-                    Console.Warn("Unfilled on" + a.[0], a.[1])
+                | true, _ ->
+                    Console.Warn("Event hole on" + a.[0] + " filled with non-event data", a.[1])
                     None
+                | false, _ -> None
             )
             |> Attr.Concat
             |> addAttr e
@@ -687,7 +690,8 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             | true, TemplateHole.AfterRender (_, handler) ->
                 e.RemoveAttribute("ws-onafterrender")
                 addAttr e (Attr.OnAfterRender handler)
-            | _ -> Console.Warn("Unfilled onafterrender", name)
+            | true, _ -> Console.Warn("onafterrender hole filled with non-onafterrender data", name)
+            | false, _ -> ()
 
         DomUtility.IterSelector el "[ws-var]" <| fun e ->
             let name = e.GetAttribute("ws-var")
@@ -699,7 +703,8 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             | true, TemplateHole.VarIntUnchecked (_, var) -> addAttr e (Attr.IntValueUnchecked var)
             | true, TemplateHole.VarFloat (_, var) -> addAttr e (Attr.FloatValue var)
             | true, TemplateHole.VarFloatUnchecked (_, var) -> addAttr e (Attr.FloatValueUnchecked var)
-            | _ -> Console.Warn("Unfilled var", name)
+            | true, _ -> Console.Warn("Var hole filled with non-Var data", name)
+            | false, _ -> ()
 
         DomUtility.IterSelector el "[ws-attr-holes]" <| fun e ->
             let re = new RegExp(Docs.TextHoleRE, "g")
@@ -729,7 +734,10 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                             | true, TemplateHole.VarIntUnchecked (_, v) -> Choice2Of2 (v.View.Map string)
                             | true, TemplateHole.VarFloat (_, v) -> Choice2Of2 (v.View.Map (fun i -> i.Input))
                             | true, TemplateHole.VarFloatUnchecked (_, v) -> Choice2Of2 (v.View.Map string)
-                            | _ -> Console.Warn("Unfilled attribute hole", holeName); Choice1Of2 ""
+                            | true, _ ->
+                                Console.Warn("Attribute value hole filled with non-text data", holeName)
+                                Choice1Of2 ""
+                            | false, _ -> Choice1Of2 ""
                         match holeContent with
                         | Choice1Of2 text -> textBefore + text + textAfter, views
                         | Choice2Of2 v ->
