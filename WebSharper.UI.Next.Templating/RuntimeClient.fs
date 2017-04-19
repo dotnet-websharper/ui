@@ -92,6 +92,7 @@ type GetOrLoadTemplateMacro() =
 
     override this.TranslateCall(call) =
         let comp = call.Compilation
+        let top = comp.AssemblyName.Replace(".","$") + "_Templates"
         let keyOf src =
             match src with
             | I.Value (String s) -> 
@@ -115,7 +116,7 @@ type GetOrLoadTemplateMacro() =
                     match ExtractOption name with
                     | Some (I.Value (String n)) -> n
                     | _ -> "t"
-                let td, m, _ = comp.NewGenerated [ "WebSharper"; "UI"; "Next"; "Templates"; n ]
+                let td, m, _ = comp.NewGenerated [ top; n ]
                 let holesId = Id.New "h"
                 let nameId = Id.New "n"
                 let expr =
