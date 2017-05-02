@@ -139,7 +139,7 @@ type ListModel<'Key,'T when 'Key : equality> with
     /// Removes an item.
     member Remove : 'T -> unit
 
-    /// Removes an item.
+    /// Removes all items satisfying the given predicate.
     member RemoveBy : ('T -> bool) -> unit
 
     /// Removes an item by its key.
