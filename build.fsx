@@ -115,9 +115,9 @@ let cstest =
 
 bt.Solution [
     main
+    tmpl
     csharp
     csharpTmpl
-    tmpl
     test
     tmplTest
     serverTest

@@ -618,18 +618,14 @@ let Parse (pathOrXml: string) (rootFolder: string) =
     else
         let paths =
             pathOrXml.Split([|','|], StringSplitOptions.RemoveEmptyEntries)
-            |> Array.map (fun path ->
-                let path = path.Trim()
-                if Path.IsPathRooted path
-                then path
-                else Path.Combine(rootFolder, path)
-            )
         {
             ParseKind = ParseKind.Files paths
             Items =
                 paths
                 |> Array.map (fun path ->
-                    let templates = ParseSource (ParseItem.GetIdFromPath path) (File.ReadAllText path)
+                    let path = path.Trim()
+                    let rootedPath = Path.Combine(rootFolder, path)
+                    let templates = ParseSource (ParseItem.GetIdFromPath path) (File.ReadAllText rootedPath)
                     {
                         Templates = templates
                         Path = Some path

@@ -306,17 +306,19 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
         | Parsing.ParseKind.Inline -> ()
         | Parsing.ParseKind.Files paths ->
             paths |> Array.iter (fun path ->
-                if not (watchers.ContainsKey path) then
+                let rootedPath = Path.Combine(cfg.ResolutionFolder, path)
+                if not (watchers.ContainsKey rootedPath) then
                     let watcher =
-                        new FileSystemWatcher(Path.GetDirectoryName path, Path.GetFileName path,
+                        new FileSystemWatcher(
+                            Path.GetDirectoryName rootedPath, Path.GetFileName rootedPath,
                             NotifyFilter = watcherNotifyFilter, EnableRaisingEvents = true
                         )
-                    let inv _ = invalidateFile path watcher
+                    let inv _ = invalidateFile rootedPath watcher
                     watcher.Changed.Add inv
                     watcher.Deleted.Add inv
                     watcher.Renamed.Add inv
                     watcher.Created.Add inv
-                    watchers.Add(path, watcher)
+                    watchers.Add(rootedPath, watcher)
             )
 
     let setupTP () =
