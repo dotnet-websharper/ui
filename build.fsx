@@ -62,6 +62,7 @@ let csharpTmpl =
         .SourcesFromProject()
         .References(fun r ->
             [
+                r.Project tmpl
                 r.Assembly "System.Xml"
                 r.Assembly "System.Xml.Linq"
             ])
