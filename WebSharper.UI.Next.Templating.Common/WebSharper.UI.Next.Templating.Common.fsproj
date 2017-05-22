@@ -41,6 +41,7 @@
     <Compile Include="Parsing.fs" />
     <Compile Include="Runtime.fs" />
     <Compile Include="RuntimeClient.fs" />
+    <Compile Include="CodeGen.fs" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '11.0'">

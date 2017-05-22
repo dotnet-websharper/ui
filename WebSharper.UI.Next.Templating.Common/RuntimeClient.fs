@@ -176,7 +176,7 @@ type RuntimeProxy =
                 name: option<string>,
                 path: option<string>,
                 src: string,
-                fillWith: list<TemplateHole>,
+                fillWith: seq<TemplateHole>,
                 inlineBaseName: option<string>,
                 serverLoad: ServerLoad,
                 refs: array<string * option<string> * string>

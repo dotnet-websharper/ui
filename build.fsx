@@ -125,6 +125,7 @@ let cstest =
         .References(fun r ->
             [
                 r.Project main
+                r.Project tmplCommon
                 r.Project csharp
             ])
 

@@ -169,10 +169,6 @@ module private Impl =
         | Some x -> <@ Some (%%Expr.Value x : 'T) @>
 
     let finalMethodBody (ctx: Ctx) (wrap: Expr<Doc> -> Expr) = fun (args: list<Expr>) ->
-        // We use separate methods, rather than just passing clientLoad as argument,
-        // because the client-side implementation is [<Inline>] so it can drop
-        // any arguments it doesn't need (in particular src can be quite big)
-        // and each clientLoad needs different arguments.
         let name = ctx.Id |> Option.map (fun s -> s.ToLowerInvariant())
         let references =
             Expr.NewArray(typeof<string * option<string> * string>,
