@@ -1,7 +1,7 @@
 ﻿<#@ template debug="false" hostspecific="true" language="C#" #>
 <#@ assembly name="System.Core" #>
 <#@ assembly name="System.Xml.Linq" #>
-<#@ assembly name="C:/repo/websharper.ui.next/build/net40/WebSharper.UI.Next.CSharp.Templating.dll" #>
+<#@ assembly name="$(SolutionDir)build/net40/WebSharper.UI.Next.CSharp.Templating.dll" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>

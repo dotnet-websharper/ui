@@ -36,12 +36,25 @@ do
             System.IO.Path.Combine(__SOURCE_DIRECTORY__, "WebSharper.UI.Next.Templating", f)
         )
 
+let tmplCommon =
+    bt.Zafir.Library("WebSharper.UI.Next.Templating.Common")
+        .SourcesFromProject()
+        .References(fun r ->
+            [
+                r.Project main
+                r.Assembly "System.Xml"
+                r.Assembly "System.Xml.Linq"
+                r.Assembly "System.Runtime.Caching"
+                r.NuGet("HtmlAgilityPack").Version("1.4.9.5").Reference()
+            ])
+
 let tmpl =
     bt.Zafir.Library("WebSharper.UI.Next.Templating")
         .SourcesFromProject()
         .References(fun r ->
             [
                 r.Project main
+                r.Project tmplCommon
                 r.Assembly "System.Xml"
                 r.Assembly "System.Xml.Linq"
                 r.Assembly "System.Runtime.Caching"
@@ -62,7 +75,7 @@ let csharpTmpl =
         .SourcesFromProject()
         .References(fun r ->
             [
-                r.Project tmpl
+                r.Project tmplCommon
                 r.Assembly "System.Xml"
                 r.Assembly "System.Xml.Linq"
             ])
@@ -86,6 +99,7 @@ let tmplTest =
         .References(fun r ->
             [
                 r.Project main
+                r.Project tmplCommon
                 r.Project tmpl
                 r.NuGet("HtmlAgilityPack").Version("1.4.9.5").Reference()
             ])
@@ -98,6 +112,7 @@ let serverTest =
         .References(fun r ->
             [
                 r.Project main
+                r.Project tmplCommon
                 r.Project tmpl
                 r.NuGet("HtmlAgilityPack").Version("1.4.9.5").Reference()
             ])
@@ -115,6 +130,7 @@ let cstest =
 
 bt.Solution [
     main
+    tmplCommon
     tmpl
     csharp
     csharpTmpl

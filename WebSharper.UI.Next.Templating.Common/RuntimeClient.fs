@@ -18,7 +18,7 @@
 //
 // $end{copyright}
 
-module internal WebSharper.UI.Next.Templating.RuntimeClient
+module WebSharper.UI.Next.Templating.RuntimeClient
 
 open WebSharper
 open WebSharper.Core
