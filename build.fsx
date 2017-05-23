@@ -2,6 +2,8 @@
 open IntelliFactory.Core
 open IntelliFactory.Build
 
+let htmlAgilityPackVersion = "1.4.9.5"
+
 let bt =
     BuildTool().PackageId("Zafir.UI.Next")
         .VersionFrom("Zafir")
@@ -45,7 +47,7 @@ let tmplCommon =
                 r.Assembly "System.Xml"
                 r.Assembly "System.Xml.Linq"
                 r.Assembly "System.Runtime.Caching"
-                r.NuGet("HtmlAgilityPack").Version("1.4.9.5").Reference()
+                r.NuGet("HtmlAgilityPack").Version(htmlAgilityPackVersion).Reference()
             ])
 
 let tmpl =
@@ -58,7 +60,7 @@ let tmpl =
                 r.Assembly "System.Xml"
                 r.Assembly "System.Xml.Linq"
                 r.Assembly "System.Runtime.Caching"
-                r.NuGet("HtmlAgilityPack").Version("1.4.9.5").Reference()
+                r.NuGet("HtmlAgilityPack").Version(htmlAgilityPackVersion).Reference()
             ])
 
 let csharp =
@@ -101,7 +103,7 @@ let tmplTest =
                 r.Project main
                 r.Project tmplCommon
                 r.Project tmpl
-                r.NuGet("HtmlAgilityPack").Version("1.4.9.5").Reference()
+                r.NuGet("HtmlAgilityPack").Version(htmlAgilityPackVersion).Reference()
             ])
 
 let serverTest =
@@ -114,7 +116,7 @@ let serverTest =
                 r.Project main
                 r.Project tmplCommon
                 r.Project tmpl
-                r.NuGet("HtmlAgilityPack").Version("1.4.9.5").Reference()
+                r.NuGet("HtmlAgilityPack").Version(htmlAgilityPackVersion).Reference()
             ])
 
 let cstest =
@@ -129,23 +131,12 @@ let cstest =
                 r.Project csharp
             ])
 
-bt.Solution [
-    main
-    tmplCommon
-    tmpl
-    csharp
-    csharpTmpl
-    test
-    tmplTest
-    serverTest
-
+let mainNupkg =
     bt.NuGet.CreatePackage()
         .Add(main)
+        .Add(tmplCommon)
         .Add(tmpl)
         .Add(csharp)
-        .AddFile("msbuild/Zafir.UI.Next.targets", "build/Zafir.UI.Next.targets")
-//        .AddFile("build/net40/FSharp.Core.dll", "tools/FSharp.Core.dll") // relying on GAC now
-        .AddFile("build/net40/WebSharper.UI.Next.CSharp.Templating.dll", "tools/WebSharper.UI.Next.CSharp.Templating.dll")
         .Configure(fun c -> 
             { c with
                 Authors = [ "IntelliFactory" ]
@@ -155,8 +146,14 @@ bt.Solution [
                 Description = "Next-generation user interface combinators for WebSharper"
                 RequiresLicenseAcceptance = false })
 
+let csharpTmplNupkg =
     btcstmpl.NuGet.CreatePackage()
-        .Add(csharpTmpl)
+        .AddPackage(mainNupkg)
+        .AddFile("msbuild/Zafir.UI.Next.CSharp.Templating.targets", "build/Zafir.UI.Next.CSharp.Templating.targets")
+//        .AddFile("build/net40/FSharp.Core.dll", "tools/FSharp.Core.dll") // relying on GAC now
+        .AddFile("packages/HtmlAgilityPack."+htmlAgilityPackVersion+"/lib/Net40/HtmlAgilityPack.dll", "tools/HtmlAgilityPack.dll")
+        .AddFile("build/net40/WebSharper.UI.Next.CSharp.Templating.dll", "tools/WebSharper.UI.Next.CSharp.Templating.dll")
+        .AddFile("build/net40/WebSharper.UI.Next.Templating.Common.dll", "tools/WebSharper.UI.Next.Templating.Common.dll")
         .Configure(fun c -> 
             { c with
                 Authors = [ "IntelliFactory" ]
@@ -165,6 +162,18 @@ bt.Solution [
                 ProjectUrl = Some "https://github.com/intellifactory/websharper.ui.next"
                 Description = "C# Template code generator for WebSharper UI.Next"
                 RequiresLicenseAcceptance = false })
+
+bt.Solution [
+    main
+    tmplCommon
+    tmpl
+    csharp
+    csharpTmpl
+    test
+    tmplTest
+    serverTest
+    mainNupkg
+    csharpTmplNupkg
 ]
 |> bt.Dispatch
 
