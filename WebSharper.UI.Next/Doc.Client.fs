@@ -207,10 +207,10 @@ module Docs =
     /// Links an element to previous siblings by inserting them.
     [<MethodImpl(MethodImplOptions.NoInlining)>]
     let LinkPrevElement (el: Node) children =
-        InsertDoc el.ParentElement children (DU.BeforeNode el) |> ignore
+        InsertDoc (el.ParentNode :?> _) children (DU.BeforeNode el) |> ignore
 
     let InsertBeforeDelim (afterDelim: Dom.Node) (doc: DocNode) =
-        let p = afterDelim.ParentElement
+        let p = afterDelim.ParentNode
         let before = JS.Document.CreateTextNode("") :> Dom.Node
         p.InsertBefore(before, afterDelim) |> ignore
         LinkPrevElement afterDelim doc
@@ -311,7 +311,7 @@ module Docs =
 
     /// Creates an element node that handles a delimited subset of its children.
     let CreateDelimitedElemNode (ldelim: Node) (rdelim: Node) attr children =
-        let el = ldelim.ParentElement
+        let el = ldelim.ParentNode :?> Dom.Element
         LinkPrevElement rdelim children
         let attr = Attrs.Insert el attr
         {
@@ -643,7 +643,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             match tryGetAsDoc name with
             | None -> ()
             | Some doc ->
-                let p = e.ParentElement
+                let p = e.ParentNode :?> Dom.Element
                 let after = JS.Document.CreateTextNode("") :> Dom.Node
                 p.ReplaceChild(after, e) |> ignore
                 let before = Docs.InsertBeforeDelim after doc.DocNode
@@ -791,7 +791,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
         | null -> ()
         | replace ->
             el.RemoveAttribute("ws-replace")
-            match el.ParentElement with
+            match el.ParentNode with
             | null -> ()
             | p ->
                 let n = JS.Document.CreateElement(el.TagName)
@@ -911,7 +911,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                         e.RemoveChild(e.LastChild) |> ignore
             DomUtility.IterSelector instance "[ws-replace]" <| fun e ->
                 if not (dontRemove.Contains(e.GetAttribute "ws-replace")) then
-                    e.ParentElement.RemoveChild(e) |> ignore
+                    e.ParentNode.RemoveChild(e) |> ignore
             DomUtility.IterSelector instance "[ws-on]" <| fun e ->
                 let a =
                     e.GetAttribute("ws-on").Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
@@ -937,16 +937,16 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 Console.Warn("Filling non-existent text hole", name)
                 None
             | n ->
-                n.ParentElement.ReplaceChild(Dom.Text fillWith, n) |> ignore
+                n.ParentNode.ReplaceChild(Dom.Text fillWith, n) |> ignore
                 Some <| n.GetAttribute("ws-replace")
 
-        let rec fill (fillWith: Dom.Element) (p: Dom.Element) n =
+        let rec fill (fillWith: Dom.Element) (p: Dom.Node) n =
             if fillWith.HasChildNodes() then
                 fill fillWith p (p.InsertBefore(fillWith.LastChild, n))
 
         let rec fillDocHole (instance: Dom.Element) (fillWith: Dom.Element) =
             let name = fillWith.NodeName.ToLower()
-            let fillHole (p: Dom.Element) (n: Dom.Node) =
+            let fillHole (p: Dom.Node) (n: Dom.Node) =
                 // The "title" node is treated specially by HTML, its content is considered pure text,
                 // so we need to re-parse it.
                 if name = "title" && fillWith.HasChildNodes() then
@@ -968,8 +968,8 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 match instance.QuerySelector("[ws-replace=" + name + "]") with
                 | null -> ()
                 | e ->
-                    fillHole e.ParentElement e
-                    e.ParentElement.RemoveChild(e) |> ignore
+                    fillHole e.ParentNode e
+                    e.ParentNode.RemoveChild(e) |> ignore
             | e ->
                 while e.HasChildNodes() do
                     e.RemoveChild(e.LastChild) |> ignore
@@ -1025,8 +1025,8 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                                 fillDocHole instance n
                 mapHoles instance mappings
                 // 5. insert result.
-                fill instance el.ParentElement el
-                el.ParentElement.RemoveChild(el) |> ignore
+                fill instance el.ParentNode el
+                el.ParentNode.RemoveChild(el) |> ignore
 
         and convertElement (el: Dom.Element) =
             if el.NodeName.ToLower().StartsWith "ws-" && not (el.HasAttribute "ws-template") then
@@ -1062,7 +1062,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
         if not (Docs.LoadedTemplates.ContainsKey(Doc'.ComposeName baseName name)) then
             let els = els()
             for el in els do
-                match el.ParentElement with
+                match el.ParentNode :?> Element with
                 | null -> ()
                 | p -> p.RemoveChild(el) |> ignore
             Doc'.PrepareTemplateStrict baseName name els

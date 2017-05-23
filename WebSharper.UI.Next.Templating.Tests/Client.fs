@@ -138,7 +138,7 @@ module Client =
                             divAttr [
                                 on.afterRender (fun _ ->
                                     let e = JS.Document.QuerySelector(".test-106")
-                                    e.ParentElement.RemoveChild(e) |> ignore
+                                    e.ParentNode.RemoveChild(e) |> ignore
                                 )
                             ] [text "#106 OK"]
                             |> View.Const
