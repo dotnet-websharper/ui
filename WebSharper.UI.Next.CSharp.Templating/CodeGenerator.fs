@@ -135,8 +135,18 @@ let build typeName (ctx: Ctx) =
         yield! buildFinalMethods ctx
     |]
 
-let GetCode namespaceName filePath =
-    let parsed = Parsing.Parse filePath (Path.GetDirectoryName filePath)
+let getRelPath (baseDir: string) (fullPath: string) =
+    if Path.IsPathRooted fullPath then
+        let baseDir = baseDir.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar) + string Path.DirectorySeparatorChar
+        let fullPath = fullPath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar)
+        if fullPath.StartsWith baseDir then
+            fullPath.[baseDir.Length..]
+        else
+            failwith "filePath is not a subdirectory of projectDirectory"
+    else fullPath
+
+let GetCode namespaceName projectDirectory filePath =
+    let parsed = Parsing.Parse (getRelPath projectDirectory filePath) projectDirectory
     let item = parsed.Items.[0] // it's always 1 item because C# doesn't support "foo.html,bar.html" style
     let templateName = capitalize item.Id
     let baseId =

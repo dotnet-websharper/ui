@@ -28,5 +28,8 @@
     <T4ParameterValues Include="UINextToolsPath">
       <Value>$(UINextToolsPath)</Value>
     </T4ParameterValues>
+    <T4ParameterValues Include="MSBuildProjectDirectory">
+      <Value>$(MSBuildProjectDirectory)</Value>
+    </T4ParameterValues>
   </ItemGroup>
 </Project>
