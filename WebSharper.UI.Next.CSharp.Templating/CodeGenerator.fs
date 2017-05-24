@@ -3,6 +3,7 @@
 open System
 open System.IO
 open System.Text
+open System.Runtime.InteropServices
 open WebSharper.UI.Next.Templating
 open WebSharper.UI.Next.Templating.AST
 open WebSharper.UI.Next.Templating.Parsing
@@ -145,7 +146,9 @@ let getRelPath (baseDir: string) (fullPath: string) =
             failwith "filePath is not a subdirectory of projectDirectory"
     else fullPath
 
-let GetCode namespaceName projectDirectory filePath =
+let GetCode namespaceName projectDirectory filePath
+        ([<Optional; DefaultParameterValue(ServerLoad.WhenChanged)>] serverLoad)
+        ([<Optional; DefaultParameterValue(ClientLoad.Inline)>] clientLoad) =
     let parsed = Parsing.Parse (getRelPath projectDirectory filePath) projectDirectory
     let item = parsed.Items.[0] // it's always 1 item because C# doesn't support "foo.html,bar.html" style
     let templateName = capitalize item.Id
@@ -153,6 +156,10 @@ let GetCode namespaceName projectDirectory filePath =
         match item.Id with
         | "" -> "t" + string (Guid.NewGuid().ToString("N"))
         | p -> p
+    let inlineFileId =
+        match clientLoad with
+        | ClientLoad.FromDocument -> Some item.Id
+        | _ -> None
     let lines = 
         [
             yield "using System;"
@@ -179,8 +186,8 @@ let GetCode namespaceName projectDirectory filePath =
                         FileId = baseId
                         Id = name.IdAsOption
                         Path = item.Path
-                        InlineFileId = None // TODO ClientLoad
-                        ServerLoad = ServerLoad.Once // TODO
+                        InlineFileId = inlineFileId
+                        ServerLoad = serverLoad
                         AllTemplates = item.Templates
                     }
                 match name.NameAsOption with

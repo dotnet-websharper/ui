@@ -5,11 +5,18 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" type="text/css" href="Content/WebSharper.UI.Next.CSharp.Tests.css" />
+    <style>
+        [ws-template], [ws-children-template] {
+            display: none;
+        }
+    </style>
     <script type="text/javascript" src="Content/WebSharper.UI.Next.CSharp.Tests.head.js"></script>
 </head>
 <body>
-    <div id="main"></div>
-    <h1>Tasks</h1>
+    <div id="main">
+        <h1 ws-template="tasksTitle">Tasks</h1>
+    </div>
+    <div id="tasksTitle"></div>
     <div id="tasks"></div>
     <script type="text/javascript" src="Content/WebSharper.UI.Next.CSharp.Tests.js"></script>
 </body>

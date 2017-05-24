@@ -27,4 +27,4 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-<#= CodeGenerator.GetCode("WebSharper.UI.Next.CSharp.Tests.Template", projectDir, filePath, ServerLoad.Once) #>
+<#= CodeGenerator.GetCode("WebSharper.UI.Next.CSharp.Tests.Index", projectDir, filePath, ServerLoad.Once, ClientLoad.FromDocument) #>

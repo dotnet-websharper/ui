@@ -235,6 +235,9 @@ namespace WebSharper.UI.Next.CSharp.Tests
                 .ClearCompleted((el, ev) => Tasks.RemoveBy(task => task.Done.Value))
                 .Doc()
                 .RunById("tasks");
+            new Index.Index.tasksTitle()
+                .Doc()
+                .RunById("tasksTitle");
         }
     }
 }

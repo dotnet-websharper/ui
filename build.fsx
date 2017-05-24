@@ -120,15 +120,16 @@ let serverTest =
             ])
 
 let cstest =
-    bt.Zafir.CSharp.BundleWebsite("WebSharper.UI.Next.CSharp.Tests")
+    bt.WithFramework(fun fw -> fw.Net45)
+        .Zafir.CSharp.BundleWebsite("WebSharper.UI.Next.CSharp.Tests")
         .SourcesFromProject("WebSharper.UI.Next.CSharp.Tests.csproj")
-        .WithFramework(fun fw -> fw.Net45)
         .WithSourceMap()
         .References(fun r ->
             [
-                r.Project main
-                r.Project tmplCommon
-                r.Project csharp
+                r.File(__SOURCE_DIRECTORY__ + "/build/net40/WebSharper.UI.Next.dll")
+                r.File(__SOURCE_DIRECTORY__ + "/build/net40/WebSharper.UI.Next.Templating.Common.dll")
+                r.File(__SOURCE_DIRECTORY__ + "/build/net40/WebSharper.UI.Next.CSharp.dll")
+                r.File(__SOURCE_DIRECTORY__ + "/build/net40/WebSharper.UI.Next.CSharp.Templating.dll")
             ])
 
 let mainNupkg =
