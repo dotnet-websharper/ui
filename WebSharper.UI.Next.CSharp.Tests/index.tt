@@ -9,10 +9,10 @@
 <#@ output extension=".g.cs" #>
 <#
 	var serviceProvider = Host as IServiceProvider;
-	var dte = serviceProvider.GetService(typeof(DTE)) as DTE;
 	var projectDir = Host.ResolveParameterValue("-", "-", "MSBuildProjectDirectory");
 	if (string.IsNullOrWhiteSpace(projectDir))
 	{
+		var dte = serviceProvider.GetService(typeof(DTE)) as DTE;
 		var projectItem = dte.Solution.FindProjectItem(Host.TemplateFile);
 		projectDir = Path.GetDirectoryName(projectItem.ContainingProject.FullName);
 	}
