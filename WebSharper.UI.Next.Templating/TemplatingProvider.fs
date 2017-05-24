@@ -324,7 +324,7 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
                     .WithXmlDoc("Inline HTML or a path to an HTML file")
                 ctx.ProvidedStaticParameter("clientLoad", typeof<ClientLoad>, ClientLoad.Inline)
                     .WithXmlDoc("Decide how the HTML is loaded when the template is used on the client side")
-                ctx.ProvidedStaticParameter("serverLoad", typeof<ServerLoad>, ServerLoad.Once)
+                ctx.ProvidedStaticParameter("serverLoad", typeof<ServerLoad>, ServerLoad.WhenChanged)
                     .WithXmlDoc("Decide how the HTML is loaded when the template is used on the server side")
                 ctx.ProvidedStaticParameter("legacyMode", typeof<LegacyMode>, LegacyMode.Both)
                     .WithXmlDoc("Use WebSharper 3 or Zafir templating engine or both")
