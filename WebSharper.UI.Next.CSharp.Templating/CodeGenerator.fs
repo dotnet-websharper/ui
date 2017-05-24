@@ -115,15 +115,10 @@ let finalMethodBody (ctx: Ctx) =
         (string ctx.ServerLoad)
         references
 
-let isElt (template: Template) =
-    match template.Value with
-    | [| Node.Element _ | Node.Input _ |] -> true
-    | _ -> false
-
 let buildFinalMethods (ctx: Ctx) =
     [|
         yield sprintf "public Doc Doc() => %s;" (finalMethodBody ctx)
-        if isElt ctx.Template then
+        if ctx.Template.IsElt then
             yield sprintf "public Elt Elt() => (Elt)Doc();"
     |]
 
@@ -200,8 +195,6 @@ let GetCode namespaceName projectDirectory filePath
                     for line in build name' ctx do
                         yield "            " + line
                     yield "        }"
-
-
             yield "    }"
             yield "}"
         ]

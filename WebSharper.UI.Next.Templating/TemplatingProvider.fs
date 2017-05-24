@@ -78,11 +78,6 @@ module private Impl =
         let InternalType n =
             "Intermediary types for the template " + n
 
-    let IsElt (template: Template) =
-        match template.Value with
-        | [| Node.Element _ | Node.Input _ |] -> true
-        | _ -> false
-
     let BuildMethod<'T> (holeName: HoleName) (resTy: Type)
             (wrapArg: Expr<'T> -> Expr<TemplateHole>) line column (ctx: Ctx) =
         let m =
@@ -203,7 +198,7 @@ module private Impl =
     let BuildFinalMethods (ctx: Ctx) : list<MemberInfo> =
         [
             yield ctx.PT.ProvidedMethod("Doc", [], typeof<Doc>, finalMethodBody ctx (fun x -> x :> _)) :> _
-            if IsElt ctx.Template then
+            if ctx.Template.IsElt then
                 yield ctx.PT.ProvidedMethod("Elt", [], typeof<Elt>,
                     finalMethodBody ctx <| fun e -> <@@ %e :?> Elt @@>) :> _
         ]
