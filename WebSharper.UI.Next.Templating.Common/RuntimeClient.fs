@@ -18,7 +18,7 @@
 //
 // $end{copyright}
 
-module internal WebSharper.UI.Next.Templating.RuntimeClient
+module WebSharper.UI.Next.Templating.RuntimeClient
 
 open WebSharper
 open WebSharper.Core
@@ -176,7 +176,7 @@ type RuntimeProxy =
                 name: option<string>,
                 path: option<string>,
                 src: string,
-                fillWith: list<TemplateHole>,
+                fillWith: seq<TemplateHole>,
                 inlineBaseName: option<string>,
                 serverLoad: ServerLoad,
                 refs: array<string * option<string> * string>

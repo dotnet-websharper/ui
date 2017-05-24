@@ -34,10 +34,6 @@
     <Compile Include="AssemblyReaderReflection.fs" />
     <Compile Include="ProvidedTypesContext.fs" />
     <Compile Include="ProvidedTypesContextFunc.fs" />
-    <Compile Include="AST.fs" />
-    <Compile Include="Parsing.fs" />
-    <Compile Include="Runtime.fs" />
-    <Compile Include="RuntimeClient.fs" />
     <Compile Include="OldProvider.fs" />
     <Compile Include="TemplatingProvider.fs" />
     <None Include="Scripts\load-references-debug.fsx" />

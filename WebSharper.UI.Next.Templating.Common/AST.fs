@@ -83,6 +83,11 @@ type Template =
         References : Set<string * option<string>>
     }
 
+    member this.IsElt =
+        match this.Value with
+        | [| Node.Element _ | Node.Input _ |] -> true
+        | _ -> false
+
 let [<Literal>] TemplateAttr            = "ws-template"
 let [<Literal>] ChildrenTemplateAttr    = "ws-children-template"
 let [<Literal>] HoleAttr                = "ws-hole"

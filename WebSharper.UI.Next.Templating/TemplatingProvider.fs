@@ -78,11 +78,6 @@ module private Impl =
         let InternalType n =
             "Intermediary types for the template " + n
 
-    let IsElt (template: Template) =
-        match template.Value with
-        | [| Node.Element _ | Node.Input _ |] -> true
-        | _ -> false
-
     let BuildMethod<'T> (holeName: HoleName) (resTy: Type)
             (wrapArg: Expr<'T> -> Expr<TemplateHole>) line column (ctx: Ctx) =
         let m =
@@ -169,10 +164,6 @@ module private Impl =
         | Some x -> <@ Some (%%Expr.Value x : 'T) @>
 
     let finalMethodBody (ctx: Ctx) (wrap: Expr<Doc> -> Expr) = fun (args: list<Expr>) ->
-        // We use separate methods, rather than just passing clientLoad as argument,
-        // because the client-side implementation is [<Inline>] so it can drop
-        // any arguments it doesn't need (in particular src can be quite big)
-        // and each clientLoad needs different arguments.
         let name = ctx.Id |> Option.map (fun s -> s.ToLowerInvariant())
         let references =
             Expr.NewArray(typeof<string * option<string> * string>,
@@ -207,7 +198,7 @@ module private Impl =
     let BuildFinalMethods (ctx: Ctx) : list<MemberInfo> =
         [
             yield ctx.PT.ProvidedMethod("Doc", [], typeof<Doc>, finalMethodBody ctx (fun x -> x :> _)) :> _
-            if IsElt ctx.Template then
+            if ctx.Template.IsElt then
                 yield ctx.PT.ProvidedMethod("Elt", [], typeof<Elt>,
                     finalMethodBody ctx <| fun e -> <@@ %e :?> Elt @@>) :> _
         ]
@@ -328,7 +319,7 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
                     .WithXmlDoc("Inline HTML or a path to an HTML file")
                 ctx.ProvidedStaticParameter("clientLoad", typeof<ClientLoad>, ClientLoad.Inline)
                     .WithXmlDoc("Decide how the HTML is loaded when the template is used on the client side")
-                ctx.ProvidedStaticParameter("serverLoad", typeof<ServerLoad>, ServerLoad.Once)
+                ctx.ProvidedStaticParameter("serverLoad", typeof<ServerLoad>, ServerLoad.WhenChanged)
                     .WithXmlDoc("Decide how the HTML is loaded when the template is used on the server side")
                 ctx.ProvidedStaticParameter("legacyMode", typeof<LegacyMode>, LegacyMode.Both)
                     .WithXmlDoc("Use WebSharper 3 or Zafir templating engine or both")

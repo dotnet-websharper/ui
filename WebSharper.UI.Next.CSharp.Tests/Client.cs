@@ -193,6 +193,7 @@ namespace WebSharper.UI.Next.CSharp.Tests
                 h1("Routed element:"),
                 routed
             ).RunById("main");
+            TodoApp();
         }
 
         public class TaskItem
@@ -207,7 +208,7 @@ namespace WebSharper.UI.Next.CSharp.Tests
             }
         }
 
-        public void TodoApp()
+        public static void TodoApp()
         {
             var Tasks =
                 new ListModel<string, TaskItem>(task => task.Name) {
@@ -216,24 +217,27 @@ namespace WebSharper.UI.Next.CSharp.Tests
                 };
 
             var NewTaskName = Var.Create("");
-
-            Template.Template.Main.Doc(
-                ListContainer: Tasks.View.DocSeqCached((TaskItem task) =>
-                    Template.Template.ListItem.Doc(
-                        Task: task.Name, 
-                        Clear: (el, ev) => Tasks.RemoveByKey(task.Name), 
-                        Done: task.Done, 
-                        ShowDone: attr.@class("checked", task.Done.View, x => x)
-                    )
-                ),
-                NewTaskName: NewTaskName,
-                Add: (el, ev) =>
+            new Template.Template.Main()
+                .ListContainer(Tasks.View.DocSeqCached((TaskItem task) =>
+                    new Template.Template.ListItem()
+                        .Task(task.Name)
+                        .Clear((el, ev) => Tasks.RemoveByKey(task.Name))
+                        .Done(task.Done)
+                        .ShowDone(attr.@class("checked", task.Done.View, x => x))
+                        .Doc()
+                ))
+                .NewTaskName(NewTaskName)
+                .Add((el, ev) =>
                 {
                     Tasks.Add(new TaskItem(NewTaskName.Value, false));
                     NewTaskName.Value = "";
-                },
-                ClearCompleted: (el, ev) => Tasks.RemoveBy(task => task.Done.Value)
-            ).RunById("tasks");
+                })
+                .ClearCompleted((el, ev) => Tasks.RemoveBy(task => task.Done.Value))
+                .Doc()
+                .RunById("tasks");
+            new Index.Index.tasksTitle()
+                .Doc()
+                .RunById("tasksTitle");
         }
     }
 }
