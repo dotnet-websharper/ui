@@ -20,11 +20,13 @@ type RouteMap =
 ```
 
 <a name="RouteMap"></a>
+
 [#](#RouteMap) **RouteMap** `type RouteMap<'T>`
 
 A bijection between an URL route and a value of the given type.
 
 <a name="Install"></a>
+
 [#](#Install) RouteMap.**Install** : `RouteMap<'T> -> Var<'T>`
 
 Installs a map to observe and modify the browser's current hash route (`document.location.hash`).

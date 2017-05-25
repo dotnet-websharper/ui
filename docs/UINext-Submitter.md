@@ -23,6 +23,7 @@ type Submitter =
 ```
 
 <a name="Create"></a>
+
 [#](#Create) Submitter.**Create** : `input: View<'T> -> init: 'T -> Submitter<'T>`
 
 Create a submitter for the given input [View](UINext-View.md). The initial value of the
@@ -30,31 +31,37 @@ submitter's output `View` is `init`. Then, every time `Trigger` is called, the
 value of the output `View` is updated to be the current value of `input`.
 
 <a name="View"></a>
+
 [#](#View) submitter.**View** : `View<'T>`
 
 Get the output view of a submitter.
 
 <a name="Trigger"></a>
+
 [#](#Trigger) submitter.**Trigger** : `unit -> unit`
 
 Trigger a submitter, causing its output view to get the value from its input view.
 
 <a name="Input"></a>
+
 [#](#Input) submitter.**Input** : `View<'T>`
 
 Get the input view of a submitter.
 
 <a name="SView"></a>
+
 [#](#SView) Submitter.**View** : `Submitter<'T> -> View<'T>`
 
 Equivalent to <a href="#View">submitter.View</a>.
 
 <a name="STrigger"></a>
+
 [#](#STrigger) Submitter.**Trigger** : `Submitter<'T> -> unit`
 
-Equivalent to <a href="#Trigger">submitter.Trigger()</a>.
+Equivalent to [submitter.Trigger()](#Trigger).
 
 <a name="SInput"></a>
+
 [#](#SInput) Submitter.**Input** : `Submitter<'T> -> View<'T>`
 
-Equivalent to <a href="#Input">submitter.Input</a>.
+Equivalent to [submitter.Input](#Input).

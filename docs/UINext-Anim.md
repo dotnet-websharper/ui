@@ -27,17 +27,21 @@ type Anim =
 
 ## Typed Animations
 
-<a name="Anim" href="Anim">#</a> **Anim** `type Anim<'T>`
+<a name="Anim"></a>
+
+[#](#Anim) **Anim** `type Anim<'T>`
 
 Represents an animation of a given value, defined by duration and a time-function `Compute`
 and an explicit `Duration`.
 
 <a name="Map"></a>
+
 [#](#Map) Anim.**Map** : `('A -> 'B) -> Anim<'A> -> Anim<'B>`
 
 Lifts a function to change the type of an animation.
 
 <a name="Simple"></a>
+
 [#](#Simple) Anim.**Simple**
 
 ```fsharp
@@ -53,6 +57,7 @@ Anim.Simple :
 Uses an interpolation, easing, duration, start and end values to construct an animation.
 
 <a name="Delayed"></a>
+
 [#](#Delayed) Anim.**Delayed**
 
 ```fsharp
@@ -65,37 +70,43 @@ Anim.Simple :
   endValue: 'T ->
   Anim<'T>
 ```
-As with <a href="#Simple">Simple</a>, but including an initial delay.
+As with [Simple](#Simple), but including an initial delay.
 
 ## Collected Animations
 
 <a name="Play"></a>
+
 [#](#Play) Anim.**Play** : `Anim -> Async<unit>`
 
 Schedules and plays a collection of animations, waiting for all to complete.
 
 <a name="Pack"></a>
+
 [#](#Pack) Anim.**Pack** : `Anim<unit> -> Anim`
 
 Lifts a typed animation into a singleton animation collection.
 
 <a name="WhenDone"></a>
+
 [#](#WhenDone) Anim.**WhenDone** : `(unit -> unit) -> Anim -> Anim`
 
 Creates an animation that behaves like the given one, but also
 schedules an action to run when the animation completes.
 
 <a name="Append"></a>
+
 [#](#Append) Anim.**Append** : `Anim -> Anim -> Anim`
 
 Appends two collections of animations.
 
 <a name="Concat"></a>
+
 [#](#Concat) Anim.**Concat** : `seq<Anim> -> Anim`
 
 Concatenates several collections of animations into one.
 
 <a name="Empty"></a>
+
 [#](#Empty) Anim.**Empty** : `Anim`
 
 An empty collection of animations.

@@ -22,26 +22,31 @@ type Var =
 ```
 
 <a name="Var"></a>
+
 [#](#Var) **Var** `type Var<'T>`
 
 A reactive variable.
 
 <a name="Create"></a>
+
 [#](#Create) Var.**Create** : `'T -> Var<'T>`
 
 Creates a fresh variable with the given initial value.
 
 <a name="Get"></a>
+
 [#](#Get) Var.**Get** : `Var<'T> -> 'T`
 
 Obtains the current value.  Also available as `var.Value`.
 
 <a name="Set"></a>
+
 [#](#Set) Var.**Set** : `Var<'T> -> 'T -> unit`
 
 Sets the current value.  Also available as `var.Value <- v`
 
 <a name="SetFinal"></a>
+
 [#](#SetFinal) Var.**SetFinal** : `Var<'T> -> 'T -> unit`
 
 Sets the final value (after this, Set/Update are invalid).
@@ -50,11 +55,13 @@ mutliple views are scheduled to wait on a variable that is never
 going to change again.
 
 <a name="Update"></a>
+
 [#](#Update) Var.**Update** : `Var<'T> -> ('T -> 'T) -> unit`
 
 Updates the current value.  This is equivalent to `var.Value <- f var.Value`.
 
 <a name="View"></a>
+
 [#](#View) var.**View** : `View<'T>`
 
 Lifts the variable to a [View](UINext-View.md) so that it can participate in dataflow.

@@ -16,23 +16,27 @@ type Model =
 ```
 
 <a name="Model"></a>
+
 [#](#Model) **Model** `type Model<'I,'M>`
 
 Represents an observable imperative model, where `'M` is the mutable type,
 and `'I` is the immutable (view) type.
 
 <a name="Create"></a>
+
 [#](#Create) Model.**Create** : `('M -> 'I) -> 'M -> Model<'I,'M>`
 
 Creates a new model, based on an initial value and a projection function
 constructing an immutable view from a snapshot of the mutable value.
 
 <a name="Update"></a>
+
 [#](#Update) Model.**Update** : `('M -> unit) -> Model<'I,'M> -> unit`
 
 Imperatively updates the state of the model.  This change is propagated.
 
 <a name="View"></a>
+
 [#](#View) Model.**View** : `Model<'I,'M> -> View<'I>`
 
 Returns the immutable [View](UINext-View.md) on the model.  Also `model.View`.

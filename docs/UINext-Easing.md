@@ -14,16 +14,19 @@ type Easing =
 ```
 
 <a name="Easing"></a>
+
 [#](#Easing) **Easing** `type Easing`
 
 Represents an easing function, a transform on NormalizedTime.
 
 <a name="TransformTime"></a>
+
 [#](#TransformTime) easing.**TransformTime** : `NormalizedTime -> NormalizedTime`
 
 Applies the time transformation.
 
 <a name="Easing.CubicInOut"></a>
+
 [#](#Easing.CubicInOut) Easing.**CubicInOut** : `Easing`
 
 The most commonly used easing, corresponds to:
@@ -33,6 +36,7 @@ let f t = 3. * (t ** 2.) - 2. * t ** 3.
 ```
 
 <a name="Easing.Create"></a>
+
 [#](#Easing.Create) Easing.**Create** : `(NormalizedTime -> NormalizedTime) -> Easing`
 
 Creates a custom easing.

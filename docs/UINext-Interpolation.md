@@ -15,16 +15,19 @@ type Interpolation =
 ```
 
 <a name="Interpolation"></a>
+
 [#](#Interpolation) **Interpolation** `type Interpolation<'T>`
 
 Represents a way to interpolate between two values of a given type.
 
 <a name="Interpolate"></a>
+
 [#](#Interpolate) interpolation.**Interpolate** : `NormalizedTime -> 'T -> 'T -> 'T`
 
 Computes an in-between value based on normalized time, starting and ending values.
 
 <a name="Interpolation.Double"></a>
+
 [#](#Interpolation.Double) Interpolation.**Double** : `Interpolation<double>`
 
 Linear interpolation on doubles.

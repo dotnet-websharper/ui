@@ -30,57 +30,68 @@ type Trans =
 ```
 
 <a name="Trivial"></a>
+
 [#](#Trivial) Trans.**Trivial** : `unit -> Trans<'T>`
 
 Creates a trivial transition that does not animate anything.
 
 <a name="Create"></a>
+
 [#](#Create) Trans.**Create** : `('T -> 'T -> Anim<'T>) -> Trans<'T>`
 
 Creates a transition that animates changes by specifying which `Anim` to play
 for every change from a start to an end value.
 
 <a name="Change"></a>
+
 [#](#Change) Trans.**Change** : `('T -> 'T -> Anim<'T>) -> Trans<'T> -> Trans<'T>`
 
 Functionally updates the "change" animation associated with a given transition.
 
 <a name="Enter"></a>
+
 [#](#Enter) Trans.**Enter** : `('T -> Anim<'T>) -> Trans<'T> -> Trans<'T>`
 
 Functionally updates the "enter" animation associated with a given transition.
 
 <a name="Exit"></a>
+
 [#](#Exit) Trans.**Exit** : `('T -> Anim<'T>) -> Trans<'T> -> Trans<'T>`
 
 Functionally updates the "exit" animation associated with a given transition.
 
 <a name="AnimateChange"></a>
+
 [#](#AnimateChange) Trans.**AnimateChange** : `Trans<'T> -> 'T -> 'T -> Anim<'T>`
 
 Unpacks a "change" animation between former an current values.
 
 <a name="AnimateEnter"></a>
+
 [#](#AnimateEnter) Trans.**AnimateEnter** : `Trans<'T> -> 'T -> Anim<'T>`
 
 Unpacks an "enter" animation toward a current value.
 
 <a name="AnimateExit"></a>
+
 [#](#AnimateExit) Trans.**AnimateExit** : `Trans<'T> -> 'T -> Anim<'T>`
 
 Unpacks an "exit" animation from a current value.
 
 <a name="CanAnimateChange"></a>
+
 [#](#CanAnimateChange) Trans.**CanAnimateChange** : `Trans<'T> -> bool`
 
 Checks if a "change" animation is specified. This is primarily used internally for optimization.
 
 <a name="CanAnimateEnter"></a>
+
 [#](#CanAnimateEnter) Trans.**CanAnimateEnter** : `Trans<'T> -> bool`
 
 Checks if an "enter" animation is specified. This is primarily used internally for optimization.
 
 <a name="CanAnimateExit"></a>
+
 [#](#CanAnimateExit) Trans.**CanAnimateExit** : `Trans<'T> -> bool`
 
 Checks if an "exit" animation is specified. This is primarily used internally for optimization.

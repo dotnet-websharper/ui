@@ -28,29 +28,34 @@ module Input =
 ## Mouse
 
 <a name="Position"></a>
+
 [#](#Position) .**Mouse.Position** : `View<(int * int)>`
 
 Provides a view of the current mouse position, represented as an (x, y) tuple.
 
 <a name="MousePressed"></a>
+
 [#](#MousePressed) .**Mouse.MousePressed** : `View<bool>`
 
 Provides a view of a flag which is set to true if any mouse button is pressed,
 and false if not.
 
 <a name="LeftPressed"></a>
+
 [#](#LeftPressed) .**Mouse.LeftPressed** : `View<bool>`
 
 Provides a view of a flag which is set to true if the left mouse button is pressed,
 and false if not.
 
 <a name="RightPressed"></a>
+
 [#](#RightPressed) .**Mouse.RightPressed** : `View<bool>`
 
 Provides a view of a flag which is set to true if the right mouse button is pressed,
 and false if not.
 
 <a name="MiddlePressed"></a>
+
 [#](#MiddlePressed) .**Mouse.MiddlePressed** : `View<bool>`
 
 Provides a view of a flag which is set to true if the middle mouse button is pressed,
@@ -59,16 +64,19 @@ and false if not.
 
 ## Keyboard
 <a name="KeysPressed"></a>
+
 [#](#KeysPressed) .**Keyboard.KeysPressed** : `View<Key list>`
 
 Provides a view of a list of all keys which are currently pressed.
 
 <a name="LastPressed"></a>
+
 [#](#LastPressed) .**Keyboard.LastPressed** : `View<Key>`
 
 Provides a view of the last key to be pressed.
 
 <a name="IsPressed"></a>
+
 [#](#IsPressed) .**Keyboard.IsPressed** : `Key -> View<bool>`
 
 Provides a view which is `true` when the given key is pressed, and `false` when it is not.
