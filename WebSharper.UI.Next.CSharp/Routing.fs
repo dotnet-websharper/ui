@@ -223,7 +223,7 @@ and private RouteMapBuilderMacro() =
                         ReturnType = res
                         Generics = 0
                     }
-                let parseMeth = meth [TupleType [listOf stringT; stringMapT]] (optionOf (TupleType [t; listOf stringT]))
+                let parseMeth = meth [TupleType ([listOf stringT; stringMapT], false)] (optionOf (TupleType ([t; listOf stringT], false)))
                 if comp.GetClassInfo parsersT |> Option.exists (fun cls -> cls.Methods.ContainsKey parseMeth)
                 then MetaBase parseMeth
                 else
@@ -293,7 +293,7 @@ and private RouteMapBuilderMacro() =
                         MetaObject (ctor, name, args)
         | ArrayType (t, 1) ->
             MetaSequence((let x = Id.New() in Lambda([x], Var x)), t)
-        | TupleType ts ->
+        | TupleType (ts, _) ->
             MetaTuple ts
         | t -> failwithf "Type not supported by RouteMap: %s" t.AssemblyQualifiedName
 
