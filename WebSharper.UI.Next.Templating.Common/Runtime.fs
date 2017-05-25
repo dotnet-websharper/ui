@@ -195,7 +195,7 @@ type Runtime private () =
                 else
                     w.Write(HtmlTextWriter.TagRightChar)
                     Array.iter writeNode children
-                    if tag = "body" && Option.isNone name then
+                    if tag = "body" && Option.isNone name && Option.isSome inlineBaseName then
                         templates |> Seq.iter (fun (KeyValue(k, v)) ->
                             match k.NameAsOption with
                             | Some templateName -> writeWrappedTemplate templateName v m w r
