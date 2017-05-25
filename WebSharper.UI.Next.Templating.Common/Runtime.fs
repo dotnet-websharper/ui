@@ -212,7 +212,7 @@ type Runtime private () =
                     w.WriteEncodedText(stringParts text)
                 | Node.DocHole holeName when plain ->
                     w.WriteBeginTag("div")
-                    w.WriteAttribute(HoleAttr, holeName)
+                    w.WriteAttribute(ReplaceAttr, holeName)
                     w.Write(HtmlTextWriter.TagRightChar)
                     w.WriteEndTag("div")
                 | Node.DocHole ("scripts" | "styles" | "meta" as name) when Option.isSome r ->
