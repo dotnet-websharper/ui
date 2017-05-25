@@ -32,11 +32,13 @@ type Anim =
 Represents an animation of a given value, defined by duration and a time-function `Compute`
 and an explicit `Duration`.
 
-<a name="Map" href="#Map">#</a> Anim.**Map** : `('A -> 'B) -> Anim<'A> -> Anim<'B>`
+<a name="Map"></a>
+[#](#Map) Anim.**Map** : `('A -> 'B) -> Anim<'A> -> Anim<'B>`
 
 Lifts a function to change the type of an animation.
 
-<a name="Simple" href="#Simple">#</a> Anim.**Simple**
+<a name="Simple"></a>
+[#](#Simple) Anim.**Simple**
 
 ```fsharp
 Anim.Simple :
@@ -50,7 +52,8 @@ Anim.Simple :
 
 Uses an interpolation, easing, duration, start and end values to construct an animation.
 
-<a name="Delayed" href="#Delayed">#</a> Anim.**Delayed**
+<a name="Delayed"></a>
+[#](#Delayed) Anim.**Delayed**
 
 ```fsharp
 Anim.Simple :
@@ -66,27 +69,33 @@ As with <a href="#Simple">Simple</a>, but including an initial delay.
 
 ## Collected Animations
 
-<a name="Play" href="#Play">#</a> Anim.**Play** : `Anim -> Async<unit>`
+<a name="Play"></a>
+[#](#Play) Anim.**Play** : `Anim -> Async<unit>`
 
 Schedules and plays a collection of animations, waiting for all to complete.
 
-<a name="Pack" href="#Pack">#</a> Anim.**Pack** : `Anim<unit> -> Anim`
+<a name="Pack"></a>
+[#](#Pack) Anim.**Pack** : `Anim<unit> -> Anim`
 
 Lifts a typed animation into a singleton animation collection.
 
-<a name="WhenDone" href="#WhenDone">#</a> Anim.**WhenDone** : `(unit -> unit) -> Anim -> Anim`
+<a name="WhenDone"></a>
+[#](#WhenDone) Anim.**WhenDone** : `(unit -> unit) -> Anim -> Anim`
 
 Creates an animation that behaves like the given one, but also
 schedules an action to run when the animation completes.
 
-<a name="Append" href="#Append">#</a> Anim.**Append** : `Anim -> Anim -> Anim`
+<a name="Append"></a>
+[#](#Append) Anim.**Append** : `Anim -> Anim -> Anim`
 
 Appends two collections of animations.
 
-<a name="Concat" href="#Concat">#</a> Anim.**Concat** : `seq<Anim> -> Anim`
+<a name="Concat"></a>
+[#](#Concat) Anim.**Concat** : `seq<Anim> -> Anim`
 
 Concatenates several collections of animations into one.
 
-<a name="Empty" href="#Empty">#</a> Anim.**Empty** : `Anim`
+<a name="Empty"></a>
+[#](#Empty) Anim.**Empty** : `Anim`
 
 An empty collection of animations.

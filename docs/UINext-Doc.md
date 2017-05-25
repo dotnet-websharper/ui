@@ -86,97 +86,117 @@ and Elt =
 
 ## Constructing
 
-<a name="Doc" href="#Doc">#</a> **Doc** `type Doc`
+<a name="Doc"></a>
+[#](#Doc) **Doc** `type Doc`
 
 Represents a time-varying collection of nodes.
 
-<a name="Element" href="#Element">#</a> Doc.**Element** : `string -> seq<Attr> -> seq<Doc> -> Doc`
+<a name="Element"></a>
+[#](#Element) Doc.**Element** : `string -> seq<Attr> -> seq<Doc> -> Doc`
 
 Constructs an element node with a given name, attributes and children.
 
-<a name="EmbedView" href="#EmbedView">#</a> Doc.**EmbedView** : `View<Doc> -> Doc`
+<a name="EmbedView"></a>
+[#](#EmbedView) Doc.**EmbedView** : `View<Doc> -> Doc`
 
 Create a time-varying Doc from a View on a Doc.
 
-<a name="BindView" href="#BindView">#</a> Doc.**BindView** : `('T -> Doc) -> View<'T> -> Doc`
+<a name="BindView"></a>
+[#](#BindView) Doc.**BindView** : `('T -> Doc) -> View<'T> -> Doc`
 
 Also available as a method **.Doc**(f) on `View<'A>`.
 
 Create a time-varying Doc from a View on a Doc.
 
-<a name="SvgElement" href="#SvgElement">#</a> Doc.**SvgElement** : `string -> seq<Attr> -> seq<Doc> -> Doc`
+<a name="SvgElement"></a>
+[#](#SvgElement) Doc.**SvgElement** : `string -> seq<Attr> -> seq<Doc> -> Doc`
 
 Same as `Element`, but uses the SVG namespace.
 
-<a name="Static" href="#Static">#</a> Doc.**Static** : `Dom.Element -> Doc`
+<a name="Static"></a>
+[#](#Static) Doc.**Static** : `Dom.Element -> Doc`
 
 Embeds an already consturcted DOM element into the `Doc` type.
 
-<a name="TextView" href="#TextView">#</a> Doc.**TextView** : `View<string> -> Doc`
+<a name="TextView"></a>
+[#](#TextView) Doc.**TextView** : `View<string> -> Doc`
 
 Constructs a time-varying text node.
 
-<a name="TextNode" href="#TextNode">#</a> Doc.**TextNode** : `string -> Doc`
+<a name="TextNode"></a>
+[#](#TextNode) Doc.**TextNode** : `string -> Doc`
 
 Constructs a simple text node. An optimization of `Doc.TextView (View.Const x)`.
 
 ## Combining
 
-<a name="Append" href="#Append">#</a> Doc.**Append** : `Doc -> Doc -> Doc`
+<a name="Append"></a>
+[#](#Append) Doc.**Append** : `Doc -> Doc -> Doc`
 
 Appends two node sequences into one sequence. 
 
-<a name="Concat" href="#Concat">#</a> Doc.**Concat** : `seq<Doc> -> Doc`
+<a name="Concat"></a>
+[#](#Concat) Doc.**Concat** : `seq<Doc> -> Doc`
 
 Concatenates multiple sequences into one.
 
-<a name="Empty" href="#Empty">#</a> Doc.**Empty** : `Doc`
+<a name="Empty"></a>
+[#](#Empty) Doc.**Empty** : `Doc`
 
 The empty document sequence.
 
 ## Running
 
-<a name="Run" href="#Run">#</a> Doc.**Run** : `Dom.Element -> Doc -> unit`
+<a name="Run"></a>
+[#](#Run) Doc.**Run** : `Dom.Element -> Doc -> unit`
 
 Starts a process that synchronizes the children of a given element with
 the given time-varying document.  This should only be used as one of the
 application entry points.  The provided Element is typically a placeholder
 element in an HTML template.
 
-<a name="RunById" href="#RunById">#</a> Doc.**RunById** : `string -> Doc -> unit`
+<a name="RunById"></a>
+[#](#RunById) Doc.**RunById** : `string -> Doc -> unit`
 
 Similar to <a href="#Run">Doc.Run</a>, but takes an element identifier
 to locate the parent placeholder element with `document.getElementById`.
 
 ## Forms
 
-<a name="Input" href="#Input">#</a> Doc.**Input** : `seq<Attr> -> Var<string> -> Doc`
+<a name="Input"></a>
+[#](#Input) Doc.**Input** : `seq<Attr> -> Var<string> -> Doc`
 
 Creates an input box with the given attributes. Synchronises with the given reactive variable: changing the text in the input box will update the variable, and changing the variable contents will update the text in the box.
 
 
-<a name="InputArea" href="#InputArea">#</a> Doc.**InputArea** : `seq<Attr> -> Var<string> -> Doc`
+<a name="InputArea"></a>
+[#](#InputArea) Doc.**InputArea** : `seq<Attr> -> Var<string> -> Doc`
 
 As above, but creates an HTML `textarea` instead of an input box.
 
 
-<a name="PasswordBox" href="#PasswordBox">#</a> Doc.**PasswordBox** : `seq<Attr> -> Var<string> -> Doc`
+<a name="PasswordBox"></a>
+[#](#PasswordBox) Doc.**PasswordBox** : `seq<Attr> -> Var<string> -> Doc`
 
 As above, but creates an HTML password box.
 
-<a name="Button" href="#Button">#</a> Doc.**Button** : `caption: string -> seq<Attr> -> (unit -> unit) -> Doc`
+<a name="Button"></a>
+[#](#Button) Doc.**Button** : `caption: string -> seq<Attr> -> (unit -> unit) -> Doc`
 
 Creates a button with the given caption and attributes. Takes a callback which is executed whenever the button is clicked.
 
-<a name="Link" href="#Link">#</a> Doc.**Link** : `caption: string -> seq<Attr> -> (unit -> unit) -> Doc`
+<a name="Link"></a>
+[#](#Link) Doc.**Link** : `caption: string -> seq<Attr> -> (unit -> unit) -> Doc`
 
 Creates a link with the given caption and attributes which does not change the page, but instead executes the given callback.
 
-<a name="CheckBox" href="#CheckBox">#</a> Doc.**CheckBox** : `('T -> string) -> list<'T> -> Var<list<'T>> -> Doc`
+<a name="CheckBox"></a>
+[#](#CheckBox) Doc.**CheckBox** : `('T -> string) -> list<'T> -> Var<list<'T>> -> Doc`
 
 Creates a set of check boxes from the given list. Requires a function to show each item, and a list variable which is updated with the currently-selected items.
 
-<a name="Select" href="#Select">#</a> Doc.**Select** : `seq<Attr> -> ('T -> string) -> list<'T> -> Var<'T> -> Doc`
+<a name="Select"></a>
+[#](#Select) Doc.**Select** : `seq<Attr> -> ('T -> string) -> list<'T> -> Var<'T> -> Doc`
 
 Creates a selection box from the given list. Requires a function to show each item, and a variable which is updated with the currently-selected item.
 
@@ -184,25 +204,29 @@ Creates a selection box from the given list. Requires a function to show each it
 
 For convenience, [View](UINext-View.md) BindSeqCached* functions are specialied for the `Doc` type.
 
-<a name="BindSeqCached" href="#BindSeqCached">#</a> Doc.**BindSeqCached** : `('T -> Doc) -> View<seq<'T>> -> Doc`
+<a name="BindSeqCached"></a>
+[#](#BindSeqCached) Doc.**BindSeqCached** : `('T -> Doc) -> View<seq<'T>> -> Doc`
 
 Also available as a method **.DocSeqCached**(f) on `View<'A>`.
 
 Variant of `View.BindSeqCached` that concatenates the resulting `Doc`s.
 
-<a name="BindSeqCachedBy" href="#BindSeqCachedBy">#</a> Doc.**BindSeqCachedBy** : `('T -> 'K) -> ('T -> Doc) -> View<seq<'T>> -> Doc`
+<a name="BindSeqCachedBy"></a>
+[#](#BindSeqCachedBy) Doc.**BindSeqCachedBy** : `('T -> 'K) -> ('T -> Doc) -> View<seq<'T>> -> Doc`
 
 Also available as a method **.DocSeqCached**(k, f) on `View<'A>`.
 
 Variant of `View.BindSeqCachedBy` that concatenates the resulting `Doc`s.
 
-<a name="BindSeqCachedView" href="#BindSeqCachedView">#</a> Doc.**BindSeqCachedView** : `(View<'T> -> Doc) -> View<seq<'T>> -> Doc`
+<a name="BindSeqCachedView"></a>
+[#](#BindSeqCachedView) Doc.**BindSeqCachedView** : `(View<'T> -> Doc) -> View<seq<'T>> -> Doc`
 
 Also available as a method **.DocSeqCached**(f) on `View<'A>`.
 
 Variant of `View.BindSeqCachedView` that concatenates the resulting `Doc`s.
 
-<a name="BindSeqCachedViewBy" href="#BindSeqCachedViewBy">#</a> Doc.**BindSeqCachedViewBy** : `('T -> 'K) -> (View<'T> -> Doc) -> View<seq<'T>> -> Doc`
+<a name="BindSeqCachedViewBy"></a>
+[#](#BindSeqCachedViewBy) Doc.**BindSeqCachedViewBy** : `('T -> 'K) -> (View<'T> -> Doc) -> View<seq<'T>> -> Doc`
 
 Also available as a method **.DocSeqCached**(k, f) on `View<'A>`.
 
@@ -211,85 +235,104 @@ Variant of `View.BindSeqCachedViewBy` that concatenates the resulting `Doc`s.
 ## Elt instance members
 
 
-<a name="Elt-Dom" href="#Elt-Dom">#</a> elt.**Dom** : `Dom.Element`
+<a name="Elt-Dom"></a>
+[#](#Elt-Dom) elt.**Dom** : `Dom.Element`
 
 Get the DOM element represented by the Elt.
 
-<a name="Elt-On" href="#Elt-On">#</a> elt.**On** : `string * (Dom.Element -> Dom.Event -> unit) -> Elt`
+<a name="Elt-On"></a>
+[#](#Elt-On) elt.**On** : `string * (Dom.Element -> Dom.Event -> unit) -> Elt`
 
 Add a handler for the given event on the Elt.
 
-<a name="Elt-Prepend" href="#Elt-Prepend">#</a> elt.**Prepend** : `Doc -> unit`
+<a name="Elt-Prepend"></a>
+[#](#Elt-Prepend) elt.**Prepend** : `Doc -> unit`
 
 Add a Doc as first child(ren) of the Elt. If the Doc is time-varying,
 then it will be properly added to the dataflow graph.
 
-<a name="Elt-Append" href="#Elt-Append">#</a> elt.**Append** : `Doc -> unit`
+<a name="Elt-Append"></a>
+[#](#Elt-Append) elt.**Append** : `Doc -> unit`
 
 Add a Doc as last child(ren) of the Elt. If the Doc is time-varying,
 then it will be properly added to the dataflow graph.
 
-<a name="Elt-Clear" href="#Elt-Clear">#</a> elt.**Clear** : `unit -> unit`
+<a name="Elt-Clear"></a>
+[#](#Elt-Clear) elt.**Clear** : `unit -> unit`
 
 Remove all children of the Elt. If any of them are time-varying, then
 they will be properly removed from the dataflow graph.
 
-<a name="Elt-Html" href="#Elt-Html">#</a> elt.**Html** : `string`
+<a name="Elt-Html"></a>
+[#](#Elt-Html) elt.**Html** : `string`
 
 Get an HTML string representation of the Elt in its current state.
 
-<a name="Elt-Id" href="#Elt-Id">#</a> elt.**Id** : `string`
+<a name="Elt-Id"></a>
+[#](#Elt-Id) elt.**Id** : `string`
 
 Get the id of the Elt.
 
-<a name="Elt-Value" href="#Elt-Value">#</a> elt.**Value** : `string with get, set`
+<a name="Elt-Value"></a>
+[#](#Elt-Value) elt.**Value** : `string with get, set`
 
 Get or set the value of the Elt. Note that if the element is
 associated with a view (e.g. if it was created with `Doc.Input`), then
 the value will be overridden by any update to this view.
 
-<a name="Elt-Text" href="#Elt-Text">#</a> elt.**Text** : `string with get, set`
+<a name="Elt-Text"></a>
+[#](#Elt-Text) elt.**Text** : `string with get, set`
 
 Get or set the text content of the Elt. Setting the text will
 effectively remove all of the Elt's children from the DOM, and care is
 taken to properly remove them from the dataflow graph.
 
-<a name="Elt-GetAttribute" href="#Elt-GetAttribute">#</a> elt.**GetAttribute** : `string -> string`
+<a name="Elt-GetAttribute"></a>
+[#](#Elt-GetAttribute) elt.**GetAttribute** : `string -> string`
 
 Get the Elt's HTML attribute with the given name.
 
-<a name="Elt-SetAttribute" href="#Elt-SetAttribute">#</a> elt.**SetAttribute** : `string * string -> string`
+<a name="Elt-SetAttribute"></a>
+[#](#Elt-SetAttribute) elt.**SetAttribute** : `string * string -> string`
 
 Set the Elt's HTML attribute with the given name to the given value.
 
-<a name="Elt-HasAttribute" href="#Elt-HasAttribute">#</a> elt.**HasAttribute** : `string -> bool`
+<a name="Elt-HasAttribute"></a>
+[#](#Elt-HasAttribute) elt.**HasAttribute** : `string -> bool`
 
 Checks whether the Elt's attribute with the given name is set.
 
-<a name="Elt-RemoveAttribute" href="#Elt-RemoveAttribute">#</a> elt.**RemoveAttribute** : `string -> bool`
+<a name="Elt-RemoveAttribute"></a>
+[#](#Elt-RemoveAttribute) elt.**RemoveAttribute** : `string -> bool`
 
 Remove the Elt's attribute with the given name, if any.
 
-<a name="Elt-GetProperty" href="#Elt-GetProperty">#</a> elt.**GetProperty** : `string -> string`
+<a name="Elt-GetProperty"></a>
+[#](#Elt-GetProperty) elt.**GetProperty** : `string -> string`
 
 Get the Elt's HTML property with the given name.
 
-<a name="Elt-SetProperty" href="#Elt-SetProperty">#</a> elt.**SetProperty** : `string * string -> string`
+<a name="Elt-SetProperty"></a>
+[#](#Elt-SetProperty) elt.**SetProperty** : `string * string -> string`
 
 Set the Elt's HTML property with the given name to the given value.
 
-<a name="Elt-AddClass" href="#Elt-AddClass">#</a> elt.**AddClass** : `string -> unit`
+<a name="Elt-AddClass"></a>
+[#](#Elt-AddClass) elt.**AddClass** : `string -> unit`
 
 Add the given CSS class to the Elt.
 
-<a name="Elt-RemoveClass" href="#Elt-RemoveClass">#</a> elt.**RemoveClass** : `string -> unit`
+<a name="Elt-RemoveClass"></a>
+[#](#Elt-RemoveClass) elt.**RemoveClass** : `string -> unit`
 
 Remove the given CSS class from the Elt.
 
-<a name="Elt-HasClass" href="#Elt-HasClass">#</a> elt.**HasClass** : `string -> bool`
+<a name="Elt-HasClass"></a>
+[#](#Elt-HasClass) elt.**HasClass** : `string -> bool`
 
 Check whether the Elt has the given CSS class.
 
-<a name="Elt-SetStyle" href="#Elt-SetStyle">#</a> elt.**SetStyle** : `string * string -> unit`
+<a name="Elt-SetStyle"></a>
+[#](#Elt-SetStyle) elt.**SetStyle** : `string * string -> unit`
 
 Sets the Elt's CSS style with the given name to the given value.

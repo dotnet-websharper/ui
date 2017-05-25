@@ -52,11 +52,13 @@ type View =
 
 ## Constructing
 
-<a name="View" href="#View">#</a> **View** `type View<'A>`
+<a name="View"></a>
+[#](#View) **View** `type View<'A>`
 
 A time-varying read-only value of a given type.
 
-<a name="Const" href="#Const">#</a> View.**Const** : `'A -> View<'A>`
+<a name="Const"></a>
+[#](#Const) View.**Const** : `'A -> View<'A>`
 
 Lifts a constant value to a View.  Constants are a boring
 special case of time-varying values:
@@ -65,7 +67,8 @@ special case of time-varying values:
 [[View.Const x]] = x
 ```
 
-<a name="FromVar" href="#FromVar">#</a> View.**FromVar** : `Var<'A> -> View<'A>`
+<a name="FromVar"></a>
+[#](#FromVar) View.**FromVar** : `Var<'A> -> View<'A>`
 
 Also available as a property **.View** on `Var<'A>`.
 
@@ -74,7 +77,8 @@ their current value at any point in time.
 
 ## Using
 
-<a name="Sink" href="#Sink">#</a> View.**Sink** : `('A -> unit) -> View<'A> -> unit`
+<a name="Sink"></a>
+[#](#Sink) View.**Sink** : `('A -> unit) -> View<'A> -> unit`
 
 Starts a process that calls the given function repeatedly with the latest View value.
 This method is rarely needed, the most common way to use views is by constructing
@@ -87,7 +91,8 @@ processes that never get collected because they await a Var that is never going 
 
 ## Combining
 
-<a name="Map" href="#Map">#</a> View.**Map** : `('A -> 'B) -> View<'A> -> View<'B>`
+<a name="Map"></a>
+[#](#Map) View.**Map** : `('A -> 'B) -> View<'A> -> View<'B>`
 
 Also available as a method **.Map**(f) on `View<'A>`.
 
@@ -99,7 +104,8 @@ Lifts a function to the View layer, such that the value `[[]]` relation holds:
 
 This is the simplest and perhaps the most useful combinator.
 
-<a name="MapCached" href="#Map">#</a> View.**MapCached** : `('A -> 'B) -> View<'A> -> View<'B> when 'A : equality`
+<a name="MapCached"></a>
+[#](#Map) View.**MapCached** : `('A -> 'B) -> View<'A> -> View<'B> when 'A : equality`
 
 Also available as a method **.MapCached**(f) on `View<'A>`.
 
@@ -109,7 +115,8 @@ Similar to Map, but caches the previous result: if the input value is equal to w
 [[View.MapCached f x]] = f [[x]]
 ```
 
-<a name="Map2" href="#Map2">#</a> View.**Map2** : `('A -> 'B -> 'C) -> View<'A> -> View<'B> -> View<'C>`
+<a name="Map2"></a>
+[#](#Map2) View.**Map2** : `('A -> 'B -> 'C) -> View<'A> -> View<'B> -> View<'C>`
 
 Pairing combinator generalizing `View.Map` to allow constructing views that depend on more than one view:
 
@@ -117,7 +124,8 @@ Pairing combinator generalizing `View.Map` to allow constructing views that depe
 [[View.Map2 f x y]] = f [[x]] [[y]]
 ```
 
-<a name="Apply" href="#Apply">#</a> View.**Apply** : `View<'A -> 'B> -> View<'A> -> View<'B>`
+<a name="Apply"></a>
+[#](#Apply) View.**Apply** : `View<'A -> 'B> -> View<'A> -> View<'B>`
 
 Another pairing combinator derived from `View.Map2`. Defining equation is:
 
@@ -139,7 +147,8 @@ let ( <*> ) f x = View.Apply f x
 View.Const (fun x y z -> (x, y, z)) <*> x <*> y <*> z
 ```
 
-<a name="Join" href="#Join">#</a> View.**Join** : `View<View<'A>> -> View<'A>`
+<a name="Join"></a>
+[#](#Join) View.**Join** : `View<View<'A>> -> View<'A>`
 
 Flattens a higher-order View, using this defining equation:
 
@@ -151,7 +160,8 @@ Introducing this combinator makes the View layer very flexible, but also general
 complicates the implementation.  It is rarely used directly, but is a building
 block for other combinators.
 
-<a name="Bind" href="#Bind">#</a> View.**Bind** : `('A -> View<'B>) -> View<'A> -> View<'B>`
+<a name="Bind"></a>
+[#](#Bind) View.**Bind** : `('A -> View<'B>) -> View<'A> -> View<'B>`
 
 Also available as a method **.Bind**(f) on `View<'A>`.
 
@@ -183,7 +193,8 @@ Whenever static composition (such as `View.Map2`) can do the trick, it should be
 One concern here is efficiency, and another is state, identity and sharing (see [Sharing](UINext-Sharing.md)
 for a discussion).
 
-<a name="SnapshotOn" href="#SnapshotOn">#</a> View.**SnapshotOn** : `'B -> View<'A> -> View<'B> -> View<'B>`
+<a name="SnapshotOn"></a>
+[#](#SnapshotOn) View.**SnapshotOn** : `'B -> View<'A> -> View<'B> -> View<'B>`
 
 Also available as a method **.SnapshotOn**(init, a) on `View<'B>`.
 
@@ -197,7 +208,8 @@ The value of `a` is unused. The initial value is an initial sample of `b`.
 
 This combinator is used as the base for the implementation of the [Submitter](UINext-Submitter.md), which is commonly used to include punctual events such as button clicks into the dataflow graph.
 
-<a name="UpdateWhile" href="#UpdateWhile">#</a> View.**UpdateWhile** : `'A -> View<'bool> -> View<'A> -> View<'A>`
+<a name="UpdateWhile"></a>
+[#](#UpdateWhile) View.**UpdateWhile** : `'A -> View<'bool> -> View<'A> -> View<'A>`
 
 Also available as a method **.UpdateWhile**(init, a) on `View<'B>`.
 
@@ -212,7 +224,8 @@ Given a predicate `View<bool>` `a`, a view `b`, and a default value, create a vi
 
 ## Advanced
 
-<a name="MapAsync" href="#MapAsync">#</a> View.**MapAsync** : `('A -> Async<'B>) -> View<'A> -> View<'B>`
+<a name="MapAsync"></a>
+[#](#MapAsync) View.**MapAsync** : `('A -> Async<'B>) -> View<'A> -> View<'B>`
 
 Also available as a method **.MapAsync**(f) on `View<'A>`.
 
@@ -226,7 +239,8 @@ results are thus discarded.
 **TODO**: this combinator is being discussed for potential
 imrpovements and the signature is subject to change.
 
-<a name="MapSeqCached" href="#MapSeqCached">#</a> View.**MapSeqCached** : `('A -> 'B) -> View<seq<'A>> -> View<seq<'B>>`
+<a name="MapSeqCached"></a>
+[#](#MapSeqCached) View.**MapSeqCached** : `('A -> 'B) -> View<seq<'A>> -> View<seq<'B>>`
 
 Also available as a method **.MapSeqCached**(f) on `View<'A>`.
 
@@ -240,7 +254,8 @@ Needs equality on `'A`.
 
 Obsolete synonym: `View.Convert`.
 
-<a name="MapSeqCachedBy" href="#MapSeqCachedBy">#</a> View.**MapSeqCachedBy** : `('A -> 'K) -> ('A -> 'B) -> View<seq<'A>> -> View<seq<'B>>`
+<a name="MapSeqCachedBy"></a>
+[#](#MapSeqCachedBy) View.**MapSeqCachedBy** : `('A -> 'K) -> ('A -> 'B) -> View<seq<'A>> -> View<seq<'B>>`
 
 Also available as a method **.MapSeqCached**(k, f) on `View<'A>`.
 
@@ -248,7 +263,8 @@ A variant of `MapSeqCached` with a custom key function, needing an equality on `
 
 Obsolete synonym: `View.ConvertBy`.
 
-<a name="MapSeqCachedView" href="#MapSeqCachedView">#</a> View.**MapSeqCachedView** : `(View<'A> -> 'B) -> View<seq<'A>> -> View<seq<'B>>`
+<a name="MapSeqCachedView"></a>
+[#](#MapSeqCachedView) View.**MapSeqCachedView** : `(View<'A> -> 'B) -> View<seq<'A>> -> View<seq<'B>>`
 
 Also available as a method **.MapSeqCached**(f) on `View<'A>`.
 
@@ -260,7 +276,8 @@ Needs equality on `'A`.
 
 Obsolete synonym: `View.ConvertSeq`.
 
-<a name="MapSeqCachedViewBy" href="#MapSeqCachedViewBy">#</a> View.**MapSeqCachedViewBy** : `('A -> 'K) -> (View<'A> -> 'B) -> View<seq<'A>> -> View<seq<'B>>`
+<a name="MapSeqCachedViewBy"></a>
+[#](#MapSeqCachedViewBy) View.**MapSeqCachedViewBy** : `('A -> 'K) -> (View<'A> -> 'B) -> View<seq<'A>> -> View<seq<'B>>`
 
 Also available as a method **.MapSeqCached**(k, f) on `View<'A>`.
 

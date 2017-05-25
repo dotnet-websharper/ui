@@ -50,19 +50,22 @@ and server-side functionality.
 
 * Every standard HTML5 element `foo` has two associated functions:
 
-<a name="HtmlElt" href="#HtmlElt">#</a> **foo** : `seq<Doc> -> Elt`
+<a name="HtmlElt"></a>
+[#](#HtmlElt) **foo** : `seq<Doc> -> Elt`
 
 Creates an HTML element `<foo>` with the given children.
 Equivalent to `Doc.Element "foo" [] children`.
 
-<a name="HtmlEltAttr" href="#HtmlEltAttr">#</a> **fooAttr** : `seq<Attr> -> seq<Doc> -> Elt`
+<a name="HtmlEltAttr"></a>
+[#](#HtmlEltAttr) **fooAttr** : `seq<Attr> -> seq<Doc> -> Elt`
 
 Creates an HTML element `<foo>` with the given attributes and children.
 Equivalent to `Doc.Element "foo" attrs children`.
 
 * Every standard SVG element `foo` has an associated function:
 
-<a name="SvgElt" href="#SvgElt">#</a> SvgElements.**foo** : `seq<Attr> -> seq<Doc> -> Elt`
+<a name="SvgElt"></a>
+[#](#SvgElt) SvgElements.**foo** : `seq<Attr> -> seq<Doc> -> Elt`
 
 Creates an SVG element `<foo>` with the given attributes and children.
 Equivalent to `Doc.SvgElement "foo" attrs children`.
@@ -71,23 +74,27 @@ Equivalent to `Doc.SvgElement "foo" attrs children`.
 
 * Every standard HTML attribute `foo` has four associated functions:
 
-<a name="Attr" href="#Attr">#</a> attr.**foo** : `string -> Attr`
+<a name="Attr"></a>
+[#](#Attr) attr.**foo** : `string -> Attr`
 
 Creates an attribute named `foo` with a constant value.
 Equivalent to `Attr.Create "foo" value`.
 
-<a name="AttrDyn" href="#AttrDyn">#</a> attr.**fooDyn** : `View<string> -> Attr`
+<a name="AttrDyn"></a>
+[#](#AttrDyn) attr.**fooDyn** : `View<string> -> Attr`
 
 Creates an attribute named `foo` with a time-varying value.
 Equivalent to `Attr.Dynamic "foo" view`.
 
-<a name="AttrDynPred" href="#AttrDynPred">#</a> attr.**fooDynPred** : `View<string> -> View<bool> -> Attr`
+<a name="AttrDynPred"></a>
+[#](#AttrDynPred) attr.**fooDynPred** : `View<string> -> View<bool> -> Attr`
 
 Creates an attribute named `foo` with a time-varying value,
 which is set or unset based on a time-varying predicate.
 Equivalent to `Attr.DynamicPred "foo" view pred`.
 
-<a name="AttrAnim" href="#AttrAnim">#</a> attr.**fooAnim** : `View<'T> -> ('T -> string) -> Trans<'T> -> Attr`
+<a name="AttrAnim"></a>
+[#](#AttrAnim) attr.**fooAnim** : `View<'T> -> ('T -> string) -> Trans<'T> -> Attr`
 
 Creates an animated attribute named `foo` with the given time-varying
 value and transition.
@@ -97,13 +104,15 @@ Equivalent to `Attr.Animated "foo" trans view convert`.
 
 * Every standard HTML event `foo` has two associated functions:
 
-<a name="Event" href="#Event">#</a> on.**foo** : `(Dom.Element -> #Dom.Event -> unit) -> Attr`
+<a name="Event"></a>
+[#](#Event) on.**foo** : `(Dom.Element -> #Dom.Event -> unit) -> Attr`
 
 Creates an event handler for `foo`. The exact subtype of `Dom.Event`
 passed depends on the actual event; for example, `on.click` passes a
 `Dom.MouseEvent`.
 
-<a name="EventView" href="#EventView">#</a> on.**fooView** : `View<'T> -> (Dom.Element -> #Dom.Event -> 'T -> unit) -> Attr`
+<a name="EventView"></a>
+[#](#EventView) on.**fooView** : `View<'T> -> (Dom.Element -> #Dom.Event -> 'T -> unit) -> Attr`
 
 Creates an event handler for `foo`, which also passes the current
 value of the given view.

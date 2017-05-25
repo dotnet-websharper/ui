@@ -29,47 +29,58 @@ type Trans =
     static member CanAnimateExit : Trans<'T> -> bool
 ```
 
-<a name="Trivial" href="#Trivial">#</a> Trans.**Trivial** : `unit -> Trans<'T>`
+<a name="Trivial"></a>
+[#](#Trivial) Trans.**Trivial** : `unit -> Trans<'T>`
 
 Creates a trivial transition that does not animate anything.
 
-<a name="Create" href="#Create">#</a> Trans.**Create** : `('T -> 'T -> Anim<'T>) -> Trans<'T>`
+<a name="Create"></a>
+[#](#Create) Trans.**Create** : `('T -> 'T -> Anim<'T>) -> Trans<'T>`
 
 Creates a transition that animates changes by specifying which `Anim` to play
 for every change from a start to an end value.
 
-<a name="Change" href="#Change">#</a> Trans.**Change** : `('T -> 'T -> Anim<'T>) -> Trans<'T> -> Trans<'T>`
+<a name="Change"></a>
+[#](#Change) Trans.**Change** : `('T -> 'T -> Anim<'T>) -> Trans<'T> -> Trans<'T>`
 
 Functionally updates the "change" animation associated with a given transition.
 
-<a name="Enter" href="#Enter">#</a> Trans.**Enter** : `('T -> Anim<'T>) -> Trans<'T> -> Trans<'T>`
+<a name="Enter"></a>
+[#](#Enter) Trans.**Enter** : `('T -> Anim<'T>) -> Trans<'T> -> Trans<'T>`
 
 Functionally updates the "enter" animation associated with a given transition.
 
-<a name="Exit" href="#Exit">#</a> Trans.**Exit** : `('T -> Anim<'T>) -> Trans<'T> -> Trans<'T>`
+<a name="Exit"></a>
+[#](#Exit) Trans.**Exit** : `('T -> Anim<'T>) -> Trans<'T> -> Trans<'T>`
 
 Functionally updates the "exit" animation associated with a given transition.
 
-<a name="AnimateChange" href="#AnimateChange">#</a> Trans.**AnimateChange** : `Trans<'T> -> 'T -> 'T -> Anim<'T>`
+<a name="AnimateChange"></a>
+[#](#AnimateChange) Trans.**AnimateChange** : `Trans<'T> -> 'T -> 'T -> Anim<'T>`
 
 Unpacks a "change" animation between former an current values.
 
-<a name="AnimateEnter" href="#AnimateEnter">#</a> Trans.**AnimateEnter** : `Trans<'T> -> 'T -> Anim<'T>`
+<a name="AnimateEnter"></a>
+[#](#AnimateEnter) Trans.**AnimateEnter** : `Trans<'T> -> 'T -> Anim<'T>`
 
 Unpacks an "enter" animation toward a current value.
 
-<a name="AnimateExit" href="#AnimateExit">#</a> Trans.**AnimateExit** : `Trans<'T> -> 'T -> Anim<'T>`
+<a name="AnimateExit"></a>
+[#](#AnimateExit) Trans.**AnimateExit** : `Trans<'T> -> 'T -> Anim<'T>`
 
 Unpacks an "exit" animation from a current value.
 
-<a name="CanAnimateChange" href="#CanAnimateChange">#</a> Trans.**CanAnimateChange** : `Trans<'T> -> bool`
+<a name="CanAnimateChange"></a>
+[#](#CanAnimateChange) Trans.**CanAnimateChange** : `Trans<'T> -> bool`
 
 Checks if a "change" animation is specified. This is primarily used internally for optimization.
 
-<a name="CanAnimateEnter" href="#CanAnimateEnter">#</a> Trans.**CanAnimateEnter** : `Trans<'T> -> bool`
+<a name="CanAnimateEnter"></a>
+[#](#CanAnimateEnter) Trans.**CanAnimateEnter** : `Trans<'T> -> bool`
 
 Checks if an "enter" animation is specified. This is primarily used internally for optimization.
 
-<a name="CanAnimateExit" href="#CanAnimateExit">#</a> Trans.**CanAnimateExit** : `Trans<'T> -> bool`
+<a name="CanAnimateExit"></a>
+[#](#CanAnimateExit) Trans.**CanAnimateExit** : `Trans<'T> -> bool`
 
 Checks if an "exit" animation is specified. This is primarily used internally for optimization.

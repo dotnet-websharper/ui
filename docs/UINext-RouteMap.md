@@ -19,11 +19,13 @@ type RouteMap =
     static member Install : RouteMap<'T> -> Var<'T>
 ```
 
-<a href="#RouteMap" name="RouteMap">#</a> **RouteMap** `type RouteMap<'T>`
+<a name="RouteMap"></a>
+[#](#RouteMap) **RouteMap** `type RouteMap<'T>`
 
 A bijection between an URL route and a value of the given type.
 
-<a href="#Install" name="Install">#</a> RouteMap.**Install** : `RouteMap<'T> -> Var<'T>`
+<a name="Install"></a>
+[#](#Install) RouteMap.**Install** : `RouteMap<'T> -> Var<'T>`
 
 Installs a map to observe and modify the browser's current hash route (`document.location.hash`).
 This should be called once per application, as the current URL is a shared resource.
