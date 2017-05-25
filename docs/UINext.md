@@ -6,7 +6,7 @@ UI.Next is a client-side library providing a novel, pragmatic and convenient app
 * A reactive [DOM library](#dom) for displaying these time-varying values in a functional way. If you are familiar with Facebook React, then you will find some similarities with this approach: instead of explicitly inserting, modifying and removing DOM nodes, you return a value that represents a DOM tree based on inputs. The main difference is that these inputs are nodes of the dataflow layer, rather than a single state value associated with the component.
 * A [declarative animation system](#animation) for the DOM layer.
 
-The [tutorial](UINext-UINext-Tutorial.md) goes over the basics of reactive variables and the DOM library.
+The [tutorial](UINext-Tutorial.md) goes over the basics of reactive variables and the DOM library.
 
 For a more in-depth look, check the [reference](UINext-API.md).
 
