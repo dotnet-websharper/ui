@@ -138,6 +138,11 @@ let mainNupkg =
         .Add(tmplCommon)
         .Add(tmpl)
         .Add(csharp)
+        .AddFile("msbuild/Zafir.UI.Next.CSharp.Templating.targets", "build/Zafir.UI.Next.targets")
+//        .AddFile("build/net40/FSharp.Core.dll", "tools/FSharp.Core.dll") // relying on GAC now
+        .AddFile("packages/HtmlAgilityPack."+htmlAgilityPackVersion+"/lib/Net40/HtmlAgilityPack.dll", "tools/HtmlAgilityPack.dll")
+        .AddFile("build/net40/WebSharper.UI.Next.CSharp.Templating.dll", "tools/WebSharper.UI.Next.CSharp.Templating.dll")
+        .AddFile("build/net40/WebSharper.UI.Next.Templating.Common.dll", "tools/WebSharper.UI.Next.Templating.Common.dll")
         .Configure(fun c -> 
             { c with
                 Authors = [ "IntelliFactory" ]
@@ -149,12 +154,9 @@ let mainNupkg =
 
 let csharpTmplNupkg =
     btcstmpl.NuGet.CreatePackage()
+        .Add(tmplCommon)
+        .Add(csharpTmpl)
         .AddPackage(mainNupkg)
-        .AddFile("msbuild/Zafir.UI.Next.CSharp.Templating.targets", "build/Zafir.UI.Next.CSharp.Templating.targets")
-//        .AddFile("build/net40/FSharp.Core.dll", "tools/FSharp.Core.dll") // relying on GAC now
-        .AddFile("packages/HtmlAgilityPack."+htmlAgilityPackVersion+"/lib/Net40/HtmlAgilityPack.dll", "tools/HtmlAgilityPack.dll")
-        .AddFile("build/net40/WebSharper.UI.Next.CSharp.Templating.dll", "tools/WebSharper.UI.Next.CSharp.Templating.dll")
-        .AddFile("build/net40/WebSharper.UI.Next.Templating.Common.dll", "tools/WebSharper.UI.Next.Templating.Common.dll")
         .Configure(fun c -> 
             { c with
                 Authors = [ "IntelliFactory" ]
