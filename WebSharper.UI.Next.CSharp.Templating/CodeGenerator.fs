@@ -141,12 +141,7 @@ let getRelPath (baseDir: string) (fullPath: string) =
             failwith "filePath is not a subdirectory of projectDirectory"
     else fullPath
 
-let GetCode namespaceName projectDirectory filePath
-        ([<Optional; DefaultParameterValue(ServerLoad.WhenChanged)>] serverLoad)
-        ([<Optional; DefaultParameterValue(ClientLoad.Inline)>] clientLoad) =
-    let parsed = Parsing.Parse (getRelPath projectDirectory filePath) projectDirectory
-    let item = parsed.Items.[0] // it's always 1 item because C# doesn't support "foo.html,bar.html" style
-    let templateName = capitalize item.Id
+let getCodeInternal namespaceName templateName (item: ParseItem) serverLoad clientLoad =
     let baseId =
         match item.Id with
         | "" -> "t" + string (Guid.NewGuid().ToString("N"))
@@ -199,3 +194,17 @@ let GetCode namespaceName projectDirectory filePath
             yield "}"
         ]
     String.concat Environment.NewLine lines
+
+let GetCode namespaceName projectDirectory filePath
+        ([<Optional; DefaultParameterValue(ServerLoad.WhenChanged)>] serverLoad)
+        ([<Optional; DefaultParameterValue(ClientLoad.Inline)>] clientLoad) =
+    let parsed = Parsing.Parse (getRelPath projectDirectory filePath) projectDirectory
+    let item = parsed.Items.[0] // it's always 1 item because C# doesn't support "foo.html,bar.html" style
+    let templateName = capitalize item.Id
+    getCodeInternal namespaceName templateName item serverLoad clientLoad
+
+let GetCodeClientOnly namespaceName templateName htmlString
+        ([<Optional; DefaultParameterValue(ClientLoad.Inline)>] clientLoad) =
+    let parsed = Parsing.Parse htmlString null
+    let item = parsed.Items.[0] // it's always 1 item because C# doesn't support "foo.html,bar.html" style
+    getCodeInternal namespaceName templateName item ServerLoad.Once clientLoad

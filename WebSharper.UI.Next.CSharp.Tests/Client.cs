@@ -66,27 +66,33 @@ namespace WebSharper.UI.Next.CSharp.Tests
                 public string Password { get; set; }
             }
 
-        //void Animating()
-        //{
-        //    // define animations that can be parametrized by start and end times
-        //    Func<double, double, Anim<double>> linearAnim =
-        //        (start, end) => Anim.Simple(Interpolation.Double, new Easing(x => x), 300, start, end);
-        //    Func<double, double, Anim<double>> cubicAnim =
-        //        (start, end) => Anim.Simple(Interpolation.Double, Easing.CubicInOut, 300, start, end);
-        //    // define the transition with a cubic in and out and linear in between
-        //    var swipeTransition =
-        //        new Trans<double>(linearAnim, x => cubicAnim(x - 100, x), x => cubicAnim(x, x + 100));
+        public class Rpc
+        {
+            [Remote]
+            public static Task<bool> Login(LoginData data) => Task.FromResult(true);
+        }
 
-        //    var rvLeftPos = Var.Create<double>(0);
-        //    var animatedDoc =
-        //        div(
-        //            style("position", "relative"),
-        //            // TODO + with object and string
-        //            style("left", swipeTransition, rvLeftPos.View, pos => pos + "%"),
-        //            "content"
-        //        );
+        void Animating()
+        {
+            // define animations that can be parametrized by start and end times
+            Func<double, double, Anim<double>> linearAnim =
+                (start, end) => Anim.Simple(Interpolation.Double, new Easing(x => x), 300, start, end);
+            Func<double, double, Anim<double>> cubicAnim =
+                (start, end) => Anim.Simple(Interpolation.Double, Easing.CubicInOut, 300, start, end);
+            // define the transition with a cubic in and out and linear in between
+            var swipeTransition =
+                new Trans<double>(linearAnim, x => cubicAnim(x - 100, x), x => cubicAnim(x, x + 100));
 
-        //}
+            var rvLeftPos = Var.Create<double>(0);
+            var animatedDoc =
+                div(
+                    style("position", "relative"),
+                    // TODO + with object and string
+                    style("left", swipeTransition, rvLeftPos.View, pos => pos + "%"),
+                    "content"
+                );
+
+        }
 
         void DocConstruction()
 
@@ -103,7 +109,7 @@ namespace WebSharper.UI.Next.CSharp.Tests
             //    passwordBox(rvPassword),
             //    button("Log in", sLoginData.Trigger),
             //    vLoginResult.Map(res => Doc.Empty)
-            //);            
+            //);
 
             //{
             //    Doc myDoc = Doc.TextNode("WebSharper");
