@@ -35,14 +35,7 @@ module Doc =
 type Content =
 
     static member Page (doc: Doc) : Async<Content<'Action>> =
-        let hasNonScriptSpecialTags = doc.HasNonScriptSpecialTags
         Content.FromContext <| fun ctx ->
-            let env = Env.Create ctx
-            let res =
-                if hasNonScriptSpecialTags then
-                    env.GetSeparateResourcesAndScripts [doc]
-                else
-                    { Scripts = env.GetResourcesAndScripts [doc]; Styles = ""; Meta = "" }
             Content.Custom(
                 Status = Http.Status.Ok,
                 Headers = [Http.Header.Custom "Content-Type" "text/html; charset=utf-8"],
@@ -50,7 +43,7 @@ type Content =
                     use w = new System.IO.StreamWriter(s, Text.Encoding.UTF8)
                     use w = new System.Web.UI.HtmlTextWriter(w)
                     w.WriteLine("<!DOCTYPE html>")
-                    doc.Write(ctx.Metadata, w, res)
+                    doc.Write(ctx, w, true)
             )
 
     static member Doc (doc: Doc) : Async<Content<'Action>> =
@@ -66,64 +59,31 @@ module Internal =
 
     type TemplateDoc
         (
-            fillWith: Dictionary<string, TemplateHole>,
-            hasNonScriptSpecialTags: bool,
-            write: Core.Metadata.Info -> System.Web.UI.HtmlTextWriter -> option<RenderedResources> -> unit
+            requireResources: seq<IRequiresResources>,
+            write: Web.Context -> System.Web.UI.HtmlTextWriter -> bool -> unit
         ) =
         inherit Doc()
 
-        override this.HasNonScriptSpecialTags = hasNonScriptSpecialTags
-
-        override this.Name = None
+        override this.HasNonScriptSpecialTags = false
 
         override this.Encode(m, j) =
-            [
-                for d in fillWith.Values do
-                    match d with
-                    | TemplateHole.Elt (_, doc) -> yield! (doc :> IRequiresResources).Encode(m, j)
-                    | TemplateHole.Attribute (_, a) ->
-                        if not (obj.ReferenceEquals(a, null)) then
-                            yield! (a :> IRequiresResources).Encode(m, j)
-                    | _ -> ()
-            ]
+            List.concat (requireResources |> Seq.map (fun rr -> rr.Encode(m, j)))
 
         override this.Requires =
-            seq {
-                for d in fillWith.Values do
-                    match d with
-                    | TemplateHole.Elt (_, doc) -> yield! (doc :> IRequiresResources).Requires
-                    | TemplateHole.Attribute (_, a) ->
-                        if not (obj.ReferenceEquals(a, null)) then
-                            yield! (a :> IRequiresResources).Requires
-                    | _ -> ()
-            }
+            Seq.concat (requireResources |> Seq.map (fun rr -> rr.Requires))
 
-        override this.Write(m, h, ?res) = 
-            write m h res
+        override this.Write(ctx, h, res) = 
+            write ctx h res
+
+        override this.Write(ctx, h, _: option<RenderedResources>) =
+            write ctx h false
 
     type TemplateElt =
         inherit Elt
 
-        new (name, fillWith: Dictionary<string, TemplateHole>, hasNonScriptSpecialTags, write) =
+        new (requireResources: seq<IRequiresResources>, write) =
             let encode m j =
-                [
-                    for d in fillWith.Values do
-                        match d with
-                        | TemplateHole.Elt (_, doc) -> yield! (doc :> IRequiresResources).Encode(m, j)
-                        | TemplateHole.Attribute (_, a) ->
-                            if not (obj.ReferenceEquals(a, null)) then
-                                yield! (a :> IRequiresResources).Encode(m, j)
-                        | _ -> ()
-                ]
+                List.concat (requireResources |> Seq.map (fun rr -> rr.Encode(m, j)))
             let requires (attrs: list<Attr>) =
-                seq {
-                    for a in attrs do yield! (a :> IRequiresResources).Requires
-                    for d in fillWith.Values do
-                        match d with
-                        | TemplateHole.Elt (_, doc) -> yield! (doc :> IRequiresResources).Requires
-                        | TemplateHole.Attribute (_, a) ->
-                            if not (obj.ReferenceEquals(a, null)) then
-                                yield! (a :> IRequiresResources).Requires
-                        | _ -> ()
-                }
-            { inherit Elt(name, [], encode, requires, (fun _ -> hasNonScriptSpecialTags), write) }
+                Seq.concat (requireResources |> Seq.map (fun rr -> rr.Requires))
+            { inherit Elt([], encode, requires, false, (fun a ctx w _ -> write a ctx w false), Some write) }

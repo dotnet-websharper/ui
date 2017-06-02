@@ -230,7 +230,7 @@ namespace WebSharper.UI.Next.CSharp.Tests
                         .Clear((el, ev) => Tasks.RemoveByKey(task.Name))
                         .Done(task.Done)
                         .ShowDone(attr.@class("checked", task.Done.View, x => x))
-                        .Doc()
+                        .Elt()
                 ))
                 .NewTaskName(NewTaskName)
                 .Add((el, ev) =>
@@ -242,7 +242,8 @@ namespace WebSharper.UI.Next.CSharp.Tests
                 .Doc()
                 .RunById("tasks");
             new Index.Index.tasksTitle()
-                .Doc()
+                .Elt()
+                .OnAfterRender(FSharpConvert.Fun<JavaScript.Dom.Element>((el) => JavaScript.Console.Log("test")))
                 .RunById("tasksTitle");
         }
     }

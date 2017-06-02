@@ -190,7 +190,8 @@ module private Impl =
                 ((%%args.[0] : obj) :?> list<TemplateHole>),
                 %OptionValue ctx.InlineFileId,
                 %%Expr.Value ctx.ServerLoad,
-                %%references
+                %%references,
+                %%Expr.Value ctx.Template.IsElt
             ) @>
         |> wrap
             

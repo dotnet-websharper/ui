@@ -29,6 +29,7 @@ open WebSharper.Web
 open WebSharper.UI.Next
 open WebSharper.UI.Next.Server
 open WebSharper.UI.Next.Templating.AST
+open WebSharper.Sitelets
 open WebSharper.Sitelets.Content
 open System.Collections.Concurrent
 
@@ -62,6 +63,15 @@ type LegacyMode =
     | New = 3
 
 type private Holes = Dictionary<HoleName, TemplateHole>
+
+type private RenderContext =
+    {
+        Context : Web.Context
+        Writer : HtmlTextWriter
+        Resources: option<RenderedResources>
+        Templates: Map<Parsing.WrappedTemplateName, Template>
+        FillWith: Holes
+    }
 
 type Runtime private () =
 
@@ -106,7 +116,8 @@ type Runtime private () =
                 fillWith: seq<TemplateHole>,
                 inlineBaseName: option<string>,
                 serverLoad: ServerLoad,
-                refs: array<string * option<string> * string>
+                refs: array<string * option<string> * string>,
+                isElt: bool
             ) : Doc =
         let getOrLoadSrc src =
             loaded.GetOrAdd(baseName, fun _ -> Parsing.ParseSource baseName src)
@@ -116,54 +127,26 @@ type Runtime private () =
             let src = File.ReadAllText fullPath
             let parsed = Parsing.ParseSource baseName src
             loaded.AddOrUpdate(baseName, parsed, fun _ _ -> parsed)
-        let templates =
-            match path with
-            | None -> getOrLoadSrc src
-            | Some path ->
-            match serverLoad with
-            | ServerLoad.Once -> getOrLoadSrc src
-            | ServerLoad.PerRequest ->
-                let fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path)
-                Parsing.ParseSource baseName (File.ReadAllText fullPath)
-            | ServerLoad.WhenChanged ->
-                let fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path)
-                let watcher = watchers.GetOrAdd(baseName, fun _ ->
-                    let dir = Path.GetDirectoryName fullPath
-                    let file = Path.GetFileName fullPath
-                    let watcher =
-                        new FileSystemWatcher(
-                            Path = dir,
-                            Filter = file,
-                            NotifyFilter = (NotifyFilters.LastWrite ||| NotifyFilters.Security ||| NotifyFilters.FileName),
-                            EnableRaisingEvents = true)
-                    let handler _ =
-                        reload fullPath |> ignore
-                    watcher.Changed.Add handler
-                    watcher)
-                getOrLoadPath fullPath
-            | _ -> failwith "Invalid ServerLoad"
-        let template = getTemplate baseName (Parsing.WrappedTemplateName.OfOption name) templates
-        let fillWith = buildFillDict fillWith template.Holes
 
-        let rec writeWrappedTemplate templateName (template: Template) m (w: HtmlTextWriter) r =
+        let rec writeWrappedTemplate templateName (template: Template) ctx =
             let tagName = template.Value |> Array.tryPick (function
                 | Node.Element (name, _, _, _)
                 | Node.Input (name, _, _, _) -> Some name
                 | Node.Text _ | Node.DocHole _ | Node.Instantiate _ -> None
             )
             let before, after = defaultArg (Map.tryFind tagName templateWrappers) defaultTemplateWrappers
-            w.Write(before, ChildrenTemplateAttr, templateName)
-            writeTemplate template true [] m w r
-            w.Write(after)
+            ctx.Writer.Write(before, ChildrenTemplateAttr, templateName)
+            writeTemplate template true [] ctx
+            ctx.Writer.Write(after)
 
-        and writeTemplate (template: Template) (plain: bool) (extraAttrs: list<UI.Next.Attr>) m (w: HtmlTextWriter) (r: option<RenderedResources>) =
+        and writeTemplate (template: Template) (plain: bool) (extraAttrs: list<UI.Next.Attr>) (ctx: RenderContext) =
             let stringParts text =
                 text
                 |> Array.map (function
                     | StringPart.Text t -> t
                     | StringPart.Hole holeName ->
                         if plain then "${" + holeName + "}" else
-                        match fillWith.TryGetValue holeName with
+                        match ctx.FillWith.TryGetValue holeName with
                         | true, TemplateHole.Text (_, t) -> t
                         | true, _ -> failwithf "Invalid hole, expected text: %s" holeName
                         | false, _ -> ""
@@ -171,37 +154,37 @@ type Runtime private () =
                 |> String.concat ""
             let writeAttr = function
                 | Attr.Attr holeName when plain ->
-                    w.WriteAttribute(AttrAttr, holeName)
+                    ctx.Writer.WriteAttribute(AttrAttr, holeName)
                 | Attr.Attr holeName ->
-                    match fillWith.TryGetValue holeName with
-                    | true, TemplateHole.Attribute (_, a) -> a.Write(m, w, true)
+                    match ctx.FillWith.TryGetValue holeName with
+                    | true, TemplateHole.Attribute (_, a) -> a.Write(ctx.Context.Metadata, ctx.Writer, true)
                     | true, _ -> failwithf "Invalid hole, expected attribute: %s" holeName
                     | false, _ -> ()
                 | Attr.Simple(name, value) ->
-                    w.WriteAttribute(name, value)
+                    ctx.Writer.WriteAttribute(name, value)
                 | Attr.Compound(name, value) ->
-                    w.WriteAttribute(name, stringParts value)
+                    ctx.Writer.WriteAttribute(name, stringParts value)
                 | Attr.Event(event, holeName) ->
-                    if plain then w.WriteAttribute(EventAttrPrefix + event, holeName)
+                    if plain then ctx.Writer.WriteAttribute(EventAttrPrefix + event, holeName)
                 | Attr.OnAfterRender holeName ->
-                    if plain then w.WriteAttribute(AfterRenderAttr, holeName)
+                    if plain then ctx.Writer.WriteAttribute(AfterRenderAttr, holeName)
             let rec writeElement tag attrs dataVar children =
-                w.WriteBeginTag(tag)
+                ctx.Writer.WriteBeginTag(tag)
                 attrs |> Array.iter writeAttr
-                extraAttrs |> List.iter (fun a -> a.Write(m, w, true))
-                dataVar |> Option.iter (fun v -> w.WriteAttribute("ws-var", v))
+                extraAttrs |> List.iter (fun a -> a.Write(ctx.Context.Metadata, ctx.Writer, true))
+                dataVar |> Option.iter (fun v -> ctx.Writer.WriteAttribute("ws-var", v))
                 if Array.isEmpty children && HtmlTextWriter.IsSelfClosingTag tag then
-                    w.Write(HtmlTextWriter.SelfClosingTagEnd)
+                    ctx.Writer.Write(HtmlTextWriter.SelfClosingTagEnd)
                 else
-                    w.Write(HtmlTextWriter.TagRightChar)
+                    ctx.Writer.Write(HtmlTextWriter.TagRightChar)
                     Array.iter writeNode children
                     if tag = "body" && Option.isNone name && Option.isSome inlineBaseName then
-                        templates |> Seq.iter (fun (KeyValue(k, v)) ->
+                        ctx.Templates |> Seq.iter (fun (KeyValue(k, v)) ->
                             match k.NameAsOption with
-                            | Some templateName -> writeWrappedTemplate templateName v m w r
+                            | Some templateName -> writeWrappedTemplate templateName v ctx
                             | None -> ()
                         )
-                    w.WriteEndTag(tag)
+                    ctx.Writer.WriteEndTag(tag)
             and writeNode = function
                 | Node.Input (tag, holeName, attrs, children) when plain ->
                     writeElement tag attrs (Some holeName) children
@@ -209,26 +192,82 @@ type Runtime private () =
                 | Node.Input (tag, _, attrs, children) ->
                     writeElement tag attrs None children
                 | Node.Text text ->
-                    w.WriteEncodedText(stringParts text)
+                    ctx.Writer.WriteEncodedText(stringParts text)
                 | Node.DocHole holeName when plain ->
-                    w.WriteBeginTag("div")
-                    w.WriteAttribute(ReplaceAttr, holeName)
-                    w.Write(HtmlTextWriter.TagRightChar)
-                    w.WriteEndTag("div")
-                | Node.DocHole ("scripts" | "styles" | "meta" as name) when Option.isSome r ->
-                    w.Write(r.Value.[name])
+                    ctx.Writer.WriteBeginTag("div")
+                    ctx.Writer.WriteAttribute(ReplaceAttr, holeName)
+                    ctx.Writer.Write(HtmlTextWriter.TagRightChar)
+                    ctx.Writer.WriteEndTag("div")
+                | Node.DocHole ("scripts" | "styles" | "meta" as name) when Option.isSome ctx.Resources ->
+                    ctx.Writer.Write(ctx.Resources.Value.[name])
                 | Node.DocHole holeName ->
-                    match fillWith.TryGetValue holeName with
-                    | true, TemplateHole.Elt (_, doc) -> doc.Write(m, w, ?res = r)
-                    | true, TemplateHole.Text (_, txt) -> w.WriteEncodedText(txt)
+                    match ctx.FillWith.TryGetValue holeName with
+                    | true, TemplateHole.Elt (_, doc) -> doc.Write(ctx.Context, ctx.Writer, ctx.Resources)
+                    | true, TemplateHole.Text (_, txt) -> ctx.Writer.WriteEncodedText(txt)
                     | true, _ -> failwithf "Invalid hole, expected Doc: %s" holeName
                     | false, _ -> ()
                 | Node.Instantiate _ ->
                     failwithf "Template instantiation not yet supported on the server side"
             Array.iter writeNode template.Value
-        let write = writeTemplate template false
-        match template.Value with
-        | [| Node.Element (tag, _, _, _) | Node.Input (tag, _, _, _) |] ->
-            Server.Internal.TemplateElt(tag, fillWith, template.HasNonScriptSpecialTags, write) :> _
-        | _ ->
-            Server.Internal.TemplateDoc(fillWith, template.HasNonScriptSpecialTags, write []) :> _
+        let templates = ref None
+        let getTemplates (ctx: Web.Context) =
+            match !templates with
+            | Some t -> getTemplate baseName (Parsing.WrappedTemplateName.OfOption name) t, t
+            | None ->
+                let t =
+                    match path, serverLoad with
+                    | None, _
+                    | Some _, ServerLoad.Once ->
+                        getOrLoadSrc src
+                    | Some path, ServerLoad.PerRequest ->
+                        let fullPath = Path.Combine(ctx.RootFolder, path)
+                        Parsing.ParseSource baseName (File.ReadAllText fullPath)
+                    | Some path, ServerLoad.WhenChanged ->
+                        let fullPath = Path.Combine(ctx.RootFolder, path)
+                        let watcher = watchers.GetOrAdd(baseName, fun _ ->
+                            let dir = Path.GetDirectoryName fullPath
+                            let file = Path.GetFileName fullPath
+                            let watcher =
+                                new FileSystemWatcher(
+                                    Path = dir,
+                                    Filter = file,
+                                    NotifyFilter = (NotifyFilters.LastWrite ||| NotifyFilters.Security ||| NotifyFilters.FileName),
+                                    EnableRaisingEvents = true)
+                            let handler _ =
+                                reload fullPath |> ignore
+                            watcher.Changed.Add handler
+                            watcher)
+                        getOrLoadPath fullPath
+                    | Some _, _ -> failwith "Invalid ServerLoad"
+                templates := Some t
+                getTemplate baseName (Parsing.WrappedTemplateName.OfOption name) t, t
+        let requireResources =
+            fillWith
+            |> Seq.choose (function
+                | TemplateHole.Elt (_, d) when not (obj.ReferenceEquals(d, null)) ->
+                    Some (d :> IRequiresResources)
+                | TemplateHole.Attribute (_, a) when not (obj.ReferenceEquals(a, null)) ->
+                    Some (a :> IRequiresResources)
+                | _ -> None
+            )
+        let write extraAttrs ctx w r =
+            let template, templates = getTemplates ctx
+            let r =
+                if r then
+                    if template.HasNonScriptSpecialTags then
+                        Some (ctx.GetSeparateResourcesAndScripts requireResources)
+                    else
+                        Some { Scripts = ctx.GetResourcesAndScripts requireResources; Styles = ""; Meta = "" }
+                else None
+            let fillWith = buildFillDict fillWith template.Holes
+            writeTemplate template false extraAttrs {
+                Context = ctx
+                Writer = w
+                Resources = r
+                Templates = templates
+                FillWith = fillWith
+            }
+        if isElt then
+            Server.Internal.TemplateElt(requireResources, write) :> _
+        else
+            Server.Internal.TemplateDoc(requireResources, write []) :> _

@@ -25,6 +25,7 @@ open System.Web.UI
 open Microsoft.FSharp.Quotations
 open WebSharper
 open WebSharper.Web
+open WebSharper.Sitelets
 open WebSharper.JavaScript
 
 [<AbstractClass>]
@@ -34,34 +35,43 @@ type Doc() =
         member this.ReplaceInDom n = X<unit>
 
     interface INode with
-        member this.Write(meta, w) = this.Write(meta, w, ?res = None)
+        member this.Write(ctx, w) = this.Write(ctx, w, false)
         member this.IsAttribute = false
-        member this.AttributeValue = None
-        member this.Name = this.Name
 
     interface IRequiresResources with
         member this.Encode(meta, json) = this.Encode(meta, json)
         member this.Requires = this.Requires
 
-    abstract Write : Core.Metadata.Info * HtmlTextWriter * ?res: Sitelets.Content.RenderedResources -> unit
+    abstract Write : Web.Context * HtmlTextWriter * res: option<Sitelets.Content.RenderedResources> -> unit
+    abstract Write : Web.Context * HtmlTextWriter * renderResources: bool -> unit
     abstract HasNonScriptSpecialTags : bool
-    abstract Name : option<string>
     abstract Encode : Core.Metadata.Info * Core.Json.Provider -> list<string * Core.Json.Encoded>
     abstract Requires : seq<Core.Metadata.Node>
+
+    default this.Write(ctx: Web.Context, w: HtmlTextWriter, renderResources: bool) =
+        let resources =
+            if renderResources then
+                if this.HasNonScriptSpecialTags then
+                    ctx.GetSeparateResourcesAndScripts [this]
+                else
+                    { Scripts = ctx.GetResourcesAndScripts [this]; Styles = ""; Meta = "" }
+                |> Some
+            else None
+        this.Write(ctx, w, resources)
 
 and ConcreteDoc(dd: DynDoc) =
     inherit Doc()
 
-    override this.Write(meta, w, ?res) =
+    override this.Write(ctx, w, res: option<Sitelets.Content.RenderedResources>) =
         match dd with
         | AppendDoc docs ->
-            docs |> List.iter (fun d -> d.Write(meta, w, ?res = res))
+            docs |> List.iter (fun d -> d.Write(ctx, w, res))
         | ElemDoc elt ->
-            (elt :> Doc).Write(meta, w, ?res = res)
+            elt.Write(ctx, w, res)
         | EmptyDoc -> ()
         | TextDoc t -> w.WriteEncodedText(t)
         | VerbatimDoc t -> w.Write(t)
-        | INodeDoc d -> d.Write(meta, w)
+        | INodeDoc d -> d.Write(ctx, w)
 
     override this.HasNonScriptSpecialTags =
         match dd with
@@ -70,15 +80,6 @@ and ConcreteDoc(dd: DynDoc) =
         | ElemDoc elt ->
             (elt :> Doc).HasNonScriptSpecialTags
         | _ -> false
-
-    override this.Name =
-        match dd with
-        | AppendDoc _
-        | EmptyDoc
-        | TextDoc _
-        | VerbatimDoc _ -> None
-        | ElemDoc e -> e.Name
-        | INodeDoc n -> n.Name
 
     override this.Encode(meta, json) =
         match dd with
@@ -106,24 +107,30 @@ and HoleName = Replace | Hole
 
 and Elt
     (
-        tag: string, attrs: list<Attr>,
+        attrs: list<Attr>,
         encode, requires, hasNonScriptSpecialTags,
-        write: list<Attr> -> Core.Metadata.Info -> System.Web.UI.HtmlTextWriter -> option<Sitelets.Content.RenderedResources> -> unit
+        write: list<Attr> -> Web.Context -> System.Web.UI.HtmlTextWriter -> option<Sitelets.Content.RenderedResources> -> unit,
+        write': option<list<Attr> -> Web.Context -> System.Web.UI.HtmlTextWriter -> bool -> unit>
     ) =
     inherit Doc()
 
-    override this.HasNonScriptSpecialTags = hasNonScriptSpecialTags attrs
+    let mutable attrs = attrs
 
-    override this.Name = Some tag
+    override this.HasNonScriptSpecialTags = hasNonScriptSpecialTags
 
     override this.Encode(m, j) = encode m j
 
     override this.Requires = requires attrs
 
-    override this.Write(m, h, ?res) = write attrs m h res
+    override this.Write(ctx, h, res) = write attrs ctx h res
+
+    override this.Write(ctx, h, res) =
+        match write' with
+        | Some f -> f attrs ctx h res
+        | None -> base.Write(ctx, h, res)
 
     new (tag: string, attrs: list<Attr>, children: list<Doc>) =
-        let write attrs meta (w: HtmlTextWriter) (res: option<Sitelets.Content.RenderedResources>) =
+        let write attrs (ctx: Web.Context) (w: HtmlTextWriter) (res: option<Sitelets.Content.RenderedResources>) =
             let hole =
                 res |> Option.bind (fun res ->
                     let rec findHole a =
@@ -143,7 +150,7 @@ and Elt
             | Some (HoleName.Replace, name, res) -> w.Write(res.[name])
             | Some (HoleName.Hole, name, res) ->
                 w.WriteBeginTag(tag)
-                attrs |> List.iter (fun a -> a.Write(meta, w, true))
+                attrs |> List.iter (fun a -> a.Write(ctx.Metadata, w, true))
                 w.Write(HtmlTextWriter.TagRightChar)
                 w.Write(res.[name])
                 w.WriteEndTag(tag)
@@ -151,15 +158,15 @@ and Elt
                 w.WriteBeginTag(tag)
                 attrs |> List.iter (fun a ->
                     if not (obj.ReferenceEquals(a, null))
-                    then a.Write(meta, w, false))
+                    then a.Write(ctx.Metadata, w, false))
                 if List.isEmpty children && HtmlTextWriter.IsSelfClosingTag tag then
                     w.Write(HtmlTextWriter.SelfClosingTagEnd)
                 else
                     w.Write(HtmlTextWriter.TagRightChar)
-                    children |> List.iter (fun e -> e.Write(meta, w, ?res = res))
+                    children |> List.iter (fun e -> e.Write(ctx, w, res))
                     w.WriteEndTag(tag)
 
-        let hasNonScriptSpecialTags attrs =
+        let hasNonScriptSpecialTags =
             let rec testAttr a =
                 if obj.ReferenceEquals(a, null) then false else
                 match a with
@@ -181,13 +188,15 @@ and Elt
                     else (a :> IRequiresResources).Requires))
                 (children |> Seq.collect (fun e -> (e :> IRequiresResources).Requires))
 
-        Elt(tag, attrs, encode, requires, hasNonScriptSpecialTags, write)
+        Elt(attrs, encode, requires, hasNonScriptSpecialTags, write, None)
 
     member this.On(ev, cb) =
-        Elt(tag, Attr.Handler ev cb :: attrs, encode, requires, hasNonScriptSpecialTags, write)
+        attrs <- Attr.Handler ev cb :: attrs
+        this
 
     member this.OnLinq(ev, cb) =
-        Elt(tag, Attr.HandlerLinq ev cb :: attrs, encode, requires, hasNonScriptSpecialTags, write)
+        attrs <- Attr.HandlerLinq ev cb :: attrs
+        this
 
     // {{ event
     member this.OnAbort(cb: Expr<Dom.Element -> Dom.UIEvent -> unit>) = this.On("abort", cb)

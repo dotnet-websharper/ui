@@ -73,9 +73,10 @@ type Doc =
     /// Verbatim HTML.
     static member Verbatim : string -> Doc
 
-    abstract Write : Core.Metadata.Info * System.Web.UI.HtmlTextWriter * ?res: Sitelets.Content.RenderedResources -> unit
+    abstract Write : Web.Context * System.Web.UI.HtmlTextWriter * res: option<Sitelets.Content.RenderedResources> -> unit
+    abstract Write : Web.Context * System.Web.UI.HtmlTextWriter * renderResources: bool -> unit
+    default Write : Web.Context * System.Web.UI.HtmlTextWriter * renderResources: bool -> unit
     abstract HasNonScriptSpecialTags : bool
-    abstract Name : option<string>
     abstract Encode : Core.Metadata.Info * Core.Json.Provider -> list<string * Core.Json.Encoded>
     abstract Requires : seq<Core.Metadata.Node>
     static member internal OfINode : Web.INode -> Doc
@@ -86,17 +87,16 @@ and [<Class>] Elt =
     inherit Doc
 
     internal new
-        : tag: string
-        * attrs: list<Attr>
+        : attrs: list<Attr>
         * encode: (Core.Metadata.Info -> Core.Json.Provider -> list<string * Core.Json.Encoded>)
         * requires: (list<Attr> -> seq<Core.Metadata.Node>)
-        * hasNonScriptSpecialTags: (list<Attr> -> bool)
-        * write: (list<Attr> -> Core.Metadata.Info -> System.Web.UI.HtmlTextWriter -> option<Sitelets.Content.RenderedResources> -> unit)
+        * hasNonScriptSpecialTags: bool
+        * write: (list<Attr> -> Web.Context -> System.Web.UI.HtmlTextWriter -> option<Sitelets.Content.RenderedResources> -> unit)
+        * write': (option<list<Attr> -> Web.Context -> System.Web.UI.HtmlTextWriter -> bool -> unit>)
         -> Elt
 
-    override Write : Core.Metadata.Info * System.Web.UI.HtmlTextWriter * ?res: Sitelets.Content.RenderedResources -> unit
+    override Write : Web.Context * System.Web.UI.HtmlTextWriter * res: option<Sitelets.Content.RenderedResources> -> unit
     override HasNonScriptSpecialTags : bool
-    override Name : option<string>
     override Encode : Core.Metadata.Info * Core.Json.Provider -> list<string * Core.Json.Encoded>
     override Requires : seq<Core.Metadata.Node>
 

@@ -63,17 +63,14 @@ module Internal =
     type TemplateDoc =
         inherit Doc
 
-        new : fillWith: System.Collections.Generic.Dictionary<string, TemplateHole>
-            * hasNonScriptSpecialTags: bool
-            * write: (Core.Metadata.Info -> System.Web.UI.HtmlTextWriter -> option<RenderedResources> -> unit)
+        new : seq<IRequiresResources>
+            * write: (Web.Context -> System.Web.UI.HtmlTextWriter -> bool -> unit)
             -> TemplateDoc
 
     [<Class>]
     type TemplateElt =
         inherit Elt
 
-        new : name: string
-            * fillWith: Dictionary<string, TemplateHole>
-            * hasNonScriptSpecialTags: bool
-            * write: (list<Attr> -> Core.Metadata.Info -> System.Web.UI.HtmlTextWriter -> option<RenderedResources> -> unit)
+        new : seq<IRequiresResources>
+            * write: (list<Attr> -> Web.Context -> System.Web.UI.HtmlTextWriter -> bool -> unit)
             -> TemplateElt
