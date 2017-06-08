@@ -6,7 +6,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{13fba482-7285-4c83-a201-2d60ff89e586}</ProjectGuid>
     <WebSharperProject>Library</WebSharperProject>
-    <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
+    <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
     <NuGetPackageImportStamp>44d8c19c</NuGetPackageImportStamp>
     <OutputPath>../build/net40</OutputPath>
     <OutputType>Library</OutputType>

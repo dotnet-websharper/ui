@@ -39,16 +39,29 @@ do
         )
 
 let tmplCommon =
-    bt.Zafir.Library("WebSharper.UI.Next.Templating.Common")
+    bt.FSharp.Library("WebSharper.UI.Next.Templating.Common")
         .SourcesFromProject()
         .References(fun r ->
             [
                 r.Project main
                 r.Assembly "System.Xml"
                 r.Assembly "System.Xml.Linq"
+                r.NuGet("HtmlAgilityPack").Version(htmlAgilityPackVersion).Reference()
+            ])
+
+let tmplRuntime =
+    bt.Zafir.Library("WebSharper.UI.Next.Templating.Runtime")
+        .SourcesFromProject()
+        .References(fun r ->
+            [
+                r.Project main
+                r.Project tmplCommon
+                r.Assembly "System.Xml"
+                r.Assembly "System.Xml.Linq"
                 r.Assembly "System.Runtime.Caching"
                 r.NuGet("HtmlAgilityPack").Version(htmlAgilityPackVersion).Reference()
             ])
+
 
 let tmpl =
     bt.Zafir.Library("WebSharper.UI.Next.Templating")
@@ -57,6 +70,7 @@ let tmpl =
             [
                 r.Project main
                 r.Project tmplCommon
+                r.Project tmplRuntime
                 r.Assembly "System.Xml"
                 r.Assembly "System.Xml.Linq"
                 r.Assembly "System.Runtime.Caching"
@@ -73,14 +87,20 @@ let csharp =
             ])
 
 let csharpTmpl =
-    bt.Zafir.Library("WebSharper.UI.Next.CSharp.Templating")
+    bt.WithFramework(fun fw -> fw.Net45)
+        .Zafir.Library("WebSharper.UI.Next.CSharp.Templating")
         .SourcesFromProject()
         .References(fun r ->
             [
                 r.Project tmplCommon
                 r.Assembly "System.Xml"
                 r.Assembly "System.Xml.Linq"
-            ])
+                r.File(__SOURCE_DIRECTORY__ + "/packages/Microsoft.CodeAnalysis.Common/lib/net45/Microsoft.CodeAnalysis.dll").CopyLocal(true)
+                r.File(__SOURCE_DIRECTORY__ + "/packages/Microsoft.CodeAnalysis.CSharp/lib/net45/Microsoft.CodeAnalysis.CSharp.dll").CopyLocal(true)
+                r.File(__SOURCE_DIRECTORY__ + "/packages/System.Collections.Immutable/lib/portable-net45+win8+wp8+wpa81/System.Collections.Immutable.dll").CopyLocal(true)
+                r.File(__SOURCE_DIRECTORY__ + "/packages/System.Reflection.Metadata/lib/portable-net45+win8/System.Reflection.Metadata.dll").CopyLocal(true)
+                r.File(System.Environment.GetFolderPath(System.Environment.SpecialFolder.ProgramFilesX86) + "/Reference Assemblies/Microsoft/Framework/.NETFramework/v4.5/Facades/System.Runtime.dll")
+           ])
 
 let test = 
     bt.WithFSharpVersion(FSharpVersion.FSharp31)
@@ -102,6 +122,7 @@ let tmplTest =
             [
                 r.Project main
                 r.Project tmplCommon
+                r.Project tmplRuntime
                 r.Project tmpl
                 r.NuGet("HtmlAgilityPack").Version(htmlAgilityPackVersion).Reference()
             ])
@@ -115,34 +136,28 @@ let serverTest =
             [
                 r.Project main
                 r.Project tmplCommon
+                r.Project tmplRuntime
                 r.Project tmpl
                 r.NuGet("HtmlAgilityPack").Version(htmlAgilityPackVersion).Reference()
             ])
 
 let cstest =
-    bt.WithFramework(fun fw -> fw.Net45)
-        .Zafir.CSharp.BundleWebsite("WebSharper.UI.Next.CSharp.Tests")
-        .SourcesFromProject("WebSharper.UI.Next.CSharp.Tests.csproj")
-        .WithSourceMap()
-        .References(fun r ->
-            [
-                r.File(__SOURCE_DIRECTORY__ + "/build/net40/WebSharper.UI.Next.dll")
-                r.File(__SOURCE_DIRECTORY__ + "/build/net40/WebSharper.UI.Next.Templating.Common.dll")
-                r.File(__SOURCE_DIRECTORY__ + "/build/net40/WebSharper.UI.Next.CSharp.dll")
-                r.File(__SOURCE_DIRECTORY__ + "/build/net40/WebSharper.UI.Next.CSharp.Templating.dll")
-            ])
+    bt.MSBuild("WebSharper.UI.Next.CSharp.Tests")
 
 let mainNupkg =
     bt.NuGet.CreatePackage()
         .Add(main)
         .Add(tmplCommon)
+        .Add(tmplRuntime)
         .Add(tmpl)
         .Add(csharp)
         .AddFile("msbuild/Zafir.UI.Next.CSharp.Templating.targets", "build/Zafir.UI.Next.targets")
 //        .AddFile("build/net40/FSharp.Core.dll", "tools/FSharp.Core.dll") // relying on GAC now
         .AddFile("packages/HtmlAgilityPack."+htmlAgilityPackVersion+"/lib/Net40/HtmlAgilityPack.dll", "tools/HtmlAgilityPack.dll")
-        .AddFile("build/net40/WebSharper.UI.Next.CSharp.Templating.dll", "tools/WebSharper.UI.Next.CSharp.Templating.dll")
         .AddFile("build/net40/WebSharper.UI.Next.Templating.Common.dll", "tools/WebSharper.UI.Next.Templating.Common.dll")
+        .AddFile("build/net45/WebSharper.UI.Next.CSharp.Templating.dll", "tools/WebSharper.UI.Next.CSharp.Templating.dll")
+        .AddFile("WebSharper.UI.Next.CSharp.Templating/install.ps1", "tools/install.ps1")
+        .AddFile("WebSharper.UI.Next.CSharp.Templating/uninstall.ps1", "tools/uninstall.ps1")
         .Configure(fun c -> 
             { c with
                 Authors = [ "IntelliFactory" ]
@@ -155,6 +170,7 @@ let mainNupkg =
 let csharpTmplNupkg =
     btcstmpl.NuGet.CreatePackage()
         .Add(tmplCommon)
+        .Add(tmplRuntime)
         .Add(csharpTmpl)
         .AddPackage(mainNupkg)
         .Configure(fun c -> 
@@ -169,6 +185,7 @@ let csharpTmplNupkg =
 bt.Solution [
     main
     tmplCommon
+    tmplRuntime
     tmpl
     csharp
     csharpTmpl

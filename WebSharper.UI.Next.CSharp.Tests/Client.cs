@@ -16,7 +16,6 @@ using System;
 
 namespace WebSharper.UI.Next.CSharp.Tests
 {
-
     [JavaScript]
 
     public class App
@@ -223,9 +222,9 @@ namespace WebSharper.UI.Next.CSharp.Tests
                 };
 
             var NewTaskName = Var.Create("");
-            new Template.Template.Main()
+            new Templates.Template.Main()
                 .ListContainer(Tasks.View.DocSeqCached((TaskItem task) =>
-                    new Template.Template.ListItem()
+                    new Templates.Template.ListItem()
                         .Task(task.Name)
                         .Clear((el, ev) => Tasks.RemoveByKey(task.Name))
                         .Done(task.Done)
@@ -241,7 +240,7 @@ namespace WebSharper.UI.Next.CSharp.Tests
                 .ClearCompleted((el, ev) => Tasks.RemoveBy(task => task.Done.Value))
                 .Doc()
                 .RunById("tasks");
-            new Index.Index.tasksTitle()
+            new Templates.Index.tasksTitle()
                 .Elt()
                 .OnAfterRender(FSharpConvert.Fun<JavaScript.Dom.Element>((el) => JavaScript.Console.Log("test")))
                 .RunById("tasksTitle");
