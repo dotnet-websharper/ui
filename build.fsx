@@ -46,7 +46,7 @@ let tmplCommon =
                 r.Project main
                 r.Assembly "System.Xml"
                 r.Assembly "System.Xml.Linq"
-                r.NuGet("HtmlAgilityPack").Version(htmlAgilityPackVersion).Reference()
+                r.NuGet("HtmlAgilityPack").Version(htmlAgilityPackVersion).Reference().CopyLocal(true)
             ])
 
 let tmplRuntime =

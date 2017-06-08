@@ -222,9 +222,9 @@ namespace WebSharper.UI.Next.CSharp.Tests
                 };
 
             var NewTaskName = Var.Create("");
-            new Templates.Template.Main()
+            new Template.Template.Main()
                 .ListContainer(Tasks.View.DocSeqCached((TaskItem task) =>
-                    new Templates.Template.ListItem()
+                    new Template.Template.ListItem()
                         .Task(task.Name)
                         .Clear((el, ev) => Tasks.RemoveByKey(task.Name))
                         .Done(task.Done)
@@ -240,7 +240,7 @@ namespace WebSharper.UI.Next.CSharp.Tests
                 .ClearCompleted((el, ev) => Tasks.RemoveBy(task => task.Done.Value))
                 .Doc()
                 .RunById("tasks");
-            new Templates.Index.tasksTitle()
+            new Template.Index.tasksTitle()
                 .Elt()
                 .OnAfterRender(FSharpConvert.Fun<JavaScript.Dom.Element>((el) => JavaScript.Console.Log("test")))
                 .RunById("tasksTitle");
