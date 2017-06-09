@@ -81,7 +81,7 @@ module private Impl =
     let BuildMethod<'T> (holeName: HoleName) (resTy: Type)
             (wrapArg: Expr<'T> -> Expr<TemplateHole>) line column (ctx: Ctx) =
         let m =
-            ctx.PT.ProvidedMethod(holeName, [ProvidedParameter(holeName, typeof<'T>)], resTy, function
+            ctx.PT.ProvidedMethod(holeName, [ctx.PT.ProvidedParameter(holeName, typeof<'T>)], resTy, function
                 | [this; arg] -> <@@ box ((%wrapArg (Expr.Cast arg)) :: ((%%this : obj) :?> list<TemplateHole>)) @@>
                 | _ -> failwith "Incorrect invoke")
         match ctx.Path with
