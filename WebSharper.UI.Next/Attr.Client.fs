@@ -219,7 +219,10 @@ module Attrs =
         // work around WS issue with UseNullAsTrueValue
         if Object.ReferenceEquals(a, null) then b
         elif Object.ReferenceEquals(b, null) then a
-        else A2 (a, b)
+        else
+        let x = A2 (a, b)
+        SetFlags x (Flags a ||| Flags b)
+        x
 //        match a, b with
 //        | A0, x | x, A0 -> x
 //        | _ -> A2 (a, b)
