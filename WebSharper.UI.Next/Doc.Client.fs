@@ -1605,13 +1605,15 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
     [<Name "SetStyle">]
     member this.SetStyle'(style: string, value: string) =
         elt?style?(style) <- value
-                                                                  
+
 and [<JavaScript; Proxy(typeof<EltUpdater>)>] 
     private EltUpdater'(treeNode : DocTreeNode, updates, elt, rvUpdates: Var<View<unit>>, holeUpdates: Var<(int * View<unit>)[]>) =
     inherit Elt'(
         TreeDoc treeNode, 
         View.Map2Unit updates (holeUpdates.View |> View.BindInner (Array.map snd >> Array.TreeReduce (View.Const ()) View.Map2Unit)),
         elt, rvUpdates)
+
+    let origHoles = treeNode.Holes
 
     member this.AddUpdated(doc: Elt) =
         let d = As<Elt'> doc
@@ -1628,17 +1630,20 @@ and [<JavaScript; Proxy(typeof<EltUpdater>)>]
         match d.DocNode with
         | ElemDoc e ->
             let k = e.ElKey
-            treeNode.Holes <-
-                treeNode.Holes |> Array.filter (fun h -> h.ElKey <> k)
-            holeUpdates.Value <-
-                holeUpdates.Value |> Array.filter (function
-                    | uk, _ when uk = k -> false
-                    | _ -> true
-                )                
+            let h = treeNode.Holes
+            match h |> Array.tryFindIndex (fun h -> h.ElKey = k) with
+            | None -> ()
+            | Some i ->
+                // Don't mutate h here, replace it! We might be iterating on it from outside.
+                treeNode.Holes <- h.JS.Slice(0, i).JS.Concat(h.JS.Slice(i + 1))
+                // holeUpdates is fine to mutate though, it's mapped via TreeReduce.
+                Var.Update holeUpdates (fun a ->
+                    a.JS.Splice(i, 1) |> ignore
+                    a)
         | _ -> failwith "DocUpdater.RemoveUpdated expects a single element node"
 
     member this.RemoveAllUpdated() =
-        treeNode.Holes <- [||]
+        treeNode.Holes <- origHoles
         holeUpdates.Value <- [||]
 
 [<AutoOpen; JavaScript>]
