@@ -55,10 +55,13 @@
     <Compile Include="TypeProviderHelpers.fs" />
     <Compile Include="Routing.fsi" />
     <Compile Include="Routing.fs" />
+    <Compile Include="Pager.fsi" />
+    <Compile Include="Pager.fs" />
     <Content Include="SVG.fs" />
     <Compile Include="Input.fsi" />
     <Compile Include="Input.fs" />
     <EmbeddedResource Include="h5f.js" />
+    <EmbeddedResource Include="page.css" />
   </ItemGroup>
   <!-- F# targets -->
   <Choose>

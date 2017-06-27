@@ -469,4 +469,6 @@ module Main =
             )
         ]
         |> Doc.RunAppend JS.Document.Body
+        Paging.pager.Doc
+        |> Doc.RunAppend JS.Document.Body
 #endif

@@ -34,6 +34,9 @@ type H5F() =
                 ren.Emit(html, Js)
                 html.WriteLine "<![endif]-->"
 
+type PagerCss() =
+    inherit BaseResource("page.css")
+
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module internal H5F =
     [<Require(typeof<H5F>)>]
@@ -41,4 +44,5 @@ module internal H5F =
     let Setup (e: Dom.Element) = X<unit>
 
 [<assembly:System.Web.UI.WebResource("h5f.js", "text/javascript")>]
+[<assembly:System.Web.UI.WebResource("page.css", "text/css")>]
 do ()
