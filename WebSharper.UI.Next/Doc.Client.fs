@@ -1459,6 +1459,20 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
         this.AppendDoc(Doc'.BindView (fun x -> this.Element?(id) <- x; Doc'.Empty') view)
         this.OnAfterRender(fun e -> cb e e?(id))
 
+    abstract AddHole : DocElemNode -> unit 
+    default this.AddHole h = 
+        match docNode with
+        | TreeDoc e ->
+            e.Holes.JS.Push h |> ignore
+        | _ -> ()
+
+    abstract ClearHoles : unit -> unit 
+    default this.ClearHoles() = 
+        match docNode with
+        | TreeDoc e ->
+            e.Holes <- [||]
+        | _ -> ()
+
     [<Name "Append">]
     member this.AppendDoc(doc: Doc') =
         match docNode with
@@ -1468,14 +1482,14 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
         | TreeDoc e ->
             let after = elt.AppendChild(JS.Document.CreateTextNode "")
             let before = Docs.InsertBeforeDelim after doc.DocNode
-            e.Holes.JS.Push {
+            this.AddHole {
                 El = elt
                 Attr = Attrs.Empty elt
                 Children = doc.DocNode
                 Delimiters = Some (before, after)
                 ElKey = Fresh.Int()
                 Render = None
-            } |> ignore
+            } 
         | _ -> failwith "Invalid docNode in Elt"
         rvUpdates.Value <- View.Map2Unit rvUpdates.Value doc.Updates
 
@@ -1492,14 +1506,14 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
         | TreeDoc e ->
             let after = elt.InsertBefore(JS.Document.CreateTextNode "", elt.FirstChild)
             let before = Docs.InsertBeforeDelim after doc.DocNode
-            e.Holes.JS.Push {
+            this.AddHole {
                 El = elt
                 Attr = Attrs.Empty elt
                 Children = doc.DocNode
                 Delimiters = Some (before, after)
                 ElKey = Fresh.Int()
                 Render = None
-            } |> ignore
+            }
         | _ -> failwith "Invalid docNode in Elt"
         rvUpdates.Value <- View.Map2Unit rvUpdates.Value doc.Updates
 
@@ -1510,7 +1524,7 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
             e.Children <- EmptyDoc
         | TreeDoc e ->
             e.Els <- [||]
-            e.Holes <- [||]
+            this.ClearHoles()
         | _ -> failwith "Invalid docNode in Elt"
         rvUpdates.Value <- View.Const()
         while (elt.HasChildNodes()) do elt.RemoveChild(elt.FirstChild) |> ignore
@@ -1559,7 +1573,7 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
             e.Children <- EmptyDoc
         | TreeDoc e ->
             e.Els <- [||]
-            e.Holes <- [||]
+            this.ClearHoles()
         | _ -> failwith "Invalid docNode in Elt"
         rvUpdates.Value <- View.Const()
         elt.TextContent <- v
@@ -1613,13 +1627,22 @@ and [<JavaScript; Proxy(typeof<EltUpdater>)>]
         View.Map2Unit updates (holeUpdates.View |> View.BindInner (Array.map snd >> Array.TreeReduce (View.Const ()) View.Map2Unit)),
         elt, rvUpdates)
 
-    let origHoles = treeNode.Holes
+    let mutable origHoles = treeNode.Holes
+
+    override this.AddHole h =
+        origHoles.JS.Push h |> ignore
+        treeNode.Holes <- Array.append treeNode.Holes [| h |]
+
+    override this.ClearHoles() =
+        origHoles <- [||]
+        treeNode.Holes <- [||]
+        holeUpdates.Value <- [||]
 
     member this.AddUpdated(doc: Elt) =
         let d = As<Elt'> doc
         match d.DocNode with
         | ElemDoc e ->
-            treeNode.Holes.JS.Push(e) |> ignore
+            treeNode.Holes <- Array.append treeNode.Holes [| e |]
             let hu = holeUpdates.Value
             hu.JS.Push ((e.ElKey, d.Updates)) |> ignore
             holeUpdates.Value <- hu
@@ -1630,18 +1653,13 @@ and [<JavaScript; Proxy(typeof<EltUpdater>)>]
         match d.DocNode with
         | ElemDoc e ->
             let k = e.ElKey
-            let hu = holeUpdates.Value
-            match hu |> Array.tryFindIndex (fun (uk, _) -> uk = k) with
-            | None -> ()
-            | Some i ->
-                let h = treeNode.Holes
-                // Index in h is shifted because of original holes
-                let j = i + origHoles.Length
-                // Don't mutate h here, replace it! We might be iterating on it from outside.
-                treeNode.Holes <- h.JS.Slice(0, j).JS.Concat(h.JS.Slice(j + 1))
-                // holeUpdates is fine to mutate though, it's mapped via TreeReduce.
-                hu.JS.Splice(i, 1) |> ignore
-                holeUpdates.Value <- hu
+            treeNode.Holes <-
+                treeNode.Holes |> Array.filter (fun h -> h.ElKey <> k)
+            holeUpdates.Value <-
+                holeUpdates.Value |> Array.filter (function
+                    | uk, _ when uk = k -> false
+                    | _ -> true
+                )  
         | _ -> failwith "DocUpdater.RemoveUpdated expects a single element node"
 
     member this.RemoveAllUpdated() =
