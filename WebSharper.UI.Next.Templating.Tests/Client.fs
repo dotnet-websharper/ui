@@ -69,12 +69,12 @@ module Client =
 
         let testCounter = Var.Create 0
         let eltUpdater =
-                divAttr [ 
-                    Attr.DynamicStyle "background" (testCounter.View.Map(fun i -> if i % 2 = 0 then "white" else "lightgray"))
-                ] [
-                    testCounter.View.Doc(fun _ -> Doc.Empty)
-                ]
-                |> Doc.ToUpdaterNonSynced
+            divAttr [ 
+                Attr.DynamicStyle "background" (testCounter.View.Map(fun i -> if i % 2 = 0 then "white" else "lightgray"))
+            ] [
+                testCounter.View.Doc(fun _ -> Doc.Empty)
+            ]
+            |> Doc.ToUpdater
         let testCounterStr = testCounter.View.Map(string)
         let added = System.Collections.Generic.Queue<Elt>()
         let removed = System.Collections.Generic.Queue<Elt>()
