@@ -266,6 +266,7 @@ type DocExtensions =
     static member SetStyle : Elt * name: string * value: string -> unit
 
     /// Creates a wrapper that allows subscribing elements for DOM syncronization inserted through other means than UI.Next combinators.
+    /// Removes automatic DOM synchronization of children elements, but not attributes.
     [<Extension>]
     static member ToUpdater : Elt -> EltUpdater
 
@@ -1290,5 +1291,6 @@ module Doc =
         when 'T : equality
 
     /// Creates a wrapper that allows subscribing elements for DOM syncronization inserted through other means than UI.Next combinators.
+    /// Removes automatic DOM synchronization of children elements, but not attributes.
     val ToUpdater : Elt -> EltUpdater
 

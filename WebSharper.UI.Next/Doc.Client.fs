@@ -1536,8 +1536,8 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
             | ElemDoc e ->
                 {
                     Els = [| Union1Of2 (upcast elt) |]
-                    Holes = [| e |]
-                    Attrs = [||]
+                    Holes = [||]
+                    Attrs = [| elt, e.Attr |]
                     Render = None
                     Dirty = true
                 }
