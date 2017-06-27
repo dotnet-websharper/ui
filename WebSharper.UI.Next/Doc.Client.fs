@@ -1630,16 +1630,18 @@ and [<JavaScript; Proxy(typeof<EltUpdater>)>]
         match d.DocNode with
         | ElemDoc e ->
             let k = e.ElKey
-            let h = treeNode.Holes
-            match h |> Array.tryFindIndex (fun h -> h.ElKey = k) with
+            let hu = holeUpdates.Value
+            match hu |> Array.tryFindIndex (fun (uk, _) -> uk = k) with
             | None -> ()
             | Some i ->
+                let h = treeNode.Holes
+                // Index in h is shifted because of original holes
+                let j = i + origHoles.Length
                 // Don't mutate h here, replace it! We might be iterating on it from outside.
-                treeNode.Holes <- h.JS.Slice(0, i).JS.Concat(h.JS.Slice(i + 1))
+                treeNode.Holes <- h.JS.Slice(0, j).JS.Concat(h.JS.Slice(j + 1))
                 // holeUpdates is fine to mutate though, it's mapped via TreeReduce.
-                Var.Update holeUpdates (fun a ->
-                    a.JS.Splice(i, 1) |> ignore
-                    a)
+                hu.JS.Splice(i, 1) |> ignore
+                holeUpdates.Value <- hu
         | _ -> failwith "DocUpdater.RemoveUpdated expects a single element node"
 
     member this.RemoveAllUpdated() =

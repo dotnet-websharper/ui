@@ -67,8 +67,12 @@ module Client =
         let password = Var.Create ""
         let submit = Submitter.CreateOption (View.Map2 (fun x y -> x, y) username.View password.View)
 
-        let eltUpdater = (div []).ToUpdater()
         let testCounter = Var.Create 0
+        let eltUpdater =
+                divAttr [ 
+                    Attr.DynamicStyle "background" (testCounter.View.Map(fun i -> if i % 2 = 0 then "white" else "lightgray"))
+                ] []
+                |> Doc.ToUpdater
         let testCounterStr = testCounter.View.Map(string)
         let added = System.Collections.Generic.Queue<Elt>()
         let removed = System.Collections.Generic.Queue<Elt>()
@@ -85,12 +89,21 @@ module Client =
                 let rem = added.Dequeue()
                 eltUpdater.RemoveUpdated rem
                 removed.Enqueue rem
+                Console.Log "removed updater"
 
         let reAddUpdater () =
             if removed.Count > 0 then
                 let readd = removed.Dequeue()
                 eltUpdater.AddUpdated readd
                 added.Enqueue readd
+                Console.Log "readded updater"
+
+        let removeAllUpdaters () =
+            while added.Count > 0 do
+                removed.Enqueue(added.Dequeue())    
+            eltUpdater.RemoveAllUpdated()
+            added.Clear()
+            Console.Log "removed all updaters"
 
         let doc =
             MyTemplate.template()
@@ -213,6 +226,7 @@ module Client =
                 .AddDiv(fun _ _ -> addDiv())
                 .RemoveUpdater(fun _ _ -> removeUpdater())
                 .ReAddUpdater(fun _ _ -> reAddUpdater())
+                .RemoveAllUpdaters(fun _ _ -> removeAllUpdaters())
                 .IncrEltUpdaterTest(fun _ _ -> testCounter := !testCounter + 1)
                 .EltUpdaterTest(eltUpdater)
                 .Username(username)
