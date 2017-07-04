@@ -149,7 +149,7 @@ let getCodeInternal namespaceName templateName (item: ParseItem) serverLoad clie
         | p -> p
     let inlineFileId =
         match clientLoad with
-        | ClientLoad.FromDocument -> Some item.Id
+        | ClientLoad.FromDocument -> Some baseId
         | _ -> None
     let lines = 
         [
