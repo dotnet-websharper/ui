@@ -2,7 +2,7 @@
 open IntelliFactory.Core
 open IntelliFactory.Build
 
-let htmlAgilityPackVersion = "1.4.9.5"
+let htmlAgilityPackVersion = "1.5.0"
 
 let bt =
     BuildTool().PackageId("Zafir.UI.Next")
