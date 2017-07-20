@@ -240,8 +240,8 @@ and private RouteMapBuilderMacro() =
 //                        t'.GetFields(BF.Instance ||| BF.Public ||| BF.NonPublic)
                         |> Seq.choose (fun (KeyValue(compName, f)) ->
                             match f with
-                            | Metadata.InstanceField name 
-                            | Metadata.OptionalField name -> 
+                            | Metadata.InstanceField name, _, _ 
+                            | Metadata.OptionalField name, _, _ -> 
                                 comp.GetFieldAttributes(td, compName) |> Option.map (fun (ftyp, fattrs) ->
                                     let isQuery =
                                         fattrs
@@ -266,7 +266,7 @@ and private RouteMapBuilderMacro() =
                                         name, queryItem, ty
                                     else name, QueryItem.NotQuery, ftyp
                                 )
-                            | Metadata.StaticField _ -> None
+                            | Metadata.StaticField _, _, _ -> None
                         ) 
                         |> List.ofSeq
                     let isHole (n: string) = n.StartsWith "{" && n.EndsWith "}"
@@ -364,7 +364,7 @@ and private RouteMapBuilderMacro() =
                 Let (mk, Call (None, routeItemParsersT, makeLinkM, [routeShape]),
                     Lambda ([action],
                         Conditional (TypeCheck (Var action, targ),
-                            some (listOf stringT) (Application (Var mk, [Var action], true, Some 1)),
+                            some (listOf stringT) (Application (Var mk, [Var action], Pure, Some 1)),
                             none (listOf stringT)
                         )
                     )
@@ -378,7 +378,7 @@ and private RouteMapBuilderMacro() =
                 let render = c.Arguments.[0]
                 Lambda([go; action],
                     Conditional (TypeCheck (Var action, targ),
-                        some targ (Application (render, [Var go; Var action], true, Some 2)),
+                        some targ (Application (render, [Var go; Var action], Pure, Some 2)),
                         none targ
                     )
                 )
