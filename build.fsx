@@ -46,7 +46,7 @@ let tmplCommon =
                 r.Project main
                 r.Assembly "System.Xml"
                 r.Assembly "System.Xml.Linq"
-                r.NuGet("HtmlAgilityPack").Version(htmlAgilityPackVersion).Reference().CopyLocal(true)
+                r.NuGet("HtmlAgilityPack").Version("["+htmlAgilityPackVersion+"]").Reference().CopyLocal(true)
             ])
 
 let tmplRuntime =
@@ -59,7 +59,7 @@ let tmplRuntime =
                 r.Assembly "System.Xml"
                 r.Assembly "System.Xml.Linq"
                 r.Assembly "System.Runtime.Caching"
-                r.NuGet("HtmlAgilityPack").Version(htmlAgilityPackVersion).Reference()
+                r.NuGet("HtmlAgilityPack").Version("["+htmlAgilityPackVersion+"]").Reference()
             ])
 
 
@@ -74,7 +74,7 @@ let tmpl =
                 r.Assembly "System.Xml"
                 r.Assembly "System.Xml.Linq"
                 r.Assembly "System.Runtime.Caching"
-                r.NuGet("HtmlAgilityPack").Version(htmlAgilityPackVersion).Reference()
+                r.NuGet("HtmlAgilityPack").Version("["+htmlAgilityPackVersion+"]").Reference()
             ])
 
 let csharp =
@@ -124,7 +124,7 @@ let tmplTest =
                 r.Project tmplCommon
                 r.Project tmplRuntime
                 r.Project tmpl
-                r.NuGet("HtmlAgilityPack").Version(htmlAgilityPackVersion).Reference()
+                r.NuGet("HtmlAgilityPack").Version("["+htmlAgilityPackVersion+"]").Reference()
             ])
 
 let serverTest =
@@ -138,7 +138,7 @@ let serverTest =
                 r.Project tmplCommon
                 r.Project tmplRuntime
                 r.Project tmpl
-                r.NuGet("HtmlAgilityPack").Version(htmlAgilityPackVersion).Reference()
+                r.NuGet("HtmlAgilityPack").Version("["+htmlAgilityPackVersion+"]").Reference()
             ])
 
 let cstest =
