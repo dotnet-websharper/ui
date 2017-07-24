@@ -57,6 +57,8 @@ module ViewOptimization =
     let getSnapF (x: 'A -> View<'T>) = x >> (|V|)
     [<Inline "null">]
     let jsNull<'T>() = Unchecked.defaultof<'T>
+    [<Inline "Error().stack">]
+    let jsStack<'T>() = ""
     
 /// Var either holds a Snap or is in Const state.
 [<JavaScript>]
@@ -100,6 +102,13 @@ and [<JavaScript; Sealed>] Var =
                 VarView = V (fun () -> var.Snap)
             }
         var
+
+    static member CreateLogged (name: string) v =
+        if not (WebSharper.JavaScript.JS.Global?UINVars) then
+            WebSharper.JavaScript.JS.Global?UINVars <- [||]
+        let res = Var.Create v
+        WebSharper.JavaScript.JS.Global?UINVars?push([| name; WebSharper.JavaScript.Pervasives.As res |])
+        res
 
     static member Create() =
         let mutable var = jsNull()
@@ -145,6 +154,46 @@ and [<JavaScript; Sealed>] Var =
     static member Observe var =
         var.Snap
 
+type [<JavaScript>] Updates = 
+    {
+        [<Name "c">] mutable Current : View<unit>
+        [<Name "s">] mutable Snap : Snap<unit>
+        [<Name "v">] VarView : View<unit>
+    }
+
+    [<Inline>]
+    member this.View = this.VarView
+
+    static member Create v =
+        let mutable var = jsNull()
+        var <-
+            {
+                Current = v
+                Snap = jsNull()
+                VarView = 
+                    let obs () =
+                        let mutable c = var.Snap
+                        if obj.ReferenceEquals(c, null) then
+                            let (V observe) = var.Current
+                            c <- observe() |> Snap.Copy
+                            var.Snap <- c
+                            Snap.WhenObsoleteRun c (fun () -> 
+                                var.Snap <- jsNull())
+                            c
+                        else c
+                    
+                    V obs
+            }
+        var
+
+    member this.Value
+        with [<Inline>] get() = this.Current
+        and set v =
+            let sn = this.Snap
+            if not (obj.ReferenceEquals(sn, null)) then
+                Snap.MarkObsolete sn
+            this.Current <- v
+
 type ViewNode<'A,'B> =
     {
         [<Name "e">] NValue : 'B
@@ -180,7 +229,7 @@ type View =
                 if Snap.IsForever c then 
                     lv.Observe <- jsNull()
                 else
-                    Snap.WhenObsolete c (fun () -> 
+                    Snap.WhenObsoleteRun c (fun () -> 
                         lv.Current <- jsNull()) 
                 c
             else c
@@ -226,7 +275,7 @@ type View =
     static member Get (f: 'T -> unit) (V observe) =
         let ok = ref false
         let rec obs () =
-            Snap.When (observe ())
+            Snap.WhenRun (observe ())
                 (fun v ->
                     if not !ok then
                         ok := true
@@ -246,7 +295,7 @@ type View =
                 let s2 = o2 ()
                 Snap.SnapshotOn s1 s2
             else
-                Snap.WhenObsolete s1 (Snap.Obs sInit)
+                Snap.WhenObsolete s1 sInit
                 sInit
 
         View.CreateLazy obs
@@ -392,7 +441,7 @@ type View =
     static member Sink act (V observe) =
         let rec loop () =
             let sn = observe ()
-            Snap.When sn act (fun () ->
+            Snap.WhenRun sn act (fun () ->
                 Async.Schedule loop)
         Async.Schedule loop
 
@@ -400,7 +449,7 @@ type View =
         let cont = ref true
         let rec loop () =
             let sn = observe ()
-            Snap.When sn
+            Snap.WhenRun sn
                 (fun x -> if !cont then act x)
                 (fun () -> if !cont then Async.Schedule loop)
         Async.Schedule loop

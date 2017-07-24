@@ -190,6 +190,7 @@ type Anim with
 
     static member Run k anim =
         let dur = anim.Duration
+        if dur = 0. then async.Zero() else
         Async.FromContinuations <| fun (ok, _, _) ->
             let rec loop start now =
                 let t = now - start

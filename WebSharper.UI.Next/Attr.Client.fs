@@ -119,7 +119,6 @@ type AttrFlags =
     | HasChangeAnim = 4
 
 [<JavaScript; Proxy(typeof<Attr>); Name "WebSharper.UI.Next.AttrProxy"; Prototype>]
-[<CompilationRepresentation(CompilationRepresentationFlags.UseNullAsTrueValue)>]
 type internal AttrProxy =
     | [<Constant(null)>] A0
     | A1 of IAttrNode

@@ -172,6 +172,11 @@ module internal Abbrev =
             d |> Seq.iteri (fun i kv -> arr.[i] <- kv.Value)
             arr
 
+    module Queue =
+
+        [<Inline "$q">]
+        let ToArray (q: Generic.Queue<_>) = q.ToArray()
+
     [<JavaScript>]
     [<Sealed>]
     type Slot<'T,'K when 'K : equality>(key: 'T -> 'K, value: 'T) =
@@ -195,6 +200,7 @@ module internal Abbrev =
         let StartTo comp k =
             Async.StartWithContinuations (comp, k, OnError, ignore)
 
+        [<Inline "WebSharper.Concurrency.scheduler().Fork($f)">]
         let Schedule f =
             async { return f () }
             |> Async.Start
@@ -218,7 +224,7 @@ module internal Abbrev =
                         st := MailboxState.Idle
                     | MailboxState.WorkingMore ->
                         st := MailboxState.Working
-                        do! work() 
+                        return! work() 
                     | _ -> ()
                 }
             let post() =

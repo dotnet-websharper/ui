@@ -11,6 +11,44 @@ open WebSharper.UI.Next.Notation
 [<JavaScript>]
 module Main =
 
+    type T = {
+        i : int
+        n : float
+        d : float
+    }
+
+    do // updating an memory stress test
+        Anim.UseAnimations <- false
+        
+        let m = ref 0
+        let v = Var.Create {
+            i = 0
+            n = 0.0
+            d = 0.0
+        }
+
+        let rec f (n : float) =
+            let w = !v
+            v :=
+                {w with
+                    i = w.i + 1
+                    n = n
+                    d = n - w.n
+                }
+            JS.RequestAnimationFrame (fun x -> incr m; f x) |> ignore
+
+        let unchanging = Var.Create "unchanging"
+
+        JS.RequestAnimationFrame f |> ignore
+
+        div [
+            div [v.View |> View.Map (fun t -> "Frame " + string t.i) |> textView]
+            div [v.View |> View.Map (fun t -> sprintf "Started: %.1f" t.n) |> textView]
+            div [v.View |> View.Map (fun t -> sprintf "Duration: %.1fms" t.d) |> textView]
+            divAttr [ Attr.Style "display" "none" ] [unchanging.View |> textView]
+        ]
+        |> Doc.RunById "stresstest"
+    
     let TestAnim =
         let linearAnim = Anim.Simple Interpolation.Double (Easing.Custom id) 300.
         let cubicAnim = Anim.Simple Interpolation.Double Easing.CubicInOut 300.
@@ -371,10 +409,9 @@ module Main =
                 equalMsgAsync get2 43 "async after set"
             }
 
-
             Test "Stress test" {
                 // we simulate a spreadsheet with changeable formulas of size n x n
-                let n = 500
+                let n = 400
                 let sheet = 
                     Array2D.init n n (fun _ _ ->
                         Var.Create (View.Const 0)
@@ -384,23 +421,38 @@ module Main =
                         sheet.[0, i] := sheet.[0, i - 1].View |> View.Join
                         sheet.[i, 0] := sheet.[i - 1, 0].View |> View.Join
                         for j = 1 to n - 1 do
-                            sheet.[i, j] := 
-                                (sheet.[i - 1, j].View |> View.Join, sheet.[i, j - 1].View |> View.Join) 
-                                ||> View.Map2 (
-                                    if i = 100 && j = 100 then
-                                        fun a b ->
-                                            Console.Log "calculating value at (100, 100)"
-                                            (a + b) % 1000000
-                                    elif i = n - 1 && j = n - 1 then
-                                        fun a b ->
-                                            Console.Log "calculating final value"
-                                            (a + b) % 1000000
-                                    else
-                                        fun a b -> (a + b) % 1000000
-                                )
+                            let set f =
+                                sheet.[i, j] := 
+                                    (sheet.[i - 1, j].View |> View.Join, sheet.[i, j - 1].View |> View.Join) 
+                                    ||> View.Map2 f
+                            if i = 100 && j = 100 then
+                                set <| fun a b ->
+                                    Console.Log "calculating value at (100, 100)"
+                                    (a + b) % 1000000
+                            elif i = n - 1 && j = n - 1 then
+                                set <| fun a b ->
+                                    Console.Log "calculating final value"
+                                    (a + b) % 1000000
+                            else
+                                set <| fun a b -> (a + b) % 1000000
                 equalAsync (sheet.[n - 1, n - 1].View |> View.Join |> View.GetAsync) 0
                 sheet.[0, 0] := View.Const 1
-                equalAsync (sheet.[n - 1, n - 1].View |> View.Join |> View.GetAsync) 920000
+                equalAsync (sheet.[n - 1, n - 1].View |> View.Join |> View.GetAsync) 272000
+                JS.Global?stressTest <- sheet
+            }
+
+            Test "Long chain" {
+                let n = 1000
+                let v = Var.Create 0
+                let res = 
+                    v.View |> Seq.unfold (fun a ->
+                        let b = a |> View.Map ((+) 1)
+                        Some (b, b)
+                    )
+                    |> Seq.nth (n - 1)
+                equalAsync (res |> View.GetAsync) 1000
+                v := 1
+                equalAsync (res |> View.GetAsync) 1001
             }
         }
 

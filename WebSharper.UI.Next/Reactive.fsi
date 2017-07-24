@@ -98,6 +98,9 @@ type Var =
     /// Creates a fresh variable with the given initial value.
     static member Create : 'A -> Var<'A>
 
+    /// Creates a fresh variable with the given initial value.
+    static member CreateLogged : string -> 'A -> Var<'A>
+
     /// Obtains the current value.
     static member Get : Var<'A> -> 'A
 
@@ -118,6 +121,12 @@ type Var =
 
     /// Gets a reference to part of a var's value.
     static member Lens : IRef<'A> -> get: ('A -> 'V) -> update: ('A -> 'V -> 'A) -> IRef<'V>
+
+[<Sealed>]
+type internal Updates =
+    member View : View<unit>
+    member Value : View<unit> with get, set
+    static member Create : View<unit> -> Updates
 
 /// Computation expression builder for views.
 [<Sealed>]

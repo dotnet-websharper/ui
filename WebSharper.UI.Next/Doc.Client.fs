@@ -14,7 +14,7 @@ type DocNode =
     | AppendDoc of DocNode * DocNode
     | ElemDoc of DocElemNode
     | EmbedDoc of DocEmbedNode
-    | EmptyDoc
+    | [<Constant(null)>] EmptyDoc
     | TextDoc of DocTextNode
     | TextNodeDoc of TextNode
     | TreeDoc of DocTreeNode
@@ -363,6 +363,13 @@ module Docs =
         |> Array.map (fun n -> Attrs.GetEnterAnim n.Attr)
         |> Anim.Concat
 
+    let SyncElemNodesNextFrame st = 
+        Async.FromContinuations <| fun (ok, _, _) ->
+            JS.RequestAnimationFrame (fun _ ->
+                SyncElemNode st.Top
+                ok()
+            ) |> ignore
+
     /// The main function: how to perform an animated top-level document update.
     let PerformAnimatedUpdate st doc =
         if Anim.UseAnimations then
@@ -372,16 +379,12 @@ module Docs =
                 let enter = ComputeEnterAnim st cur
                 let exit = ComputeExitAnim st cur
                 do! Anim.Play (Anim.Append change exit)
-                do SyncElemNode st.Top
+                do! SyncElemNodesNextFrame st
                 do! Anim.Play enter
                 return st.PreviousNodes <- cur
             }
         else
-            Async.FromContinuations <| fun (ok, _, _) ->
-                JS.RequestAnimationFrame (fun _ ->
-                    SyncElemNode st.Top
-                    ok()
-                ) |> ignore
+            SyncElemNodesNextFrame st
 
     /// EmbedNode constructor.
     [<MethodImpl(MethodImplOptions.NoInlining)>]
@@ -1403,24 +1406,24 @@ type private Doc' [<JavaScript>] (docNode, updates) =
         As (Doc'.Verbatim' s)
 
 and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
-    private Elt'(docNode, updates, elt: Dom.Element, rvUpdates: Var<View<unit>>) =
+    private Elt'(docNode, updates, elt: Dom.Element, rvUpdates: Updates) =
     inherit Doc'(docNode, updates)
 
     static member internal New(el: Dom.Element, attr: Attr, children: Doc') =
         let node = Docs.CreateElemNode el attr children.DocNode
-        let rvUpdates = Var.Create children.Updates
+        let rvUpdates = Updates.Create children.Updates
         let attrUpdates = Attrs.Updates node.Attr
-        let updates = View.Bind (View.Map2Unit attrUpdates) rvUpdates.View
+        let updates = View.Map2Unit attrUpdates rvUpdates.View
         new Elt'(ElemDoc node, updates, el, rvUpdates)
 
     /// Assumes tree.Els = [| Union1Of2 someDomElement |]
     static member internal TreeNode(tree: DocTreeNode, updates) =
-        let rvUpdates = Var.Create updates
+        let rvUpdates = Updates.Create updates
         let attrUpdates =
             tree.Attrs
             |> Array.map (snd >> Attrs.Updates)
             |> Array.TreeReduce (View.Const ()) View.Map2Unit
-        let updates = View.Bind (View.Map2Unit attrUpdates) rvUpdates.View
+        let updates = View.Map2Unit attrUpdates rvUpdates.View
         new Elt'(TreeDoc tree, updates, As<Dom.Element> tree.Els.[0], rvUpdates)
 
     [<Inline "$0.elt">]
@@ -1621,7 +1624,7 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
         elt?style?(style) <- value
 
 and [<JavaScript; Proxy(typeof<EltUpdater>)>] 
-    private EltUpdater'(treeNode : DocTreeNode, updates, elt, rvUpdates: Var<View<unit>>, holeUpdates: Var<(int * View<unit>)[]>) =
+    private EltUpdater'(treeNode : DocTreeNode, updates, elt, rvUpdates: Updates, holeUpdates: Var<(int * View<unit>)[]>) =
     inherit Elt'(
         TreeDoc treeNode, 
         View.Map2Unit updates (holeUpdates.View |> View.BindInner (Array.map snd >> Array.TreeReduce (View.Const ()) View.Map2Unit)),

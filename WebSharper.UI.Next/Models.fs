@@ -111,7 +111,7 @@ module Storage =
             member x.Prepend i arr = arr.JS.Unshift i |> ignore; arr
             member x.PrependMany is arr = arr.JS.Unshift (Array.ofSeqNonCopying is) |> ignore; arr
             member x.Init () = init
-            member x.RemoveIf pred arr = Array.filter (pred >> not) arr
+            member x.RemoveIf pred arr = Array.filter (fun i -> not (pred i)) arr
             member x.SetAt idx elem arr = arr.[idx] <- elem; arr
             member x.Set coll = Seq.toArray coll
 
@@ -137,7 +137,7 @@ module Storage =
                         arr |> Array.map serializer.Decode
                     with _ -> [||]
 
-            member x.RemoveIf pred arr = set <| Array.filter (pred >> not) arr
+            member x.RemoveIf pred arr = set <| Array.filter (fun i -> not (pred i)) arr
             member x.SetAt idx elem arr = arr.[idx] <- elem; set arr
             member x.Set coll = set <| Seq.toArray coll
 
