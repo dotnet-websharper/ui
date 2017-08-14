@@ -190,12 +190,20 @@ type DocExtensions =
     static member OnAfterRenderView : Elt * view: View<'T> * callback: (Dom.Element -> 'T -> unit) -> Elt
 
     /// Add the given doc as first child(ren) of this element.
-    [<Extension>]
+    [<Extension; Obsolete "Use PrependChild.">]
     static member Prepend : Elt * Doc -> unit
 
     /// Add the given doc as last child(ren) of this element.
-    [<Extension>]
+    [<Extension; Obsolete "Use AppendChild.">]
     static member Append : Elt * Doc -> unit
+
+    /// Add the given doc as first child(ren) of this element.
+    [<Extension>]
+    static member PrependChild : Elt * Doc -> unit
+
+    /// Add the given doc as last child(ren) of this element.
+    [<Extension>]
+    static member AppendChild : Elt * Doc -> unit
 
     /// Remove all children from the element.
     [<Extension>]

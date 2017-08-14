@@ -1988,6 +1988,14 @@ type DocExtensions =
         (As<Elt'> this).PrependDoc(As<Doc'> doc)
 
     [<Extension; Inline>]
+    static member AppendChild(this: Elt, doc: Doc) =
+        (As<Elt'> this).AppendDoc(As<Doc'> doc)
+
+    [<Extension; Inline>]
+    static member PrependChild(this: Elt, doc: Doc) =
+        (As<Elt'> this).PrependDoc(As<Doc'> doc)
+
+    [<Extension; Inline>]
     static member Clear(this: Elt) =
         (As<Elt'> this).Clear'()
 
