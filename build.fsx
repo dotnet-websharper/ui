@@ -3,6 +3,8 @@ open IntelliFactory.Core
 open IntelliFactory.Build
 
 let htmlAgilityPackVersion = "1.5.2-beta5"
+let hapRef (r: ReferenceBuilder) =
+    r.NuGet("HtmlAgilityPack").Version("["+htmlAgilityPackVersion+"]", true).BuildTimeOnly().Reference().CopyLocal(true)
 
 let bt =
     BuildTool().PackageId("Zafir.UI.Next")
@@ -46,7 +48,7 @@ let tmplCommon =
                 r.Project main
                 r.Assembly "System.Xml"
                 r.Assembly "System.Xml.Linq"
-                r.NuGet("HtmlAgilityPack").Version("["+htmlAgilityPackVersion+"]", true).Reference().CopyLocal(true)
+                hapRef r
             ])
 
 let tmplRuntime =
@@ -59,7 +61,7 @@ let tmplRuntime =
                 r.Assembly "System.Xml"
                 r.Assembly "System.Xml.Linq"
                 r.Assembly "System.Runtime.Caching"
-                r.NuGet("HtmlAgilityPack").Version("["+htmlAgilityPackVersion+"]", true).Reference().CopyLocal(true)
+                hapRef r
             ])
 
 let tmpl =
@@ -73,7 +75,7 @@ let tmpl =
                 r.Assembly "System.Xml"
                 r.Assembly "System.Xml.Linq"
                 r.Assembly "System.Runtime.Caching"
-                r.NuGet("HtmlAgilityPack").Version("["+htmlAgilityPackVersion+"]", true).Reference().CopyLocal(true)
+                hapRef r
             ])
 
 let csharp =
@@ -123,7 +125,7 @@ let tmplTest =
                 r.Project tmplCommon
                 r.Project tmplRuntime
                 r.Project tmpl
-                r.NuGet("HtmlAgilityPack").Version("["+htmlAgilityPackVersion+"]", true).Reference().CopyLocal(true)
+                hapRef r
             ])
 
 let serverTest =
@@ -137,7 +139,7 @@ let serverTest =
                 r.Project tmplCommon
                 r.Project tmplRuntime
                 r.Project tmpl
-                r.NuGet("HtmlAgilityPack").Version("["+htmlAgilityPackVersion+"]", true).Reference().CopyLocal(true)
+                hapRef r
             ])
 
 let cstest =
@@ -153,6 +155,7 @@ let mainNupkg =
         .AddFile("msbuild/Zafir.UI.Next.CSharp.Templating.targets", "build/Zafir.UI.Next.targets")
 //        .AddFile("build/net40/FSharp.Core.dll", "tools/FSharp.Core.dll") // relying on GAC now
         .AddFile("packages/HtmlAgilityPack."+htmlAgilityPackVersion+"/lib/Net40/HtmlAgilityPack.dll", "tools/HtmlAgilityPack.dll")
+        .AddFile("packages/HtmlAgilityPack."+htmlAgilityPackVersion+"/lib/Net40/HtmlAgilityPack.dll", "lib/net40/HtmlAgilityPack.dll")
         .AddFile("build/net40/WebSharper.UI.Next.Templating.Common.dll", "tools/WebSharper.UI.Next.Templating.Common.dll")
         .AddFile("build/net45/WebSharper.UI.Next.CSharp.Templating.dll", "tools/WebSharper.UI.Next.CSharp.Templating.dll")
         .AddFile("WebSharper.UI.Next.CSharp.Templating/install.ps1", "tools/install.ps1")
