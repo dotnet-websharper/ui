@@ -163,7 +163,7 @@ type Runtime private () =
                 | Node.Input (tag, _, attrs, children) ->
                     writeElement tag attrs None children
                 | Node.Text text ->
-                    ctx.Writer.WriteEncodedText(stringParts text)
+                    ctx.Writer.Write(stringParts text)
                 | Node.DocHole holeName when plain ->
                     ctx.Writer.WriteBeginTag("div")
                     ctx.Writer.WriteAttribute(ReplaceAttr, holeName)
