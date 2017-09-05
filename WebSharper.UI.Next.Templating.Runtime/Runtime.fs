@@ -111,7 +111,17 @@ type Runtime private () =
             ctx.Writer.Write(after)
 
         and writeTemplate (template: Template) (plain: bool) (extraAttrs: list<UI.Next.Attr>) (ctx: RenderContext) =
-            let stringParts text =
+            let writeStringParts text (w: HtmlTextWriter) =
+                text |> Array.iter (function
+                    | StringPart.Text t -> w.Write(t)
+                    | StringPart.Hole holeName ->
+                        if plain then w.Write("${" + holeName + "}") else
+                        match ctx.FillWith.TryGetValue holeName with
+                        | true, TemplateHole.Text (_, t) -> w.WriteEncodedText(t)
+                        | true, _ -> failwithf "Invalid hole, expected text: %s" holeName
+                        | false, _ -> ()
+                )
+            let unencodedStringParts text =
                 text
                 |> Array.map (function
                     | StringPart.Text t -> t
@@ -134,7 +144,7 @@ type Runtime private () =
                 | Attr.Simple(name, value) ->
                     ctx.Writer.WriteAttribute(name, value)
                 | Attr.Compound(name, value) ->
-                    ctx.Writer.WriteAttribute(name, stringParts value)
+                    ctx.Writer.WriteAttribute(name, unencodedStringParts value)
                 | Attr.Event(event, holeName) ->
                     if plain then ctx.Writer.WriteAttribute(EventAttrPrefix + event, holeName)
                 | Attr.OnAfterRender holeName ->
@@ -163,7 +173,7 @@ type Runtime private () =
                 | Node.Input (tag, _, attrs, children) ->
                     writeElement tag attrs None children
                 | Node.Text text ->
-                    ctx.Writer.Write(stringParts text)
+                    writeStringParts text ctx.Writer
                 | Node.DocHole holeName when plain ->
                     ctx.Writer.WriteBeginTag("div")
                     ctx.Writer.WriteAttribute(ReplaceAttr, holeName)
