@@ -3,7 +3,7 @@ open IntelliFactory.Build
 
 let bt =
     BuildTool().PackageId("WebSharper.UI.Next")
-        .VersionFrom("WebSharper")
+        .VersionFrom("WebSharper", versionSpec = "(,4.0)")
         .WithFramework(fun fw -> fw.Net40)
         .WithFSharpVersion(FSharpVersion.FSharp30)
 
@@ -30,7 +30,7 @@ let test =
         .References(fun r ->
             [
                 r.Project main
-                r.NuGet("WebSharper.Testing").Reference()
+                r.NuGet("WebSharper.Testing").Version("(,4.0)").Reference()
             ])
 
 let tmplTest =
