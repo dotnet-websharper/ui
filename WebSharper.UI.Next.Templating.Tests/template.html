@@ -1,23 +1,76 @@
-<h1 data-replace="Title"></h1>
-<ul data-hole="ListContainer">
-    <li data-template="ListItem">
-        <span style="font-style: ${FontStyle}; font-weight: ${FontWeight}">$!{Name}</span>: <input data-var="Description" />
+<h1 ws-replace="Title"></h1>
+<ul ws-hole="ListContainer">
+    <li ws-template="ListItem" ws-attr="Attr">
+        <span ws-attr="KeyAttr" class="class1">(${Key}) </span>
+        <span style="font-style: ${FontStyle}; font-weight: ${FontWeight}">${Name}</span>:
+        <input ws-var="Description" />
+        <button ws-onclick="Remove">Remove</button>
+        <span ws-replace="Title"></span>
+        <span ws-hole="Hole"></span>
     </li>
 </ul>
-<div>
-    <p id="paragraph" data-event-afterrender="PRendered">
-        <input data-var="NewName" placeholder="Name" data-event-keyup="NameChanged" />
-        <input data-var="NewDescription" placeholder="Description" data-event-keyup="NameChanged" />
-        <button data-event-click="NewItem">Add item</button>
+<p ws-children-template="Replace2"><b>hello</b><b> ${Replace2}!</b><b ws-hole="LeaveEmpty"> THIS SHOULD NOT APPEAR</b></p>
+<ws-ListItem Key="LIKey" FontStyle="LIFontStyle" Name="LIName">
+    <KeyAttr style="color: blue" class="class2 ${Class3}" ws-attr="LIExtraAttr" />
+    <FontWeight>bold</FontWeight>
+    <Title><ws-Replace2 Replace2></ws-Replace2></Title>
+    <Hole><ws-L3 MIAttr>Ok</ws-L3></Hole>
+</ws-ListItem>
+<div ws-attr="Attr">
+    <p id="paragraph" ws-onafterrender="PRendered">
+        <input ws-var="NewName" placeholder="Name" ws-onkeyup="NameChanged" />
+        <input ws-var="NewDescription" placeholder="Description" ws-onkeyup="NameChanged" />
+        <button ws-onclick="NewItem">Add item</button>
     </p>
-    <p><button data-event-click="SubmitItems">Submit items</button></p>
+    <p ws-attr="PAttr"><button ws-onclick="SubmitItems">Submit items</button></p>
+    <p><button ws-onclick="ClearItems">Clear items</button></p>
+    <p>Find by key: <input ws-var="FindBy" /> Found: ${Found}</p>
+    <p>Number of items: ${Length}</p>
+    <p>Names with non-empty values: ${Names}</p>
     <table>
-        <tbody data-hole="ListView" data-children-template="ListViewItem">
-            <tr><td>$!{Name}</td><td>$!{Description}</td></tr>
+        <tbody ws-hole="ListView" ws-children-template="ListViewItem">
+            <tr><td>${Name}</td><td>${Description}</td></tr>
         </tbody>
     </table>
     <hr />
-    <input data-var="MyInput" placeholder="Type here" />
-    <button data-event-click="MyCallback">Click me!</button>
-    <div><b>You</b> <b>said</b>: $!{MyInputView}</div>
+    <input ws-var="MyInput" placeholder="Type here" />
+    <button ws-onclick="MyCallback">Click me${ButtonExtraText}!</button>
+    <div><b>You</b> <b>said</b>: ${MyInputView}</div>
+    <input type="checkbox" ws-var="Checked" />
+    <div>Checkbox status: ${IsChecked}</div>
+    <div ws-replace="Test102"></div>
+    <div class="test-106-container">
+        <div class="test-106">#106 KO</div>
+        <div ws-replace="Test106"></div>
+    </div>
+    <p>Test Doc.X controls:</p>
+    <div ws-replace="ControlTests"></div>
+    <p>Test EltUpdater</p>
+    <button ws-onclick="AddDiv">Add div</button>
+    <button ws-onclick="RemoveUpdater">Remove updater</button>
+    <button ws-onclick="ReAddUpdater">Readd updater</button>
+    <button ws-onclick="RemoveAllUpdaters">Remove all updaters</button>
+    <button ws-onclick="IncrEltUpdaterTest">Increase counter</button>
+    <div ws-replace="EltUpdaterTest"></div>
+    <p>Here's some SVG:</p>
+    <svg width="250" height="250">
+        <rect x="25" y="25" width="200" height="200" fill="lime" stroke-width="4" stroke="pink" />
+        <circle cx="125" cy="125" r="75" fill="orange" />
+        <polyline points="50,150 50,200 200,200 200,100" stroke="red" stroke-width="4" fill="none" />
+        <line x1="50" y1="50" x2="200" y2="200" stroke="blue" stroke-width="4" />
+    </svg>
+    <div ws-replace="NestedInstantiationTest"></div>
 </div>
+<div ws-template="EmptyTemplate" class="test-for-issue-104"></div>
+<div ws-children-template="Test106Tpl">
+    <div>Test ordering:</div>
+    <div>Ordering OK.</div>
+    <div ws-replace="DynamicReplace"></div>
+</div>
+<ws-index.Form Username Password Submit>
+    <Welcome>Welcome, ${Username1}!</Welcome>
+</ws-index.Form>
+<!-- Testing recursive instantiation; don't call L1 or L2 from F# -->
+<i ws-template="L1" ws-attr="Attr">Nested instantiation: ${Ok}</i>
+<ws-L1 ws-template="L2" Ok Attr="IAttr"></ws-L1>
+<ws-L2 ws-template="L3" Ok IAttr="MIAttr"></ws-L2>

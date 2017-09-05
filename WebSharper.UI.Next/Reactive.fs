@@ -20,7 +20,8 @@
 
 namespace WebSharper.UI.Next
 
-open System.Runtime.CompilerServices
+#nowarn "40" // AsyncAwait let rec
+
 open WebSharper
 
 [<JavaScript>]
@@ -56,6 +57,8 @@ module ViewOptimization =
     let getSnapF (x: 'A -> View<'T>) = x >> (|V|)
     [<Inline "null">]
     let jsNull<'T>() = Unchecked.defaultof<'T>
+    [<Inline "Error().stack">]
+    let jsStack<'T>() = ""
     
 /// Var either holds a Snap or is in Const state.
 [<JavaScript>]
@@ -89,7 +92,7 @@ and [<JavaScript; Sealed>] Var =
 
     [<MethodImpl(MethodImplOptions.NoInlining)>]
     static member Create v =
-        let mutable var = JavaScript.JS.Undefined
+        let mutable var = jsNull()
         var <-
             {
                 Const = false
@@ -100,8 +103,15 @@ and [<JavaScript; Sealed>] Var =
             }
         var
 
+    static member CreateLogged (name: string) v =
+        if not (WebSharper.JavaScript.JS.Global?UINVars) then
+            WebSharper.JavaScript.JS.Global?UINVars <- [||]
+        let res = Var.Create v
+        WebSharper.JavaScript.JS.Global?UINVars?push([| name; WebSharper.JavaScript.Pervasives.As res |])
+        res
+
     static member Create() =
-        let mutable var = JavaScript.JS.Undefined
+        let mutable var = jsNull()
         var <-
             {
                 Const = false
@@ -118,7 +128,7 @@ and [<JavaScript; Sealed>] Var =
 
     static member Set var value =
         if var.Const then
-            JavaScript.Console.Log("WebSharper UI.Next: invalid attempt to change value of a Var after calling SetFinal")
+            printfn "WebSharper UI.Next: invalid attempt to change value of a Var after calling SetFinal"
         else
             Snap.MarkObsolete var.Snap
             var.Current <- value
@@ -126,7 +136,7 @@ and [<JavaScript; Sealed>] Var =
 
     static member SetFinal var value =
         if var.Const then
-            JavaScript.Console.Log("WebSharper UI.Next: invalid attempt to change value of a Var after calling SetFinal")
+            printfn "WebSharper UI.Next: invalid attempt to change value of a Var after calling SetFinal"
         else
             Snap.MarkObsolete var.Snap
             var.Const <- true
@@ -143,6 +153,46 @@ and [<JavaScript; Sealed>] Var =
     [<Inline>]
     static member Observe var =
         var.Snap
+
+type [<JavaScript>] Updates = 
+    {
+        [<Name "c">] mutable Current : View<unit>
+        [<Name "s">] mutable Snap : Snap<unit>
+        [<Name "v">] VarView : View<unit>
+    }
+
+    [<Inline>]
+    member this.View = this.VarView
+
+    static member Create v =
+        let mutable var = jsNull()
+        var <-
+            {
+                Current = v
+                Snap = jsNull()
+                VarView = 
+                    let obs () =
+                        let mutable c = var.Snap
+                        if obj.ReferenceEquals(c, null) then
+                            let (V observe) = var.Current
+                            c <- observe() |> Snap.Copy
+                            var.Snap <- c
+                            Snap.WhenObsoleteRun c (fun () -> 
+                                var.Snap <- jsNull())
+                            c
+                        else c
+                    
+                    V obs
+            }
+        var
+
+    member this.Value
+        with [<Inline>] get() = this.Current
+        and set v =
+            let sn = this.Snap
+            if not (obj.ReferenceEquals(sn, null)) then
+                Snap.MarkObsolete sn
+            this.Current <- v
 
 type ViewNode<'A,'B> =
     {
@@ -179,7 +229,7 @@ type View =
                 if Snap.IsForever c then 
                     lv.Observe <- jsNull()
                 else
-                    Snap.WhenObsolete c (fun () -> 
+                    Snap.WhenObsoleteRun c (fun () -> 
                         lv.Current <- jsNull()) 
                 c
             else c
@@ -225,7 +275,7 @@ type View =
     static member Get (f: 'T -> unit) (View observe) =
         let ok = ref false
         let rec obs () =
-            Snap.When (observe ())
+            Snap.WhenRun (observe ())
                 (fun v ->
                     if not !ok then
                         ok := true
@@ -245,15 +295,15 @@ type View =
                 let s2 = o2 ()
                 Snap.SnapshotOn s1 s2
             else
-                Snap.WhenObsolete s1 (Snap.Obs sInit)
+                Snap.WhenObsolete s1 sInit
                 sInit
 
         View.CreateLazy obs
 
      // Collections --------------------------------------------------------------
 
-    static member MapSeqCachedBy<'A,'B,'K when 'K : equality>
-            (key: 'A -> 'K) (conv: 'A -> 'B) (view: View<seq<'A>>) =
+    static member MapSeqCachedBy<'A,'B,'K,'SeqA when 'K : equality and 'SeqA :> seq<'A>>
+            (key: 'A -> 'K) (conv: 'A -> 'B) (view: View<'SeqA>) =
         // Save history only for t - 1, discard older history.
         let state = ref (Dictionary())
         view
@@ -262,7 +312,7 @@ type View =
             let newState = Dictionary()
             let result =
                 Seq.toArray xs
-                |> Array.map (fun x ->
+                |> Array.mapInPlace (fun x ->
                     let k = key x
                     let res =
                         if prevState.ContainsKey k
@@ -286,8 +336,8 @@ type View =
             NView = view
         }
 
-    static member MapSeqCachedViewBy<'A,'B,'K when 'K : equality>
-            (key: 'A -> 'K) (conv: 'K -> View<'A> -> 'B) (view: View<seq<'A>>) =
+    static member MapSeqCachedViewBy<'A,'B,'K,'SeqA when 'K : equality and 'SeqA :> seq<'A>>
+            (key: 'A -> 'K) (conv: 'K -> View<'A> -> 'B) (view: View<'SeqA>) =
         // Save history only for t - 1, discard older history.
         let state = ref (Dictionary())
         view
@@ -296,7 +346,7 @@ type View =
             let newState = Dictionary()
             let result =
                 Seq.toArray xs
-                |> Array.map (fun x ->
+                |> Array.mapInPlace (fun x ->
                     let k = key x
                     let node =
                         if prevState.ContainsKey k then
@@ -391,7 +441,7 @@ type View =
     static member Sink act (View observe) =
         let rec loop () =
             let sn = observe ()
-            Snap.When sn act (fun () ->
+            Snap.WhenRun sn act (fun () ->
                 Async.Schedule loop)
         Async.Schedule loop
 
@@ -399,7 +449,7 @@ type View =
         let cont = ref true
         let rec loop () =
             let sn = observe ()
-            Snap.When sn
+            Snap.WhenRun sn
                 (fun x -> if !cont then act x)
                 (fun () -> if !cont then Async.Schedule loop)
         Async.Schedule loop
@@ -418,41 +468,37 @@ type View =
     static member Apply fn view =
         View.Map2 (fun f x -> f x) fn view
 
-[<JavaScript>]
-type RefImpl<'T, 'V>(baseRef: IRef<'T>, get: 'T -> 'V, update: 'T -> 'V -> 'T) =
-
-    let id = Fresh.Id()
-    let view = baseRef.View |> View.Map get
-
-    interface IRef<'V> with
-
-        member this.Get() =
-            get (baseRef.Get())
-
-        member this.Set(v) =
-            baseRef.Update(fun t -> update t v)
-
-        member this.Value
-            with get () = get (baseRef.Get())
-            and set v = baseRef.Update(fun t -> update t v)
-
-        member this.Update(f) =
-            baseRef.Update(fun t -> update t (f (get t)))
-
-        member this.UpdateMaybe(f) =
-            baseRef.UpdateMaybe(fun t -> Option.map (update t) (f (get t)))
-
-        member this.View =
-            view
-
-        member this.Id =
-            id
-
 type Var with
 
     [<JavaScript>]
     static member Lens (iref: IRef<_>) get update =
-        new RefImpl<_, _>(iref, get, update) :> IRef<_>
+        let id = Fresh.Id()
+        let view = iref.View |> View.Map get
+
+        { new IRef<'V> with
+
+            member this.Get() =
+                get (iref.Get())
+
+            member this.Set(v) =
+                iref.Update(fun t -> update t v)
+
+            member this.Value
+                with get () = get (iref.Get())
+                and set v = iref.Update(fun t -> update t v)
+
+            member this.Update(f) =
+                iref.Update(fun t -> update t (f (get t)))
+
+            member this.UpdateMaybe(f) =
+                iref.UpdateMaybe(fun t -> Option.map (fun x -> update t x) (f (get t)))
+
+            member this.View =
+                view
+
+            member this.Id =
+                id
+        }
 
 type Var<'T> with
 
@@ -500,30 +546,6 @@ type View<'A> with
 
     [<JavaScript; Macro(typeof<VMacro.VProp>)>]
     member v.V = failwith "View<'T>.V can only be called in an argument to a V-enabled function or if 'T = Doc." : 'T
-
-// These methods apply to specific types of View (such as View<seq<'A>> when 'A : equality)
-/// so we need to use C#-style extension methods.
-[<Extension; JavaScript>]
-type ReactiveExtensions() =
-
-    [<Extension; Inline>]
-    static member MapCached (v, f) = View.MapCached f v
-
-    [<Extension; Inline>]
-    static member MapSeqCached<'A, 'B when 'A : equality>
-        (v: View<seq<'A>>, f: 'A -> 'B) = View.MapSeqCached f v
-
-    [<Extension; Inline>]
-    static member MapSeqCached<'A, 'B, 'K when 'K : equality>
-        (v: View<seq<'A>>, k: 'A -> 'K, f: 'A -> 'B) = View.MapSeqCachedBy k f v
-
-    [<Extension; Inline>]
-    static member MapSeqCached<'A, 'B when 'A : equality>
-        (v: View<seq<'A>>, f: View<'A> -> 'B) = View.MapSeqCachedView f v
-
-    [<Extension; Inline>]
-    static member MapSeqCached<'A, 'B, 'K when 'K : equality>
-        (v: View<seq<'A>>, k: 'A -> 'K, f: 'K -> View<'A> -> 'B) = View.MapSeqCachedViewBy k f v
 
 [<AutoOpen>]
 module IRefExtension =

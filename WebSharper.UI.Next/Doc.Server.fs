@@ -21,6 +21,7 @@
 namespace WebSharper.UI.Next.Server
 
 open System
+open WebSharper
 open WebSharper.UI.Next
 open WebSharper.Sitelets
 open WebSharper.Sitelets.Content
@@ -34,22 +35,15 @@ module Doc =
 type Content =
 
     static member Page (doc: Doc) : Async<Content<'Action>> =
-        let hasNonScriptSpecialTags = doc.HasNonScriptSpecialTags
         Content.FromContext <| fun ctx ->
-            let env = Env.Create ctx
-            let res =
-                if hasNonScriptSpecialTags then
-                    env.GetSeparateResourcesAndScripts [doc]
-                else
-                    { Scripts = env.GetResourcesAndScripts [doc]; Styles = ""; Meta = "" }
             Content.Custom(
                 Status = Http.Status.Ok,
                 Headers = [Http.Header.Custom "Content-Type" "text/html; charset=utf-8"],
                 WriteBody = fun s ->
-                    use w = new System.IO.StreamWriter(s)
+                    use w = new System.IO.StreamWriter(s, Text.Encoding.UTF8)
                     use w = new System.Web.UI.HtmlTextWriter(w)
                     w.WriteLine("<!DOCTYPE html>")
-                    doc.Write(ctx.Metadata, w, res)
+                    doc.Write(ctx, w, true)
             )
 
     static member Doc (doc: Doc) : Async<Content<'Action>> =
@@ -60,3 +54,36 @@ type Content =
 
     static member inline Page (page: Page) : Async<Content<'Action>> =
         Content<_>.Page page
+
+module Internal =
+
+    type TemplateDoc
+        (
+            requireResources: seq<IRequiresResources>,
+            write: Web.Context -> System.Web.UI.HtmlTextWriter -> bool -> unit
+        ) =
+        inherit Doc()
+
+        override this.HasNonScriptSpecialTags = false
+
+        override this.Encode(m, j) =
+            List.concat (requireResources |> Seq.map (fun rr -> rr.Encode(m, j)))
+
+        override this.Requires =
+            Seq.concat (requireResources |> Seq.map (fun rr -> rr.Requires))
+
+        override this.Write(ctx, h, res) = 
+            write ctx h res
+
+        override this.Write(ctx, h, _: option<RenderedResources>) =
+            write ctx h false
+
+    type TemplateElt =
+        inherit Elt
+
+        new (requireResources: seq<IRequiresResources>, write) =
+            let encode m j =
+                List.concat (requireResources |> Seq.map (fun rr -> rr.Encode(m, j)))
+            let requires (attrs: list<Attr>) =
+                Seq.concat (requireResources |> Seq.map (fun rr -> rr.Requires))
+            { inherit Elt([], encode, requires, false, (fun a ctx w _ -> write a ctx w false), Some write) }

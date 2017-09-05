@@ -6,9 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" type="text/css" href="Content/WebSharper.UI.Next.Templating.Tests.css" />
     <script type="text/javascript" src="Content/WebSharper.UI.Next.Templating.Tests.head.js"></script>
+    <style>[ws-template],[ws-children-template]{display:none;}</style>
 </head>
 <body>
     <div id="main">
+    </div>
+    <div ws-template="Form">
+        <input type="text" ws-var="Username" />
+        <br />
+        <input type="password" ws-var="Password" />
+        <br />
+        <input type="submit" value="Submit" ws-onclick="Submit" />
+        <div>${Welcome}</div>
+        <div ws-hole="LeaveEmpty">THIS SHOULD NOT APPEAR</div>
     </div>
     <script type="text/javascript" src="Content/WebSharper.UI.Next.Templating.Tests.js"></script>
 </body>

@@ -2720,7 +2720,7 @@ module Html =
         /// Adds a callback to be called every time the given view receives an updated value,
         /// iff the element is currently in the DOM.
         [<Inline>]
-        let viewUpdate (v: View<'T>) (f: Dom.Element -> 'T -> unit) = Client.Attr.DynamicCustom f v
+        let viewUpdate (v: View<'T>) (f: Action<Dom.Element, 'T>) = Client.Attr.DynamicCustom (FSharpConvert.Fun f) v
 
         // {{ event
         /// Create a handler for the event "abort".

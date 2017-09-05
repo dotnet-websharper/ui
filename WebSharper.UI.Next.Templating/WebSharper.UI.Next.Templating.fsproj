@@ -33,6 +33,11 @@
     <Compile Include="AssemblyReader.fs" />
     <Compile Include="AssemblyReaderReflection.fs" />
     <Compile Include="ProvidedTypesContext.fs" />
-    <Compile Include="Main.fs" />
+    <Compile Include="ProvidedTypesContextFunc.fs" />
+    <Compile Include="OldProvider.fs" />
+    <Compile Include="TemplatingProvider.fs" />
+    <None Include="Scripts\load-references-debug.fsx" />
+    <None Include="Scripts\load-project-debug.fsx" />
+    <None Include="Scripts\test-parser.fsx" />
   </ItemGroup>
 </Project>

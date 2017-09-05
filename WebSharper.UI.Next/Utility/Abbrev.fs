@@ -27,33 +27,66 @@ open WebSharper.JavaScript
 
 module Array =
 
+    /// Returns defaultValue if array is empty.
+    /// Otherwise makes a binary tree of the array elements and uses reduction to combine
+    /// all items into a single value.
     [<JavaScript>]
-    let TreeReduce (z: 'A) (re: 'A -> 'A -> 'A) (a: 'A[]) : 'A =
+    let TreeReduce (defaultValue: 'A) (reduction: 'A -> 'A -> 'A) (array: 'A[]) : 'A =
+        let l = array.Length
         let rec loop off len =
             match len with
-            | n when n <= 0 -> z
-            | 1 when off >= 0 && off < a.Length ->
-                a.[off]
+            | n when n <= 0 -> defaultValue
+            | 1 when off >= 0 && off < l ->
+                array.[off]
             | n ->
                 let l2 = len / 2
                 let a = loop off l2
                 let b = loop (off + l2) (len - l2)
-                re a b
-        loop 0 a.Length
+                reduction a b
+        loop 0 l
+
+    /// Returns defaultValue if array is empty.
+    /// Otherwise makes a binary tree of the array elements and uses reduction to combine 
+    /// all items into a single value using the mapping function first on each item.
+    [<JavaScript>]
+    let MapTreeReduce (mapping: 'A -> 'B) (defaultValue: 'B) (reduction: 'B -> 'B -> 'B) (array: 'A[]) : 'B =
+        let l = array.Length
+        let rec loop off len =
+            match len with
+            | n when n <= 0 -> defaultValue
+            | 1 when off >= 0 && off < l ->
+                mapping array.[off]
+            | n ->
+                let l2 = len / 2
+                let a = loop off l2
+                let b = loop (off + l2) (len - l2)
+                reduction a b
+        loop 0 l
 
     [<JavaScript>]
-    let MapTreeReduce (f: 'A -> 'B) (z: 'B) (re: 'B -> 'B -> 'B) (a: 'A[]) : 'B =
-        let rec loop off len =
-            match len with
-            | n when n <= 0 -> z
-            | 1 when off >= 0 && off < a.Length ->
-                f a.[off]
-            | n ->
-                let l2 = len / 2
-                let a = loop off l2
-                let b = loop (off + l2) (len - l2)
-                re a b
-        loop 0 a.Length
+    /// Same as Array.ofSeq, but if argument is an array, it does not copy it.
+    let ofSeqNonCopying (xs: seq<'T>) : 'T [] =
+        if xs :? System.Array then
+            xs :?> 'T[]
+        elif xs :? _ list then
+            Array.ofList (xs :?> 'T list)
+        elif Object.ReferenceEquals(xs, null) then
+            [||]
+        else
+            let q : 'T [] = [||]
+            use o = xs.GetEnumerator()
+            while o.MoveNext() do
+                q.JS.Push(o.Current) |> ignore
+            q
+
+    [<JavaScript>]
+    /// Unsafe operation, modifies each element of an array by a mapping function.
+    let mapInPlace (f: 'T1 -> 'T2) (arr: 'T1 []) =
+        if IsClient then
+            for i = 0 to Array.length arr - 1 do
+                arr.JS.[i] <- As (f arr.JS.[i])
+            As<'T2[]> arr
+        else Array.map f arr
 
 module internal String =
 
@@ -139,6 +172,11 @@ module internal Abbrev =
             d |> Seq.iteri (fun i kv -> arr.[i] <- kv.Value)
             arr
 
+    module Queue =
+
+        [<Inline "$q">]
+        let ToArray (q: Generic.Queue<_>) = q.ToArray()
+
     [<JavaScript>]
     [<Sealed>]
     type Slot<'T,'K when 'K : equality>(key: 'T -> 'K, value: 'T) =
@@ -162,6 +200,7 @@ module internal Abbrev =
         let StartTo comp k =
             Async.StartWithContinuations (comp, k, OnError, ignore)
 
+        [<Inline "WebSharper.Concurrency.scheduler().Fork($f)">]
         let Schedule f =
             async { return f () }
             |> Async.Start
@@ -185,7 +224,7 @@ module internal Abbrev =
                         st := MailboxState.Idle
                     | MailboxState.WorkingMore ->
                         st := MailboxState.Working
-                        do! work() 
+                        return! work() 
                     | _ -> ()
                 }
             let post() =

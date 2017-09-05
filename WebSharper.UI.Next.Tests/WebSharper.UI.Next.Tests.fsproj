@@ -37,7 +37,6 @@
     <Compile Include="Main.fs" />
     <Content Include="index.html" />
     <Content Include="Web.config" />
-    <Content Include="template.html" />
   </ItemGroup>
   <ProjectExtensions>
     <VisualStudio>

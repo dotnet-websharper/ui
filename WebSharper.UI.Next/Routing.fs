@@ -187,7 +187,7 @@ module Routing =
         R (Some site, t)
 
     let MergeRouters sites =
-        let sites = Seq.toArray sites
+        let sites = Array.ofSeqNonCopying sites
         let merged =
             sites
             |> Seq.map (fun (R (_, t)) -> t)

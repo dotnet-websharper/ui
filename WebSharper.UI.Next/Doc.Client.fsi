@@ -22,6 +22,7 @@ namespace WebSharper.UI.Next.Client
 
 open System
 open System.Runtime.CompilerServices
+open WebSharper
 open WebSharper.JavaScript
 open WebSharper.UI.Next
 
@@ -45,12 +46,18 @@ module EltExtensions =
         /// Get or set the element's text content.
         member Text : string with get, set
 
-type CheckedInput<'T> =
-    | Valid of value: 'T * inputText: string
-    | Invalid of inputText: string
-    | Blank of inputText: string
+[<Class>]
+type EltUpdater =
+    inherit Elt
 
-    member Input : string
+    /// Subscribes an element inserted by outside DOM changes to be updated with this element
+    member AddUpdated : Elt -> unit
+    
+    /// Desubscribes an element added by AddUpdated
+    member RemoveUpdated : Elt -> unit
+
+    /// Desubscribes all elements added by AddUpdated
+    member RemoveAllUpdated : unit -> unit
 
 // Extension methods
 [<Extension; Sealed>]
@@ -85,6 +92,78 @@ type DocExtensions =
     static member DocSeqCached : View<seq<'T>> * ('T -> 'K) * ('K -> View<'T> -> #Doc) -> Doc
         when 'K : equality
 
+    /// Converts a collection to Doc using View.MapSeqCached and embeds the concatenated result.
+    /// Shorthand for Doc.BindSeqCached.
+    [<Extension>]
+    static member DocSeqCached : View<list<'T>> * ('T -> #Doc) -> Doc
+        when 'T : equality
+
+    /// DocSeqCached with a custom key.
+    /// Shorthand for Doc.BindSeqCachedBy.
+    [<Extension>]
+    static member DocSeqCached : View<list<'T>> * ('T -> 'K) * ('T -> #Doc) -> Doc
+        when 'K : equality
+
+    /// Converts a collection to Doc using View.MapSeqCachedView and embeds the concatenated result.
+    /// Shorthand for Doc.BindSeqCachedView.
+    [<Extension>]
+    static member DocSeqCached : View<list<'T>> * (View<'T> -> #Doc) -> Doc
+        when 'T : equality
+
+    /// DocSeqCached with a custom key.
+    /// Shorthand for Doc.BindSeqCachedViewBy.
+    [<Extension>]
+    static member DocSeqCached : View<list<'T>> * ('T -> 'K) * ('K -> View<'T> -> #Doc) -> Doc
+        when 'K : equality
+
+    /// Converts a collection to Doc using View.MapSeqCached and embeds the concatenated result.
+    /// Shorthand for Doc.BindSeqCached.
+    [<Extension>]
+    static member DocSeqCached : View<array<'T>> * ('T -> #Doc) -> Doc
+        when 'T : equality
+
+    /// DocSeqCached with a custom key.
+    /// Shorthand for Doc.BindSeqCachedBy.
+    [<Extension>]
+    static member DocSeqCached : View<array<'T>> * ('T -> 'K) * ('T -> #Doc) -> Doc
+        when 'K : equality
+
+    /// Converts a collection to Doc using View.MapSeqCachedView and embeds the concatenated result.
+    /// Shorthand for Doc.BindSeqCachedView.
+    [<Extension>]
+    static member DocSeqCached : View<array<'T>> * (View<'T> -> #Doc) -> Doc
+        when 'T : equality
+
+    /// DocSeqCached with a custom key.
+    /// Shorthand for Doc.BindSeqCachedViewBy.
+    [<Extension>]
+    static member DocSeqCached : View<array<'T>> * ('T -> 'K) * ('K -> View<'T> -> #Doc) -> Doc
+        when 'K : equality
+
+    /// Converts a collection to Doc using View.MapSeqCached and embeds the concatenated result.
+    /// Shorthand for Doc.BindSeqCached.
+    [<Extension>]
+    static member DocSeqCached : View<ListModelState<'T>> * ('T -> #Doc) -> Doc
+        when 'T : equality
+
+    /// DocSeqCached with a custom key.
+    /// Shorthand for Doc.BindSeqCachedBy.
+    [<Extension>]
+    static member DocSeqCached : View<ListModelState<'T>> * ('T -> 'K) * ('T -> #Doc) -> Doc
+        when 'K : equality
+
+    /// Converts a collection to Doc using View.MapSeqCachedView and embeds the concatenated result.
+    /// Shorthand for Doc.BindSeqCachedView.
+    [<Extension>]
+    static member DocSeqCached : View<ListModelState<'T>> * (View<'T> -> #Doc) -> Doc
+        when 'T : equality
+
+    /// DocSeqCached with a custom key.
+    /// Shorthand for Doc.BindSeqCachedViewBy.
+    [<Extension>]
+    static member DocSeqCached : View<ListModelState<'T>> * ('T -> 'K) * ('K -> View<'T> -> #Doc) -> Doc
+        when 'K : equality
+
     /// Runs a reactive Doc as contents of the given element.
     [<Extension>]
     static member Run : Doc * Element -> unit
@@ -111,12 +190,20 @@ type DocExtensions =
     static member OnAfterRenderView : Elt * view: View<'T> * callback: (Dom.Element -> 'T -> unit) -> Elt
 
     /// Add the given doc as first child(ren) of this element.
-    [<Extension>]
+    [<Extension; Obsolete "Use PrependChild.">]
     static member Prepend : Elt * Doc -> unit
 
     /// Add the given doc as last child(ren) of this element.
-    [<Extension>]
+    [<Extension; Obsolete "Use AppendChild.">]
     static member Append : Elt * Doc -> unit
+
+    /// Add the given doc as first child(ren) of this element.
+    [<Extension>]
+    static member PrependChild : Elt * Doc -> unit
+
+    /// Add the given doc as last child(ren) of this element.
+    [<Extension>]
+    static member AppendChild : Elt * Doc -> unit
 
     /// Remove all children from the element.
     [<Extension>]
@@ -185,6 +272,11 @@ type DocExtensions =
     /// Sets an inline style.
     [<Extension>]
     static member SetStyle : Elt * name: string * value: string -> unit
+
+    /// Creates a wrapper that allows subscribing elements for DOM syncronization inserted through other means than UI.Next combinators.
+    /// Removes automatic DOM synchronization of children elements, but not attributes.
+    [<Extension>]
+    static member ToUpdater : Elt -> EltUpdater
 
     // {{ event
     /// Add a handler for the event "abort".
@@ -1043,11 +1135,26 @@ module Doc =
     /// Embeds an asynchronous Doc. The resulting Doc is empty until the Async returns.
     val Async : Async<#Doc> -> Doc
 
+    /// Construct a Doc using a given set of DOM nodes and template fillers.
+    val Template : Node[] -> seq<TemplateHole> -> Doc
+
+    /// Load templates declared in the current document with `data-template="name"`.
+    val LoadLocalTemplates : string -> unit
+
+    /// Load a template with the given name, if it wasn't loaded yet.
+    val LoadTemplate : string -> option<string> -> (unit -> Node[]) -> unit
+
+    /// Construct a Doc using a given loaded template by name and template fillers.
+    val NamedTemplate : string -> option<string> -> seq<TemplateHole> -> Doc
+
+    /// Construct a Doc using a given loaded template by name and template fillers.
+    val GetOrLoadTemplate : string -> option<string> -> (unit -> Node[]) -> seq<TemplateHole> -> Doc
+
   // Collections.
 
     /// Converts a collection to Doc using View.MapSeqCached and embeds the concatenated result.
     /// Shorthand for View.MapSeqCached f |> View.Map Doc.Concat |> Doc.EmbedView.
-    val BindSeqCached : ('T -> #Doc) -> View<seq<'T>> -> Doc
+    val BindSeqCached : ('T -> #Doc) -> View<#seq<'T>> -> Doc
         when 'T : equality
 
     [<Obsolete "Use Doc.BindSeqCached or view.DocSeqCached() instead.">]
@@ -1055,7 +1162,7 @@ module Doc =
         when 'T : equality
 
     /// Doc.Convert with a custom key.
-    val BindSeqCachedBy : ('T -> 'K) -> ('T -> #Doc) -> View<seq<'T>> -> Doc
+    val BindSeqCachedBy : ('T -> 'K) -> ('T -> #Doc) -> View<#seq<'T>> -> Doc
         when 'K : equality
 
     [<Obsolete "Use BindSeqCachedBy or view.DocSeqCached() instead.">]
@@ -1064,7 +1171,7 @@ module Doc =
 
     /// Converts a collection to Doc using View.MapSeqCachedView and embeds the concatenated result.
     /// Shorthand for View.MapSeqCachedView f |> View.Map Doc.Concat |> Doc.EmbedView.
-    val BindSeqCachedView : (View<'T> -> #Doc) -> View<seq<'T>> -> Doc
+    val BindSeqCachedView : (View<'T> -> #Doc) -> View<#seq<'T>> -> Doc
         when 'T : equality
 
     [<Obsolete "Use BindSeqCachedView or view.DocSeqCached() instead.">]
@@ -1072,7 +1179,7 @@ module Doc =
         when 'T : equality
 
     /// Doc.ConvertSeq with a custom key.
-    val BindSeqCachedViewBy : ('T -> 'K) -> ('K -> View<'T> -> #Doc) -> View<seq<'T>> -> Doc
+    val BindSeqCachedViewBy : ('T -> 'K) -> ('K -> View<'T> -> #Doc) -> View<#seq<'T>> -> Doc
         when 'K : equality
 
     [<Obsolete "Use BindSeqCachedViewBy or view.DocSeqCached() instead.">]
@@ -1190,3 +1297,8 @@ module Doc =
     /// Radio button.
     val Radio : seq<Attr> -> 'T -> IRef<'T> -> Elt
         when 'T : equality
+
+    /// Creates a wrapper that allows subscribing elements for DOM syncronization inserted through other means than UI.Next combinators.
+    /// Removes automatic DOM synchronization of children elements, but not attributes.
+    val ToUpdater : Elt -> EltUpdater
+

@@ -81,6 +81,16 @@ module Storage =
     val InMemory : 'T[] -> Storage<'T>
     val LocalStorage : string -> Serializer<'T> -> Storage<'T>
 
+[<Class>]
+type ListModelState<'T> =
+    member Length : int
+    member Item : int -> 'T with get
+    // creates a copy of the current list model state as an array
+    member ToArray : unit -> 'T[]
+    // creates a copy of the current list model state as an array with filtering
+    member ToArray : Predicate<'T> -> 'T[]
+    interface seq<'T>
+
 /// A helper type for ResizeArray-like observable structures.
 type ListModel<'Key,'T when 'Key : equality> =
     new : System.Func<'T, 'Key> * Storage<'T> -> ListModel<'Key, 'T>
@@ -91,7 +101,12 @@ type ListModel<'Key,'T when 'Key : equality> =
 
 type ListModel<'Key,'T when 'Key : equality> with
 
-    /// Same as ListModel.View.
+    /// Views the current items as a ListModelState.
+    /// This is fast but doesn't guarantee immutability if the ListModel is changed.
+    member ViewState : View<ListModelState<'T>>
+
+    /// Views the current item sequence.
+    /// This is more expensive than ViewState, but the sequence can be safely used indefinitely.
     member View : View<seq<'T>>
 
     /// Get or set the current items.
@@ -124,7 +139,7 @@ type ListModel<'Key,'T when 'Key : equality> with
     /// Removes an item.
     member Remove : 'T -> unit
 
-    /// Removes an item.
+    /// Removes all items satisfying the given predicate.
     member RemoveBy : ('T -> bool) -> unit
 
     /// Removes an item by its key.
@@ -236,7 +251,12 @@ type ListModel =
             -> ListModel<'Key, 'T>
 
     /// Views the current item sequence.
+    /// This is more expensive than ViewState, but the sequence can be safely used indefinitely.
     static member View : ListModel<'Key,'T> -> View<seq<'T>>
+
+    /// Views the current items as a ListModelState.
+    /// This is fast but doesn't guarantee immutability if the ListModel is changed.
+    static member ViewState : ListModel<'Key,'T> -> View<ListModelState<'T>>
 
     /// Get the key retrieval function.
     static member Key : ListModel<'Key, 'T> -> ('T -> 'Key)

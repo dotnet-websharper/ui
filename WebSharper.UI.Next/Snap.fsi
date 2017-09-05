@@ -21,8 +21,14 @@
 /// Snap.fs: provide the core abstraction for dataflow and change-propagation.
 namespace WebSharper.UI.Next
 
+type internal ISnap =
+    abstract Obsolete : unit -> unit
+    abstract IsNotObsolete : unit -> bool
+
 /// Represents an observable snapshot of a value.
-type internal Snap<'T>
+[<Sealed>]
+type internal Snap<'T> =
+    interface ISnap
 
 /// Operations on snapshots.
 module internal Snap =
@@ -48,9 +54,6 @@ module internal Snap =
     /// Marks the snapshot as obsolete.
     val MarkObsolete : Snap<'T> -> unit
 
-    /// Creates function that marks the snapshot as obsolete.
-    val Obs : Snap<'T> -> (unit -> unit)
-
   // combinators
 
     /// Dynamic combination of snaps.
@@ -64,6 +67,8 @@ module internal Snap =
 
     /// Maps a function.
     val Map : ('A -> 'B) -> Snap<'A> -> Snap<'B>
+
+    val internal Copy : Snap<'A> -> Snap<'A>
 
     val internal MapCachedBy : ('A -> 'A -> bool) -> ref<option<'A * 'B>> -> ('A -> 'B) -> Snap<'A> -> Snap<'B>
 
@@ -88,10 +93,19 @@ module internal Snap =
   // eliminators
 
     /// Schedule callbacks on lifecycle events.
-    val When : Snap<'T> -> ready: ('T -> unit) -> obsolete: (unit -> unit) -> unit
+    val When : Snap<'T> -> ready: ('T -> unit) -> obsolete: ISnap -> unit
+
+    /// Schedule callbacks on lifecycle events.
+    val WhenRun : Snap<'T> -> ready: ('T -> unit) -> obsolete: (unit -> unit) -> unit
+
+    /// Schedule callbacks on ready event.
+    val WhenReady : Snap<'T> -> ready: ('T -> unit) -> unit
+
+    /// Schedule obsoleting other snap on obsoleted event.
+    val WhenObsolete : Snap<'T> -> obsolete: ISnap -> unit
 
     /// Schedule callback on obsoleted event.
-    val WhenObsolete : Snap<'T> -> obsolete: (unit -> unit) -> unit
+    val WhenObsoleteRun : Snap<'T> -> obsolete: (unit -> unit) -> unit
 
   // misc
 

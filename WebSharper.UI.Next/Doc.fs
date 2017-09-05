@@ -25,6 +25,7 @@ open System.Web.UI
 open Microsoft.FSharp.Quotations
 open WebSharper
 open WebSharper.Web
+open WebSharper.Sitelets
 open WebSharper.JavaScript
 
 [<AbstractClass>]
@@ -34,34 +35,43 @@ type Doc() =
         member this.ReplaceInDom n = X<unit>
 
     interface INode with
-        member this.Write(meta, w) = this.Write(meta, w, ?res = None)
+        member this.Write(ctx, w) = this.Write(ctx, w, false)
         member this.IsAttribute = false
-        member this.AttributeValue = None
-        member this.Name = this.Name
 
     interface IRequiresResources with
         member this.Encode(meta, json) = this.Encode(meta, json)
         member this.Requires = this.Requires
 
-    abstract Write : Core.Metadata.Info * HtmlTextWriter * ?res: Sitelets.Content.RenderedResources -> unit
+    abstract Write : Web.Context * HtmlTextWriter * res: option<Sitelets.Content.RenderedResources> -> unit
+    abstract Write : Web.Context * HtmlTextWriter * renderResources: bool -> unit
     abstract HasNonScriptSpecialTags : bool
-    abstract Name : option<string>
     abstract Encode : Core.Metadata.Info * Core.Json.Provider -> list<string * Core.Json.Encoded>
     abstract Requires : seq<Core.Metadata.Node>
+
+    default this.Write(ctx: Web.Context, w: HtmlTextWriter, renderResources: bool) =
+        let resources =
+            if renderResources then
+                if this.HasNonScriptSpecialTags then
+                    ctx.GetSeparateResourcesAndScripts [this]
+                else
+                    { Scripts = ctx.GetResourcesAndScripts [this]; Styles = ""; Meta = "" }
+                |> Some
+            else None
+        this.Write(ctx, w, resources)
 
 and ConcreteDoc(dd: DynDoc) =
     inherit Doc()
 
-    override this.Write(meta, w, ?res) =
+    override this.Write(ctx, w, res: option<Sitelets.Content.RenderedResources>) =
         match dd with
         | AppendDoc docs ->
-            docs |> List.iter (fun d -> d.Write(meta, w, ?res = res))
+            docs |> List.iter (fun d -> d.Write(ctx, w, res))
         | ElemDoc elt ->
-            (elt :> Doc).Write(meta, w, ?res = res)
+            elt.Write(ctx, w, res)
         | EmptyDoc -> ()
         | TextDoc t -> w.WriteEncodedText(t)
         | VerbatimDoc t -> w.Write(t)
-        | INodeDoc d -> d.Write(meta, w)
+        | INodeDoc d -> d.Write(ctx, w)
 
     override this.HasNonScriptSpecialTags =
         match dd with
@@ -70,15 +80,6 @@ and ConcreteDoc(dd: DynDoc) =
         | ElemDoc elt ->
             (elt :> Doc).HasNonScriptSpecialTags
         | _ -> false
-
-    override this.Name =
-        match dd with
-        | AppendDoc _
-        | EmptyDoc
-        | TextDoc _
-        | VerbatimDoc _ -> None
-        | ElemDoc e -> e.Name
-        | INodeDoc n -> n.Name
 
     override this.Encode(meta, json) =
         match dd with
@@ -102,65 +103,100 @@ and DynDoc =
     | VerbatimDoc of string
     | INodeDoc of INode
 
-and [<Sealed>] Elt(tag: string, attrs: list<Attr>, children: list<Doc>) =
+and HoleName = Replace | Hole
+
+and Elt
+    (
+        attrs: list<Attr>,
+        encode, requires, hasNonScriptSpecialTags,
+        write: list<Attr> -> Web.Context -> System.Web.UI.HtmlTextWriter -> option<Sitelets.Content.RenderedResources> -> unit,
+        write': option<list<Attr> -> Web.Context -> System.Web.UI.HtmlTextWriter -> bool -> unit>
+    ) =
     inherit Doc()
 
-    override this.Write(meta, w, ?res) =
-        let hole =
-            res |> Option.bind (fun res ->
-                let rec findHole = function
-                    | Attr.SingleAttr (name, value) ->
-                        if (name = "data-replace" || name = "data-hole")
-                            && (value = "scripts" || value = "styles" || value = "meta") then
-                            Some (name, value, res)
-                        else None
-                    | Attr.AppendAttr attrs -> List.tryPick findHole attrs
-                    | Attr.DepAttr _ -> None
-                List.tryPick findHole attrs
-            )
-        match hole with
-        | Some ("data-replace", name, res) -> w.Write(res.[name])
-        | Some ("data-hole", name, res) ->
-            w.WriteBeginTag(tag)
-            attrs |> List.iter (fun a -> a.Write(meta, w, true))
-            w.Write(HtmlTextWriter.TagRightChar)
-            w.Write(res.[name])
-            w.WriteEndTag(tag)
-        | Some _ -> () // can't happen
-        | None ->
-            w.WriteBeginTag(tag)
-            attrs |> List.iter (fun a -> a.Write(meta, w, false))
-            if List.isEmpty children && HtmlTextWriter.IsSelfClosingTag tag then
-                w.Write(HtmlTextWriter.SelfClosingTagEnd)
-            else
+    let mutable attrs = attrs
+
+    override this.HasNonScriptSpecialTags = hasNonScriptSpecialTags
+
+    override this.Encode(m, j) = encode m j
+
+    override this.Requires = requires attrs
+
+    override this.Write(ctx, h, res) = write attrs ctx h res
+
+    override this.Write(ctx, h, res) =
+        match write' with
+        | Some f -> f attrs ctx h res
+        | None -> base.Write(ctx, h, res)
+
+    new (tag: string, attrs: list<Attr>, children: list<Doc>) =
+        let write attrs (ctx: Web.Context) (w: HtmlTextWriter) (res: option<Sitelets.Content.RenderedResources>) =
+            let hole =
+                res |> Option.bind (fun res ->
+                    let rec findHole a =
+                        if obj.ReferenceEquals(a, null) then None else
+                        match a with
+                        | Attr.SingleAttr (("ws-replace" | "data-replace"), value)
+                            when (value = "scripts" || value = "styles" || value = "meta") ->
+                            Some (HoleName.Replace, value, res)
+                        | Attr.SingleAttr (("ws-hole" | "data-hole"), value)
+                            when (value = "scripts" || value = "styles" || value = "meta") ->
+                            Some (HoleName.Hole, value, res)
+                        | Attr.SingleAttr _ | Attr.DepAttr _ -> None
+                        | Attr.AppendAttr attrs -> List.tryPick findHole attrs
+                    List.tryPick findHole attrs
+                )
+            match hole with
+            | Some (HoleName.Replace, name, res) -> w.Write(res.[name])
+            | Some (HoleName.Hole, name, res) ->
+                w.WriteBeginTag(tag)
+                attrs |> List.iter (fun a -> a.Write(ctx.Metadata, w, true))
                 w.Write(HtmlTextWriter.TagRightChar)
-                children |> List.iter (fun e -> e.Write(meta, w, ?res = res))
+                w.Write(res.[name])
                 w.WriteEndTag(tag)
+            | None ->
+                w.WriteBeginTag(tag)
+                attrs |> List.iter (fun a ->
+                    if not (obj.ReferenceEquals(a, null))
+                    then a.Write(ctx.Metadata, w, false))
+                if List.isEmpty children && HtmlTextWriter.IsSelfClosingTag tag then
+                    w.Write(HtmlTextWriter.SelfClosingTagEnd)
+                else
+                    w.Write(HtmlTextWriter.TagRightChar)
+                    children |> List.iter (fun e -> e.Write(ctx, w, res))
+                    w.WriteEndTag(tag)
 
-    override this.HasNonScriptSpecialTags =
-        let rec testAttr = function
-            | Attr.AppendAttr attrs -> List.exists testAttr attrs
-            | Attr.SingleAttr (("data-replace" | "data-hole"), ("styles" | "meta")) -> true
-            | Attr.SingleAttr _
-            | Attr.DepAttr _ -> false
-        (attrs |> List.exists testAttr)
-        || (children |> List.exists (fun d -> d.HasNonScriptSpecialTags))
+        let hasNonScriptSpecialTags =
+            let rec testAttr a =
+                if obj.ReferenceEquals(a, null) then false else
+                match a with
+                | Attr.AppendAttr attrs -> List.exists testAttr attrs
+                | Attr.SingleAttr (("ws-replace" | "ws-hole" | "data-replace" | "data-hole"), ("styles" | "meta")) -> true
+                | Attr.SingleAttr _
+                | Attr.DepAttr _ -> false
+            (attrs |> List.exists testAttr)
+            || (children |> List.exists (fun d -> d.HasNonScriptSpecialTags))
 
-    override this.Name = Some tag
+        let encode meta json =
+            children |> List.collect (fun e -> (e :> IRequiresResources).Encode(meta, json))
 
-    override this.Encode(meta, json) =
-        children |> List.collect (fun e -> (e :> IRequiresResources).Encode(meta, json))
+        let requires attrs =
+            Seq.append
+                (attrs |> Seq.collect (fun a ->
+                    if obj.ReferenceEquals(a, null)
+                    then Seq.empty
+                    else (a :> IRequiresResources).Requires))
+                (children |> Seq.collect (fun e -> (e :> IRequiresResources).Requires))
 
-    override this.Requires =
-        Seq.append
-            (attrs |> Seq.collect (fun a -> (a :> IRequiresResources).Requires))
-            (children |> Seq.collect (fun e -> (e :> IRequiresResources).Requires))
+        Elt(attrs, encode, requires, hasNonScriptSpecialTags, write, None)
 
     member this.On(ev, cb) =
-        Elt(tag, Attr.Handler ev cb :: attrs, children)
+        attrs <- Attr.Handler ev cb :: attrs
+        this
 
     member this.OnLinq(ev, cb) =
-        Elt(tag, Attr.HandlerLinq ev cb :: attrs, children)
+        attrs <- Attr.HandlerLinq ev cb :: attrs
+        this
 
     // {{ event
     member this.OnAbort(cb: Expr<Dom.Element -> Dom.UIEvent -> unit>) = this.On("abort", cb)
@@ -304,7 +340,42 @@ and [<Sealed>] Elt(tag: string, attrs: list<Attr>, children: list<Doc>) =
     member this.OnWheel(cb: Expr<Dom.Element -> Dom.WheelEvent -> unit>) = this.On("wheel", cb)
     // }}
 
+and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
+    | Elt of name: string * fillWith: Doc
+    | Text of name: string * fillWith: string
+    | TextView of name: string * fillWith: View<string>
+    | Attribute of name: string * fillWith: Attr
+    | Event of name: string * fillWith: (Element -> Dom.Event -> unit)
+    | AfterRender of name: string * fillWith: (Element -> unit)
+    | VarStr of name: string * fillWith: IRef<string>
+    | VarBool of name: string * fillWith: IRef<bool>
+    | VarInt of name: string * fillWith: IRef<Client.CheckedInput<int>>
+    | VarIntUnchecked of name: string * fillWith: IRef<int>
+    | VarFloat of name: string * fillWith: IRef<Client.CheckedInput<float>>
+    | VarFloatUnchecked of name: string * fillWith: IRef<float>
+
+    [<Inline "$x.$0">]
+    static member Name x =
+        match x with
+        | TemplateHole.Elt (name, _)
+        | TemplateHole.Text (name, _)
+        | TemplateHole.TextView (name, _)
+        | TemplateHole.VarStr (name, _)
+        | TemplateHole.VarBool (name, _)
+        | TemplateHole.VarInt (name, _)
+        | TemplateHole.VarIntUnchecked (name, _)
+        | TemplateHole.VarFloat (name, _)
+        | TemplateHole.VarFloatUnchecked (name, _)
+        | TemplateHole.Event (name, _)
+        | TemplateHole.AfterRender (name, _)
+        | TemplateHole.Attribute (name, _) -> name
+
 type Doc with
+
+    static member ListOfSeq (s: seq<'T>) =
+        match s with
+        | null -> []
+        | s -> List.ofSeq s
 
     static member ToMixedDoc (o: obj) =
         match o with
@@ -316,7 +387,7 @@ type Doc with
         | o -> Doc.TextNode (string o)
 
     static member Element (tagname: string) (attrs: seq<Attr>) (children: seq<Doc>) =
-        Elt (tagname, List.ofSeq attrs, List.ofSeq children)
+        Elt (tagname, Doc.ListOfSeq attrs, Doc.ListOfSeq children)
 
     static member ElementMixed (tagname: string) (nodes: seq<obj>) =
         let attrs = ResizeArray()
@@ -328,7 +399,7 @@ type Doc with
         Doc.Element tagname attrs children 
 
     static member SvgElement (tagname: string) (attrs: seq<Attr>) (children: seq<Doc>) =
-        Elt (tagname, List.ofSeq attrs, List.ofSeq children)
+        Elt (tagname, Doc.ListOfSeq attrs, Doc.ListOfSeq children)
 
     static member SvgElementMixed (tagname: string) (nodes: seq<obj>) =
         Doc.ElementMixed tagname nodes
@@ -337,7 +408,7 @@ type Doc with
 
     static member Append d1 d2 = ConcreteDoc(AppendDoc [ d1; d2 ]) :> Doc
 
-    static member Concat (docs: seq<Doc>) = ConcreteDoc(AppendDoc (List.ofSeq docs)) :> Doc
+    static member Concat (docs: seq<Doc>) = ConcreteDoc(AppendDoc (Doc.ListOfSeq docs)) :> Doc
 
     static member ConcatMixed ([<ParamArray>] docs: obj[]) = Doc.Concat (Seq.map Doc.ToMixedDoc docs)
 

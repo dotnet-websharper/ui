@@ -9,6 +9,7 @@
     <RootNamespace>$(Name)</RootNamespace>
     <AssemblyName>$(Name)</AssemblyName>
     <WebSharperProject>Library</WebSharperProject>
+	<WebSharperAnalyzeClosures>True</WebSharperAnalyzeClosures>
     <OutputType>Library</OutputType>
     <OutputPath>../build/net40</OutputPath>
     <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
@@ -34,10 +35,14 @@
     <Compile Include="Reactive.fs" />
     <Compile Include="Models.fsi" />
     <Compile Include="Models.fs" />
+    <Compile Include="ReactiveExtensions.fsi" />
+    <Compile Include="ReactiveExtensions.fs" />
     <Compile Include="Animation.fsi" />
     <Compile Include="Animation.fs" />
     <Compile Include="Attr.fsi" />
     <Compile Include="Attr.fs" />
+    <Compile Include="Attr.Client.fsi" />
+    <Compile Include="Attr.Client.fs" />
     <Compile Include="Doc.fsi" />
     <Compile Include="Doc.fs" />
     <Compile Include="Doc.Server.fsi" />

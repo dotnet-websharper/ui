@@ -44,38 +44,25 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <WarningLevel>3</WarningLevel>
   </PropertyGroup>
-  <Import Project="../build/net45/$(Name).proj" />
   <ItemGroup>
     <Compile Include="Client.cs" />
+    <Content Include="index.html" />
+    <Compile Include="index.g.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>index.html</DependentUpon>
+    </Compile>
+    <Content Include="template.html" />
     <Compile Include="template.g.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>template.tt</DependentUpon>
-    </Compile>
-    <Content Include="index.html" />
-    <Content Include="template.tt">
       <DependentUpon>template.html</DependentUpon>
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>template.g.cs</LastGenOutput>
-    </Content>
-    <Content Include="template.html">
-      <RunCustomToolOn>template.tt</RunCustomToolOn>
-    </Content>
+    </Compile>
     <Content Include="Web.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Web.ApplicationServices" />
-    <Reference Include="System.Web.DynamicData" />
-    <Reference Include="System.Web.Entity" />
-    <Reference Include="System.Web.Extensions" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
-  </ItemGroup>
+<PropertyGroup>
+  <AdditionalFileItemNames>$(AdditionalFileItemNames);Content</AdditionalFileItemNames>
+</PropertyGroup>
   <ItemGroup>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -84,6 +71,9 @@
       <DependentUpon>Web.config</DependentUpon>
     </None>
     <Content Include="WebSharper.UI.Next.CSharp.Tests.ruleset" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WebSharper.UI.Next.CSharp\WebSharper.UI.Next.CSharp.fsproj">
@@ -96,7 +86,58 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+    <Analyzer Include="..\build\net40\HtmlAgilityPack.dll" />
+    <Analyzer Include="..\build\net40\WebSharper.UI.Next.Templating.Common.dll" />
+    <Analyzer Include="..\build\net45\WebSharper.UI.Next.CSharp.Templating.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="FSharp.Core, Version=4.4.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\build\net40\FSharp.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="WebSharper.Collections, Version=4.0.0.0, Culture=neutral, PublicKeyToken=dcd983dec8f76a71, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\build\net40\WebSharper.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="WebSharper.Control, Version=4.0.0.0, Culture=neutral, PublicKeyToken=dcd983dec8f76a71, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\build\net40\WebSharper.Control.dll</HintPath>
+    </Reference>
+    <Reference Include="WebSharper.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=dcd983dec8f76a71, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\build\net40\WebSharper.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="WebSharper.Core.JavaScript, Version=4.0.0.0, Culture=neutral, PublicKeyToken=dcd983dec8f76a71, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\build\net40\WebSharper.Core.JavaScript.dll</HintPath>
+    </Reference>
+    <Reference Include="WebSharper.InterfaceGenerator, Version=4.0.0.0, Culture=neutral, PublicKeyToken=dcd983dec8f76a71, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\build\net40\WebSharper.InterfaceGenerator.dll</HintPath>
+    </Reference>
+    <Reference Include="WebSharper.JavaScript, Version=4.0.0.0, Culture=neutral, PublicKeyToken=dcd983dec8f76a71, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\build\net40\WebSharper.JavaScript.dll</HintPath>
+    </Reference>
+    <Reference Include="WebSharper.JQuery, Version=4.0.0.0, Culture=neutral, PublicKeyToken=dcd983dec8f76a71, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\build\net40\WebSharper.JQuery.dll</HintPath>
+    </Reference>
+    <Reference Include="WebSharper.Main, Version=4.0.0.0, Culture=neutral, PublicKeyToken=dcd983dec8f76a71, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\build\net40\WebSharper.Main.dll</HintPath>
+    </Reference>
+    <Reference Include="WebSharper.Sitelets, Version=4.0.0.0, Culture=neutral, PublicKeyToken=dcd983dec8f76a71, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\build\net40\WebSharper.Sitelets.dll</HintPath>
+    </Reference>
+    <Reference Include="WebSharper.UI.Next.Templating.Runtime">
+      <HintPath>..\build\net40\WebSharper.UI.Next.Templating.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="WebSharper.Web, Version=4.0.0.0, Culture=neutral, PublicKeyToken=dcd983dec8f76a71, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\build\net40\WebSharper.Web.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <Target Name="IncludeContent" BeforeTargets="Compile">
     <ItemGroup>

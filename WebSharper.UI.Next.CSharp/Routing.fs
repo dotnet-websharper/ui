@@ -223,7 +223,7 @@ and private RouteMapBuilderMacro() =
                         ReturnType = res
                         Generics = 0
                     }
-                let parseMeth = meth [TupleType [listOf stringT; stringMapT]] (optionOf (TupleType [t; listOf stringT]))
+                let parseMeth = meth [TupleType ([listOf stringT; stringMapT], false)] (optionOf (TupleType ([t; listOf stringT], false)))
                 if comp.GetClassInfo parsersT |> Option.exists (fun cls -> cls.Methods.ContainsKey parseMeth)
                 then MetaBase parseMeth
                 else
@@ -240,8 +240,8 @@ and private RouteMapBuilderMacro() =
 //                        t'.GetFields(BF.Instance ||| BF.Public ||| BF.NonPublic)
                         |> Seq.choose (fun (KeyValue(compName, f)) ->
                             match f with
-                            | Metadata.InstanceField name 
-                            | Metadata.OptionalField name -> 
+                            | Metadata.InstanceField name, _, _ 
+                            | Metadata.OptionalField name, _, _ -> 
                                 comp.GetFieldAttributes(td, compName) |> Option.map (fun (ftyp, fattrs) ->
                                     let isQuery =
                                         fattrs
@@ -266,7 +266,7 @@ and private RouteMapBuilderMacro() =
                                         name, queryItem, ty
                                     else name, QueryItem.NotQuery, ftyp
                                 )
-                            | Metadata.StaticField _ -> None
+                            | Metadata.StaticField _, _, _ -> None
                         ) 
                         |> List.ofSeq
                     let isHole (n: string) = n.StartsWith "{" && n.EndsWith "}"
@@ -293,7 +293,7 @@ and private RouteMapBuilderMacro() =
                         MetaObject (ctor, name, args)
         | ArrayType (t, 1) ->
             MetaSequence((let x = Id.New() in Lambda([x], Var x)), t)
-        | TupleType ts ->
+        | TupleType (ts, _) ->
             MetaTuple ts
         | t -> failwithf "Type not supported by RouteMap: %s" t.AssemblyQualifiedName
 
@@ -353,39 +353,38 @@ and private RouteMapBuilderMacro() =
 
     override __.TranslateCall(c) =
         comp <- c.Compilation
-        match c.Method.Generics.[0] with
-        | TypeParameter _ -> MacroNeedsResolvedTypeArg
-        | targ ->
-            try
-                match c.Method.Entity.Value.MethodName with
-                | "Link" ->
-                    let mk = Id.New()
-                    let action = Id.New()
-                    let routeShape = getRouteShape targ |> convertRouteShape
-                    Let (mk, Call (None, routeItemParsersT, makeLinkM, [routeShape]),
-                        Lambda ([action],
-                            Conditional (TypeCheck (Var action, targ),
-                                some (listOf stringT) (Application (Var mk, [Var action], true, Some 1)),
-                                none (listOf stringT)
-                            )
-                        )
-                    )
-                | "Route" ->
-                    let routeShape = getRouteShape targ |> convertRouteShape
-                    Call (None, routeItemParsersT, parseRouteM, [routeShape])
-                | "Render" ->
-                    let go = Id.New()
-                    let action = Id.New()
-                    let render = c.Arguments.[0]
-                    Lambda([go; action],
+        let targ = c.Method.Generics.[0] 
+        if targ.IsParameter then MacroNeedsResolvedTypeArg targ else
+        try
+            match c.Method.Entity.Value.MethodName with
+            | "Link" ->
+                let mk = Id.New()
+                let action = Id.New()
+                let routeShape = getRouteShape targ |> convertRouteShape
+                Let (mk, Call (None, routeItemParsersT, makeLinkM, [routeShape]),
+                    Lambda ([action],
                         Conditional (TypeCheck (Var action, targ),
-                            some targ (Application (render, [Var go; Var action], true, Some 2)),
-                            none targ
+                            some (listOf stringT) (Application (Var mk, [Var action], Pure, Some 1)),
+                            none (listOf stringT)
                         )
                     )
-                | _ -> failwith "Invalid use of RouteMapBuilder macro"
-                |> MacroOk
-            with e -> MacroError e.Message
+                )
+            | "Route" ->
+                let routeShape = getRouteShape targ |> convertRouteShape
+                Call (None, routeItemParsersT, parseRouteM, [routeShape])
+            | "Render" ->
+                let go = Id.New()
+                let action = Id.New()
+                let render = c.Arguments.[0]
+                Lambda([go; action],
+                    Conditional (TypeCheck (Var action, targ),
+                        some targ (Application (render, [Var go; Var action], Pure, Some 2)),
+                        none targ
+                    )
+                )
+            | _ -> failwith "Invalid use of RouteMapBuilder macro"
+            |> MacroOk
+        with e -> MacroError e.Message
 
 and [<JavaScript>] private RouteItemParsers =
 

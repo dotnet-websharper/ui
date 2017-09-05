@@ -43,6 +43,8 @@ module TypeProviderHelpers =
     let AttrDynamic a b = Attr.Dynamic a b
     [<JavaScript; Inline>]
     let DocElement a b c = Doc.Element a b c
+    [<JavaScript; Inline>]
+    let DocSvgElement a b c = Doc.SvgElement a b c
     [<Inline; JavaScript>]
     let ViewAppendString v e : View<string> = View.Map (fun x -> x + e) v
     [<Inline; JavaScript>]

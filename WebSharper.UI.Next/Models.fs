@@ -107,11 +107,11 @@ module Storage =
 
         interface Storage<'T> with
             member x.Append i arr = arr.JS.Push i |> ignore; arr
-            member x.AppendMany is arr = arr.JS.Push (Array.ofSeq is) |> ignore; arr
+            member x.AppendMany is arr = arr.JS.Push (Array.ofSeqNonCopying is) |> ignore; arr
             member x.Prepend i arr = arr.JS.Unshift i |> ignore; arr
-            member x.PrependMany is arr = arr.JS.Unshift (Array.ofSeq is) |> ignore; arr
+            member x.PrependMany is arr = arr.JS.Unshift (Array.ofSeqNonCopying is) |> ignore; arr
             member x.Init () = init
-            member x.RemoveIf pred arr = Array.filter (pred >> not) arr
+            member x.RemoveIf pred arr = Array.filter (fun i -> not (pred i)) arr
             member x.SetAt idx elem arr = arr.[idx] <- elem; arr
             member x.Set coll = Seq.toArray coll
 
@@ -124,9 +124,9 @@ module Storage =
 
         interface Storage<'T> with
             member x.Append i arr = arr.JS.Push i |> ignore; set arr
-            member x.AppendMany is arr = arr.JS.Push (Array.ofSeq is) |> ignore; set arr
+            member x.AppendMany is arr = arr.JS.Push (Array.ofSeqNonCopying is) |> ignore; set arr
             member x.Prepend i arr = arr.JS.Unshift i |> ignore; set arr
-            member x.PrependMany is arr = arr.JS.Unshift (Array.ofSeq is) |> ignore; set arr
+            member x.PrependMany is arr = arr.JS.Unshift (Array.ofSeqNonCopying is) |> ignore; set arr
 
             member x.Init () =
                 let item = storage.GetItem(id)
@@ -137,7 +137,7 @@ module Storage =
                         arr |> Array.map serializer.Decode
                     with _ -> [||]
 
-            member x.RemoveIf pred arr = set <| Array.filter (pred >> not) arr
+            member x.RemoveIf pred arr = set <| Array.filter (fun i -> not (pred i)) arr
             member x.SetAt idx elem arr = arr.[idx] <- elem; set arr
             member x.Set coll = set <| Seq.toArray coll
 
@@ -147,6 +147,23 @@ module Storage =
     let LocalStorage id serializer =
         new LocalStorageBackend<_>(id, serializer) :> Storage<_>
 
+type ListModelState<'T> =
+    [<Inline>]
+    member this.Length =
+        JavaScript.Pervasives.As<'T[]>(this).Length
+    [<Inline>]
+    member this.Item
+        with get i = JavaScript.Pervasives.As<'T[]>(this).[i]
+    [<Inline>]
+    member this.ToArray() =                             
+        Array.copy (JavaScript.Pervasives.As<'T[]>(this))
+    [<Inline>]
+    member this.ToArray(pred: Predicate<'T>) =
+        Array.filter pred.Invoke (JavaScript.Pervasives.As<'T[]>(this))
+    interface seq<'T> with
+        member this.GetEnumerator() = (JavaScript.Pervasives.As<'T[]>(this)).GetEnumerator()
+        member this.GetEnumerator() = (JavaScript.Pervasives.As<'T seq>(this)).GetEnumerator()
+
 [<JavaScript>]
 type ListModel<'Key, 'T when 'Key : equality>
     (
@@ -155,9 +172,9 @@ type ListModel<'Key, 'T when 'Key : equality>
         storage : Storage<'T>
     ) =
 
-    let v = 
-        var.View |> View.Map (fun x ->
-            Array.copy x :> seq<_>)
+    let v = var.View.Map(fun x -> Array.copy x :> _ seq)
+           
+    let it = Dictionary<'Key, Snap<option<'T>>>()
 
     new (key: System.Func<'T, 'Key>, init: seq<'T>) =
         let init = Seq.toArray init
@@ -180,7 +197,11 @@ type ListModel<'Key, 'T when 'Key : equality>
     [<Inline>]
     member this.Storage = storage
     [<Inline>]
-    member this.view = v
+    member this.View = v
+    [<Inline>]
+    member this.ViewState = JavaScript.Pervasives.As<View<ListModelState<'T>>> var.View
+    [<Inline>]
+    member this.itemSnaps = it
 
     interface seq<'T> with
         member this.GetEnumerator() =
@@ -196,11 +217,7 @@ module ListModels =
         let t = keyFn item
         Array.exists (fun it -> keyFn it = t) xs
 
-
 type ListModel<'Key,'T> with
-
-    [<Inline>]
-    member m.View = m.view
 
     [<Inline>]
     member m.Key x = m.key x
@@ -209,12 +226,25 @@ type ListModel<'Key,'T> with
     member m.Add item =
         m.Append item
 
+    member m.ObsoleteKey key =
+        match m.itemSnaps.TryGetValue(key) with
+        | true, sn ->
+            Snap.MarkObsolete sn 
+            m.itemSnaps.Remove key |> ignore
+        | _ -> ()
+
+    member m.ObsoleteAll() =
+        m.itemSnaps |> Seq.iter (fun ksn -> Snap.MarkObsolete ksn.Value)
+        m.itemSnaps.Clear()
+
     member m.Append item =
         let v = m.Var.Value
         let t = m.Key item
         match Array.tryFindIndex (fun it -> m.Key it = t) v with
         | None -> m.Var.Value <- m.Storage.Append item v
-        | Some index -> m.Var.Value <- m.Storage.SetAt index item v
+        | Some index -> 
+            m.Var.Value <- m.Storage.SetAt index item v
+        m.ObsoleteKey t
 
     member m.AppendMany items =
         let toAppend = ResizeArray()
@@ -222,8 +252,10 @@ type ListModel<'Key,'T> with
             (m.Var.Value, items)
             ||> Seq.fold (fun v item ->
                 let t = m.Key item
+                m.ObsoleteKey t
                 match Array.tryFindIndex (fun it -> m.Key it = t) v with
-                | Some index -> m.Storage.SetAt index item v
+                | Some index ->
+                    m.Storage.SetAt index item v
                 | None -> toAppend.Add item; v)
         m.Var.Value <- m.Storage.AppendMany toAppend v
 
@@ -232,7 +264,9 @@ type ListModel<'Key,'T> with
         let t = m.Key item
         match Array.tryFindIndex (fun it -> m.Key it = t) v with
         | None -> m.Var.Value <- m.Storage.Prepend item v
-        | Some index -> m.Var.Value <- m.Storage.SetAt index item v
+        | Some index -> 
+            m.Var.Value <- m.Storage.SetAt index item v
+        m.ObsoleteKey t
 
     member m.PrependMany items =
         let toPrepend = ResizeArray()
@@ -240,8 +274,10 @@ type ListModel<'Key,'T> with
             (m.Var.Value, items)
             ||> Seq.fold (fun v item ->
                 let t = m.Key item
+                m.ObsoleteKey t
                 match Array.tryFindIndex (fun it -> m.Key it = t) v with
-                | Some index -> m.Storage.SetAt index item v
+                | Some index -> 
+                    m.Storage.SetAt index item v
                 | None -> toPrepend.Add item; v)
         m.Var.Value <- m.Storage.PrependMany toPrepend v
 
@@ -251,18 +287,24 @@ type ListModel<'Key,'T> with
             let keyFn = m.key
             let k = keyFn item
             m.Var.Value <- m.Storage.RemoveIf (fun i -> keyFn i = k) v
+            m.ObsoleteKey k
 
     member m.RemoveBy (f: 'T -> bool) =
+        for v in m.Var.Value do
+            if f v then
+                m.ObsoleteKey (m.key v)
         m.Var.Value <- m.Storage.RemoveIf f m.Var.Value
 
     member m.RemoveByKey key =
         m.Var.Value <- m.Storage.RemoveIf (fun i -> m.Key i = key) m.Var.Value
+        m.ObsoleteKey key
 
     member m.Iter fn =
         Array.iter fn m.Var.Value
 
     member m.Set lst =
         m.Var.Value <- m.Storage.Set lst
+        m.ObsoleteAll()
 
     member m.ContainsKey key =
         Array.exists (fun it -> m.key it = key) m.Var.Value
@@ -288,17 +330,26 @@ type ListModel<'Key,'T> with
     member m.TryFindByKey key =
         Array.tryFind (fun it -> m.key it = key) m.Var.Value
 
-    member m.FindByKeyAsView key =
-        m.Var.View |> View.Map (Array.find (fun it -> m.key it = key))
-
     member m.TryFindByKeyAsView key =
-        m.Var.View |> View.Map (Array.tryFind (fun it -> m.key it = key))
+        ViewOptimization.V (fun () -> 
+            match m.itemSnaps.TryGetValue(key) with
+            | true, snap -> snap                
+            | _ ->
+                let it = m.TryFindByKey(key)
+                let sn = Snap.CreateWithValue it
+                m.itemSnaps.Add(key, sn)
+                sn
+        )
+
+    member m.FindByKeyAsView key =
+        m.TryFindByKeyAsView key |> View.Map Option.get
 
     member m.UpdateAll fn =
         m.Var.Update <| fun a ->
             a |> Array.iteri (fun i x ->
                 fn x |> Option.iter (fun y -> a.[i] <- y))
             m.Storage.Set a
+        m.ObsoleteAll()
 
     member m.UpdateBy fn key =
         let v = m.Var.Value
@@ -309,6 +360,7 @@ type ListModel<'Key,'T> with
             | None -> ()
             | Some value ->
                 m.Var.Value <- m.Storage.SetAt index value v
+                m.ObsoleteKey key
 
     [<Inline>]
     member m.UpdateByU(fn, key) =
@@ -316,6 +368,7 @@ type ListModel<'Key,'T> with
 
     member m.Clear () =
         m.Var.Value <- m.Storage.Set Seq.empty
+        m.ObsoleteAll()
 
     member m.Length =
         m.Var.Value.Length
@@ -324,7 +377,34 @@ type ListModel<'Key,'T> with
         m.Var.View |> View.Map (fun arr -> arr.Length)
 
     member m.LensInto (get: 'T -> 'V) (update: 'T -> 'V -> 'T) (key : 'Key) : IRef<'V> =
-        new RefImpl<'Key, 'T, 'V>(m, key, get, update) :> IRef<'V>
+        let id = Fresh.Id()
+
+        let view = m.FindByKeyAsView(key) |> View.Map get
+    
+        { new IRef<'V> with
+
+            member r.Get() =
+                m.FindByKey key |> get
+
+            member r.Set(v) =
+                m.UpdateBy (fun i -> Some (update i v)) key
+
+            member r.Value
+                with get() = r.Get()
+                and set v = r.Set v
+
+            member r.Update(f) =
+                m.UpdateBy (fun i -> Some (update i (f (get i)))) key
+
+            member r.UpdateMaybe(f) =
+                m.UpdateBy (fun i -> Option.map (fun v -> update i v) (f (get i))) key
+
+            member r.View =
+                view
+
+            member r.Id =
+                id
+        }
 
     [<Inline>]
     member m.LensIntoU (get: 'T -> 'V, update: 'T -> 'V -> 'T, key : 'Key) : IRef<'V> =
@@ -335,39 +415,7 @@ type ListModel<'Key,'T> with
 
     member m.Value
         with [<Inline>] get () = m.Var.Value :> seq<_>
-        and [<Inline>] set v = m.Var.Value <- Array.ofSeq v
-
-and [<JavaScript>]
-    RefImpl<'K, 'T, 'V when 'K : equality>
-        (m: ListModel<'K, 'T>, key: 'K, get: 'T -> 'V, update: 'T -> 'V -> 'T) =
-
-    let id = Fresh.Id()
-
-    let view = m.FindByKeyAsView(key) |> View.Map get
-    
-    interface IRef<'V> with
-
-        member r.Get() =
-            m.FindByKey key |> get
-
-        member r.Set(v) =
-            m.UpdateBy (fun i -> Some (update i v)) key
-
-        member r.Value
-            with get() = (r :> IRef<'V>).Get()
-            and set v = (r :> IRef<'V>).Set v
-
-        member r.Update(f) =
-            m.UpdateBy (fun i -> Some (update i (f (get i)))) key
-
-        member r.UpdateMaybe(f) =
-            m.UpdateBy (fun i -> Option.map (update i) (f (get i))) key
-
-        member r.View =
-            view
-
-        member r.Id =
-            id
+        and [<Inline>] set v = m.Set(v)
 
 [<JavaScript>]
 type ListModel =
@@ -423,7 +471,11 @@ type ListModel =
 
     [<Inline>]
     static member View (m: ListModel<_,_>) =
-        m.view
+        m.View
+
+    [<Inline>]
+    static member ViewState (m: ListModel<_,_>) =
+        m.ViewState
 
     [<Inline>]
     static member Key (m: ListModel<_,_>) =

@@ -124,3 +124,5 @@ type DocExtension =
     static member DocSeqCached<'T,'K,'D when 'K : equality and 'D :> Doc>
         (v, f: Func<'T, 'K>, g: Func<'K, View<'T>, 'D>) = Client.Doc.BindSeqCachedViewBy (FSharpConvert.Fun f) (FSharpConvert.Fun g) v
 
+[<assembly:Extension>]
+do ()

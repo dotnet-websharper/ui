@@ -34,14 +34,14 @@
     <div style="width: 400px">
         <h1>My TODO! list</h1>
         <div id="tasks"></div>
-        <div style="display: none" data-children-template="Main">
-            <ul class="list-unstyled" data-hole="ListContainer">
-                <li data-template="ListItem">
+        <div style="display: none" ws-children-template="Main">
+            <ul class="list-unstyled" ws-hole="ListContainer">
+                <li ws-template="ListItem">
                     <div class="checkbox">
-                        <label data-attr="ShowDone">
-                            <input type="checkbox" data-var="Done" />
+                        <label ws-attr="ShowDone">
+                            <input type="checkbox" ws-var="Done" />
                             ${Task}
-                            <button class="btn btn-danger btn-xs pull-right" type="button" data-event-click="Clear">X</button>
+                            <button class="btn btn-danger btn-xs pull-right" type="button" ws-onclick="Clear">X</button>
                         </label>
                     </div>
                 </li>
@@ -50,14 +50,14 @@
                 <div class="form-group">
                     <label>New task</label>
                     <div class="input-group">
-                        <input class="form-control" data-var="NewTaskName" />
+                        <input class="form-control" ws-var="NewTaskName" />
                         <span class="input-group-btn">
-                            <button class="btn btn-primary" type="button" data-event-click="Add">Add</button>
+                            <button class="btn btn-primary" type="button" ws-onclick="Add">Add</button>
                         </span>
                     </div>
-                    <p class="help-block">You are going to add: $!{NewTaskName}<span></span></p>
+                    <p class="help-block">You are going to add: ${NewTaskName}<span></span></p>
                 </div>
-                <button class="btn btn-default" type="button" data-event-click="ClearCompleted">Clear selected tasks</button>
+                <button class="btn btn-default" type="button" ws-onclick="ClearCompleted">Clear selected tasks</button>
             </form>
         </div>
     </div>

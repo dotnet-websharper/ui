@@ -91,29 +91,29 @@ module internal DomUtility =
 
     /// Position in a `children` list of a DOM Element
     /// where a node can be inserted.
-    type InsertPos =
-        | AtEnd
-        | BeforeNode of Node
+    [<AllowNullLiteral>]
+    type InsertPos [<Inline "$x">] private (x: Node) =
+        [<Inline>]
+        static member AtEnd = null : InsertPos
+        [<Inline>]
+        static member BeforeNode n = InsertPos n
+    [<Inline>]
+    let AtEnd = InsertPos.AtEnd
+    [<Inline>]
+    let BeforeNode n = InsertPos.BeforeNode n
 
     /// Inserts a new child node into the tree under
     /// a given `parent` at given `pos`.
     let InsertAt (parent: Element) (pos: InsertPos) (node: Node) =
-        let samePos p1 p2 =
-            match p1, p2 with
-            | AtEnd, AtEnd -> true
-            | BeforeNode n1, BeforeNode n2 -> n1 ===. n2
-            | _ -> false
         let currentPos (node: Node) =
             match node.NextSibling with
             | null -> AtEnd
             | s -> BeforeNode s
         let canSkip =
             node.ParentNode ===. parent
-            && samePos pos (currentPos node)
+            && pos ===. currentPos node
         if not canSkip then
-            match pos with
-            | AtEnd -> parent.AppendChild(node) |> ignore
-            | BeforeNode marker -> parent.InsertBefore(node, marker) |> ignore
+            parent.InsertBefore(node, As pos) |> ignore
 
     /// Adds a class.
     let AddClass (element: Element) (cl: string) =
@@ -122,3 +122,15 @@ module internal DomUtility =
     /// Removes a class.
     let RemoveClass (element: Element) (cl: string) =
         JQuery.Of(element).RemoveClass(cl) |> ignore
+
+    /// Retrieve the children of an element as an array.
+    let ChildrenArray (element: Element) : Dom.Node[] =
+        let a = [||]
+        for i = 0 to element.ChildNodes.Length - 1 do
+            a.JS.Push(element.ChildNodes.[i]) |> ignore
+        a
+
+    /// Iterate through a NodeList assuming it's all Elements.
+    let IterSelector (el: Element) (selector: string) (f: Element -> unit) =
+        let l = el.QuerySelectorAll(selector)
+        for i = 0 to l.Length - 1 do f (l.[i] :?> Element)

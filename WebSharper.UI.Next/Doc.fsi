@@ -39,10 +39,10 @@ type Doc =
     /// Constructs a reactive element node with mixed content. 
     static member ElementMixed : name: string -> seq<obj> -> Elt
 
-    /// Same as Element, but uses SVG namespace.
+    /// Constructs a reactive element node in the SVG namespace.
     static member SvgElement : name: string -> seq<Attr> -> seq<Doc> -> Elt
 
-    /// Same as ElementMixed, but uses SVG namespace.
+    /// Constructs a reactive element node with mixed content in the SVG namespace.
     static member SvgElementMixed : name: string -> seq<obj> -> Elt
 
     // Note: Empty, Append, Concat define a monoid on Doc.
@@ -73,15 +73,32 @@ type Doc =
     /// Verbatim HTML.
     static member Verbatim : string -> Doc
 
-    abstract Write : Core.Metadata.Info * System.Web.UI.HtmlTextWriter * ?res: Sitelets.Content.RenderedResources -> unit
+    abstract Write : Web.Context * System.Web.UI.HtmlTextWriter * res: option<Sitelets.Content.RenderedResources> -> unit
+    abstract Write : Web.Context * System.Web.UI.HtmlTextWriter * renderResources: bool -> unit
+    default Write : Web.Context * System.Web.UI.HtmlTextWriter * renderResources: bool -> unit
     abstract HasNonScriptSpecialTags : bool
-    abstract Name : option<string>
     abstract Encode : Core.Metadata.Info * Core.Json.Provider -> list<string * Core.Json.Encoded>
     abstract Requires : seq<Core.Metadata.Node>
     static member internal OfINode : Web.INode -> Doc
 
-and [<Sealed; Class>] Elt =
+    internal new : unit -> Doc
+
+and [<Class>] Elt =
     inherit Doc
+
+    internal new
+        : attrs: list<Attr>
+        * encode: (Core.Metadata.Info -> Core.Json.Provider -> list<string * Core.Json.Encoded>)
+        * requires: (list<Attr> -> seq<Core.Metadata.Node>)
+        * hasNonScriptSpecialTags: bool
+        * write: (list<Attr> -> Web.Context -> System.Web.UI.HtmlTextWriter -> option<Sitelets.Content.RenderedResources> -> unit)
+        * write': (option<list<Attr> -> Web.Context -> System.Web.UI.HtmlTextWriter -> bool -> unit>)
+        -> Elt
+
+    override Write : Web.Context * System.Web.UI.HtmlTextWriter * res: option<Sitelets.Content.RenderedResources> -> unit
+    override HasNonScriptSpecialTags : bool
+    override Encode : Core.Metadata.Info * Core.Json.Provider -> list<string * Core.Json.Encoded>
+    override Requires : seq<Core.Metadata.Node>
 
     /// Add an event handler.
     /// When called on the server side, the handler must be a top-level function or a static member.
@@ -510,3 +527,20 @@ and [<Sealed; Class>] Elt =
     /// When called on the server side, the handler must be a top-level function or a static member.
     member OnWheel : cb: Expr<Dom.Element -> Dom.WheelEvent -> unit> -> Elt
     // }}
+
+[<RequireQualifiedAccess>]
+type TemplateHole =
+    | Elt of name: string * fillWith: Doc
+    | Text of name: string * fillWith: string
+    | TextView of name: string * fillWith: View<string>
+    | Attribute of name: string * fillWith: Attr
+    | Event of name: string * fillWith: (Element -> Dom.Event -> unit)
+    | AfterRender of name: string * fillWith: (Element -> unit)
+    | VarStr of name: string * fillWith: IRef<string>
+    | VarBool of name: string * fillWith: IRef<bool>
+    | VarInt of name: string * fillWith: IRef<Client.CheckedInput<int>>
+    | VarIntUnchecked of name: string * fillWith: IRef<int>
+    | VarFloat of name: string * fillWith: IRef<Client.CheckedInput<float>>
+    | VarFloatUnchecked of name: string * fillWith: IRef<float>
+
+    static member Name : TemplateHole -> string

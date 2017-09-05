@@ -16,7 +16,6 @@ using System;
 
 namespace WebSharper.UI.Next.CSharp.Tests
 {
-
     [JavaScript]
 
     public class App
@@ -66,27 +65,33 @@ namespace WebSharper.UI.Next.CSharp.Tests
                 public string Password { get; set; }
             }
 
-        //void Animating()
-        //{
-        //    // define animations that can be parametrized by start and end times
-        //    Func<double, double, Anim<double>> linearAnim =
-        //        (start, end) => Anim.Simple(Interpolation.Double, new Easing(x => x), 300, start, end);
-        //    Func<double, double, Anim<double>> cubicAnim =
-        //        (start, end) => Anim.Simple(Interpolation.Double, Easing.CubicInOut, 300, start, end);
-        //    // define the transition with a cubic in and out and linear in between
-        //    var swipeTransition =
-        //        new Trans<double>(linearAnim, x => cubicAnim(x - 100, x), x => cubicAnim(x, x + 100));
+        public class Rpc
+        {
+            [Remote]
+            public static Task<bool> Login(LoginData data) => Task.FromResult(true);
+        }
 
-        //    var rvLeftPos = Var.Create<double>(0);
-        //    var animatedDoc =
-        //        div(
-        //            style("position", "relative"),
-        //            // TODO + with object and string
-        //            style("left", swipeTransition, rvLeftPos.View, pos => pos + "%"),
-        //            "content"
-        //        );
+        void Animating()
+        {
+            // define animations that can be parametrized by start and end times
+            Func<double, double, Anim<double>> linearAnim =
+                (start, end) => Anim.Simple(Interpolation.Double, new Easing(x => x), 300, start, end);
+            Func<double, double, Anim<double>> cubicAnim =
+                (start, end) => Anim.Simple(Interpolation.Double, Easing.CubicInOut, 300, start, end);
+            // define the transition with a cubic in and out and linear in between
+            var swipeTransition =
+                new Trans<double>(linearAnim, x => cubicAnim(x - 100, x), x => cubicAnim(x, x + 100));
 
-        //}
+            var rvLeftPos = Var.Create<double>(0);
+            var animatedDoc =
+                div(
+                    style("position", "relative"),
+                    // TODO + with object and string
+                    style("left", swipeTransition, rvLeftPos.View, pos => pos + "%"),
+                    "content"
+                );
+
+        }
 
         void DocConstruction()
 
@@ -103,7 +108,7 @@ namespace WebSharper.UI.Next.CSharp.Tests
             //    passwordBox(rvPassword),
             //    button("Log in", sLoginData.Trigger),
             //    vLoginResult.Map(res => Doc.Empty)
-            //);            
+            //);
 
             //{
             //    Doc myDoc = Doc.TextNode("WebSharper");
@@ -193,6 +198,7 @@ namespace WebSharper.UI.Next.CSharp.Tests
                 h1("Routed element:"),
                 routed
             ).RunById("main");
+            TodoApp();
         }
 
         public class TaskItem
@@ -207,7 +213,7 @@ namespace WebSharper.UI.Next.CSharp.Tests
             }
         }
 
-        public void TodoApp()
+        public static void TodoApp()
         {
             var Tasks =
                 new ListModel<string, TaskItem>(task => task.Name) {
@@ -216,24 +222,28 @@ namespace WebSharper.UI.Next.CSharp.Tests
                 };
 
             var NewTaskName = Var.Create("");
-
-            Template.Template.Main.Doc(
-                ListContainer: Tasks.View.DocSeqCached((TaskItem task) =>
-                    Template.Template.ListItem.Doc(
-                        Task: task.Name, 
-                        Clear: (el, ev) => Tasks.RemoveByKey(task.Name), 
-                        Done: task.Done, 
-                        ShowDone: attr.@class("checked", task.Done.View, x => x)
-                    )
-                ),
-                NewTaskName: NewTaskName,
-                Add: (el, ev) =>
+            new Template.Template.Main()
+                .ListContainer(Tasks.View.DocSeqCached((TaskItem task) =>
+                    new Template.Template.ListItem()
+                        .Task(task.Name)
+                        .Clear((el, ev) => Tasks.RemoveByKey(task.Name))
+                        .Done(task.Done)
+                        .ShowDone(attr.@class("checked", task.Done.View, x => x))
+                        .Elt()
+                ))
+                .NewTaskName(NewTaskName)
+                .Add((el, ev) =>
                 {
                     Tasks.Add(new TaskItem(NewTaskName.Value, false));
                     NewTaskName.Value = "";
-                },
-                ClearCompleted: (el, ev) => Tasks.RemoveBy(task => task.Done.Value)
-            ).RunById("tasks");
+                })
+                .ClearCompleted((el, ev) => Tasks.RemoveBy(task => task.Done.Value))
+                .Doc()
+                .RunById("tasks");
+            new Template.Index.tasksTitle()
+                .Elt()
+                .OnAfterRender(FSharpConvert.Fun<JavaScript.Dom.Element>((el) => JavaScript.Console.Log("test")))
+                .RunById("tasksTitle");
         }
     }
 }

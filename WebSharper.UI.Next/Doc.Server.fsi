@@ -21,6 +21,7 @@
 namespace WebSharper.UI.Next.Server
 
 open System
+open WebSharper
 open WebSharper.Web
 open WebSharper.UI.Next
 open WebSharper.Sitelets
@@ -36,6 +37,7 @@ type Content =
 
     /// Converts a `Doc` to a sitelet Page.
     /// `Doc` values that correspond to HTML fragements are converted to full documents.
+    /// WebSharper resources will be placed in place of the element with data-replace="scripts". 
     static member Page : Doc -> Async<Content<'Action>>
 
     /// Converts a `Doc` to a sitelet Page.
@@ -43,6 +45,8 @@ type Content =
     [<Obsolete "Use Content.Page(...) instead">]
     static member Doc : Doc -> Async<Content<'Action>>
 
+    /// Constructs a sitelet Page from its parts.
+    /// Automatically includes resource links in head.
     static member inline Page
         : ?Body: #seq<#INode>
         * ?Head: #seq<#INode>
@@ -50,4 +54,23 @@ type Content =
         * ?Doctype: string
         -> Async<Content<'Action>>
 
+    /// Converts a Page record to a sitelet Page.
     static member inline Page : Page -> Async<Content<'Action>>
+
+module Internal =
+
+    [<Class>]
+    type TemplateDoc =
+        inherit Doc
+
+        new : seq<IRequiresResources>
+            * write: (Web.Context -> System.Web.UI.HtmlTextWriter -> bool -> unit)
+            -> TemplateDoc
+
+    [<Class>]
+    type TemplateElt =
+        inherit Elt
+
+        new : seq<IRequiresResources>
+            * write: (list<Attr> -> Web.Context -> System.Web.UI.HtmlTextWriter -> bool -> unit)
+            -> TemplateElt
