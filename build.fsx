@@ -7,19 +7,19 @@ let hapRef (r: ReferenceBuilder) =
     r.NuGet("HtmlAgilityPack").Version("["+htmlAgilityPackVersion+"]", true).BuildTimeOnly().Reference().CopyLocal(true)
 
 let bt =
-    BuildTool().PackageId("Zafir.UI.Next")
-        .VersionFrom("Zafir")
+    BuildTool().PackageId("WebSharper.UI.Next")
+        .VersionFrom("WebSharper")
         .WithFramework(fun fw -> fw.Net40)
         .WithFSharpVersion(FSharpVersion.FSharp30)
 
 let btcstmpl =
-    BuildTool().PackageId("Zafir.UI.Next.CSharp.Templating")
-        .VersionFrom("Zafir")
+    BuildTool().PackageId("WebSharper.UI.Next.CSharp.Templating")
+        .VersionFrom("WebSharper")
         .WithFramework(fun fw -> fw.Net40)
         .WithFSharpVersion(FSharpVersion.FSharp30)        
 
 let main =
-    bt.Zafir.Library("WebSharper.UI.Next")
+    bt.WebSharper4.Library("WebSharper.UI.Next")
         .SourcesFromProject()
         .WithSourceMap()
         .Embed(["h5f.js"])
@@ -52,7 +52,7 @@ let tmplCommon =
             ])
 
 let tmplRuntime =
-    bt.Zafir.Library("WebSharper.UI.Next.Templating.Runtime")
+    bt.WebSharper4.Library("WebSharper.UI.Next.Templating.Runtime")
         .SourcesFromProject()
         .References(fun r ->
             [
@@ -65,7 +65,7 @@ let tmplRuntime =
             ])
 
 let tmpl =
-    bt.Zafir.Library("WebSharper.UI.Next.Templating")
+    bt.WebSharper4.Library("WebSharper.UI.Next.Templating")
         .SourcesFromProject()
         .References(fun r ->
             [
@@ -79,7 +79,7 @@ let tmpl =
             ])
 
 let csharp =
-    bt.Zafir.Library("WebSharper.UI.Next.CSharp")
+    bt.WebSharper4.Library("WebSharper.UI.Next.CSharp")
         .SourcesFromProject()
         .WithSourceMap()
         .References(fun r ->
@@ -89,7 +89,7 @@ let csharp =
 
 let csharpTmpl =
     bt.WithFramework(fun fw -> fw.Net45)
-        .Zafir.Library("WebSharper.UI.Next.CSharp.Templating")
+        .WebSharper4.Library("WebSharper.UI.Next.CSharp.Templating")
         .SourcesFromProject()
         .References(fun r ->
             [
@@ -105,18 +105,18 @@ let csharpTmpl =
 
 let test = 
     bt.WithFSharpVersion(FSharpVersion.FSharp31)
-        .Zafir.BundleWebsite("WebSharper.UI.Next.Tests")
+        .WebSharper4.BundleWebsite("WebSharper.UI.Next.Tests")
         .SourcesFromProject()
         .WithSourceMap()
         .References(fun r ->
             [
                 r.Project main
-                r.NuGet("Zafir.Testing").Latest(true).Reference()
+                r.NuGet("WebSharper.Testing").Latest(true).Reference()
             ])
 
 let tmplTest =
     bt.WithFSharpVersion(FSharpVersion.FSharp31)
-        .Zafir.BundleWebsite("WebSharper.UI.Next.Templating.Tests")
+        .WebSharper4.BundleWebsite("WebSharper.UI.Next.Templating.Tests")
         .SourcesFromProject()
         .WithSourceMap()
         .References(fun r ->
@@ -130,7 +130,7 @@ let tmplTest =
 
 let serverTest =
     bt.WithFSharpVersion(FSharpVersion.FSharp31)
-        .Zafir.SiteletWebsite("WebSharper.UI.Next.Templating.ServerSide.Tests")
+        .WebSharper4.SiteletWebsite("WebSharper.UI.Next.Templating.ServerSide.Tests")
         .SourcesFromProject()
         .WithSourceMap()
         .References(fun r ->
@@ -152,7 +152,7 @@ let mainNupkg =
         .Add(tmplRuntime)
         .Add(tmpl)
         .Add(csharp)
-        .AddFile("msbuild/Zafir.UI.Next.CSharp.Templating.targets", "build/Zafir.UI.Next.targets")
+        .AddFile("msbuild/WebSharper.UI.Next.CSharp.Templating.targets", "build/WebSharper.UI.Next.targets")
 //        .AddFile("build/net40/FSharp.Core.dll", "tools/FSharp.Core.dll") // relying on GAC now
         .AddFile("packages/HtmlAgilityPack."+htmlAgilityPackVersion+"/lib/Net40/HtmlAgilityPack.dll", "tools/HtmlAgilityPack.dll")
         .AddFile("packages/HtmlAgilityPack."+htmlAgilityPackVersion+"/lib/Net40/HtmlAgilityPack.dll", "lib/net40/HtmlAgilityPack.dll")
@@ -163,7 +163,7 @@ let mainNupkg =
         .Configure(fun c -> 
             { c with
                 Authors = [ "IntelliFactory" ]
-                Title = Some "Zafir.UI.Next"
+                Title = Some "WebSharper.UI.Next"
                 LicenseUrl = Some "http://websharper.com/licensing"
                 ProjectUrl = Some "https://github.com/intellifactory/websharper.ui.next"
                 Description = "Next-generation user interface combinators for WebSharper"
@@ -178,7 +178,7 @@ let csharpTmplNupkg =
         .Configure(fun c -> 
             { c with
                 Authors = [ "IntelliFactory" ]
-                Title = Some "Zafir.UI.Next.CSharp.Templating"
+                Title = Some "WebSharper.UI.Next.CSharp.Templating"
                 LicenseUrl = Some "http://websharper.com/licensing"
                 ProjectUrl = Some "https://github.com/intellifactory/websharper.ui.next"
                 Description = "C# Template code generator for WebSharper UI.Next"
