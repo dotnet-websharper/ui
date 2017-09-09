@@ -164,6 +164,18 @@ type DocExtensions =
     static member DocSeqCached : View<ListModelState<'T>> * ('T -> 'K) * ('K -> View<'T> -> #Doc) -> Doc
         when 'K : equality
 
+    /// Converts a ListModel to Doc using MapSeqCachedBy and embeds the concatenated result.
+    /// Shorthand for Doc.BindListModel.
+    [<Extension>]
+    static member Doc : ListModel<'K, 'T> * ('T -> #Doc) -> Doc
+        when 'K : equality
+
+    /// Converts a ListModel to Doc using MapSeqCachedViewBy and embeds the concatenated result.
+    /// Shorthand for Doc.BindListModelView.
+    [<Extension>]
+    static member Doc : ListModel<'K, 'T> * ('K -> View<'T> -> #Doc) -> Doc
+        when 'K : equality
+
     /// Runs a reactive Doc as contents of the given element.
     [<Extension>]
     static member Run : Doc * Element -> unit
@@ -1184,6 +1196,16 @@ module Doc =
 
     [<Obsolete "Use BindSeqCachedViewBy or view.DocSeqCached() instead.">]
     val ConvertSeqBy : ('T -> 'K) -> ('K -> View<'T> -> #Doc) -> View<seq<'T>> -> Doc
+        when 'K : equality
+
+    /// Convert a ListModel's items to Doc and concatenate result.
+    /// Shorthand for Doc.BindSeqCachedBy m.Key f m.ViewState.
+    val BindListModel : f: ('T -> #Doc) -> m: ListModel<'K, 'T> -> Doc
+        when 'K : equality
+
+    /// Convert a ListModel's items to Doc and concatenate result.
+    /// Shorthand for Doc.BindSeqCachedViewBy m.Key f m.ViewState.
+    val BindListModelView : f: ('K -> View<'T> -> #Doc) -> m: ListModel<'K, 'T> -> Doc
         when 'K : equality
 
   // Main entry-point combinators - use once per app

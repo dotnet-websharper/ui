@@ -1840,6 +1840,12 @@ module Doc =
     let ConvertSeqBy k f (v: View<seq<_>>) = BindSeqCachedViewBy k f v
 
     [<Inline>]
+    let BindListModel f (m: ListModel<_, _>) = BindSeqCachedBy m.Key f m.ViewState
+
+    [<Inline>]
+    let BindListModelView f (m: ListModel<_, _>) = BindSeqCachedViewBy m.Key f m.ViewState
+
+    [<Inline>]
     let ToUpdater (e: Elt) = As<EltUpdater>((As<Elt'> e).ToUpdater() )
 
   // Form helpers ---------------------------------------------------------------
@@ -1990,6 +1996,12 @@ type DocExtensions =
 
     [<Extension; Inline>]
     static member DocSeqCached(v: View<ListModelState<_>>, k, f) = Doc.BindSeqCachedViewBy k f v
+
+    [<Extension; Inline>]
+    static member Doc(m: ListModel<_, _>, f) = Doc.BindListModel f m
+
+    [<Extension; Inline>]
+    static member Doc(m: ListModel<_, _>, f) = Doc.BindListModelView f m
 
     [<Extension; Inline>]
     static member RunById(doc: Doc, id: string) =
