@@ -417,6 +417,14 @@ type ListModel<'Key,'T> with
         with [<Inline>] get () = m.Var.Value :> seq<_>
         and [<Inline>] set v = m.Set(v)
 
+    [<Inline>]
+    member m.Map (f: 'T -> 'V) : View<seq<'V>> =
+        View.MapSeqCachedBy m.key f m.ViewState
+
+    [<Inline>]
+    member m.Map (f: 'Key -> View<'T> -> 'V) : View<seq<'V>> =
+        View.MapSeqCachedViewBy m.key f m.ViewState
+
 [<JavaScript>]
 type ListModel =
 
@@ -480,6 +488,14 @@ type ListModel =
     [<Inline>]
     static member Key (m: ListModel<_,_>) =
         m.key
+
+    [<Inline>]
+    static member Map f (m: ListModel<_, _>) =
+        View.MapSeqCachedBy m.key f m.ViewState
+
+    [<Inline>]
+    static member MapView f (m: ListModel<_, _>) =
+        View.MapSeqCachedViewBy m.key f m.ViewState
 
 type ListModel<'Key,'T> with
 

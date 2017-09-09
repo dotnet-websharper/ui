@@ -9,7 +9,7 @@
     <RootNamespace>$(Name)</RootNamespace>
     <AssemblyName>$(Name)</AssemblyName>
     <WebSharperProject>Library</WebSharperProject>
-	<WebSharperAnalyzeClosures>True</WebSharperAnalyzeClosures>
+    <WebSharperAnalyzeClosures>True</WebSharperAnalyzeClosures>
     <OutputType>Library</OutputType>
     <OutputPath>../build/net40</OutputPath>
     <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
@@ -31,10 +31,6 @@
     <Compile Include="Snap.fs" />
     <Compile Include="Reactive.fsi" />
     <Compile Include="Reactive.fs" />
-    <Compile Include="Models.fsi" />
-    <Compile Include="Models.fs" />
-    <Compile Include="ReactiveExtensions.fsi" />
-    <Compile Include="ReactiveExtensions.fs" />
     <Compile Include="Animation.fsi" />
     <Compile Include="Animation.fs" />
     <Compile Include="Attr.fsi" />
@@ -43,10 +39,14 @@
     <Compile Include="Attr.Client.fs" />
     <Compile Include="Doc.fsi" />
     <Compile Include="Doc.fs" />
+    <Compile Include="Models.fsi" />
+    <Compile Include="Models.fs" />
     <Compile Include="Doc.Server.fsi" />
     <Compile Include="Doc.Server.fs" />
     <Compile Include="Doc.Client.fsi" />
     <Compile Include="Doc.Client.fs" />
+    <Compile Include="ReactiveExtensions.fsi" />
+    <Compile Include="ReactiveExtensions.fs" />
     <Compile Include="Flow.fsi" />
     <Compile Include="Flow.fs" />
     <Compile Include="HTML.fs" />
