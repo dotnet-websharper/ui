@@ -176,6 +176,12 @@ type DocExtensions =
     static member Doc : ListModel<'K, 'T> * ('K -> View<'T> -> #Doc) -> Doc
         when 'K : equality
 
+    /// Convert a ListModel's items to Doc and concatenate result.
+    /// Shorthand for Doc.BindListModelLens
+    [<Extension>]
+    static member DocLens : ListModel<'K, 'T> * ('K -> IRef<'T> -> #Doc) -> Doc
+
+
     /// Runs a reactive Doc as contents of the given element.
     [<Extension>]
     static member Run : Doc * Element -> unit
@@ -1199,14 +1205,18 @@ module Doc =
         when 'K : equality
 
     /// Convert a ListModel's items to Doc and concatenate result.
-    /// Shorthand for Doc.BindSeqCachedBy m.Key f m.ViewState.
+    /// Shorthand for ListModel.Map f m |> Doc.BindView Doc.Concat.
     val BindListModel : f: ('T -> #Doc) -> m: ListModel<'K, 'T> -> Doc
         when 'K : equality
 
     /// Convert a ListModel's items to Doc and concatenate result.
-    /// Shorthand for Doc.BindSeqCachedViewBy m.Key f m.ViewState.
+    /// Shorthand for ListModel.MapView f m |> Doc.BindView Doc.Concat.
     val BindListModelView : f: ('K -> View<'T> -> #Doc) -> m: ListModel<'K, 'T> -> Doc
         when 'K : equality
+
+    /// Convert a ListModel's items to Doc and concatenate result.
+    /// Shorthand for ListModel.MapLens f m |> Doc.BindView Doc.Concat.
+    val BindListModelLens : f: ('K -> IRef<'T> -> #Doc) -> m: ListModel<'K, 'T> -> Doc
 
   // Main entry-point combinators - use once per app
 
