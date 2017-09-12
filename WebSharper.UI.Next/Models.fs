@@ -376,11 +376,9 @@ type ListModel<'Key,'T> with
     member m.LengthAsView =
         m.Var.View |> View.Map (fun arr -> arr.Length)
 
-    member m.LensInto (get: 'T -> 'V) (update: 'T -> 'V -> 'T) (key : 'Key) : IRef<'V> =
+    member private m.LensInto'(get: 'T -> 'V, update: 'T -> 'V -> 'T, key : 'Key, view: View<'V>) : IRef<'V> =
         let id = Fresh.Id()
 
-        let view = m.FindByKeyAsView(key) |> View.Map get
-    
         { new IRef<'V> with
 
             member r.Get() =
@@ -406,6 +404,10 @@ type ListModel<'Key,'T> with
                 id
         }
 
+    member m.LensInto (get: 'T -> 'V) (update: 'T -> 'V -> 'T) (key : 'Key) : IRef<'V> =
+        let view = m.FindByKeyAsView(key) |> View.Map get
+        m.LensInto'(get, update, key, view)
+
     [<Inline>]
     member m.LensIntoU (get: 'T -> 'V, update: 'T -> 'V -> 'T, key : 'Key) : IRef<'V> =
         m.LensInto get update key
@@ -424,6 +426,11 @@ type ListModel<'Key,'T> with
     [<Inline>]
     member m.Map (f: 'Key -> View<'T> -> 'V) : View<seq<'V>> =
         View.MapSeqCachedViewBy m.key f m.ViewState
+
+    member m.MapLens (f: 'Key -> IRef<'T> -> 'V) =
+        let get k v =
+            f k (m.LensInto'(id, (fun _ -> id), k, v))
+        View.MapSeqCachedViewBy m.key get m.ViewState
 
 [<JavaScript>]
 type ListModel =
@@ -496,6 +503,10 @@ type ListModel =
     [<Inline>]
     static member MapView f (m: ListModel<_, _>) =
         View.MapSeqCachedViewBy m.key f m.ViewState
+
+    [<Inline>]
+    static member MapLens f (m: ListModel<_, _>) =
+        m.MapLens f
 
 type ListModel<'Key,'T> with
 
