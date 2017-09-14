@@ -74,6 +74,16 @@ module Main =
                 expect 0
             }
 
+            Test "CreateWaiting" {
+                let rv = Var.CreateWaiting<string>()
+                equalMsg rv.Value null "initial"
+                let count = ref 0
+                let m = rv.View |> View.Map (fun x -> incr count; if x = null then "wrong" else x + "!")
+                rv.Value <- "hi"
+                equalMsgAsync (m |> View.GetAsync) "hi!" "value set"
+                equalMsg !count 1 "function call count"
+            }
+
             Test "Value" {
                 let rv = Var.Create 2
                 equalMsg rv.Value 2 "get Value"

@@ -122,6 +122,18 @@ and [<JavaScript; Sealed>] Var =
             }
         var
 
+    static member CreateWaiting<'T>() =
+        let mutable var = jsNull()
+        var <-
+            {
+                Const = false
+                Current = jsNull<'T>()
+                Snap = Snap.Create ()
+                Id = Fresh.Int ()
+                VarView = V (fun () -> var.Snap)
+            }
+        var
+
     [<Inline>]
     static member Get var =
         var.Current

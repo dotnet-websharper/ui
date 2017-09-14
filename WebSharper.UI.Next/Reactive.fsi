@@ -98,7 +98,12 @@ type Var =
     /// Creates a fresh variable with the given initial value.
     static member Create : 'A -> Var<'A>
 
+    /// Creates a fresh variable in waiting state.
+    /// Value property returns null but no View.Map on this is calculated until a value is set explicitly. 
+    static member CreateWaiting<'A> : unit -> Var<'A>
+
     /// Creates a fresh variable with the given initial value.
+    /// Stores it on window.UINVars object with the given key for debugging purposes.
     static member CreateLogged : string -> 'A -> Var<'A>
 
     /// Obtains the current value.

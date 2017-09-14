@@ -38,6 +38,9 @@ module internal Snap =
 
   // constructors
 
+    /// Creates a snapshot in waiting state.
+    val Create : unit -> Snap<'T>
+
     /// Creates a snapshot that holds the given value forever, never obsolete.
     val CreateForever : 'T -> Snap<'T>
 
