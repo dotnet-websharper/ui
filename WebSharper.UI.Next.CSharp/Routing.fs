@@ -240,9 +240,9 @@ and private RouteMapBuilderMacro() =
 //                        t'.GetFields(BF.Instance ||| BF.Public ||| BF.NonPublic)
                         |> Seq.choose (fun (KeyValue(compName, f)) ->
                             match f with
-                            | Metadata.InstanceField name, _, _ 
-                            | Metadata.OptionalField name, _, _ -> 
-                                comp.GetFieldAttributes(td, compName) |> Option.map (fun (ftyp, fattrs) ->
+                            | Metadata.InstanceField name, _, ftyp 
+                            | Metadata.OptionalField name, _, ftyp -> 
+                                comp.GetFieldAttributes(td, compName) |> Option.map (fun fattrs ->
                                     let isQuery =
                                         fattrs
                                         |> Seq.exists (fun (at, args) ->
@@ -266,6 +266,9 @@ and private RouteMapBuilderMacro() =
                                         name, queryItem, ty
                                     else name, QueryItem.NotQuery, ftyp
                                 )
+                            | Metadata.IndexedField _, _, ftyp ->
+                                failwithf "Field translated to an index is not supported for routing %s: %s."
+                                    compName ftyp.AssemblyQualifiedName
                             | Metadata.StaticField _, _, _ -> None
                         ) 
                         |> List.ofSeq
