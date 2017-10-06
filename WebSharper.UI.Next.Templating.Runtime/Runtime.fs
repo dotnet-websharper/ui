@@ -23,8 +23,8 @@ namespace WebSharper.UI.Next.Templating
 open System
 open System.IO
 open System.Collections.Generic
-open System.Web.UI
 open WebSharper
+open WebSharper.Core.Resources
 open WebSharper.Web
 open WebSharper.UI.Next
 open WebSharper.UI.Next.Server

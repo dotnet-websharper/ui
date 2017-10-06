@@ -40,5 +40,5 @@ module internal H5F =
     [<Inline "$global.H5F?$global.H5F.setup($e):undefined">]
     let Setup (e: Dom.Element) = X<unit>
 
-[<assembly:System.Web.UI.WebResource("h5f.js", "text/javascript")>]
+[<assembly:WebResource("h5f.js", "text/javascript")>]
 do ()

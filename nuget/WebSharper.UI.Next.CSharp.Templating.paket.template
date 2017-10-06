@@ -1,0 +1,25 @@
+type file
+id WebSharper.UI.Next.CSharp.Templating
+authors
+    IntelliFactory
+owners
+    IntelliFactory
+licenseUrl http://websharper.com/licensing
+projectUrl https://github.com/intellifactory/websharper.ui.next
+description
+    C# Template code generator for WebSharper UI.Next
+tags
+    Web JavaScript F# C#
+files
+    ../WebSharper.UI.Next.Templating.Common/bin/Release/netstandard2.0/WebSharper.UI.Next.Templating.Common.dll ==> lib/netstandard2.0
+    ../WebSharper.UI.Next.Templating.Common/bin/Release/netstandard2.0/WebSharper.UI.Next.Templating.Common.xml ==> lib/netstandard2.0
+    ../WebSharper.UI.Next.Templating.Runtime/bin/Release/netstandard2.0/WebSharper.UI.Next.Templating.Runtime.dll ==> lib/netstandard2.0
+    ../WebSharper.UI.Next.Templating.Runtime/bin/Release/netstandard2.0/WebSharper.UI.Next.Templating.Runtime.xml ==> lib/netstandard2.0
+    ../WebSharper.UI.Next.CSharp.Templating/bin/Release/netstandard2.0/WebSharper.UI.Next.CSharp.Templating.dll ==> lib/netstandard2.0
+    ../WebSharper.UI.Next.CSharp.Templating/bin/Release/netstandard2.0/WebSharper.UI.Next.CSharp.Templating.xml ==> lib/netstandard2.0
+dependencies
+        WebSharper.UI.Next CURRENTVERSION
+        WebSharper LOCKEDVERSION
+frameworkAssemblies
+        System.Xml
+        System.Xml.Linq

@@ -21,12 +21,12 @@
 namespace WebSharper.UI.Next
 
 open System
-open System.Web.UI
 open Microsoft.FSharp.Quotations
 open WebSharper
 open WebSharper.Web
 open WebSharper.Sitelets
 open WebSharper.JavaScript
+open WebSharper.Core.Resources
 
 [<AbstractClass>]
 type Doc() =
@@ -109,8 +109,8 @@ and Elt
     (
         attrs: list<Attr>,
         encode, requires, hasNonScriptSpecialTags,
-        write: list<Attr> -> Web.Context -> System.Web.UI.HtmlTextWriter -> option<Sitelets.Content.RenderedResources> -> unit,
-        write': option<list<Attr> -> Web.Context -> System.Web.UI.HtmlTextWriter -> bool -> unit>
+        write: list<Attr> -> Web.Context -> HtmlTextWriter -> option<Sitelets.Content.RenderedResources> -> unit,
+        write': option<list<Attr> -> Web.Context -> HtmlTextWriter -> bool -> unit>
     ) =
     inherit Doc()
 

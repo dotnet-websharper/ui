@@ -22,13 +22,13 @@ namespace WebSharper.UI.Next
 
 open System
 open System.Linq.Expressions
-open System.Web.UI
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.Patterns
 open WebSharper
 open WebSharper.JavaScript
 module M = WebSharper.Core.Metadata
 module R = WebSharper.Core.AST.Reflection
+open WebSharper.Core.Resources
 
 module private Internal =
 

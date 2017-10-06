@@ -1,43 +1,35 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.12
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebSharper.UI.Next", "WebSharper.UI.Next\WebSharper.UI.Next.fsproj", "{085A6F78-50A7-46CF-B040-9853EC580BE5}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WebSharper.UI.Next", "WebSharper.UI.Next\WebSharper.UI.Next.fsproj", "{085A6F78-50A7-46CF-B040-9853EC580BE5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D5BE120F-C833-4082-B132-A75B5AE366DF}"
 	ProjectSection(SolutionItems) = preProject
 		build.fsx = build.fsx
 	EndProjectSection
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebSharper.UI.Next.Templating", "WebSharper.UI.Next.Templating\WebSharper.UI.Next.Templating.fsproj", "{F2F67741-6877-412E-A4B6-2EBD8DFED8A6}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WebSharper.UI.Next.Templating", "WebSharper.UI.Next.Templating\WebSharper.UI.Next.Templating.fsproj", "{F2F67741-6877-412E-A4B6-2EBD8DFED8A6}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebSharper.UI.Next.Templating.Tests", "WebSharper.UI.Next.Templating.Tests\WebSharper.UI.Next.Templating.Tests.fsproj", "{608521D3-89CF-452B-AD62-5FA7EB246E6F}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WebSharper.UI.Next.Templating.Tests", "WebSharper.UI.Next.Templating.Tests\WebSharper.UI.Next.Templating.Tests.fsproj", "{608521D3-89CF-452B-AD62-5FA7EB246E6F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{2A2EF6F0-10CA-47BC-B490-FC9174DE28D2}"
 	ProjectSection(SolutionItems) = preProject
 		tools\UpdateElems.fsx = tools\UpdateElems.fsx
 	EndProjectSection
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebSharper.UI.Next.CSharp", "WebSharper.UI.Next.CSharp\WebSharper.UI.Next.CSharp.fsproj", "{13FBA482-7285-4C83-A201-2D60FF89E586}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WebSharper.UI.Next.CSharp", "WebSharper.UI.Next.CSharp\WebSharper.UI.Next.CSharp.fsproj", "{13FBA482-7285-4C83-A201-2D60FF89E586}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebSharper.UI.Next.CSharp.Tests", "WebSharper.UI.Next.CSharp.Tests\WebSharper.UI.Next.CSharp.Tests.csproj", "{88079FA1-E1C8-4868-A1D0-3815BF4DABE2}"
-	ProjectSection(ProjectDependencies) = postProject
-		{AE103526-34B2-4556-914C-3E45BB1CFB17} = {AE103526-34B2-4556-914C-3E45BB1CFB17}
-		{B84D3163-0E80-488E-B47C-D0750859C024} = {B84D3163-0E80-488E-B47C-D0750859C024}
-		{085A6F78-50A7-46CF-B040-9853EC580BE5} = {085A6F78-50A7-46CF-B040-9853EC580BE5}
-		{13FBA482-7285-4C83-A201-2D60FF89E586} = {13FBA482-7285-4C83-A201-2D60FF89E586}
-	EndProjectSection
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WebSharper.UI.Next.Tests", "WebSharper.UI.Next.Tests\WebSharper.UI.Next.Tests.fsproj", "{559573F7-4EA1-462C-A94D-1C2DB8102419}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebSharper.UI.Next.Tests", "WebSharper.UI.Next.Tests\WebSharper.UI.Next.Tests.fsproj", "{559573F7-4EA1-462C-A94D-1C2DB8102419}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WebSharper.UI.Next.CSharp.Templating", "WebSharper.UI.Next.CSharp.Templating\WebSharper.UI.Next.CSharp.Templating.fsproj", "{B84D3163-0E80-488E-B47C-D0750859C024}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebSharper.UI.Next.CSharp.Templating", "WebSharper.UI.Next.CSharp.Templating\WebSharper.UI.Next.CSharp.Templating.fsproj", "{B84D3163-0E80-488E-B47C-D0750859C024}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WebSharper.UI.Next.Templating.ServerSide.Tests", "WebSharper.UI.Next.Templating.ServerSide.Tests\WebSharper.UI.Next.Templating.ServerSide.Tests.fsproj", "{89FAD4A9-B3E6-442C-9080-E859719DF870}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebSharper.UI.Next.Templating.ServerSide.Tests", "WebSharper.UI.Next.Templating.ServerSide.Tests\WebSharper.UI.Next.Templating.ServerSide.Tests.fsproj", "{89FAD4A9-B3E6-442C-9080-E859719DF870}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WebSharper.UI.Next.Templating.Common", "WebSharper.UI.Next.Templating.Common\WebSharper.UI.Next.Templating.Common.fsproj", "{AE103526-34B2-4556-914C-3E45BB1CFB17}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebSharper.UI.Next.Templating.Common", "WebSharper.UI.Next.Templating.Common\WebSharper.UI.Next.Templating.Common.fsproj", "{AE103526-34B2-4556-914C-3E45BB1CFB17}"
-EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebSharper.UI.Next.Templating.Runtime", "WebSharper.UI.Next.Templating.Runtime\WebSharper.UI.Next.Templating.Runtime.fsproj", "{31738154-5576-4E56-BB71-86BD5E63FCAF}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WebSharper.UI.Next.Templating.Runtime", "WebSharper.UI.Next.Templating.Runtime\WebSharper.UI.Next.Templating.Runtime.fsproj", "{31738154-5576-4E56-BB71-86BD5E63FCAF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,36 +39,32 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{085A6F78-50A7-46CF-B040-9853EC580BE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{085A6F78-50A7-46CF-B040-9853EC580BE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{085A6F78-50A7-46CF-B040-9853EC580BE5}.Release|Any CPU.ActiveCfg = Debug|Any CPU
-		{085A6F78-50A7-46CF-B040-9853EC580BE5}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{085A6F78-50A7-46CF-B040-9853EC580BE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{085A6F78-50A7-46CF-B040-9853EC580BE5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F2F67741-6877-412E-A4B6-2EBD8DFED8A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F2F67741-6877-412E-A4B6-2EBD8DFED8A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F2F67741-6877-412E-A4B6-2EBD8DFED8A6}.Release|Any CPU.ActiveCfg = Debug|Any CPU
-		{F2F67741-6877-412E-A4B6-2EBD8DFED8A6}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{F2F67741-6877-412E-A4B6-2EBD8DFED8A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2F67741-6877-412E-A4B6-2EBD8DFED8A6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{608521D3-89CF-452B-AD62-5FA7EB246E6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{608521D3-89CF-452B-AD62-5FA7EB246E6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{608521D3-89CF-452B-AD62-5FA7EB246E6F}.Release|Any CPU.ActiveCfg = Debug|Any CPU
-		{608521D3-89CF-452B-AD62-5FA7EB246E6F}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{608521D3-89CF-452B-AD62-5FA7EB246E6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{608521D3-89CF-452B-AD62-5FA7EB246E6F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{13FBA482-7285-4C83-A201-2D60FF89E586}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{13FBA482-7285-4C83-A201-2D60FF89E586}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{13FBA482-7285-4C83-A201-2D60FF89E586}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{13FBA482-7285-4C83-A201-2D60FF89E586}.Release|Any CPU.Build.0 = Release|Any CPU
-		{88079FA1-E1C8-4868-A1D0-3815BF4DABE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{88079FA1-E1C8-4868-A1D0-3815BF4DABE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{88079FA1-E1C8-4868-A1D0-3815BF4DABE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{88079FA1-E1C8-4868-A1D0-3815BF4DABE2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{559573F7-4EA1-462C-A94D-1C2DB8102419}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{559573F7-4EA1-462C-A94D-1C2DB8102419}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{559573F7-4EA1-462C-A94D-1C2DB8102419}.Release|Any CPU.ActiveCfg = Debug|Any CPU
-		{559573F7-4EA1-462C-A94D-1C2DB8102419}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{559573F7-4EA1-462C-A94D-1C2DB8102419}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{559573F7-4EA1-462C-A94D-1C2DB8102419}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B84D3163-0E80-488E-B47C-D0750859C024}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B84D3163-0E80-488E-B47C-D0750859C024}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B84D3163-0E80-488E-B47C-D0750859C024}.Release|Any CPU.ActiveCfg = Debug|Any CPU
-		{B84D3163-0E80-488E-B47C-D0750859C024}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{B84D3163-0E80-488E-B47C-D0750859C024}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B84D3163-0E80-488E-B47C-D0750859C024}.Release|Any CPU.Build.0 = Release|Any CPU
 		{89FAD4A9-B3E6-442C-9080-E859719DF870}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{89FAD4A9-B3E6-442C-9080-E859719DF870}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{89FAD4A9-B3E6-442C-9080-E859719DF870}.Release|Any CPU.ActiveCfg = Debug|Any CPU
-		{89FAD4A9-B3E6-442C-9080-E859719DF870}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{89FAD4A9-B3E6-442C-9080-E859719DF870}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89FAD4A9-B3E6-442C-9080-E859719DF870}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AE103526-34B2-4556-914C-3E45BB1CFB17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AE103526-34B2-4556-914C-3E45BB1CFB17}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AE103526-34B2-4556-914C-3E45BB1CFB17}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -91,5 +79,8 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{2A2EF6F0-10CA-47BC-B490-FC9174DE28D2} = {D5BE120F-C833-4082-B132-A75B5AE366DF}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A8FC4C1E-FA46-4660-9117-F6419C54BD16}
 	EndGlobalSection
 EndGlobal

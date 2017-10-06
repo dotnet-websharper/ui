@@ -1,0 +1,35 @@
+type file
+id WebSharper.UI.Next
+authors
+    IntelliFactory
+owners
+    IntelliFactory
+licenseUrl http://websharper.com/licensing
+projectUrl https://github.com/intellifactory/websharper.ui.next
+description
+    Next-generation user interface combinators for WebSharper
+tags
+    Web JavaScript F# C#
+files
+    ../WebSharper.UI.Next.CSharp.Templating/uninstall.ps1 ==> tools
+    ../WebSharper.UI.Next.CSharp.Templating/install.ps1 ==> tools
+    ../WebSharper.UI.Next.CSharp.Templating/bin/Release/net461/WebSharper.UI.Next.CSharp.Templating.dll ==> tools
+    ../WebSharper.UI.Next.Templating.Common/bin/Release/net461/WebSharper.UI.Next.Templating.Common.dll ==> tools
+    ../packages/HtmlAgilityPack/lib/netstandard2.0/HtmlAgilityPack.dll ==> lib/netstandard2.0
+    ../packages/HtmlAgilityPack/lib/Net45/HtmlAgilityPack.dll ==> tools
+    ../msbuild/WebSharper.UI.Next.CSharp.Templating.targets ==> build/WebSharper.UI.Next.targets
+    ../WebSharper.UI.Next/bin/Release/netstandard2.0/WebSharper.UI.Next.dll ==> lib/netstandard2.0
+    ../WebSharper.UI.Next/bin/Release/netstandard2.0/WebSharper.UI.Next.xml ==> lib/netstandard2.0
+    ../WebSharper.UI.Next.Templating.Common/bin/Release/netstandard2.0/WebSharper.UI.Next.Templating.Common.dll ==> lib/netstandard2.0
+    ../WebSharper.UI.Next.Templating.Common/bin/Release/netstandard2.0/WebSharper.UI.Next.Templating.Common.xml ==> lib/netstandard2.0
+    ../WebSharper.UI.Next.Templating.Runtime/bin/Release/netstandard2.0/WebSharper.UI.Next.Templating.Runtime.dll ==> lib/netstandard2.0
+    ../WebSharper.UI.Next.Templating.Runtime/bin/Release/netstandard2.0/WebSharper.UI.Next.Templating.Runtime.xml ==> lib/netstandard2.0
+    ../WebSharper.UI.Next.Templating/bin/Release/netstandard2.0/WebSharper.UI.Next.Templating.dll ==> lib/netstandard2.0
+    ../WebSharper.UI.Next.Templating/bin/Release/netstandard2.0/WebSharper.UI.Next.Templating.xml ==> lib/netstandard2.0
+    ../WebSharper.UI.Next.CSharp/bin/Release/netstandard2.0/WebSharper.UI.Next.CSharp.dll ==> lib/netstandard2.0
+    ../WebSharper.UI.Next.CSharp/bin/Release/netstandard2.0/WebSharper.UI.Next.CSharp.xml ==> lib/netstandard2.0
+dependencies
+        WebSharper LOCKEDVERSION
+frameworkAssemblies
+        System.Xml
+        System.Xml.Linq
