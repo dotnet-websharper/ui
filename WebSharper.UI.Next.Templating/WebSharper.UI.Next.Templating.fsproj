@@ -1,43 +1,38 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ProjectGuid>{f2f67741-6877-412e-a4b6-2ebd8dfed8a6}</ProjectGuid>
-    <Name>WebSharper.UI.Next.Templating</Name>
-    <RootNamespace>$(Name)</RootNamespace>
-    <AssemblyName>$(Name)</AssemblyName>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <WebSharperProject>Library</WebSharperProject>
-    <OutputType>Library</OutputType>
-    <OutputPath>../build/net40</OutputPath>
-    <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile />
+    <WebSharperSourceMap>false</WebSharperSourceMap>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <DefineConstants>NO_GENERATIVE</DefineConstants>
   </PropertyGroup>
-  <!-- F# targets -->
-  <Choose>
-    <When Condition="'$(VisualStudioVersion)' == '11.0'">
-      <PropertyGroup Condition="Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')">
-        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
-      </PropertyGroup>
-    </When>
-    <Otherwise>
-      <PropertyGroup Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets')">
-        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets</FSharpTargetsPath>
-      </PropertyGroup>
-    </Otherwise>
-  </Choose>
-  <Import Project="$(FSharpTargetsPath)" />
-  <Import Project="../build/net40/$(Name).proj" />
   <ItemGroup>
-    <Compile Include="ProvidedTypes.fsi" />
-    <Compile Include="ProvidedTypes.fs" />
-    <Compile Include="AssemblyReader.fs" />
-    <Compile Include="AssemblyReaderReflection.fs" />
-    <Compile Include="ProvidedTypesContext.fs" />
+    <Compile Include="../paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fsi">
+      <Link>ProvidedTypes.fsi</Link>
+    </Compile>
+    <Compile Include="../paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs">
+      <Link>ProvidedTypes.fs</Link>
+    </Compile>
+    <Compile Include="../paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/AssemblyReader.fs">
+      <Link>AssemblyReader.fs</Link>
+    </Compile>
+    <Compile Include="../paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/AssemblyReaderReflection.fs">
+      <Link>AssemblyReaderReflection.fs</Link>
+    </Compile>
+    <Compile Include="../paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypesContext.fs">
+      <Link>ProvidedTypesContext.fs</Link>
+    </Compile>
     <Compile Include="ProvidedTypesContextFunc.fs" />
     <Compile Include="OldProvider.fs" />
     <Compile Include="TemplatingProvider.fs" />
-    <None Include="Scripts\load-references-debug.fsx" />
-    <None Include="Scripts\load-project-debug.fsx" />
-    <None Include="Scripts\test-parser.fsx" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../WebSharper.UI.Next\WebSharper.UI.Next.fsproj" />
+    <ProjectReference Include="../WebSharper.UI.Next.Templating.Common\WebSharper.UI.Next.Templating.Common.fsproj" />
+    <ProjectReference Include="../WebSharper.UI.Next.Templating.Runtime\WebSharper.UI.Next.Templating.Runtime.fsproj" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Runtime.Caching" />
+  </ItemGroup>
+  <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

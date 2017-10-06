@@ -35,7 +35,6 @@ open WebSharper.UI.Next.TypeProviderHelpers
 open ProviderImplementation
 open ProviderImplementation.ProvidedTypes
 open ProviderImplementation.AssemblyReader
-open System.Runtime.Caching
 
 [<AutoOpen>]
 module internal Utils =

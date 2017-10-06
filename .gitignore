@@ -13,3 +13,5 @@ obj/
 /WebSharper.UI.Next.Templating/ProvidedTypes.fs
 /WebSharper.UI.Next.Templating/AssemblyReaderReflection.fs
 /WebSharper.UI.Next.Templating/AssemblyReader.fs
+paket-files/
+.fake/
