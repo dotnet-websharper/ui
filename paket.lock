@@ -892,12 +892,12 @@ NUGET
       System.Xml.XmlDocument (>= 4.3) - restriction: || (&& (< monotouch) (>= netstandard1.3) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (>= net46)
       System.Xml.XPath (>= 4.3) - restriction: || (&& (< monotouch) (>= netstandard1.3) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (>= net46)
   remote: https://nuget.intellifactory.com/nuget
-    WebSharper (4.0.194.122-staging)
+    WebSharper (4.0.194.124-staging)
       Mono.Cecil (>= 0.10.0-beta6 < 0.11.0-beta)
-    WebSharper.FSharp (4.0.194.122-staging)
-      WebSharper (4.0.194.122-staging)
-    WebSharper.Testing (4.0.194.122-staging)
-      WebSharper (4.0.194.122-staging)
+    WebSharper.FSharp (4.0.194.124-staging)
+      WebSharper (4.0.194.124-staging)
+    WebSharper.Testing (4.0.194.124-staging)
+      WebSharper (4.0.194.124-staging)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.StarterPack
     src/AssemblyReader.fs (40bfff9149c9237c0a61bda3e6ed597ece743264)
@@ -924,4 +924,4 @@ NUGET
       Newtonsoft.Json
 GITHUB
   remote: intellifactory/websharper
-    tools/WebSharper.Fake.fsx (7931f2c6b2143e70a7f56169b64bbfc9cfe3c5f1)
+    tools/WebSharper.Fake.fsx (d6820342d36b9a02faf49320473b94de4a1d7ee8)
