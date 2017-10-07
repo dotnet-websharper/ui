@@ -900,11 +900,11 @@ NUGET
       WebSharper (4.0.194.113-staging)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.StarterPack
-    src/AssemblyReader.fs (c372debaa7ef4febfe16d98dec765d74640bbe82)
-    src/AssemblyReaderReflection.fs (c372debaa7ef4febfe16d98dec765d74640bbe82)
-    src/ProvidedTypes.fs (c372debaa7ef4febfe16d98dec765d74640bbe82)
-    src/ProvidedTypes.fsi (c372debaa7ef4febfe16d98dec765d74640bbe82)
-    src/ProvidedTypesContext.fs (c372debaa7ef4febfe16d98dec765d74640bbe82)
+    src/AssemblyReader.fs (40bfff9149c9237c0a61bda3e6ed597ece743264)
+    src/AssemblyReaderReflection.fs (40bfff9149c9237c0a61bda3e6ed597ece743264)
+    src/ProvidedTypes.fs (40bfff9149c9237c0a61bda3e6ed597ece743264)
+    src/ProvidedTypes.fsi (40bfff9149c9237c0a61bda3e6ed597ece743264)
+    src/ProvidedTypesContext.fs (40bfff9149c9237c0a61bda3e6ed597ece743264)
 GROUP build
 RESTRICTION: == net45
 NUGET
