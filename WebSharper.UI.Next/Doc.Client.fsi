@@ -164,6 +164,10 @@ type DocExtensions =
     static member DocSeqCached : View<ListModelState<'T>> * ('T -> 'K) * ('K -> View<'T> -> #Doc) -> Doc
         when 'K : equality
 
+    /// DocSeqCachedBy on a ListModel, with the ListModel key
+    [<Extension; Inline>]
+    static member DocSeqCached(lm: ListModel<_,_>, f) = lm.View |> Doc.BindSeqCachedBy lm.Key f
+
     /// Runs a reactive Doc as contents of the given element.
     [<Extension>]
     static member Run : Doc * Element -> unit
