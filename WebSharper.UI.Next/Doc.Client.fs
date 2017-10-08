@@ -1968,6 +1968,9 @@ type DocExtensions =
     static member DocSeqCached(v: View<ListModelState<_>>, k, f) = Doc.BindSeqCachedViewBy k f v
 
     [<Extension; Inline>]
+    static member DocSeqCached(lm: ListModel<_,_>, f) = lm.View |> Doc.BindSeqCachedBy lm.Key f
+
+    [<Extension; Inline>]
     static member RunById(doc: Doc, id: string) =
         Doc'.RunById id (As<Doc'> doc)
 
