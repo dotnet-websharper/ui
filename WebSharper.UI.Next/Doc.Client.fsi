@@ -164,6 +164,24 @@ type DocExtensions =
     static member DocSeqCached : View<ListModelState<'T>> * ('T -> 'K) * ('K -> View<'T> -> #Doc) -> Doc
         when 'K : equality
 
+    /// Converts a ListModel to Doc using MapSeqCachedBy and embeds the concatenated result.
+    /// Shorthand for Doc.BindListModel.
+    [<Extension>]
+    static member Doc : ListModel<'K, 'T> * ('T -> #Doc) -> Doc
+        when 'K : equality
+
+    /// Converts a ListModel to Doc using MapSeqCachedViewBy and embeds the concatenated result.
+    /// Shorthand for Doc.BindListModelView.
+    [<Extension>]
+    static member Doc : ListModel<'K, 'T> * ('K -> View<'T> -> #Doc) -> Doc
+        when 'K : equality
+
+    /// Convert a ListModel's items to Doc and concatenate result.
+    /// Shorthand for Doc.BindListModelLens
+    [<Extension>]
+    static member DocLens : ListModel<'K, 'T> * ('K -> IRef<'T> -> #Doc) -> Doc
+
+
     /// Runs a reactive Doc as contents of the given element.
     [<Extension>]
     static member Run : Doc * Element -> unit
@@ -1185,6 +1203,20 @@ module Doc =
     [<Obsolete "Use BindSeqCachedViewBy or view.DocSeqCached() instead.">]
     val ConvertSeqBy : ('T -> 'K) -> ('K -> View<'T> -> #Doc) -> View<seq<'T>> -> Doc
         when 'K : equality
+
+    /// Convert a ListModel's items to Doc and concatenate result.
+    /// Shorthand for ListModel.Map f m |> Doc.BindView Doc.Concat.
+    val BindListModel : f: ('T -> #Doc) -> m: ListModel<'K, 'T> -> Doc
+        when 'K : equality
+
+    /// Convert a ListModel's items to Doc and concatenate result.
+    /// Shorthand for ListModel.MapView f m |> Doc.BindView Doc.Concat.
+    val BindListModelView : f: ('K -> View<'T> -> #Doc) -> m: ListModel<'K, 'T> -> Doc
+        when 'K : equality
+
+    /// Convert a ListModel's items to Doc and concatenate result.
+    /// Shorthand for ListModel.MapLens f m |> Doc.BindView Doc.Concat.
+    val BindListModelLens : f: ('K -> IRef<'T> -> #Doc) -> m: ListModel<'K, 'T> -> Doc
 
   // Main entry-point combinators - use once per app
 

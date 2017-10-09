@@ -223,6 +223,15 @@ type ListModel<'Key,'T when 'Key : equality> with
         -> update: ('V -> 'T -> 'V)
         -> ListModel<'Key, 'V>
 
+    /// Maps each item to a reactive sequence, only calling f when the corresponding item has changed.
+    member Map : f: ('T -> 'V) -> View<seq<'V>>
+
+    /// Maps each item to a reactive sequence, only calling f once per item
+    /// and only updating the passed view when the corresponding item has changed.
+    member Map : f: ('Key -> View<'T> -> 'V) -> View<seq<'V>>
+
+    member MapLens : f: ('Key -> IRef<'T> -> 'V) -> View<seq<'V>>
+
 /// ListModel combinators.
 [<Class>]
 type ListModel =
@@ -260,3 +269,12 @@ type ListModel =
 
     /// Get the key retrieval function.
     static member Key : ListModel<'Key, 'T> -> ('T -> 'Key)
+
+    /// Maps each item to a reactive sequence, only calling f when the corresponding item has changed.
+    static member Map : ('T -> 'V) -> ListModel<'Key, 'T> -> View<seq<'V>>
+
+    /// Maps each item to a reactive sequence, only calling f once per item
+    /// and only updating the passed view when the corresponding item has changed.
+    static member MapView : ('Key -> View<'T> -> 'V) -> ListModel<'Key, 'T> -> View<seq<'V>>
+
+    static member MapLens : f: ('Key -> IRef<'T> -> 'V) -> ListModel<'Key, 'T> -> View<seq<'V>>

@@ -114,16 +114,16 @@ module Client =
                     ] [textView tv]
                 )
                 .ListContainer(
-                    myItems.ViewState.DocSeqCached(Item.Key, fun key item ->
+                    myItems.DocLens(fun key item ->
                         MyTemplate.template.ListItem()
-                            .Key(item.Map(fun i -> string i.id))
-                            .Name(item.Map(fun i -> i.name))
-                            .Description(myItems.LensInto (fun i -> i.description) (fun i d -> { i with description = d }) key)
+                            .Key(item.View.Map(fun i -> string i.id))
+                            .Name(item.View.Map(fun i -> i.name))
+                            .Description(item.Lens (fun i -> i.description) (fun i d -> { i with description = d }))
                             .FontStyle("italic")
                             .FontWeight("bold")
                             .Remove(fun _ _ -> myItems.RemoveByKey key)
                             .Elt()
-                            .OnClickView(item, fun _ _ x -> JS.Alert x.name)
+                            .OnClickView(item.View, fun _ _ x -> JS.Alert x.name)
                     )
                 )
                 .NewName(newName)
@@ -140,8 +140,7 @@ module Client =
                 .ClearItems(myItems.Clear)
                 .Test102(
                     // Test #102: this would empty the whole containing div
-                    myItems.ViewState
-                    |> Doc.BindSeqCached (fun x -> p [text x.description])
+                    myItems.Doc(fun x -> p [text x.description])
                 )
                 .Test106(
                     MyTemplate.template.Test106Tpl()
