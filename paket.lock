@@ -892,19 +892,19 @@ NUGET
       System.Xml.XmlDocument (>= 4.3) - restriction: || (&& (< monotouch) (>= netstandard1.3) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (>= net46)
       System.Xml.XPath (>= 4.3) - restriction: || (&& (< monotouch) (>= netstandard1.3) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (>= net46)
   remote: https://nuget.intellifactory.com/nuget
-    WebSharper (4.0.194.122-staging)
+    WebSharper (4.0.194.125-staging)
       Mono.Cecil (>= 0.10.0-beta6 < 0.11.0-beta)
-    WebSharper.FSharp (4.0.194.122-staging)
-      WebSharper (4.0.194.122-staging)
-    WebSharper.Testing (4.0.194.122-staging)
-      WebSharper (4.0.194.122-staging)
+    WebSharper.FSharp (4.0.194.125-staging)
+      WebSharper (4.0.194.125-staging)
+    WebSharper.Testing (4.0.194.125-staging)
+      WebSharper (4.0.194.125-staging)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.StarterPack
-    src/AssemblyReader.fs (40bfff9149c9237c0a61bda3e6ed597ece743264)
-    src/AssemblyReaderReflection.fs (40bfff9149c9237c0a61bda3e6ed597ece743264)
-    src/ProvidedTypes.fs (40bfff9149c9237c0a61bda3e6ed597ece743264)
-    src/ProvidedTypes.fsi (40bfff9149c9237c0a61bda3e6ed597ece743264)
-    src/ProvidedTypesContext.fs (40bfff9149c9237c0a61bda3e6ed597ece743264)
+    src/AssemblyReader.fs (3f1ba91a6fe372fc6cbddc88e4fc46515474378f)
+    src/AssemblyReaderReflection.fs (3f1ba91a6fe372fc6cbddc88e4fc46515474378f)
+    src/ProvidedTypes.fs (3f1ba91a6fe372fc6cbddc88e4fc46515474378f)
+    src/ProvidedTypes.fsi (3f1ba91a6fe372fc6cbddc88e4fc46515474378f)
+    src/ProvidedTypesContext.fs (3f1ba91a6fe372fc6cbddc88e4fc46515474378f)
 GROUP build
 RESTRICTION: == net45
 NUGET
@@ -916,7 +916,7 @@ NUGET
     FSharp.Core (4.2.3)
     Mono.Cecil (0.10.0-beta6)
     Newtonsoft.Json (10.0.3)
-    Paket.Core (5.113)
+    Paket.Core (5.108)
       Chessie (>= 0.6)
       FSharp.Compiler.Tools
       FSharp.Core
@@ -924,4 +924,4 @@ NUGET
       Newtonsoft.Json
 GITHUB
   remote: intellifactory/websharper
-    tools/WebSharper.Fake.fsx (7931f2c6b2143e70a7f56169b64bbfc9cfe3c5f1)
+    tools/WebSharper.Fake.fsx (aefe0e1c3f4811ae4c4f8df10fa2dd1049f59a64)
