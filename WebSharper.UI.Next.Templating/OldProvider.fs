@@ -34,7 +34,6 @@ open WebSharper.UI.Next.TypeProviderHelpers
 
 open ProviderImplementation
 open ProviderImplementation.ProvidedTypes
-open ProviderImplementation.AssemblyReader
 
 [<AutoOpen>]
 module internal Utils =

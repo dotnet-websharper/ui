@@ -28,7 +28,6 @@ open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Core.CompilerServices
 open ProviderImplementation
 open ProviderImplementation.ProvidedTypes
-open ProviderImplementation.AssemblyReader
 //open System.Runtime.Caching
 
 //[<AutoOpen>]
@@ -81,7 +80,7 @@ module private Impl =
     let BuildMethod<'T> (holeName: HoleName) (resTy: Type)
             (wrapArg: Expr<'T> -> Expr<TemplateHole>) line column (ctx: Ctx) =
         let m =
-            ctx.PT.ProvidedMethod(holeName, [ctx.PT.ProvidedParameter(holeName, typeof<'T>)], resTy, function
+            ctx.PT.ProvidedMethod(holeName, [ctx.PT.ProvidedParameter(holeName, typeof<'T>)], resTy, invokeCode = function
                 | [this; arg] -> <@@ box ((%wrapArg (Expr.Cast arg)) :: ((%%this : obj) :?> list<TemplateHole>)) @@>
                 | _ -> failwith "Incorrect invoke")
         match ctx.Path with
@@ -198,10 +197,10 @@ module private Impl =
 
     let BuildFinalMethods (ctx: Ctx) : list<MemberInfo> =
         [
-            yield ctx.PT.ProvidedMethod("Doc", [], typeof<Doc>, finalMethodBody ctx (fun x -> x :> _)) :> _
+            yield ctx.PT.ProvidedMethod("Doc", [], typeof<Doc>, invokeCode = finalMethodBody ctx (fun x -> x :> _)) :> _
             if ctx.Template.IsElt then
                 yield ctx.PT.ProvidedMethod("Elt", [], typeof<Elt>,
-                    finalMethodBody ctx <| fun e -> <@@ %e :?> Elt @@>) :> _
+                    invokeCode = finalMethodBody ctx (fun e -> <@@ %e :?> Elt @@>)) :> _
         ]
 
     let BuildOneTemplate (ty: PT.Type) (ctx: Ctx) =
@@ -270,9 +269,7 @@ module private Impl =
 type TemplatingProvider (cfg: TypeProviderConfig) as this =
     inherit TypeProviderForNamespaces()
 
-    let ctx =
-        try ProvidedTypesContext.Create(cfg)
-        with _ -> ProvidedTypesContext(List.ofArray cfg.ReferencedAssemblies)
+    let ctx = ProvidedTypesContext.Create(cfg)
 
     let thisAssembly = Assembly.GetExecutingAssembly()
     let rootNamespace = "WebSharper.UI.Next.Templating"
