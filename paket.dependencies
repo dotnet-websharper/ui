@@ -6,11 +6,8 @@ nuget WebSharper.FSharp staging
 nuget HtmlAgilityPack 
 nuget WebSharper.Testing staging
 nuget Microsoft.CodeAnalysis.CSharp 1.0.0
-github fsprojects/FSharp.TypeProviders.StarterPack src/ProvidedTypes.fsi
-github fsprojects/FSharp.TypeProviders.StarterPack src/ProvidedTypes.fs
-github fsprojects/FSharp.TypeProviders.StarterPack src/AssemblyReader.fs
-github fsprojects/FSharp.TypeProviders.StarterPack src/AssemblyReaderReflection.fs
-github fsprojects/FSharp.TypeProviders.StarterPack src/ProvidedTypesContext.fs
+github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fsi
+github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fs
 
 group build
     framework: net45

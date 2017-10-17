@@ -34,7 +34,6 @@ open WebSharper.UI.Next.TypeProviderHelpers
 
 open ProviderImplementation
 open ProviderImplementation.ProvidedTypes
-open System.Runtime.Caching
 
 [<AutoOpen>]
 module internal Utils =
@@ -119,7 +118,7 @@ module internal Utils =
             | a -> VarUnchecked a.Value
         | a -> Var a.Value
 
-let RunOldProvider addWarnings (pathOrXml: string) (cfg: TypeProviderConfig) (ty: ProvidedTypeDefinition) =
+let RunOldProvider addWarnings (pathOrXml: string) (cfg: TypeProviderConfig) (ctx: ProvidedTypesContext) (ty: ProvidedTypeDefinition) =
     let parseXml s =
         try // Try to load the file as a whole XML document, ie. single root node with optional DTD.
             let xmlDoc = XDocument.Parse(s, LoadOptions.PreserveWhitespace)
@@ -411,7 +410,7 @@ let RunOldProvider addWarnings (pathOrXml: string) (cfg: TypeProviderConfig) (ty
 
         let pars =
             [ for KeyValue(name, h) in holes ->
-                ProvidedParameter(name, h.ArgType, ?optionalValue = h.OptionalDefaultValue) ]
+                ctx.ProvidedParameter(name, h.ArgType, ?optionalValue = h.OptionalDefaultValue) ]
 
         let code (args: Expr list) =
             let varMap = Dictionary()
@@ -443,7 +442,7 @@ let RunOldProvider addWarnings (pathOrXml: string) (cfg: TypeProviderConfig) (ty
                 m.WithObsolete("This version of the templating provider is obsolete. Use the class's constructor instead.")   
             else m     
 
-        ProvidedMethod("Doc", pars, typeof<Doc>, isStatic = true, invokeCode = code)
+        ctx.ProvidedMethod("Doc", pars, typeof<Doc>, isStatic = true, invokeCode = code)
         |> warnObsolete
         |> toTy.AddMember
 
@@ -453,13 +452,13 @@ let RunOldProvider addWarnings (pathOrXml: string) (cfg: TypeProviderConfig) (ty
             firstNode.NodeType = Xml.XmlNodeType.Element &&
             isNull ((firstNode :?> XElement).Attribute(dataReplace))
         if isSingleElt then
-            ProvidedMethod("Elt", pars, typeof<Elt>, isStatic = true,
+            ctx.ProvidedMethod("Elt", pars, typeof<Elt>, isStatic = true,
                 invokeCode = fun args -> <@@ (%%(code args) : Doc) :?> Elt @@>)
             |> warnObsolete
             |> toTy.AddMember
 
     for name, e in innerTemplates do
-        ProvidedTypeDefinition(name, None) |>! addTemplateMethod e |> ty.AddMember
+        ctx.ProvidedTypeDefinition(name, None) |>! addTemplateMethod e |> ty.AddMember
 
     if xml.HasElements then
         ty |> addTemplateMethod xml
