@@ -7,20 +7,11 @@
     <DefineConstants>NO_GENERATIVE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="../paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fsi">
+    <Compile Include="../paket-files/fsprojects/FSharp.TypeProviders.SDK/src/ProvidedTypes.fsi">
       <Link>ProvidedTypes.fsi</Link>
     </Compile>
-    <Compile Include="../paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs">
+    <Compile Include="../paket-files/fsprojects/FSharp.TypeProviders.SDK/src/ProvidedTypes.fs">
       <Link>ProvidedTypes.fs</Link>
-    </Compile>
-    <Compile Include="../paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/AssemblyReader.fs">
-      <Link>AssemblyReader.fs</Link>
-    </Compile>
-    <Compile Include="../paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/AssemblyReaderReflection.fs">
-      <Link>AssemblyReaderReflection.fs</Link>
-    </Compile>
-    <Compile Include="../paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypesContext.fs">
-      <Link>ProvidedTypesContext.fs</Link>
     </Compile>
     <Compile Include="ProvidedTypesContextFunc.fs" />
     <Compile Include="OldProvider.fs" />
