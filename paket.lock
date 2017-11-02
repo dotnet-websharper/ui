@@ -1,6 +1,6 @@
 NUGET
   remote: https://api.nuget.org/v3/index.json
-    HtmlAgilityPack (1.5.5)
+    HtmlAgilityPack (1.6.3)
       Microsoft.NETCore.UniversalWindowsPlatform (>= 5.2.3) - restriction: >= uap10.0
       NETStandard.Library (>= 1.6.1) - restriction: && (< net40) (>= netstandard1.6) (< netstandard2.0)
       System.Net.Http (>= 4.3.1) - restriction: || (&& (< net40) (>= netstandard1.3) (< netstandard1.6) (< win8)) (&& (< net40) (>= netstandard1.6) (< netstandard2.0))
@@ -17,13 +17,13 @@ NUGET
     Microsoft.CodeAnalysis.CSharp (1.0)
       Microsoft.CodeAnalysis.Common (1.0)
     Microsoft.CSharp (4.4) - restriction: >= uap10.0
-    Microsoft.Net.Native.Compiler (1.7) - restriction: >= uap10.0
-      Microsoft.Net.Native.SharedLibrary-arm (>= 1.7)
-      Microsoft.Net.Native.SharedLibrary-x64 (>= 1.7)
-      Microsoft.Net.Native.SharedLibrary-x86 (>= 1.7)
-    Microsoft.Net.Native.SharedLibrary-arm (1.7) - restriction: >= uap10.0
-    Microsoft.Net.Native.SharedLibrary-x64 (1.7) - restriction: >= uap10.0
-    Microsoft.Net.Native.SharedLibrary-x86 (1.7) - restriction: >= uap10.0
+    Microsoft.Net.Native.Compiler (2.0) - restriction: >= uap10.0
+      Microsoft.Net.Native.SharedLibrary-arm (>= 2.0)
+      Microsoft.Net.Native.SharedLibrary-x64 (>= 2.0)
+      Microsoft.Net.Native.SharedLibrary-x86 (>= 2.0)
+    Microsoft.Net.Native.SharedLibrary-arm (2.0) - restriction: >= uap10.0
+    Microsoft.Net.Native.SharedLibrary-x64 (2.0) - restriction: >= uap10.0
+    Microsoft.Net.Native.SharedLibrary-x86 (2.0) - restriction: >= uap10.0
     Microsoft.NETCore (5.0.2) - restriction: >= uap10.0
       Microsoft.CSharp (>= 4.0.1)
       Microsoft.NETCore.Platforms (>= 1.0.1)
@@ -86,8 +86,8 @@ NUGET
     Microsoft.NETCore.Runtime.CoreCLR (2.0) - restriction: >= uap10.0
       Microsoft.NETCore.Jit (>= 2.0)
     Microsoft.NETCore.Targets (2.0) - restriction: || (&& (>= dnxcore50) (>= net46)) (&& (>= dnxcore50) (>= netstandard1.0)) (&& (>= dnxcore50) (>= netstandard1.1)) (&& (>= dnxcore50) (>= netstandard1.2)) (&& (>= dnxcore50) (>= netstandard1.3)) (&& (>= dnxcore50) (>= netstandard1.4)) (&& (>= dnxcore50) (>= netstandard1.5)) (&& (>= dnxcore50) (>= netstandard1.6)) (&& (>= dnxcore50) (>= netstandard2.0)) (&& (< monoandroid) (< net35) (< netstandard1.2) (>= netstandard1.3) (< win8)) (&& (< monoandroid) (< net35) (>= netstandard1.3) (< netstandard1.5) (< win8) (< wpa81)) (&& (< monoandroid) (< net40) (< netstandard1.0) (>= netstandard1.6)) (&& (< monoandroid) (< net40) (< netstandard1.2) (>= netstandard1.3) (< win8)) (&& (< monoandroid) (< net40) (< netstandard1.2) (>= netstandard1.5)) (&& (< monoandroid) (< net40) (< netstandard1.2) (>= netstandard1.6)) (&& (< monoandroid) (< net40) (>= netstandard1.3) (< netstandard1.5) (< win8) (< wpa81)) (&& (< monoandroid) (< net40) (< netstandard1.3) (>= netstandard1.5)) (&& (< monoandroid) (< net40) (< netstandard1.4) (>= netstandard1.6)) (&& (< monoandroid) (< net40) (< netstandard1.5) (>= netstandard1.6)) (&& (< monoandroid) (< net45) (>= netstandard1.2) (< netstandard1.3) (< win8) (< wpa81)) (&& (< monoandroid) (< net45) (>= netstandard1.2) (< netstandard1.3) (< win81) (< wpa81)) (&& (< monoandroid) (< net45) (< netstandard1.2) (>= netstandard1.3) (< win8)) (&& (< monoandroid) (< net45) (< netstandard1.2) (>= netstandard1.4) (< win8)) (&& (< monoandroid) (< net45) (< netstandard1.2) (>= netstandard1.5)) (&& (< monoandroid) (< net45) (< netstandard1.2) (>= netstandard1.6)) (&& (< monoandroid) (< net45) (>= netstandard1.3) (< netstandard1.4) (< wpa81)) (&& (< monoandroid) (< net45) (< netstandard1.3) (>= netstandard1.4) (< win8) (< wpa81)) (&& (< monoandroid) (< net45) (< netstandard1.3) (>= netstandard1.5)) (&& (< monoandroid) (< net45) (< netstandard1.3) (>= netstandard1.6)) (&& (< monoandroid) (< net45) (>= netstandard1.4) (< netstandard1.5) (< wpa81)) (&& (< monoandroid) (< net45) (< netstandard1.4) (>= netstandard1.5)) (&& (< monoandroid) (< net45) (>= netstandard1.5) (< netstandard1.6)) (&& (< monoandroid) (< net45) (< netstandard1.5) (>= netstandard1.6)) (&& (< monoandroid) (< netstandard1.1) (>= netstandard1.2) (< win8)) (&& (< monoandroid) (< netstandard1.1) (>= netstandard1.3) (< win8)) (&& (< monoandroid) (< netstandard1.1) (>= netstandard1.4) (< win8)) (&& (< monoandroid) (< netstandard1.1) (>= netstandard1.5)) (&& (< monoandroid) (< netstandard1.1) (>= netstandard1.6)) (&& (< monotouch) (< net35) (>= netstandard1.3) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (&& (< monotouch) (< net35) (>= netstandard1.5) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (&& (< monotouch) (< net40) (>= netstandard1.6) (< netstandard2.0) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (&& (< monotouch) (< net45) (>= netstandard1.6) (< netstandard2.0) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (&& (< net40) (>= net46) (< netstandard1.1) (>= netstandard1.6)) (&& (< net40) (>= net46) (< netstandard1.2) (>= netstandard1.6)) (&& (< net40) (>= net46) (< netstandard1.3)) (&& (< net40) (>= net46) (< netstandard1.4) (>= netstandard1.6)) (&& (< net40) (>= net46) (< netstandard1.5) (>= netstandard1.6)) (&& (< net40) (>= net46) (>= netstandard1.6) (< netstandard2.0)) (&& (< net40) (>= net46) (< netstandard1.6)) (&& (< net40) (>= net463) (< netstandard1.2) (>= netstandard1.6)) (&& (< net40) (>= net463) (< netstandard1.4) (>= netstandard1.6)) (&& (< net40) (>= net463) (< netstandard1.5) (>= netstandard1.6)) (&& (< net40) (>= net463) (>= netstandard1.6) (< netstandard2.0)) (&& (< net40) (>= netstandard1.3) (< netstandard1.6) (< win8) (< wpa81)) (&& (< net40) (< netstandard1.3) (>= netstandard1.6)) (&& (< net40) (>= netstandard1.5) (< netstandard1.6)) (&& (< net40) (>= netstandard1.6) (< portable-net45+win8+wpa81)) (&& (< net40) (>= netstandard1.6) (< portable-net451+win81+wpa81)) (&& (< net40) (>= netstandard2.0)) (&& (< net45) (>= net451) (< netstandard1.3)) (&& (< net45) (>= net46) (< netstandard1.4)) (&& (< net45) (>= netstandard1.1) (< portable-net451+win81+wpa81) (< win8)) (&& (< net45) (>= netstandard1.2) (< portable-net451+win81+wpa81) (< win8)) (&& (< net45) (>= netstandard1.3) (< portable-net451+win81+wpa81) (< win8)) (&& (< net45) (>= netstandard1.5) (< portable-net451+win81+wpa81)) (>= netcoreapp1.1) (&& (>= netstandard1.0) (< portable-net45+win8+wpa81) (< wp8)) (&& (>= netstandard1.1) (< portable-net45+win8+wpa81)) (&& (>= netstandard1.2) (< portable-net45+win8+wpa81)) (&& (>= netstandard1.3) (< portable-net45+win8+wpa81)) (&& (< netstandard1.3) (>= netstandard1.6) (>= wpa81)) (&& (>= netstandard1.5) (< portable-net45+win8+wpa81)) (>= uap10.0)
-    Microsoft.NETCore.UniversalWindowsPlatform (5.4) - restriction: >= uap10.0
-      Microsoft.Net.Native.Compiler (>= 1.7)
+    Microsoft.NETCore.UniversalWindowsPlatform (5.4.1) - restriction: >= uap10.0
+      Microsoft.Net.Native.Compiler (>= 1.7.1)
       Microsoft.NETCore (>= 5.0.2)
       Microsoft.NETCore.Portable.Compatibility (>= 1.0.2)
       Microsoft.NETCore.Runtime.CoreCLR (>= 1.0.3)
@@ -892,16 +892,16 @@ NUGET
       System.Xml.XmlDocument (>= 4.3) - restriction: || (&& (< monotouch) (>= netstandard1.3) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (>= net46)
       System.Xml.XPath (>= 4.3) - restriction: || (&& (< monotouch) (>= netstandard1.3) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (>= net46)
   remote: https://nuget.intellifactory.com/nuget
-    WebSharper (4.0.194.125-staging)
+    WebSharper (4.0.195.128-staging)
       Mono.Cecil (>= 0.10.0-beta6 < 0.11.0-beta)
-    WebSharper.FSharp (4.0.194.125-staging)
-      WebSharper (4.0.194.125-staging)
-    WebSharper.Testing (4.0.194.125-staging)
-      WebSharper (4.0.194.125-staging)
+    WebSharper.FSharp (4.0.195.128-staging)
+      WebSharper (4.0.195.128-staging)
+    WebSharper.Testing (4.0.195.128-staging)
+      WebSharper (4.0.195.128-staging)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (e0436b11faed9e7938b3c90d874a535f94311b87)
-    src/ProvidedTypes.fsi (e0436b11faed9e7938b3c90d874a535f94311b87)
+    src/ProvidedTypes.fs (565cb590627cac20013cfc31eb3476e6f09398cf)
+    src/ProvidedTypes.fsi (565cb590627cac20013cfc31eb3476e6f09398cf)
 GROUP build
 RESTRICTION: == net45
 NUGET
@@ -921,4 +921,4 @@ NUGET
       Newtonsoft.Json
 GITHUB
   remote: intellifactory/websharper
-    tools/WebSharper.Fake.fsx (aefe0e1c3f4811ae4c4f8df10fa2dd1049f59a64)
+    tools/WebSharper.Fake.fsx (7f15d71b3ef6e18833d1b25427af4feaaab92722)

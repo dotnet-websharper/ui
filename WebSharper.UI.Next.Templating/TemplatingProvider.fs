@@ -65,7 +65,6 @@ module private Impl =
             FileId : TemplateName
             Id : option<TemplateName>
             Path : option<string>
-            PT : PT.Ctx
             InlineFileId : option<TemplateName>
             ServerLoad : ServerLoad
             AllTemplates : Map<string, Map<option<string>, Template>>
@@ -80,7 +79,7 @@ module private Impl =
     let BuildMethod<'T> (holeName: HoleName) (resTy: Type)
             (wrapArg: Expr<'T> -> Expr<TemplateHole>) line column (ctx: Ctx) =
         let m =
-            ctx.PT.ProvidedMethod(holeName, [ctx.PT.ProvidedParameter(holeName, typeof<'T>)], resTy, invokeCode = function
+            ProvidedMethod(holeName, [ProvidedParameter(holeName, typeof<'T>)], resTy, invokeCode = function
                 | [this; arg] -> <@@ box ((%wrapArg (Expr.Cast arg)) :: ((%%this : obj) :?> list<TemplateHole>)) @@>
                 | _ -> failwith "Incorrect invoke")
         match ctx.Path with
@@ -197,9 +196,9 @@ module private Impl =
 
     let BuildFinalMethods (ctx: Ctx) : list<MemberInfo> =
         [
-            yield ctx.PT.ProvidedMethod("Doc", [], typeof<Doc>, invokeCode = finalMethodBody ctx (fun x -> x :> _)) :> _
+            yield ProvidedMethod("Doc", [], typeof<Doc>, invokeCode = finalMethodBody ctx (fun x -> x :> _)) :> _
             if ctx.Template.IsElt then
-                yield ctx.PT.ProvidedMethod("Elt", [], typeof<Elt>,
+                yield ProvidedMethod("Elt", [], typeof<Elt>,
                     invokeCode = finalMethodBody ctx (fun e -> <@@ %e :?> Elt @@>)) :> _
         ]
 
@@ -209,7 +208,7 @@ module private Impl =
                 yield! BuildHoleMethods holeName holeKind ty ctx
             yield! BuildFinalMethods ctx
             let ctor =
-                ctx.PT.ProvidedConstructor([], fun _ ->
+                ProvidedConstructor([], fun _ ->
                     <@@ box ([] : list<TemplateHole>) @@>)
             match ctx.Path with
             | Some path -> ctor.AddDefinitionLocation(ctx.Template.Line, ctx.Template.Column, path)
@@ -219,7 +218,7 @@ module private Impl =
 
     let BuildOneFile (item: Parsing.ParseItem)
             (allTemplates: Map<string, Map<option<string>, Template>>)
-            (containerTy: PT.Type) (ptCtx: PT.Ctx)
+            (containerTy: PT.Type)
             (inlineFileId: option<string>) (serverLoad: ServerLoad) =
         let baseId =
             match item.Id with
@@ -227,7 +226,7 @@ module private Impl =
             | p -> p
         for KeyValue (tn, t) in item.Templates do
             let ctx = {
-                PT = ptCtx; Template = t
+                Template = t
                 FileId = baseId; Id = tn.IdAsOption; Path = item.Path
                 InlineFileId = inlineFileId; ServerLoad = serverLoad
                 AllTemplates = allTemplates
@@ -237,13 +236,13 @@ module private Impl =
                 BuildOneTemplate containerTy ctx
             | Some n ->
                 let ty =
-                    ptCtx.ProvidedTypeDefinition(n, None)
+                    ProvidedTypeDefinition(n, None)
                         .WithXmlDoc(XmlDoc.TemplateType n)
                 BuildOneTemplate ty ctx
                 containerTy.AddMember ty
 
     let BuildTP (parsed: Parsing.ParseItem[])
-            (containerTy: PT.Type) (ptCtx: PT.Ctx)
+            (containerTy: PT.Type)
             (clientLoad: ClientLoad) (serverLoad: ServerLoad) =
         let allTemplates =
             Map [for p in parsed -> p.Id, Map [for KeyValue(tid, t) in p.Templates -> tid.IdAsOption, t]]
@@ -253,27 +252,25 @@ module private Impl =
             | _ -> None
         match parsed with
         | [| item |] ->
-            BuildOneFile item allTemplates containerTy ptCtx inlineFileId serverLoad
+            BuildOneFile item allTemplates containerTy inlineFileId serverLoad
         | items ->
             items |> Array.iter (fun item ->
                 let containerTy =
                     match item.Name with
                     | None -> containerTy
                     | Some name ->
-                        ptCtx.ProvidedTypeDefinition(name, None)
+                        ProvidedTypeDefinition(name, None)
                             .AddTo(containerTy)
-                BuildOneFile item allTemplates containerTy ptCtx inlineFileId serverLoad
+                BuildOneFile item allTemplates containerTy inlineFileId serverLoad
             )
 
 [<TypeProvider>]
 type TemplatingProvider (cfg: TypeProviderConfig) as this =
-    inherit TypeProviderForNamespaces()
-
-    let ctx = ProvidedTypesContext.Create(cfg)
+    inherit TypeProviderForNamespaces(cfg)
 
     let thisAssembly = Assembly.GetExecutingAssembly()
     let rootNamespace = "WebSharper.UI.Next.Templating"
-    let templateTy = ctx.ProvidedTypeDefinition(thisAssembly, rootNamespace, "Template", None)
+    let templateTy = ProvidedTypeDefinition(thisAssembly, rootNamespace, "Template", None)
 
     //let cache = new MemoryCache("TemplatingProvider")
     let watchers = Dictionary<string, FileSystemWatcher>()
@@ -313,13 +310,13 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
     let setupTP () =
         templateTy.DefineStaticParameters(
             [
-                ctx.ProvidedStaticParameter("pathOrHtml", typeof<string>)
+                ProvidedStaticParameter("pathOrHtml", typeof<string>)
                     .WithXmlDoc("Inline HTML or a path to an HTML file")
-                ctx.ProvidedStaticParameter("clientLoad", typeof<ClientLoad>, ClientLoad.Inline)
+                ProvidedStaticParameter("clientLoad", typeof<ClientLoad>, ClientLoad.Inline)
                     .WithXmlDoc("Decide how the HTML is loaded when the template is used on the client side")
-                ctx.ProvidedStaticParameter("serverLoad", typeof<ServerLoad>, ServerLoad.WhenChanged)
+                ProvidedStaticParameter("serverLoad", typeof<ServerLoad>, ServerLoad.WhenChanged)
                     .WithXmlDoc("Decide how the HTML is loaded when the template is used on the server side")
-                ctx.ProvidedStaticParameter("legacyMode", typeof<LegacyMode>, LegacyMode.Both)
+                ProvidedStaticParameter("legacyMode", typeof<LegacyMode>, LegacyMode.Both)
                     .WithXmlDoc("Use WebSharper 3 or Zafir templating engine or both")
             ],
             fun typename pars ->
@@ -348,17 +345,17 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
                     let parsed = Parsing.Parse pathOrHtml cfg.ResolutionFolder
                     setupWatcher parsed.ParseKind
                     let ty =
-                        ctx.ProvidedTypeDefinition(thisAssembly, rootNamespace, typename, None)
+                        ProvidedTypeDefinition(thisAssembly, rootNamespace, typename, None)
                             .WithXmlDoc(XmlDoc.TemplateType "")
                     match legacyMode with
                     | LegacyMode.Both ->
-                        try OldProvider.RunOldProvider true pathOrHtml cfg ctx ty
+                        try OldProvider.RunOldProvider true pathOrHtml cfg ty
                         with _ -> ()
-                        BuildTP parsed.Items ty ctx clientLoad serverLoad
+                        BuildTP parsed.Items ty clientLoad serverLoad
                     | LegacyMode.Old ->
-                        OldProvider.RunOldProvider false pathOrHtml cfg ctx ty
+                        OldProvider.RunOldProvider false pathOrHtml cfg ty
                     | _ ->
-                        BuildTP parsed.Items ty ctx clientLoad serverLoad
+                        BuildTP parsed.Items ty clientLoad serverLoad
                     ty
                 //)
                 //cache.AddOrGetExisting(typename, ty)
