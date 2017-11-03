@@ -160,7 +160,6 @@ type GetOrLoadTemplateMacro() =
                 | I.Value (String n) -> n
                 | x -> failwithf "Expecting a string literal for baseName argument, got %A" x
             // store location of generated code in metadata keyed by the source
-            let meKey = keyOf src
             let td, m = getOrAddFunc baseName name src refs inlineBaseName
             Call(None, NonGeneric td, NonGeneric m, [ fillWith ])
             |> MacroOk

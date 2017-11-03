@@ -30,9 +30,6 @@
   <ItemGroup>
     <Compile Include="ProvidedTypes.fsi" />
     <Compile Include="ProvidedTypes.fs" />
-    <Compile Include="AssemblyReader.fs" />
-    <Compile Include="AssemblyReaderReflection.fs" />
-    <Compile Include="ProvidedTypesContext.fs" />
     <Compile Include="ProvidedTypesContextFunc.fs" />
     <Compile Include="OldProvider.fs" />
     <Compile Include="TemplatingProvider.fs" />

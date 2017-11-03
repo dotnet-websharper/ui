@@ -30,13 +30,10 @@ do
         [|
             "ProvidedTypes.fsi"
             "ProvidedTypes.fs"
-            "AssemblyReader.fs"
-            "AssemblyReaderReflection.fs"
-            "ProvidedTypesContext.fs"
         |]
     for f in files do
         wc.DownloadFile(
-            "https://raw.githubusercontent.com/fsprojects/FSharp.TypeProviders.StarterPack/master/src/" + f,
+            "https://raw.githubusercontent.com/fsprojects/FSharp.TypeProviders.Sdk/master/src/" + f,
             System.IO.Path.Combine(__SOURCE_DIRECTORY__, "WebSharper.UI.Next.Templating", f)
         )
 
