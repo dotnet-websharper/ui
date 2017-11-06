@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <WebSharperProject>Library</WebSharperProject>
     <WebSharperSourceMap>false</WebSharperSourceMap>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -13,21 +13,6 @@
     <ProjectReference Include="../WebSharper.UI.Next.Templating.Common\WebSharper.UI.Next.Templating.Common.fsproj" />
     <Reference Include="System.Xml"/>
     <Reference Include="System.Xml.Linq"/>
-    <Reference Include="Microsoft.CodeAnalysis">
-      <HintPath>C:\Users\tarmil\if\websharper.ui.next/packages/Microsoft.CodeAnalysis.Common/lib/net45/Microsoft.CodeAnalysis.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.CodeAnalysis.CSharp">
-      <HintPath>C:\Users\tarmil\if\websharper.ui.next/packages/Microsoft.CodeAnalysis.CSharp/lib/net45/Microsoft.CodeAnalysis.CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Collections.Immutable">
-      <HintPath>C:\Users\tarmil\if\websharper.ui.next/packages/System.Collections.Immutable/lib/portable-net45+win8+wp8+wpa81/System.Collections.Immutable.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Reflection.Metadata">
-      <HintPath>C:\Users\tarmil\if\websharper.ui.next/packages/System.Reflection.Metadata/lib/portable-net45+win8/System.Reflection.Metadata.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Runtime">
-      <HintPath>C:\Program Files (x86)/Reference Assemblies/Microsoft/Framework/.NETFramework/v4.5/Facades/System.Runtime.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

@@ -13,8 +13,8 @@ tags
 files
     ../WebSharper.UI.Next.CSharp.Templating/uninstall.ps1 ==> tools
     ../WebSharper.UI.Next.CSharp.Templating/install.ps1 ==> tools
-    ../WebSharper.UI.Next.CSharp.Templating/bin/Release/net461/WebSharper.UI.Next.CSharp.Templating.dll ==> tools
-    ../WebSharper.UI.Next.Templating.Common/bin/Release/net461/WebSharper.UI.Next.Templating.Common.dll ==> tools
+    ../WebSharper.UI.Next.CSharp.Templating/bin/Release/netstandard2.0/WebSharper.UI.Next.CSharp.Templating.dll ==> tools
+    ../WebSharper.UI.Next.Templating.Common/bin/Release/netstandard2.0/WebSharper.UI.Next.Templating.Common.dll ==> tools
     ../packages/HtmlAgilityPack/lib/netstandard2.0/HtmlAgilityPack.dll ==> lib/netstandard2.0
     ../packages/HtmlAgilityPack/lib/Net45/HtmlAgilityPack.dll ==> tools
     ../msbuild/WebSharper.UI.Next.CSharp.Templating.targets ==> build/WebSharper.UI.Next.targets
