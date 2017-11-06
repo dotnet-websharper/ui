@@ -29,7 +29,7 @@ open WebSharper.UI.Next
 open System.Runtime.CompilerServices
 
 module M = WebSharper.Core.Metadata
-module I = WebSharper.Core.AST.IgnoreSourcePos
+module I = IgnoreSourcePos
 
 [<Inline; MethodImpl(MethodImplOptions.NoInlining)>]
 let WrapEvent (f: unit -> unit) =
@@ -146,7 +146,7 @@ type GetOrLoadTemplateMacro() =
                                 )
                             )]
                     )
-                comp.AddGeneratedCode(m, Lambda([ holesId ], Let(nameId, name, expr)))
+                comp.AddGeneratedCode(m, Lambda([ holesId ], None, Let(nameId, name, expr)))
                 comp.AddMetadataEntry(meKey, M.CompositeEntry [ M.TypeDefinitionEntry td; M.MethodEntry m ])
                 td, m
         match call.Arguments with

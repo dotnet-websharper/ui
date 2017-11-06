@@ -111,10 +111,10 @@ type Attr =
             match !value with
             | None ->
                 match meta.Classes.TryGetValue declType with
-                | true, c ->
+                | true, (_, _, Some c) ->
                     let addr =
                         match c.Methods.TryGetValue meth with
-                        | true, (M.CompiledMember.Static x, _, _) -> x.Value
+                        | true, (M.CompiledMember.Static x, _, _, _) -> x.Address.Value
                         | _ -> fail()
                     let s = String.concat "." (List.rev addr) + "(this, event)"
                     value := Some s
