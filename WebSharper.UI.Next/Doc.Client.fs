@@ -56,7 +56,7 @@ and DocTextNode =
 
 and DocTreeNode =
     {
-        mutable Els : Union<Node, DocNode>[]
+        mutable Els : Choice<Node, DocNode>[]
         mutable Dirty : bool
         mutable Holes : DocElemNode[]
         Attrs : (Element * Attrs.Dyn)[]
@@ -104,8 +104,8 @@ module Docs =
                 | TextDoc t -> q.Enqueue (t.Text :> Node)
                 | TreeDoc t ->
                     t.Els |> Array.iter (function
-                        | Union1Of2 e -> q.Enqueue e
-                        | Union2Of2 n -> loop n
+                        | Choice1Of2 e -> q.Enqueue e
+                        | Choice2Of2 n -> loop n
                     )
             loop node.Children
             DomNodes (Array.ofSeqNonCopying q)
@@ -145,8 +145,8 @@ module Docs =
         | TreeDoc t ->
             Array.foldBack (fun el pos ->
                 match el with
-                | Union1Of2 e -> InsertNode parent e pos
-                | Union2Of2 n -> InsertDoc parent n pos
+                | Choice1Of2 e -> InsertNode parent e pos
+                | Choice2Of2 n -> InsertDoc parent n pos
             ) t.Els pos
 
     /// Synchronizes an element with its children (shallow).
@@ -169,8 +169,8 @@ module Docs =
                 if t.Dirty then t.Dirty <- false
                 Array.foldBack (fun el pos ->
                     match el with
-                    | Union1Of2 e -> DU.BeforeNode e
-                    | Union2Of2 n -> ins n pos
+                    | Choice1Of2 e -> DU.BeforeNode e
+                    | Choice2Of2 n -> ins n pos
                 ) t.Els pos
         let ch = DomNodes.DocChildren el
         // remove children that are not in the current set
@@ -600,7 +600,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
         let afterRender : (Element -> unit)[] = [||]
         let fw = Dictionary()
         for x in fillWith do fw.[TemplateHole.Name x] <- x
-        let els = As<Union<Dom.Node, DocNode>[]> (DomUtility.ChildrenArray el)
+        let els : Choice<Dom.Node, DocNode>[] = DomUtility.ChildrenArray el |> Array.map Choice1Of2
         let addAttr (el: Element) (attr: Attr) =
             let attr = Attrs.Insert el attr
             updates.JS.Push (Attrs.Updates attr) |> ignore
@@ -651,8 +651,8 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 p.ReplaceChild(after, e) |> ignore
                 let before = Docs.InsertBeforeDelim after doc.DocNode
                 els
-                |> Array.tryFindIndex ((===.) e)
-                |> Option.iter (fun i -> els.[i] <- Union2Of2 doc.DocNode)
+                |> Array.tryFindIndex ((===.) (Choice1Of2 e))
+                |> Option.iter (fun i -> els.[i] <- Choice2Of2 doc.DocNode)
                 holes.JS.Push {
                     Attr = Attrs.Empty p
                     Children = doc.DocNode
@@ -776,7 +776,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             updates |> Array.TreeReduce (View.Const ()) View.Map2Unit
 
         match els with
-        | [| Union1Of2 e |] when e.NodeType = Dom.NodeType.Element ->
+        | [| Choice1Of2 e |] when e.NodeType = Dom.NodeType.Element ->
             Elt'.TreeNode(docTreeNode, updates) :> Doc'
         | _ ->
             Doc'.Mk (TreeDoc docTreeNode) updates
@@ -821,8 +821,8 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 elif not (a.NodeName.StartsWith "ws-") && RegExp(Docs.TextHoleRE).Test(a.NodeValue) then
                     a.NodeValue <-
                         RegExp(Docs.TextHoleRE, "g")
-                            .Replace(a.NodeValue, FuncWithArgs (fun (_, h: string) ->
-                                "${" + h.ToLower() + "}"))
+                            .Replace(a.NodeValue, FuncWithRest<string,string,string> (fun (_, h: string[]) ->
+                                "${" + h.[0].ToLower() + "}"))
                     holedAttrs.JS.Push(a.NodeName) |> ignore
             if not (Array.isEmpty events) then
                 el.SetAttribute("ws-on", String.concat " " events)
@@ -929,8 +929,8 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 for attrName in holeAttrs do
                     let s =
                         RegExp(Docs.TextHoleRE, "g")
-                            .Replace(e.GetAttribute(attrName), FuncWithArgs(fun (full: string, h: string) ->
-                                if dontRemove.Contains h then full else ""
+                            .Replace(e.GetAttribute(attrName), FuncWithRest<string,string,string>(fun (full: string, h: string[]) ->
+                                if dontRemove.Contains h.[0] then full else ""
                             ))
                     e.SetAttribute(attrName, s)
 
@@ -1416,7 +1416,7 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
         let updates = View.Map2Unit attrUpdates rvUpdates.View
         new Elt'(ElemDoc node, updates, el, rvUpdates)
 
-    /// Assumes tree.Els = [| Union1Of2 someDomElement |]
+    /// Assumes tree.Els = [| Choice1Of2 someDomElement |]
     static member internal TreeNode(tree: DocTreeNode, updates) =
         let rvUpdates = Updates.Create updates
         let attrUpdates =
@@ -1538,7 +1538,7 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
             match docNode with
             | ElemDoc e ->
                 {
-                    Els = [| Union1Of2 (upcast elt) |]
+                    Els = [| Choice1Of2 (upcast elt) |]
                     Holes = [||]
                     Attrs = [| elt, e.Attr |]
                     Render = None
@@ -1605,7 +1605,7 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Next.Elt">]
     member this.GetProperty'(name: string) : 'T =
         elt?(name)
 
-    [<Name "AddClass"; Direct "$this.elt.className += ' ' + $cls">]
+    [<Name "AddClass"; Direct "void($this.elt.className += ' ' + $cls)">]
     member this.AddClass'(cls: string) = X<unit>
 
     [<Name "RemoveClass">]

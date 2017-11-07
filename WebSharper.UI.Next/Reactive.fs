@@ -47,15 +47,19 @@ and [<JavaScript>] View<'T> =
 [<AutoOpen>]
 module ViewOptimization =
     open WebSharper.JavaScript
-    [<Inline "$x">]
+    //[<Inline "$x">]
+    [<Inline>]
     let V (x: unit -> Snap<'T>) = V x
-    [<Inline "$x">]
+//    [<Inline "$x">]
+    [<Inline>]
     let (|V|) (x: View<'T>) = let (V v) = x in v
-    [<Inline "$x">]
+//    [<Inline "$x">]
+    [<Inline>]
     let getSnapV (x: Snap<View<'T>>) = Snap.Map (|V|) x
-    [<Inline "$x">]
+//    [<Inline "$x">]
+    [<Inline>]
     let getSnapF (x: 'A -> View<'T>) = x >> (|V|)
-    [<Inline "null">]
+    [<Inline ("null", assertReturnType=true)>]
     let jsNull<'T>() = Unchecked.defaultof<'T>
     [<Inline "Error().stack">]
     let jsStack<'T>() = ""

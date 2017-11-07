@@ -56,6 +56,7 @@ type Model =
     static member View (m: Model<'I, 'M>) =
         m.View
 
+[<Name "Store">]
 type Storage<'T> =
     [<Name "SAppend">]
     abstract member Append : appending: 'T -> ``to``: 'T[] -> 'T[]
@@ -98,7 +99,7 @@ module Serializer =
             Decode = WebSharper.Json.Decode<'T>
         }
 
-[<JavaScript>]
+[<JavaScript; Name "Store">]
 module Storage =
     open WebSharper
     open WebSharper.JavaScript
@@ -114,7 +115,7 @@ module Storage =
             member x.RemoveIf pred arr = Array.filter (fun i -> not (pred i)) arr
             member x.SetAt idx elem arr = arr.[idx] <- elem; arr
             member x.Set coll = Seq.toArray coll
-
+    
     type private LocalStorageBackend<'T>(id : string, serializer : Serializer<'T>) =
         let storage = JS.Window.LocalStorage
         let set (arr : 'T[]) = 
@@ -147,6 +148,7 @@ module Storage =
     let LocalStorage id serializer =
         new LocalStorageBackend<_>(id, serializer) :> Storage<_>
 
+[<Type "$0[]">]
 type ListModelState<'T> =
     [<Inline>]
     member this.Length =
@@ -159,9 +161,11 @@ type ListModelState<'T> =
         Array.copy (JavaScript.Pervasives.As<'T[]>(this))
     [<Inline>]
     member this.ToArray(pred: Predicate<'T>) =
-        Array.filter pred.Invoke (JavaScript.Pervasives.As<'T[]>(this))
+        Array.filter pred.Invoke (JavaScript.Pervasives.As<'T[]>(this))    
     interface seq<'T> with
+        [<Inline>]
         member this.GetEnumerator() = (JavaScript.Pervasives.As<'T[]>(this)).GetEnumerator()
+        [<Inline>]
         member this.GetEnumerator() = (JavaScript.Pervasives.As<'T seq>(this)).GetEnumerator()
 
 [<JavaScript>]
@@ -204,6 +208,7 @@ type ListModel<'Key, 'T when 'Key : equality>
     member this.itemSnaps = it
 
     interface seq<'T> with
+        [<Inline>]
         member this.GetEnumerator() =
             (Seq.ofArray var.Value).GetEnumerator()
 

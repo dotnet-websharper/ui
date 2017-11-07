@@ -122,12 +122,15 @@ type RouteBody<'T> =
         RouteValue : 'T
     }
 
+[<JavaScript>]
 type RouteId =
     | RouteId of int
 
+[<JavaScript>]
 type RoutePart<'T> =
     | Part of int * (RouteContext<'T> -> RouteBody<'T>)
 
+[<JavaScript>]
 type Router<'T> =
     | R of option<'T> * Trie<string,RoutePart<'T>>
 

@@ -340,7 +340,7 @@ and Elt
     member this.OnWheel(cb: Expr<Dom.Element -> Dom.WheelEvent -> unit>) = this.On("wheel", cb)
     // }}
 
-and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
+and [<RequireQualifiedAccess; JavaScript false; Type "any">] TemplateHole =
     | Elt of name: string * fillWith: Doc
     | Text of name: string * fillWith: string
     | TextView of name: string * fillWith: View<string>

@@ -6,8 +6,7 @@
     <Name>WebSharper.UI.Next.Templating.Tests</Name>
     <RootNamespace>$(Name)</RootNamespace>
     <AssemblyName>$(Name)</AssemblyName>
-    <WebSharperProject>Bundle</WebSharperProject>
-    <WebSharperBundleOutputDir>Content</WebSharperBundleOutputDir>
+    <WebSharperProject>Site</WebSharperProject>
     <OutputType>Library</OutputType>
     <OutputPath>bin</OutputPath>
     <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
@@ -17,6 +16,8 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
+    <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
+    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
   </PropertyGroup>
   <!-- F# targets -->
   <Choose>
@@ -32,13 +33,16 @@
     </Otherwise>
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
-  <Import Project="../build/net40/$(Name).proj" />
+  <Import Project="../packages/Microsoft.TypeScript.MSBuild.2.6.1/build/Microsoft.TypeScript.MSBuild.targets" />
+  <Import Project="bin/$(Name).proj" />
   <ItemGroup>
     <Compile Include="Regression67.fs" />
     <Compile Include="Client.fs" />
+    <Compile Include="Server.fs" />
     <Content Include="index.html" />
     <Content Include="Web.config" />
     <Content Include="template.html" />
+    <Content Include="tsconfig.json" />
   </ItemGroup>
   <ProjectExtensions>
     <VisualStudio>

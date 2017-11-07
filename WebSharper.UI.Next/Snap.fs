@@ -100,6 +100,7 @@ type Snap<'T> =
             | _ -> true
 
 [<Proxy(typeof<ISnap>)>]
+[<Type "any">]
 type internal ISnapProxy =
     [<Inline>]
     member this.Obsolete() =

@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "module": "none",
+    "noEmitOnError": true,
+    "removeComments": true,
+    "sourceMap": false,
+    "target": "es5",
+    "declaration": false,
+    "allowUnreachableCode": true
+  },
+  "include": [
+    "Scripts/WebSharper/*.ts"
+  ]
+}

@@ -208,6 +208,7 @@ module internal Abbrev =
     [<JavaScript>]
     module Mailbox =
 
+        [<Type "number">]
         type MailboxState =
             | Idle = 0
             | Working = 1

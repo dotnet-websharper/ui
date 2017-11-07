@@ -23,6 +23,7 @@ open WebSharper
 
 open System.Collections.Generic
 
+[<JavaScript>]
 type AppendList<'T> =
     | AL0
     | AL1 of 'T
@@ -41,9 +42,15 @@ module AppendList =
         | AL0, x | x, AL0 -> x
         | _ -> AL2 (x, y)
 
+    [<Inline>]
+    let private AppendI x y =
+        match x, y with
+        | AL0, x | x, AL0 -> x
+        | _ -> AL2 (x, y)
+
     let Concat xs =
         Array.ofSeqNonCopying xs
-        |> Array.TreeReduce Empty Append
+        |> Array.TreeReduce Empty AppendI
 
     let Single x =
         AL1 x

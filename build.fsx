@@ -109,11 +109,12 @@ let test =
             [
                 r.Project main
                 r.NuGet("WebSharper.Testing").Latest(true).Reference()
+                r.NuGet("Microsoft.TypeScript.MSBuild").Reference()
             ])
 
 let tmplTest =
     bt.WithFSharpVersion(FSharpVersion.FSharp31)
-        .WebSharper4.BundleWebsite("WebSharper.UI.Next.Templating.Tests")
+        .WebSharper4.SiteletWebsite("WebSharper.UI.Next.Templating.Tests")
         .SourcesFromProject()
         .WithSourceMap()
         .References(fun r ->

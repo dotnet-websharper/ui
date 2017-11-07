@@ -25,6 +25,7 @@ open System.Collections.Generic
 module M = Map
 
 /// Trie lookup structure.
+[<JavaScript>]
 type Trie<'K,'V when 'K : comparison> =
     | TrieBranch of Map<'K,Trie<'K,'V>> // invariant: not empty
     | TrieEmpty

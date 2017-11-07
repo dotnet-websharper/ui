@@ -373,8 +373,14 @@ module Attr =
     let Value (var: IRef<string>) =
         CustomValue var id (id >> Some)
 
-    [<JavaScript; Inline "$e.checkValidity?$e.checkValidity():true">]
-    let CheckValidity (e: Dom.Element) = X<bool>
+    type IHasCheckValidity =
+        abstract member checkValidity: unit -> bool
+
+    [<JavaScript; Inline>]
+    let CheckValidity (e: Dom.Element) =
+        match box e with
+        | :? IHasCheckValidity as e -> e.checkValidity()
+        | _ -> false
 
     let IntValueUnchecked (var: IRef<int>) =
         let parseInt (s: string) =
