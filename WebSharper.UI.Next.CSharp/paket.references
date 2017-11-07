@@ -1,2 +1,5 @@
 WebSharper
 WebSharper.FSharp
+
+group fsharp3
+    FSharp.Core

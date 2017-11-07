@@ -1,3 +1,6 @@
 WebSharper
 WebSharper.FSharp
 Microsoft.CodeAnalysis.CSharp
+
+group fsharp3
+    FSharp.Core
