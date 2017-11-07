@@ -15,4 +15,4 @@ group build
 
     nuget FAKE
     nuget Paket.Core
-    github intellifactory/websharper tools/WebSharper.Fake.fsx
+    github intellifactory/websharper:ts-features tools/WebSharper.Fake.fsx
