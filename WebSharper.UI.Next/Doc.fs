@@ -346,7 +346,7 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
     | TextView of name: string * fillWith: View<string>
     | Attribute of name: string * fillWith: Attr
     | Event of name: string * fillWith: (Element -> Dom.Event -> unit)
-    | EventQ of name: string * fillWith: Expr<Element -> Dom.Event -> unit>
+    | EventQ of name: string * isGenerated: bool * fillWith: Expr<Element -> Dom.Event -> unit>
     | AfterRender of name: string * fillWith: (Element -> unit)
     | VarStr of name: string * fillWith: IRef<string>
     | VarBool of name: string * fillWith: IRef<bool>
@@ -368,7 +368,7 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
         | TemplateHole.VarFloat (name, _)
         | TemplateHole.VarFloatUnchecked (name, _)
         | TemplateHole.Event (name, _)
-        | TemplateHole.EventQ (name, _)
+        | TemplateHole.EventQ (name, _, _)
         | TemplateHole.AfterRender (name, _)
         | TemplateHole.Attribute (name, _) -> name
 

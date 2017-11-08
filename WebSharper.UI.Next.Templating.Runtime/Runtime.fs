@@ -149,7 +149,7 @@ type Runtime private () =
                     ctx.Writer.WriteAttribute(EventAttrPrefix + event, holeName)
                 | Attr.Event(event, holeName) ->
                     match ctx.FillWith.TryGetValue holeName with
-                    | true, TemplateHole.EventQ (_, e) -> (Attr.Handler event e).Write(ctx.Context.Metadata, ctx.Writer, true)
+                    | true, TemplateHole.EventQ (_, _, e) -> (Attr.Handler event e).Write(ctx.Context.Metadata, ctx.Writer, true)
                     | true, _ -> failwithf "Invalid hole, expected quoted event: %s" holeName
                     | false, _ -> ()
                 | Attr.OnAfterRender holeName ->

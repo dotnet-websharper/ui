@@ -535,7 +535,7 @@ type TemplateHole =
     | TextView of name: string * fillWith: View<string>
     | Attribute of name: string * fillWith: Attr
     | Event of name: string * fillWith: (Element -> Dom.Event -> unit)
-    | EventQ of name: string * fillWith: Expr<Element -> Dom.Event -> unit>
+    | EventQ of name: string * isGenerated: bool * fillWith: Expr<Element -> Dom.Event -> unit>
     | AfterRender of name: string * fillWith: (Element -> unit)
     | VarStr of name: string * fillWith: IRef<string>
     | VarBool of name: string * fillWith: IRef<bool>
