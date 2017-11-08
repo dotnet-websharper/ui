@@ -8,6 +8,7 @@ open WebSharper.JavaScript
 open WebSharper.UI.Next
 
 module DU = DomUtility
+type private A = Attr
 
 [<JavaScript>]
 type DocNode =
@@ -678,6 +679,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 let a = x.Split([|':'|], StringSplitOptions.RemoveEmptyEntries)
                 match fw.TryGetValue(a.[1]) with
                 | true, TemplateHole.Event (_, handler) -> Some (Attr.Handler a.[0] handler)
+                | true, TemplateHole.EventQ (_, handler) -> Some (A.Handler a.[0] handler)
                 | true, _ ->
                     Console.Warn("Event hole on" + a.[0] + " filled with non-event data", a.[1])
                     None

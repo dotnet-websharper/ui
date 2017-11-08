@@ -145,8 +145,13 @@ type Runtime private () =
                     ctx.Writer.WriteAttribute(name, value)
                 | Attr.Compound(name, value) ->
                     ctx.Writer.WriteAttribute(name, unencodedStringParts value)
+                | Attr.Event(event, holeName) when plain ->
+                    ctx.Writer.WriteAttribute(EventAttrPrefix + event, holeName)
                 | Attr.Event(event, holeName) ->
-                    if plain then ctx.Writer.WriteAttribute(EventAttrPrefix + event, holeName)
+                    match ctx.FillWith.TryGetValue holeName with
+                    | true, TemplateHole.EventQ (_, e) -> (Attr.Handler event e).Write(ctx.Context.Metadata, ctx.Writer, true)
+                    | true, _ -> failwithf "Invalid hole, expected quoted event: %s" holeName
+                    | false, _ -> ()
                 | Attr.OnAfterRender holeName ->
                     if plain then ctx.Writer.WriteAttribute(AfterRenderAttr, holeName)
             let rec writeElement tag attrs dataVar children =

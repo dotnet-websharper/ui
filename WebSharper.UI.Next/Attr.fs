@@ -99,6 +99,9 @@ type Attr =
     static member Concat (xs: seq<Attr>) =
         AppendAttr (List.ofSeq xs)
 
+    static member WithDependencies(name, getValue, deps) =
+        DepAttr (name, getValue, deps)
+
     static member HandlerImpl(event, m, location) =
         let meth = R.ReadMethod m
         let declType = R.ReadTypeDefinition m.DeclaringType
