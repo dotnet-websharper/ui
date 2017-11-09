@@ -58,7 +58,7 @@ module private Internal =
 type Attr =
     | AppendAttr of list<Attr>
     | SingleAttr of string * string
-    | DepAttr of string * (M.Info -> string) * seq<M.Node>
+    | DepAttr of string * (M.Info -> string) * (M.Info -> seq<M.Node>)
 
     member this.Write(meta, w: HtmlTextWriter, removeWsHole) =
         match this with
@@ -74,14 +74,14 @@ type Attr =
 
     interface IRequiresResources with
 
-        member this.Requires =
+        member this.Requires(meta) =
             match this with
             | AppendAttr attrs ->
                 attrs |> Seq.collect (fun a ->
                     if obj.ReferenceEquals(a, null)
                     then Seq.empty
-                    else (a :> IRequiresResources).Requires)
-            | DepAttr (_, _, reqs) -> reqs
+                    else (a :> IRequiresResources).Requires(meta))
+            | DepAttr (_, _, reqs) -> reqs meta
             | _ -> Seq.empty
 
         member this.Encode (meta, json) =
@@ -124,7 +124,7 @@ type Attr =
                     s
                 | _ -> fail()
             | Some v -> v
-        DepAttr ("on" + event, func, reqs)
+        DepAttr ("on" + event, func, fun _ -> reqs :> _)
 
     static member Handler (event: string) (q: Expr<Dom.Element -> #Dom.Event -> unit>) =
         let meth =

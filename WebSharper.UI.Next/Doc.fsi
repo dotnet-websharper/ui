@@ -78,7 +78,7 @@ type Doc =
     default Write : Web.Context * System.Web.UI.HtmlTextWriter * renderResources: bool -> unit
     abstract HasNonScriptSpecialTags : bool
     abstract Encode : Core.Metadata.Info * Core.Json.Provider -> list<string * Core.Json.Encoded>
-    abstract Requires : seq<Core.Metadata.Node>
+    abstract Requires : Core.Metadata.Info -> seq<Core.Metadata.Node>
     static member internal OfINode : Web.INode -> Doc
 
     internal new : unit -> Doc
@@ -89,7 +89,7 @@ and [<Class>] Elt =
     internal new
         : attrs: list<Attr>
         * encode: (Core.Metadata.Info -> Core.Json.Provider -> list<string * Core.Json.Encoded>)
-        * requires: (list<Attr> -> seq<Core.Metadata.Node>)
+        * requires: (list<Attr> -> Core.Metadata.Info -> seq<Core.Metadata.Node>)
         * hasNonScriptSpecialTags: bool
         * write: (list<Attr> -> Web.Context -> System.Web.UI.HtmlTextWriter -> option<Sitelets.Content.RenderedResources> -> unit)
         * write': (option<list<Attr> -> Web.Context -> System.Web.UI.HtmlTextWriter -> bool -> unit>)
@@ -98,7 +98,7 @@ and [<Class>] Elt =
     override Write : Web.Context * System.Web.UI.HtmlTextWriter * res: option<Sitelets.Content.RenderedResources> -> unit
     override HasNonScriptSpecialTags : bool
     override Encode : Core.Metadata.Info * Core.Json.Provider -> list<string * Core.Json.Encoded>
-    override Requires : seq<Core.Metadata.Node>
+    override Requires : Core.Metadata.Info -> seq<Core.Metadata.Node>
 
     /// Add an event handler.
     /// When called on the server side, the handler must be a top-level function or a static member.

@@ -69,8 +69,8 @@ module Internal =
         override this.Encode(m, j) =
             List.concat (requireResources |> Seq.map (fun rr -> rr.Encode(m, j)))
 
-        override this.Requires =
-            Seq.concat (requireResources |> Seq.map (fun rr -> rr.Requires))
+        override this.Requires(m) =
+            Seq.concat (requireResources |> Seq.map (fun rr -> rr.Requires(m)))
 
         override this.Write(ctx, h, res) = 
             write ctx h res
@@ -84,6 +84,6 @@ module Internal =
         new (requireResources: seq<IRequiresResources>, write) =
             let encode m j =
                 List.concat (requireResources |> Seq.map (fun rr -> rr.Encode(m, j)))
-            let requires (attrs: list<Attr>) =
-                Seq.concat (requireResources |> Seq.map (fun rr -> rr.Requires))
+            let requires (attrs: list<Attr>) m =
+                Seq.concat (requireResources |> Seq.map (fun rr -> rr.Requires(m)))
             { inherit Elt([], encode, requires, false, (fun a ctx w _ -> write a ctx w false), Some write) }

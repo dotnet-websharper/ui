@@ -166,7 +166,7 @@ type GetOrLoadTemplateMacro() =
         | _ -> failwith "LoadTemplateMacro error"
 
 [<Proxy(typeof<WebSharper.UI.Next.Templating.Runtime>)>]
-type RuntimeProxy =
+type private RuntimeProxy =
 
     [<Macro(typeof<GetOrLoadTemplateMacro>)>]
     static member GetOrLoadTemplate

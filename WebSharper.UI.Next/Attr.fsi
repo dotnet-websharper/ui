@@ -29,7 +29,7 @@ type Attr =
     internal
     | AppendAttr of list<Attr>
     | SingleAttr of string * string
-    | DepAttr of string * (M.Info -> string) * seq<M.Node>
+    | DepAttr of string * (M.Info -> string) * (M.Info -> seq<M.Node>)
 
     interface WebSharper.IRequiresResources
 
@@ -49,7 +49,7 @@ type Attr =
     /// Empty attribute list.
     static member Empty : Attr
 
-    static member WithDependencies : string * (M.Info -> string) * seq<M.Node> -> Attr
+    static member WithDependencies : string * (M.Info -> string) * (M.Info -> seq<M.Node>) -> Attr
 
     /// Sets an event handler, for a given event such as `click`.
     /// When called on the server side, the handler must be a top-level function or a static member.
