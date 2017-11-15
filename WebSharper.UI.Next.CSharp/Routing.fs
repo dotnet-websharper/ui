@@ -25,6 +25,7 @@ open System.Collections.Generic
 open WebSharper
 open WebSharper.JavaScript
 open WebSharper.UI.Next
+open WebSharper.UI.Next.Routing
 open WebSharper.UI.Next.Client
 open WebSharper.Core
 open WebSharper.Core.AST

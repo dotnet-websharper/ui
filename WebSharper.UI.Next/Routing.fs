@@ -18,7 +18,7 @@
 //
 // $end{copyright}
 
-namespace WebSharper.UI.Next
+namespace WebSharper.UI.Next.Routing
 
 // NOTES: need better facilities for the user to construct routers. In particular,
 // should be possible to encode numbers, semi-automatically provide bijections,
@@ -26,6 +26,7 @@ namespace WebSharper.UI.Next
 
 open WebSharper
 open WebSharper.JavaScript
+open WebSharper.UI.Next
 module A = AppendList
 module T = Trie
 
