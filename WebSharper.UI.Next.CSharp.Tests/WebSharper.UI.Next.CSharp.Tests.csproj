@@ -23,6 +23,7 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <OutputPath>bin\</OutputPath>
     <UseCommonOutputDirectory>true</UseCommonOutputDirectory>
+    <Use64BitIISExpress />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -60,9 +61,9 @@
     </Compile>
     <Content Include="Web.config" />
   </ItemGroup>
-<PropertyGroup>
-  <AdditionalFileItemNames>$(AdditionalFileItemNames);Content</AdditionalFileItemNames>
-</PropertyGroup>
+  <PropertyGroup>
+    <AdditionalFileItemNames>$(AdditionalFileItemNames);Content</AdditionalFileItemNames>
+  </PropertyGroup>
   <ItemGroup>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -79,6 +80,10 @@
     <ProjectReference Include="..\WebSharper.UI.Next.CSharp\WebSharper.UI.Next.CSharp.fsproj">
       <Project>{13fba482-7285-4c83-a201-2d60ff89e586}</Project>
       <Name>WebSharper.UI.Next.CSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WebSharper.UI.Next.Templating.Common\WebSharper.UI.Next.Templating.Common.fsproj">
+      <Project>{ae103526-34b2-4556-914c-3e45bb1cfb17}</Project>
+      <Name>WebSharper.UI.Next.Templating.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\WebSharper.UI.Next\WebSharper.UI.Next.fsproj">
       <Project>{085a6f78-50a7-46cf-b040-9853ec580be5}</Project>

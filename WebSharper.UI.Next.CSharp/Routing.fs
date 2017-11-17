@@ -229,7 +229,7 @@ and private RouteMapBuilderMacro() =
                     let endpoint =
                         match comp.GetTypeAttributes td with
                         | Some attrs ->
-                            match attrs |> List.tryFind (fun (at, _) -> at.Value.FullName = "WebSharper.Sitelets.EndPointAttribute") with
+                            match attrs |> List.tryFind (fun (at, _) -> at.Value.FullName = "WebSharper.EndPointAttribute") with
                             | Some (_, [| Metadata.ParameterObject.String ep |]) -> ep
                             | _ -> "/"
                         | _ -> "/"
@@ -244,7 +244,7 @@ and private RouteMapBuilderMacro() =
                                     let isQuery =
                                         fattrs
                                         |> Seq.exists (fun (at, args) ->
-                                            at.Value.FullName = "WebSharper.Sitelets.QueryAttribute" &&
+                                            at.Value.FullName = "WebSharper.QueryAttribute" &&
                                                 Array.isEmpty args
                                         )
                                     if isQuery then
