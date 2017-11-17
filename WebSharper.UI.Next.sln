@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.12
+VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebSharper.UI.Next", "WebSharper.UI.Next\WebSharper.UI.Next.fsproj", "{085A6F78-50A7-46CF-B040-9853EC580BE5}"
 EndProject
@@ -79,8 +79,8 @@ Global
 		{89FAD4A9-B3E6-442C-9080-E859719DF870}.Release|Any CPU.Build.0 = Debug|Any CPU
 		{AE103526-34B2-4556-914C-3E45BB1CFB17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AE103526-34B2-4556-914C-3E45BB1CFB17}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AE103526-34B2-4556-914C-3E45BB1CFB17}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AE103526-34B2-4556-914C-3E45BB1CFB17}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE103526-34B2-4556-914C-3E45BB1CFB17}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE103526-34B2-4556-914C-3E45BB1CFB17}.Release|Any CPU.Build.0 = Debug|Any CPU
 		{31738154-5576-4E56-BB71-86BD5E63FCAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{31738154-5576-4E56-BB71-86BD5E63FCAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{31738154-5576-4E56-BB71-86BD5E63FCAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -91,5 +91,8 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{2A2EF6F0-10CA-47BC-B490-FC9174DE28D2} = {D5BE120F-C833-4082-B132-A75B5AE366DF}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {567DA880-2913-4B1A-A1CD-9ABAE5E920CB}
 	EndGlobalSection
 EndGlobal
