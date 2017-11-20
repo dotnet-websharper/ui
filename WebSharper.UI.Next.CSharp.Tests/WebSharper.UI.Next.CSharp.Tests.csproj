@@ -153,6 +153,7 @@
       <HintPath>..\build\net40\WebSharper.Web.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <Import Project="../packages/WebSharper.CSharp/build/WebSharper.CSharp.targets" />
   <Target Name="IncludeContent" BeforeTargets="Compile">
     <ItemGroup>
       <Content Include="Content/*.*" />
