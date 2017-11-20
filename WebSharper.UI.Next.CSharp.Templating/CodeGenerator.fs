@@ -106,12 +106,11 @@ let finalMethodBody (ctx: Ctx) =
         ]
         |> String.concat ", "
         |> sprintf "new Tuple<string, FSharpOption<string>, string>[] { %s }"
-    sprintf "Runtime.GetOrLoadTemplate(%s, %s, %s, %s, holes, %s, ServerLoad.%s, %s, %b)"
+    sprintf "Runtime.GetOrLoadTemplate(%s, %s, %s, %s, holes, FSharpOption<string>.None, ServerLoad.%s, %s, %b)"
         (formatString ctx.FileId)
         (optionValue formatString "string" name)
         (optionValue formatString "string" ctx.Path)
         (formatString ctx.Template.Src)
-        (optionValue formatString "string" ctx.InlineFileId)
         (string ctx.ServerLoad)
         references
         ctx.Template.IsElt
