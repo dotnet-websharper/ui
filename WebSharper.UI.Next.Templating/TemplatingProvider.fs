@@ -28,19 +28,18 @@ open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Core.CompilerServices
 open ProviderImplementation
 open ProviderImplementation.ProvidedTypes
-open System.Runtime.Caching
 
-[<AutoOpen>]
-module private Cache =
-    type MemoryCache with 
-        member x.AddOrGetExisting(key, value: Lazy<_>, ?expiration) = 
-            let policy = CacheItemPolicy()
-            policy.SlidingExpiration <- defaultArg expiration <| TimeSpan.FromHours 24.
-            match x.AddOrGetExisting(key, value, policy) with
-            | :? Lazy<ProvidedTypeDefinition> as item -> item.Value 
-            | x -> 
-                assert(x = null)
-                value.Value
+//[<AutoOpen>]
+//module private Cache =
+//    type MemoryCache with 
+//        member x.AddOrGetExisting(key, value: Lazy<_>, ?expiration) = 
+//            let policy = CacheItemPolicy()
+//            policy.SlidingExpiration <- defaultArg expiration <| TimeSpan.FromHours 24.
+//            match x.AddOrGetExisting(key, value, policy) with
+//            | :? Lazy<ProvidedTypeDefinition> as item -> item.Value 
+//            | x -> 
+//                assert(x = null)
+//                value.Value
 
 [<AutoOpen>]
 module private Impl =
