@@ -85,7 +85,7 @@ type WebSharperCSharpAnalyzer () =
             
             try
                 namespaceName <- startCtx.SemanticModel.Compilation.AssemblyName + ".Template"
-                startCtx.Options.AdditionalFiles |> Seq.choose (fun f ->
+                startCtx.Options.AdditionalFiles |> Seq.distinct |> Seq.choose (fun f ->
                     let p = f.Path
                     if p.ToLower().EndsWith ".html" && File.Exists p then Some p else None
                 ) |> watchFiles

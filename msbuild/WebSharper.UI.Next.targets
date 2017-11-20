@@ -21,15 +21,7 @@
 // $end{copyright}
 -->
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup Condition=" '$(WebSharperProject)' != '' Or '$(WebProjectOutputDir)' != '' " >
-    <UINextToolsPath>$(MSBuildThisFileDirectory)/../tools</UINextToolsPath>
+  <PropertyGroup>
+    <AdditionalFileItemNames>$(AdditionalFileItemNames);Content</AdditionalFileItemNames>
   </PropertyGroup>
-  <ItemGroup>
-    <T4ParameterValues Include="UINextToolsPath">
-      <Value>$(UINextToolsPath)</Value>
-    </T4ParameterValues>
-    <T4ParameterValues Include="MSBuildProjectDirectory">
-      <Value>$(MSBuildProjectDirectory)</Value>
-    </T4ParameterValues>
-  </ItemGroup>
 </Project>

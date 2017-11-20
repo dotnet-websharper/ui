@@ -11,4 +11,5 @@ set PATH=%PATH%;%ProgramFiles%\Microsoft SDKs\F#\3.0\Framework\v4.0
 set PATH=%PATH%;tools\NuGet
 nuget install IntelliFactory.Build -nocache -pre -ExcludeVersion -o tools\packages
 nuget install Microsoft.CodeAnalysis.CSharp -version 1.0.0 -ExcludeVersion -o packages
+nuget install WebSharper.CSharp -ExcludeVersion -o packages
 fsi.exe --exec build.fsx %*

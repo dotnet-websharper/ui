@@ -96,6 +96,15 @@
     <Analyzer Include="..\build\net45\WebSharper.UI.Next.CSharp.Templating.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="FSharp.Core, Version=4.4.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\build\net40\FSharp.Core.dll</HintPath>
@@ -144,6 +153,7 @@
       <HintPath>..\build\net40\WebSharper.Web.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <Import Project="../packages/WebSharper.CSharp/build/WebSharper.CSharp.targets" />
   <Target Name="IncludeContent" BeforeTargets="Compile">
     <ItemGroup>
       <Content Include="Content/*.*" />

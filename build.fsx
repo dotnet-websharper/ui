@@ -149,7 +149,7 @@ let mainNupkg =
         .Add(tmplRuntime)
         .Add(tmpl)
         .Add(csharp)
-        .AddFile("msbuild/WebSharper.UI.Next.CSharp.Templating.targets", "build/WebSharper.UI.Next.targets")
+        .AddFile("msbuild/WebSharper.UI.Next.targets", "build/WebSharper.UI.Next.targets")
 //        .AddFile("build/net40/FSharp.Core.dll", "tools/FSharp.Core.dll") // relying on GAC now
         .AddFile("packages/HtmlAgilityPack."+htmlAgilityPackVersion+"/lib/Net40/HtmlAgilityPack.dll", "tools/HtmlAgilityPack.dll")
         .AddFile("packages/HtmlAgilityPack."+htmlAgilityPackVersion+"/lib/Net40/HtmlAgilityPack.dll", "lib/net40/HtmlAgilityPack.dll")
