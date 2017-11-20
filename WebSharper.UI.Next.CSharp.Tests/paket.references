@@ -1,0 +1,6 @@
+WebSharper
+WebSharper.CSharp
+HtmlAgilityPack
+
+group fsharp3
+    FSharp.Core

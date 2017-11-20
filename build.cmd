@@ -1,15 +1,7 @@
-@ECHO OFF
-REM NOTE: This file was auto-generated with `IB.exe prepare` from `IntelliFactory.Build`.
-
+@echo off
 setlocal
-set PATH=%PATH%;%ProgramFiles(x86)%\Microsoft SDKs\F#\4.0\Framework\v4.0
-set PATH=%PATH%;%ProgramFiles(x86)%\Microsoft SDKs\F#\3.1\Framework\v4.0
-set PATH=%PATH%;%ProgramFiles(x86)%\Microsoft SDKs\F#\3.0\Framework\v4.0
-set PATH=%PATH%;%ProgramFiles%\Microsoft SDKs\F#\4.0\Framework\v4.0
-set PATH=%PATH%;%ProgramFiles%\Microsoft SDKs\F#\3.1\Framework\v4.0
-set PATH=%PATH%;%ProgramFiles%\Microsoft SDKs\F#\3.0\Framework\v4.0
-set PATH=%PATH%;tools\NuGet
-nuget install IntelliFactory.Build -nocache -pre -ExcludeVersion -o tools\packages
-nuget install Microsoft.CodeAnalysis.CSharp -version 1.0.0 -ExcludeVersion -o packages
-nuget install WebSharper.CSharp -ExcludeVersion -o packages
-fsi.exe --exec build.fsx %*
+
+.paket\paket.exe restore -g build
+if errorlevel 1 exit /b %errorlevel%
+
+paket-files\build\intellifactory\websharper\tools\WebSharper.Fake.cmd %*

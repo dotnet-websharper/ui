@@ -501,7 +501,6 @@ module Main =
             }
         }
 
-#if ZAFIR
     [<SPAEntryPoint>]
     let Main() =
         Runner.RunTests(
@@ -531,4 +530,3 @@ module Main =
             )
         ]
         |> Doc.RunAppend JS.Document.Body
-#endif
