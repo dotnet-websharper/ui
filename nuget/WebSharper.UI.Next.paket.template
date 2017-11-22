@@ -16,7 +16,7 @@ files
     ../build/net45/WebSharper.UI.Next.CSharp.Templating.dll ==> tools
     ../build/net40/WebSharper.UI.Next.Templating.Common.dll ==> tools
     ../build/net40/HtmlAgilityPack.dll ==> tools
-    ../msbuild/WebSharper.UI.Next.targets ==> build/WebSharper.UI.Next.targets
+    ../msbuild/WebSharper.UI.Next.targets ==> build
     ../build/net40/HtmlAgilityPack.dll ==> lib/net40
     ../build/net40/WebSharper.UI.Next.dll ==> lib/net40
     ../build/net40/WebSharper.UI.Next.xml ==> lib/net40
