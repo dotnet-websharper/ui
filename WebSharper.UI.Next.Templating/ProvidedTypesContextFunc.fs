@@ -31,6 +31,10 @@ type internal ProvidedTypesFunc =
     [<Extension>]
     static member WithXmlDoc (p: ProvidedTypeDefinition, xmlDoc: string) = p.AddXmlDoc xmlDoc; p
     [<Extension>]
+    static member WithXmlDoc (p: ProvidedMethod, xmlDoc: string) = p.AddXmlDoc xmlDoc; p
+    [<Extension>]
+    static member WithXmlDoc (p: ProvidedProperty, xmlDoc: string) = p.AddXmlDoc xmlDoc; p
+    [<Extension>]
     static member WithObsolete (p: ProvidedTypeDefinition, msg: string, ?isError: bool) =
         p.AddObsoleteAttribute(msg, ?isError = isError); p
     [<Extension>]

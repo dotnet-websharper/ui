@@ -121,7 +121,7 @@ module Client =
                             .Description(myItems.LensInto (fun i -> i.description) (fun i d -> { i with description = d }) key)
                             .FontStyle("italic")
                             .FontWeight("bold")
-                            .Remove(fun _ _ -> myItems.RemoveByKey key)
+                            .Remove(fun _ -> myItems.RemoveByKey key)
                             .Elt()
                             .OnClickView(item, fun _ _ x -> JS.Alert x.name)
                     )
@@ -135,9 +135,9 @@ module Client =
                 .LIExtraAttr(Attr.Class "class4")
                 .Replace2("Replace2")
                 .NewDescription(newDescr)
-                .NewItem(fun () -> myItems.Add { id = freshKey(); name = newName.Value; description = newDescr.Value })
-                .SubmitItems(itemsSub.Trigger)
-                .ClearItems(myItems.Clear)
+                .NewItem(fun _ -> myItems.Add { id = freshKey(); name = newName.Value; description = newDescr.Value })
+                .SubmitItems(fun _ -> itemsSub.Trigger())
+                .ClearItems(fun _ -> myItems.Clear())
                 .Test102(
                     // Test #102: this would empty the whole containing div
                     myItems.ViewState
@@ -177,12 +177,12 @@ module Client =
                 )
                 .MyInput(var)
                 .MyInputView(btnSub.View)
-                .MyCallback(btnSub.Trigger)
+                .MyCallback(fun _ -> btnSub.Trigger())
                 .ButtonExtraText(" now")
                 .Checked(chk)
                 .IsChecked(chk.View.Map(function true -> "checked" | false -> "not checked"))
-                .NameChanged(fun el ev -> 
-                   let key = if ev?which then ev?which else ev?keyCode
+                .NameChanged(fun e -> 
+                   let key = if e.Event?which then e.Event?which else e.Event?keyCode
                    if key = 13 then newName := "")
                 .PRendered(fun (el: Dom.Element) -> var := el.GetAttribute("id"))
                 .ControlTests(
@@ -221,16 +221,16 @@ module Client =
                         ] :> Doc
                     ]
                 )
-                .AddDiv(fun _ _ -> addDiv())
-                .RemoveUpdater(fun _ _ -> removeUpdater())
-                .ReAddUpdater(fun _ _ -> reAddUpdater())
-                .RemoveAllUpdaters(fun _ _ -> removeAllUpdaters())
-                .IncrEltUpdaterTest(fun _ _ -> testCounter := !testCounter + 1)
+                .AddDiv(fun _ -> addDiv())
+                .RemoveUpdater(fun _ -> removeUpdater())
+                .ReAddUpdater(fun _ -> reAddUpdater())
+                .RemoveAllUpdaters(fun _ -> removeAllUpdaters())
+                .IncrEltUpdaterTest(fun _ -> testCounter := !testCounter + 1)
                 .EltUpdaterTest(eltUpdater)
                 .Username(username)
                 .Password(password)
                 .Username1(username.View)
-                .Submit(submit.Trigger)
+                .Submit(fun _ -> submit.Trigger())
                 .NestedInstantiationTest(MyTemplate.template.L3().MIAttr(Attr.Style "color" "red").Ok("Ok").Doc())
                 .Doc()
 

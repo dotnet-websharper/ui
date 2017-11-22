@@ -14,10 +14,10 @@
   </PropertyGroup>
   <Import Project="..\msbuild\FSharp.targets" />
   <ItemGroup>
-    <Compile Include="../paket-files/fsprojects/FSharp.TypeProviders.SDK/src/ProvidedTypes.fsi">
+    <Compile Include="../paket-files/tarmil/FSharp.TypeProviders.SDK/src/ProvidedTypes.fsi">
       <Link>ProvidedTypes.fsi</Link>
     </Compile>
-    <Compile Include="../paket-files/fsprojects/FSharp.TypeProviders.SDK/src/ProvidedTypes.fs">
+    <Compile Include="../paket-files/tarmil/FSharp.TypeProviders.SDK/src/ProvidedTypes.fs">
       <Link>ProvidedTypes.fs</Link>
     </Compile>
     <Compile Include="ProvidedTypesContextFunc.fs" />
@@ -42,10 +42,10 @@
     </ProjectReference>
   </ItemGroup>
   <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.6')">
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5')">
       <ItemGroup>
         <Reference Include="FSharp.Core">
-          <HintPath>..\packages\fsharp3\FSharp.Core\lib\net40\FSharp.Core.dll</HintPath>
+          <HintPath>..\packages\FSharp.Core\lib\net40\FSharp.Core.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -128,5 +128,4 @@
       </ItemGroup>
     </When>
   </Choose>
-  <Import Project="..\packages\WebSharper.FSharp\build\WebSharper.FSharp.targets" Condition="Exists('..\packages\WebSharper.FSharp\build\WebSharper.FSharp.targets')" Label="Paket" />
 </Project>

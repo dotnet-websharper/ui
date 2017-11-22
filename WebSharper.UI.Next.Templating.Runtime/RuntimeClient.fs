@@ -1,4 +1,4 @@
-﻿// $begin{copyright}
+// $begin{copyright}
 //
 // This file is part of WebSharper
 //
@@ -18,18 +18,36 @@
 //
 // $end{copyright}
 
-module WebSharper.UI.Next.Templating.RuntimeClient
+module WebSharper.UI.Next.Templating.Runtime.Client
 
+open System
+open System.Runtime.CompilerServices
+open System.Collections.Generic
+open FSharp.Quotations
+open FSharp.Quotations.Patterns
+open FSharp.Quotations.DerivedPatterns
 open WebSharper
 open WebSharper.Core
 open WebSharper.Core.AST
-open WebSharper.JavaScript
 open WebSharper.JQuery
+open WebSharper.JavaScript
 open WebSharper.UI.Next
-open System.Runtime.CompilerServices
-
+open WebSharper.UI.Next.Templating
 module M = WebSharper.Core.Metadata
 module I = WebSharper.Core.AST.IgnoreSourcePos
+type TemplateInstance = Server.TemplateInstance
+type TemplateEvent<'T when 'T :> TemplateInstance> = Server.TemplateEvent<'T>
+
+[<JavaScript>]
+let private (|Box|) x = box x
+
+[<JavaScript; Proxy(typeof<TemplateInstance>)>]
+type private TemplateInstanceProxy(c: Server.CompletedHoles, doc: Doc) =
+    let (Server.CompletedHoles.Client allVars) = c
+    
+    member this.Doc = doc
+
+    member this.Hole(name) = allVars.[name]
 
 [<Inline; MethodImpl(MethodImplOptions.NoInlining)>]
 let WrapEvent (f: unit -> unit) =
@@ -40,6 +58,23 @@ let WrapEvent (f: unit -> unit) =
 let WrapAfterRender (f: unit -> unit) =
     ()
     (fun (el: Dom.Element) -> f())
+
+[<JavaScript>]
+let WrapInstanceEvent (ti: ref<TemplateInstance>) (f: System.Action<TemplateInstance>) =
+    ()
+    fun (_: Dom.Element) (_: Dom.Event) -> f.Invoke !ti
+
+[<JavaScript>]
+let WrapInstanceEventWithArgs (ti: ref<TemplateInstance>) (f: System.Action<TemplateInstance, Dom.Element, Dom.Event>) =
+    ()
+    fun (el: Dom.Element) (ev: Dom.Event) -> f.Invoke(!ti, el, ev)
+
+
+[<JavaScript>]
+let WrapEventWithOnlyArgs (f: System.Action<Dom.Element, Dom.Event>) =
+    ()
+    fun (el: Dom.Element) (ev: Dom.Event) -> f.Invoke(el, ev)
+
 
 [<Inline; MethodImpl(MethodImplOptions.NoInlining)>]
 let LazyParseHtml (src: string) =
@@ -165,7 +200,7 @@ type GetOrLoadTemplateMacro() =
             |> MacroOk
         | _ -> failwith "LoadTemplateMacro error"
 
-[<Proxy(typeof<WebSharper.UI.Next.Templating.Runtime>)>]
+[<Proxy(typeof<Server.Runtime>)>]
 type private RuntimeProxy =
 
     [<Macro(typeof<GetOrLoadTemplateMacro>)>]
@@ -182,3 +217,59 @@ type private RuntimeProxy =
                 isElt: bool
             ) : Doc =
         X<Doc>
+
+[<Proxy(typeof<Server.Handler>)>]
+type private HandlerProxy =
+
+    [<Inline; MethodImpl(MethodImplOptions.NoInlining)>]
+    static member EventQ (holeName: string, isGenerated: bool, f: Expr<Dom.Element -> Dom.Event -> unit>) =
+        TemplateHole.EventQ(holeName, isGenerated, f)
+
+    [<Inline; MethodImpl(MethodImplOptions.NoInlining)>]
+    static member EventQ2 (key: string, holeName: string, ti: ref<TemplateInstance>, [<JavaScript>] f: Expr<TemplateEvent<TemplateInstance> -> unit>) =
+        TemplateHole.EventQ(holeName, true, <@ fun el ev ->
+            (%f) {
+                    Vars = !ti
+                    Target = el
+                    Event = ev
+                }
+        @>)
+
+    [<Inline; MethodImpl(MethodImplOptions.NoInlining)>]
+    static member Hole (event: string, isGenerated: bool, f: Expr<Dom.Element -> Dom.Event -> unit>) =
+        Attr.Handler event f
+
+    [<JavaScript; MethodImpl(MethodImplOptions.NoInlining)>]
+    static member CompleteHoles(_: string, filledHoles: seq<TemplateHole>, vars: array<string * Server.ValTy>) : seq<TemplateHole> * Server.CompletedHoles =
+        let allVars = Dictionary<string, obj>()
+        let filledVars = HashSet()
+        for h in filledHoles do
+            match h with
+            | TemplateHole.VarStr(n, Box r)
+            | TemplateHole.VarIntUnchecked(n, Box r)
+            | TemplateHole.VarInt(n, Box r)
+            | TemplateHole.VarFloatUnchecked(n, Box r)
+            | TemplateHole.VarFloat(n, Box r)
+            | TemplateHole.VarBool(n, Box r) ->
+                filledVars.Add n |> ignore
+                allVars.[n] <- r
+            | _ -> ()
+        let extraHoles =
+            vars |> Array.choose (fun (name, ty) ->
+                if filledVars.Contains name then None else
+                let h, r =
+                    match ty with
+                    | Server.ValTy.String ->
+                        let r = Var.Create ""
+                        TemplateHole.VarStr (name, r), box r
+                    | Server.ValTy.Number ->
+                        let r = Var.Create 0.
+                        TemplateHole.VarFloatUnchecked (name, r), box r
+                    | Server.ValTy.Bool ->
+                        let r = Var.Create false
+                        TemplateHole.VarBool (name, r), box r
+                    | _ -> failwith "Invalid value type"
+                allVars.[name] <- r
+                Some h
+            )
+        Seq.append filledHoles extraHoles, Server.CompletedHoles.Client(allVars)

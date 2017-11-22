@@ -21,29 +21,17 @@
 namespace WebSharper.UI.Next.Templating
 
 open System
+open System.Collections.Generic
 open System.IO
 open System.Reflection
-open System.Collections.Generic
-open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Core.CompilerServices
+open Microsoft.FSharp.Quotations
 open ProviderImplementation
 open ProviderImplementation.ProvidedTypes
 
-//[<AutoOpen>]
-//module private Cache =
-//    type MemoryCache with 
-//        member x.AddOrGetExisting(key, value: Lazy<_>, ?expiration) = 
-//            let policy = CacheItemPolicy()
-//            policy.SlidingExpiration <- defaultArg expiration <| TimeSpan.FromHours 24.
-//            match x.AddOrGetExisting(key, value, policy) with
-//            | :? Lazy<ProvidedTypeDefinition> as item -> item.Value 
-//            | x -> 
-//                assert(x = null)
-//                value.Value
-
 [<AutoOpen>]
 module private Impl =
-    open AST
+    open WebSharper.UI.Next.Templating.AST
 
     module PT =
         type Ctx = ProvidedTypesContext
@@ -53,10 +41,15 @@ module private Impl =
     type Attr = WebSharper.UI.Next.Attr
     type View<'T> = WebSharper.UI.Next.View<'T>
     type IRef<'T> = WebSharper.UI.Next.IRef<'T>
+    type UINVar = WebSharper.UI.Next.Var
     type TemplateHole = WebSharper.UI.Next.TemplateHole
     type DomElement = WebSharper.JavaScript.Dom.Element
     type DomEvent = WebSharper.JavaScript.Dom.Event
     type CheckedInput<'T> = WebSharper.UI.Next.Client.CheckedInput<'T>
+    module RTC = Runtime.Client
+    module RTS = Runtime.Server
+    type TI = RTS.TemplateInstance
+    type State = ref<TI> * string * list<TemplateHole>
 
     type Ctx =
         {
@@ -72,83 +65,132 @@ module private Impl =
     module XmlDoc =
         let TemplateType n =
             "Builder for the template " + n + "; fill more holes or finish it with .Doc()"
-        let InternalType n =
-            "Intermediary types for the template " + n
+        module Type =
+            let Template n =
+                let n = match n with "" -> "" | n -> " " + n
+                "Builder for the template" + n + "; fill more holes or finish it with .Create()."
+            let Instance =
+                "An instance of the template; use .Doc to insert into the document."
+        module Member =
+            let Hole n =
+                "Fill the hole \"" + n + "\" of the template."
+            let Doc =
+                "Get the Doc to insert this template instance into the page."
+            let Var n =
+                "Get the reactive variable \"" + n + "\" for this template instance."
+            let Instance =
+                "Create an instance of this template."
 
-    let BuildMethod<'T> (holeName: HoleName) (resTy: Type)
-            (wrapArg: Expr<'T> -> Expr<TemplateHole>) line column (ctx: Ctx) =
+    let ReflectedDefinitionCtor =
+        typeof<ReflectedDefinitionAttribute>.GetConstructor([||])
+
+    let IsExprType =
+        let n = typeof<Expr>.FullName
+        fun (x: Type) -> x.FullName.StartsWith n
+
+    let BuildMethod' (holeName: HoleName) (argTy: Type) (resTy: Type)
+            line column (ctx: Ctx) (wrapArg: Expr<State> -> Expr -> Expr<TemplateHole>) =
         let m =
-            ProvidedMethod(holeName, [ProvidedParameter(holeName, typeof<'T>)], resTy, function
-                | [this; arg] -> <@@ box ((%wrapArg (Expr.Cast arg)) :: ((%%this : obj) :?> list<TemplateHole>)) @@>
+            let param = ProvidedParameter(holeName, argTy)
+            if IsExprType argTy then
+                param.AddCustomAttribute {
+                    new CustomAttributeData() with
+                        member __.Constructor = ReflectedDefinitionCtor
+                        member __.ConstructorArguments = [||] :> _
+                        member __.NamedArguments = [||] :> _
+                }
+            ProvidedMethod(holeName, [param], resTy, function
+                | [this; arg] ->
+                    let this = <@ (%%this : obj) :?> State @>
+                    <@@ let rTI, key, th = %this
+                        box (rTI, key, (%wrapArg this arg) :: th) @@>
                 | _ -> failwith "Incorrect invoke")
+                .WithXmlDoc(XmlDoc.Member.Hole holeName)
         match ctx.Path with
         | Some p -> m.AddDefinitionLocation(line, column, p)
         | None -> ()
         m
 
-    let BuildHoleMethods (holeName: HoleName) (holeDef: HoleDefinition) (resTy: Type) (ctx: Ctx)
-            : list<MemberInfo> =
-        let mk wrapArg = BuildMethod holeName resTy wrapArg holeDef.Line holeDef.Column ctx
+    let BuildMethod<'T> (holeName: HoleName) (resTy: Type)
+            line column (ctx: Ctx) (wrapArg: Expr<State> -> Expr<'T> -> Expr<TemplateHole>) =
+        let wrapArg a b = wrapArg a (Expr.Cast b)
+        BuildMethod' holeName typeof<'T> resTy line column ctx wrapArg
+
+    let BuildHoleMethods (holeName: HoleName) (holeDef: HoleDefinition) (resTy: Type) (instanceTy: Type) (ctx: Ctx) : list<MemberInfo> =
+        let mk wrapArg = BuildMethod holeName resTy holeDef.Line holeDef.Column ctx wrapArg
         let holeName' = holeName.ToLowerInvariant()
         let rec build : _ -> list<MemberInfo> = function
             | HoleKind.Attr ->
                 [
-                    mk <| fun (x: Expr<Attr>) ->
+                    mk <| fun _ (x: Expr<Attr>) ->
                         <@ TemplateHole.Attribute(holeName', %x) @>
-                    mk <| fun (x: Expr<seq<Attr>>) ->
+                    mk <| fun _ (x: Expr<seq<Attr>>) ->
                         <@ TemplateHole.Attribute(holeName', Attr.Concat %x) @>
                 ]
             | HoleKind.Doc ->
                 [
-                    mk <| fun (x: Expr<Doc>) ->
+                    mk <| fun _ (x: Expr<Doc>) ->
                         <@ TemplateHole.Elt(holeName', %x) @>
-                    mk <| fun (x: Expr<seq<Doc>>) ->
+                    mk <| fun _ (x: Expr<seq<Doc>>) ->
                         <@ TemplateHole.Elt(holeName', Doc.Concat %x) @>
-                    mk <| fun (x: Expr<string>) ->
+                    mk <| fun _ (x: Expr<string>) ->
                         <@ TemplateHole.Text(holeName', %x) @>
-                    mk <| fun (x: Expr<View<string>>) ->
+                    mk <| fun _ (x: Expr<View<string>>) ->
                         <@ TemplateHole.TextView(holeName', %x) @>
                 ]
             | HoleKind.ElemHandler ->
                 [
-                    mk <| fun (x: Expr<DomElement -> unit>) ->
+                    mk <| fun _ (x: Expr<DomElement -> unit>) ->
                         <@ TemplateHole.AfterRender(holeName', %x) @>
-                    mk <| fun (x: Expr<unit -> unit>) ->
-                        <@ TemplateHole.AfterRender(holeName', RuntimeClient.WrapAfterRender %x) @>
+                    mk <| fun _ (x: Expr<unit -> unit>) ->
+                        <@ TemplateHole.AfterRender(holeName', RTC.WrapAfterRender %x) @>
                 ]
             | HoleKind.Event ->
+                let exprTy t = typedefof<Expr<_>>.MakeGenericType [| t |]
+                let (^->) t u = typedefof<FSharpFunc<_, _>>.MakeGenericType [| t; u |]
+                let templateEventTy t = typedefof<RTS.TemplateEvent<_>>.MakeGenericType [| t |]
                 [
-                    mk <| fun (x: Expr<DomElement -> DomEvent -> unit>) ->
-                        <@ TemplateHole.Event(holeName', %x) @>
-                    mk <| fun (x: Expr<unit -> unit>) ->
-                        <@ TemplateHole.Event(holeName', RuntimeClient.WrapEvent %x) @>
+                    BuildMethod' holeName (exprTy (templateEventTy instanceTy ^-> typeof<unit>)) resTy holeDef.Line holeDef.Column ctx (fun e x ->
+                        <@  let rTI, key, _ = %e
+                            RTS.Handler.EventQ2(key, holeName', rTI, (%%x : _)) @>
+                    )
                 ]
             | HoleKind.Simple ->
                 [
-                    mk <| fun (x: Expr<string>) ->
+                    mk <| fun _ (x: Expr<string>) ->
                         <@ TemplateHole.Text(holeName', %x) @>
-                    mk <| fun (x: Expr<View<string>>) ->
+                    mk <| fun _ (x: Expr<View<string>>) ->
                         <@ TemplateHole.TextView(holeName', %x) @>
                 ]
             | HoleKind.Var (ValTy.Any | ValTy.String) ->
                 [
-                    mk <| fun (x: Expr<IRef<string>>) ->
+                    mk <| fun _ (x: Expr<IRef<string>>) ->
                         <@ TemplateHole.VarStr(holeName', %x) @>
+                    mk <| fun _ (x: Expr<string>) ->
+                        <@ TemplateHole.VarStr(holeName', UINVar.Create %x) @>
                 ]
             | HoleKind.Var ValTy.Number ->
                 [
-                    mk <| fun (x: Expr<IRef<int>>) ->
+                    mk <| fun _ (x: Expr<IRef<int>>) ->
                         <@ TemplateHole.VarIntUnchecked(holeName', %x) @>
-                    mk <| fun (x: Expr<IRef<CheckedInput<int>>>) ->
+                    mk <| fun _ (x: Expr<int>) ->
+                        <@ TemplateHole.VarIntUnchecked(holeName', UINVar.Create %x) @>
+                    mk <| fun _ (x: Expr<IRef<CheckedInput<int>>>) ->
                         <@ TemplateHole.VarInt(holeName', %x) @>
-                    mk <| fun (x: Expr<IRef<float>>) ->
+                    mk <| fun _ (x: Expr<CheckedInput<int>>) ->
+                        <@ TemplateHole.VarInt(holeName', UINVar.Create %x) @>
+                    mk <| fun _ (x: Expr<IRef<float>>) ->
                         <@ TemplateHole.VarFloatUnchecked(holeName', %x) @>
-                    mk <| fun (x: Expr<IRef<CheckedInput<float>>>) ->
+                    mk <| fun _ (x: Expr<float>) ->
+                        <@ TemplateHole.VarFloatUnchecked(holeName', UINVar.Create %x) @>
+                    mk <| fun _ (x: Expr<IRef<CheckedInput<float>>>) ->
                         <@ TemplateHole.VarFloat(holeName', %x) @>
+                    mk <| fun _ (x: Expr<CheckedInput<float>>) ->
+                        <@ TemplateHole.VarFloat(holeName', UINVar.Create %x) @>
                 ]
             | HoleKind.Var ValTy.Bool ->
                 [
-                    mk <| fun (x: Expr<IRef<bool>>) ->
+                    mk <| fun _ (x: Expr<IRef<bool>>) ->
                         <@ TemplateHole.VarBool(holeName', %x) @>
                 ]
             | HoleKind.Mapped (kind = k) -> build k
@@ -160,7 +202,7 @@ module private Impl =
         | None -> <@ None @>
         | Some x -> <@ Some (%%Expr.Value x : 'T) @>
 
-    let finalMethodBody (ctx: Ctx) (wrap: Expr<Doc> -> Expr) = fun (args: list<Expr>) ->
+    let InstanceBody (ctx: Ctx) = fun (args: list<Expr>) ->
         let name = ctx.Id |> Option.map (fun s -> s.ToLowerInvariant())
         let references =
             Expr.NewArray(typeof<string * option<string> * string>,
@@ -179,36 +221,87 @@ module private Impl =
                     ]
                 ]
             )
-        <@ Runtime.GetOrLoadTemplate(
-                %%Expr.Value ctx.FileId,
-                %OptionValue name,
-                %OptionValue ctx.Path,
-                %%Expr.Value ctx.Template.Src,
-                ((%%args.[0] : obj) :?> list<TemplateHole>),
-                %OptionValue ctx.InlineFileId,
-                %%Expr.Value ctx.ServerLoad,
-                %%references,
-                %%Expr.Value ctx.Template.IsElt
-            ) @>
-        |> wrap
+        let vars =
+            Expr.NewArray(typeof<string * RTS.ValTy>,
+                [
+                    for KeyValue(holeName, holeDef) in ctx.Template.Holes do
+                        let holeName' = holeName.ToLowerInvariant()
+                        match holeDef.Kind with
+                        | HoleKind.Var AST.ValTy.Any
+                        | HoleKind.Var AST.ValTy.String -> yield <@@ (holeName', RTS.ValTy.String) @@>
+                        | HoleKind.Var AST.ValTy.Number -> yield <@@ (holeName', RTS.ValTy.Number) @@>
+                        | HoleKind.Var AST.ValTy.Bool -> yield <@@ (holeName', RTS.ValTy.Bool) @@>
+                        | _ -> ()
+                ]
+            )
+        <@  let rTI, key, holes = ((%%args.[0] : obj) :?> State)
+            let holes, completed = RTS.Handler.CompleteHoles(key, holes, %%vars)
+            let doc =
+                RTS.Runtime.GetOrLoadTemplate(
+                    %%Expr.Value ctx.FileId,
+                    %OptionValue name,
+                    %OptionValue ctx.Path,
+                    %%Expr.Value ctx.Template.Src,
+                    holes,
+                    %OptionValue ctx.InlineFileId,
+                    %%Expr.Value ctx.ServerLoad,
+                    %%references,
+                    %%Expr.Value ctx.Template.IsElt
+                )
+            rTI := TI(completed, doc)
+            !rTI @>
+        :> Expr
             
-
-    let BuildFinalMethods (ctx: Ctx) : list<MemberInfo> =
-        [
-            yield ProvidedMethod("Doc", [], typeof<Doc>, finalMethodBody ctx (fun x -> x :> _)) :> _
+    let BuildInstanceType (ty: PT.Type) (ctx: Ctx) =
+        let res =
+            ProvidedTypeDefinition("Instance", Some typeof<TI>)
+                .WithXmlDoc(XmlDoc.Type.Instance)
+        ty.AddMember res
+        res.AddMembers [
+            yield ProvidedProperty("Doc", typeof<Doc>, fun x -> <@@ (%%x.[0] : TI).Doc @@>)
+                .WithXmlDoc(XmlDoc.Member.Doc)
+                :> MemberInfo
             if ctx.Template.IsElt then
-                yield ProvidedMethod("Elt", [], typeof<Elt>,
-                    finalMethodBody ctx <| fun e -> <@@ %e :?> Elt @@>) :> _
+                yield ProvidedProperty("Elt", typeof<Elt>, fun x -> <@@ (%%x.[0] : TI).Doc :?> Elt @@>)
+                    .WithXmlDoc(XmlDoc.Member.Doc)
+                    :> _
+            for KeyValue(holeName, def) in ctx.Template.Holes do
+                let holeName' = holeName.ToLowerInvariant()
+                match def.Kind with
+                | AST.HoleKind.Var AST.ValTy.Any | AST.HoleKind.Var AST.ValTy.String ->
+                    yield ProvidedProperty(holeName, typeof<IRef<string>>, fun x -> <@@ (%%x.[0] : TI).Hole holeName' @@>)
+                        .WithXmlDoc(XmlDoc.Member.Var holeName)
+                        :> _
+                | AST.HoleKind.Var AST.ValTy.Number ->
+                    yield ProvidedProperty(holeName, typeof<IRef<float>>, fun x -> <@@ (%%x.[0] : TI).Hole holeName' @@>)
+                        .WithXmlDoc(XmlDoc.Member.Var holeName)
+                        :> _
+                | AST.HoleKind.Var AST.ValTy.Bool ->
+                    yield ProvidedProperty(holeName, typeof<IRef<bool>>, fun x -> <@@ (%%x.[0] : TI).Hole holeName' @@>)
+                        .WithXmlDoc(XmlDoc.Member.Var holeName)
+                        :> _
+                | _ -> ()
         ]
+        res
 
     let BuildOneTemplate (ty: PT.Type) (ctx: Ctx) =
         ty.AddMembers [
+            let instanceTy = BuildInstanceType ty ctx
+            yield instanceTy :> MemberInfo
             for KeyValue (holeName, holeKind) in ctx.Template.Holes do
-                yield! BuildHoleMethods holeName holeKind ty ctx
-            yield! BuildFinalMethods ctx
+                yield! BuildHoleMethods holeName holeKind ty instanceTy ctx
+            yield ProvidedMethod("Create", [], instanceTy, InstanceBody ctx)
+                .WithXmlDoc(XmlDoc.Member.Instance) :> _
+            yield ProvidedMethod("Doc", [], typeof<Doc>, fun args ->
+                <@@ (%%InstanceBody ctx args : TI).Doc @@>)
+                .WithXmlDoc(XmlDoc.Member.Instance) :> _
+            if ctx.Template.IsElt then
+                yield ProvidedMethod("Elt", [], typeof<Elt>, fun args ->
+                    <@@ (%%InstanceBody ctx args : TI).Doc :?> Elt @@>)
+                    .WithXmlDoc(XmlDoc.Member.Doc) :> _
             let ctor =
                 ProvidedConstructor([], fun _ ->
-                    <@@ box ([] : list<TemplateHole>) @@>)
+                    <@@ box (ref Unchecked.defaultof<TI>, Guid.NewGuid().ToString(), ([] : list<TemplateHole>) : State) @@>)
             match ctx.Path with
             | Some path -> ctor.AddDefinitionLocation(ctx.Template.Line, ctx.Template.Column, path)
             | None -> ()
@@ -232,17 +325,15 @@ module private Impl =
             }
             match tn.NameAsOption with
             | None ->
-                BuildOneTemplate containerTy ctx
+                BuildOneTemplate (containerTy.WithXmlDoc(XmlDoc.Type.Template "")) ctx
             | Some n ->
                 let ty =
                     ProvidedTypeDefinition(n, None)
-                        .WithXmlDoc(XmlDoc.TemplateType n)
+                        .WithXmlDoc(XmlDoc.Type.Template n)
+                        .AddTo(containerTy)
                 BuildOneTemplate ty ctx
-                containerTy.AddMember ty
 
-    let BuildTP (parsed: Parsing.ParseItem[])
-            (containerTy: PT.Type)
-            (clientLoad: ClientLoad) (serverLoad: ServerLoad) =
+    let BuildTP (parsed: Parsing.ParseItem[]) (containerTy: PT.Type) (clientLoad: ClientLoad) (serverLoad: ServerLoad) =
         let allTemplates =
             Map [for p in parsed -> p.Id, Map [for KeyValue(tid, t) in p.Templates -> tid.IdAsOption, t]]
         let inlineFileId =
@@ -375,5 +466,5 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
         | Some f -> Assembly.LoadFrom f
         | None -> null
 
-[<TypeProviderAssembly>]
+[<assembly:TypeProviderAssembly>]
 do ()

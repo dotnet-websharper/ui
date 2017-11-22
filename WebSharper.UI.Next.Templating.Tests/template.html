@@ -4,7 +4,7 @@
         <span ws-attr="KeyAttr" class="class1">(${Key}) </span>
         <span style="font-style: ${FontStyle}; font-weight: ${FontWeight}">${Name}</span>:
         <input ws-var="Description" />
-        <button ws-onclick="Remove">Remove</button>
+        <button ws-onclick="Remove" ws-attr="RemoveAttr">Remove</button>
         <span ws-replace="Title"></span>
         <span ws-hole="Hole"></span>
     </li>
@@ -12,6 +12,7 @@
 <p ws-children-template="Replace2"><b>hello</b><b> ${Replace2}!</b><b ws-hole="LeaveEmpty"> THIS SHOULD NOT APPEAR</b></p>
 <ws-ListItem Key="LIKey" FontStyle="LIFontStyle" Name="LIName">
     <KeyAttr style="color: blue" class="class2 ${Class3}" ws-attr="LIExtraAttr" />
+    <RemoveAttr disabled />
     <FontWeight>bold</FontWeight>
     <Title><ws-Replace2 Replace2></ws-Replace2></Title>
     <Hole><ws-L3 MIAttr>Ok</ws-L3></Hole>
