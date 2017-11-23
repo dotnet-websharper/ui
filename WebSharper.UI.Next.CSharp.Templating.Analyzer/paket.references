@@ -1,0 +1,4 @@
+Microsoft.CodeAnalysis.CSharp
+
+group fsharp3
+    FSharp.Core

@@ -24,4 +24,14 @@
   <PropertyGroup>
     <AdditionalFileItemNames>$(AdditionalFileItemNames);Content</AdditionalFileItemNames>
   </PropertyGroup>
+  <PropertyGroup>
+    <WebSharperUINextCSharpTaskAssembly Condition=" '$(WebSharperUINextCSharpTaskAssembly)' == '' ">$(MSBuildThisFileDirectory)/../tools/WebSharper.UI.Next.CSharp.Templating.Build.dll</WebSharperUINextCSharpTaskAssembly>
+  </PropertyGroup>
+  <UsingTask AssemblyFile="$(WebSharperUINextCSharpTaskAssembly)" TaskName="WebSharper.UI.Next.CSharp.Templating.Build.WebSharperUINextCSharpGeneratorTask" />
+  <Target Condition=" $(MSBuildProjectExtension)' == '.csproj' " Name="WebSharperUINextCSharpTemplating" BeforeTargets="CoreCompile">
+    <WebSharperUINextCSharpGeneratorTask
+      AssemblyName="$(AssemblyName)"
+      Content="@(Content)"
+    />
+  </Target>
 </Project>

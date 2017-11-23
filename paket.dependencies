@@ -5,6 +5,7 @@ source https://api.nuget.org/v3/index.json
 source https://nuget.intellifactory.com/nuget username: "%IF_USER%" password: "%IF_PASS%"
 
 framework: net40, net45
+strategy: min
 
 nuget WebSharper ~> 4.0.0 alpha
 nuget WebSharper.CSharp ~> 4.0.0 alpha

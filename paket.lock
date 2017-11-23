@@ -1,3 +1,4 @@
+STRATEGY: MIN
 RESTRICTION: || (== net40) (== net45)
 NUGET
   remote: https://api.nuget.org/v3/index.json
@@ -9,23 +10,17 @@ NUGET
       System.Reflection.Metadata (>= 1.0.21)
     Microsoft.CodeAnalysis.CSharp (1.0)
       Microsoft.CodeAnalysis.Common (1.0)
-    Microsoft.NETCore.Platforms (2.0.1) - restriction: || (&& (== net40) (>= monotouch)) (&& (== net40) (>= net45)) (&& (== net40) (>= net451)) (&& (== net40) (>= net46)) (&& (== net40) (>= net461)) (&& (== net40) (>= netcoreapp2.0)) (&& (== net40) (>= netstandard1.0)) (&& (== net40) (>= netstandard1.1)) (&& (== net40) (>= netstandard1.2)) (&& (== net40) (>= netstandard1.3)) (&& (== net40) (>= netstandard1.4)) (&& (== net40) (>= netstandard1.5)) (&& (== net40) (>= netstandard1.6)) (&& (== net40) (>= netstandard2.0)) (&& (== net40) (>= uap10.0)) (&& (== net40) (>= wpa81)) (&& (== net40) (>= xamarinios)) (&& (== net40) (>= xamarinmac)) (&& (== net40) (>= xamarintvos)) (&& (== net40) (>= xamarinwatchos)) (== net45)
-    NETStandard.Library (2.0.1) - restriction: || (&& (== net40) (>= netstandard1.0)) (&& (== net40) (>= netstandard1.1)) (== net45)
-      Microsoft.NETCore.Platforms (>= 1.1)
-      System.Runtime.InteropServices.RuntimeInformation (>= 4.3) - restriction: || (&& (== net40) (>= net45)) (&& (== net40) (>= net451)) (&& (== net40) (>= net46)) (&& (== net40) (>= netstandard1.1)) (&& (== net40) (>= netstandard1.2)) (&& (== net40) (>= netstandard1.3)) (&& (== net40) (>= netstandard1.4)) (&& (== net40) (>= netstandard1.5)) (&& (== net40) (>= netstandard1.6)) (&& (== net40) (>= portable-net45+win8+wpa81)) (&& (== net40) (>= portable-net451+win81+wpa81)) (&& (== net40) (>= uap10.0)) (&& (== net40) (>= wpa81)) (== net45)
-    System.Collections.Immutable (1.4)
-      NETStandard.Library (>= 1.6.1) - restriction: || (&& (== net40) (>= netstandard1.0)) (== net45)
-    System.Reflection.Metadata (1.5)
-      NETStandard.Library (>= 1.6.1) - restriction: || (&& (== net40) (>= netstandard1.1)) (== net45)
-      System.Collections.Immutable (>= 1.4) - restriction: || (&& (== net40) (>= monoandroid)) (&& (== net40) (>= monotouch)) (&& (== net40) (>= netstandard1.1)) (&& (== net40) (>= netstandard2.0)) (&& (== net40) (>= portable-net45+win8)) (&& (== net40) (>= portable-net45+win8+wpa81)) (&& (== net40) (>= xamarinios)) (&& (== net40) (>= xamarinmac)) (&& (== net40) (>= xamarintvos)) (&& (== net40) (>= xamarinwatchos)) (== net45)
-    System.Runtime.InteropServices.RuntimeInformation (4.3) - restriction: || (&& (== net40) (>= net45)) (&& (== net40) (>= net451)) (&& (== net40) (>= net46)) (&& (== net40) (>= netstandard1.0) (>= portable-net45+win8+wpa81)) (&& (== net40) (>= netstandard1.0) (>= portable-net451+win81+wpa81)) (&& (== net40) (>= netstandard1.1)) (&& (== net40) (>= netstandard1.2)) (&& (== net40) (>= netstandard1.3)) (&& (== net40) (>= netstandard1.4)) (&& (== net40) (>= netstandard1.5)) (&& (== net40) (>= netstandard1.6)) (&& (== net40) (>= uap10.0)) (&& (== net40) (>= wpa81)) (== net45)
-    WebSharper (4.0.195.127)
-    WebSharper.CSharp (4.0.195.127)
-      WebSharper (4.0.195.127)
-    WebSharper.FSharp (4.0.195.127)
-      WebSharper (4.0.195.127)
-    WebSharper.Testing (4.0.195.127)
-      WebSharper (4.0.195.127)
+    System.Collections.Immutable (1.1.36)
+    System.Reflection.Metadata (1.0.21)
+      System.Collections.Immutable (>= 1.1.36)
+  remote: https://nuget.intellifactory.com/nuget
+    WebSharper (4.0.196.145)
+    WebSharper.CSharp (4.0.196.145)
+      WebSharper (4.0.196.145)
+    WebSharper.FSharp (4.0.196.145)
+      WebSharper (4.0.196.145)
+    WebSharper.Testing (4.0.196.145)
+      WebSharper (4.0.196.145)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
     src/ProvidedTypes.fs (b03aeb9b87c24559b99da3b3afdfcfdae0cc3ce0)

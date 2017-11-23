@@ -27,11 +27,6 @@
     <Content Include="template.html" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WebSharper.UI.Next.CSharp.Templating\WebSharper.UI.Next.CSharp.Templating.fsproj">
-      <Name>WebSharper.UI.Next.CSharp.Templating</Name>
-      <Project>{b84d3163-0e80-488e-b47c-d0750859c024}</Project>
-      <Private>True</Private>
-    </ProjectReference>
     <ProjectReference Include="..\WebSharper.UI.Next.Templating.Common\WebSharper.UI.Next.Templating.Common.fsproj">
       <Name>WebSharper.UI.Next.Templating.Common</Name>
       <Project>{ae103526-34b2-4556-914c-3e45bb1cfb17}</Project>
