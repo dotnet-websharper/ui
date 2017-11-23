@@ -6,7 +6,6 @@ let targets =
     GetSemVerOf "WebSharper"
     |> ComputeVersion
     |> WSTargets.Default
-    |> fun x -> { x with BuildAction = BuildAction.Projects !!"*/*.fsproj" }
     |> MakeTargets
 
 Target "Build" DoNothing
