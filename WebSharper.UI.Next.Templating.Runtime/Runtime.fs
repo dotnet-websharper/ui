@@ -91,12 +91,12 @@ type Runtime private () =
                 isElt: bool
             ) : Doc =
         let getOrLoadSrc src =
-            loaded.GetOrAdd(baseName, fun _ -> Parsing.ParseSource baseName src)
+            loaded.GetOrAdd(baseName, fun _ -> let t, _, _ = Parsing.ParseSource baseName src in t)
         let getOrLoadPath fullPath =
-            loaded.GetOrAdd(baseName, fun _ -> Parsing.ParseSource baseName (File.ReadAllText fullPath))
+            loaded.GetOrAdd(baseName, fun _ -> let t, _, _ = Parsing.ParseSource baseName (File.ReadAllText fullPath) in t)
         let reload fullPath =
             let src = File.ReadAllText fullPath
-            let parsed = Parsing.ParseSource baseName src
+            let parsed, _, _ = Parsing.ParseSource baseName src
             loaded.AddOrUpdate(baseName, parsed, fun _ _ -> parsed)
 
         let rec writeWrappedTemplate templateName (template: Template) ctx =
@@ -202,7 +202,8 @@ type Runtime private () =
                         getOrLoadSrc src
                     | Some path, ServerLoad.PerRequest ->
                         let fullPath = Path.Combine(ctx.RootFolder, path)
-                        Parsing.ParseSource baseName (File.ReadAllText fullPath)
+                        let t, _, _ = Parsing.ParseSource baseName (File.ReadAllText fullPath)
+                        t
                     | Some path, ServerLoad.WhenChanged ->
                         let fullPath = Path.Combine(ctx.RootFolder, path)
                         let watcher = watchers.GetOrAdd(baseName, fun _ ->

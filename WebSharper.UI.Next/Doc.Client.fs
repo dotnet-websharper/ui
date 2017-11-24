@@ -415,7 +415,15 @@ module Docs =
         n.Value <- t
         n.Dirty <- true
 
-    let LoadedTemplates = Dictionary<string, Dom.Element>()
+    let LoadedTemplates = Dictionary<string, Dictionary<string, Dom.Element>>()
+    let LoadedTemplateFile name =
+        match LoadedTemplates.TryGetValue name with
+        | true, d -> d
+        | false, _ ->
+            let d = Dictionary()
+            LoadedTemplates.[name] <- d
+            d
+    let mutable LocalTemplatesLoaded = false
 
     let TextHoleRE = """\${([^}]+)}"""
 
@@ -563,6 +571,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
 
     [<JavaScript>]
     static member Run parent (doc: Doc') =
+        Doc'.LoadLocalTemplates()
         let d = doc.DocNode
         Docs.LinkElement parent d
         let st = Docs.CreateRunState parent d
@@ -981,17 +990,18 @@ type private Doc' [<JavaScript>] (docNode, updates) =
 
         and convertInstantiation (el: Dom.Element) =
             let name = el.NodeName.[3..].ToLower()
-            let name =
+            let baseName, name =
                 match name.IndexOf('.') with
-                | -1 -> baseName + "/" + name
-                | _ -> name.Replace(".", "/")
-            if not (Docs.LoadedTemplates.ContainsKey name) then
+                | -1 -> baseName, name
+                | n -> name.[..n-1], name.[n+1..]
+            if not (Docs.LoadedTemplates.ContainsKey baseName) then
                 Console.Warn("Instantiating non-loaded template", name)
             else
-                let t = Docs.LoadedTemplates.[name]
-//            match Docs.LoadedTemplates.TryGetValue name with
-//            | false, _ -> Console.Warn("Instantiating non-loaded template", name)
-//            | true, (t: Dom.Element) ->
+            let d = Docs.LoadedTemplates.[baseName]
+            if not (d.ContainsKey name) then
+                Console.Warn("Instantiating non-loaded template", name)
+            else
+                let t = d.[name]
                 let instance = t.CloneNode(true) :?> Dom.Element
                 let usedHoles = HashSet()
                 let mappings = Dictionary()
@@ -1057,12 +1067,13 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 convert p next
 
         let fakeroot = Doc'.FakeRoot els
-        Docs.LoadedTemplates.[Doc'.ComposeName baseName name] <- fakeroot
+        let name = (defaultArg name "").ToLower()
+        Docs.LoadedTemplateFile(baseName).[name] <- fakeroot
         if els.Length > 0 then convert fakeroot els.[0]
 
     [<JavaScript>]
     static member PrepareTemplate (baseName: string) (name: option<string>) (els: unit -> Node[]) =
-        if not (Docs.LoadedTemplates.ContainsKey(Doc'.ComposeName baseName name)) then
+        if not (Docs.LoadedTemplateFile(baseName).ContainsKey(defaultArg name "")) then
             let els = els()
             for el in els do
                 match el.ParentNode :?> Element with
@@ -1071,7 +1082,17 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             Doc'.PrepareTemplateStrict baseName name els
 
     [<JavaScript>]
+    static member LoadLocalTemplates() =
+        if not Docs.LocalTemplatesLoaded then
+            Docs.LocalTemplatesLoaded <- true
+            Doc'.LoadLocalTemplates ""
+
+    [<JavaScript>]
     static member LoadLocalTemplates baseName =
+        let existingLocalTpl = Docs.LoadedTemplateFile("")
+        if existingLocalTpl.Count > 0 then
+            Docs.LoadedTemplates.[baseName] <- existingLocalTpl
+        else
         let rec run () =
             match JS.Document.QuerySelector "[ws-template]" with
             | null ->
@@ -1087,16 +1108,17 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 Doc'.PrepareSingleTemplate baseName (Some name) n
                 run ()
         run ()
+        Docs.LoadedTemplates.[""] <- Docs.LoadedTemplateFile(baseName)
 
     [<JavaScript>]
     static member NamedTemplate (baseName: string) (name: option<string>) (fillWith: seq<TemplateHole>) =
-        let name = Doc'.ComposeName baseName name
-        match Docs.LoadedTemplates.TryGetValue name with
+        match Docs.LoadedTemplateFile(baseName).TryGetValue(defaultArg name "") with
         | true, t -> Doc'.ChildrenTemplate (t.CloneNode(true) :?> Dom.Element) fillWith
         | false, _ -> Console.Warn("Local template doesn't exist", name); Doc'.Empty'
 
     [<JavaScript>]
     static member GetOrLoadTemplate (baseName: string) (name: option<string>) (els: unit -> Node[]) (fillWith: seq<TemplateHole>) =
+        Doc'.LoadLocalTemplates()
         Doc'.PrepareTemplate baseName name els
         Doc'.NamedTemplate baseName name fillWith
 

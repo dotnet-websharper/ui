@@ -218,7 +218,7 @@ module private Impl =
     let BuildOneFile (item: Parsing.ParseItem)
             (allTemplates: Map<string, Map<option<string>, Template>>)
             (containerTy: PT.Type)
-            (inlineFileId: option<string>) (serverLoad: ServerLoad) =
+            (inlineFileId: option<string>) =
         let baseId =
             match item.Id with
             | "" -> "t" + string (Guid.NewGuid().ToString("N"))
@@ -227,7 +227,7 @@ module private Impl =
             let ctx = {
                 Template = t
                 FileId = baseId; Id = tn.IdAsOption; Path = item.Path
-                InlineFileId = inlineFileId; ServerLoad = serverLoad
+                InlineFileId = inlineFileId; ServerLoad = item.ServerLoad
                 AllTemplates = allTemplates
             }
             match tn.NameAsOption with
@@ -240,18 +240,16 @@ module private Impl =
                 BuildOneTemplate ty ctx
                 containerTy.AddMember ty
 
-    let BuildTP (parsed: Parsing.ParseItem[])
-            (containerTy: PT.Type)
-            (clientLoad: ClientLoad) (serverLoad: ServerLoad) =
+    let BuildTP (parsed: Parsing.ParseItem[]) (containerTy: PT.Type) =
         let allTemplates =
             Map [for p in parsed -> p.Id, Map [for KeyValue(tid, t) in p.Templates -> tid.IdAsOption, t]]
-        let inlineFileId =
-            match clientLoad with
+        let inlineFileId (item: Parsing.ParseItem) =
+            match item.ClientLoad with
             | ClientLoad.FromDocument -> Some parsed.[0].Id
             | _ -> None
         match parsed with
         | [| item |] ->
-            BuildOneFile item allTemplates containerTy inlineFileId serverLoad
+            BuildOneFile item allTemplates containerTy (inlineFileId item)
         | items ->
             items |> Array.iter (fun item ->
                 let containerTy =
@@ -260,7 +258,7 @@ module private Impl =
                     | Some name ->
                         ProvidedTypeDefinition(name, None)
                             .AddTo(containerTy)
-                BuildOneFile item allTemplates containerTy inlineFileId serverLoad
+                BuildOneFile item allTemplates containerTy (inlineFileId item)
             )
 
 type FileWatcher (invalidate: unit -> unit, disposing: IEvent<EventHandler, EventArgs>, cfg: TypeProviderConfig) =
@@ -341,7 +339,7 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
                         pathOrHtml, clientLoad, serverLoad, legacyMode
                     | a -> failwithf "Unexpected parameter values: %A" a
                 let ty = //lazy (
-                    let parsed = Parsing.Parse pathOrHtml cfg.ResolutionFolder
+                    let parsed = Parsing.Parse pathOrHtml cfg.ResolutionFolder serverLoad clientLoad
                     setupWatcher parsed.ParseKind
                     let ty =
                         ProvidedTypeDefinition(thisAssembly, rootNamespace, typename, None)
@@ -350,11 +348,11 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
                     | LegacyMode.Both ->
                         try OldProvider.RunOldProvider true pathOrHtml cfg ty
                         with _ -> ()
-                        BuildTP parsed.Items ty clientLoad serverLoad
+                        BuildTP parsed.Items ty
                     | LegacyMode.Old ->
                         OldProvider.RunOldProvider false pathOrHtml cfg ty
                     | _ ->
-                        BuildTP parsed.Items ty clientLoad serverLoad
+                        BuildTP parsed.Items ty
                     ty
                 //)
                 //cache.AddOrGetExisting(typename, ty)
