@@ -16,6 +16,7 @@
     <WarningLevel>3</WarningLevel>
     <WebSharperProject>Bundle</WebSharperProject>
     <WebSharperBundleOutputDir>Content</WebSharperBundleOutputDir>
+    <WebSharperUINextCSharpTaskAssembly>..\build\net45\WebSharper.UI.Next.CSharp.Templating.Build.dll</WebSharperUINextCSharpTaskAssembly>
     <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
@@ -67,16 +68,11 @@
     <None Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
-    <Content Include="WebSharper.UI.Next.CSharp.Tests.ruleset" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WebSharper.UI.Next.CSharp.Templating\WebSharper.UI.Next.CSharp.Templating.fsproj">
-      <Project>{b84d3163-0e80-488e-b47c-d0750859c024}</Project>
-      <Name>WebSharper.UI.Next.CSharp.Templating</Name>
-    </ProjectReference>
     <ProjectReference Include="..\WebSharper.UI.Next.CSharp\WebSharper.UI.Next.CSharp.fsproj">
       <Project>{13fba482-7285-4c83-a201-2d60ff89e586}</Project>
       <Name>WebSharper.UI.Next.CSharp</Name>
@@ -84,6 +80,10 @@
     <ProjectReference Include="..\WebSharper.UI.Next.Templating.Common\WebSharper.UI.Next.Templating.Common.fsproj">
       <Project>{ae103526-34b2-4556-914c-3e45bb1cfb17}</Project>
       <Name>WebSharper.UI.Next.Templating.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WebSharper.UI.Next.Templating.Runtime\WebSharper.UI.Next.Templating.Runtime.fsproj">
+      <Project>{31738154-5576-4e56-bb71-86bd5e63fcaf}</Project>
+      <Name>WebSharper.UI.Next.Templating.Runtime</Name>
     </ProjectReference>
     <ProjectReference Include="..\WebSharper.UI.Next\WebSharper.UI.Next.fsproj">
       <Project>{085a6f78-50a7-46cf-b040-9853ec580be5}</Project>
@@ -93,7 +93,7 @@
   <ItemGroup>
     <Analyzer Include="..\build\net40\HtmlAgilityPack.dll" />
     <Analyzer Include="..\build\net40\WebSharper.UI.Next.Templating.Common.dll" />
-    <Analyzer Include="..\build\net45\WebSharper.UI.Next.CSharp.Templating.dll" />
+    <Analyzer Include="..\build\net45\WebSharper.UI.Next.CSharp.Templating.Analyzer.dll" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
@@ -118,15 +118,14 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <Prefer32Bit>false</Prefer32Bit>
-    <CodeAnalysisRuleSet>WebSharper.UI.Next.CSharp.Tests.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <Prefer32Bit>false</Prefer32Bit>
-    <CodeAnalysisRuleSet>WebSharper.UI.Next.CSharp.Tests.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\msbuild\WebSharper.UI.Next.targets" />
   <ProjectExtensions>
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">

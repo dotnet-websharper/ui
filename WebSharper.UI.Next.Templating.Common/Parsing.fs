@@ -95,7 +95,8 @@ type ParseItem =
     {
         Templates : Map<WrappedTemplateName, Template>
         Path : option<string>
-        References : IDictionary<WrappedTemplateName, Set<string * WrappedTemplateName>>
+        ClientLoad : ClientLoad
+        ServerLoad : ServerLoad
     }
 
     static member GetNameFromPath(p: string) =
@@ -440,9 +441,44 @@ module Impl =
                 Column = n.LinePosition
             }
 
+let ParseOptions (html: HtmlDocument) =
+    let rec getFirstCommentNode (n: HtmlNode) =
+        match n with
+        | null -> None
+        | :? HtmlCommentNode as n -> Some n
+        | :? HtmlTextNode -> getFirstCommentNode n.NextSibling
+        | _ -> None
+    match getFirstCommentNode html.DocumentNode.FirstChild with
+    | None -> None, None
+    | Some c ->
+        let s = c.Comment
+        let s = s.["<!--".Length .. s.Length - "-->".Length - 1]
+        let error() = failwith "Invalid options syntax"
+        let clientLoad = ref None
+        let serverLoad = ref None
+        s.Split('\n')
+        |> Array.choose (fun s -> if String.IsNullOrWhiteSpace s then None else Some (s.Trim()))
+        |> Array.iter (fun s ->
+            match s.Split('=') with
+            | [| k; v |] ->
+                match k.Trim().ToLowerInvariant() with
+                | "clientload" ->
+                    match Enum.TryParse<ClientLoad>(v.Trim(), true) with
+                    | true, v -> clientLoad := Some v
+                    | _ -> error()
+                | "serverload" ->
+                    match Enum.TryParse<ServerLoad>(v.Trim(), true) with
+                    | true, v -> serverLoad := Some v
+                    | _ -> error()
+                | _ -> ()
+            | _ -> ()
+        )
+        !clientLoad, !serverLoad
+
 let ParseSource fileId (src: string) =
     let html = HtmlDocument()
     html.LoadHtml(src)
+    let clientLoad, serverLoad = ParseOptions html
     let templates = Dictionary()
     match html.DocumentNode.SelectNodes("//*[@"+TemplateAttr+"]") with
     | null -> ()
@@ -464,7 +500,7 @@ let ParseSource fileId (src: string) =
             templates.Add(w, parseNodeAndSiblingsAsTemplate fileId n.FirstChild)
     let rootTemplate = parseNodeAndSiblingsAsTemplate fileId html.DocumentNode.FirstChild
     templates.Add(WrappedTemplateName null, rootTemplate)
-    Map [ for KeyValue(k, v) in templates -> k, v ]
+    Map [ for KeyValue(k, v) in templates -> k, v ], clientLoad, serverLoad
 
 let transitiveClosure err (direct: Map<'A, Set<'A>>) : Map<'A, Set<'A>> =
     let rec closureOf (pathToHere: list<'A>) (k: 'A) (directs: Set<'A>) (knownClosures: Map<'A, Set<'A>>) =
@@ -600,16 +636,19 @@ let private checkMappedHoles (items: ParseItem[]) =
          }
     )
 
-let Parse (pathOrXml: string) (rootFolder: string) =
+let Parse (pathOrXml: string) (rootFolder: string)
+        (defaultServerLoad: ServerLoad) (defaultClientLoad: ClientLoad) =
     if pathOrXml.Contains("<") then
+        let tpl, clientLoad, serverLoad = ParseSource "" pathOrXml
         {
             ParseKind = ParseKind.Inline
             Items =
                 [|
                     {
-                        Templates = ParseSource "" pathOrXml
+                        Templates = tpl
                         Path = None
-                        References = Map.empty
+                        ClientLoad = defaultArg clientLoad defaultClientLoad
+                        ServerLoad = defaultArg serverLoad defaultServerLoad
                     }
                 |]
                 |> checkMappedHoles
@@ -622,14 +661,16 @@ let Parse (pathOrXml: string) (rootFolder: string) =
             ParseKind = ParseKind.Files paths
             Items =
                 paths
-                |> Array.map (fun path ->
+                |> Array.mapi (fun i path ->
                     let path = path.Trim()
                     let rootedPath = Path.Combine(rootFolder, path)
-                    let templates = ParseSource (ParseItem.GetIdFromPath path) (File.ReadAllText rootedPath)
+                    let defaultClientLoad = if i = 0 then defaultClientLoad else ClientLoad.Inline
+                    let templates, clientLoad, serverLoad = ParseSource (ParseItem.GetIdFromPath path) (File.ReadAllText rootedPath)
                     {
                         Templates = templates
                         Path = Some path
-                        References = Map.empty
+                        ClientLoad = defaultArg clientLoad defaultClientLoad
+                        ServerLoad = defaultArg serverLoad defaultServerLoad
                     }
                 )
                 |> checkMappedHoles

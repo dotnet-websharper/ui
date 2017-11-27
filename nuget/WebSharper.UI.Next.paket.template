@@ -11,12 +11,7 @@ description
 tags
     Web JavaScript F# C#
 files
-    ../WebSharper.UI.Next.CSharp.Templating/uninstall.ps1 ==> tools
-    ../WebSharper.UI.Next.CSharp.Templating/install.ps1 ==> tools
-    ../build/net45/WebSharper.UI.Next.CSharp.Templating.dll ==> tools
-    ../build/net40/WebSharper.UI.Next.Templating.Common.dll ==> tools
-    ../build/net40/HtmlAgilityPack.dll ==> tools
-    ../msbuild/WebSharper.UI.Next.targets ==> build/WebSharper.UI.Next.targets
+    ../msbuild/WebSharper.UI.Next.targets ==> build
     ../build/net40/HtmlAgilityPack.dll ==> lib/net40
     ../build/net40/WebSharper.UI.Next.dll ==> lib/net40
     ../build/net40/WebSharper.UI.Next.xml ==> lib/net40
@@ -28,6 +23,16 @@ files
     ../build/net40/WebSharper.UI.Next.Templating.xml ==> lib/net40
     ../build/net40/WebSharper.UI.Next.CSharp.dll ==> lib/net40
     ../build/net40/WebSharper.UI.Next.CSharp.xml ==> lib/net40
+    ../build/net40/HtmlAgilityPack.dll ==> tools
+    ../build/net40/WebSharper.UI.Next.Templating.Common.dll ==> tools
+    ../build/net45/WebSharper.UI.Next.CSharp.Templating.dll ==> tools
+    ../build/net45/WebSharper.UI.Next.CSharp.Templating.Build.dll ==> tools
+    ../WebSharper.UI.Next.CSharp.Templating.Analyzer/uninstall.ps1 ==> tools
+    ../WebSharper.UI.Next.CSharp.Templating.Analyzer/install.ps1 ==> tools
+    ../build/net40/HtmlAgilityPack.dll ==> analyzers/dotnet/cs
+    ../build/net40/WebSharper.UI.Next.Templating.Common.dll ==> analyzers/dotnet/cs
+    ../build/net45/WebSharper.UI.Next.CSharp.Templating.dll ==> analyzers/dotnet/cs
+    ../build/net45/WebSharper.UI.Next.CSharp.Templating.Analyzer.dll ==> analyzers/dotnet/cs
 dependencies
         WebSharper LOCKEDVERSION
 frameworkAssemblies
