@@ -13,8 +13,8 @@ nuget WebSharper.FSharp ~> 4.0.0 alpha
 nuget WebSharper.Testing ~> 4.0.0 alpha
 nuget HtmlAgilityPack 1.5.2-beta5
 nuget Microsoft.CodeAnalysis.CSharp 1.0.0
-github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fsi
-github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fs
+github Jand42/FSharp.TypeProviders.SDK src/ProvidedTypes.fsi
+github Jand42/FSharp.TypeProviders.SDK src/ProvidedTypes.fs
 
 group build
     framework: net45

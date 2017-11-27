@@ -14,17 +14,17 @@ NUGET
     System.Reflection.Metadata (1.0.21)
       System.Collections.Immutable (>= 1.1.36)
   remote: https://nuget.intellifactory.com/nuget
-    WebSharper (4.0.196.145)
-    WebSharper.CSharp (4.0.196.145)
-      WebSharper (4.0.196.145)
-    WebSharper.FSharp (4.0.196.145)
-      WebSharper (4.0.196.145)
-    WebSharper.Testing (4.0.196.145)
-      WebSharper (4.0.196.145)
+    WebSharper (4.0.196.147)
+    WebSharper.CSharp (4.0.196.147)
+      WebSharper (4.0.196.147)
+    WebSharper.FSharp (4.0.196.147)
+      WebSharper (4.0.196.147)
+    WebSharper.Testing (4.0.196.147)
+      WebSharper (4.0.196.147)
 GITHUB
-  remote: fsprojects/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (b03aeb9b87c24559b99da3b3afdfcfdae0cc3ce0)
-    src/ProvidedTypes.fsi (b03aeb9b87c24559b99da3b3afdfcfdae0cc3ce0)
+  remote: Jand42/FSharp.TypeProviders.SDK
+    src/ProvidedTypes.fs (a236d87fe64a4f42be3b1325e9f33012ff81e747)
+    src/ProvidedTypes.fsi (a236d87fe64a4f42be3b1325e9f33012ff81e747)
 GROUP build
 RESTRICTION: == net45
 NUGET
@@ -44,9 +44,9 @@ NUGET
       Newtonsoft.Json
 GITHUB
   remote: intellifactory/websharper
-    tools/WebSharper.Fake.cmd (ea0c0261710eb0c8b70138240ca60d014060ffcc)
-    tools/WebSharper.Fake.fsx (ea0c0261710eb0c8b70138240ca60d014060ffcc)
-    tools/WebSharper.Fake.sh (ea0c0261710eb0c8b70138240ca60d014060ffcc)
+    tools/WebSharper.Fake.cmd (297e4a7802729887f056024a3de4a0b73ba8a2c0)
+    tools/WebSharper.Fake.fsx (297e4a7802729887f056024a3de4a0b73ba8a2c0)
+    tools/WebSharper.Fake.sh (297e4a7802729887f056024a3de4a0b73ba8a2c0)
 GROUP fsharp3
 RESTRICTION: || (== net40) (== net45) (== net46)
 NUGET
