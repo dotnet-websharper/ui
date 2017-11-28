@@ -51,8 +51,10 @@
     <Compile Include="Notation.fsi" />
     <Compile Include="Notation.fs" />
     <Compile Include="TypeProviderHelpers.fs" />
-    <Compile Include="Routing.fsi" />
     <Compile Include="Routing.fs" />
+    <Compile Include="RouterInfer.fs" />
+    <Compile Include="RouterInfer.Server.fs" />
+    <Compile Include="RouterInfer.Client.fs" />
     <Content Include="SVG.fs" />
     <Compile Include="Input.fsi" />
     <Compile Include="Input.fs" />

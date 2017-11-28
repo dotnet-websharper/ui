@@ -232,4 +232,39 @@
     </When>
   </Choose>
   <Import Project="..\packages\WebSharper.CSharp\build\WebSharper.CSharp.targets" Condition="Exists('..\packages\WebSharper.CSharp\build\WebSharper.CSharp.targets')" Label="Paket" />
+  <ItemGroup>
+    <Analyzer Include="..\packages\WebSharper.CSharp\analyzers\dotnet\cs\FSharp.Core.dll">
+      <Paket>True</Paket>
+    </Analyzer>
+    <Analyzer Include="..\packages\WebSharper.CSharp\analyzers\dotnet\cs\Mono.Cecil.Mdb.dll">
+      <Paket>True</Paket>
+    </Analyzer>
+    <Analyzer Include="..\packages\WebSharper.CSharp\analyzers\dotnet\cs\Mono.Cecil.Pdb.dll">
+      <Paket>True</Paket>
+    </Analyzer>
+    <Analyzer Include="..\packages\WebSharper.CSharp\analyzers\dotnet\cs\Mono.Cecil.dll">
+      <Paket>True</Paket>
+    </Analyzer>
+    <Analyzer Include="..\packages\WebSharper.CSharp\analyzers\dotnet\cs\System.ValueTuple.dll">
+      <Paket>True</Paket>
+    </Analyzer>
+    <Analyzer Include="..\packages\WebSharper.CSharp\analyzers\dotnet\cs\WebSharper.CSharp.Analyzer.dll">
+      <Paket>True</Paket>
+    </Analyzer>
+    <Analyzer Include="..\packages\WebSharper.CSharp\analyzers\dotnet\cs\WebSharper.Compiler.CSharp.dll">
+      <Paket>True</Paket>
+    </Analyzer>
+    <Analyzer Include="..\packages\WebSharper.CSharp\analyzers\dotnet\cs\WebSharper.Compiler.dll">
+      <Paket>True</Paket>
+    </Analyzer>
+    <Analyzer Include="..\packages\WebSharper.CSharp\analyzers\dotnet\cs\WebSharper.Core.JavaScript.dll">
+      <Paket>True</Paket>
+    </Analyzer>
+    <Analyzer Include="..\packages\WebSharper.CSharp\analyzers\dotnet\cs\WebSharper.Core.dll">
+      <Paket>True</Paket>
+    </Analyzer>
+    <Analyzer Include="..\packages\WebSharper.CSharp\analyzers\dotnet\cs\WebSharper.InterfaceGenerator.dll">
+      <Paket>True</Paket>
+    </Analyzer>
+  </ItemGroup>
 </Project>
