@@ -24,21 +24,17 @@ namespace WebSharper.UI
 
 open WebSharper
 
-[<JavaScript>]
-type IRef<'T> =
-    [<Name "RGet">]
+[<JavaScript; AbstractClass>]
+type Var<'T>() =
     abstract Get : unit -> 'T
-    [<Name "RSet">]
     abstract Set : 'T -> unit
-    [<Name "RVal">]
-    abstract Value : 'T with get, set
-    [<Name "RUpd">]
+    abstract SetFinal : 'T -> unit
+    member this.Value
+        with [<Inline>] get() = this.Get()
+        and [<Inline>] set v = this.Set v
     abstract Update : ('T -> 'T) -> unit
-    [<Name "RUpdM">]
     abstract UpdateMaybe : ('T -> 'T option) -> unit
-    [<Name "RView">]
     abstract View : View<'T>
-    [<Name "RId">]
     abstract Id : string
 
 and [<JavaScript>] View<'T> =
@@ -62,46 +58,52 @@ module ViewOptimization =
     
 /// Var either holds a Snap or is in Const state.
 [<JavaScript>]
-type Var<'T> =
-    {
-        [<Name "o">] mutable Const : bool
-        [<Name "c">] mutable Current : 'T
-        [<Name "s">] mutable Snap : Snap<'T>
-        [<Name "i">] Id : int
-        [<Name "v">] VarView : View<'T>
-    }
+type ConcreteVar<'T>(isConst: bool, initSnap: Snap<'T>, initValue: 'T) =
+    inherit Var<'T>()
 
-    [<Inline>]
-    member this.View = this.VarView
+    let mutable isConst = isConst
+    let mutable current = initValue
+    let mutable snap = initSnap
+    let view = V (fun () -> snap)
+    let id = Fresh.Int()
 
-    interface IRef<'T> with
-        member this.Get() = Var.Get this
-        member this.Set v = Var.Set this v
-        member this.Value
-            with get() = Var.Get this
-            and set v = Var.Set this v
-        member this.Update f = Var.Update this f
-        member this.UpdateMaybe f =
-            match f (Var.Get this) with
-            | None -> ()
-            | Some v -> Var.Set this v
-        member this.View = this.View
-        member this.Id = "uinref" + string (Var.GetId this)
+    override this.Get() = current
+
+    override this.Set(v) =
+        if isConst then
+            printfn "WebSharper.UI: invalid attempt to change value of a Var after calling SetFinal"
+        else
+            Snap.MarkObsolete snap
+            current <- v
+            snap <- Snap.CreateWithValue v
+
+    override this.SetFinal(v) =
+        if isConst then
+            printfn "WebSharper.UI: invalid attempt to change value of a Var after calling SetFinal"
+        else
+            Snap.MarkObsolete snap
+            isConst <- true
+            current <- v
+            snap <- Snap.CreateForever v
+
+    override this.Update(f) =
+        this.Set (f (this.Get()))
+
+    override this.UpdateMaybe(f) =
+        match f (this.Get()) with
+        | None -> ()
+        | Some v -> this.Set(v)
+
+    override this.View = view
+
+    override this.Id = "uinref" + string id
 
 and [<JavaScript; Sealed>] Var =
 
     [<MethodImpl(MethodImplOptions.NoInlining)>]
     static member Create v =
-        let mutable var = jsNull()
-        var <-
-            {
-                Const = false
-                Current = v
-                Snap = Snap.CreateWithValue v
-                Id = Fresh.Int ()
-                VarView = V (fun () -> var.Snap)
-            }
-        var
+        ConcreteVar<'T>(false, Snap.CreateWithValue v, v)
+        :> Var<'T>
 
     static member CreateLogged (name: string) v =
         if not (WebSharper.JavaScript.JS.Global?UINVars) then
@@ -111,60 +113,29 @@ and [<JavaScript; Sealed>] Var =
         res
 
     static member Create() =
-        let mutable var = jsNull()
-        var <-
-            {
-                Const = false
-                Current = ()
-                Snap = Snap.CreateWithValue ()
-                Id = Fresh.Int ()
-                VarView = V (fun () -> var.Snap)
-            }
-        var
+        ConcreteVar<unit>(false, Snap.CreateWithValue(), ())
+        :> Var<unit>
 
     static member CreateWaiting<'T>() =
-        let mutable var = jsNull()
-        var <-
-            {
-                Const = false
-                Current = jsNull<'T>()
-                Snap = Snap.Create ()
-                Id = Fresh.Int ()
-                VarView = V (fun () -> var.Snap)
-            }
-        var
+        ConcreteVar<'T>(false, Snap.Create(), jsNull<'T>())
+        :> Var<'T>
 
     [<Inline>]
-    static member Get var =
-        var.Current
+    static member Get (var: Var<'T>) =
+        var.Get()
 
-    static member Set var value =
-        if var.Const then
-            printfn "WebSharper UI: invalid attempt to change value of a Var after calling SetFinal"
-        else
-            Snap.MarkObsolete var.Snap
-            var.Current <- value
-            var.Snap <- Snap.CreateWithValue value
+    static member Set (var: Var<'T>) value =
+        var.Set(value)
 
-    static member SetFinal var value =
-        if var.Const then
-            printfn "WebSharper UI: invalid attempt to change value of a Var after calling SetFinal"
-        else
-            Snap.MarkObsolete var.Snap
-            var.Const <- true
-            var.Current <- value
-            var.Snap <- Snap.CreateForever value
+    static member SetFinal (var: Var<'T>) value =
+        var.SetFinal(value)
 
     static member Update var fn =
         Var.Set var (fn (Var.Get var))
 
     [<Inline>]
-    static member GetId var =
+    static member GetId (var: Var<'T>) =
         var.Id
-
-    [<Inline>]
-    static member Observe var =
-        var.Snap
 
 type [<JavaScript>] Updates = 
     {
@@ -483,27 +454,26 @@ type View =
 type Var with
 
     [<JavaScript>]
-    static member Lens (iref: IRef<_>) get update =
+    static member Lens (var: Var<_>) get update =
         let id = Fresh.Id()
-        let view = iref.View |> View.Map get
+        let view = var.View |> View.Map get
 
-        { new IRef<'V> with
+        { new Var<'V>() with
 
             member this.Get() =
-                get (iref.Get())
+                get (var.Get())
 
             member this.Set(v) =
-                iref.Update(fun t -> update t v)
+                var.Update(fun t -> update t v)
 
-            member this.Value
-                with get () = get (iref.Get())
-                and set v = iref.Update(fun t -> update t v)
+            member this.SetFinal(v) =
+                this.Set(v)
 
             member this.Update(f) =
-                iref.Update(fun t -> update t (f (get t)))
+                var.Update(fun t -> update t (f (get t)))
 
             member this.UpdateMaybe(f) =
-                iref.UpdateMaybe(fun t -> Option.map (fun x -> update t x) (f (get t)))
+                var.UpdateMaybe(fun t -> Option.map (fun x -> update t x) (f (get t)))
 
             member this.View =
                 view
@@ -512,16 +482,9 @@ type Var with
                 id
         }
 
-type Var<'T> with
-
-    [<JavaScript>]
-    member v.Value
-        with [<Inline; Name "get_VarValue">] get () = Var.Get v
-        and [<Inline; Name "set_VarValue">] set value = Var.Set v value
-
 // These methods apply to any View<'A>, so we can use `type View with`
 // and they'll be compiled as normal instance methods on View<'A>.
-type View<'A> with
+type View<'T> with
 
     [<JavaScript; Inline>]
     member v.Map f = View.Map f v
@@ -564,14 +527,9 @@ type Var<'T> with
     [<Macro(typeof<Macros.VProp>)>]
     member this.V = this.View.V
 
-[<AutoOpen>]
-module IRefExtension =
-
-    type IRef<'T> with
-
-        [<JavaScript; Inline>]
-        member iref.Lens get update =
-            Var.Lens iref get update
+    [<JavaScript; Inline>]
+    member var.Lens get update =
+        Var.Lens var get update
 
 type ViewBuilder =
     | B

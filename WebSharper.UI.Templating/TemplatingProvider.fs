@@ -40,7 +40,7 @@ module private Impl =
     type Elt = WebSharper.UI.Elt
     type Attr = WebSharper.UI.Attr
     type View<'T> = WebSharper.UI.View<'T>
-    type IRef<'T> = WebSharper.UI.IRef<'T>
+    type Var<'T> = WebSharper.UI.Var<'T>
     type UINVar = WebSharper.UI.Var
     type TemplateHole = WebSharper.UI.TemplateHole
     type DomElement = WebSharper.JavaScript.Dom.Element
@@ -175,33 +175,33 @@ module private Impl =
                 ]
             | HoleKind.Var (ValTy.Any | ValTy.String) ->
                 [
-                    mk <| fun _ (x: Expr<IRef<string>>) ->
+                    mk <| fun _ (x: Expr<Var<string>>) ->
                         <@ TemplateHole.VarStr(holeName', %x) @>
                     mk <| fun _ (x: Expr<string>) ->
                         <@ TemplateHole.VarStr(holeName', UINVar.Create %x) @>
                 ]
             | HoleKind.Var ValTy.Number ->
                 [
-                    mk <| fun _ (x: Expr<IRef<int>>) ->
+                    mk <| fun _ (x: Expr<Var<int>>) ->
                         <@ TemplateHole.VarIntUnchecked(holeName', %x) @>
                     mk <| fun _ (x: Expr<int>) ->
                         <@ TemplateHole.VarIntUnchecked(holeName', UINVar.Create %x) @>
-                    mk <| fun _ (x: Expr<IRef<CheckedInput<int>>>) ->
+                    mk <| fun _ (x: Expr<Var<CheckedInput<int>>>) ->
                         <@ TemplateHole.VarInt(holeName', %x) @>
                     mk <| fun _ (x: Expr<CheckedInput<int>>) ->
                         <@ TemplateHole.VarInt(holeName', UINVar.Create %x) @>
-                    mk <| fun _ (x: Expr<IRef<float>>) ->
+                    mk <| fun _ (x: Expr<Var<float>>) ->
                         <@ TemplateHole.VarFloatUnchecked(holeName', %x) @>
                     mk <| fun _ (x: Expr<float>) ->
                         <@ TemplateHole.VarFloatUnchecked(holeName', UINVar.Create %x) @>
-                    mk <| fun _ (x: Expr<IRef<CheckedInput<float>>>) ->
+                    mk <| fun _ (x: Expr<Var<CheckedInput<float>>>) ->
                         <@ TemplateHole.VarFloat(holeName', %x) @>
                     mk <| fun _ (x: Expr<CheckedInput<float>>) ->
                         <@ TemplateHole.VarFloat(holeName', UINVar.Create %x) @>
                 ]
             | HoleKind.Var ValTy.Bool ->
                 [
-                    mk <| fun _ (x: Expr<IRef<bool>>) ->
+                    mk <| fun _ (x: Expr<Var<bool>>) ->
                         <@ TemplateHole.VarBool(holeName', %x) @>
                 ]
             | HoleKind.Mapped (kind = k) -> build k
@@ -277,13 +277,13 @@ module private Impl =
                 let holeName' = holeName.ToLowerInvariant()
                 match def.Kind with
                 | AST.HoleKind.Var AST.ValTy.Any | AST.HoleKind.Var AST.ValTy.String ->
-                    yield ProvidedProperty(holeName, typeof<IRef<string>>, fun x -> <@@ ((%%x.[0] : obj) :?> TI).Hole holeName' @@>)
+                    yield ProvidedProperty(holeName, typeof<Var<string>>, fun x -> <@@ ((%%x.[0] : obj) :?> TI).Hole holeName' @@>)
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
                 | AST.HoleKind.Var AST.ValTy.Number ->
-                    yield ProvidedProperty(holeName, typeof<IRef<float>>, fun x -> <@@ ((%%x.[0] : obj) :?> TI).Hole holeName' @@>)
+                    yield ProvidedProperty(holeName, typeof<Var<float>>, fun x -> <@@ ((%%x.[0] : obj) :?> TI).Hole holeName' @@>)
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
                 | AST.HoleKind.Var AST.ValTy.Bool ->
-                    yield ProvidedProperty(holeName, typeof<IRef<bool>>, fun x -> <@@ ((%%x.[0] : obj) :?> TI).Hole holeName' @@>)
+                    yield ProvidedProperty(holeName, typeof<Var<bool>>, fun x -> <@@ ((%%x.[0] : obj) :?> TI).Hole holeName' @@>)
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
                 | _ -> ()
         ]

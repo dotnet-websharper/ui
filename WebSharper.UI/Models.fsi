@@ -202,13 +202,13 @@ type ListModel<'Key,'T when 'Key : equality> with
     member LengthAsView : View<int>
 
     /// Gets a reference to an element of the list.
-    member Lens : 'Key -> IRef<'T>
+    member Lens : 'Key -> Var<'T>
 
     /// Gets a reference to a part of an element of the list.
-    member LensInto : get:('T -> 'V) -> update:('T -> 'V -> 'T) -> 'Key -> IRef<'V>
+    member LensInto<'V> : get:('T -> 'V) -> update:('T -> 'V -> 'T) -> 'Key -> Var<'V>
 
     /// Uncurried version of LensInto
-    member LensIntoU : get:('T -> 'V) * update:('T -> 'V -> 'T) * 'Key -> IRef<'V>
+    member LensIntoU<'V> : get:('T -> 'V) * update:('T -> 'V -> 'T) * 'Key -> Var<'V>
 
     /// <summary>
     /// Creates a new ListModel of 'V that is two-way bound to the underlying ListModel of 'T
@@ -230,7 +230,7 @@ type ListModel<'Key,'T when 'Key : equality> with
     /// and only updating the passed view when the corresponding item has changed.
     member Map : f: ('Key -> View<'T> -> 'V) -> View<seq<'V>>
 
-    member MapLens : f: ('Key -> IRef<'T> -> 'V) -> View<seq<'V>>
+    member MapLens : f: ('Key -> Var<'T> -> 'V) -> View<seq<'V>>
 
 /// ListModel combinators.
 [<Class>]
@@ -277,4 +277,4 @@ type ListModel =
     /// and only updating the passed view when the corresponding item has changed.
     static member MapView : ('Key -> View<'T> -> 'V) -> ListModel<'Key, 'T> -> View<seq<'V>>
 
-    static member MapLens : f: ('Key -> IRef<'T> -> 'V) -> ListModel<'Key, 'T> -> View<seq<'V>>
+    static member MapLens : f: ('Key -> Var<'T> -> 'V) -> ListModel<'Key, 'T> -> View<seq<'V>>

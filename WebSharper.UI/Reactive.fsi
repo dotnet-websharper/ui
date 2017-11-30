@@ -56,10 +56,12 @@ type View<'A> =
     /// Bind this view's value inside a dynamic function such as V.
     member V : 'A
 
-/// An abstract time-varying variable than can be observed for changes
+/// A time-varying variable than can be observed for changes
 /// by independent processes.
-[<Interface>]
-type IRef<'A> =
+[<AbstractClass>]
+type Var<'A> =
+
+    new : unit -> Var<'A>
 
     /// Gets the current value.
     abstract Get : unit -> 'A
@@ -67,8 +69,14 @@ type IRef<'A> =
     /// Sets the current value.
     abstract Set : 'A -> unit
 
+    /// Sets the final value (after this, Set/Update are invalid).
+    /// This is rarely needed, but can help solve memory leaks when
+    /// mutliple views are scheduled to wait on a variable that is never
+    /// going to change again.
+    abstract SetFinal : 'A -> unit
+
     /// Gets or sets the current value.
-    abstract Value : 'A with get, set
+    member Value : 'A with get, set
 
     /// Updates the current value.
     abstract Update : ('A -> 'A) -> unit
@@ -82,17 +90,8 @@ type IRef<'A> =
     /// Gets the unique ID associated with the variable.
     abstract Id : string
 
-/// A time-varying variable that behaves like a ref cell that
-/// can also be observed for changes by independent processes.
-[<Sealed>]
-type Var<'A> =
-    interface IRef<'A>
-
-    /// The corresponding view.
-    member View : View<'A>
-
-    /// Gets or sets the current value.
-    member Value : 'A with get, set
+    /// Gets a reference to part of a var's value.
+    member Lens : get: ('A -> 'V) -> update: ('A -> 'V -> 'A) -> Var<'V>
 
     /// Bind this view's value inside a dynamic function such as V.
     member V : 'A
@@ -128,10 +127,10 @@ type Var =
     static member Update : Var<'A> -> ('A -> 'A) -> unit
 
     /// Gets the unique ID associated with the var.
-    static member GetId  : Var<'A> -> int
+    static member GetId  : Var<'A> -> string
 
     /// Gets a reference to part of a var's value.
-    static member Lens : IRef<'A> -> get: ('A -> 'V) -> update: ('A -> 'V -> 'A) -> IRef<'V>
+    static member Lens : Var<'A> -> get: ('A -> 'V) -> update: ('A -> 'V -> 'A) -> Var<'V>
 
 [<Sealed>]
 type internal Updates =
@@ -277,12 +276,6 @@ type View =
 
     /// An instance of ViewBuilder.
     static member Do : ViewBuilder
-
-[<AutoOpen>]
-module IRefExtension =
-
-    type IRef<'T> with
-        member Lens : get: ('T -> 'V) -> update: ('T -> 'V -> 'T) -> IRef<'V>
 
 /// A special type of View whose value is only updated when Trigger is called.
 [<Sealed>]

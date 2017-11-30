@@ -63,7 +63,6 @@ module internal Macros =
     let varModule = NonGeneric (ty "Var")
     let viewOf t = GenericType (ty "View`1") [t]
     let varOf t = GenericType (ty "Var`1") [t]
-    let irefOf t = GenericType (ty "IRef`1") [t]
     let seqOf t = GenericType (ty' "mscorlib" "System.Collections.Generic.IEnumerable`1") [t]
     let docT = NonGenericType (ty "Doc")
     let eltT = NonGenericType (ty "Elt")
@@ -82,8 +81,8 @@ module internal Macros =
     let attrDynFn =      gen[]        (meth "Dynamic"      [stringT; viewOf stringT]  attrT)
     let attrDynStyleFn = gen[]        (meth "DynamicStyle" [stringT; viewOf stringT]  attrT)
     let docEmbedFn t =   gen[t]       (meth "EmbedView"    [viewOf T0]                docT)
-    let lensFn t u =     gen[t; u]    (meth "Lens"         [irefOf T0; T0 ^-> T1; T0 ^-> T1 ^-> T0] (irefOf T1))
-    let inputFn n t =    gen[]        (meth n              [seqOf attrT; irefOf t]    eltT)
+    let lensFn t u =     gen[t; u]    (meth "Lens"         [varOf T0; T0 ^-> T1; T0 ^-> T1 ^-> T0] (varOf T1))
+    let inputFn n t =    gen[]        (meth n              [seqOf attrT; varOf t]     eltT)
 
     module Lens =
 
