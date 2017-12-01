@@ -41,11 +41,11 @@ module Main =
 
         JS.RequestAnimationFrame f |> ignore
 
-        div [
-            div [v.View |> View.Map (fun t -> "Frame " + string t.i) |> textView]
-            div [v.View |> View.Map (fun t -> sprintf "Started: %.1f" t.n) |> textView]
-            div [v.View |> View.Map (fun t -> sprintf "Duration: %.1fms" t.d) |> textView]
-            divAttr [ Attr.Style "display" "none" ] [unchanging.View |> textView]
+        div [] [
+            div [] [v.View |> View.Map (fun t -> "Frame " + string t.i) |> textView]
+            div [] [v.View |> View.Map (fun t -> sprintf "Started: %.1f" t.n) |> textView]
+            div [] [v.View |> View.Map (fun t -> sprintf "Duration: %.1fms" t.d) |> textView]
+            div [ Attr.Style "display" "none" ] [unchanging.View |> textView]
         ]
         |> Doc.RunById "stresstest"
     
@@ -58,7 +58,7 @@ module Main =
             |> Trans.Exit (fun x -> cubicAnim x (x + 100.))
         let rvLeftPos = Var.Create 0.
         
-        divAttr [
+        div [
             Attr.Style "position" "relative"
             Attr.AnimatedStyle "left" swipeTransition rvLeftPos.View (fun pos -> string pos + "%")
         ] [

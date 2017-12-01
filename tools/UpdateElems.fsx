@@ -126,10 +126,7 @@ module Tags =
                 [|
                     sprintf "/// Create an HTML element <%s> with attributes and children." e.Name
                     "[<JavaScript; Inline>]"
-                    sprintf """let %sAttr ats ch = Doc.Element "%s" ats ch""" e.LowName e.Name
-                    sprintf "/// Create an HTML element <%s> with children." e.Name
-                    "[<JavaScript; Inline>]"
-                    sprintf """let %s ch = Doc.Element "%s" [||] ch""" e.LowNameEsc e.Name
+                    sprintf """let %s ats ch = Doc.Element "%s" ats ch""" e.LowNameEsc e.Name
                 |]
             | "svgtag" ->
                 [|

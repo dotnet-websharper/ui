@@ -22,24 +22,24 @@ module Site =
     
     let HomePage () =
         page [
-            //div [ Link Templating "Templating tests" ]
-            div [ Link (ServerRouting RouterTestsHome)  "Server-side router tests" ]
-            div [ Link (ClientRouting RouterTestsHome)  "Client-side router tests" ]
-            div [ aAttr [ attr.href "http://websharper.com/" ] [ text "Go to websharper.com" ] ]
-            div [ aAttr [ attr.href "http://websharper.com/about" ] [ text "Go to websharper.com/about" ] ]
+            //div [] [ Link Templating "Templating tests" ]
+            div [] [ Link (ServerRouting RouterTestsHome)  "Server-side router tests" ]
+            div [] [ Link (ClientRouting RouterTestsHome)  "Client-side router tests" ]
+            div [] [ a [ attr.href "http://websharper.com/" ] [ text "Go to websharper.com" ] ]
+            div [] [ a [ attr.href "http://websharper.com/about" ] [ text "Go to websharper.com/about" ] ]
         ]
 
     let ServerSideRoutingPage (test: RouterTests) =
         page [
-            h1 [text "Server-side routing tests"]
+            h1 [] [text "Server-side routing tests"]
             Client.RouterTestBody ServerRouting test
-            div [ Link Home "Back to home" ]
+            div [] [ Link Home "Back to home" ]
         ]
 
     let ClientSideRoutingPage (ctx: Context<_>) =
         page [
             client <@ Client.ClientSideRoutingPage() @>
-            div [ Link Home "Back to home" ]
+            div [] [ Link Home "Back to home" ]
         ]
 
     [<Website>]

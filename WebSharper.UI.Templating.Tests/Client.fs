@@ -65,7 +65,7 @@ module Client =
 
         let testCounter = Var.Create 0
         let eltUpdater =
-            divAttr [ 
+            div [ 
                 Attr.DynamicStyle "background" (testCounter.View.Map(fun i -> if i % 2 = 0 then "white" else "lightgray"))
             ] [
                 testCounter.View.Doc(fun _ -> Doc.Empty)
@@ -77,7 +77,7 @@ module Client =
 
         let addDiv () =
             let child =
-                div [ textView testCounterStr ]  
+                div [] [ textView testCounterStr ]  
             added.Enqueue child
             eltUpdater.Dom.AppendChild(child.Dom) |> ignore
             eltUpdater.AddUpdated child
@@ -107,7 +107,7 @@ module Client =
             MyTemplate.template()
                 .Attr(Attr.Style "font-weight" "bold")
                 .Title(
-                    h1Attr [
+                    h1 [
                         attr.style "color: blue"
                         attr.classDynPred var.View (View.Const true)
                         on.click (fun el ev -> Console.Log ev)
@@ -141,12 +141,12 @@ module Client =
                 .Test102(
                     // Test #102: this would empty the whole containing div
                     myItems.ViewState
-                    |> Doc.BindSeqCached (fun x -> p [text x.description])
+                    |> Doc.BindSeqCached (fun x -> p [] [text x.description])
                 )
                 .Test106(
                     MyTemplate.template.Test106Tpl()
                         .DynamicReplace(
-                            divAttr [
+                            div [
                                 on.afterRender (fun _ ->
                                     let e = JS.Document.QuerySelector(".test-106")
                                     e.ParentNode.RemoveChild(e) |> ignore
@@ -193,28 +193,28 @@ module Client =
                     let iinp = Var.Create (CheckedInput.Make 42)
                     let ri = Var.Create 0
                     [ 
-                        p [
+                        p [] [
                             Doc.Button "Click me" [] (fun () -> clk := "Clicked!")
                             textView clk.View
                         ] :> Doc
-                        p [
+                        p [] [
                             Doc.CheckBox [] chk 
                             textView (chk.View.Map(function false -> "Check this" | true -> "Uncheck this"))
                         ] :> Doc
-                        p [
+                        p [] [
                             for i in 1 .. 5 ->
                                 Doc.CheckBoxGroup [] i chkl :> Doc 
                             yield textView (chkl.View.Map(fun l -> "Checked indices:" + (l |> List.map string |> String.concat ", ")))
                         ] :> Doc
-                        p [
+                        p [] [
                             Doc.Input [] inp 
                             textView (inp.View.Map(fun s -> "You said: " + s))
                         ] :> Doc
-                        p [
+                        p [] [
                             Doc.IntInput [] iinp 
                             textView (iinp.View.Map(function Valid (i, _) -> "It's an int: " + string i | Invalid _ -> "Can't parse" | Blank _ -> "Empty" ))
                         ] :> Doc
-                        p [
+                        p [] [
                             for i in 1 .. 5 ->
                                 Doc.Radio [] i ri :> Doc 
                             yield textView (ri.View.Map(fun i -> "Checked index:" + string i))
@@ -236,7 +236,7 @@ module Client =
 
         Anim.UseAnimations <- false
 
-        div [
+        div [] [
             doc
             Regression67.Doc
         ]

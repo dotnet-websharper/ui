@@ -39,17 +39,17 @@ module Regression67 =
             resultView
             |> View.MapCached
                 (function
-                    | NoInputs -> p [text "No inputs"]
+                    | NoInputs -> p [] [text "No inputs"]
                     | SomeInputs x -> 
                         let label = 
                             if x = 1 then "" else "s" 
                             |> sprintf "%d input%s" x
                             |> text
-                        p[ label ]
+                        p [] [label]
                 )
             |> Doc.EmbedView
 
-        div[
+        div [] [
             Doc.Button "Add input" [] addInput
             Doc.Button "Remove all inputs" [] removeAllInputs
             result

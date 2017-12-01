@@ -103,4 +103,4 @@ module Actions =
         ]
 
     let Link act content =
-        aAttr [ attr.href (Router.Link act router) ] [ text content ]
+        a [ attr.href (Router.Link act router) ] [ text content ]

@@ -45,622 +45,313 @@ module Html =
     // {{ tag normal
     /// Create an HTML element <a> with attributes and children.
     [<JavaScript; Inline>]
-    let aAttr ats ch = Doc.Element "a" ats ch
-    /// Create an HTML element <a> with children.
-    [<JavaScript; Inline>]
-    let a ch = Doc.Element "a" [||] ch
+    let a ats ch = Doc.Element "a" ats ch
     /// Create an HTML element <abbr> with attributes and children.
     [<JavaScript; Inline>]
-    let abbrAttr ats ch = Doc.Element "abbr" ats ch
-    /// Create an HTML element <abbr> with children.
-    [<JavaScript; Inline>]
-    let abbr ch = Doc.Element "abbr" [||] ch
+    let abbr ats ch = Doc.Element "abbr" ats ch
     /// Create an HTML element <address> with attributes and children.
     [<JavaScript; Inline>]
-    let addressAttr ats ch = Doc.Element "address" ats ch
-    /// Create an HTML element <address> with children.
-    [<JavaScript; Inline>]
-    let address ch = Doc.Element "address" [||] ch
+    let address ats ch = Doc.Element "address" ats ch
     /// Create an HTML element <area> with attributes and children.
     [<JavaScript; Inline>]
-    let areaAttr ats ch = Doc.Element "area" ats ch
-    /// Create an HTML element <area> with children.
-    [<JavaScript; Inline>]
-    let area ch = Doc.Element "area" [||] ch
+    let area ats ch = Doc.Element "area" ats ch
     /// Create an HTML element <article> with attributes and children.
     [<JavaScript; Inline>]
-    let articleAttr ats ch = Doc.Element "article" ats ch
-    /// Create an HTML element <article> with children.
-    [<JavaScript; Inline>]
-    let article ch = Doc.Element "article" [||] ch
+    let article ats ch = Doc.Element "article" ats ch
     /// Create an HTML element <aside> with attributes and children.
     [<JavaScript; Inline>]
-    let asideAttr ats ch = Doc.Element "aside" ats ch
-    /// Create an HTML element <aside> with children.
-    [<JavaScript; Inline>]
-    let aside ch = Doc.Element "aside" [||] ch
+    let aside ats ch = Doc.Element "aside" ats ch
     /// Create an HTML element <audio> with attributes and children.
     [<JavaScript; Inline>]
-    let audioAttr ats ch = Doc.Element "audio" ats ch
-    /// Create an HTML element <audio> with children.
-    [<JavaScript; Inline>]
-    let audio ch = Doc.Element "audio" [||] ch
+    let audio ats ch = Doc.Element "audio" ats ch
     /// Create an HTML element <b> with attributes and children.
     [<JavaScript; Inline>]
-    let bAttr ats ch = Doc.Element "b" ats ch
-    /// Create an HTML element <b> with children.
-    [<JavaScript; Inline>]
-    let b ch = Doc.Element "b" [||] ch
+    let b ats ch = Doc.Element "b" ats ch
     /// Create an HTML element <base> with attributes and children.
     [<JavaScript; Inline>]
-    let baseAttr ats ch = Doc.Element "base" ats ch
-    /// Create an HTML element <base> with children.
-    [<JavaScript; Inline>]
-    let ``base`` ch = Doc.Element "base" [||] ch
+    let ``base`` ats ch = Doc.Element "base" ats ch
     /// Create an HTML element <bdi> with attributes and children.
     [<JavaScript; Inline>]
-    let bdiAttr ats ch = Doc.Element "bdi" ats ch
-    /// Create an HTML element <bdi> with children.
-    [<JavaScript; Inline>]
-    let bdi ch = Doc.Element "bdi" [||] ch
+    let bdi ats ch = Doc.Element "bdi" ats ch
     /// Create an HTML element <bdo> with attributes and children.
     [<JavaScript; Inline>]
-    let bdoAttr ats ch = Doc.Element "bdo" ats ch
-    /// Create an HTML element <bdo> with children.
-    [<JavaScript; Inline>]
-    let bdo ch = Doc.Element "bdo" [||] ch
+    let bdo ats ch = Doc.Element "bdo" ats ch
     /// Create an HTML element <blockquote> with attributes and children.
     [<JavaScript; Inline>]
-    let blockquoteAttr ats ch = Doc.Element "blockquote" ats ch
-    /// Create an HTML element <blockquote> with children.
-    [<JavaScript; Inline>]
-    let blockquote ch = Doc.Element "blockquote" [||] ch
+    let blockquote ats ch = Doc.Element "blockquote" ats ch
     /// Create an HTML element <body> with attributes and children.
     [<JavaScript; Inline>]
-    let bodyAttr ats ch = Doc.Element "body" ats ch
-    /// Create an HTML element <body> with children.
-    [<JavaScript; Inline>]
-    let body ch = Doc.Element "body" [||] ch
+    let body ats ch = Doc.Element "body" ats ch
     /// Create an HTML element <br> with attributes and children.
     [<JavaScript; Inline>]
-    let brAttr ats ch = Doc.Element "br" ats ch
-    /// Create an HTML element <br> with children.
-    [<JavaScript; Inline>]
-    let br ch = Doc.Element "br" [||] ch
+    let br ats ch = Doc.Element "br" ats ch
     /// Create an HTML element <button> with attributes and children.
     [<JavaScript; Inline>]
-    let buttonAttr ats ch = Doc.Element "button" ats ch
-    /// Create an HTML element <button> with children.
-    [<JavaScript; Inline>]
-    let button ch = Doc.Element "button" [||] ch
+    let button ats ch = Doc.Element "button" ats ch
     /// Create an HTML element <canvas> with attributes and children.
     [<JavaScript; Inline>]
-    let canvasAttr ats ch = Doc.Element "canvas" ats ch
-    /// Create an HTML element <canvas> with children.
-    [<JavaScript; Inline>]
-    let canvas ch = Doc.Element "canvas" [||] ch
+    let canvas ats ch = Doc.Element "canvas" ats ch
     /// Create an HTML element <caption> with attributes and children.
     [<JavaScript; Inline>]
-    let captionAttr ats ch = Doc.Element "caption" ats ch
-    /// Create an HTML element <caption> with children.
-    [<JavaScript; Inline>]
-    let caption ch = Doc.Element "caption" [||] ch
+    let caption ats ch = Doc.Element "caption" ats ch
     /// Create an HTML element <cite> with attributes and children.
     [<JavaScript; Inline>]
-    let citeAttr ats ch = Doc.Element "cite" ats ch
-    /// Create an HTML element <cite> with children.
-    [<JavaScript; Inline>]
-    let cite ch = Doc.Element "cite" [||] ch
+    let cite ats ch = Doc.Element "cite" ats ch
     /// Create an HTML element <code> with attributes and children.
     [<JavaScript; Inline>]
-    let codeAttr ats ch = Doc.Element "code" ats ch
-    /// Create an HTML element <code> with children.
-    [<JavaScript; Inline>]
-    let code ch = Doc.Element "code" [||] ch
+    let code ats ch = Doc.Element "code" ats ch
     /// Create an HTML element <col> with attributes and children.
     [<JavaScript; Inline>]
-    let colAttr ats ch = Doc.Element "col" ats ch
-    /// Create an HTML element <col> with children.
-    [<JavaScript; Inline>]
-    let col ch = Doc.Element "col" [||] ch
+    let col ats ch = Doc.Element "col" ats ch
     /// Create an HTML element <colgroup> with attributes and children.
     [<JavaScript; Inline>]
-    let colgroupAttr ats ch = Doc.Element "colgroup" ats ch
-    /// Create an HTML element <colgroup> with children.
-    [<JavaScript; Inline>]
-    let colgroup ch = Doc.Element "colgroup" [||] ch
+    let colgroup ats ch = Doc.Element "colgroup" ats ch
     /// Create an HTML element <command> with attributes and children.
     [<JavaScript; Inline>]
-    let commandAttr ats ch = Doc.Element "command" ats ch
-    /// Create an HTML element <command> with children.
-    [<JavaScript; Inline>]
-    let command ch = Doc.Element "command" [||] ch
+    let command ats ch = Doc.Element "command" ats ch
     /// Create an HTML element <datalist> with attributes and children.
     [<JavaScript; Inline>]
-    let datalistAttr ats ch = Doc.Element "datalist" ats ch
-    /// Create an HTML element <datalist> with children.
-    [<JavaScript; Inline>]
-    let datalist ch = Doc.Element "datalist" [||] ch
+    let datalist ats ch = Doc.Element "datalist" ats ch
     /// Create an HTML element <dd> with attributes and children.
     [<JavaScript; Inline>]
-    let ddAttr ats ch = Doc.Element "dd" ats ch
-    /// Create an HTML element <dd> with children.
-    [<JavaScript; Inline>]
-    let dd ch = Doc.Element "dd" [||] ch
+    let dd ats ch = Doc.Element "dd" ats ch
     /// Create an HTML element <del> with attributes and children.
     [<JavaScript; Inline>]
-    let delAttr ats ch = Doc.Element "del" ats ch
-    /// Create an HTML element <del> with children.
-    [<JavaScript; Inline>]
-    let del ch = Doc.Element "del" [||] ch
+    let del ats ch = Doc.Element "del" ats ch
     /// Create an HTML element <details> with attributes and children.
     [<JavaScript; Inline>]
-    let detailsAttr ats ch = Doc.Element "details" ats ch
-    /// Create an HTML element <details> with children.
-    [<JavaScript; Inline>]
-    let details ch = Doc.Element "details" [||] ch
+    let details ats ch = Doc.Element "details" ats ch
     /// Create an HTML element <dfn> with attributes and children.
     [<JavaScript; Inline>]
-    let dfnAttr ats ch = Doc.Element "dfn" ats ch
-    /// Create an HTML element <dfn> with children.
-    [<JavaScript; Inline>]
-    let dfn ch = Doc.Element "dfn" [||] ch
+    let dfn ats ch = Doc.Element "dfn" ats ch
     /// Create an HTML element <div> with attributes and children.
     [<JavaScript; Inline>]
-    let divAttr ats ch = Doc.Element "div" ats ch
-    /// Create an HTML element <div> with children.
-    [<JavaScript; Inline>]
-    let div ch = Doc.Element "div" [||] ch
+    let div ats ch = Doc.Element "div" ats ch
     /// Create an HTML element <dl> with attributes and children.
     [<JavaScript; Inline>]
-    let dlAttr ats ch = Doc.Element "dl" ats ch
-    /// Create an HTML element <dl> with children.
-    [<JavaScript; Inline>]
-    let dl ch = Doc.Element "dl" [||] ch
+    let dl ats ch = Doc.Element "dl" ats ch
     /// Create an HTML element <dt> with attributes and children.
     [<JavaScript; Inline>]
-    let dtAttr ats ch = Doc.Element "dt" ats ch
-    /// Create an HTML element <dt> with children.
-    [<JavaScript; Inline>]
-    let dt ch = Doc.Element "dt" [||] ch
+    let dt ats ch = Doc.Element "dt" ats ch
     /// Create an HTML element <em> with attributes and children.
     [<JavaScript; Inline>]
-    let emAttr ats ch = Doc.Element "em" ats ch
-    /// Create an HTML element <em> with children.
-    [<JavaScript; Inline>]
-    let em ch = Doc.Element "em" [||] ch
+    let em ats ch = Doc.Element "em" ats ch
     /// Create an HTML element <embed> with attributes and children.
     [<JavaScript; Inline>]
-    let embedAttr ats ch = Doc.Element "embed" ats ch
-    /// Create an HTML element <embed> with children.
-    [<JavaScript; Inline>]
-    let embed ch = Doc.Element "embed" [||] ch
+    let embed ats ch = Doc.Element "embed" ats ch
     /// Create an HTML element <fieldset> with attributes and children.
     [<JavaScript; Inline>]
-    let fieldsetAttr ats ch = Doc.Element "fieldset" ats ch
-    /// Create an HTML element <fieldset> with children.
-    [<JavaScript; Inline>]
-    let fieldset ch = Doc.Element "fieldset" [||] ch
+    let fieldset ats ch = Doc.Element "fieldset" ats ch
     /// Create an HTML element <figcaption> with attributes and children.
     [<JavaScript; Inline>]
-    let figcaptionAttr ats ch = Doc.Element "figcaption" ats ch
-    /// Create an HTML element <figcaption> with children.
-    [<JavaScript; Inline>]
-    let figcaption ch = Doc.Element "figcaption" [||] ch
+    let figcaption ats ch = Doc.Element "figcaption" ats ch
     /// Create an HTML element <figure> with attributes and children.
     [<JavaScript; Inline>]
-    let figureAttr ats ch = Doc.Element "figure" ats ch
-    /// Create an HTML element <figure> with children.
-    [<JavaScript; Inline>]
-    let figure ch = Doc.Element "figure" [||] ch
+    let figure ats ch = Doc.Element "figure" ats ch
     /// Create an HTML element <footer> with attributes and children.
     [<JavaScript; Inline>]
-    let footerAttr ats ch = Doc.Element "footer" ats ch
-    /// Create an HTML element <footer> with children.
-    [<JavaScript; Inline>]
-    let footer ch = Doc.Element "footer" [||] ch
+    let footer ats ch = Doc.Element "footer" ats ch
     /// Create an HTML element <form> with attributes and children.
     [<JavaScript; Inline>]
-    let formAttr ats ch = Doc.Element "form" ats ch
-    /// Create an HTML element <form> with children.
-    [<JavaScript; Inline>]
-    let form ch = Doc.Element "form" [||] ch
+    let form ats ch = Doc.Element "form" ats ch
     /// Create an HTML element <h1> with attributes and children.
     [<JavaScript; Inline>]
-    let h1Attr ats ch = Doc.Element "h1" ats ch
-    /// Create an HTML element <h1> with children.
-    [<JavaScript; Inline>]
-    let h1 ch = Doc.Element "h1" [||] ch
+    let h1 ats ch = Doc.Element "h1" ats ch
     /// Create an HTML element <h2> with attributes and children.
     [<JavaScript; Inline>]
-    let h2Attr ats ch = Doc.Element "h2" ats ch
-    /// Create an HTML element <h2> with children.
-    [<JavaScript; Inline>]
-    let h2 ch = Doc.Element "h2" [||] ch
+    let h2 ats ch = Doc.Element "h2" ats ch
     /// Create an HTML element <h3> with attributes and children.
     [<JavaScript; Inline>]
-    let h3Attr ats ch = Doc.Element "h3" ats ch
-    /// Create an HTML element <h3> with children.
-    [<JavaScript; Inline>]
-    let h3 ch = Doc.Element "h3" [||] ch
+    let h3 ats ch = Doc.Element "h3" ats ch
     /// Create an HTML element <h4> with attributes and children.
     [<JavaScript; Inline>]
-    let h4Attr ats ch = Doc.Element "h4" ats ch
-    /// Create an HTML element <h4> with children.
-    [<JavaScript; Inline>]
-    let h4 ch = Doc.Element "h4" [||] ch
+    let h4 ats ch = Doc.Element "h4" ats ch
     /// Create an HTML element <h5> with attributes and children.
     [<JavaScript; Inline>]
-    let h5Attr ats ch = Doc.Element "h5" ats ch
-    /// Create an HTML element <h5> with children.
-    [<JavaScript; Inline>]
-    let h5 ch = Doc.Element "h5" [||] ch
+    let h5 ats ch = Doc.Element "h5" ats ch
     /// Create an HTML element <h6> with attributes and children.
     [<JavaScript; Inline>]
-    let h6Attr ats ch = Doc.Element "h6" ats ch
-    /// Create an HTML element <h6> with children.
-    [<JavaScript; Inline>]
-    let h6 ch = Doc.Element "h6" [||] ch
+    let h6 ats ch = Doc.Element "h6" ats ch
     /// Create an HTML element <head> with attributes and children.
     [<JavaScript; Inline>]
-    let headAttr ats ch = Doc.Element "head" ats ch
-    /// Create an HTML element <head> with children.
-    [<JavaScript; Inline>]
-    let head ch = Doc.Element "head" [||] ch
+    let head ats ch = Doc.Element "head" ats ch
     /// Create an HTML element <header> with attributes and children.
     [<JavaScript; Inline>]
-    let headerAttr ats ch = Doc.Element "header" ats ch
-    /// Create an HTML element <header> with children.
-    [<JavaScript; Inline>]
-    let header ch = Doc.Element "header" [||] ch
+    let header ats ch = Doc.Element "header" ats ch
     /// Create an HTML element <hgroup> with attributes and children.
     [<JavaScript; Inline>]
-    let hgroupAttr ats ch = Doc.Element "hgroup" ats ch
-    /// Create an HTML element <hgroup> with children.
-    [<JavaScript; Inline>]
-    let hgroup ch = Doc.Element "hgroup" [||] ch
+    let hgroup ats ch = Doc.Element "hgroup" ats ch
     /// Create an HTML element <hr> with attributes and children.
     [<JavaScript; Inline>]
-    let hrAttr ats ch = Doc.Element "hr" ats ch
-    /// Create an HTML element <hr> with children.
-    [<JavaScript; Inline>]
-    let hr ch = Doc.Element "hr" [||] ch
+    let hr ats ch = Doc.Element "hr" ats ch
     /// Create an HTML element <html> with attributes and children.
     [<JavaScript; Inline>]
-    let htmlAttr ats ch = Doc.Element "html" ats ch
-    /// Create an HTML element <html> with children.
-    [<JavaScript; Inline>]
-    let html ch = Doc.Element "html" [||] ch
+    let html ats ch = Doc.Element "html" ats ch
     /// Create an HTML element <i> with attributes and children.
     [<JavaScript; Inline>]
-    let iAttr ats ch = Doc.Element "i" ats ch
-    /// Create an HTML element <i> with children.
-    [<JavaScript; Inline>]
-    let i ch = Doc.Element "i" [||] ch
+    let i ats ch = Doc.Element "i" ats ch
     /// Create an HTML element <iframe> with attributes and children.
     [<JavaScript; Inline>]
-    let iframeAttr ats ch = Doc.Element "iframe" ats ch
-    /// Create an HTML element <iframe> with children.
-    [<JavaScript; Inline>]
-    let iframe ch = Doc.Element "iframe" [||] ch
+    let iframe ats ch = Doc.Element "iframe" ats ch
     /// Create an HTML element <img> with attributes and children.
     [<JavaScript; Inline>]
-    let imgAttr ats ch = Doc.Element "img" ats ch
-    /// Create an HTML element <img> with children.
-    [<JavaScript; Inline>]
-    let img ch = Doc.Element "img" [||] ch
+    let img ats ch = Doc.Element "img" ats ch
     /// Create an HTML element <input> with attributes and children.
     [<JavaScript; Inline>]
-    let inputAttr ats ch = Doc.Element "input" ats ch
-    /// Create an HTML element <input> with children.
-    [<JavaScript; Inline>]
-    let input ch = Doc.Element "input" [||] ch
+    let input ats ch = Doc.Element "input" ats ch
     /// Create an HTML element <ins> with attributes and children.
     [<JavaScript; Inline>]
-    let insAttr ats ch = Doc.Element "ins" ats ch
-    /// Create an HTML element <ins> with children.
-    [<JavaScript; Inline>]
-    let ins ch = Doc.Element "ins" [||] ch
+    let ins ats ch = Doc.Element "ins" ats ch
     /// Create an HTML element <kbd> with attributes and children.
     [<JavaScript; Inline>]
-    let kbdAttr ats ch = Doc.Element "kbd" ats ch
-    /// Create an HTML element <kbd> with children.
-    [<JavaScript; Inline>]
-    let kbd ch = Doc.Element "kbd" [||] ch
+    let kbd ats ch = Doc.Element "kbd" ats ch
     /// Create an HTML element <keygen> with attributes and children.
     [<JavaScript; Inline>]
-    let keygenAttr ats ch = Doc.Element "keygen" ats ch
-    /// Create an HTML element <keygen> with children.
-    [<JavaScript; Inline>]
-    let keygen ch = Doc.Element "keygen" [||] ch
+    let keygen ats ch = Doc.Element "keygen" ats ch
     /// Create an HTML element <label> with attributes and children.
     [<JavaScript; Inline>]
-    let labelAttr ats ch = Doc.Element "label" ats ch
-    /// Create an HTML element <label> with children.
-    [<JavaScript; Inline>]
-    let label ch = Doc.Element "label" [||] ch
+    let label ats ch = Doc.Element "label" ats ch
     /// Create an HTML element <legend> with attributes and children.
     [<JavaScript; Inline>]
-    let legendAttr ats ch = Doc.Element "legend" ats ch
-    /// Create an HTML element <legend> with children.
-    [<JavaScript; Inline>]
-    let legend ch = Doc.Element "legend" [||] ch
+    let legend ats ch = Doc.Element "legend" ats ch
     /// Create an HTML element <li> with attributes and children.
     [<JavaScript; Inline>]
-    let liAttr ats ch = Doc.Element "li" ats ch
-    /// Create an HTML element <li> with children.
-    [<JavaScript; Inline>]
-    let li ch = Doc.Element "li" [||] ch
+    let li ats ch = Doc.Element "li" ats ch
     /// Create an HTML element <link> with attributes and children.
     [<JavaScript; Inline>]
-    let linkAttr ats ch = Doc.Element "link" ats ch
-    /// Create an HTML element <link> with children.
-    [<JavaScript; Inline>]
-    let link ch = Doc.Element "link" [||] ch
+    let link ats ch = Doc.Element "link" ats ch
     /// Create an HTML element <mark> with attributes and children.
     [<JavaScript; Inline>]
-    let markAttr ats ch = Doc.Element "mark" ats ch
-    /// Create an HTML element <mark> with children.
-    [<JavaScript; Inline>]
-    let mark ch = Doc.Element "mark" [||] ch
+    let mark ats ch = Doc.Element "mark" ats ch
     /// Create an HTML element <meta> with attributes and children.
     [<JavaScript; Inline>]
-    let metaAttr ats ch = Doc.Element "meta" ats ch
-    /// Create an HTML element <meta> with children.
-    [<JavaScript; Inline>]
-    let meta ch = Doc.Element "meta" [||] ch
+    let meta ats ch = Doc.Element "meta" ats ch
     /// Create an HTML element <meter> with attributes and children.
     [<JavaScript; Inline>]
-    let meterAttr ats ch = Doc.Element "meter" ats ch
-    /// Create an HTML element <meter> with children.
-    [<JavaScript; Inline>]
-    let meter ch = Doc.Element "meter" [||] ch
+    let meter ats ch = Doc.Element "meter" ats ch
     /// Create an HTML element <nav> with attributes and children.
     [<JavaScript; Inline>]
-    let navAttr ats ch = Doc.Element "nav" ats ch
-    /// Create an HTML element <nav> with children.
-    [<JavaScript; Inline>]
-    let nav ch = Doc.Element "nav" [||] ch
+    let nav ats ch = Doc.Element "nav" ats ch
     /// Create an HTML element <noframes> with attributes and children.
     [<JavaScript; Inline>]
-    let noframesAttr ats ch = Doc.Element "noframes" ats ch
-    /// Create an HTML element <noframes> with children.
-    [<JavaScript; Inline>]
-    let noframes ch = Doc.Element "noframes" [||] ch
+    let noframes ats ch = Doc.Element "noframes" ats ch
     /// Create an HTML element <noscript> with attributes and children.
     [<JavaScript; Inline>]
-    let noscriptAttr ats ch = Doc.Element "noscript" ats ch
-    /// Create an HTML element <noscript> with children.
-    [<JavaScript; Inline>]
-    let noscript ch = Doc.Element "noscript" [||] ch
+    let noscript ats ch = Doc.Element "noscript" ats ch
     /// Create an HTML element <ol> with attributes and children.
     [<JavaScript; Inline>]
-    let olAttr ats ch = Doc.Element "ol" ats ch
-    /// Create an HTML element <ol> with children.
-    [<JavaScript; Inline>]
-    let ol ch = Doc.Element "ol" [||] ch
+    let ol ats ch = Doc.Element "ol" ats ch
     /// Create an HTML element <optgroup> with attributes and children.
     [<JavaScript; Inline>]
-    let optgroupAttr ats ch = Doc.Element "optgroup" ats ch
-    /// Create an HTML element <optgroup> with children.
-    [<JavaScript; Inline>]
-    let optgroup ch = Doc.Element "optgroup" [||] ch
+    let optgroup ats ch = Doc.Element "optgroup" ats ch
     /// Create an HTML element <output> with attributes and children.
     [<JavaScript; Inline>]
-    let outputAttr ats ch = Doc.Element "output" ats ch
-    /// Create an HTML element <output> with children.
-    [<JavaScript; Inline>]
-    let output ch = Doc.Element "output" [||] ch
+    let output ats ch = Doc.Element "output" ats ch
     /// Create an HTML element <p> with attributes and children.
     [<JavaScript; Inline>]
-    let pAttr ats ch = Doc.Element "p" ats ch
-    /// Create an HTML element <p> with children.
-    [<JavaScript; Inline>]
-    let p ch = Doc.Element "p" [||] ch
+    let p ats ch = Doc.Element "p" ats ch
     /// Create an HTML element <param> with attributes and children.
     [<JavaScript; Inline>]
-    let paramAttr ats ch = Doc.Element "param" ats ch
-    /// Create an HTML element <param> with children.
-    [<JavaScript; Inline>]
-    let param ch = Doc.Element "param" [||] ch
+    let param ats ch = Doc.Element "param" ats ch
     /// Create an HTML element <picture> with attributes and children.
     [<JavaScript; Inline>]
-    let pictureAttr ats ch = Doc.Element "picture" ats ch
-    /// Create an HTML element <picture> with children.
-    [<JavaScript; Inline>]
-    let picture ch = Doc.Element "picture" [||] ch
+    let picture ats ch = Doc.Element "picture" ats ch
     /// Create an HTML element <pre> with attributes and children.
     [<JavaScript; Inline>]
-    let preAttr ats ch = Doc.Element "pre" ats ch
-    /// Create an HTML element <pre> with children.
-    [<JavaScript; Inline>]
-    let pre ch = Doc.Element "pre" [||] ch
+    let pre ats ch = Doc.Element "pre" ats ch
     /// Create an HTML element <progress> with attributes and children.
     [<JavaScript; Inline>]
-    let progressAttr ats ch = Doc.Element "progress" ats ch
-    /// Create an HTML element <progress> with children.
-    [<JavaScript; Inline>]
-    let progress ch = Doc.Element "progress" [||] ch
+    let progress ats ch = Doc.Element "progress" ats ch
     /// Create an HTML element <q> with attributes and children.
     [<JavaScript; Inline>]
-    let qAttr ats ch = Doc.Element "q" ats ch
-    /// Create an HTML element <q> with children.
-    [<JavaScript; Inline>]
-    let q ch = Doc.Element "q" [||] ch
+    let q ats ch = Doc.Element "q" ats ch
     /// Create an HTML element <rp> with attributes and children.
     [<JavaScript; Inline>]
-    let rpAttr ats ch = Doc.Element "rp" ats ch
-    /// Create an HTML element <rp> with children.
-    [<JavaScript; Inline>]
-    let rp ch = Doc.Element "rp" [||] ch
+    let rp ats ch = Doc.Element "rp" ats ch
     /// Create an HTML element <rt> with attributes and children.
     [<JavaScript; Inline>]
-    let rtAttr ats ch = Doc.Element "rt" ats ch
-    /// Create an HTML element <rt> with children.
-    [<JavaScript; Inline>]
-    let rt ch = Doc.Element "rt" [||] ch
+    let rt ats ch = Doc.Element "rt" ats ch
     /// Create an HTML element <rtc> with attributes and children.
     [<JavaScript; Inline>]
-    let rtcAttr ats ch = Doc.Element "rtc" ats ch
-    /// Create an HTML element <rtc> with children.
-    [<JavaScript; Inline>]
-    let rtc ch = Doc.Element "rtc" [||] ch
+    let rtc ats ch = Doc.Element "rtc" ats ch
     /// Create an HTML element <ruby> with attributes and children.
     [<JavaScript; Inline>]
-    let rubyAttr ats ch = Doc.Element "ruby" ats ch
-    /// Create an HTML element <ruby> with children.
-    [<JavaScript; Inline>]
-    let ruby ch = Doc.Element "ruby" [||] ch
+    let ruby ats ch = Doc.Element "ruby" ats ch
     /// Create an HTML element <samp> with attributes and children.
     [<JavaScript; Inline>]
-    let sampAttr ats ch = Doc.Element "samp" ats ch
-    /// Create an HTML element <samp> with children.
-    [<JavaScript; Inline>]
-    let samp ch = Doc.Element "samp" [||] ch
+    let samp ats ch = Doc.Element "samp" ats ch
     /// Create an HTML element <script> with attributes and children.
     [<JavaScript; Inline>]
-    let scriptAttr ats ch = Doc.Element "script" ats ch
-    /// Create an HTML element <script> with children.
-    [<JavaScript; Inline>]
-    let script ch = Doc.Element "script" [||] ch
+    let script ats ch = Doc.Element "script" ats ch
     /// Create an HTML element <section> with attributes and children.
     [<JavaScript; Inline>]
-    let sectionAttr ats ch = Doc.Element "section" ats ch
-    /// Create an HTML element <section> with children.
-    [<JavaScript; Inline>]
-    let section ch = Doc.Element "section" [||] ch
+    let section ats ch = Doc.Element "section" ats ch
     /// Create an HTML element <select> with attributes and children.
     [<JavaScript; Inline>]
-    let selectAttr ats ch = Doc.Element "select" ats ch
-    /// Create an HTML element <select> with children.
-    [<JavaScript; Inline>]
-    let select ch = Doc.Element "select" [||] ch
+    let select ats ch = Doc.Element "select" ats ch
     /// Create an HTML element <shadow> with attributes and children.
     [<JavaScript; Inline>]
-    let shadowAttr ats ch = Doc.Element "shadow" ats ch
-    /// Create an HTML element <shadow> with children.
-    [<JavaScript; Inline>]
-    let shadow ch = Doc.Element "shadow" [||] ch
+    let shadow ats ch = Doc.Element "shadow" ats ch
     /// Create an HTML element <small> with attributes and children.
     [<JavaScript; Inline>]
-    let smallAttr ats ch = Doc.Element "small" ats ch
-    /// Create an HTML element <small> with children.
-    [<JavaScript; Inline>]
-    let small ch = Doc.Element "small" [||] ch
+    let small ats ch = Doc.Element "small" ats ch
     /// Create an HTML element <source> with attributes and children.
     [<JavaScript; Inline>]
-    let sourceAttr ats ch = Doc.Element "source" ats ch
-    /// Create an HTML element <source> with children.
-    [<JavaScript; Inline>]
-    let source ch = Doc.Element "source" [||] ch
+    let source ats ch = Doc.Element "source" ats ch
     /// Create an HTML element <span> with attributes and children.
     [<JavaScript; Inline>]
-    let spanAttr ats ch = Doc.Element "span" ats ch
-    /// Create an HTML element <span> with children.
-    [<JavaScript; Inline>]
-    let span ch = Doc.Element "span" [||] ch
+    let span ats ch = Doc.Element "span" ats ch
     /// Create an HTML element <strong> with attributes and children.
     [<JavaScript; Inline>]
-    let strongAttr ats ch = Doc.Element "strong" ats ch
-    /// Create an HTML element <strong> with children.
-    [<JavaScript; Inline>]
-    let strong ch = Doc.Element "strong" [||] ch
+    let strong ats ch = Doc.Element "strong" ats ch
     /// Create an HTML element <sub> with attributes and children.
     [<JavaScript; Inline>]
-    let subAttr ats ch = Doc.Element "sub" ats ch
-    /// Create an HTML element <sub> with children.
-    [<JavaScript; Inline>]
-    let sub ch = Doc.Element "sub" [||] ch
+    let sub ats ch = Doc.Element "sub" ats ch
     /// Create an HTML element <summary> with attributes and children.
     [<JavaScript; Inline>]
-    let summaryAttr ats ch = Doc.Element "summary" ats ch
-    /// Create an HTML element <summary> with children.
-    [<JavaScript; Inline>]
-    let summary ch = Doc.Element "summary" [||] ch
+    let summary ats ch = Doc.Element "summary" ats ch
     /// Create an HTML element <sup> with attributes and children.
     [<JavaScript; Inline>]
-    let supAttr ats ch = Doc.Element "sup" ats ch
-    /// Create an HTML element <sup> with children.
-    [<JavaScript; Inline>]
-    let sup ch = Doc.Element "sup" [||] ch
+    let sup ats ch = Doc.Element "sup" ats ch
     /// Create an HTML element <table> with attributes and children.
     [<JavaScript; Inline>]
-    let tableAttr ats ch = Doc.Element "table" ats ch
-    /// Create an HTML element <table> with children.
-    [<JavaScript; Inline>]
-    let table ch = Doc.Element "table" [||] ch
+    let table ats ch = Doc.Element "table" ats ch
     /// Create an HTML element <tbody> with attributes and children.
     [<JavaScript; Inline>]
-    let tbodyAttr ats ch = Doc.Element "tbody" ats ch
-    /// Create an HTML element <tbody> with children.
-    [<JavaScript; Inline>]
-    let tbody ch = Doc.Element "tbody" [||] ch
+    let tbody ats ch = Doc.Element "tbody" ats ch
     /// Create an HTML element <td> with attributes and children.
     [<JavaScript; Inline>]
-    let tdAttr ats ch = Doc.Element "td" ats ch
-    /// Create an HTML element <td> with children.
-    [<JavaScript; Inline>]
-    let td ch = Doc.Element "td" [||] ch
+    let td ats ch = Doc.Element "td" ats ch
     /// Create an HTML element <textarea> with attributes and children.
     [<JavaScript; Inline>]
-    let textareaAttr ats ch = Doc.Element "textarea" ats ch
-    /// Create an HTML element <textarea> with children.
-    [<JavaScript; Inline>]
-    let textarea ch = Doc.Element "textarea" [||] ch
+    let textarea ats ch = Doc.Element "textarea" ats ch
     /// Create an HTML element <tfoot> with attributes and children.
     [<JavaScript; Inline>]
-    let tfootAttr ats ch = Doc.Element "tfoot" ats ch
-    /// Create an HTML element <tfoot> with children.
-    [<JavaScript; Inline>]
-    let tfoot ch = Doc.Element "tfoot" [||] ch
+    let tfoot ats ch = Doc.Element "tfoot" ats ch
     /// Create an HTML element <th> with attributes and children.
     [<JavaScript; Inline>]
-    let thAttr ats ch = Doc.Element "th" ats ch
-    /// Create an HTML element <th> with children.
-    [<JavaScript; Inline>]
-    let th ch = Doc.Element "th" [||] ch
+    let th ats ch = Doc.Element "th" ats ch
     /// Create an HTML element <thead> with attributes and children.
     [<JavaScript; Inline>]
-    let theadAttr ats ch = Doc.Element "thead" ats ch
-    /// Create an HTML element <thead> with children.
-    [<JavaScript; Inline>]
-    let thead ch = Doc.Element "thead" [||] ch
+    let thead ats ch = Doc.Element "thead" ats ch
     /// Create an HTML element <time> with attributes and children.
     [<JavaScript; Inline>]
-    let timeAttr ats ch = Doc.Element "time" ats ch
-    /// Create an HTML element <time> with children.
-    [<JavaScript; Inline>]
-    let time ch = Doc.Element "time" [||] ch
+    let time ats ch = Doc.Element "time" ats ch
     /// Create an HTML element <tr> with attributes and children.
     [<JavaScript; Inline>]
-    let trAttr ats ch = Doc.Element "tr" ats ch
-    /// Create an HTML element <tr> with children.
-    [<JavaScript; Inline>]
-    let tr ch = Doc.Element "tr" [||] ch
+    let tr ats ch = Doc.Element "tr" ats ch
     /// Create an HTML element <track> with attributes and children.
     [<JavaScript; Inline>]
-    let trackAttr ats ch = Doc.Element "track" ats ch
-    /// Create an HTML element <track> with children.
-    [<JavaScript; Inline>]
-    let track ch = Doc.Element "track" [||] ch
+    let track ats ch = Doc.Element "track" ats ch
     /// Create an HTML element <ul> with attributes and children.
     [<JavaScript; Inline>]
-    let ulAttr ats ch = Doc.Element "ul" ats ch
-    /// Create an HTML element <ul> with children.
-    [<JavaScript; Inline>]
-    let ul ch = Doc.Element "ul" [||] ch
+    let ul ats ch = Doc.Element "ul" ats ch
     /// Create an HTML element <video> with attributes and children.
     [<JavaScript; Inline>]
-    let videoAttr ats ch = Doc.Element "video" ats ch
-    /// Create an HTML element <video> with children.
-    [<JavaScript; Inline>]
-    let video ch = Doc.Element "video" [||] ch
+    let video ats ch = Doc.Element "video" ats ch
     /// Create an HTML element <wbr> with attributes and children.
     [<JavaScript; Inline>]
-    let wbrAttr ats ch = Doc.Element "wbr" ats ch
-    /// Create an HTML element <wbr> with children.
-    [<JavaScript; Inline>]
-    let wbr ch = Doc.Element "wbr" [||] ch
+    let wbr ats ch = Doc.Element "wbr" ats ch
     // }}
 
     /// HTML5 element functions.
@@ -669,160 +360,82 @@ module Html =
         // {{ tag colliding deprecated
         /// Create an HTML element <acronym> with attributes and children.
         [<JavaScript; Inline>]
-        let acronymAttr ats ch = Doc.Element "acronym" ats ch
-        /// Create an HTML element <acronym> with children.
-        [<JavaScript; Inline>]
-        let acronym ch = Doc.Element "acronym" [||] ch
+        let acronym ats ch = Doc.Element "acronym" ats ch
         /// Create an HTML element <applet> with attributes and children.
         [<JavaScript; Inline>]
-        let appletAttr ats ch = Doc.Element "applet" ats ch
-        /// Create an HTML element <applet> with children.
-        [<JavaScript; Inline>]
-        let applet ch = Doc.Element "applet" [||] ch
+        let applet ats ch = Doc.Element "applet" ats ch
         /// Create an HTML element <basefont> with attributes and children.
         [<JavaScript; Inline>]
-        let basefontAttr ats ch = Doc.Element "basefont" ats ch
-        /// Create an HTML element <basefont> with children.
-        [<JavaScript; Inline>]
-        let basefont ch = Doc.Element "basefont" [||] ch
+        let basefont ats ch = Doc.Element "basefont" ats ch
         /// Create an HTML element <big> with attributes and children.
         [<JavaScript; Inline>]
-        let bigAttr ats ch = Doc.Element "big" ats ch
-        /// Create an HTML element <big> with children.
-        [<JavaScript; Inline>]
-        let big ch = Doc.Element "big" [||] ch
+        let big ats ch = Doc.Element "big" ats ch
         /// Create an HTML element <center> with attributes and children.
         [<JavaScript; Inline>]
-        let centerAttr ats ch = Doc.Element "center" ats ch
-        /// Create an HTML element <center> with children.
-        [<JavaScript; Inline>]
-        let center ch = Doc.Element "center" [||] ch
+        let center ats ch = Doc.Element "center" ats ch
         /// Create an HTML element <content> with attributes and children.
         [<JavaScript; Inline>]
-        let contentAttr ats ch = Doc.Element "content" ats ch
-        /// Create an HTML element <content> with children.
-        [<JavaScript; Inline>]
-        let content ch = Doc.Element "content" [||] ch
+        let content ats ch = Doc.Element "content" ats ch
         /// Create an HTML element <data> with attributes and children.
         [<JavaScript; Inline>]
-        let dataAttr ats ch = Doc.Element "data" ats ch
-        /// Create an HTML element <data> with children.
-        [<JavaScript; Inline>]
-        let data ch = Doc.Element "data" [||] ch
+        let data ats ch = Doc.Element "data" ats ch
         /// Create an HTML element <dir> with attributes and children.
         [<JavaScript; Inline>]
-        let dirAttr ats ch = Doc.Element "dir" ats ch
-        /// Create an HTML element <dir> with children.
-        [<JavaScript; Inline>]
-        let dir ch = Doc.Element "dir" [||] ch
+        let dir ats ch = Doc.Element "dir" ats ch
         /// Create an HTML element <font> with attributes and children.
         [<JavaScript; Inline>]
-        let fontAttr ats ch = Doc.Element "font" ats ch
-        /// Create an HTML element <font> with children.
-        [<JavaScript; Inline>]
-        let font ch = Doc.Element "font" [||] ch
+        let font ats ch = Doc.Element "font" ats ch
         /// Create an HTML element <frame> with attributes and children.
         [<JavaScript; Inline>]
-        let frameAttr ats ch = Doc.Element "frame" ats ch
-        /// Create an HTML element <frame> with children.
-        [<JavaScript; Inline>]
-        let frame ch = Doc.Element "frame" [||] ch
+        let frame ats ch = Doc.Element "frame" ats ch
         /// Create an HTML element <frameset> with attributes and children.
         [<JavaScript; Inline>]
-        let framesetAttr ats ch = Doc.Element "frameset" ats ch
-        /// Create an HTML element <frameset> with children.
-        [<JavaScript; Inline>]
-        let frameset ch = Doc.Element "frameset" [||] ch
+        let frameset ats ch = Doc.Element "frameset" ats ch
         /// Create an HTML element <isindex> with attributes and children.
         [<JavaScript; Inline>]
-        let isindexAttr ats ch = Doc.Element "isindex" ats ch
-        /// Create an HTML element <isindex> with children.
-        [<JavaScript; Inline>]
-        let isindex ch = Doc.Element "isindex" [||] ch
+        let isindex ats ch = Doc.Element "isindex" ats ch
         /// Create an HTML element <main> with attributes and children.
         [<JavaScript; Inline>]
-        let mainAttr ats ch = Doc.Element "main" ats ch
-        /// Create an HTML element <main> with children.
-        [<JavaScript; Inline>]
-        let main ch = Doc.Element "main" [||] ch
+        let main ats ch = Doc.Element "main" ats ch
         /// Create an HTML element <map> with attributes and children.
         [<JavaScript; Inline>]
-        let mapAttr ats ch = Doc.Element "map" ats ch
-        /// Create an HTML element <map> with children.
-        [<JavaScript; Inline>]
-        let map ch = Doc.Element "map" [||] ch
+        let map ats ch = Doc.Element "map" ats ch
         /// Create an HTML element <menu> with attributes and children.
         [<JavaScript; Inline>]
-        let menuAttr ats ch = Doc.Element "menu" ats ch
-        /// Create an HTML element <menu> with children.
-        [<JavaScript; Inline>]
-        let menu ch = Doc.Element "menu" [||] ch
+        let menu ats ch = Doc.Element "menu" ats ch
         /// Create an HTML element <menuitem> with attributes and children.
         [<JavaScript; Inline>]
-        let menuitemAttr ats ch = Doc.Element "menuitem" ats ch
-        /// Create an HTML element <menuitem> with children.
-        [<JavaScript; Inline>]
-        let menuitem ch = Doc.Element "menuitem" [||] ch
+        let menuitem ats ch = Doc.Element "menuitem" ats ch
         /// Create an HTML element <object> with attributes and children.
         [<JavaScript; Inline>]
-        let objectAttr ats ch = Doc.Element "object" ats ch
-        /// Create an HTML element <object> with children.
-        [<JavaScript; Inline>]
-        let ``object`` ch = Doc.Element "object" [||] ch
+        let ``object`` ats ch = Doc.Element "object" ats ch
         /// Create an HTML element <option> with attributes and children.
         [<JavaScript; Inline>]
-        let optionAttr ats ch = Doc.Element "option" ats ch
-        /// Create an HTML element <option> with children.
-        [<JavaScript; Inline>]
-        let option ch = Doc.Element "option" [||] ch
+        let option ats ch = Doc.Element "option" ats ch
         /// Create an HTML element <s> with attributes and children.
         [<JavaScript; Inline>]
-        let sAttr ats ch = Doc.Element "s" ats ch
-        /// Create an HTML element <s> with children.
-        [<JavaScript; Inline>]
-        let s ch = Doc.Element "s" [||] ch
+        let s ats ch = Doc.Element "s" ats ch
         /// Create an HTML element <strike> with attributes and children.
         [<JavaScript; Inline>]
-        let strikeAttr ats ch = Doc.Element "strike" ats ch
-        /// Create an HTML element <strike> with children.
-        [<JavaScript; Inline>]
-        let strike ch = Doc.Element "strike" [||] ch
+        let strike ats ch = Doc.Element "strike" ats ch
         /// Create an HTML element <style> with attributes and children.
         [<JavaScript; Inline>]
-        let styleAttr ats ch = Doc.Element "style" ats ch
-        /// Create an HTML element <style> with children.
-        [<JavaScript; Inline>]
-        let style ch = Doc.Element "style" [||] ch
+        let style ats ch = Doc.Element "style" ats ch
         /// Create an HTML element <template> with attributes and children.
         [<JavaScript; Inline>]
-        let templateAttr ats ch = Doc.Element "template" ats ch
-        /// Create an HTML element <template> with children.
-        [<JavaScript; Inline>]
-        let template ch = Doc.Element "template" [||] ch
+        let template ats ch = Doc.Element "template" ats ch
         /// Create an HTML element <title> with attributes and children.
         [<JavaScript; Inline>]
-        let titleAttr ats ch = Doc.Element "title" ats ch
-        /// Create an HTML element <title> with children.
-        [<JavaScript; Inline>]
-        let title ch = Doc.Element "title" [||] ch
+        let title ats ch = Doc.Element "title" ats ch
         /// Create an HTML element <tt> with attributes and children.
         [<JavaScript; Inline>]
-        let ttAttr ats ch = Doc.Element "tt" ats ch
-        /// Create an HTML element <tt> with children.
-        [<JavaScript; Inline>]
-        let tt ch = Doc.Element "tt" [||] ch
+        let tt ats ch = Doc.Element "tt" ats ch
         /// Create an HTML element <u> with attributes and children.
         [<JavaScript; Inline>]
-        let uAttr ats ch = Doc.Element "u" ats ch
-        /// Create an HTML element <u> with children.
-        [<JavaScript; Inline>]
-        let u ch = Doc.Element "u" [||] ch
+        let u ats ch = Doc.Element "u" ats ch
         /// Create an HTML element <var> with attributes and children.
         [<JavaScript; Inline>]
-        let varAttr ats ch = Doc.Element "var" ats ch
-        /// Create an HTML element <var> with children.
-        [<JavaScript; Inline>]
-        let var ch = Doc.Element "var" [||] ch
+        let var ats ch = Doc.Element "var" ats ch
         // }}
 
     /// SVG elements.
