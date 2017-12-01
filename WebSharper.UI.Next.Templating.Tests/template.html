@@ -71,6 +71,13 @@
 <ws-index.Form Username Password Submit>
     <Welcome>Welcome, ${Username1}!</Welcome>
 </ws-index.Form>
+<div>
+  Testing #130 (HtmlAgilityPack parsing of &lt;option&gt; label):
+  <select>
+    <option>This is the first option</option>
+    <option>And this is the second</option>
+  </select>
+</div>
 <!-- Testing recursive instantiation; don't call L1 or L2 from F# -->
 <i ws-template="L1" ws-attr="Attr">Nested instantiation: ${Ok}</i>
 <ws-L1 ws-template="L2" Ok Attr="IAttr"></ws-L1>
