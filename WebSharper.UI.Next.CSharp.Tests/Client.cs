@@ -21,6 +21,7 @@ namespace WebSharper.UI.Next.CSharp.Tests
 
     public class App
     {
+        [EndPoint("/{First}/{Last}")]
         public class Name
         {
             public string First;
@@ -39,7 +40,7 @@ namespace WebSharper.UI.Next.CSharp.Tests
         [EndPoint("/")]
         public class Home {
 
-            [EndPoint("/person")]
+            [EndPoint("/person/{Name}/{Age}")]
             public class Person : Home
             {
                 public Name Name;
@@ -55,7 +56,7 @@ namespace WebSharper.UI.Next.CSharp.Tests
                 }
             }
 
-            [EndPoint("/people")]
+            [EndPoint("/people/{people}")]
             public class People : Home
             {
                 public Name[] people;

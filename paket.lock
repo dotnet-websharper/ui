@@ -15,14 +15,14 @@ NUGET
     System.Reflection.Metadata (1.0.21)
       System.Collections.Immutable (>= 1.1.36)
     System.ValueTuple (4.3)
-  remote: c:/Users/tarmil/localnuget
-    WebSharper (4.1.0.138-alpha)
-    WebSharper.CSharp (4.1.0.138-alpha)
-      WebSharper (4.1.0.138-alpha)
-    WebSharper.FSharp (4.1.0.138-alpha)
-      WebSharper (4.1.0.138-alpha)
-    WebSharper.Testing (4.1.0.138-alpha)
-      WebSharper (4.1.0.138-alpha)
+  remote: c:/localnuget
+    WebSharper (4.1.0.148-alpha)
+    WebSharper.CSharp (4.1.0.148-alpha)
+      WebSharper (4.1.0.148-alpha)
+    WebSharper.FSharp (4.1.0.148-alpha)
+      WebSharper (4.1.0.148-alpha)
+    WebSharper.Testing (4.1.0.148-alpha)
+      WebSharper (4.1.0.148-alpha)
 GITHUB
   remote: tarmil/FSharp.TypeProviders.SDK
     src/ProvidedTypes.fs (8d0c0b3ccd5c8892a4dcc94306e02cbe9831b7dc)

@@ -74,13 +74,16 @@ module private Internals =
     let rIntOp = getMethod <@ RouterOperators.rInt @>
     let rDoubleOp = getMethod <@ RouterOperators.rDouble @>
     let TupleOp = getMethod <@ RouterOperators.JSTuple [||] @>
-    let ArrayOp = getMethod <@ RouterOperators.JSArray RouterOperators.rString @>
-    let ListOp = getMethod <@ RouterOperators.JSList RouterOperators.rString @>
+    let ArrayOp = getMethod <@ RouterOperators.JSArray RouterOperators.rInt @>
+    let ListOp = getMethod <@ RouterOperators.JSList RouterOperators.rInt @>
     let RecordOp = getMethod <@ RouterOperators.JSRecord null [||] @>
     let UnionOp = getMethod <@ RouterOperators.JSUnion null [||] @>
-    let QueryOp = getMethod <@ RouterOperators.JSQuery null RouterOperators.rString @>
-    let OptionOp = getMethod <@ RouterOperators.JSOption RouterOperators.rString @>
-    let ClassOp = getMethod <@ RouterOperators.JSClass null [||] [||] @>
+    let QueryOp = getMethod <@ RouterOperators.JSQuery null RouterOperators.rInt @>
+    let FormDataOp = getMethod <@ RouterOperators.JSFormData null RouterOperators.rInt @>
+    let JsonOp = getMethod <@ RouterOperators.JSJson<int> @>
+    let OptionOp = getMethod <@ RouterOperators.JSOption RouterOperators.rInt @>
+    let NullableOp = getMethod <@ RouterOperators.JSNullable RouterOperators.rInt @>
+    let ClassOp = getMethod <@ RouterOperators.JSClass (fun () -> null) [||] [||] @>
     let BoxOp = getMethod <@ RouterOperators.JSBox Unchecked.defaultof<_> @>
     
     let (|T|) (t: TypeDefinition) = t.Value.FullName
@@ -146,6 +149,8 @@ type RoutingMacro() =
                     true, Call(None, NonGeneric routerOpsModule, Generic ListOp [ t ], [ getRouter t ])    
                 | C (T "Microsoft.FSharp.Core.FSharpOption`1", [ t ]) ->
                     true, Call(None, NonGeneric routerOpsModule, Generic OptionOp [ t ], [ getRouter t ])    
+                | C (T "System.Nullable`1", [ t ]) ->
+                    true, Call(None, NonGeneric routerOpsModule, Generic NullableOp [ t ], [ getRouter t ])    
                 | C (e, g) ->
                     if not (recurringOn.Add t) then
                         failwithf "Recursive types for Endpoint are currently not supported: %O" t
@@ -226,6 +231,7 @@ type RoutingMacro() =
                                 allJSClassesInitialized <- true
                             match allJSClasses.TryFind e with
                             | Some cls -> 
+                                deps.Add (M.TypeNode e) |> ignore
                                 let rec getClassAnnotation td =
                                     match parsedClassEndpoints.TryFind(td) with
                                     | Some ep -> ep
@@ -253,9 +259,9 @@ type RoutingMacro() =
                                         else None
                                     ) |> List.ofSeq
                                 let choice i x = Object [ "$", cInt i; "$0", x ] 
-                                //match cls.Constructors.TryFind(ConstructorInfo.Default()) with
-                                //| Some ctor ->
-                                //| None -> failwithf "Failed to create Router for type %O, it does not have a parameterless constructor" t
+                                //
+                                //
+                                //
                                 
                                 let rec findField f (cls: M.IClassInfo) =
                                     match cls.Fields.TryFind f with
@@ -270,20 +276,34 @@ type RoutingMacro() =
                                     NewArray (
                                         endpoint |> Seq.map (function
                                             | S.StringSegment s -> choice 0 (cString s)
-                                            | S.FieldSegment f ->
-                                                match findField f cls with
+                                            | S.FieldSegment fName ->
+                                                match findField fName cls with
                                                 | Some (f, _, fTyp) ->
+                                                    let fAnnot = comp.GetFieldAttributes(e, fName) |> getAnnot
+                                                    let withAnnot r =
+                                                        match fAnnot.Query with
+                                                        | Some _ -> 
+                                                            Call(None, NonGeneric routerOpsModule, NonGeneric QueryOp, [ cString fName; r ])
+                                                        | _ ->
+                                                        match fAnnot.FormData with
+                                                        | Some _ -> 
+                                                            Call(None, NonGeneric routerOpsModule, NonGeneric FormDataOp, [ cString fName; r ])
+                                                        | _ -> 
+                                                        match fAnnot.Json with
+                                                        | Some _ ->
+                                                            Call(None, NonGeneric routerOpsModule, Generic JsonOp [ t ], [])
+                                                        | _ -> r
                                                     match f with
                                                     | M.InstanceField n ->
-                                                        choice 1 (NewArray [ cString n; getRouter (fTyp.SubstituteGenerics(Array.ofList g)) ])
+                                                        choice 1 (NewArray [ cString n; getRouter (fTyp.SubstituteGenerics(Array.ofList g)) |> withAnnot ])
                                                     | M.IndexedField i ->
-                                                        choice 1 (NewArray [ cInt i; getRouter (fTyp.SubstituteGenerics(Array.ofList g)) ])
-                                                    | M.OptionalField n ->
-                                                        choice 1 (NewArray [ cString n; getRouter (fTyp.SubstituteGenerics(Array.ofList g)) ]) // todo optional
+                                                        choice 1 (NewArray [ cInt i; getRouter (fTyp.SubstituteGenerics(Array.ofList g)) |> withAnnot ])
+                                                    | M.OptionalField n -> // todo optional
+                                                        choice 1 (NewArray [ cString n; getRouter (fTyp.SubstituteGenerics(Array.ofList g)) |> withAnnot ]) 
                                                     | M.StaticField _ ->
                                                         failwith "Static field cannot be encoded to URL path"
                                                 | _ ->
-                                                    failwithf "Could not find field %s" f
+                                                    failwithf "Could not find field %s" fName
                                         )
                                         |> List.ofSeq
                                     )
@@ -291,7 +311,9 @@ type RoutingMacro() =
                                     NewArray (
                                         subClasses |> List.map (fun sc -> getRouter (GenericType sc g))
                                     )
-                                let unboxed = Call(None, NonGeneric routerOpsModule, NonGeneric ClassOp, [ getProto(); partsAndFields; subClassRouters ]) // todo use ctor instead of getProto   
+                                let ctor =
+                                    Lambda([], Ctor(Generic e g, ConstructorInfo.Default(), []))
+                                let unboxed = Call(None, NonGeneric routerOpsModule, NonGeneric ClassOp, [ ctor; partsAndFields; subClassRouters ]) // todo use ctor instead of getProto   
                                 Call(None, NonGeneric routerOpsModule, Generic BoxOp [ t ], [ unboxed ])
                             | _ -> failwithf "Failed to create Router for type %O, it does not have the JavaScript attribute" t
                         

@@ -77,8 +77,18 @@ module internal ServerRouting =
     let getUnionCaseAnnot (uc: Reflection.UnionCaseInfo) =
         attrReader.GetAnnotation(uc.GetCustomAttributesData())
 
+    let getFieldAnnot (f: Reflection.FieldInfo) =
+        attrReader.GetAnnotation(f.GetCustomAttributesData())
+
     let routerCache = System.Collections.Concurrent.ConcurrentDictionary<Type, Router<obj>>()
     let parsedClassEndpoints = Dictionary<Type, Annotation>()
+
+    let jsonRouterGet =
+        match <@ Router.JsonDyn<int> @> with
+        | P.PropertyGet(_, pi, _) -> pi.GetGetMethod().GetGenericMethodDefinition()
+        | expr ->              
+            eprintfn "Reflection error in Warp.ServerRouting, not a Call or PropertyGet: %A" expr
+            Unchecked.defaultof<_>
 
     open RouterOperators
 
@@ -155,6 +165,9 @@ module internal ServerRouting =
                 Router.BoxUnsafe rInt
             | "System.Double" ->
                 Router.BoxUnsafe rDouble 
+            | "System.Nullable`1" ->
+                let item = t.GetGenericArguments().[0]
+                Router.NullableDyn (createRouter item)
             | _ ->
                 let rec getClassAnnotation td : Annotation =
                     match parsedClassEndpoints.TryFind(td) with
@@ -178,7 +191,19 @@ module internal ServerRouting =
                         | FieldSegment f ->  
                             let field = t.GetField(f)
                             fields.Add(field)
-                            Choice2Of2 (getRouter field.FieldType) // todo optional
+                            let fAnnot = getFieldAnnot field
+                            let withAnnot r =
+                                match fAnnot.Query with
+                                | Some _ -> Router.Query f r
+                                | _ -> 
+                                match fAnnot.FormData with
+                                | Some _ -> Router.Query f r |> Router.FormData
+                                | _ -> 
+                                match fAnnot.Json with
+                                | Some _ ->
+                                    jsonRouterGet.MakeGenericMethod(t).Invoke(null, [||]) :?> Router<obj>
+                                | _ -> r
+                            Choice2Of2 (getRouter field.FieldType |> withAnnot) // todo optional
                     )
                 let fields = fields.ToArray()
                 let readFields (o: obj) =

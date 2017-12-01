@@ -306,10 +306,6 @@ module Router =
                 Some <| Seq.singleton { Path.Empty with Body = Some (serialize value) }
         }
 
-    [<Inline>]
-    let Json<'T> : Router<'T> =
-        Body (fun s -> try Some (Json.Deserialize<'T> s) with _ -> None) Json.Serialize<'T>
-
     let FormData (item: Router<'A>) : Router<'A> =
         {
             Parse = fun path ->
@@ -390,9 +386,12 @@ module Router =
     let InstallHash onParseError router =
         let parse p = Parse p router   
         let cur() : 'U =
-            let p = JS.Window.Location.Hash |> Path.FromUrl
+            let p = JS.Window.Location.Hash |> Path.FromHash
+            Console.Log("hash navigation", JS.Window.Location.Hash, p)
             match parse p with
-            | Some a -> a
+            | Some a -> 
+                Console.Log("parsed: ", box a)
+                a
             | None ->
                 printfn "Failed to parse route: %s" (p.ToLink()) 
                 onParseError
@@ -409,7 +408,7 @@ module Router =
             let target = ev.Target
             if target.LocalName = "a" then
                 let href = target.GetAttribute("href")
-                if not (isNull href) then
+                if not (isNull href) && href.StartsWith "#" then
                     let p = href |> Path.FromHash
                     match parse p with
                     | Some a -> 
@@ -421,7 +420,7 @@ module Router =
         var.View
         |> View.Sink (fun value ->
             if value <> cur() then 
-                let url = HashLink (value) router
+                let url = HashLink value router
                 JS.Window.History.PushState(null, null, url)
         )
         var
@@ -533,6 +532,14 @@ module Router =
         }
 
     [<JavaScript false>]
+    let JsonDyn<'T> : Router<obj> =
+        Body (fun s -> try Some (Json.Deserialize<'T> s) with _ -> None) Json.Serialize<'T> |> BoxUnsafe
+
+    [<Inline>]
+    let Json<'T> : Router<'T> =
+        Body (fun s -> try Some (Json.Deserialize<'T> s) with _ -> None) Json.Serialize<'T>
+
+    [<JavaScript false>]
     let BoxDyn (typ: System.Type) (router: Router<obj>) : Router<obj> =
         { router with
             Write = fun value ->
@@ -638,6 +645,37 @@ module Router =
                 if Array.forall Option.isSome parts then
                     Some (parts |> Seq.collect Option.get)
                 else None                      
+        }
+
+    /// Creates a router for parsing/writing a Nullable value.
+    let Nullable (item: Router<'A>) : Router<System.Nullable<'A>> =
+        {
+            Parse = fun path ->
+                match path.Segments with
+                | EmptySegment p -> 
+                    Seq.singleton ({ path with Segments = p }, System.Nullable())
+                | _ ->
+                    item.Parse path |> Seq.map (fun (p, v) -> p, System.Nullable v)
+            Write = fun value ->
+                if value.HasValue then 
+                    Some (Seq.singleton (Path.Segment ""))
+                else item.Write value.Value
+        }
+
+    [<JavaScript false>]
+    let NullableDyn (item: Router<obj>) : Router<obj> =
+        {
+            Parse = fun path ->
+                match path.Segments with
+                | EmptySegment p -> 
+                    Seq.singleton ({ path with Segments = p }, null)
+                | _ ->
+                    item.Parse path
+            Write = fun value ->
+                if isNull value then 
+                    Some (Seq.singleton (Path.Segment ""))
+                else
+                    item.Write value
         }
 
     /// Creates a router for parsing/writing an F# option of a value.
@@ -883,7 +921,16 @@ module RouterOperators =
     let internal JSOption item = Router.Option item
 
     [<Inline>]
+    let internal JSNullable item = Router.Nullable item
+
+    [<Inline>]
     let internal JSQuery key item = Router.Query key item
+
+    [<Inline>]
+    let internal JSFormData key item = Router.Query key item |> Router.FormData
+
+    [<Inline>]
+    let internal JSJson<'T> = Router.Json<'T>
 
     [<Inline>]
     let internal JSBox item = Router.Box item
@@ -1014,7 +1061,7 @@ module RouterOperators =
         else
             Router.Sum subClasses + thisClass
 
-    let internal JSClass (t: obj) (partsAndFields: Choice<string, string * Router<obj>>[]) (subClasses: Router<obj>[]) : Router<obj> =
+    let internal JSClass (ctor: unit -> obj) (partsAndFields: Choice<string, string * Router<obj>>[]) (subClasses: Router<obj>[]) : Router<obj> =
         let fields =
             partsAndFields |> Seq.choose (fun p ->
                 match p with
@@ -1027,7 +1074,7 @@ module RouterOperators =
                 value?(n)
             )
         let createObject fieldValues =
-            let o = if isNull t then New [] else JS.New t
+            let o = ctor()
             (fields, fieldValues) ||> Array.iter2 (fun n v ->
                 o?(n) <- v
             )

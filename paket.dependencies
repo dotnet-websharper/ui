@@ -1,8 +1,7 @@
-version 5.108.0
+version 5.122.3
 
 source https://api.nuget.org/v3/index.json
 source https://nuget.intellifactory.com/nuget username: "%IF_USER%" password: "%IF_PASS%"
-source c:/Users/tarmil/localnuget
 
 framework: net40, net45
 strategy: min

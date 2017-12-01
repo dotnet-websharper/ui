@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2009
+VisualStudioVersion = 15.0.27004.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebSharper.UI.Next", "WebSharper.UI.Next\WebSharper.UI.Next.fsproj", "{085A6F78-50A7-46CF-B040-9853EC580BE5}"
 EndProject
@@ -44,6 +44,8 @@ EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebSharper.UI.Next.CSharp.Templating.Analyzer", "WebSharper.UI.Next.CSharp.Templating.Analyzer\WebSharper.UI.Next.CSharp.Templating.Analyzer.fsproj", "{AC8E0153-76B5-4035-991D-F7CC05439B9D}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebSharper.UI.Next.CSharp.Templating.Build", "WebSharper.UI.Next.CSharp.Templating.Build\WebSharper.UI.Next.CSharp.Templating.Build.fsproj", "{3B1280C3-1F2B-4231-9B6C-2640CA9F7A6D}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebSharper.UI.Next.Routing.Tests", "WebSharper.UI.Next.Routing.Tests\WebSharper.UI.Next.Routing.Tests.fsproj", "{A0D7C6E3-E644-422C-825A-123EEBE96B03}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -99,6 +101,10 @@ Global
 		{3B1280C3-1F2B-4231-9B6C-2640CA9F7A6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3B1280C3-1F2B-4231-9B6C-2640CA9F7A6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3B1280C3-1F2B-4231-9B6C-2640CA9F7A6D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A0D7C6E3-E644-422C-825A-123EEBE96B03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0D7C6E3-E644-422C-825A-123EEBE96B03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0D7C6E3-E644-422C-825A-123EEBE96B03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0D7C6E3-E644-422C-825A-123EEBE96B03}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
