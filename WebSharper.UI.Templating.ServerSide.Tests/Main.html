@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>WebSharper.UI.Tests</title>
+    <meta charset="utf-8" />
+    <meta ws-replace="meta" />
+    <style ws-replace="styles"></style>
+    <style>
+        td {
+            border: solid 1px gray;
+        }
+    </style>
+</head>
+<body>
+    <div ws-replace="Main">
+        <div ws-template="ClientTemplate" style="color:${Input};opacity:${Opacity}">
+            This started as ${Before}, but let's make it
+            <input ws-var="Input" style="color: ${Before}" />
+            (you said &quot;${Input}") with opacity <!--"-->
+            <input ws-var="Opacity" type="number" />
+            ${Count}
+        </div>
+        <button ws-template="ServerTemplate" style="font-weight: bold;">Testing an Elt server template; click me!</button>
+    </div>
+    <div ws-replace="Client"></div>
+    <table>
+        <tbody ws-hole="TBody">
+            <tr ws-template="Row"><td>Table row</td></tr>
+        </tbody>
+    </table>
+    <div style="display:none">
+        <div data-template="OldTemplate">
+            <input data-var="Input" />
+            $!{Input}
+        </div>
+    </div>
+    <script ws-replace="scripts"></script>
+</body>
+</html>
