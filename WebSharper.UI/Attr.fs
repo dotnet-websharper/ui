@@ -29,10 +29,12 @@ open WebSharper
 open WebSharper.JavaScript
 module M = WebSharper.Core.Metadata
 module R = WebSharper.Core.AST.Reflection
+module J = WebSharper.Core.Json
+module P = FSharp.Quotations.Patterns
 
 module private Internal =
 
-    let getLocation (q: Expr) =
+    let getLocation' (q: Expr) =
         let (|Val|_|) e : 't option =
             match e with
             | Quotations.Patterns.Value(:? 't as v,_) -> Some v
@@ -50,6 +52,136 @@ module private Internal =
         defaultArg l "(no location)"
 
     let gen = System.Random()
+
+    let (|Val|_|) e : 't option =
+        match e with
+        | Quotations.Patterns.Value(:? 't as v,_) -> Some v
+        | _ -> None
+
+    let getLocation (q: Expr) =
+        q.CustomAttributes |> Seq.tryPick (function
+            | P.NewTuple [ Val "DebugRange";
+                           P.NewTuple [ Val (file: string)
+                                        Val (startLine: int)
+                                        Val (startCol: int)
+                                        Val (endLine: int)
+                                        Val (endCol: int) ] ] ->
+                ({
+                    FileName = System.IO.Path.GetFileName(file)
+                    Start = (startLine, startCol)
+                    End = (endLine, endCol)
+                } : WebSharper.Core.AST.SourcePos)
+                |> Some
+            | _ -> None)
+
+    let rec findArgs (env: Set<string>) (setArg: string -> obj -> unit) (q: Expr) =
+        match q with
+        | P.ValueWithName (v, _, n) when not (env.Contains n) -> setArg n v
+        | P.AddressOf q
+        | P.Coerce (q, _)
+        | P.FieldGet (Some q, _)
+        | P.QuoteRaw q
+        | P.QuoteTyped q
+        | P.VarSet (_, q)
+        | P.WithValue (_, _, q)
+            -> findArgs env setArg q
+        | P.AddressSet (q1, q2)
+        | P.Application (q1, q2)
+        | P.Sequential (q1, q2)
+        | P.TryFinally (q1, q2)
+        | P.WhileLoop (q1, q2)
+            -> findArgs env setArg q1; findArgs env setArg q2
+        | P.PropertyGet (q, _, qs)
+        | P.Call (q, _, qs) ->
+            Option.iter (findArgs env setArg) q
+            List.iter (findArgs env setArg) qs
+        | P.FieldSet (q1, _, q2) ->
+            Option.iter (findArgs env setArg) q1; findArgs env setArg q2
+        | P.ForIntegerRangeLoop (v, q1, q2, q3) ->
+            findArgs env setArg q1
+            findArgs env setArg q2
+            findArgs (Set.add v.Name env) setArg q3
+        | P.IfThenElse (q1, q2, q3)
+            -> findArgs env setArg q1; findArgs env setArg q2; findArgs env setArg q3
+        | P.Lambda (v, q) ->
+            findArgs (Set.add v.Name env) setArg q
+        | P.Let (v, q1, q2) ->
+            findArgs env setArg q1
+            findArgs (Set.add v.Name env) setArg q2
+        | P.LetRecursive (vqs, q) ->
+            let vs, qs = List.unzip vqs
+            let env = (env, vs) ||> List.fold (fun env v -> Set.add v.Name env)
+            List.iter (findArgs env setArg) qs
+            findArgs env setArg q
+        | P.NewObject (_, qs)
+        | P.NewRecord (_, qs)
+        | P.NewTuple qs
+        | P.NewUnionCase (_, qs)
+        | P.NewArray (_, qs) ->
+            List.iter (findArgs env setArg) qs
+        | P.NewDelegate (_, vs, q) ->
+            let env = (env, vs) ||> List.fold (fun env v -> Set.add v.Name env)
+            findArgs env setArg q
+        | P.PropertySet (q1, _, qs, q2) ->
+            Option.iter (findArgs env setArg) q1
+            List.iter (findArgs env setArg) qs
+            findArgs env setArg q2
+        | P.TryWith (q, v1, q1, v2, q2) ->
+            findArgs env setArg q
+            findArgs (Set.add v1.Name env) setArg q1
+            findArgs (Set.add v2.Name env) setArg q2
+        | _ -> ()
+
+    let compile (meta: M.Info) (json: J.Provider) (reqs: list<M.Node>) (q: Expr) =
+        let rec compile (reqs: list<M.Node>) (q: Expr) =
+            match getLocation q with
+            | Some p ->
+                match meta.Quotations.TryGetValue(p) with
+                | false, _ ->
+                    let ex =
+                        meta.Quotations.Keys
+                        |> Seq.map (sprintf "  %O")
+                        |> String.concat "\n"
+                    failwithf "Failed to find compiled quotation at position %O\nExisting ones:\n%s" p ex
+                | true, (declType, meth, argNames) ->
+                    match meta.Classes.TryGetValue declType with
+                    | false, _ -> failwithf "Error in Handler: Couldn't find JavaScript address for method %s.%s" declType.Value.FullName meth.Value.MethodName
+                    | true, c ->
+                        let argIndices = Map (argNames |> List.mapi (fun i x -> x, i))
+                        let args = Array.create argNames.Length null
+                        let reqs = ref (M.MethodNode (declType, meth) :: M.TypeNode declType :: reqs)
+                        let setArg (name: string) (value: obj) =
+                            let i = argIndices.[name]
+                            if isNull args.[i] then
+                                args.[i] <-
+                                    match value with
+                                    | :? Expr as q ->
+                                        let x, reqs' = compile !reqs q
+                                        reqs := reqs'
+                                        x
+                                    | value ->
+                                        let typ = value.GetType()
+                                        reqs := M.TypeNode (WebSharper.Core.AST.Reflection.ReadTypeDefinition typ) :: !reqs
+                                        let packed = json.GetEncoder(typ).Encode(value) |> json.Pack
+                                        let s =
+                                            WebSharper.Core.Json.Stringify(packed)
+                                                .Replace("&", "&amp;")
+                                                .Replace("\"", "&quot;")
+                                        match packed with
+                                        | WebSharper.Core.Json.Object ((("$TYPES" | "$DATA"), _) :: _) ->
+                                            "WebSharper.Json.Activate(" + s + ")"
+                                        | _ -> s
+                        findArgs Set.empty setArg q
+                        let addr =
+                            match c.Methods.TryGetValue meth with
+                            | true, (M.CompiledMember.Static x, _, _) -> x.Value
+                            | _ -> failwithf "Error in Handler: Couldn't find JavaScript address for method %s.%s" declType.Value.FullName meth.Value.MethodName
+                        let funcall = String.concat "." (List.rev addr)
+                        let args = String.concat "," args
+                        sprintf "%s(%s)" funcall args, !reqs
+            | None -> failwithf "Failed to find location of quotation: %A" q
+        let s, reqs = compile reqs q 
+        s + "(this)(event)", reqs
 
 // We would have wanted to use UseNullAsTrueValue so that EmptyAttr = null,
 // which makes things much easier when it comes to optional arguments in Templating.
@@ -102,7 +234,24 @@ type Attr =
     static member WithDependencies(name, getValue, deps) =
         DepAttr (name, getValue, deps)
 
-    static member HandlerImpl(event, m, location) =
+    static member HandlerImpl (event: string) (q: Expr<Dom.Element -> #Dom.Event -> unit>) =
+        let json = WebSharper.Web.Shared.Json // TODO: fix?
+        let value = ref None
+        let init meta =
+            if Option.isNone !value then
+                value := Some (Internal.compile meta json [] q)
+        let getValue (meta: M.Info) =
+            init meta
+            fst (Option.get !value)
+        let getReqs (meta: M.Info) =
+            init meta
+            snd (Option.get !value) :> seq<_>
+        Attr.WithDependencies("on" + event, getValue, getReqs)
+
+    static member Handler (event: string) ([<JavaScript>] q: Expr<Dom.Element -> #Dom.Event -> unit>) =
+        Attr.HandlerImpl event q
+
+    static member HandlerLinqImpl(event, m, location) =
         let meth = R.ReadMethod m
         let declType = R.ReadTypeDefinition m.DeclaringType
         let reqs = [M.MethodNode (declType, meth); M.TypeNode declType]
@@ -126,17 +275,9 @@ type Attr =
             | Some v -> v
         DepAttr ("on" + event, func, fun _ -> reqs :> _)
 
-    static member Handler (event: string) (q: Expr<Dom.Element -> #Dom.Event -> unit>) =
-        let meth =
-            match q with
-            | Lambda (x1, Lambda (y1, Call(None, m, [Var x2; (Var y2 | Coerce(Var y2, _))]))) when x1 = x2 && y1 = y2 -> m
-            | _ -> failwithf "Invalid handler function: %A" q
-        let loc = Internal.getLocation q
-        Attr.HandlerImpl(event, meth, " at " + loc)
-
     static member HandlerLinq (event: string) (q: Expression<Action<Dom.Element, #Dom.Event>>) =
         let meth =
             match q.Body with
             | :? MethodCallExpression as e -> e.Method
             | _ -> failwithf "Invalid handler function: %A" q
-        Attr.HandlerImpl(event, meth, "")
+        Attr.HandlerLinqImpl(event, meth, "")

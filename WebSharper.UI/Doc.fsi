@@ -528,6 +528,8 @@ and [<Class>] Elt =
     member OnWheel : cb: Expr<Dom.Element -> Dom.WheelEvent -> unit> -> Elt
     // }}
 
+    member WithAttrs : list<Attr> -> Elt
+
 [<RequireQualifiedAccess>]
 type TemplateHole =
     | Elt of name: string * fillWith: Doc
@@ -545,3 +547,15 @@ type TemplateHole =
     | VarFloatUnchecked of name: string * fillWith: IRef<float>
 
     static member Name : TemplateHole -> string
+
+type DynDoc =
+    | AppendDoc of list<Doc>
+    | ElemDoc of Elt
+    | EmptyDoc
+    | TextDoc of string
+    | VerbatimDoc of string
+    | INodeDoc of WebSharper.Web.INode
+
+type ConcreteDoc =
+    inherit Doc
+    new : DynDoc -> ConcreteDoc

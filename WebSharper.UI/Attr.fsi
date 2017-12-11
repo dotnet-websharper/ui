@@ -58,3 +58,5 @@ type Attr =
     /// Sets an event handler, for a given event such as `click`.
     /// When called on the server side, the handler must be a top-level function or a static member.
     static member HandlerLinq : event: string -> callback: (System.Linq.Expressions.Expression<System.Action<Dom.Element, #Dom.Event>>) -> Attr
+
+    static member HandlerImpl : event: string -> callback: (Expr<Dom.Element -> #Dom.Event -> unit>) -> Attr

@@ -150,8 +150,8 @@ module Tags =
                 [|
                     sprintf "/// Create a handler for the event \"%s\"." e.Name
                     "/// When called on the server side, the handler must be a top-level function or a static member."
-                    "[<Inline>]"
-                    sprintf """static member %s (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.%s -> unit>) = Attr.Handler "%s" f""" e.CamelNameEsc e.Category e.Name
+                    // "[<Inline>]"
+                    sprintf """static member %s ([<JavaScript; ReflectedDefinition>] f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.%s -> unit>) = Attr.HandlerImpl "%s" f""" e.CamelNameEsc e.Category e.Name
                 |]
             | ty -> failwithf "unknown type: %s" ty
         RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI", "HTML.Client.fs")) all <| fun e ->
@@ -170,18 +170,22 @@ module Tags =
                 |]
             | "event" ->
                 [|
-                    sprintf "/// Create a handler for the event \"%s\"." e.Name
-                    "[<JavaScript; Inline>]"
-                    sprintf """static member %s (f: Dom.Element -> Dom.%s -> unit) = Client.Attr.Handler "%s" f""" e.CamelNameEsc e.Category e.Name
                     sprintf "/// Create a handler for the event \"%s\" which also receives the value of a view at the time of the event." e.Name
                     "[<JavaScript; Inline>]"
                     sprintf """static member %sView (view: View<'T>) (f: Dom.Element -> Dom.%s -> 'T -> unit) = Client.Attr.HandlerView "%s" view f""" e.CamelName e.Category e.Name
+                |]
+        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI", "HTML.Proxy.fs")) all <| fun e ->
+            match e.Type with
+            | "event" ->
+                [|
+                    "[<JavaScript; Inline>]"
+                    sprintf """static member %s (f: Expr<Dom.Element -> Dom.%s -> unit>) = Attr.HandlerImpl "%s" f""" e.CamelNameEsc e.Category e.Name
                 |]
         RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI", "Doc.fs")) all <| fun e ->
             match e.Type with
             | "event" ->
                 [|
-                    sprintf "member this.On%s(cb: Expr<Dom.Element -> Dom.%s -> unit>) = this.On(\"%s\", cb)" e.PascalName e.Category e.Name
+                    sprintf "member this.On%s([<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.%s -> unit>) = this.OnImpl(\"%s\", cb)" e.PascalName e.Category e.Name
                 |]
         RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI", "Doc.fsi")) all <| fun e ->
             match e.Type with

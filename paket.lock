@@ -3,7 +3,7 @@ RESTRICTION: || (== net40) (== net45)
 NUGET
   remote: https://api.nuget.org/v3/index.json
     FSharp.Core (4.0.0.1)
-    HtmlAgilityPack (1.6.6)
+    HtmlAgilityPack (1.6.7)
     Microsoft.CodeAnalysis.Analyzers (1.0)
     Microsoft.CodeAnalysis.Common (1.0)
       Microsoft.CodeAnalysis.Analyzers (1.0)
@@ -16,13 +16,13 @@ NUGET
       System.Collections.Immutable (>= 1.1.36)
     System.ValueTuple (4.3)
   remote: https://nuget.intellifactory.com/nuget
-    WebSharper (4.1.0.150-alpha)
-    WebSharper.CSharp (4.1.0.150-alpha)
-      WebSharper (4.1.0.150-alpha)
-    WebSharper.FSharp (4.1.0.150-alpha)
-      WebSharper (4.1.0.150-alpha)
-    WebSharper.Testing (4.1.0.150-alpha)
-      WebSharper (4.1.0.150-alpha)
+    WebSharper (4.1.0.152-alpha)
+    WebSharper.CSharp (4.1.0.152-alpha)
+      WebSharper (4.1.0.152-alpha)
+    WebSharper.FSharp (4.1.0.152-alpha)
+      WebSharper (4.1.0.152-alpha)
+    WebSharper.Testing (4.1.0.152-alpha)
+      WebSharper (4.1.0.152-alpha)
 GITHUB
   remote: tarmil/FSharp.TypeProviders.SDK
     src/ProvidedTypes.fs (1b46411cf45dd98aef95e05707b89558d95bba1a)
@@ -46,6 +46,6 @@ NUGET
       Newtonsoft.Json
 GITHUB
   remote: intellifactory/websharper
-    tools/WebSharper.Fake.cmd (68b64f299d66f5e36e9e737bbbc4f5bf1e4ee81e)
-    tools/WebSharper.Fake.fsx (68b64f299d66f5e36e9e737bbbc4f5bf1e4ee81e)
-    tools/WebSharper.Fake.sh (68b64f299d66f5e36e9e737bbbc4f5bf1e4ee81e)
+    tools/WebSharper.Fake.cmd (ece84f5076082b015425856781eae955b7184f38)
+    tools/WebSharper.Fake.fsx (ece84f5076082b015425856781eae955b7184f38)
+    tools/WebSharper.Fake.sh (ece84f5076082b015425856781eae955b7184f38)

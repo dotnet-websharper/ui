@@ -9,7 +9,7 @@ open WebSharper.UI.Notation
 open WebSharper.UI.Templating
 
 type LegacyTemplate = Template<"Main.html", legacyMode = LegacyMode.Old>
-type MainTemplate = Template<"Main.html,template.html", ClientLoad.FromDocument, ServerLoad.WhenChanged>
+type MainTemplate = Template<"Main.html,template.html", ClientLoad.FromDocument, ServerLoad.WhenChanged, LegacyMode.New>
 
 [<JavaScript>]
 module Client =
@@ -32,18 +32,21 @@ module Client =
 [<Website>]
 let Main = Application.SinglePage(fun ctx ->
     Content.Page(
-        MainTemplate.Main()
-            .Main(MainTemplate.template().Who("world").Doc())
-            .Client(
-                [
-                    client <@ Client.Main("green") @>
-                    client <@ Client.Main("blue") @>
-                    client <@ Client.OldMain("old template") @>
-                    MainTemplate.Main.ServerTemplate().Elt()
-                        .OnClick(<@ Client.OnClick @>)
-                    :> Doc
-                ])
-            .TBody([MainTemplate.Main.Row().Doc(); MainTemplate.Main.Row().Doc()])
-            .Doc()
+        Body = [
+            MainTemplate.Main()
+                .Main(MainTemplate.template().Who("world").Doc())
+                .Client(
+                    [
+                        client <@ Client.Main("green") @>
+                        client <@ Client.Main("blue") @>
+                        client <@ Client.OldMain("old template") @>
+                        MainTemplate.Main.ServerTemplate().Elt()
+                            .OnClick(<@ Client.OnClick @>)
+                        :> Doc
+                        button [on.click(fun _ _ -> JavaScript.JS.Alert "hey!")] [text "Click me!"] :> _
+                    ])
+                .TBody([MainTemplate.Main.Row().Doc(); MainTemplate.Main.Row().Doc()])
+                .Doc()
+        ]
     )
 )

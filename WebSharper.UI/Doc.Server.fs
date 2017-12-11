@@ -78,6 +78,12 @@ module Internal =
         override this.Write(ctx, h, _: option<RenderedResources>) =
             write ctx h false
 
+        new (requireResources: seq<IRequiresResources>, doc: Doc) =
+            TemplateDoc(
+                Seq.append [|doc :> IRequiresResources|] requireResources,
+                fun ctx w x -> doc.Write(ctx, w, x)
+            )
+
     type TemplateElt =
         inherit Elt
 
@@ -87,3 +93,9 @@ module Internal =
             let requires (attrs: list<Attr>) m =
                 Seq.concat (requireResources |> Seq.map (fun rr -> rr.Requires(m)))
             { inherit Elt([], encode, requires, false, (fun a ctx w _ -> write a ctx w false), Some write) }
+
+        new (requireResources: seq<IRequiresResources>, elt: Elt) =
+            TemplateElt(
+                Seq.append [|elt :> IRequiresResources|] requireResources,
+                fun a ctx w x -> elt.WithAttrs(a).Write(ctx, w, x)
+            )

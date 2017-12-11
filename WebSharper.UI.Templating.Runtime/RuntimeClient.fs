@@ -235,10 +235,6 @@ type private HandlerProxy =
                 }
         @>)
 
-    [<Inline; MethodImpl(MethodImplOptions.NoInlining)>]
-    static member Hole (event: string, isGenerated: bool, f: Expr<Dom.Element -> Dom.Event -> unit>) =
-        Attr.Handler event f
-
     [<JavaScript; MethodImpl(MethodImplOptions.NoInlining)>]
     static member CompleteHoles(_: string, filledHoles: seq<TemplateHole>, vars: array<string * Server.ValTy>) : seq<TemplateHole> * Server.CompletedHoles =
         let allVars = Dictionary<string, obj>()
