@@ -519,6 +519,9 @@ module Main =
             }
         }
 
+    type Rec = { x: string; y: Rec2 }
+    and Rec2 = { z: string; t: string }
+
     [<SPAEntryPoint>]
     let Main() =
         Runner.RunTests(
@@ -541,11 +544,11 @@ module Main =
             )
         ]
         |> Doc.RunAppend JS.Document.Body
-        let rv = Var.Create ""
-        div [Attr.Style "color" rv.V] [
+        let rv = Var.Create { x = "red"; y = { z = "green"; t = "test" } }
+        div [Attr.Style "color" rv.V.y.z] [
             text "Test text x.V: enter a color: "
-            Doc.Input [attr.style ("background: " + rv.V)] rv
-            text (" You typed: " + rv.V)
-            V(ul [] (rv.V |> Seq.map (fun c -> li [] [text (string c)] :> Doc))).V
+            Doc.Input [attr.style ("background: " + rv.V.y.z)] (rv.LensAuto(fun v -> v.y.z))
+            text (" You typed: " + rv.V.y.z)
+            V(ul [] (rv.V.y.z |> Seq.map (fun c -> li [] [text (string c)] :> Doc))).V
         ]
         |> Doc.RunAppend JS.Document.Body

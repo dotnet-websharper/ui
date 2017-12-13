@@ -556,12 +556,12 @@ type View<'A> with
     [<JavaScript; Inline>]
     member v.UpdateWhile init vPred = View.UpdateWhile init vPred v
 
-    [<JavaScript; Macro(typeof<VMacro.VProp>)>]
+    [<JavaScript; Macro(typeof<Macros.VProp>)>]
     member v.V = failwith "View<'T>.V can only be called in an argument to a V-enabled function or if 'T = Doc." : 'T
 
 type Var<'T> with
 
-    [<Macro(typeof<VMacro.VProp>)>]
+    [<Macro(typeof<Macros.VProp>)>]
     member this.V = this.View.V
 
 [<AutoOpen>]
@@ -637,7 +637,7 @@ type Submitter =
 [<AutoOpen>]
 module V =
 
-    [<Macro(typeof<VMacro.V>)>]
+    [<Macro(typeof<Macros.V>)>]
     let V (x: 'T) = View.Const x
 
 [<assembly:System.Runtime.CompilerServices.Extension>]

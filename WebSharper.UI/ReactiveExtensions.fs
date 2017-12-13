@@ -22,6 +22,7 @@ namespace WebSharper.UI
 
 open System.Runtime.CompilerServices
 open WebSharper
+open WebSharper.JavaScript
 
 // These methods apply to specific types of View (such as View<seq<'A>> when 'A : equality)
 /// so we need to use C#-style extension methods.
@@ -94,3 +95,6 @@ type ReactiveExtensions() =
     [<Extension; Inline>]
     static member MapSeqCached<'A, 'B, 'K when 'K : equality>
         (v: View<ListModelState<'A>>, k: 'A -> 'K, f: 'K -> View<'A> -> 'B) = View.MapSeqCachedViewBy k f v
+
+    [<Extension; Macro(typeof<Macros.Lens>)>]
+    static member LensAuto<'T, 'U>(ref: IRef<'T>, getter: 'T -> 'U) = X<IRef<'U>>

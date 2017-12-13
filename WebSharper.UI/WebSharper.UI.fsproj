@@ -26,8 +26,8 @@
     <Compile Include="Utility\Resources.fs" />
     <Compile Include="Snap.fsi" />
     <Compile Include="Snap.fs" />
-    <Compile Include="VMacro.fsi" />
-    <Compile Include="VMacro.fs" />
+    <Compile Include="Macros.fsi" />
+    <Compile Include="Macros.fs" />
     <Compile Include="Reactive.fsi" />
     <Compile Include="Reactive.fs" />
     <Compile Include="Models.fsi" />

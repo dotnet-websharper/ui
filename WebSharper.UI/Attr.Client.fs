@@ -289,7 +289,7 @@ type CheckedInput<'T> =
 [<JavaScript; Name "WebSharper.UI.AttrModule">]
 module Attr =
 
-    [<JavaScript; Macro(typeof<VMacro.AttrStyle>)>]
+    [<JavaScript; Macro(typeof<Macros.AttrStyle>)>]
     let Style name value =
         As<Attr> (Attrs.Static (fun el -> DU.SetStyle el name value))
 

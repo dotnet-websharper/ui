@@ -159,3 +159,6 @@ type ReactiveExtensions =
     [<Extension>]
     static member MapSeqCached<'A,'B,'K when 'K : equality> :
         View<ListModelState<'A>> * key: ('A -> 'K) * f: ('K -> View<'A> -> 'B) -> View<seq<'B>>
+
+    [<Extension>]
+    static member LensAuto<'T, 'U> : ref: IRef<'T> * getter: ('T -> 'U) -> IRef<'U>
