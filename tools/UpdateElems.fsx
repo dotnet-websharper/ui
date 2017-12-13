@@ -12,14 +12,7 @@ module Tags =
         true
 
     let tagsFilePath =
-        let d =
-            Directory.GetDirectories(Path.Combine(__SOURCE_DIRECTORY__, "..", "packages"), "WebSharper.*")
-            |> Array.append (
-                Directory.GetDirectories(Path.Combine(__SOURCE_DIRECTORY__, "..", "packages"), "Zafir.4.*") 
-            )
-            |> Array.filter (fun d -> not (d.Contains "Testing"))
-            |> Array.maxBy (fun d -> DirectoryInfo(d).LastWriteTimeUtc)
-        Path.Combine(d, "tools", "net40", "tags.csv")
+        Path.Combine(__SOURCE_DIRECTORY__, "..", "packages", "WebSharper", "tools", "net40", "tags.csv")
 
     let groupByFst (s: seq<'a * 'b>) : seq<'a * seq<'b>> =
         s
@@ -127,16 +120,13 @@ module Tags =
 
     let Run() =
         let all = Parse()
-        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next", "HTML.fs")) all <| fun e ->
+        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI", "HTML.fs")) all <| fun e ->
             match e.Type with
             | "tag" ->
                 [|
                     sprintf "/// Create an HTML element <%s> with attributes and children." e.Name
                     "[<JavaScript; Inline>]"
-                    sprintf """let %sAttr ats ch = Doc.Element "%s" ats ch""" e.LowName e.Name
-                    sprintf "/// Create an HTML element <%s> with children." e.Name
-                    "[<JavaScript; Inline>]"
-                    sprintf """let %s ch = Doc.Element "%s" [||] ch""" e.LowNameEsc e.Name
+                    sprintf """let %s ats ch = Doc.Element "%s" ats ch""" e.LowNameEsc e.Name
                 |]
             | "svgtag" ->
                 [|
@@ -161,11 +151,11 @@ module Tags =
                 [|
                     sprintf "/// Create a handler for the event \"%s\"." e.Name
                     "/// When called on the server side, the handler must be a top-level function or a static member."
-                    "[<Inline>]"
-                    sprintf """static member %s (f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.%s -> unit>) = Attr.Handler "%s" f""" e.CamelNameEsc e.Category e.Name
+                    // "[<Inline>]"
+                    sprintf """static member %s ([<JavaScript; ReflectedDefinition>] f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.%s -> unit>) = Attr.HandlerImpl "%s" f""" e.CamelNameEsc e.Category e.Name
                 |]
             | ty -> failwithf "unknown type: %s" ty
-        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next", "HTML.Client.fs")) all <| fun e ->
+        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI", "HTML.Client.fs")) all <| fun e ->
             match e.Type with
             | "attr" ->
                 [|
@@ -181,20 +171,24 @@ module Tags =
                 |]
             | "event" ->
                 [|
-                    sprintf "/// Create a handler for the event \"%s\"." e.Name
-                    "[<JavaScript; Inline>]"
-                    sprintf """static member %s (f: Dom.Element -> Dom.%s -> unit) = Client.Attr.Handler "%s" f""" e.CamelNameEsc e.Category e.Name
                     sprintf "/// Create a handler for the event \"%s\" which also receives the value of a view at the time of the event." e.Name
                     "[<JavaScript; Inline>]"
                     sprintf """static member %sView (view: View<'T>) (f: Dom.Element -> Dom.%s -> 'T -> unit) = Client.Attr.HandlerView "%s" view f""" e.CamelName e.Category e.Name
                 |]
-        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next", "Doc.fs")) all <| fun e ->
+        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI", "HTML.Proxy.fs")) all <| fun e ->
             match e.Type with
             | "event" ->
                 [|
-                    sprintf "member this.On%s(cb: Expr<Dom.Element -> Dom.%s -> unit>) = this.On(\"%s\", cb)" e.PascalName e.Category e.Name
+                    "[<JavaScript; Inline>]"
+                    sprintf """static member %s (f: Expr<Dom.Element -> Dom.%s -> unit>) = Attr.HandlerImpl "%s" f""" e.CamelNameEsc e.Category e.Name
                 |]
-        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next", "Doc.fsi")) all <| fun e ->
+        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI", "Doc.fs")) all <| fun e ->
+            match e.Type with
+            | "event" ->
+                [|
+                    sprintf "member this.On%s([<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.%s -> unit>) = this.OnImpl(\"%s\", cb)" e.PascalName e.Category e.Name
+                |]
+        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI", "Doc.fsi")) all <| fun e ->
             match e.Type with
             | "event" ->
                 [|
@@ -202,7 +196,7 @@ module Tags =
                     "/// When called on the server side, the handler must be a top-level function or a static member."
                     sprintf "member On%s : cb: Expr<Dom.Element -> Dom.%s -> unit> -> Elt" e.PascalName e.Category
                 |]
-        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next", "Doc.Client.fs")) all <| fun e ->
+        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI", "Doc.Client.fs")) all <| fun e ->
             match e.Type with
             | "event" ->
                 [|
@@ -216,7 +210,7 @@ module Tags =
 //                    "[<Extension; Inline>]"
 //                    sprintf "static member On%sView(this: Elt, view: View<'T>, cb: System.Action<Dom.Element, Dom.%s, 'T>) = As<Elt> ((As<Elt'> this).onViewDel(\"%s\", view, cb))" e.PascalName e.Category e.Name
                 |]
-        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next", "Doc.Client.fsi")) all <| fun e ->
+        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI", "Doc.Client.fsi")) all <| fun e ->
             match e.Type with
             | "event" ->
                 [|
@@ -234,7 +228,7 @@ module Tags =
 //                    "[<Extension>]"
 //                    sprintf "static member On%sView : Elt * view: View<'T> * cb: System.Action<Dom.Element, Dom.%s, 'T> -> Elt" e.PascalName e.Category
                 |]
-        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next.CSharp", "HTML.fs")) all <| fun e ->
+        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.CSharp", "HTML.fs")) all <| fun e ->
             match e.Type with
             | "tag" ->
                 [|
@@ -266,7 +260,7 @@ module Tags =
                     "[<Inline>]"
                     sprintf "let %s value = Attr.Create \"%s\" value" e.LowNameEsc e.Name
                 |]
-        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next.CSharp", "HTML.Client.fs")) all <| fun e ->
+        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.CSharp", "HTML.Client.fs")) all <| fun e ->
             match e.Type with
             | "tag" ->
                 [|
@@ -319,7 +313,7 @@ module Tags =
                     sprintf "[<Inline; CompiledName \"%s\">]" e.CamelName
                     sprintf """let %sView (view: View<'T>) (f: System.Action<Dom.Element, Dom.%s, 'T>) = Client.Attr.HandlerView "%s" view (FSharpConvert.Fun f)""" e.PascalName e.Category e.Name
                 |]
-        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next.CSharp", "Doc.Server.fs")) all <| fun e ->
+        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.CSharp", "Doc.Server.fs")) all <| fun e ->
             match e.Type with
             | "event" ->
                 [|
@@ -328,7 +322,7 @@ module Tags =
                     "[<Extension>]"
                     sprintf "static member On%s(this: Elt, cb: Expression<System.Action<Dom.Element, Dom.%s>>) = this.OnLinq(\"%s\", cb)" e.PascalName e.Category e.Name
                 |]
-        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.Next.CSharp", "Doc.Client.fs")) all <| fun e ->
+        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI.CSharp", "Doc.Client.fs")) all <| fun e ->
             match e.Type with
             | "event" ->
                 [|
