@@ -542,10 +542,10 @@ module Main =
         ]
         |> Doc.RunAppend JS.Document.Body
         let rv = Var.Create ""
-        div [Attr.Style "color" rv.View.V] [
+        div [Attr.Style "color" rv.V] [
             text "Test text x.V: enter a color: "
-            Doc.Input [attr.style ("background: " + rv.View.V)] rv
-            text (" You typed: " + rv.View.V)
-            V(ul [] (rv.View.V |> Seq.map (fun c -> li [] [text (string c)] :> Doc))).V
+            Doc.Input [attr.style ("background: " + rv.V)] rv
+            text (" You typed: " + rv.V)
+            V(ul [] (rv.V |> Seq.map (fun c -> li [] [text (string c)] :> Doc))).V
         ]
         |> Doc.RunAppend JS.Document.Body

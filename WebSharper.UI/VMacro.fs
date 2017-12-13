@@ -48,7 +48,10 @@ module internal VMacro =
         | Choice1Of2 x -> Var x
         | Choice2Of2 e -> e
 
-    let isViewT (t: TypeDefinition) = t.Value.FullName = "WebSharper.UI.View`1"
+    let isViewT (t: TypeDefinition) =
+        t.Value.FullName = "WebSharper.UI.View`1"
+    let isVarT (t: TypeDefinition) =
+        t.Value.FullName = "WebSharper.UI.Var`1"
     let isDocOrEltT (t: TypeDefinition) =
         match t.Value.FullName with
         | "WebSharper.UI.Doc" | "WebSharper.UI.Elt" -> true
@@ -57,6 +60,7 @@ module internal VMacro =
     let stringT = NonGenericType (ty' "mscorlib" "System.String")
     let viewModule = NonGeneric (ty "View")
     let viewOf t = GenericType (ty "View`1") [t]
+    let varOf t = GenericType (ty "Var`1") [t]
     let docT = NonGenericType (ty "Doc")
     let attrT = NonGenericType (ty "Attr")
     let clientDocModule = NonGeneric (ty "Client.Doc")
@@ -64,6 +68,7 @@ module internal VMacro =
     let V0 = viewOf T0
     let V1 = viewOf T1
     let V2 = viewOf T2
+    let viewPropOf t =   gen[t]       (meth "get_View"     []                         t)
     let constFnOf t =    gen[t]       (meth "Const"        [T0]                       V0)
     let mapFnOf t u =    gen[t; u]    (meth "Map"          [T0 ^-> T1; V0]            V1)
     let map2FnOf t u v = gen[t; u; v] (meth "Map2"         [T0 ^-> T1 ^-> T2; V0; V1] V2)
@@ -83,14 +88,19 @@ module internal VMacro =
         let body =
             { new Transformer() with
                 member v.TransformCall (this, ty, m, args) =
-                    if isViewT ty.Entity && isV m.Entity then
-                        let k = key this.Value
+                    let addItem v =
+                        let k = key v
                         match env.TryFind k with
                         | Some (id, _) -> Var id
                         | None ->
                             let id = Id.New()
                             env.[k] <- (id, ty.Generics.[0])
                             Var id
+                    if isViewT ty.Entity && isV m.Entity then
+                        addItem this.Value
+                    elif isVarT ty.Entity && isV m.Entity then
+                        Call(Some this.Value, ty, viewPropOf ty.Generics.[0], [])
+                        |> addItem
                     else base.TransformCall (this, ty, m, args)
             }.TransformExpression e
         match List.ofSeq env with

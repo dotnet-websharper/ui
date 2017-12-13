@@ -94,6 +94,9 @@ type Var<'A> =
     /// Gets or sets the current value.
     member Value : 'A with get, set
 
+    /// Bind this view's value inside a dynamic function such as V.
+    member V : 'A
+
 /// Static operations on variables.
 [<Sealed>]
 type Var =

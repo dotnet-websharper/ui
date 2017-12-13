@@ -559,6 +559,11 @@ type View<'A> with
     [<JavaScript; Macro(typeof<VMacro.VProp>)>]
     member v.V = failwith "View<'T>.V can only be called in an argument to a V-enabled function or if 'T = Doc." : 'T
 
+type Var<'T> with
+
+    [<Macro(typeof<VMacro.VProp>)>]
+    member this.V = this.View.V
+
 [<AutoOpen>]
 module IRefExtension =
 
