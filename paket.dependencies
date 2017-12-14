@@ -22,7 +22,7 @@ group build
     source https://api.nuget.org/v3/index.json
 
     nuget FAKE
-    nuget Paket.Core 5.108.0
+    nuget Paket.Core 5.122.3
     github intellifactory/websharper tools/WebSharper.Fake.fsx
     github intellifactory/websharper tools/WebSharper.Fake.cmd
     github intellifactory/websharper tools/WebSharper.Fake.sh

@@ -33,12 +33,12 @@ NUGET
   remote: https://api.nuget.org/v3/index.json
     Chessie (0.6)
       FSharp.Core
-    FAKE (4.63.2)
+    FAKE (4.64.2)
     FSharp.Compiler.Tools (4.1.29)
     FSharp.Core (4.2.3)
     Mono.Cecil (0.10.0-beta7)
     Newtonsoft.Json (10.0.3)
-    Paket.Core (5.108)
+    Paket.Core (5.122.3)
       Chessie (>= 0.6)
       FSharp.Compiler.Tools
       FSharp.Core
@@ -46,6 +46,6 @@ NUGET
       Newtonsoft.Json
 GITHUB
   remote: intellifactory/websharper
-    tools/WebSharper.Fake.cmd (ece84f5076082b015425856781eae955b7184f38)
-    tools/WebSharper.Fake.fsx (ece84f5076082b015425856781eae955b7184f38)
-    tools/WebSharper.Fake.sh (ece84f5076082b015425856781eae955b7184f38)
+    tools/WebSharper.Fake.cmd (8a1fc26e071f4751a89eb92067ea889920e3efbf)
+    tools/WebSharper.Fake.fsx (8a1fc26e071f4751a89eb92067ea889920e3efbf)
+    tools/WebSharper.Fake.sh (8a1fc26e071f4751a89eb92067ea889920e3efbf)
