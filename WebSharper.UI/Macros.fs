@@ -83,7 +83,7 @@ module internal Macros =
     let attrDynStyleFn = gen[]        (meth "DynamicStyle" [stringT; viewOf stringT]  attrT)
     let docEmbedFn t =   gen[t]       (meth "EmbedView"    [viewOf T0]                docT)
     let lensFn t u =     gen[t; u]    (meth "Lens"         [irefOf T0; T0 ^-> T1; T0 ^-> T1 ^-> T0] (irefOf T1))
-    let inputFn =        gen[]        (meth "Input"        [seqOf attrT; irefOf stringT] eltT)
+    let inputFn n t =    gen[]        (meth n              [seqOf attrT; irefOf t]    eltT)
 
     module Lens =
 
@@ -253,7 +253,8 @@ module internal Macros =
         inherit Macro()
 
         override this.TranslateCall(call) =
-            match Lens.VMakeLens call.Compilation stringT call.Arguments.[1] with
+            let t = call.Method.Entity.Value.Parameters.[1]
+            match Lens.VMakeLens call.Compilation t call.Arguments.[1] with
             | MacroOk lens ->
-                MacroOk (Call (None, clientDocModule, inputFn, [call.Arguments.[0]; lens]))
+                MacroOk (Call (None, clientDocModule, inputFn (downcast call.Parameter.Value) t, [call.Arguments.[0]; lens]))
             | err -> err

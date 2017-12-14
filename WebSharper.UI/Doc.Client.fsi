@@ -1263,7 +1263,6 @@ module Doc =
 
     /// Input box.
     /// The var must be passed using the .V property.
-    [<Macro(typeof<Macros.InputV>)>]
     val InputV : seq<Attr> -> var: string -> Elt
 
     /// Input box with type="number".
@@ -1272,10 +1271,23 @@ module Doc =
     val IntInput : seq<Attr> -> IRef<CheckedInput<int>> -> Elt
 
     /// Input box with type="number".
+    /// For validation to work properly in Internet Explorer 9 and older,
+    /// needs to be inside a <form> with Attr.ValidateForm.
+    /// The var must be passed using the .V property.
+    val IntInputV : seq<Attr> -> CheckedInput<int> -> Elt
+
+    /// Input box with type="number".
     /// If the input box is blank, the value is set to 0.
     /// If the input is not parseable as an int, the value is unchanged from its last valid value.
     /// It is advised to use IntInput instead for better user experience.
     val IntInputUnchecked : seq<Attr> -> IRef<int> -> Elt
+
+    /// Input box with type="number".
+    /// If the input box is blank, the value is set to 0.
+    /// If the input is not parseable as an int, the value is unchanged from its last valid value.
+    /// It is advised to use IntInput instead for better user experience.
+    /// The var must be passed using the .V property.
+    val IntInputUncheckedV : seq<Attr> -> int -> Elt
 
     /// Input box with type="number".
     /// For validation to work properly in Internet Explorer 9 and older,
@@ -1283,16 +1295,37 @@ module Doc =
     val FloatInput : seq<Attr> -> IRef<CheckedInput<float>> -> Elt
 
     /// Input box with type="number".
+    /// For validation to work properly in Internet Explorer 9 and older,
+    /// needs to be inside a <form> with Attr.ValidateForm.
+    /// The var must be passed using the .V property.
+    val FloatInputV : seq<Attr> -> CheckedInput<float> -> Elt
+
+    /// Input box with type="number".
     /// If the input box is blank, the value is set to 0.
     /// If the input is not parseable as a float, the value is unchanged from its last valid value.
     /// It is advised to use FloatInput instead for better user experience.
     val FloatInputUnchecked : seq<Attr> -> IRef<float> -> Elt
 
+    /// Input box with type="number".
+    /// If the input box is blank, the value is set to 0.
+    /// If the input is not parseable as a float, the value is unchanged from its last valid value.
+    /// It is advised to use FloatInput instead for better user experience.
+    /// The var must be passed using the .V property.
+    val FloatInputUncheckedV : seq<Attr> -> float -> Elt
+
     /// Input text area.
     val InputArea : seq<Attr> -> IRef<string> -> Elt
 
+    /// Input text area.
+    /// The var must be passed using the .V property.
+    val InputAreaV : seq<Attr> -> string -> Elt
+
     /// Password box.
     val PasswordBox : seq<Attr> -> IRef<string> -> Elt
+
+    /// Password box.
+    /// The var must be passed using the .V property.
+    val PasswordBoxV : seq<Attr> -> string -> Elt
 
     /// Submit button. Calls the callback function when the button is pressed.
     val Button : caption: string -> seq<Attr> -> (unit -> unit) -> Elt

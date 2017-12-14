@@ -548,7 +548,7 @@ module Main =
         div [Attr.Style "color" rv.V.y.z] [
             text "Test text x.V: enter a color: "
             Doc.Input [attr.style ("background: " + rv.V.y.z)] (rv.LensAuto(fun v -> v.y.z))
-            Doc.InputV [attr.style ("background: " + rv.V.y.z)] rv.V.y.z
+            Doc.PasswordBoxV [attr.style ("background: " + rv.V.y.z)] rv.V.y.z
             text (" You typed: " + rv.V.y.z)
             V(ul [] (rv.V.y.z |> Seq.map (fun c -> li [] [text (string c)] :> Doc))).V
         ]

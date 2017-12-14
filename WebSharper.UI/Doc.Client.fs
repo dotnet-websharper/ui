@@ -1858,32 +1858,50 @@ module Doc =
     let Input attr var =
         Doc'.Input attr var
 
-    [<Macro(typeof<Macros.InputV>)>]
+    [<Macro(typeof<Macros.InputV>, "Input")>]
     let InputV (attr: seq<Attr>) (var: string) = X<Elt>
 
     [<Inline>]
     let PasswordBox attr var =
         Doc'.PasswordBox attr var
 
+    [<Macro(typeof<Macros.InputV>, "PasswordBox")>]
+    let PasswordBoxV (attr: seq<Attr>) (var: string) = X<Elt>
+
     [<Inline>]
     let IntInput attr var =
         Doc'.IntInput attr var
+
+    [<Macro(typeof<Macros.InputV>, "IntInput")>]
+    let IntInputV (attr: seq<Attr>) (var: CheckedInput<int>) = X<Elt>
 
     [<Inline>]
     let IntInputUnchecked attr var =
         Doc'.IntInputUnchecked attr var
 
+    [<Macro(typeof<Macros.InputV>, "IntInputUnchecked")>]
+    let IntInputUncheckedV (attr: seq<Attr>) (var: int) = X<Elt>
+
     [<Inline>]
     let FloatInput attr var =
         Doc'.FloatInput attr var
+
+    [<Macro(typeof<Macros.InputV>, "FloatInput")>]
+    let FloatInputV (attr: seq<Attr>) (var: CheckedInput<float>) = X<Elt>
 
     [<Inline>]
     let FloatInputUnchecked attr var =
         Doc'.FloatInputUnchecked attr var
 
+    [<Macro(typeof<Macros.InputV>, "FloatInputUnchecked")>]
+    let FloatInputUncheckedV (attr: seq<Attr>) (var: float) = X<Elt>
+
     [<Inline>]
     let InputArea attr var =
         Doc'.InputArea attr var
+
+    [<Macro(typeof<Macros.InputV>, "InputArea")>]
+    let InputAreaV (attr: seq<Attr>) (var: string) = X<Elt>
 
     [<Inline>]
     let Select attrs show options current =
