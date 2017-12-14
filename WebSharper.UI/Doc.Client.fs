@@ -1858,6 +1858,9 @@ module Doc =
     let Input attr var =
         Doc'.Input attr var
 
+    [<Macro(typeof<Macros.InputV>)>]
+    let InputV (attr: seq<Attr>) (var: string) = X<Elt>
+
     [<Inline>]
     let PasswordBox attr var =
         Doc'.PasswordBox attr var

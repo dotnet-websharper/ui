@@ -64,7 +64,9 @@ module internal Macros =
     let viewOf t = GenericType (ty "View`1") [t]
     let varOf t = GenericType (ty "Var`1") [t]
     let irefOf t = GenericType (ty "IRef`1") [t]
+    let seqOf t = GenericType (ty' "mscorlib" "System.Collections.Generic.IEnumerable`1") [t]
     let docT = NonGenericType (ty "Doc")
+    let eltT = NonGenericType (ty "Elt")
     let attrT = NonGenericType (ty "Attr")
     let clientDocModule = NonGeneric (ty "Client.Doc")
     let clientAttrModule = NonGeneric (ty "Client.Attr")
@@ -81,6 +83,7 @@ module internal Macros =
     let attrDynStyleFn = gen[]        (meth "DynamicStyle" [stringT; viewOf stringT]  attrT)
     let docEmbedFn t =   gen[t]       (meth "EmbedView"    [viewOf T0]                docT)
     let lensFn t u =     gen[t; u]    (meth "Lens"         [irefOf T0; T0 ^-> T1; T0 ^-> T1 ^-> T0] (irefOf T1))
+    let inputFn =        gen[]        (meth "Input"        [seqOf attrT; irefOf stringT] eltT)
 
     module Lens =
 
@@ -123,6 +126,27 @@ module internal Macros =
                 | MacroOk e -> MacroOk <| Lambda ([x], Lambda ([y], e))
                 | err -> err
             | e -> setterFail()
+
+        let VMakeLens comp tOutput e =
+            let x = Id.New(mut = false)
+            let rec mkE = function
+                | IgnoreSourcePos.FieldGet(Some this, ty, f) ->
+                    let r, e = mkE this
+                    r, FieldGet(Some e, ty, f)
+                | IgnoreSourcePos.Call(Some this, t, m, []) when isVarT t.Entity && isV m.Entity -> (this, t), Var x
+                | _ -> failwith "Cannot deduce setter from this getter"
+            let y = Id.New(mut = false)
+            try
+                let (this, t), e = mkE e
+                let terminate getterBody valueArg =
+                    match getterBody with
+                    | IgnoreSourcePos.Var x' when x = x' ->
+                        let getter = Lambda([x], e)
+                        let setter = Lambda([x], Lambda([y], valueArg))
+                        Some (Call(None, varModule, lensFn t.Generics.[0] tOutput, [this; getter; setter]))
+                    | _ -> None
+                makeSetter comp terminate e (Var y)
+            with e -> MacroError e.Message
 
     module V =
 
@@ -223,4 +247,13 @@ module internal Macros =
             match Lens.BasicMakeSetter call.Compilation call.Arguments.[1] with
             | MacroOk setter ->
                 MacroOk (Call (None, varModule, lensFn t u, call.Arguments @ [setter]))
+            | err -> err
+
+    type InputV() =
+        inherit Macro()
+
+        override this.TranslateCall(call) =
+            match Lens.VMakeLens call.Compilation stringT call.Arguments.[1] with
+            | MacroOk lens ->
+                MacroOk (Call (None, clientDocModule, inputFn, [call.Arguments.[0]; lens]))
             | err -> err

@@ -1261,6 +1261,11 @@ module Doc =
     /// Input box.
     val Input : seq<Attr> -> IRef<string> -> Elt
 
+    /// Input box.
+    /// The var must be passed using the .V property.
+    [<Macro(typeof<Macros.InputV>)>]
+    val InputV : seq<Attr> -> var: string -> Elt
+
     /// Input box with type="number".
     /// For validation to work properly in Internet Explorer 9 and older,
     /// needs to be inside a <form> with Attr.ValidateForm.
