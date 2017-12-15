@@ -30,11 +30,6 @@ open WebSharper.UI.Client
 [<Extension; Sealed>]
 type CSharpDocExtensions =
 
-    /// Runs a reactive Doc as contents of the given element.
-    [<Extension; Inline>]
-    static member Run(doc, elt) =
-        Client.Doc.Run elt doc
-
     /// Runs a reactive Doc as contents of the element with the given ID.
     [<Extension; Inline>]
     static member Run(doc, id) =
