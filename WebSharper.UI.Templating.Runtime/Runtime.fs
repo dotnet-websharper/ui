@@ -99,14 +99,14 @@ and TemplateInstance(c: CompletedHoles, doc: Doc) =
 
     member this.Hole(name: string): obj = failwith "Cannot access template vars from the server side"
 
-type TemplateEvent<'TI when 'TI :> TemplateInstance> =
+type TemplateEvent<'TI, 'E when 'TI :> TemplateInstance and 'E :> DomEvent> =
     {
         /// The reactive variables of this template instance.
         Vars : 'TI
         /// The DOM element targeted by this event.
         Target : DomElement
         /// The DOM event data.
-        Event : DomEvent
+        Event : 'E
     }
 
 type Handler private () =
@@ -116,14 +116,14 @@ type Handler private () =
         TemplateHole.EventQ(holeName, isGenerated, f)
 
     [<MethodImpl(MethodImplOptions.NoInlining)>]
-    static member EventQ2 (key: string, holeName: string, ti: ref<TemplateInstance>, [<JavaScript>] f: Expr<TemplateEvent<TemplateInstance> -> unit>) =
+    static member EventQ2 (key: string, holeName: string, ti: ref<TemplateInstance>, [<JavaScript>] f: Expr<TemplateEvent<TemplateInstance, _> -> unit>) =
         Handler.EventQ(holeName, true, <@ fun el ev ->
             let k = key
             (WebSharper.JavaScript.Pervasives.As f)
                 {
                     Vars = TemplateInstances.GetInstance k
                     Target = el
-                    Event = ev
+                    Event = downcast ev
                 }
         @>)
 

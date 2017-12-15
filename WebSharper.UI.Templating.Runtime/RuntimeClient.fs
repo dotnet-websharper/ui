@@ -36,7 +36,8 @@ open WebSharper.UI.Templating
 module M = WebSharper.Core.Metadata
 module I = WebSharper.Core.AST.IgnoreSourcePos
 type TemplateInstance = Server.TemplateInstance
-type TemplateEvent<'T when 'T :> TemplateInstance> = Server.TemplateEvent<'T>
+type DomEvent = WebSharper.JavaScript.Dom.Event
+type TemplateEvent<'T, 'E when 'T :> TemplateInstance and 'E :> DomEvent> = Server.TemplateEvent<'T, 'E>
 
 [<JavaScript>]
 let private (|Box|) x = box x
@@ -226,12 +227,12 @@ type private HandlerProxy =
         TemplateHole.EventQ(holeName, isGenerated, f)
 
     [<Inline; MethodImpl(MethodImplOptions.NoInlining)>]
-    static member EventQ2 (key: string, holeName: string, ti: ref<TemplateInstance>, [<JavaScript>] f: Expr<TemplateEvent<TemplateInstance> -> unit>) =
+    static member EventQ2 (key: string, holeName: string, ti: ref<TemplateInstance>, [<JavaScript>] f: Expr<TemplateEvent<TemplateInstance, _> -> unit>) =
         TemplateHole.EventQ(holeName, true, <@ fun el ev ->
             (%f) {
                     Vars = !ti
                     Target = el
-                    Event = ev
+                    Event = downcast ev
                 }
         @>)
 

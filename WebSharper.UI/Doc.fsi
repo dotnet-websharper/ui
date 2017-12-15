@@ -548,6 +548,8 @@ type TemplateHole =
 
     static member Name : TemplateHole -> string
 
+    static member NewActionEvent<'T when 'T :> Dom.Event> : name: string * f: Action<Element, 'T> -> TemplateHole
+
 type DynDoc =
     | AppendDoc of list<Doc>
     | ElemDoc of Elt

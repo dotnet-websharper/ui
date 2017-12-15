@@ -44,7 +44,6 @@ module private Impl =
     type UINVar = WebSharper.UI.Var
     type TemplateHole = WebSharper.UI.TemplateHole
     type DomElement = WebSharper.JavaScript.Dom.Element
-    type DomEvent = WebSharper.JavaScript.Dom.Event
     type CheckedInput<'T> = WebSharper.UI.Client.CheckedInput<'T>
     module RTC = Runtime.Client
     module RTS = Runtime.Server
@@ -71,6 +70,8 @@ module private Impl =
                 "Builder for the template" + n + "; fill more holes or finish it with .Create()."
             let Instance =
                 "An instance of the template; use .Doc to insert into the document."
+            let Vars =
+                "The reactive variables defined in this template."
         module Member =
             let Hole n =
                 "Fill the hole \"" + n + "\" of the template."
@@ -145,14 +146,18 @@ module private Impl =
                     mk <| fun _ (x: Expr<unit -> unit>) ->
                         <@ TemplateHole.AfterRender(holeName', RTC.WrapAfterRender %x) @>
                 ]
-            | HoleKind.Event ->
+            | HoleKind.Event eventType ->
                 let exprTy t = typedefof<Expr<_>>.MakeGenericType [| t |]
                 let (^->) t u = typedefof<FSharpFunc<_, _>>.MakeGenericType [| t; u |]
-                let templateEventTy t = typedefof<RTS.TemplateEvent<_>>.MakeGenericType [| t |]
+                let evTy =
+                    let a = typeof<WebSharper.JavaScript.Dom.Event>.Assembly
+                    a.GetType("WebSharper.JavaScript.Dom." + eventType)
+                let templateEventTy t u = typedefof<RTS.TemplateEvent<_,_>>.MakeGenericType [| t; u |]
                 [
-                    BuildMethod' holeName (exprTy (templateEventTy instanceTy ^-> typeof<unit>)) resTy holeDef.Line holeDef.Column ctx (fun e x ->
-                        <@  let rTI, key, _ = %e
-                            RTS.Handler.EventQ2(key, holeName', rTI, (%%x : _)) @>
+                    BuildMethod' holeName (exprTy (templateEventTy instanceTy evTy ^-> typeof<unit>)) resTy holeDef.Line holeDef.Column ctx (fun e x ->
+                        Expr.Call(typeof<RTS.Handler>.GetMethod("EventQ2").MakeGenericMethod(evTy),
+                            [ Expr.TupleGet(e, 1); <@ holeName' @>; Expr.TupleGet(e, 0); x ])
+                        |> Expr.Cast
                     )
                 ]
             | HoleKind.Simple ->
@@ -257,30 +262,33 @@ module private Impl =
             ProvidedTypeDefinition("Instance", Some typeof<TI>)
                 .WithXmlDoc(XmlDoc.Type.Instance)
         ty.AddMember res
-        res.AddMembers [
-            yield ProvidedProperty("Doc", typeof<Doc>, fun x -> <@@ (%%x.[0] : TI).Doc @@>)
-                .WithXmlDoc(XmlDoc.Member.Doc)
-                :> MemberInfo
-            if ctx.Template.IsElt then
-                yield ProvidedProperty("Elt", typeof<Elt>, fun x -> <@@ (%%x.[0] : TI).Doc :?> Elt @@>)
-                    .WithXmlDoc(XmlDoc.Member.Doc)
-                    :> _
+        let vars =
+            ProvidedTypeDefinition("Vars", None)
+                .WithXmlDoc(XmlDoc.Type.Vars)
+        vars.AddMembers [
             for KeyValue(holeName, def) in ctx.Template.Holes do
                 let holeName' = holeName.ToLowerInvariant()
                 match def.Kind with
                 | AST.HoleKind.Var AST.ValTy.Any | AST.HoleKind.Var AST.ValTy.String ->
-                    yield ProvidedProperty(holeName, typeof<IRef<string>>, fun x -> <@@ (%%x.[0] : TI).Hole holeName' @@>)
+                    yield ProvidedProperty(holeName, typeof<IRef<string>>, fun x -> <@@ ((%%x.[0] : obj) :?> TI).Hole holeName' @@>)
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
-                        :> _
                 | AST.HoleKind.Var AST.ValTy.Number ->
-                    yield ProvidedProperty(holeName, typeof<IRef<float>>, fun x -> <@@ (%%x.[0] : TI).Hole holeName' @@>)
+                    yield ProvidedProperty(holeName, typeof<IRef<float>>, fun x -> <@@ ((%%x.[0] : obj) :?> TI).Hole holeName' @@>)
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
-                        :> _
                 | AST.HoleKind.Var AST.ValTy.Bool ->
-                    yield ProvidedProperty(holeName, typeof<IRef<bool>>, fun x -> <@@ (%%x.[0] : TI).Hole holeName' @@>)
+                    yield ProvidedProperty(holeName, typeof<IRef<bool>>, fun x -> <@@ ((%%x.[0] : obj) :?> TI).Hole holeName' @@>)
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
-                        :> _
                 | _ -> ()
+        ]
+        res.AddMember vars
+        res.AddMembers [
+            yield ProvidedProperty("Doc", typeof<Doc>, fun x -> <@@ (%%x.[0] : TI).Doc @@>)
+                .WithXmlDoc(XmlDoc.Member.Doc)
+            if ctx.Template.IsElt then
+                yield ProvidedProperty("Elt", typeof<Elt>, fun x -> <@@ (%%x.[0] : TI).Doc :?> Elt @@>)
+                    .WithXmlDoc(XmlDoc.Member.Doc)
+            yield ProvidedProperty("Vars", vars, fun x -> <@@ (%%x.[0] : TI) :> obj @@>)
+                .WithXmlDoc(XmlDoc.Type.Vars)
         ]
         res
 

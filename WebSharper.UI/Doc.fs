@@ -362,6 +362,10 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
     | VarFloat of name: string * fillWith: IRef<Client.CheckedInput<float>>
     | VarFloatUnchecked of name: string * fillWith: IRef<float>
 
+    [<Inline>]
+    static member NewActionEvent<'T when 'T :> Dom.Event>(name: string, f: Action<Element, 'T>) =
+        Event(name, fun el ev -> f.Invoke(el, downcast ev))
+
     [<Inline "$x.$0">]
     static member Name x =
         match x with
