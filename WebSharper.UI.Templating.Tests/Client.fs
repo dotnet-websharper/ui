@@ -232,12 +232,14 @@ module Client =
                 .Username1(username.View)
                 .Submit(fun _ -> submit.Trigger())
                 .NestedInstantiationTest(MyTemplate.template.L3().MIAttr(Attr.Style "color" "red").Ok("Ok").Doc())
-                .Doc()
+                .Create()
 
         Anim.UseAnimations <- false
 
+        doc.Vars.NewName := "Set from templateInstance.Vars"
+
         div [] [
-            doc
+            doc.Doc
             Regression67.Doc
         ]
         |> Doc.RunById "main"

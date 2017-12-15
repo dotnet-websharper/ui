@@ -70,6 +70,8 @@ module private Impl =
                 "Builder for the template" + n + "; fill more holes or finish it with .Create()."
             let Instance =
                 "An instance of the template; use .Doc to insert into the document."
+            let Vars =
+                "The reactive variables defined in this template."
         module Member =
             let Hole n =
                 "Fill the hole \"" + n + "\" of the template."
@@ -260,30 +262,33 @@ module private Impl =
             ProvidedTypeDefinition("Instance", Some typeof<TI>)
                 .WithXmlDoc(XmlDoc.Type.Instance)
         ty.AddMember res
-        res.AddMembers [
-            yield ProvidedProperty("Doc", typeof<Doc>, fun x -> <@@ (%%x.[0] : TI).Doc @@>)
-                .WithXmlDoc(XmlDoc.Member.Doc)
-                :> MemberInfo
-            if ctx.Template.IsElt then
-                yield ProvidedProperty("Elt", typeof<Elt>, fun x -> <@@ (%%x.[0] : TI).Doc :?> Elt @@>)
-                    .WithXmlDoc(XmlDoc.Member.Doc)
-                    :> _
+        let vars =
+            ProvidedTypeDefinition("Vars", None)
+                .WithXmlDoc(XmlDoc.Type.Vars)
+        vars.AddMembers [
             for KeyValue(holeName, def) in ctx.Template.Holes do
                 let holeName' = holeName.ToLowerInvariant()
                 match def.Kind with
                 | AST.HoleKind.Var AST.ValTy.Any | AST.HoleKind.Var AST.ValTy.String ->
-                    yield ProvidedProperty(holeName, typeof<IRef<string>>, fun x -> <@@ (%%x.[0] : TI).Hole holeName' @@>)
+                    yield ProvidedProperty(holeName, typeof<IRef<string>>, fun x -> <@@ ((%%x.[0] : obj) :?> TI).Hole holeName' @@>)
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
-                        :> _
                 | AST.HoleKind.Var AST.ValTy.Number ->
-                    yield ProvidedProperty(holeName, typeof<IRef<float>>, fun x -> <@@ (%%x.[0] : TI).Hole holeName' @@>)
+                    yield ProvidedProperty(holeName, typeof<IRef<float>>, fun x -> <@@ ((%%x.[0] : obj) :?> TI).Hole holeName' @@>)
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
-                        :> _
                 | AST.HoleKind.Var AST.ValTy.Bool ->
-                    yield ProvidedProperty(holeName, typeof<IRef<bool>>, fun x -> <@@ (%%x.[0] : TI).Hole holeName' @@>)
+                    yield ProvidedProperty(holeName, typeof<IRef<bool>>, fun x -> <@@ ((%%x.[0] : obj) :?> TI).Hole holeName' @@>)
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
-                        :> _
                 | _ -> ()
+        ]
+        res.AddMember vars
+        res.AddMembers [
+            yield ProvidedProperty("Doc", typeof<Doc>, fun x -> <@@ (%%x.[0] : TI).Doc @@>)
+                .WithXmlDoc(XmlDoc.Member.Doc)
+            if ctx.Template.IsElt then
+                yield ProvidedProperty("Elt", typeof<Elt>, fun x -> <@@ (%%x.[0] : TI).Doc :?> Elt @@>)
+                    .WithXmlDoc(XmlDoc.Member.Doc)
+            yield ProvidedProperty("Vars", vars, fun x -> <@@ (%%x.[0] : TI) :> obj @@>)
+                .WithXmlDoc(XmlDoc.Type.Vars)
         ]
         res
 
