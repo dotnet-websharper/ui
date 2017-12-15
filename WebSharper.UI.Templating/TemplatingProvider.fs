@@ -44,7 +44,6 @@ module private Impl =
     type UINVar = WebSharper.UI.Var
     type TemplateHole = WebSharper.UI.TemplateHole
     type DomElement = WebSharper.JavaScript.Dom.Element
-    type DomEvent = WebSharper.JavaScript.Dom.Event
     type CheckedInput<'T> = WebSharper.UI.Client.CheckedInput<'T>
     module RTC = Runtime.Client
     module RTS = Runtime.Server
@@ -145,14 +144,18 @@ module private Impl =
                     mk <| fun _ (x: Expr<unit -> unit>) ->
                         <@ TemplateHole.AfterRender(holeName', RTC.WrapAfterRender %x) @>
                 ]
-            | HoleKind.Event ->
+            | HoleKind.Event eventType ->
                 let exprTy t = typedefof<Expr<_>>.MakeGenericType [| t |]
                 let (^->) t u = typedefof<FSharpFunc<_, _>>.MakeGenericType [| t; u |]
-                let templateEventTy t = typedefof<RTS.TemplateEvent<_>>.MakeGenericType [| t |]
+                let evTy =
+                    let a = typeof<WebSharper.JavaScript.Dom.Event>.Assembly
+                    a.GetType("WebSharper.JavaScript.Dom." + eventType)
+                let templateEventTy t u = typedefof<RTS.TemplateEvent<_,_>>.MakeGenericType [| t; u |]
                 [
-                    BuildMethod' holeName (exprTy (templateEventTy instanceTy ^-> typeof<unit>)) resTy holeDef.Line holeDef.Column ctx (fun e x ->
-                        <@  let rTI, key, _ = %e
-                            RTS.Handler.EventQ2(key, holeName', rTI, (%%x : _)) @>
+                    BuildMethod' holeName (exprTy (templateEventTy instanceTy evTy ^-> typeof<unit>)) resTy holeDef.Line holeDef.Column ctx (fun e x ->
+                        Expr.Call(typeof<RTS.Handler>.GetMethod("EventQ2").MakeGenericMethod(evTy),
+                            [ Expr.TupleGet(e, 1); <@ holeName' @>; Expr.TupleGet(e, 0); x ])
+                        |> Expr.Cast
                     )
                 ]
             | HoleKind.Simple ->

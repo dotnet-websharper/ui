@@ -251,8 +251,8 @@ namespace WebSharper.UI.CSharp.Tests
                 .Doc()
                 .RunById("tasks");
             new Template.Index.tasksTitle()
-                .Doc()
-                /* .OnAfterRender(FSharpConvert.Fun<JavaScript.Dom.Element>((el) => JavaScript.Console.Log("test"))) */
+                .Elt()
+                .OnAfterRender(FSharpConvert.Fun<JavaScript.Dom.Element>((el) => JavaScript.Console.Log("test")))
                 .RunById("tasksTitle");
         }
     }

@@ -123,7 +123,7 @@ module Client =
                             .FontWeight("bold")
                             .Remove(fun _ -> myItems.RemoveByKey key)
                             .Elt()
-                            .OnClickView(item, fun _ _ x -> JS.Alert x.name)
+                            .OnClickView(item, fun _ ev x -> Console.Log(x.name, ev.ClientX, ev.ClientY))
                     )
                 )
                 .NewName(newName)

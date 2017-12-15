@@ -39,7 +39,7 @@ type HoleKind =
     | Var of valTy: ValTy
     | Attr
     | Doc
-    | Event
+    | Event of eventType: string
     | ElemHandler
     | Mapped of fileName: option<string> * templateName: option<string> * holeName: string * kind: HoleKind
     | Unknown

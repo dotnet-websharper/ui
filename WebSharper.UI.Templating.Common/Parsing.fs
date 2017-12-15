@@ -21,6 +21,7 @@
 module WebSharper.UI.Templating.Parsing
 
 open System
+open System.Reflection
 open System.IO
 open System.Collections.Generic
 open System.Text.RegularExpressions
@@ -136,6 +137,24 @@ type WatcherParams =
 [<AutoOpen>]
 module Impl =
 
+    let knownEvents =
+        lazy
+        let asm = typeof<ParseKind>.Assembly
+        seq {
+            let s = asm.GetManifestResourceStream("tags.csv")
+            use r = new StreamReader(s)
+            let mutable line = null
+            while (line <- r.ReadLine(); not (isNull line)) do
+                match line.Split(',') with
+                | [| "event"; t; _; n; _ |] -> yield n, t
+                | _ -> ()
+        }
+        |> Map
+
+    let getEventType (eventName: string) =
+        let eventName = eventName.ToLowerInvariant()
+        defaultArg (knownEvents.Value.TryFind eventName) "Event"
+
     /// Parse a text string as a series of StringParts.
     let getParts (addHole: HoleName -> HoleKind -> unit) (t: string) =
         if t = "" then [||] else
@@ -179,7 +198,8 @@ module Impl =
                     () // These are handled separately in parseNode*
                 | s when s.StartsWith EventAttrPrefix ->
                     let eventName = s.[EventAttrPrefix.Length..]
-                    addHole attr.Value (holeDef HoleKind.Event)
+                    let eventType = getEventType eventName
+                    addHole attr.Value (holeDef (HoleKind.Event eventType))
                     yield Attr.Event (eventName, attr.Value)
                 | n ->
                     match getParts (fun n h -> addHole n (holeDef h)) attr.Value with
@@ -229,8 +249,11 @@ module Impl =
             | HoleKind.ElemHandler, HoleKind.ElemHandler -> ()
             | HoleKind.ElemHandler, _ -> fail()
             // An event handler can be used several times.
-            | HoleKind.Event, HoleKind.Event -> ()
-            | HoleKind.Event, _ -> fail()
+            // If the types are different, then use the general Dom.Event type.
+            | HoleKind.Event e1, HoleKind.Event e2 ->
+                if e1 <> e2 then
+                    holes.[name] <- { def with Kind = HoleKind.Event "Event" }
+            | HoleKind.Event _, _ -> fail()
             // A Var can be used several times if the types are compatible.
             | HoleKind.Var ty', HoleKind.Var ty ->
                 match mergeValTy ty ty' with
@@ -539,7 +562,7 @@ let private checkInstantiations (items: ParseItem[]) =
                             | true, { Kind = kind } -> test kind
                         contentHoles |> Seq.iter (fun (KeyValue(holeId, nodes)) ->
                             let rec test = function
-                                | HoleKind.ElemHandler | HoleKind.Event | HoleKind.Unknown | HoleKind.Var _ ->
+                                | HoleKind.ElemHandler | HoleKind.Event _ | HoleKind.Unknown | HoleKind.Var _ ->
                                     fail holeId "Instantiation of %s/%s fills hole that can only be mapped: %s."
                                 | HoleKind.Attr ->
                                     fail holeId "Instantiation of %s/%s fills attr hole with doc content: %s."
@@ -563,7 +586,7 @@ let private checkInstantiations (items: ParseItem[]) =
                                 (false, t'.Holes)
                                 ||> Seq.fold (fun isSet (KeyValue(holeId, holeDef)) ->
                                     let rec test = function
-                                        | HoleKind.ElemHandler | HoleKind.Event | HoleKind.Unknown | HoleKind.Var _ | HoleKind.Attr -> isSet
+                                        | HoleKind.ElemHandler | HoleKind.Event _ | HoleKind.Unknown | HoleKind.Var _ | HoleKind.Attr -> isSet
                                         | HoleKind.Doc -> fail holeId "Instantiation of %s/%s fills a text hole, but there is a Doc hole: %s."
                                         | HoleKind.Simple ->
                                             if isSet then fail "" "Instantiation of %s/%s fills a text hole, but there are several.%s"

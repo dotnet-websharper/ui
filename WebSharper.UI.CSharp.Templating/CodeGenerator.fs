@@ -78,10 +78,11 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
                 s "Action<DomElement>" "AfterRender" "FSharpConvert.Fun<DomElement>(x)"
                 s "Action" "AfterRender" "FSharpConvert.Fun<DomElement>((a) => x())"
             |]
-        | HoleKind.Event ->
+        | HoleKind.Event eventType ->
+            let eventType = "WebSharper.JavaScript.Dom." + eventType
             [|
-                s "Action<DomElement, DomEvent>" "Event" "FSharpConvert.Fun<DomElement, DomEvent>(x)"
-                s "Action" "Event" "FSharpConvert.Fun<DomElement, DomEvent>((a,b) => x())"
+                s ("Action<DomElement, "+eventType+">") "ActionEvent" "x"
+                s "Action" "Event" ("FSharpConvert.Fun<DomElement, DomEvent>((a,b) => x())")
             |]
         | HoleKind.Simple ->
             [|
