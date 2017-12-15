@@ -38,9 +38,10 @@ module Client =
     let ClientSideRoutingPage () =
         let location = 
             router
-            |> Router.InstallPartial RouterTestsHome 
+            |> Router.Slice 
                 (function ClientRouting r -> Some r | _ -> None)
                 ClientRouting
+            |> Router.Install RouterTestsHome 
 
         Doc.Concat [
             div [] [ text "Client-side routing tests" ]

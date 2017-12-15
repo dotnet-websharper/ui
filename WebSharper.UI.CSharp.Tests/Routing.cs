@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using WebSharper;
-using WebSharper.UI.Routing;
-using static WebSharper.UI.Routing.RouterOperators;
+using WebSharper.Sitelets;
+using static WebSharper.Sitelets.RouterOperators;
 
 namespace WebSharper.UI.CSharp.Routing.Tests
 {
@@ -16,9 +16,9 @@ namespace WebSharper.UI.CSharp.Routing.Tests
         // hand written version
         public static Router<Root> Defined =
             rRoot.MapTo(Root.Instance)
-            + ("sub" / Router.Combine(rInt, rString))
+            + ("sub" / Router<int>.op_Division<string>(rInt, rString))
                 .Map(t => new About(t.Item1, t.Item2), a => (a.Id, a.Message).ToTuple())
-                .Cast<About, Root>();
+                .Cast<Root>();
         // Person+Book would be even longer... 
         // maybe some helper would be nice, to create a Router<obj[]> from an URL template string like Infer does internally and map it immediately 
         // it would look like: Router.Create("/sub/{Id}/{Message}", a => new About() { Id = a[0], Message = a[1] }, a => new object[] { a.Id, a.Message })

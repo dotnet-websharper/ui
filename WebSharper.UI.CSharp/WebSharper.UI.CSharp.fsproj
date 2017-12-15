@@ -32,6 +32,7 @@
     <Compile Include="Animation.fs" />
     <Compile Include="Flow.fsi" />
     <Compile Include="Flow.fs" />
+    <Compile Include="Routing.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WebSharper.UI\WebSharper.UI.fsproj">

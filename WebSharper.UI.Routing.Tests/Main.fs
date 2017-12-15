@@ -44,7 +44,7 @@ module Site =
 
     [<Website>]
     let Main =
-        router |> Router.MakeSitelet (fun ctx ->
+        Sitelet.New router (fun ctx ->
             function 
             | Home -> HomePage () 
             //| Templating -> TemplatingPage ctx

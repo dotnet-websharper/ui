@@ -4,7 +4,6 @@ using WebSharper.UI.Client;
 using WebSharper.UI.CSharp;
 using WebSharper.UI.CSharp.Client;
 using static WebSharper.UI.CSharp.Client.Html;
-using WebSharper.UI.Routing;
 using WebSharper;
 using WebSharper.Sitelets;
 using WebSharper.JavaScript;

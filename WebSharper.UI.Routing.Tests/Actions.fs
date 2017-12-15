@@ -1,7 +1,7 @@
 ﻿namespace WebSharper.UI.Routing.Tests
 
 open WebSharper
-open WebSharper.UI.Routing
+open WebSharper.Sitelets
 open WebSharper.UI.Html
 
 [<JavaScript>]
@@ -76,31 +76,31 @@ module Actions =
 
     open RouterOperators
 
-    let inferred = Router.Infer<RouterTest> 
+    let inferred = Router.Infer<RouterTest>() 
     
     let constructed =
         let rPersonData =
             rString / rInt |> Router.Map (fun (n, a) -> { Name = n; Age = a }) (fun p -> p.Name, p.Age) 
         Router.Sum [
             rRoot |> Router.MapTo Root
-            "about" / Router.Option rInt / (Router.Option rPersonData |> Router.Query "p") |> Router.MapInto About (function About (i, p) -> Some (i, p) | _ -> None)
+            "about" / Router.Option rInt / (Router.Option rPersonData |> Router.Query "p") |> Router.Embed About (function About (i, p) -> Some (i, p) | _ -> None)
         ]
 
     let routerTests =
         Router.Sum [
             rRoot |> Router.MapTo RouterTestsHome            
-            "inferred" / inferred |> Router.MapInto Inferred (function Inferred t -> Some t | _ -> None)
-            "constructed" / constructed |> Router.MapInto Constructed (function Constructed t -> Some t | _ -> None)
-            "csharp-inferred" / WebSharper.UI.CSharp.Routing.Tests.Root.Inferred |> Router.MapInto CSharpInferred (function CSharpInferred t -> Some t | _ -> None) 
+            "inferred" / inferred |> Router.Embed Inferred (function Inferred t -> Some t | _ -> None)
+            "constructed" / constructed |> Router.Embed Constructed (function Constructed t -> Some t | _ -> None)
+            "csharp-inferred" / WebSharper.UI.CSharp.Routing.Tests.Root.Inferred |> Router.Embed CSharpInferred (function CSharpInferred t -> Some t | _ -> None) 
         ]
 
     let router = 
         Router.Sum [
             rRoot |> Router.MapTo Home
             //r "templating" |> Router.MapTo Templating
-            "client-routing" / routerTests |> Router.MapInto ClientRouting (function ClientRouting t -> Some t | _ -> None)
-            "server-routing" / routerTests |> Router.MapInto ServerRouting (function ServerRouting t -> Some t | _ -> None)
+            "client-routing" / routerTests |> Router.Embed ClientRouting (function ClientRouting t -> Some t | _ -> None)
+            "server-routing" / routerTests |> Router.Embed ServerRouting (function ServerRouting t -> Some t | _ -> None)
         ]
 
     let Link act content =
-        a [ attr.href (Router.Link act router) ] [ text content ]
+        a [ attr.href (Router.Link router act) ] [ text content ]
