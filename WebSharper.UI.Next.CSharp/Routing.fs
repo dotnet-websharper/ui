@@ -43,9 +43,6 @@ module private Internals =
             )
         defaultArg o (^T : (member Name : string)(x))
 
-
-type EndPointAttribute = Sitelets.EndPointAttribute
-
 [<JavaScript>]
 type RouteMapBuilder() =
 

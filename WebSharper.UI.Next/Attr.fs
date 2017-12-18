@@ -74,13 +74,13 @@ type Attr =
 
     interface IRequiresResources with
 
-        member this.Requires =
+        member this.Requires(meta) =
             match this with
             | AppendAttr attrs ->
                 attrs |> Seq.collect (fun a ->
                     if obj.ReferenceEquals(a, null)
                     then Seq.empty
-                    else (a :> IRequiresResources).Requires)
+                    else (a :> IRequiresResources).Requires(meta))
             | DepAttr (_, _, reqs) -> reqs
             | _ -> Seq.empty
 

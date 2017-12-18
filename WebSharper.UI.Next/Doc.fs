@@ -40,13 +40,13 @@ type Doc() =
 
     interface IRequiresResources with
         member this.Encode(meta, json) = this.Encode(meta, json)
-        member this.Requires = this.Requires
+        member this.Requires(meta) = this.Requires(meta)
 
     abstract Write : Web.Context * HtmlTextWriter * res: option<Sitelets.Content.RenderedResources> -> unit
     abstract Write : Web.Context * HtmlTextWriter * renderResources: bool -> unit
     abstract HasNonScriptSpecialTags : bool
     abstract Encode : Core.Metadata.Info * Core.Json.Provider -> list<string * Core.Json.Encoded>
-    abstract Requires : seq<Core.Metadata.Node>
+    abstract Requires : Core.Metadata.Info -> seq<Core.Metadata.Node>
 
     default this.Write(ctx: Web.Context, w: HtmlTextWriter, renderResources: bool) =
         let resources =
@@ -88,11 +88,11 @@ and ConcreteDoc(dd: DynDoc) =
         | ElemDoc elt -> (elt :> IRequiresResources).Encode(meta, json)
         | _ -> []
 
-    override this.Requires =
+    override this.Requires(meta) =
         match dd with
-        | AppendDoc docs -> docs |> Seq.collect (fun d -> d.Requires)
-        | INodeDoc c -> (c :> IRequiresResources).Requires
-        | ElemDoc elt -> (elt :> IRequiresResources).Requires
+        | AppendDoc docs -> docs |> Seq.collect (fun d -> d.Requires(meta))
+        | INodeDoc c -> (c :> IRequiresResources).Requires(meta)
+        | ElemDoc elt -> (elt :> IRequiresResources).Requires(meta)
         | _ -> Seq.empty
 
 and DynDoc =
@@ -120,7 +120,7 @@ and Elt
 
     override this.Encode(m, j) = encode m j
 
-    override this.Requires = requires attrs
+    override this.Requires(meta) = requires meta attrs
 
     override this.Write(ctx, h, res) = write attrs ctx h res
 
@@ -180,13 +180,13 @@ and Elt
         let encode meta json =
             children |> List.collect (fun e -> (e :> IRequiresResources).Encode(meta, json))
 
-        let requires attrs =
+        let requires meta attrs =
             Seq.append
                 (attrs |> Seq.collect (fun a ->
                     if obj.ReferenceEquals(a, null)
                     then Seq.empty
-                    else (a :> IRequiresResources).Requires))
-                (children |> Seq.collect (fun e -> (e :> IRequiresResources).Requires))
+                    else (a :> IRequiresResources).Requires(meta)))
+                (children |> Seq.collect (fun e -> (e :> IRequiresResources).Requires(meta)))
 
         Elt(attrs, encode, requires, hasNonScriptSpecialTags, write, None)
 
