@@ -23,7 +23,6 @@ namespace WebSharper.UI
 open WebSharper
 open WebSharper.JavaScript
 open WebSharper.Sitelets
-open System.Runtime.CompilerServices
 
 [<CompiledName "InstallRouter">]
 [<JavaScript>]
@@ -53,16 +52,18 @@ module Router =
             set (cur())
 
         JQuery.JQuery.Of(JS.Document.Body).Click(fun el ev ->
-            let target = ev.Target
-            if target.LocalName = "a" then
-                let href = target.GetAttribute("href")
-                if not (isNull href) then
-                    let p = href |> Route.FromUrl
-                    match parse p with
-                    | Some a -> 
-                        set a
-                        ev.PreventDefault()
-                    | None -> ()
+            match JQuery.JQuery.Of(ev.Target).Closest("a").ToArray() with
+            | [| target |] ->
+                if target.LocalName = "a" then
+                    let href = target.GetAttribute("href")
+                    if not (isNull href) then
+                        let p = href |> Route.FromUrl
+                        match parse p with
+                        | Some a -> 
+                            set a
+                            ev.PreventDefault()
+                        | None -> ()
+            | _ -> ()
         ).Ignore
         
         var.View
@@ -75,14 +76,16 @@ module Router =
     
     /// Installs client-side routing on the hash part of the URL. 
     /// If initials URL parse fails, value is set to `onParseError`. 
-    let InstallHash onParseError router =
-        let parse p = Parse router p   
-        let cur() : 'U =
-            let p = JS.Window.Location.Hash |> Route.FromHash
-            Console.Log("hash navigation", JS.Window.Location.Hash, p)
+    let InstallHash onParseError (router: Router<'T>) =
+        let parse (p: Route) = 
+            match p.Segments with
+            | "" :: t ->
+                Parse router { p with Segments = t }  
+            | _ -> None
+        let cur() : 'T =
+            let p = Route.FromHash(JS.Window.Location.Hash, true)
             match parse p with
             | Some a -> 
-                Console.Log("parsed: ", box a)
                 a
             | None ->
                 printfn "Failed to parse route: %s" (p.ToLink()) 
@@ -97,16 +100,18 @@ module Router =
         JS.Window.Onhashchange <- fun ev -> set (cur()) 
 
         JQuery.JQuery.Of(JS.Document.Body).Click(fun el ev ->
-            let target = ev.Target
-            if target.LocalName = "a" then
-                let href = target.GetAttribute("href")
-                if not (isNull href) && href.StartsWith "#" then
-                    let p = href |> Route.FromHash
-                    match parse p with
-                    | Some a -> 
-                        set a
-                        ev.PreventDefault()
-                    | None -> ()
+            match JQuery.JQuery.Of(ev.Target).Closest("a").ToArray() with
+            | [| target |] ->
+                if target.LocalName = "a" then
+                    let href = target.GetAttribute("href")
+                    if not (isNull href) && href.StartsWith "#" then
+                        let p = Route.FromHash(href, true)
+                        match parse p with
+                        | Some a -> 
+                            set a
+                            ev.PreventDefault()
+                        | None -> ()
+            | _ -> ()
         ).Ignore
         
         var.View
@@ -116,6 +121,8 @@ module Router =
                 JS.Window.History.PushState(null, null, url)
         )
         var
+
+open System.Runtime.CompilerServices
 
 [<Extension; JavaScript>]
 type RouterExtensions =
