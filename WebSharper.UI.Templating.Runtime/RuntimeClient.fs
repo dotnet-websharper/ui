@@ -37,7 +37,7 @@ module M = WebSharper.Core.Metadata
 module I = WebSharper.Core.AST.IgnoreSourcePos
 type TemplateInstance = Server.TemplateInstance
 type DomEvent = WebSharper.JavaScript.Dom.Event
-type TemplateEvent<'T, 'E when 'T :> TemplateInstance and 'E :> DomEvent> = Server.TemplateEvent<'T, 'E>
+type TemplateEvent<'T, 'E when 'E :> DomEvent> = Server.TemplateEvent<'T, 'E>
 
 [<JavaScript>]
 let private (|Box|) x = box x
@@ -61,12 +61,12 @@ let WrapAfterRender (f: unit -> unit) =
     (fun (el: Dom.Element) -> f())
 
 [<JavaScript>]
-let WrapInstanceEvent (ti: ref<TemplateInstance>) (f: System.Action<TemplateInstance>) =
+let WrapInstanceEvent (ti: ref<TemplateInstance>) (f: System.Action<obj>) =
     ()
     fun (_: Dom.Element) (_: Dom.Event) -> f.Invoke !ti
 
 [<JavaScript>]
-let WrapInstanceEventWithArgs (ti: ref<TemplateInstance>) (f: System.Action<TemplateInstance, Dom.Element, Dom.Event>) =
+let WrapInstanceEventWithArgs (ti: ref<TemplateInstance>) (f: System.Action<obj, Dom.Element, Dom.Event>) =
     ()
     fun (el: Dom.Element) (ev: Dom.Event) -> f.Invoke(!ti, el, ev)
 
@@ -227,10 +227,10 @@ type private HandlerProxy =
         TemplateHole.EventQ(holeName, isGenerated, f)
 
     [<Inline; MethodImpl(MethodImplOptions.NoInlining)>]
-    static member EventQ2 (key: string, holeName: string, ti: ref<TemplateInstance>, [<JavaScript>] f: Expr<TemplateEvent<TemplateInstance, _> -> unit>) =
+    static member EventQ2<'E when 'E :> DomEvent> (key: string, holeName: string, ti: ref<TemplateInstance>, [<JavaScript>] f: Expr<TemplateEvent<obj, 'E> -> unit>) =
         TemplateHole.EventQ(holeName, true, <@ fun el ev ->
             (%f) {
-                    Vars = !ti
+                    Vars = box !ti
                     Target = el
                     Event = downcast ev
                 }

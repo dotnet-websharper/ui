@@ -117,7 +117,7 @@ module private Impl =
         let wrapArg a b = wrapArg a (Expr.Cast b)
         BuildMethod' holeName typeof<'T> resTy line column ctx wrapArg
 
-    let BuildHoleMethods (holeName: HoleName) (holeDef: HoleDefinition) (resTy: Type) (instanceTy: Type) (ctx: Ctx) : list<MemberInfo> =
+    let BuildHoleMethods (holeName: HoleName) (holeDef: HoleDefinition) (resTy: Type) (instanceTy: Type) (varsTy: Type) (ctx: Ctx) : list<MemberInfo> =
         let mk wrapArg = BuildMethod holeName resTy holeDef.Line holeDef.Column ctx wrapArg
         let holeName' = holeName.ToLowerInvariant()
         let rec build : _ -> list<MemberInfo> = function
@@ -153,10 +153,16 @@ module private Impl =
                     let a = typeof<WebSharper.JavaScript.Dom.Event>.Assembly
                     a.GetType("WebSharper.JavaScript.Dom." + eventType)
                 let templateEventTy t u = typedefof<RTS.TemplateEvent<_,_>>.MakeGenericType [| t; u |]
+                let varsM = instanceTy.GetProperty("Vars").GetGetMethod()
                 [
-                    BuildMethod' holeName (exprTy (templateEventTy instanceTy evTy ^-> typeof<unit>)) resTy holeDef.Line holeDef.Column ctx (fun e x ->
+                    BuildMethod' holeName (exprTy (templateEventTy varsTy evTy ^-> typeof<unit>)) resTy holeDef.Line holeDef.Column ctx (fun e x ->
                         Expr.Call(typeof<RTS.Handler>.GetMethod("EventQ2").MakeGenericMethod(evTy),
-                            [ Expr.TupleGet(e, 1); <@ holeName' @>; Expr.TupleGet(e, 0); x ])
+                            [
+                                Expr.TupleGet(e, 1)
+                                <@ holeName' @>
+                                Expr.TupleGet(e, 0)
+                                x
+                            ])
                         |> Expr.Cast
                     )
                 ]
@@ -261,10 +267,11 @@ module private Impl =
         let res =
             ProvidedTypeDefinition("Instance", Some typeof<TI>)
                 .WithXmlDoc(XmlDoc.Type.Instance)
-        ty.AddMember res
+                .AddTo(ty)
         let vars =
             ProvidedTypeDefinition("Vars", None)
                 .WithXmlDoc(XmlDoc.Type.Vars)
+                .AddTo(ty)
         vars.AddMembers [
             for KeyValue(holeName, def) in ctx.Template.Holes do
                 let holeName' = holeName.ToLowerInvariant()
@@ -280,7 +287,6 @@ module private Impl =
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
                 | _ -> ()
         ]
-        res.AddMember vars
         res.AddMembers [
             yield ProvidedProperty("Doc", typeof<Doc>, fun x -> <@@ (%%x.[0] : TI).Doc @@>)
                 .WithXmlDoc(XmlDoc.Member.Doc)
@@ -290,14 +296,13 @@ module private Impl =
             yield ProvidedProperty("Vars", vars, fun x -> <@@ (%%x.[0] : TI) :> obj @@>)
                 .WithXmlDoc(XmlDoc.Type.Vars)
         ]
-        res
+        res, vars
 
     let BuildOneTemplate (ty: PT.Type) (ctx: Ctx) =
         ty.AddMembers [
-            let instanceTy = BuildInstanceType ty ctx
-            yield instanceTy :> MemberInfo
+            let instanceTy, varsTy = BuildInstanceType ty ctx
             for KeyValue (holeName, holeKind) in ctx.Template.Holes do
-                yield! BuildHoleMethods holeName holeKind ty instanceTy ctx
+                yield! BuildHoleMethods holeName holeKind ty instanceTy varsTy ctx
             yield ProvidedMethod("Create", [], instanceTy, InstanceBody ctx)
                 .WithXmlDoc(XmlDoc.Member.Instance) :> _
             yield ProvidedMethod("Doc", [], typeof<Doc>, fun args ->

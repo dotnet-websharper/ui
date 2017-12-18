@@ -23,7 +23,6 @@ module Client =
         let myItems =
             ListModel.CreateWithStorage Item.Key (Storage.LocalStorage "Test" Serializer.Default)
 
-        let newName = Var.Create ""
         let newDescr = Var.Create ""
         let itemsSub = Submitter.Create myItems.View Seq.empty
         let stitle = "Starting titlo"
@@ -126,7 +125,6 @@ module Client =
                             .OnClickView(item, fun _ ev x -> Console.Log(x.name, ev.ClientX, ev.ClientY))
                     )
                 )
-                .NewName(newName)
                 .LIKey("test1234")
                 .LIFontStyle("italic")
                 .LIName("liname")
@@ -135,7 +133,7 @@ module Client =
                 .LIExtraAttr(Attr.Class "class4")
                 .Replace2("Replace2")
                 .NewDescription(newDescr)
-                .NewItem(fun _ -> myItems.Add { id = freshKey(); name = newName.Value; description = newDescr.Value })
+                .NewItem(fun e -> myItems.Add { id = freshKey(); name = e.Vars.NewName.Value; description = newDescr.Value })
                 .SubmitItems(fun _ -> itemsSub.Trigger())
                 .ClearItems(fun _ -> myItems.Clear())
                 .Test102(
@@ -183,7 +181,7 @@ module Client =
                 .IsChecked(chk.View.Map(function true -> "checked" | false -> "not checked"))
                 .NameChanged(fun e -> 
                    let key = if e.Event?which then e.Event?which else e.Event?keyCode
-                   if key = 13 then newName := "")
+                   if key = 13 then e.Vars.NewName := "")
                 .PRendered(fun (el: Dom.Element) -> var := el.GetAttribute("id"))
                 .ControlTests(
                     let clk = Var.Create ""
