@@ -16,17 +16,17 @@ NUGET
       System.Collections.Immutable (>= 1.1.36)
     System.ValueTuple (4.3)
   remote: https://nuget.intellifactory.com/nuget
-    WebSharper (4.1.0.157-alpha)
-    WebSharper.CSharp (4.1.0.157-alpha)
-      WebSharper (4.1.0.157-alpha)
-    WebSharper.FSharp (4.1.0.157-alpha)
-      WebSharper (4.1.0.157-alpha)
-    WebSharper.Testing (4.1.0.157-alpha)
-      WebSharper (4.1.0.157-alpha)
+    WebSharper (4.1.0.158-alpha)
+    WebSharper.CSharp (4.1.0.158-alpha)
+      WebSharper (4.1.0.158-alpha)
+    WebSharper.FSharp (4.1.0.158-alpha)
+      WebSharper (4.1.0.158-alpha)
+    WebSharper.Testing (4.1.0.158-alpha)
+      WebSharper (4.1.0.158-alpha)
 GITHUB
-  remote: tarmil/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (1b46411cf45dd98aef95e05707b89558d95bba1a)
-    src/ProvidedTypes.fsi (1b46411cf45dd98aef95e05707b89558d95bba1a)
+  remote: fsprojects/FSharp.TypeProviders.SDK
+    src/ProvidedTypes.fs (3438c4817b4e25884169ee7be6182efa39995057)
+    src/ProvidedTypes.fsi (3438c4817b4e25884169ee7be6182efa39995057)
 GROUP build
 RESTRICTION: == net45
 NUGET

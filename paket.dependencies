@@ -14,8 +14,8 @@ nuget HtmlAgilityPack ~> 1.6.6
 nuget Microsoft.CodeAnalysis.CSharp 1.0.0
 nuget System.ValueTuple 4.3.0
 nuget FSharp.Core 4.0.0.1
-github tarmil/FSharp.TypeProviders.SDK src/ProvidedTypes.fsi
-github tarmil/FSharp.TypeProviders.SDK src/ProvidedTypes.fs
+github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fsi
+github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fs
 
 group build
     framework: net45
