@@ -59,6 +59,7 @@ module internal Macros =
         | _ -> false
     let isV (m: Method) = m.Value.MethodName = "get_V"
     let stringT = NonGenericType (ty' "mscorlib" "System.String")
+    let objT = NonGenericType (ty' "mscorlib" "System.Object")
     let viewModule = NonGeneric (ty "View")
     let varModule = NonGeneric (ty "Var")
     let viewOf t = GenericType (ty "View`1") [t]
@@ -68,6 +69,7 @@ module internal Macros =
     let docT = NonGenericType (ty "Doc")
     let eltT = NonGenericType (ty "Elt")
     let attrT = NonGenericType (ty "Attr")
+    let docModule = NonGeneric (ty "Doc")
     let clientDocModule = NonGeneric (ty "Client.Doc")
     let clientAttrModule = NonGeneric (ty "Client.Attr")
     let V0 = viewOf T0
@@ -84,6 +86,8 @@ module internal Macros =
     let docEmbedFn t =   gen[t]       (meth "EmbedView"    [viewOf T0]                docT)
     let lensFn t u =     gen[t; u]    (meth "Lens"         [irefOf T0; T0 ^-> T1; T0 ^-> T1 ^-> T0] (irefOf T1))
     let inputFn n t =    gen[]        (meth n              [seqOf attrT; irefOf t]    eltT)
+    let elemMixedFn =    gen[]        (meth "ElementMixed" [stringT; seqOf objT]      eltT)
+    let concatMixedFn =  gen[]        (meth "ConcatMixed"  [ArrayType(objT, 1)]       docT)
 
     module Lens =
 
@@ -231,6 +235,43 @@ module internal Macros =
                 let name = call.Parameter.Value :?> string
                 MacroOk (Call (None, clientAttrModule, attrDynFn, [Value (String name); e]))
 
+    type ElementMixed() =
+        inherit Macro()
+
+        override this.TranslateCall(call) =
+            match call.Arguments.[0] with
+            | NewArray items ->
+                let itemsV = items |> List.map (V.Visit objT)
+                if itemsV |> List.forall (function V.Kind.Const _ -> true | _ -> false) then
+                    MacroFallback
+                else
+                    let name = call.Parameter.Value :?> string
+                    let itemsE =
+                        itemsV |> List.map (function
+                            | V.Kind.Const e -> e
+                            | V.Kind.View e -> e
+                        ) |> NewArray
+                    MacroOk (Call (None, docModule, elemMixedFn, [Value (String name); itemsE]))
+            | _ -> MacroFallback
+
+    type DocConcatMixed() =
+        inherit Macro()
+
+        override this.TranslateCall(call) =
+            match call.Arguments.[0] with
+            | NewArray items ->
+                let itemsV = items |> List.map (V.Visit objT)
+                if itemsV |> List.forall (function V.Kind.Const _ -> true | _ -> false) then
+                    MacroFallback
+                else
+                    let itemsE =
+                        itemsV |> List.map (function
+                            | V.Kind.Const e -> e
+                            | V.Kind.View e -> e
+                        ) |> NewArray
+                    MacroOk (Call (None, docModule, concatMixedFn, [itemsE]))
+            | _ -> MacroFallback
+
     type AttrStyle() =
         inherit Macro()
 
@@ -258,3 +299,14 @@ module internal Macros =
             | MacroOk lens ->
                 MacroOk (Call (None, clientDocModule, inputFn (downcast call.Parameter.Value) t, [call.Arguments.[0]; lens]))
             | err -> err
+
+[<assembly: System.Runtime.CompilerServices.InternalsVisibleToAttribute 
+    "WebSharper.UI.CSharp">]
+[<assembly: System.Runtime.CompilerServices.InternalsVisibleToAttribute
+    "WebSharper.UI.CSharp, PublicKey=\
+    0024000004800000940000000602000000240000525341310004000011000000538656ad14eec4\
+    dfae83f35e50b2b3fb19a37c98898ba3d41cbc82a9b47723771158c65dbedb0ca7e68165612e90\
+    28285f9eb045d5e32991ef932fe3341e7fd0d8afa8e926c7ca35fb68cb349a6e45b240d0314588\
+    0fe391390887bc7d284ef5338912cb791c1590b233c2fd50de2e565616c77a4c494ab79997d287\
+    f6a31f86">]
+()

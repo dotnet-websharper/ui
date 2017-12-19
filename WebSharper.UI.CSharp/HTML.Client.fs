@@ -36,12 +36,12 @@ module Html =
         Client.Doc.Async d
 
     /// Creates a Doc by concatenating Docs.
-    [<Inline; CompiledName "doc">]
+    [<Inline; CompiledName "doc"; Macro(typeof<Macros.DocConcatMixed>)>]
     let ConcatMixed([<ParamArray>] docs: obj[]) =
         Doc.ConcatMixed docs
 
     /// Constructs a text node.
-    [<Inline; CompiledName "text">]
+    [<Inline; CompiledName "text"; Macro(typeof<Macros.TextView>)>]
     let TextNode(v) =
         Doc.TextNode v
 
@@ -155,7 +155,7 @@ module Html =
     let AttrConcat ([<ParamArray>] attrs: Attr[]) = Attr.Concat attrs
 
     /// Sets a style attribute, such as `background-color`.
-    [<Inline; CompiledName "style">]
+    [<Inline; CompiledName "style"; Macro(typeof<Macros.AttrStyle>)>]
     let Style(name, value) = Client.Attr.Style name value
 
     /// Dynamic variant of Style.
@@ -176,313 +176,313 @@ module Html =
 
     // {{ tag normal
     /// Create an HTML element <a> with children nodes.
-    [<Inline; CompiledName "a">]
+    [<Inline; CompiledName "a"; Macro(typeof<Macros.ElementMixed>, "a")>]
     let A ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "a" ns
     /// Create an HTML element <abbr> with children nodes.
-    [<Inline; CompiledName "abbr">]
+    [<Inline; CompiledName "abbr"; Macro(typeof<Macros.ElementMixed>, "abbr")>]
     let Abbr ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "abbr" ns
     /// Create an HTML element <address> with children nodes.
-    [<Inline; CompiledName "address">]
+    [<Inline; CompiledName "address"; Macro(typeof<Macros.ElementMixed>, "address")>]
     let Address ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "address" ns
     /// Create an HTML element <area> with children nodes.
-    [<Inline; CompiledName "area">]
+    [<Inline; CompiledName "area"; Macro(typeof<Macros.ElementMixed>, "area")>]
     let Area ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "area" ns
     /// Create an HTML element <article> with children nodes.
-    [<Inline; CompiledName "article">]
+    [<Inline; CompiledName "article"; Macro(typeof<Macros.ElementMixed>, "article")>]
     let Article ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "article" ns
     /// Create an HTML element <aside> with children nodes.
-    [<Inline; CompiledName "aside">]
+    [<Inline; CompiledName "aside"; Macro(typeof<Macros.ElementMixed>, "aside")>]
     let Aside ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "aside" ns
     /// Create an HTML element <audio> with children nodes.
-    [<Inline; CompiledName "audio">]
+    [<Inline; CompiledName "audio"; Macro(typeof<Macros.ElementMixed>, "audio")>]
     let Audio ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "audio" ns
     /// Create an HTML element <b> with children nodes.
-    [<Inline; CompiledName "b">]
+    [<Inline; CompiledName "b"; Macro(typeof<Macros.ElementMixed>, "b")>]
     let B ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "b" ns
     /// Create an HTML element <base> with children nodes.
-    [<Inline; CompiledName "base">]
+    [<Inline; CompiledName "base"; Macro(typeof<Macros.ElementMixed>, "base")>]
     let Base ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "base" ns
     /// Create an HTML element <bdi> with children nodes.
-    [<Inline; CompiledName "bdi">]
+    [<Inline; CompiledName "bdi"; Macro(typeof<Macros.ElementMixed>, "bdi")>]
     let BDI ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "bdi" ns
     /// Create an HTML element <bdo> with children nodes.
-    [<Inline; CompiledName "bdo">]
+    [<Inline; CompiledName "bdo"; Macro(typeof<Macros.ElementMixed>, "bdo")>]
     let BDO ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "bdo" ns
     /// Create an HTML element <blockquote> with children nodes.
-    [<Inline; CompiledName "blockquote">]
+    [<Inline; CompiledName "blockquote"; Macro(typeof<Macros.ElementMixed>, "blockquote")>]
     let BlockQuote ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "blockquote" ns
     /// Create an HTML element <body> with children nodes.
-    [<Inline; CompiledName "body">]
+    [<Inline; CompiledName "body"; Macro(typeof<Macros.ElementMixed>, "body")>]
     let Body ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "body" ns
     /// Create an HTML element <br> with children nodes.
-    [<Inline; CompiledName "br">]
+    [<Inline; CompiledName "br"; Macro(typeof<Macros.ElementMixed>, "br")>]
     let Br ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "br" ns
     /// Create an HTML element <button> with children nodes.
-    [<Inline; CompiledName "button">]
+    [<Inline; CompiledName "button"; Macro(typeof<Macros.ElementMixed>, "button")>]
     let Button ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "button" ns
     /// Create an HTML element <canvas> with children nodes.
-    [<Inline; CompiledName "canvas">]
+    [<Inline; CompiledName "canvas"; Macro(typeof<Macros.ElementMixed>, "canvas")>]
     let Canvas ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "canvas" ns
     /// Create an HTML element <caption> with children nodes.
-    [<Inline; CompiledName "caption">]
+    [<Inline; CompiledName "caption"; Macro(typeof<Macros.ElementMixed>, "caption")>]
     let Caption ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "caption" ns
     /// Create an HTML element <cite> with children nodes.
-    [<Inline; CompiledName "cite">]
+    [<Inline; CompiledName "cite"; Macro(typeof<Macros.ElementMixed>, "cite")>]
     let Cite ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "cite" ns
     /// Create an HTML element <code> with children nodes.
-    [<Inline; CompiledName "code">]
+    [<Inline; CompiledName "code"; Macro(typeof<Macros.ElementMixed>, "code")>]
     let Code ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "code" ns
     /// Create an HTML element <col> with children nodes.
-    [<Inline; CompiledName "col">]
+    [<Inline; CompiledName "col"; Macro(typeof<Macros.ElementMixed>, "col")>]
     let Col ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "col" ns
     /// Create an HTML element <colgroup> with children nodes.
-    [<Inline; CompiledName "colgroup">]
+    [<Inline; CompiledName "colgroup"; Macro(typeof<Macros.ElementMixed>, "colgroup")>]
     let ColGroup ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "colgroup" ns
     /// Create an HTML element <command> with children nodes.
-    [<Inline; CompiledName "command">]
+    [<Inline; CompiledName "command"; Macro(typeof<Macros.ElementMixed>, "command")>]
     let Command ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "command" ns
     /// Create an HTML element <datalist> with children nodes.
-    [<Inline; CompiledName "datalist">]
+    [<Inline; CompiledName "datalist"; Macro(typeof<Macros.ElementMixed>, "datalist")>]
     let DataList ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "datalist" ns
     /// Create an HTML element <dd> with children nodes.
-    [<Inline; CompiledName "dd">]
+    [<Inline; CompiledName "dd"; Macro(typeof<Macros.ElementMixed>, "dd")>]
     let DD ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "dd" ns
     /// Create an HTML element <del> with children nodes.
-    [<Inline; CompiledName "del">]
+    [<Inline; CompiledName "del"; Macro(typeof<Macros.ElementMixed>, "del")>]
     let Del ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "del" ns
     /// Create an HTML element <details> with children nodes.
-    [<Inline; CompiledName "details">]
+    [<Inline; CompiledName "details"; Macro(typeof<Macros.ElementMixed>, "details")>]
     let Details ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "details" ns
     /// Create an HTML element <dfn> with children nodes.
-    [<Inline; CompiledName "dfn">]
+    [<Inline; CompiledName "dfn"; Macro(typeof<Macros.ElementMixed>, "dfn")>]
     let Dfn ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "dfn" ns
     /// Create an HTML element <div> with children nodes.
-    [<Inline; CompiledName "div">]
+    [<Inline; CompiledName "div"; Macro(typeof<Macros.ElementMixed>, "div")>]
     let Div ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "div" ns
     /// Create an HTML element <dl> with children nodes.
-    [<Inline; CompiledName "dl">]
+    [<Inline; CompiledName "dl"; Macro(typeof<Macros.ElementMixed>, "dl")>]
     let DL ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "dl" ns
     /// Create an HTML element <dt> with children nodes.
-    [<Inline; CompiledName "dt">]
+    [<Inline; CompiledName "dt"; Macro(typeof<Macros.ElementMixed>, "dt")>]
     let DT ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "dt" ns
     /// Create an HTML element <em> with children nodes.
-    [<Inline; CompiledName "em">]
+    [<Inline; CompiledName "em"; Macro(typeof<Macros.ElementMixed>, "em")>]
     let Em ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "em" ns
     /// Create an HTML element <embed> with children nodes.
-    [<Inline; CompiledName "embed">]
+    [<Inline; CompiledName "embed"; Macro(typeof<Macros.ElementMixed>, "embed")>]
     let Embed ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "embed" ns
     /// Create an HTML element <fieldset> with children nodes.
-    [<Inline; CompiledName "fieldset">]
+    [<Inline; CompiledName "fieldset"; Macro(typeof<Macros.ElementMixed>, "fieldset")>]
     let FieldSet ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "fieldset" ns
     /// Create an HTML element <figcaption> with children nodes.
-    [<Inline; CompiledName "figcaption">]
+    [<Inline; CompiledName "figcaption"; Macro(typeof<Macros.ElementMixed>, "figcaption")>]
     let FigCaption ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "figcaption" ns
     /// Create an HTML element <figure> with children nodes.
-    [<Inline; CompiledName "figure">]
+    [<Inline; CompiledName "figure"; Macro(typeof<Macros.ElementMixed>, "figure")>]
     let Figure ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "figure" ns
     /// Create an HTML element <footer> with children nodes.
-    [<Inline; CompiledName "footer">]
+    [<Inline; CompiledName "footer"; Macro(typeof<Macros.ElementMixed>, "footer")>]
     let Footer ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "footer" ns
     /// Create an HTML element <form> with children nodes.
-    [<Inline; CompiledName "form">]
+    [<Inline; CompiledName "form"; Macro(typeof<Macros.ElementMixed>, "form")>]
     let Form ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "form" ns
     /// Create an HTML element <h1> with children nodes.
-    [<Inline; CompiledName "h1">]
+    [<Inline; CompiledName "h1"; Macro(typeof<Macros.ElementMixed>, "h1")>]
     let H1 ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "h1" ns
     /// Create an HTML element <h2> with children nodes.
-    [<Inline; CompiledName "h2">]
+    [<Inline; CompiledName "h2"; Macro(typeof<Macros.ElementMixed>, "h2")>]
     let H2 ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "h2" ns
     /// Create an HTML element <h3> with children nodes.
-    [<Inline; CompiledName "h3">]
+    [<Inline; CompiledName "h3"; Macro(typeof<Macros.ElementMixed>, "h3")>]
     let H3 ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "h3" ns
     /// Create an HTML element <h4> with children nodes.
-    [<Inline; CompiledName "h4">]
+    [<Inline; CompiledName "h4"; Macro(typeof<Macros.ElementMixed>, "h4")>]
     let H4 ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "h4" ns
     /// Create an HTML element <h5> with children nodes.
-    [<Inline; CompiledName "h5">]
+    [<Inline; CompiledName "h5"; Macro(typeof<Macros.ElementMixed>, "h5")>]
     let H5 ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "h5" ns
     /// Create an HTML element <h6> with children nodes.
-    [<Inline; CompiledName "h6">]
+    [<Inline; CompiledName "h6"; Macro(typeof<Macros.ElementMixed>, "h6")>]
     let H6 ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "h6" ns
     /// Create an HTML element <head> with children nodes.
-    [<Inline; CompiledName "head">]
+    [<Inline; CompiledName "head"; Macro(typeof<Macros.ElementMixed>, "head")>]
     let Head ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "head" ns
     /// Create an HTML element <header> with children nodes.
-    [<Inline; CompiledName "header">]
+    [<Inline; CompiledName "header"; Macro(typeof<Macros.ElementMixed>, "header")>]
     let Header ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "header" ns
     /// Create an HTML element <hgroup> with children nodes.
-    [<Inline; CompiledName "hgroup">]
+    [<Inline; CompiledName "hgroup"; Macro(typeof<Macros.ElementMixed>, "hgroup")>]
     let HGroup ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "hgroup" ns
     /// Create an HTML element <hr> with children nodes.
-    [<Inline; CompiledName "hr">]
+    [<Inline; CompiledName "hr"; Macro(typeof<Macros.ElementMixed>, "hr")>]
     let HR ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "hr" ns
     /// Create an HTML element <html> with children nodes.
-    [<Inline; CompiledName "html">]
+    [<Inline; CompiledName "html"; Macro(typeof<Macros.ElementMixed>, "html")>]
     let HTML ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "html" ns
     /// Create an HTML element <i> with children nodes.
-    [<Inline; CompiledName "i">]
+    [<Inline; CompiledName "i"; Macro(typeof<Macros.ElementMixed>, "i")>]
     let I ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "i" ns
     /// Create an HTML element <iframe> with children nodes.
-    [<Inline; CompiledName "iframe">]
+    [<Inline; CompiledName "iframe"; Macro(typeof<Macros.ElementMixed>, "iframe")>]
     let IFrame ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "iframe" ns
     /// Create an HTML element <img> with children nodes.
-    [<Inline; CompiledName "img">]
+    [<Inline; CompiledName "img"; Macro(typeof<Macros.ElementMixed>, "img")>]
     let Img ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "img" ns
     /// Create an HTML element <input> with children nodes.
-    [<Inline; CompiledName "input">]
+    [<Inline; CompiledName "input"; Macro(typeof<Macros.ElementMixed>, "input")>]
     let Input ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "input" ns
     /// Create an HTML element <ins> with children nodes.
-    [<Inline; CompiledName "ins">]
+    [<Inline; CompiledName "ins"; Macro(typeof<Macros.ElementMixed>, "ins")>]
     let Ins ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "ins" ns
     /// Create an HTML element <kbd> with children nodes.
-    [<Inline; CompiledName "kbd">]
+    [<Inline; CompiledName "kbd"; Macro(typeof<Macros.ElementMixed>, "kbd")>]
     let Kbd ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "kbd" ns
     /// Create an HTML element <keygen> with children nodes.
-    [<Inline; CompiledName "keygen">]
+    [<Inline; CompiledName "keygen"; Macro(typeof<Macros.ElementMixed>, "keygen")>]
     let KeyGen ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "keygen" ns
     /// Create an HTML element <label> with children nodes.
-    [<Inline; CompiledName "label">]
+    [<Inline; CompiledName "label"; Macro(typeof<Macros.ElementMixed>, "label")>]
     let Label ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "label" ns
     /// Create an HTML element <legend> with children nodes.
-    [<Inline; CompiledName "legend">]
+    [<Inline; CompiledName "legend"; Macro(typeof<Macros.ElementMixed>, "legend")>]
     let Legend ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "legend" ns
     /// Create an HTML element <li> with children nodes.
-    [<Inline; CompiledName "li">]
+    [<Inline; CompiledName "li"; Macro(typeof<Macros.ElementMixed>, "li")>]
     let LI ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "li" ns
     /// Create an HTML element <link> with children nodes.
-    [<Inline; CompiledName "link">]
+    [<Inline; CompiledName "link"; Macro(typeof<Macros.ElementMixed>, "link")>]
     let Link ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "link" ns
     /// Create an HTML element <mark> with children nodes.
-    [<Inline; CompiledName "mark">]
+    [<Inline; CompiledName "mark"; Macro(typeof<Macros.ElementMixed>, "mark")>]
     let Mark ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "mark" ns
     /// Create an HTML element <meta> with children nodes.
-    [<Inline; CompiledName "meta">]
+    [<Inline; CompiledName "meta"; Macro(typeof<Macros.ElementMixed>, "meta")>]
     let Meta ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "meta" ns
     /// Create an HTML element <meter> with children nodes.
-    [<Inline; CompiledName "meter">]
+    [<Inline; CompiledName "meter"; Macro(typeof<Macros.ElementMixed>, "meter")>]
     let Meter ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "meter" ns
     /// Create an HTML element <nav> with children nodes.
-    [<Inline; CompiledName "nav">]
+    [<Inline; CompiledName "nav"; Macro(typeof<Macros.ElementMixed>, "nav")>]
     let Nav ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "nav" ns
     /// Create an HTML element <noframes> with children nodes.
-    [<Inline; CompiledName "noframes">]
+    [<Inline; CompiledName "noframes"; Macro(typeof<Macros.ElementMixed>, "noframes")>]
     let NoFrames ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "noframes" ns
     /// Create an HTML element <noscript> with children nodes.
-    [<Inline; CompiledName "noscript">]
+    [<Inline; CompiledName "noscript"; Macro(typeof<Macros.ElementMixed>, "noscript")>]
     let NoScript ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "noscript" ns
     /// Create an HTML element <ol> with children nodes.
-    [<Inline; CompiledName "ol">]
+    [<Inline; CompiledName "ol"; Macro(typeof<Macros.ElementMixed>, "ol")>]
     let OL ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "ol" ns
     /// Create an HTML element <optgroup> with children nodes.
-    [<Inline; CompiledName "optgroup">]
+    [<Inline; CompiledName "optgroup"; Macro(typeof<Macros.ElementMixed>, "optgroup")>]
     let OptGroup ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "optgroup" ns
     /// Create an HTML element <output> with children nodes.
-    [<Inline; CompiledName "output">]
+    [<Inline; CompiledName "output"; Macro(typeof<Macros.ElementMixed>, "output")>]
     let Output ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "output" ns
     /// Create an HTML element <p> with children nodes.
-    [<Inline; CompiledName "p">]
+    [<Inline; CompiledName "p"; Macro(typeof<Macros.ElementMixed>, "p")>]
     let P ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "p" ns
     /// Create an HTML element <param> with children nodes.
-    [<Inline; CompiledName "param">]
+    [<Inline; CompiledName "param"; Macro(typeof<Macros.ElementMixed>, "param")>]
     let Param ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "param" ns
     /// Create an HTML element <picture> with children nodes.
-    [<Inline; CompiledName "picture">]
+    [<Inline; CompiledName "picture"; Macro(typeof<Macros.ElementMixed>, "picture")>]
     let Picture ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "picture" ns
     /// Create an HTML element <pre> with children nodes.
-    [<Inline; CompiledName "pre">]
+    [<Inline; CompiledName "pre"; Macro(typeof<Macros.ElementMixed>, "pre")>]
     let Pre ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "pre" ns
     /// Create an HTML element <progress> with children nodes.
-    [<Inline; CompiledName "progress">]
+    [<Inline; CompiledName "progress"; Macro(typeof<Macros.ElementMixed>, "progress")>]
     let Progress ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "progress" ns
     /// Create an HTML element <q> with children nodes.
-    [<Inline; CompiledName "q">]
+    [<Inline; CompiledName "q"; Macro(typeof<Macros.ElementMixed>, "q")>]
     let Q ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "q" ns
     /// Create an HTML element <rp> with children nodes.
-    [<Inline; CompiledName "rp">]
+    [<Inline; CompiledName "rp"; Macro(typeof<Macros.ElementMixed>, "rp")>]
     let RP ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "rp" ns
     /// Create an HTML element <rt> with children nodes.
-    [<Inline; CompiledName "rt">]
+    [<Inline; CompiledName "rt"; Macro(typeof<Macros.ElementMixed>, "rt")>]
     let RT ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "rt" ns
     /// Create an HTML element <rtc> with children nodes.
-    [<Inline; CompiledName "rtc">]
+    [<Inline; CompiledName "rtc"; Macro(typeof<Macros.ElementMixed>, "rtc")>]
     let RTC ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "rtc" ns
     /// Create an HTML element <ruby> with children nodes.
-    [<Inline; CompiledName "ruby">]
+    [<Inline; CompiledName "ruby"; Macro(typeof<Macros.ElementMixed>, "ruby")>]
     let Ruby ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "ruby" ns
     /// Create an HTML element <samp> with children nodes.
-    [<Inline; CompiledName "samp">]
+    [<Inline; CompiledName "samp"; Macro(typeof<Macros.ElementMixed>, "samp")>]
     let Samp ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "samp" ns
     /// Create an HTML element <script> with children nodes.
-    [<Inline; CompiledName "script">]
+    [<Inline; CompiledName "script"; Macro(typeof<Macros.ElementMixed>, "script")>]
     let Script ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "script" ns
     /// Create an HTML element <section> with children nodes.
-    [<Inline; CompiledName "section">]
+    [<Inline; CompiledName "section"; Macro(typeof<Macros.ElementMixed>, "section")>]
     let Section ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "section" ns
     /// Create an HTML element <select> with children nodes.
-    [<Inline; CompiledName "select">]
+    [<Inline; CompiledName "select"; Macro(typeof<Macros.ElementMixed>, "select")>]
     let Select ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "select" ns
     /// Create an HTML element <shadow> with children nodes.
-    [<Inline; CompiledName "shadow">]
+    [<Inline; CompiledName "shadow"; Macro(typeof<Macros.ElementMixed>, "shadow")>]
     let Shadow ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "shadow" ns
     /// Create an HTML element <small> with children nodes.
-    [<Inline; CompiledName "small">]
+    [<Inline; CompiledName "small"; Macro(typeof<Macros.ElementMixed>, "small")>]
     let Small ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "small" ns
     /// Create an HTML element <source> with children nodes.
-    [<Inline; CompiledName "source">]
+    [<Inline; CompiledName "source"; Macro(typeof<Macros.ElementMixed>, "source")>]
     let Source ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "source" ns
     /// Create an HTML element <span> with children nodes.
-    [<Inline; CompiledName "span">]
+    [<Inline; CompiledName "span"; Macro(typeof<Macros.ElementMixed>, "span")>]
     let Span ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "span" ns
     /// Create an HTML element <strong> with children nodes.
-    [<Inline; CompiledName "strong">]
+    [<Inline; CompiledName "strong"; Macro(typeof<Macros.ElementMixed>, "strong")>]
     let Strong ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "strong" ns
     /// Create an HTML element <sub> with children nodes.
-    [<Inline; CompiledName "sub">]
+    [<Inline; CompiledName "sub"; Macro(typeof<Macros.ElementMixed>, "sub")>]
     let Sub ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "sub" ns
     /// Create an HTML element <summary> with children nodes.
-    [<Inline; CompiledName "summary">]
+    [<Inline; CompiledName "summary"; Macro(typeof<Macros.ElementMixed>, "summary")>]
     let Summary ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "summary" ns
     /// Create an HTML element <sup> with children nodes.
-    [<Inline; CompiledName "sup">]
+    [<Inline; CompiledName "sup"; Macro(typeof<Macros.ElementMixed>, "sup")>]
     let Sup ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "sup" ns
     /// Create an HTML element <table> with children nodes.
-    [<Inline; CompiledName "table">]
+    [<Inline; CompiledName "table"; Macro(typeof<Macros.ElementMixed>, "table")>]
     let Table ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "table" ns
     /// Create an HTML element <tbody> with children nodes.
-    [<Inline; CompiledName "tbody">]
+    [<Inline; CompiledName "tbody"; Macro(typeof<Macros.ElementMixed>, "tbody")>]
     let TBody ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "tbody" ns
     /// Create an HTML element <td> with children nodes.
-    [<Inline; CompiledName "td">]
+    [<Inline; CompiledName "td"; Macro(typeof<Macros.ElementMixed>, "td")>]
     let TD ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "td" ns
     /// Create an HTML element <textarea> with children nodes.
-    [<Inline; CompiledName "textarea">]
+    [<Inline; CompiledName "textarea"; Macro(typeof<Macros.ElementMixed>, "textarea")>]
     let TextArea ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "textarea" ns
     /// Create an HTML element <tfoot> with children nodes.
-    [<Inline; CompiledName "tfoot">]
+    [<Inline; CompiledName "tfoot"; Macro(typeof<Macros.ElementMixed>, "tfoot")>]
     let TFoot ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "tfoot" ns
     /// Create an HTML element <th> with children nodes.
-    [<Inline; CompiledName "th">]
+    [<Inline; CompiledName "th"; Macro(typeof<Macros.ElementMixed>, "th")>]
     let TH ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "th" ns
     /// Create an HTML element <thead> with children nodes.
-    [<Inline; CompiledName "thead">]
+    [<Inline; CompiledName "thead"; Macro(typeof<Macros.ElementMixed>, "thead")>]
     let THead ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "thead" ns
     /// Create an HTML element <time> with children nodes.
-    [<Inline; CompiledName "time">]
+    [<Inline; CompiledName "time"; Macro(typeof<Macros.ElementMixed>, "time")>]
     let Time ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "time" ns
     /// Create an HTML element <tr> with children nodes.
-    [<Inline; CompiledName "tr">]
+    [<Inline; CompiledName "tr"; Macro(typeof<Macros.ElementMixed>, "tr")>]
     let TR ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "tr" ns
     /// Create an HTML element <track> with children nodes.
-    [<Inline; CompiledName "track">]
+    [<Inline; CompiledName "track"; Macro(typeof<Macros.ElementMixed>, "track")>]
     let Track ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "track" ns
     /// Create an HTML element <ul> with children nodes.
-    [<Inline; CompiledName "ul">]
+    [<Inline; CompiledName "ul"; Macro(typeof<Macros.ElementMixed>, "ul")>]
     let UL ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "ul" ns
     /// Create an HTML element <video> with children nodes.
-    [<Inline; CompiledName "video">]
+    [<Inline; CompiledName "video"; Macro(typeof<Macros.ElementMixed>, "video")>]
     let Video ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "video" ns
     /// Create an HTML element <wbr> with children nodes.
-    [<Inline; CompiledName "wbr">]
+    [<Inline; CompiledName "wbr"; Macro(typeof<Macros.ElementMixed>, "wbr")>]
     let WBR ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "wbr" ns
     // }}
 
@@ -491,82 +491,82 @@ module Html =
 
         // {{ tag colliding deprecated
         /// Create an HTML element <acronym> with children nodes.
-        [<Inline; CompiledName "acronym">]
+        [<Inline; CompiledName "acronym"; Macro(typeof<Macros.ElementMixed>, "acronym")>]
         let Acronym ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "acronym" ns
         /// Create an HTML element <applet> with children nodes.
-        [<Inline; CompiledName "applet">]
+        [<Inline; CompiledName "applet"; Macro(typeof<Macros.ElementMixed>, "applet")>]
         let Applet ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "applet" ns
         /// Create an HTML element <basefont> with children nodes.
-        [<Inline; CompiledName "basefont">]
+        [<Inline; CompiledName "basefont"; Macro(typeof<Macros.ElementMixed>, "basefont")>]
         let BaseFont ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "basefont" ns
         /// Create an HTML element <big> with children nodes.
-        [<Inline; CompiledName "big">]
+        [<Inline; CompiledName "big"; Macro(typeof<Macros.ElementMixed>, "big")>]
         let Big ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "big" ns
         /// Create an HTML element <center> with children nodes.
-        [<Inline; CompiledName "center">]
+        [<Inline; CompiledName "center"; Macro(typeof<Macros.ElementMixed>, "center")>]
         let Center ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "center" ns
         /// Create an HTML element <content> with children nodes.
-        [<Inline; CompiledName "content">]
+        [<Inline; CompiledName "content"; Macro(typeof<Macros.ElementMixed>, "content")>]
         let Content ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "content" ns
         /// Create an HTML element <data> with children nodes.
-        [<Inline; CompiledName "data">]
+        [<Inline; CompiledName "data"; Macro(typeof<Macros.ElementMixed>, "data")>]
         let Data ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "data" ns
         /// Create an HTML element <dir> with children nodes.
-        [<Inline; CompiledName "dir">]
+        [<Inline; CompiledName "dir"; Macro(typeof<Macros.ElementMixed>, "dir")>]
         let Dir ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "dir" ns
         /// Create an HTML element <font> with children nodes.
-        [<Inline; CompiledName "font">]
+        [<Inline; CompiledName "font"; Macro(typeof<Macros.ElementMixed>, "font")>]
         let Font ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "font" ns
         /// Create an HTML element <frame> with children nodes.
-        [<Inline; CompiledName "frame">]
+        [<Inline; CompiledName "frame"; Macro(typeof<Macros.ElementMixed>, "frame")>]
         let Frame ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "frame" ns
         /// Create an HTML element <frameset> with children nodes.
-        [<Inline; CompiledName "frameset">]
+        [<Inline; CompiledName "frameset"; Macro(typeof<Macros.ElementMixed>, "frameset")>]
         let FrameSet ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "frameset" ns
         /// Create an HTML element <isindex> with children nodes.
-        [<Inline; CompiledName "isindex">]
+        [<Inline; CompiledName "isindex"; Macro(typeof<Macros.ElementMixed>, "isindex")>]
         let IsIndex ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "isindex" ns
         /// Create an HTML element <main> with children nodes.
-        [<Inline; CompiledName "main">]
+        [<Inline; CompiledName "main"; Macro(typeof<Macros.ElementMixed>, "main")>]
         let Main ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "main" ns
         /// Create an HTML element <map> with children nodes.
-        [<Inline; CompiledName "map">]
+        [<Inline; CompiledName "map"; Macro(typeof<Macros.ElementMixed>, "map")>]
         let Map ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "map" ns
         /// Create an HTML element <menu> with children nodes.
-        [<Inline; CompiledName "menu">]
+        [<Inline; CompiledName "menu"; Macro(typeof<Macros.ElementMixed>, "menu")>]
         let Menu ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "menu" ns
         /// Create an HTML element <menuitem> with children nodes.
-        [<Inline; CompiledName "menuitem">]
+        [<Inline; CompiledName "menuitem"; Macro(typeof<Macros.ElementMixed>, "menuitem")>]
         let MenuItem ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "menuitem" ns
         /// Create an HTML element <object> with children nodes.
-        [<Inline; CompiledName "object">]
+        [<Inline; CompiledName "object"; Macro(typeof<Macros.ElementMixed>, "object")>]
         let Object ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "object" ns
         /// Create an HTML element <option> with children nodes.
-        [<Inline; CompiledName "option">]
+        [<Inline; CompiledName "option"; Macro(typeof<Macros.ElementMixed>, "option")>]
         let Option ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "option" ns
         /// Create an HTML element <s> with children nodes.
-        [<Inline; CompiledName "s">]
+        [<Inline; CompiledName "s"; Macro(typeof<Macros.ElementMixed>, "s")>]
         let S ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "s" ns
         /// Create an HTML element <strike> with children nodes.
-        [<Inline; CompiledName "strike">]
+        [<Inline; CompiledName "strike"; Macro(typeof<Macros.ElementMixed>, "strike")>]
         let Strike ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "strike" ns
         /// Create an HTML element <style> with children nodes.
-        [<Inline; CompiledName "style">]
+        [<Inline; CompiledName "style"; Macro(typeof<Macros.ElementMixed>, "style")>]
         let Style ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "style" ns
         /// Create an HTML element <template> with children nodes.
-        [<Inline; CompiledName "template">]
+        [<Inline; CompiledName "template"; Macro(typeof<Macros.ElementMixed>, "template")>]
         let Template ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "template" ns
         /// Create an HTML element <title> with children nodes.
-        [<Inline; CompiledName "title">]
+        [<Inline; CompiledName "title"; Macro(typeof<Macros.ElementMixed>, "title")>]
         let Title ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "title" ns
         /// Create an HTML element <tt> with children nodes.
-        [<Inline; CompiledName "tt">]
+        [<Inline; CompiledName "tt"; Macro(typeof<Macros.ElementMixed>, "tt")>]
         let TT ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "tt" ns
         /// Create an HTML element <u> with children nodes.
-        [<Inline; CompiledName "u">]
+        [<Inline; CompiledName "u"; Macro(typeof<Macros.ElementMixed>, "u")>]
         let U ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "u" ns
         /// Create an HTML element <var> with children nodes.
-        [<Inline; CompiledName "var">]
+        [<Inline; CompiledName "var"; Macro(typeof<Macros.ElementMixed>, "var")>]
         let Var ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "var" ns
         // }}
 
@@ -575,244 +575,244 @@ module Html =
 
         // {{ svgtag normal
         /// Create an SVG element <a> with children nodes.
-        [<Inline; CompiledName "a">]
+        [<Inline; CompiledName "a"; Macro(typeof<Macros.ElementMixed>, "a")>]
         let A ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "a" ns
         /// Create an SVG element <altglyph> with children nodes.
-        [<Inline; CompiledName "altglyph">]
+        [<Inline; CompiledName "altglyph"; Macro(typeof<Macros.ElementMixed>, "altglyph")>]
         let AltGlyph ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "altglyph" ns
         /// Create an SVG element <altglyphdef> with children nodes.
-        [<Inline; CompiledName "altglyphdef">]
+        [<Inline; CompiledName "altglyphdef"; Macro(typeof<Macros.ElementMixed>, "altglyphdef")>]
         let AltGlyphDef ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "altglyphdef" ns
         /// Create an SVG element <altglyphitem> with children nodes.
-        [<Inline; CompiledName "altglyphitem">]
+        [<Inline; CompiledName "altglyphitem"; Macro(typeof<Macros.ElementMixed>, "altglyphitem")>]
         let AltGlyphItem ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "altglyphitem" ns
         /// Create an SVG element <animate> with children nodes.
-        [<Inline; CompiledName "animate">]
+        [<Inline; CompiledName "animate"; Macro(typeof<Macros.ElementMixed>, "animate")>]
         let Animate ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "animate" ns
         /// Create an SVG element <animatecolor> with children nodes.
-        [<Inline; CompiledName "animatecolor">]
+        [<Inline; CompiledName "animatecolor"; Macro(typeof<Macros.ElementMixed>, "animatecolor")>]
         let AnimateColor ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "animatecolor" ns
         /// Create an SVG element <animatemotion> with children nodes.
-        [<Inline; CompiledName "animatemotion">]
+        [<Inline; CompiledName "animatemotion"; Macro(typeof<Macros.ElementMixed>, "animatemotion")>]
         let AnimateMotion ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "animatemotion" ns
         /// Create an SVG element <animatetransform> with children nodes.
-        [<Inline; CompiledName "animatetransform">]
+        [<Inline; CompiledName "animatetransform"; Macro(typeof<Macros.ElementMixed>, "animatetransform")>]
         let AnimateTransform ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "animatetransform" ns
         /// Create an SVG element <circle> with children nodes.
-        [<Inline; CompiledName "circle">]
+        [<Inline; CompiledName "circle"; Macro(typeof<Macros.ElementMixed>, "circle")>]
         let Circle ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "circle" ns
         /// Create an SVG element <clippath> with children nodes.
-        [<Inline; CompiledName "clippath">]
+        [<Inline; CompiledName "clippath"; Macro(typeof<Macros.ElementMixed>, "clippath")>]
         let ClipPath ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "clippath" ns
         /// Create an SVG element <color-profile> with children nodes.
-        [<Inline; CompiledName "colorProfile">]
+        [<Inline; CompiledName "colorProfile"; Macro(typeof<Macros.ElementMixed>, "color-profile")>]
         let ColorProfile ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "color-profile" ns
         /// Create an SVG element <cursor> with children nodes.
-        [<Inline; CompiledName "cursor">]
+        [<Inline; CompiledName "cursor"; Macro(typeof<Macros.ElementMixed>, "cursor")>]
         let Cursor ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "cursor" ns
         /// Create an SVG element <defs> with children nodes.
-        [<Inline; CompiledName "defs">]
+        [<Inline; CompiledName "defs"; Macro(typeof<Macros.ElementMixed>, "defs")>]
         let Defs ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "defs" ns
         /// Create an SVG element <desc> with children nodes.
-        [<Inline; CompiledName "desc">]
+        [<Inline; CompiledName "desc"; Macro(typeof<Macros.ElementMixed>, "desc")>]
         let Desc ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "desc" ns
         /// Create an SVG element <ellipse> with children nodes.
-        [<Inline; CompiledName "ellipse">]
+        [<Inline; CompiledName "ellipse"; Macro(typeof<Macros.ElementMixed>, "ellipse")>]
         let Ellipse ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "ellipse" ns
         /// Create an SVG element <feblend> with children nodes.
-        [<Inline; CompiledName "feblend">]
+        [<Inline; CompiledName "feblend"; Macro(typeof<Macros.ElementMixed>, "feblend")>]
         let FeBlend ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "feblend" ns
         /// Create an SVG element <fecolormatrix> with children nodes.
-        [<Inline; CompiledName "fecolormatrix">]
+        [<Inline; CompiledName "fecolormatrix"; Macro(typeof<Macros.ElementMixed>, "fecolormatrix")>]
         let FeColorMatrix ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fecolormatrix" ns
         /// Create an SVG element <fecomponenttransfer> with children nodes.
-        [<Inline; CompiledName "fecomponenttransfer">]
+        [<Inline; CompiledName "fecomponenttransfer"; Macro(typeof<Macros.ElementMixed>, "fecomponenttransfer")>]
         let FeComponentTransfer ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fecomponenttransfer" ns
         /// Create an SVG element <fecomposite> with children nodes.
-        [<Inline; CompiledName "fecomposite">]
+        [<Inline; CompiledName "fecomposite"; Macro(typeof<Macros.ElementMixed>, "fecomposite")>]
         let FeComposite ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fecomposite" ns
         /// Create an SVG element <feconvolvematrix> with children nodes.
-        [<Inline; CompiledName "feconvolvematrix">]
+        [<Inline; CompiledName "feconvolvematrix"; Macro(typeof<Macros.ElementMixed>, "feconvolvematrix")>]
         let FeConvolveMatrix ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "feconvolvematrix" ns
         /// Create an SVG element <fediffuselighting> with children nodes.
-        [<Inline; CompiledName "fediffuselighting">]
+        [<Inline; CompiledName "fediffuselighting"; Macro(typeof<Macros.ElementMixed>, "fediffuselighting")>]
         let FeDiffuseLighting ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fediffuselighting" ns
         /// Create an SVG element <fedisplacementmap> with children nodes.
-        [<Inline; CompiledName "fedisplacementmap">]
+        [<Inline; CompiledName "fedisplacementmap"; Macro(typeof<Macros.ElementMixed>, "fedisplacementmap")>]
         let FeDisplacementMap ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fedisplacementmap" ns
         /// Create an SVG element <fedistantlight> with children nodes.
-        [<Inline; CompiledName "fedistantlight">]
+        [<Inline; CompiledName "fedistantlight"; Macro(typeof<Macros.ElementMixed>, "fedistantlight")>]
         let FeDistantLight ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fedistantlight" ns
         /// Create an SVG element <feflood> with children nodes.
-        [<Inline; CompiledName "feflood">]
+        [<Inline; CompiledName "feflood"; Macro(typeof<Macros.ElementMixed>, "feflood")>]
         let FeFlood ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "feflood" ns
         /// Create an SVG element <fefunca> with children nodes.
-        [<Inline; CompiledName "fefunca">]
+        [<Inline; CompiledName "fefunca"; Macro(typeof<Macros.ElementMixed>, "fefunca")>]
         let FeFuncA ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fefunca" ns
         /// Create an SVG element <fefuncb> with children nodes.
-        [<Inline; CompiledName "fefuncb">]
+        [<Inline; CompiledName "fefuncb"; Macro(typeof<Macros.ElementMixed>, "fefuncb")>]
         let FeFuncB ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fefuncb" ns
         /// Create an SVG element <fefuncg> with children nodes.
-        [<Inline; CompiledName "fefuncg">]
+        [<Inline; CompiledName "fefuncg"; Macro(typeof<Macros.ElementMixed>, "fefuncg")>]
         let FeFuncG ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fefuncg" ns
         /// Create an SVG element <fefuncr> with children nodes.
-        [<Inline; CompiledName "fefuncr">]
+        [<Inline; CompiledName "fefuncr"; Macro(typeof<Macros.ElementMixed>, "fefuncr")>]
         let FeFuncR ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fefuncr" ns
         /// Create an SVG element <fegaussianblur> with children nodes.
-        [<Inline; CompiledName "fegaussianblur">]
+        [<Inline; CompiledName "fegaussianblur"; Macro(typeof<Macros.ElementMixed>, "fegaussianblur")>]
         let FeGaussianBlur ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fegaussianblur" ns
         /// Create an SVG element <feimage> with children nodes.
-        [<Inline; CompiledName "feimage">]
+        [<Inline; CompiledName "feimage"; Macro(typeof<Macros.ElementMixed>, "feimage")>]
         let FeImage ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "feimage" ns
         /// Create an SVG element <femerge> with children nodes.
-        [<Inline; CompiledName "femerge">]
+        [<Inline; CompiledName "femerge"; Macro(typeof<Macros.ElementMixed>, "femerge")>]
         let FeMerge ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "femerge" ns
         /// Create an SVG element <femergenode> with children nodes.
-        [<Inline; CompiledName "femergenode">]
+        [<Inline; CompiledName "femergenode"; Macro(typeof<Macros.ElementMixed>, "femergenode")>]
         let FeMergeNode ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "femergenode" ns
         /// Create an SVG element <femorphology> with children nodes.
-        [<Inline; CompiledName "femorphology">]
+        [<Inline; CompiledName "femorphology"; Macro(typeof<Macros.ElementMixed>, "femorphology")>]
         let FeMorphology ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "femorphology" ns
         /// Create an SVG element <feoffset> with children nodes.
-        [<Inline; CompiledName "feoffset">]
+        [<Inline; CompiledName "feoffset"; Macro(typeof<Macros.ElementMixed>, "feoffset")>]
         let FeOffset ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "feoffset" ns
         /// Create an SVG element <fepointlight> with children nodes.
-        [<Inline; CompiledName "fepointlight">]
+        [<Inline; CompiledName "fepointlight"; Macro(typeof<Macros.ElementMixed>, "fepointlight")>]
         let FePointLight ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fepointlight" ns
         /// Create an SVG element <fespecularlighting> with children nodes.
-        [<Inline; CompiledName "fespecularlighting">]
+        [<Inline; CompiledName "fespecularlighting"; Macro(typeof<Macros.ElementMixed>, "fespecularlighting")>]
         let FeSpecularLighting ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fespecularlighting" ns
         /// Create an SVG element <fespotlight> with children nodes.
-        [<Inline; CompiledName "fespotlight">]
+        [<Inline; CompiledName "fespotlight"; Macro(typeof<Macros.ElementMixed>, "fespotlight")>]
         let FeSpotLight ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fespotlight" ns
         /// Create an SVG element <fetile> with children nodes.
-        [<Inline; CompiledName "fetile">]
+        [<Inline; CompiledName "fetile"; Macro(typeof<Macros.ElementMixed>, "fetile")>]
         let FeTile ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "fetile" ns
         /// Create an SVG element <feturbulence> with children nodes.
-        [<Inline; CompiledName "feturbulence">]
+        [<Inline; CompiledName "feturbulence"; Macro(typeof<Macros.ElementMixed>, "feturbulence")>]
         let FeTurbulence ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "feturbulence" ns
         /// Create an SVG element <filter> with children nodes.
-        [<Inline; CompiledName "filter">]
+        [<Inline; CompiledName "filter"; Macro(typeof<Macros.ElementMixed>, "filter")>]
         let Filter ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "filter" ns
         /// Create an SVG element <font> with children nodes.
-        [<Inline; CompiledName "font">]
+        [<Inline; CompiledName "font"; Macro(typeof<Macros.ElementMixed>, "font")>]
         let Font ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "font" ns
         /// Create an SVG element <font-face> with children nodes.
-        [<Inline; CompiledName "fontFace">]
+        [<Inline; CompiledName "fontFace"; Macro(typeof<Macros.ElementMixed>, "font-face")>]
         let FontFace ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "font-face" ns
         /// Create an SVG element <font-face-format> with children nodes.
-        [<Inline; CompiledName "fontFaceFormat">]
+        [<Inline; CompiledName "fontFaceFormat"; Macro(typeof<Macros.ElementMixed>, "font-face-format")>]
         let FontFaceFormat ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "font-face-format" ns
         /// Create an SVG element <font-face-name> with children nodes.
-        [<Inline; CompiledName "fontFaceName">]
+        [<Inline; CompiledName "fontFaceName"; Macro(typeof<Macros.ElementMixed>, "font-face-name")>]
         let FontFaceName ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "font-face-name" ns
         /// Create an SVG element <font-face-src> with children nodes.
-        [<Inline; CompiledName "fontFaceSrc">]
+        [<Inline; CompiledName "fontFaceSrc"; Macro(typeof<Macros.ElementMixed>, "font-face-src")>]
         let FontFaceSrc ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "font-face-src" ns
         /// Create an SVG element <font-face-uri> with children nodes.
-        [<Inline; CompiledName "fontFaceUri">]
+        [<Inline; CompiledName "fontFaceUri"; Macro(typeof<Macros.ElementMixed>, "font-face-uri")>]
         let FontFaceUri ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "font-face-uri" ns
         /// Create an SVG element <foreignobject> with children nodes.
-        [<Inline; CompiledName "foreignobject">]
+        [<Inline; CompiledName "foreignobject"; Macro(typeof<Macros.ElementMixed>, "foreignobject")>]
         let ForeignObject ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "foreignobject" ns
         /// Create an SVG element <g> with children nodes.
-        [<Inline; CompiledName "g">]
+        [<Inline; CompiledName "g"; Macro(typeof<Macros.ElementMixed>, "g")>]
         let G ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "g" ns
         /// Create an SVG element <glyph> with children nodes.
-        [<Inline; CompiledName "glyph">]
+        [<Inline; CompiledName "glyph"; Macro(typeof<Macros.ElementMixed>, "glyph")>]
         let Glyph ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "glyph" ns
         /// Create an SVG element <glyphref> with children nodes.
-        [<Inline; CompiledName "glyphref">]
+        [<Inline; CompiledName "glyphref"; Macro(typeof<Macros.ElementMixed>, "glyphref")>]
         let GlyphRef ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "glyphref" ns
         /// Create an SVG element <hkern> with children nodes.
-        [<Inline; CompiledName "hkern">]
+        [<Inline; CompiledName "hkern"; Macro(typeof<Macros.ElementMixed>, "hkern")>]
         let HKern ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "hkern" ns
         /// Create an SVG element <image> with children nodes.
-        [<Inline; CompiledName "image">]
+        [<Inline; CompiledName "image"; Macro(typeof<Macros.ElementMixed>, "image")>]
         let Image ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "image" ns
         /// Create an SVG element <line> with children nodes.
-        [<Inline; CompiledName "line">]
+        [<Inline; CompiledName "line"; Macro(typeof<Macros.ElementMixed>, "line")>]
         let Line ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "line" ns
         /// Create an SVG element <lineargradient> with children nodes.
-        [<Inline; CompiledName "lineargradient">]
+        [<Inline; CompiledName "lineargradient"; Macro(typeof<Macros.ElementMixed>, "lineargradient")>]
         let LinearGradient ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "lineargradient" ns
         /// Create an SVG element <marker> with children nodes.
-        [<Inline; CompiledName "marker">]
+        [<Inline; CompiledName "marker"; Macro(typeof<Macros.ElementMixed>, "marker")>]
         let Marker ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "marker" ns
         /// Create an SVG element <mask> with children nodes.
-        [<Inline; CompiledName "mask">]
+        [<Inline; CompiledName "mask"; Macro(typeof<Macros.ElementMixed>, "mask")>]
         let Mask ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "mask" ns
         /// Create an SVG element <metadata> with children nodes.
-        [<Inline; CompiledName "metadata">]
+        [<Inline; CompiledName "metadata"; Macro(typeof<Macros.ElementMixed>, "metadata")>]
         let Metadata ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "metadata" ns
         /// Create an SVG element <missing-glyph> with children nodes.
-        [<Inline; CompiledName "missingGlyph">]
+        [<Inline; CompiledName "missingGlyph"; Macro(typeof<Macros.ElementMixed>, "missing-glyph")>]
         let MissingGlyph ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "missing-glyph" ns
         /// Create an SVG element <mpath> with children nodes.
-        [<Inline; CompiledName "mpath">]
+        [<Inline; CompiledName "mpath"; Macro(typeof<Macros.ElementMixed>, "mpath")>]
         let MPath ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "mpath" ns
         /// Create an SVG element <path> with children nodes.
-        [<Inline; CompiledName "path">]
+        [<Inline; CompiledName "path"; Macro(typeof<Macros.ElementMixed>, "path")>]
         let Path ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "path" ns
         /// Create an SVG element <pattern> with children nodes.
-        [<Inline; CompiledName "pattern">]
+        [<Inline; CompiledName "pattern"; Macro(typeof<Macros.ElementMixed>, "pattern")>]
         let Pattern ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "pattern" ns
         /// Create an SVG element <polygon> with children nodes.
-        [<Inline; CompiledName "polygon">]
+        [<Inline; CompiledName "polygon"; Macro(typeof<Macros.ElementMixed>, "polygon")>]
         let Polygon ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "polygon" ns
         /// Create an SVG element <polyline> with children nodes.
-        [<Inline; CompiledName "polyline">]
+        [<Inline; CompiledName "polyline"; Macro(typeof<Macros.ElementMixed>, "polyline")>]
         let Polyline ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "polyline" ns
         /// Create an SVG element <radialgradient> with children nodes.
-        [<Inline; CompiledName "radialgradient">]
+        [<Inline; CompiledName "radialgradient"; Macro(typeof<Macros.ElementMixed>, "radialgradient")>]
         let RadialGradient ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "radialgradient" ns
         /// Create an SVG element <rect> with children nodes.
-        [<Inline; CompiledName "rect">]
+        [<Inline; CompiledName "rect"; Macro(typeof<Macros.ElementMixed>, "rect")>]
         let Rect ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "rect" ns
         /// Create an SVG element <script> with children nodes.
-        [<Inline; CompiledName "script">]
+        [<Inline; CompiledName "script"; Macro(typeof<Macros.ElementMixed>, "script")>]
         let Script ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "script" ns
         /// Create an SVG element <set> with children nodes.
-        [<Inline; CompiledName "set">]
+        [<Inline; CompiledName "set"; Macro(typeof<Macros.ElementMixed>, "set")>]
         let Set ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "set" ns
         /// Create an SVG element <stop> with children nodes.
-        [<Inline; CompiledName "stop">]
+        [<Inline; CompiledName "stop"; Macro(typeof<Macros.ElementMixed>, "stop")>]
         let Stop ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "stop" ns
         /// Create an SVG element <style> with children nodes.
-        [<Inline; CompiledName "style">]
+        [<Inline; CompiledName "style"; Macro(typeof<Macros.ElementMixed>, "style")>]
         let Style ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "style" ns
         /// Create an SVG element <svg> with children nodes.
-        [<Inline; CompiledName "svg">]
+        [<Inline; CompiledName "svg"; Macro(typeof<Macros.ElementMixed>, "svg")>]
         let Svg ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "svg" ns
         /// Create an SVG element <switch> with children nodes.
-        [<Inline; CompiledName "switch">]
+        [<Inline; CompiledName "switch"; Macro(typeof<Macros.ElementMixed>, "switch")>]
         let Switch ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "switch" ns
         /// Create an SVG element <symbol> with children nodes.
-        [<Inline; CompiledName "symbol">]
+        [<Inline; CompiledName "symbol"; Macro(typeof<Macros.ElementMixed>, "symbol")>]
         let Symbol ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "symbol" ns
         /// Create an SVG element <text> with children nodes.
-        [<Inline; CompiledName "text">]
+        [<Inline; CompiledName "text"; Macro(typeof<Macros.ElementMixed>, "text")>]
         let Text ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "text" ns
         /// Create an SVG element <textpath> with children nodes.
-        [<Inline; CompiledName "textpath">]
+        [<Inline; CompiledName "textpath"; Macro(typeof<Macros.ElementMixed>, "textpath")>]
         let TextPath ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "textpath" ns
         /// Create an SVG element <title> with children nodes.
-        [<Inline; CompiledName "title">]
+        [<Inline; CompiledName "title"; Macro(typeof<Macros.ElementMixed>, "title")>]
         let Title ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "title" ns
         /// Create an SVG element <tref> with children nodes.
-        [<Inline; CompiledName "tref">]
+        [<Inline; CompiledName "tref"; Macro(typeof<Macros.ElementMixed>, "tref")>]
         let TRef ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "tref" ns
         /// Create an SVG element <tspan> with children nodes.
-        [<Inline; CompiledName "tspan">]
+        [<Inline; CompiledName "tspan"; Macro(typeof<Macros.ElementMixed>, "tspan")>]
         let TSpan ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "tspan" ns
         /// Create an SVG element <use> with children nodes.
-        [<Inline; CompiledName "use">]
+        [<Inline; CompiledName "use"; Macro(typeof<Macros.ElementMixed>, "use")>]
         let Use ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "use" ns
         /// Create an SVG element <view> with children nodes.
-        [<Inline; CompiledName "view">]
+        [<Inline; CompiledName "view"; Macro(typeof<Macros.ElementMixed>, "view")>]
         let View ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "view" ns
         /// Create an SVG element <vkern> with children nodes.
-        [<Inline; CompiledName "vkern">]
+        [<Inline; CompiledName "vkern"; Macro(typeof<Macros.ElementMixed>, "vkern")>]
         let VKern ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "vkern" ns
         // }}
     
@@ -837,7 +837,7 @@ module Html =
 
         // {{ attr normal colliding deprecated
         /// Create an HTML attribute "accept" with the given value.
-        [<Inline; CompiledName "accept">]
+        [<Inline; CompiledName "accept"; Macro(typeof<Macros.AttrCreate>, "accept")>]
         let Accept value = Attr.Create "accept" value
         /// Create an HTML attribute "accept" with the given reactive value.
         [<Inline; CompiledName "accept">]
@@ -849,7 +849,7 @@ module Html =
         [<Inline; CompiledName "accept">]
         let AcceptAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "accept" trans view convert.Invoke
         /// Create an HTML attribute "accept-charset" with the given value.
-        [<Inline; CompiledName "acceptCharset">]
+        [<Inline; CompiledName "acceptCharset"; Macro(typeof<Macros.AttrCreate>, "accept-charset")>]
         let AcceptCharSet value = Attr.Create "accept-charset" value
         /// Create an HTML attribute "accept-charset" with the given reactive value.
         [<Inline; CompiledName "acceptCharset">]
@@ -861,7 +861,7 @@ module Html =
         [<Inline; CompiledName "acceptCharset">]
         let AcceptCharSetAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "accept-charset" trans view convert.Invoke
         /// Create an HTML attribute "accesskey" with the given value.
-        [<Inline; CompiledName "accesskey">]
+        [<Inline; CompiledName "accesskey"; Macro(typeof<Macros.AttrCreate>, "accesskey")>]
         let AccessKey value = Attr.Create "accesskey" value
         /// Create an HTML attribute "accesskey" with the given reactive value.
         [<Inline; CompiledName "accesskey">]
@@ -873,7 +873,7 @@ module Html =
         [<Inline; CompiledName "accesskey">]
         let AccessKeyAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "accesskey" trans view convert.Invoke
         /// Create an HTML attribute "action" with the given value.
-        [<Inline; CompiledName "action">]
+        [<Inline; CompiledName "action"; Macro(typeof<Macros.AttrCreate>, "action")>]
         let Action value = Attr.Create "action" value
         /// Create an HTML attribute "action" with the given reactive value.
         [<Inline; CompiledName "action">]
@@ -885,7 +885,7 @@ module Html =
         [<Inline; CompiledName "action">]
         let ActionAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "action" trans view convert.Invoke
         /// Create an HTML attribute "align" with the given value.
-        [<Inline; CompiledName "align">]
+        [<Inline; CompiledName "align"; Macro(typeof<Macros.AttrCreate>, "align")>]
         let Align value = Attr.Create "align" value
         /// Create an HTML attribute "align" with the given reactive value.
         [<Inline; CompiledName "align">]
@@ -897,7 +897,7 @@ module Html =
         [<Inline; CompiledName "align">]
         let AlignAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "align" trans view convert.Invoke
         /// Create an HTML attribute "alink" with the given value.
-        [<Inline; CompiledName "alink">]
+        [<Inline; CompiledName "alink"; Macro(typeof<Macros.AttrCreate>, "alink")>]
         let Alink value = Attr.Create "alink" value
         /// Create an HTML attribute "alink" with the given reactive value.
         [<Inline; CompiledName "alink">]
@@ -909,7 +909,7 @@ module Html =
         [<Inline; CompiledName "alink">]
         let AlinkAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "alink" trans view convert.Invoke
         /// Create an HTML attribute "alt" with the given value.
-        [<Inline; CompiledName "alt">]
+        [<Inline; CompiledName "alt"; Macro(typeof<Macros.AttrCreate>, "alt")>]
         let Alt value = Attr.Create "alt" value
         /// Create an HTML attribute "alt" with the given reactive value.
         [<Inline; CompiledName "alt">]
@@ -921,7 +921,7 @@ module Html =
         [<Inline; CompiledName "alt">]
         let AltAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "alt" trans view convert.Invoke
         /// Create an HTML attribute "altcode" with the given value.
-        [<Inline; CompiledName "altcode">]
+        [<Inline; CompiledName "altcode"; Macro(typeof<Macros.AttrCreate>, "altcode")>]
         let AltCode value = Attr.Create "altcode" value
         /// Create an HTML attribute "altcode" with the given reactive value.
         [<Inline; CompiledName "altcode">]
@@ -933,7 +933,7 @@ module Html =
         [<Inline; CompiledName "altcode">]
         let AltCodeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "altcode" trans view convert.Invoke
         /// Create an HTML attribute "archive" with the given value.
-        [<Inline; CompiledName "archive">]
+        [<Inline; CompiledName "archive"; Macro(typeof<Macros.AttrCreate>, "archive")>]
         let Archive value = Attr.Create "archive" value
         /// Create an HTML attribute "archive" with the given reactive value.
         [<Inline; CompiledName "archive">]
@@ -945,7 +945,7 @@ module Html =
         [<Inline; CompiledName "archive">]
         let ArchiveAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "archive" trans view convert.Invoke
         /// Create an HTML attribute "async" with the given value.
-        [<Inline; CompiledName "async">]
+        [<Inline; CompiledName "async"; Macro(typeof<Macros.AttrCreate>, "async")>]
         let Async value = Attr.Create "async" value
         /// Create an HTML attribute "async" with the given reactive value.
         [<Inline; CompiledName "async">]
@@ -957,7 +957,7 @@ module Html =
         [<Inline; CompiledName "async">]
         let AsyncAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "async" trans view convert.Invoke
         /// Create an HTML attribute "autocomplete" with the given value.
-        [<Inline; CompiledName "autocomplete">]
+        [<Inline; CompiledName "autocomplete"; Macro(typeof<Macros.AttrCreate>, "autocomplete")>]
         let AutoComplete value = Attr.Create "autocomplete" value
         /// Create an HTML attribute "autocomplete" with the given reactive value.
         [<Inline; CompiledName "autocomplete">]
@@ -969,7 +969,7 @@ module Html =
         [<Inline; CompiledName "autocomplete">]
         let AutoCompleteAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "autocomplete" trans view convert.Invoke
         /// Create an HTML attribute "autofocus" with the given value.
-        [<Inline; CompiledName "autofocus">]
+        [<Inline; CompiledName "autofocus"; Macro(typeof<Macros.AttrCreate>, "autofocus")>]
         let AutoFocus value = Attr.Create "autofocus" value
         /// Create an HTML attribute "autofocus" with the given reactive value.
         [<Inline; CompiledName "autofocus">]
@@ -981,7 +981,7 @@ module Html =
         [<Inline; CompiledName "autofocus">]
         let AutoFocusAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "autofocus" trans view convert.Invoke
         /// Create an HTML attribute "autoplay" with the given value.
-        [<Inline; CompiledName "autoplay">]
+        [<Inline; CompiledName "autoplay"; Macro(typeof<Macros.AttrCreate>, "autoplay")>]
         let AutoPlay value = Attr.Create "autoplay" value
         /// Create an HTML attribute "autoplay" with the given reactive value.
         [<Inline; CompiledName "autoplay">]
@@ -993,7 +993,7 @@ module Html =
         [<Inline; CompiledName "autoplay">]
         let AutoPlayAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "autoplay" trans view convert.Invoke
         /// Create an HTML attribute "autosave" with the given value.
-        [<Inline; CompiledName "autosave">]
+        [<Inline; CompiledName "autosave"; Macro(typeof<Macros.AttrCreate>, "autosave")>]
         let AutoSave value = Attr.Create "autosave" value
         /// Create an HTML attribute "autosave" with the given reactive value.
         [<Inline; CompiledName "autosave">]
@@ -1005,7 +1005,7 @@ module Html =
         [<Inline; CompiledName "autosave">]
         let AutoSaveAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "autosave" trans view convert.Invoke
         /// Create an HTML attribute "axis" with the given value.
-        [<Inline; CompiledName "axis">]
+        [<Inline; CompiledName "axis"; Macro(typeof<Macros.AttrCreate>, "axis")>]
         let Axis value = Attr.Create "axis" value
         /// Create an HTML attribute "axis" with the given reactive value.
         [<Inline; CompiledName "axis">]
@@ -1017,7 +1017,7 @@ module Html =
         [<Inline; CompiledName "axis">]
         let AxisAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "axis" trans view convert.Invoke
         /// Create an HTML attribute "background" with the given value.
-        [<Inline; CompiledName "background">]
+        [<Inline; CompiledName "background"; Macro(typeof<Macros.AttrCreate>, "background")>]
         let Background value = Attr.Create "background" value
         /// Create an HTML attribute "background" with the given reactive value.
         [<Inline; CompiledName "background">]
@@ -1029,7 +1029,7 @@ module Html =
         [<Inline; CompiledName "background">]
         let BackgroundAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "background" trans view convert.Invoke
         /// Create an HTML attribute "bgcolor" with the given value.
-        [<Inline; CompiledName "bgcolor">]
+        [<Inline; CompiledName "bgcolor"; Macro(typeof<Macros.AttrCreate>, "bgcolor")>]
         let BgColor value = Attr.Create "bgcolor" value
         /// Create an HTML attribute "bgcolor" with the given reactive value.
         [<Inline; CompiledName "bgcolor">]
@@ -1041,7 +1041,7 @@ module Html =
         [<Inline; CompiledName "bgcolor">]
         let BgColorAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "bgcolor" trans view convert.Invoke
         /// Create an HTML attribute "border" with the given value.
-        [<Inline; CompiledName "border">]
+        [<Inline; CompiledName "border"; Macro(typeof<Macros.AttrCreate>, "border")>]
         let Border value = Attr.Create "border" value
         /// Create an HTML attribute "border" with the given reactive value.
         [<Inline; CompiledName "border">]
@@ -1053,7 +1053,7 @@ module Html =
         [<Inline; CompiledName "border">]
         let BorderAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "border" trans view convert.Invoke
         /// Create an HTML attribute "bordercolor" with the given value.
-        [<Inline; CompiledName "bordercolor">]
+        [<Inline; CompiledName "bordercolor"; Macro(typeof<Macros.AttrCreate>, "bordercolor")>]
         let BorderColor value = Attr.Create "bordercolor" value
         /// Create an HTML attribute "bordercolor" with the given reactive value.
         [<Inline; CompiledName "bordercolor">]
@@ -1065,7 +1065,7 @@ module Html =
         [<Inline; CompiledName "bordercolor">]
         let BorderColorAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "bordercolor" trans view convert.Invoke
         /// Create an HTML attribute "buffered" with the given value.
-        [<Inline; CompiledName "buffered">]
+        [<Inline; CompiledName "buffered"; Macro(typeof<Macros.AttrCreate>, "buffered")>]
         let Buffered value = Attr.Create "buffered" value
         /// Create an HTML attribute "buffered" with the given reactive value.
         [<Inline; CompiledName "buffered">]
@@ -1077,7 +1077,7 @@ module Html =
         [<Inline; CompiledName "buffered">]
         let BufferedAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "buffered" trans view convert.Invoke
         /// Create an HTML attribute "cellpadding" with the given value.
-        [<Inline; CompiledName "cellpadding">]
+        [<Inline; CompiledName "cellpadding"; Macro(typeof<Macros.AttrCreate>, "cellpadding")>]
         let CellPadding value = Attr.Create "cellpadding" value
         /// Create an HTML attribute "cellpadding" with the given reactive value.
         [<Inline; CompiledName "cellpadding">]
@@ -1089,7 +1089,7 @@ module Html =
         [<Inline; CompiledName "cellpadding">]
         let CellPaddingAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "cellpadding" trans view convert.Invoke
         /// Create an HTML attribute "cellspacing" with the given value.
-        [<Inline; CompiledName "cellspacing">]
+        [<Inline; CompiledName "cellspacing"; Macro(typeof<Macros.AttrCreate>, "cellspacing")>]
         let CellSpacing value = Attr.Create "cellspacing" value
         /// Create an HTML attribute "cellspacing" with the given reactive value.
         [<Inline; CompiledName "cellspacing">]
@@ -1101,7 +1101,7 @@ module Html =
         [<Inline; CompiledName "cellspacing">]
         let CellSpacingAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "cellspacing" trans view convert.Invoke
         /// Create an HTML attribute "challenge" with the given value.
-        [<Inline; CompiledName "challenge">]
+        [<Inline; CompiledName "challenge"; Macro(typeof<Macros.AttrCreate>, "challenge")>]
         let Challenge value = Attr.Create "challenge" value
         /// Create an HTML attribute "challenge" with the given reactive value.
         [<Inline; CompiledName "challenge">]
@@ -1113,7 +1113,7 @@ module Html =
         [<Inline; CompiledName "challenge">]
         let ChallengeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "challenge" trans view convert.Invoke
         /// Create an HTML attribute "char" with the given value.
-        [<Inline; CompiledName "char">]
+        [<Inline; CompiledName "char"; Macro(typeof<Macros.AttrCreate>, "char")>]
         let Char value = Attr.Create "char" value
         /// Create an HTML attribute "char" with the given reactive value.
         [<Inline; CompiledName "char">]
@@ -1125,7 +1125,7 @@ module Html =
         [<Inline; CompiledName "char">]
         let CharAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "char" trans view convert.Invoke
         /// Create an HTML attribute "charoff" with the given value.
-        [<Inline; CompiledName "charoff">]
+        [<Inline; CompiledName "charoff"; Macro(typeof<Macros.AttrCreate>, "charoff")>]
         let CharOff value = Attr.Create "charoff" value
         /// Create an HTML attribute "charoff" with the given reactive value.
         [<Inline; CompiledName "charoff">]
@@ -1137,7 +1137,7 @@ module Html =
         [<Inline; CompiledName "charoff">]
         let CharOffAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "charoff" trans view convert.Invoke
         /// Create an HTML attribute "charset" with the given value.
-        [<Inline; CompiledName "charset">]
+        [<Inline; CompiledName "charset"; Macro(typeof<Macros.AttrCreate>, "charset")>]
         let CharSet value = Attr.Create "charset" value
         /// Create an HTML attribute "charset" with the given reactive value.
         [<Inline; CompiledName "charset">]
@@ -1149,7 +1149,7 @@ module Html =
         [<Inline; CompiledName "charset">]
         let CharSetAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "charset" trans view convert.Invoke
         /// Create an HTML attribute "checked" with the given value.
-        [<Inline; CompiledName "checked">]
+        [<Inline; CompiledName "checked"; Macro(typeof<Macros.AttrCreate>, "checked")>]
         let Checked value = Attr.Create "checked" value
         /// Create an HTML attribute "checked" with the given reactive value.
         [<Inline; CompiledName "checked">]
@@ -1161,7 +1161,7 @@ module Html =
         [<Inline; CompiledName "checked">]
         let CheckedAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "checked" trans view convert.Invoke
         /// Create an HTML attribute "cite" with the given value.
-        [<Inline; CompiledName "cite">]
+        [<Inline; CompiledName "cite"; Macro(typeof<Macros.AttrCreate>, "cite")>]
         let Cite value = Attr.Create "cite" value
         /// Create an HTML attribute "cite" with the given reactive value.
         [<Inline; CompiledName "cite">]
@@ -1173,7 +1173,7 @@ module Html =
         [<Inline; CompiledName "cite">]
         let CiteAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "cite" trans view convert.Invoke
         /// Create an HTML attribute "class" with the given value.
-        [<Inline; CompiledName "class">]
+        [<Inline; CompiledName "class"; Macro(typeof<Macros.AttrCreate>, "class")>]
         let Class value = Attr.Create "class" value
         /// Create an HTML attribute "class" with the given reactive value.
         [<Inline; CompiledName "class">]
@@ -1185,7 +1185,7 @@ module Html =
         [<Inline; CompiledName "class">]
         let ClassAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "class" trans view convert.Invoke
         /// Create an HTML attribute "classid" with the given value.
-        [<Inline; CompiledName "classid">]
+        [<Inline; CompiledName "classid"; Macro(typeof<Macros.AttrCreate>, "classid")>]
         let ClassId value = Attr.Create "classid" value
         /// Create an HTML attribute "classid" with the given reactive value.
         [<Inline; CompiledName "classid">]
@@ -1197,7 +1197,7 @@ module Html =
         [<Inline; CompiledName "classid">]
         let ClassIdAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "classid" trans view convert.Invoke
         /// Create an HTML attribute "clear" with the given value.
-        [<Inline; CompiledName "clear">]
+        [<Inline; CompiledName "clear"; Macro(typeof<Macros.AttrCreate>, "clear")>]
         let Clear value = Attr.Create "clear" value
         /// Create an HTML attribute "clear" with the given reactive value.
         [<Inline; CompiledName "clear">]
@@ -1209,7 +1209,7 @@ module Html =
         [<Inline; CompiledName "clear">]
         let ClearAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "clear" trans view convert.Invoke
         /// Create an HTML attribute "code" with the given value.
-        [<Inline; CompiledName "code">]
+        [<Inline; CompiledName "code"; Macro(typeof<Macros.AttrCreate>, "code")>]
         let Code value = Attr.Create "code" value
         /// Create an HTML attribute "code" with the given reactive value.
         [<Inline; CompiledName "code">]
@@ -1221,7 +1221,7 @@ module Html =
         [<Inline; CompiledName "code">]
         let CodeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "code" trans view convert.Invoke
         /// Create an HTML attribute "codebase" with the given value.
-        [<Inline; CompiledName "codebase">]
+        [<Inline; CompiledName "codebase"; Macro(typeof<Macros.AttrCreate>, "codebase")>]
         let CodeBase value = Attr.Create "codebase" value
         /// Create an HTML attribute "codebase" with the given reactive value.
         [<Inline; CompiledName "codebase">]
@@ -1233,7 +1233,7 @@ module Html =
         [<Inline; CompiledName "codebase">]
         let CodeBaseAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "codebase" trans view convert.Invoke
         /// Create an HTML attribute "codetype" with the given value.
-        [<Inline; CompiledName "codetype">]
+        [<Inline; CompiledName "codetype"; Macro(typeof<Macros.AttrCreate>, "codetype")>]
         let CodeType value = Attr.Create "codetype" value
         /// Create an HTML attribute "codetype" with the given reactive value.
         [<Inline; CompiledName "codetype">]
@@ -1245,7 +1245,7 @@ module Html =
         [<Inline; CompiledName "codetype">]
         let CodeTypeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "codetype" trans view convert.Invoke
         /// Create an HTML attribute "color" with the given value.
-        [<Inline; CompiledName "color">]
+        [<Inline; CompiledName "color"; Macro(typeof<Macros.AttrCreate>, "color")>]
         let Color value = Attr.Create "color" value
         /// Create an HTML attribute "color" with the given reactive value.
         [<Inline; CompiledName "color">]
@@ -1257,7 +1257,7 @@ module Html =
         [<Inline; CompiledName "color">]
         let ColorAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "color" trans view convert.Invoke
         /// Create an HTML attribute "cols" with the given value.
-        [<Inline; CompiledName "cols">]
+        [<Inline; CompiledName "cols"; Macro(typeof<Macros.AttrCreate>, "cols")>]
         let Cols value = Attr.Create "cols" value
         /// Create an HTML attribute "cols" with the given reactive value.
         [<Inline; CompiledName "cols">]
@@ -1269,7 +1269,7 @@ module Html =
         [<Inline; CompiledName "cols">]
         let ColsAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "cols" trans view convert.Invoke
         /// Create an HTML attribute "colspan" with the given value.
-        [<Inline; CompiledName "colspan">]
+        [<Inline; CompiledName "colspan"; Macro(typeof<Macros.AttrCreate>, "colspan")>]
         let ColSpan value = Attr.Create "colspan" value
         /// Create an HTML attribute "colspan" with the given reactive value.
         [<Inline; CompiledName "colspan">]
@@ -1281,7 +1281,7 @@ module Html =
         [<Inline; CompiledName "colspan">]
         let ColSpanAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "colspan" trans view convert.Invoke
         /// Create an HTML attribute "compact" with the given value.
-        [<Inline; CompiledName "compact">]
+        [<Inline; CompiledName "compact"; Macro(typeof<Macros.AttrCreate>, "compact")>]
         let Compact value = Attr.Create "compact" value
         /// Create an HTML attribute "compact" with the given reactive value.
         [<Inline; CompiledName "compact">]
@@ -1293,7 +1293,7 @@ module Html =
         [<Inline; CompiledName "compact">]
         let CompactAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "compact" trans view convert.Invoke
         /// Create an HTML attribute "content" with the given value.
-        [<Inline; CompiledName "content">]
+        [<Inline; CompiledName "content"; Macro(typeof<Macros.AttrCreate>, "content")>]
         let Content value = Attr.Create "content" value
         /// Create an HTML attribute "content" with the given reactive value.
         [<Inline; CompiledName "content">]
@@ -1305,7 +1305,7 @@ module Html =
         [<Inline; CompiledName "content">]
         let ContentAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "content" trans view convert.Invoke
         /// Create an HTML attribute "contenteditable" with the given value.
-        [<Inline; CompiledName "contenteditable">]
+        [<Inline; CompiledName "contenteditable"; Macro(typeof<Macros.AttrCreate>, "contenteditable")>]
         let ContentEditable value = Attr.Create "contenteditable" value
         /// Create an HTML attribute "contenteditable" with the given reactive value.
         [<Inline; CompiledName "contenteditable">]
@@ -1317,7 +1317,7 @@ module Html =
         [<Inline; CompiledName "contenteditable">]
         let ContentEditableAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "contenteditable" trans view convert.Invoke
         /// Create an HTML attribute "contextmenu" with the given value.
-        [<Inline; CompiledName "contextmenu">]
+        [<Inline; CompiledName "contextmenu"; Macro(typeof<Macros.AttrCreate>, "contextmenu")>]
         let ContextMenu value = Attr.Create "contextmenu" value
         /// Create an HTML attribute "contextmenu" with the given reactive value.
         [<Inline; CompiledName "contextmenu">]
@@ -1329,7 +1329,7 @@ module Html =
         [<Inline; CompiledName "contextmenu">]
         let ContextMenuAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "contextmenu" trans view convert.Invoke
         /// Create an HTML attribute "controls" with the given value.
-        [<Inline; CompiledName "controls">]
+        [<Inline; CompiledName "controls"; Macro(typeof<Macros.AttrCreate>, "controls")>]
         let Controls value = Attr.Create "controls" value
         /// Create an HTML attribute "controls" with the given reactive value.
         [<Inline; CompiledName "controls">]
@@ -1341,7 +1341,7 @@ module Html =
         [<Inline; CompiledName "controls">]
         let ControlsAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "controls" trans view convert.Invoke
         /// Create an HTML attribute "coords" with the given value.
-        [<Inline; CompiledName "coords">]
+        [<Inline; CompiledName "coords"; Macro(typeof<Macros.AttrCreate>, "coords")>]
         let Coords value = Attr.Create "coords" value
         /// Create an HTML attribute "coords" with the given reactive value.
         [<Inline; CompiledName "coords">]
@@ -1353,7 +1353,7 @@ module Html =
         [<Inline; CompiledName "coords">]
         let CoordsAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "coords" trans view convert.Invoke
         /// Create an HTML attribute "data" with the given value.
-        [<Inline; CompiledName "data">]
+        [<Inline; CompiledName "data"; Macro(typeof<Macros.AttrCreate>, "data")>]
         let Data value = Attr.Create "data" value
         /// Create an HTML attribute "data" with the given reactive value.
         [<Inline; CompiledName "data">]
@@ -1365,7 +1365,7 @@ module Html =
         [<Inline; CompiledName "data">]
         let DataAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "data" trans view convert.Invoke
         /// Create an HTML attribute "datetime" with the given value.
-        [<Inline; CompiledName "datetime">]
+        [<Inline; CompiledName "datetime"; Macro(typeof<Macros.AttrCreate>, "datetime")>]
         let DateTime value = Attr.Create "datetime" value
         /// Create an HTML attribute "datetime" with the given reactive value.
         [<Inline; CompiledName "datetime">]
@@ -1377,7 +1377,7 @@ module Html =
         [<Inline; CompiledName "datetime">]
         let DateTimeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "datetime" trans view convert.Invoke
         /// Create an HTML attribute "declare" with the given value.
-        [<Inline; CompiledName "declare">]
+        [<Inline; CompiledName "declare"; Macro(typeof<Macros.AttrCreate>, "declare")>]
         let Declare value = Attr.Create "declare" value
         /// Create an HTML attribute "declare" with the given reactive value.
         [<Inline; CompiledName "declare">]
@@ -1389,7 +1389,7 @@ module Html =
         [<Inline; CompiledName "declare">]
         let DeclareAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "declare" trans view convert.Invoke
         /// Create an HTML attribute "default" with the given value.
-        [<Inline; CompiledName "default">]
+        [<Inline; CompiledName "default"; Macro(typeof<Macros.AttrCreate>, "default")>]
         let Default value = Attr.Create "default" value
         /// Create an HTML attribute "default" with the given reactive value.
         [<Inline; CompiledName "default">]
@@ -1401,7 +1401,7 @@ module Html =
         [<Inline; CompiledName "default">]
         let DefaultAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "default" trans view convert.Invoke
         /// Create an HTML attribute "defer" with the given value.
-        [<Inline; CompiledName "defer">]
+        [<Inline; CompiledName "defer"; Macro(typeof<Macros.AttrCreate>, "defer")>]
         let Defer value = Attr.Create "defer" value
         /// Create an HTML attribute "defer" with the given reactive value.
         [<Inline; CompiledName "defer">]
@@ -1413,7 +1413,7 @@ module Html =
         [<Inline; CompiledName "defer">]
         let DeferAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "defer" trans view convert.Invoke
         /// Create an HTML attribute "dir" with the given value.
-        [<Inline; CompiledName "dir">]
+        [<Inline; CompiledName "dir"; Macro(typeof<Macros.AttrCreate>, "dir")>]
         let Dir value = Attr.Create "dir" value
         /// Create an HTML attribute "dir" with the given reactive value.
         [<Inline; CompiledName "dir">]
@@ -1425,7 +1425,7 @@ module Html =
         [<Inline; CompiledName "dir">]
         let DirAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "dir" trans view convert.Invoke
         /// Create an HTML attribute "disabled" with the given value.
-        [<Inline; CompiledName "disabled">]
+        [<Inline; CompiledName "disabled"; Macro(typeof<Macros.AttrCreate>, "disabled")>]
         let Disabled value = Attr.Create "disabled" value
         /// Create an HTML attribute "disabled" with the given reactive value.
         [<Inline; CompiledName "disabled">]
@@ -1437,7 +1437,7 @@ module Html =
         [<Inline; CompiledName "disabled">]
         let DisabledAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "disabled" trans view convert.Invoke
         /// Create an HTML attribute "download" with the given value.
-        [<Inline; CompiledName "download">]
+        [<Inline; CompiledName "download"; Macro(typeof<Macros.AttrCreate>, "download")>]
         let Download value = Attr.Create "download" value
         /// Create an HTML attribute "download" with the given reactive value.
         [<Inline; CompiledName "download">]
@@ -1449,7 +1449,7 @@ module Html =
         [<Inline; CompiledName "download">]
         let DownloadAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "download" trans view convert.Invoke
         /// Create an HTML attribute "draggable" with the given value.
-        [<Inline; CompiledName "draggable">]
+        [<Inline; CompiledName "draggable"; Macro(typeof<Macros.AttrCreate>, "draggable")>]
         let Draggable value = Attr.Create "draggable" value
         /// Create an HTML attribute "draggable" with the given reactive value.
         [<Inline; CompiledName "draggable">]
@@ -1461,7 +1461,7 @@ module Html =
         [<Inline; CompiledName "draggable">]
         let DraggableAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "draggable" trans view convert.Invoke
         /// Create an HTML attribute "dropzone" with the given value.
-        [<Inline; CompiledName "dropzone">]
+        [<Inline; CompiledName "dropzone"; Macro(typeof<Macros.AttrCreate>, "dropzone")>]
         let DropZone value = Attr.Create "dropzone" value
         /// Create an HTML attribute "dropzone" with the given reactive value.
         [<Inline; CompiledName "dropzone">]
@@ -1473,7 +1473,7 @@ module Html =
         [<Inline; CompiledName "dropzone">]
         let DropZoneAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "dropzone" trans view convert.Invoke
         /// Create an HTML attribute "enctype" with the given value.
-        [<Inline; CompiledName "enctype">]
+        [<Inline; CompiledName "enctype"; Macro(typeof<Macros.AttrCreate>, "enctype")>]
         let EncType value = Attr.Create "enctype" value
         /// Create an HTML attribute "enctype" with the given reactive value.
         [<Inline; CompiledName "enctype">]
@@ -1485,7 +1485,7 @@ module Html =
         [<Inline; CompiledName "enctype">]
         let EncTypeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "enctype" trans view convert.Invoke
         /// Create an HTML attribute "face" with the given value.
-        [<Inline; CompiledName "face">]
+        [<Inline; CompiledName "face"; Macro(typeof<Macros.AttrCreate>, "face")>]
         let Face value = Attr.Create "face" value
         /// Create an HTML attribute "face" with the given reactive value.
         [<Inline; CompiledName "face">]
@@ -1497,7 +1497,7 @@ module Html =
         [<Inline; CompiledName "face">]
         let FaceAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "face" trans view convert.Invoke
         /// Create an HTML attribute "for" with the given value.
-        [<Inline; CompiledName "for">]
+        [<Inline; CompiledName "for"; Macro(typeof<Macros.AttrCreate>, "for")>]
         let For value = Attr.Create "for" value
         /// Create an HTML attribute "for" with the given reactive value.
         [<Inline; CompiledName "for">]
@@ -1509,7 +1509,7 @@ module Html =
         [<Inline; CompiledName "for">]
         let ForAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "for" trans view convert.Invoke
         /// Create an HTML attribute "form" with the given value.
-        [<Inline; CompiledName "form">]
+        [<Inline; CompiledName "form"; Macro(typeof<Macros.AttrCreate>, "form")>]
         let Form value = Attr.Create "form" value
         /// Create an HTML attribute "form" with the given reactive value.
         [<Inline; CompiledName "form">]
@@ -1521,7 +1521,7 @@ module Html =
         [<Inline; CompiledName "form">]
         let FormAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "form" trans view convert.Invoke
         /// Create an HTML attribute "formaction" with the given value.
-        [<Inline; CompiledName "formaction">]
+        [<Inline; CompiledName "formaction"; Macro(typeof<Macros.AttrCreate>, "formaction")>]
         let FormAction value = Attr.Create "formaction" value
         /// Create an HTML attribute "formaction" with the given reactive value.
         [<Inline; CompiledName "formaction">]
@@ -1533,7 +1533,7 @@ module Html =
         [<Inline; CompiledName "formaction">]
         let FormActionAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "formaction" trans view convert.Invoke
         /// Create an HTML attribute "formenctype" with the given value.
-        [<Inline; CompiledName "formenctype">]
+        [<Inline; CompiledName "formenctype"; Macro(typeof<Macros.AttrCreate>, "formenctype")>]
         let FormEncType value = Attr.Create "formenctype" value
         /// Create an HTML attribute "formenctype" with the given reactive value.
         [<Inline; CompiledName "formenctype">]
@@ -1545,7 +1545,7 @@ module Html =
         [<Inline; CompiledName "formenctype">]
         let FormEncTypeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "formenctype" trans view convert.Invoke
         /// Create an HTML attribute "formmethod" with the given value.
-        [<Inline; CompiledName "formmethod">]
+        [<Inline; CompiledName "formmethod"; Macro(typeof<Macros.AttrCreate>, "formmethod")>]
         let FormMethod value = Attr.Create "formmethod" value
         /// Create an HTML attribute "formmethod" with the given reactive value.
         [<Inline; CompiledName "formmethod">]
@@ -1557,7 +1557,7 @@ module Html =
         [<Inline; CompiledName "formmethod">]
         let FormMethodAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "formmethod" trans view convert.Invoke
         /// Create an HTML attribute "formnovalidate" with the given value.
-        [<Inline; CompiledName "formnovalidate">]
+        [<Inline; CompiledName "formnovalidate"; Macro(typeof<Macros.AttrCreate>, "formnovalidate")>]
         let FormNoValidate value = Attr.Create "formnovalidate" value
         /// Create an HTML attribute "formnovalidate" with the given reactive value.
         [<Inline; CompiledName "formnovalidate">]
@@ -1569,7 +1569,7 @@ module Html =
         [<Inline; CompiledName "formnovalidate">]
         let FormNoValidateAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "formnovalidate" trans view convert.Invoke
         /// Create an HTML attribute "formtarget" with the given value.
-        [<Inline; CompiledName "formtarget">]
+        [<Inline; CompiledName "formtarget"; Macro(typeof<Macros.AttrCreate>, "formtarget")>]
         let FormTarget value = Attr.Create "formtarget" value
         /// Create an HTML attribute "formtarget" with the given reactive value.
         [<Inline; CompiledName "formtarget">]
@@ -1581,7 +1581,7 @@ module Html =
         [<Inline; CompiledName "formtarget">]
         let FormTargetAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "formtarget" trans view convert.Invoke
         /// Create an HTML attribute "frame" with the given value.
-        [<Inline; CompiledName "frame">]
+        [<Inline; CompiledName "frame"; Macro(typeof<Macros.AttrCreate>, "frame")>]
         let Frame value = Attr.Create "frame" value
         /// Create an HTML attribute "frame" with the given reactive value.
         [<Inline; CompiledName "frame">]
@@ -1593,7 +1593,7 @@ module Html =
         [<Inline; CompiledName "frame">]
         let FrameAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "frame" trans view convert.Invoke
         /// Create an HTML attribute "frameborder" with the given value.
-        [<Inline; CompiledName "frameborder">]
+        [<Inline; CompiledName "frameborder"; Macro(typeof<Macros.AttrCreate>, "frameborder")>]
         let FrameBorder value = Attr.Create "frameborder" value
         /// Create an HTML attribute "frameborder" with the given reactive value.
         [<Inline; CompiledName "frameborder">]
@@ -1605,7 +1605,7 @@ module Html =
         [<Inline; CompiledName "frameborder">]
         let FrameBorderAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "frameborder" trans view convert.Invoke
         /// Create an HTML attribute "headers" with the given value.
-        [<Inline; CompiledName "headers">]
+        [<Inline; CompiledName "headers"; Macro(typeof<Macros.AttrCreate>, "headers")>]
         let Headers value = Attr.Create "headers" value
         /// Create an HTML attribute "headers" with the given reactive value.
         [<Inline; CompiledName "headers">]
@@ -1617,7 +1617,7 @@ module Html =
         [<Inline; CompiledName "headers">]
         let HeadersAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "headers" trans view convert.Invoke
         /// Create an HTML attribute "height" with the given value.
-        [<Inline; CompiledName "height">]
+        [<Inline; CompiledName "height"; Macro(typeof<Macros.AttrCreate>, "height")>]
         let Height value = Attr.Create "height" value
         /// Create an HTML attribute "height" with the given reactive value.
         [<Inline; CompiledName "height">]
@@ -1629,7 +1629,7 @@ module Html =
         [<Inline; CompiledName "height">]
         let HeightAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "height" trans view convert.Invoke
         /// Create an HTML attribute "hidden" with the given value.
-        [<Inline; CompiledName "hidden">]
+        [<Inline; CompiledName "hidden"; Macro(typeof<Macros.AttrCreate>, "hidden")>]
         let Hidden value = Attr.Create "hidden" value
         /// Create an HTML attribute "hidden" with the given reactive value.
         [<Inline; CompiledName "hidden">]
@@ -1641,7 +1641,7 @@ module Html =
         [<Inline; CompiledName "hidden">]
         let HiddenAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "hidden" trans view convert.Invoke
         /// Create an HTML attribute "high" with the given value.
-        [<Inline; CompiledName "high">]
+        [<Inline; CompiledName "high"; Macro(typeof<Macros.AttrCreate>, "high")>]
         let High value = Attr.Create "high" value
         /// Create an HTML attribute "high" with the given reactive value.
         [<Inline; CompiledName "high">]
@@ -1653,7 +1653,7 @@ module Html =
         [<Inline; CompiledName "high">]
         let HighAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "high" trans view convert.Invoke
         /// Create an HTML attribute "href" with the given value.
-        [<Inline; CompiledName "href">]
+        [<Inline; CompiledName "href"; Macro(typeof<Macros.AttrCreate>, "href")>]
         let HRef value = Attr.Create "href" value
         /// Create an HTML attribute "href" with the given reactive value.
         [<Inline; CompiledName "href">]
@@ -1665,7 +1665,7 @@ module Html =
         [<Inline; CompiledName "href">]
         let HRefAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "href" trans view convert.Invoke
         /// Create an HTML attribute "hreflang" with the given value.
-        [<Inline; CompiledName "hreflang">]
+        [<Inline; CompiledName "hreflang"; Macro(typeof<Macros.AttrCreate>, "hreflang")>]
         let HRefLang value = Attr.Create "hreflang" value
         /// Create an HTML attribute "hreflang" with the given reactive value.
         [<Inline; CompiledName "hreflang">]
@@ -1677,7 +1677,7 @@ module Html =
         [<Inline; CompiledName "hreflang">]
         let HRefLangAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "hreflang" trans view convert.Invoke
         /// Create an HTML attribute "hspace" with the given value.
-        [<Inline; CompiledName "hspace">]
+        [<Inline; CompiledName "hspace"; Macro(typeof<Macros.AttrCreate>, "hspace")>]
         let HSpace value = Attr.Create "hspace" value
         /// Create an HTML attribute "hspace" with the given reactive value.
         [<Inline; CompiledName "hspace">]
@@ -1689,7 +1689,7 @@ module Html =
         [<Inline; CompiledName "hspace">]
         let HSpaceAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "hspace" trans view convert.Invoke
         /// Create an HTML attribute "http" with the given value.
-        [<Inline; CompiledName "http">]
+        [<Inline; CompiledName "http"; Macro(typeof<Macros.AttrCreate>, "http")>]
         let HttpEquiv value = Attr.Create "http" value
         /// Create an HTML attribute "http" with the given reactive value.
         [<Inline; CompiledName "http">]
@@ -1701,7 +1701,7 @@ module Html =
         [<Inline; CompiledName "http">]
         let HttpEquivAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "http" trans view convert.Invoke
         /// Create an HTML attribute "icon" with the given value.
-        [<Inline; CompiledName "icon">]
+        [<Inline; CompiledName "icon"; Macro(typeof<Macros.AttrCreate>, "icon")>]
         let Icon value = Attr.Create "icon" value
         /// Create an HTML attribute "icon" with the given reactive value.
         [<Inline; CompiledName "icon">]
@@ -1713,7 +1713,7 @@ module Html =
         [<Inline; CompiledName "icon">]
         let IconAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "icon" trans view convert.Invoke
         /// Create an HTML attribute "id" with the given value.
-        [<Inline; CompiledName "id">]
+        [<Inline; CompiledName "id"; Macro(typeof<Macros.AttrCreate>, "id")>]
         let Id value = Attr.Create "id" value
         /// Create an HTML attribute "id" with the given reactive value.
         [<Inline; CompiledName "id">]
@@ -1725,7 +1725,7 @@ module Html =
         [<Inline; CompiledName "id">]
         let IdAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "id" trans view convert.Invoke
         /// Create an HTML attribute "ismap" with the given value.
-        [<Inline; CompiledName "ismap">]
+        [<Inline; CompiledName "ismap"; Macro(typeof<Macros.AttrCreate>, "ismap")>]
         let IsMap value = Attr.Create "ismap" value
         /// Create an HTML attribute "ismap" with the given reactive value.
         [<Inline; CompiledName "ismap">]
@@ -1737,7 +1737,7 @@ module Html =
         [<Inline; CompiledName "ismap">]
         let IsMapAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "ismap" trans view convert.Invoke
         /// Create an HTML attribute "itemprop" with the given value.
-        [<Inline; CompiledName "itemprop">]
+        [<Inline; CompiledName "itemprop"; Macro(typeof<Macros.AttrCreate>, "itemprop")>]
         let ItemProp value = Attr.Create "itemprop" value
         /// Create an HTML attribute "itemprop" with the given reactive value.
         [<Inline; CompiledName "itemprop">]
@@ -1749,7 +1749,7 @@ module Html =
         [<Inline; CompiledName "itemprop">]
         let ItemPropAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "itemprop" trans view convert.Invoke
         /// Create an HTML attribute "keytype" with the given value.
-        [<Inline; CompiledName "keytype">]
+        [<Inline; CompiledName "keytype"; Macro(typeof<Macros.AttrCreate>, "keytype")>]
         let KeyType value = Attr.Create "keytype" value
         /// Create an HTML attribute "keytype" with the given reactive value.
         [<Inline; CompiledName "keytype">]
@@ -1761,7 +1761,7 @@ module Html =
         [<Inline; CompiledName "keytype">]
         let KeyTypeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "keytype" trans view convert.Invoke
         /// Create an HTML attribute "kind" with the given value.
-        [<Inline; CompiledName "kind">]
+        [<Inline; CompiledName "kind"; Macro(typeof<Macros.AttrCreate>, "kind")>]
         let Kind value = Attr.Create "kind" value
         /// Create an HTML attribute "kind" with the given reactive value.
         [<Inline; CompiledName "kind">]
@@ -1773,7 +1773,7 @@ module Html =
         [<Inline; CompiledName "kind">]
         let KindAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "kind" trans view convert.Invoke
         /// Create an HTML attribute "label" with the given value.
-        [<Inline; CompiledName "label">]
+        [<Inline; CompiledName "label"; Macro(typeof<Macros.AttrCreate>, "label")>]
         let Label value = Attr.Create "label" value
         /// Create an HTML attribute "label" with the given reactive value.
         [<Inline; CompiledName "label">]
@@ -1785,7 +1785,7 @@ module Html =
         [<Inline; CompiledName "label">]
         let LabelAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "label" trans view convert.Invoke
         /// Create an HTML attribute "lang" with the given value.
-        [<Inline; CompiledName "lang">]
+        [<Inline; CompiledName "lang"; Macro(typeof<Macros.AttrCreate>, "lang")>]
         let Lang value = Attr.Create "lang" value
         /// Create an HTML attribute "lang" with the given reactive value.
         [<Inline; CompiledName "lang">]
@@ -1797,7 +1797,7 @@ module Html =
         [<Inline; CompiledName "lang">]
         let LangAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "lang" trans view convert.Invoke
         /// Create an HTML attribute "language" with the given value.
-        [<Inline; CompiledName "language">]
+        [<Inline; CompiledName "language"; Macro(typeof<Macros.AttrCreate>, "language")>]
         let Language value = Attr.Create "language" value
         /// Create an HTML attribute "language" with the given reactive value.
         [<Inline; CompiledName "language">]
@@ -1809,7 +1809,7 @@ module Html =
         [<Inline; CompiledName "language">]
         let LanguageAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "language" trans view convert.Invoke
         /// Create an HTML attribute "link" with the given value.
-        [<Inline; CompiledName "link">]
+        [<Inline; CompiledName "link"; Macro(typeof<Macros.AttrCreate>, "link")>]
         let Link value = Attr.Create "link" value
         /// Create an HTML attribute "link" with the given reactive value.
         [<Inline; CompiledName "link">]
@@ -1821,7 +1821,7 @@ module Html =
         [<Inline; CompiledName "link">]
         let LinkAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "link" trans view convert.Invoke
         /// Create an HTML attribute "list" with the given value.
-        [<Inline; CompiledName "list">]
+        [<Inline; CompiledName "list"; Macro(typeof<Macros.AttrCreate>, "list")>]
         let List value = Attr.Create "list" value
         /// Create an HTML attribute "list" with the given reactive value.
         [<Inline; CompiledName "list">]
@@ -1833,7 +1833,7 @@ module Html =
         [<Inline; CompiledName "list">]
         let ListAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "list" trans view convert.Invoke
         /// Create an HTML attribute "longdesc" with the given value.
-        [<Inline; CompiledName "longdesc">]
+        [<Inline; CompiledName "longdesc"; Macro(typeof<Macros.AttrCreate>, "longdesc")>]
         let LongDesc value = Attr.Create "longdesc" value
         /// Create an HTML attribute "longdesc" with the given reactive value.
         [<Inline; CompiledName "longdesc">]
@@ -1845,7 +1845,7 @@ module Html =
         [<Inline; CompiledName "longdesc">]
         let LongDescAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "longdesc" trans view convert.Invoke
         /// Create an HTML attribute "loop" with the given value.
-        [<Inline; CompiledName "loop">]
+        [<Inline; CompiledName "loop"; Macro(typeof<Macros.AttrCreate>, "loop")>]
         let Loop value = Attr.Create "loop" value
         /// Create an HTML attribute "loop" with the given reactive value.
         [<Inline; CompiledName "loop">]
@@ -1857,7 +1857,7 @@ module Html =
         [<Inline; CompiledName "loop">]
         let LoopAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "loop" trans view convert.Invoke
         /// Create an HTML attribute "low" with the given value.
-        [<Inline; CompiledName "low">]
+        [<Inline; CompiledName "low"; Macro(typeof<Macros.AttrCreate>, "low")>]
         let Low value = Attr.Create "low" value
         /// Create an HTML attribute "low" with the given reactive value.
         [<Inline; CompiledName "low">]
@@ -1869,7 +1869,7 @@ module Html =
         [<Inline; CompiledName "low">]
         let LowAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "low" trans view convert.Invoke
         /// Create an HTML attribute "manifest" with the given value.
-        [<Inline; CompiledName "manifest">]
+        [<Inline; CompiledName "manifest"; Macro(typeof<Macros.AttrCreate>, "manifest")>]
         let Manifest value = Attr.Create "manifest" value
         /// Create an HTML attribute "manifest" with the given reactive value.
         [<Inline; CompiledName "manifest">]
@@ -1881,7 +1881,7 @@ module Html =
         [<Inline; CompiledName "manifest">]
         let ManifestAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "manifest" trans view convert.Invoke
         /// Create an HTML attribute "marginheight" with the given value.
-        [<Inline; CompiledName "marginheight">]
+        [<Inline; CompiledName "marginheight"; Macro(typeof<Macros.AttrCreate>, "marginheight")>]
         let MarginHeight value = Attr.Create "marginheight" value
         /// Create an HTML attribute "marginheight" with the given reactive value.
         [<Inline; CompiledName "marginheight">]
@@ -1893,7 +1893,7 @@ module Html =
         [<Inline; CompiledName "marginheight">]
         let MarginHeightAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "marginheight" trans view convert.Invoke
         /// Create an HTML attribute "marginwidth" with the given value.
-        [<Inline; CompiledName "marginwidth">]
+        [<Inline; CompiledName "marginwidth"; Macro(typeof<Macros.AttrCreate>, "marginwidth")>]
         let MarginWidth value = Attr.Create "marginwidth" value
         /// Create an HTML attribute "marginwidth" with the given reactive value.
         [<Inline; CompiledName "marginwidth">]
@@ -1905,7 +1905,7 @@ module Html =
         [<Inline; CompiledName "marginwidth">]
         let MarginWidthAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "marginwidth" trans view convert.Invoke
         /// Create an HTML attribute "max" with the given value.
-        [<Inline; CompiledName "max">]
+        [<Inline; CompiledName "max"; Macro(typeof<Macros.AttrCreate>, "max")>]
         let Max value = Attr.Create "max" value
         /// Create an HTML attribute "max" with the given reactive value.
         [<Inline; CompiledName "max">]
@@ -1917,7 +1917,7 @@ module Html =
         [<Inline; CompiledName "max">]
         let MaxAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "max" trans view convert.Invoke
         /// Create an HTML attribute "maxlength" with the given value.
-        [<Inline; CompiledName "maxlength">]
+        [<Inline; CompiledName "maxlength"; Macro(typeof<Macros.AttrCreate>, "maxlength")>]
         let MaxLength value = Attr.Create "maxlength" value
         /// Create an HTML attribute "maxlength" with the given reactive value.
         [<Inline; CompiledName "maxlength">]
@@ -1929,7 +1929,7 @@ module Html =
         [<Inline; CompiledName "maxlength">]
         let MaxLengthAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "maxlength" trans view convert.Invoke
         /// Create an HTML attribute "media" with the given value.
-        [<Inline; CompiledName "media">]
+        [<Inline; CompiledName "media"; Macro(typeof<Macros.AttrCreate>, "media")>]
         let Media value = Attr.Create "media" value
         /// Create an HTML attribute "media" with the given reactive value.
         [<Inline; CompiledName "media">]
@@ -1941,7 +1941,7 @@ module Html =
         [<Inline; CompiledName "media">]
         let MediaAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "media" trans view convert.Invoke
         /// Create an HTML attribute "method" with the given value.
-        [<Inline; CompiledName "method">]
+        [<Inline; CompiledName "method"; Macro(typeof<Macros.AttrCreate>, "method")>]
         let Method value = Attr.Create "method" value
         /// Create an HTML attribute "method" with the given reactive value.
         [<Inline; CompiledName "method">]
@@ -1953,7 +1953,7 @@ module Html =
         [<Inline; CompiledName "method">]
         let MethodAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "method" trans view convert.Invoke
         /// Create an HTML attribute "min" with the given value.
-        [<Inline; CompiledName "min">]
+        [<Inline; CompiledName "min"; Macro(typeof<Macros.AttrCreate>, "min")>]
         let Min value = Attr.Create "min" value
         /// Create an HTML attribute "min" with the given reactive value.
         [<Inline; CompiledName "min">]
@@ -1965,7 +1965,7 @@ module Html =
         [<Inline; CompiledName "min">]
         let MinAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "min" trans view convert.Invoke
         /// Create an HTML attribute "multiple" with the given value.
-        [<Inline; CompiledName "multiple">]
+        [<Inline; CompiledName "multiple"; Macro(typeof<Macros.AttrCreate>, "multiple")>]
         let Multiple value = Attr.Create "multiple" value
         /// Create an HTML attribute "multiple" with the given reactive value.
         [<Inline; CompiledName "multiple">]
@@ -1977,7 +1977,7 @@ module Html =
         [<Inline; CompiledName "multiple">]
         let MultipleAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "multiple" trans view convert.Invoke
         /// Create an HTML attribute "name" with the given value.
-        [<Inline; CompiledName "name">]
+        [<Inline; CompiledName "name"; Macro(typeof<Macros.AttrCreate>, "name")>]
         let Name value = Attr.Create "name" value
         /// Create an HTML attribute "name" with the given reactive value.
         [<Inline; CompiledName "name">]
@@ -1989,7 +1989,7 @@ module Html =
         [<Inline; CompiledName "name">]
         let NameAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "name" trans view convert.Invoke
         /// Create an HTML attribute "nohref" with the given value.
-        [<Inline; CompiledName "nohref">]
+        [<Inline; CompiledName "nohref"; Macro(typeof<Macros.AttrCreate>, "nohref")>]
         let NoHRef value = Attr.Create "nohref" value
         /// Create an HTML attribute "nohref" with the given reactive value.
         [<Inline; CompiledName "nohref">]
@@ -2001,7 +2001,7 @@ module Html =
         [<Inline; CompiledName "nohref">]
         let NoHRefAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "nohref" trans view convert.Invoke
         /// Create an HTML attribute "noresize" with the given value.
-        [<Inline; CompiledName "noresize">]
+        [<Inline; CompiledName "noresize"; Macro(typeof<Macros.AttrCreate>, "noresize")>]
         let NoResize value = Attr.Create "noresize" value
         /// Create an HTML attribute "noresize" with the given reactive value.
         [<Inline; CompiledName "noresize">]
@@ -2013,7 +2013,7 @@ module Html =
         [<Inline; CompiledName "noresize">]
         let NoResizeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "noresize" trans view convert.Invoke
         /// Create an HTML attribute "noshade" with the given value.
-        [<Inline; CompiledName "noshade">]
+        [<Inline; CompiledName "noshade"; Macro(typeof<Macros.AttrCreate>, "noshade")>]
         let NoShade value = Attr.Create "noshade" value
         /// Create an HTML attribute "noshade" with the given reactive value.
         [<Inline; CompiledName "noshade">]
@@ -2025,7 +2025,7 @@ module Html =
         [<Inline; CompiledName "noshade">]
         let NoShadeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "noshade" trans view convert.Invoke
         /// Create an HTML attribute "novalidate" with the given value.
-        [<Inline; CompiledName "novalidate">]
+        [<Inline; CompiledName "novalidate"; Macro(typeof<Macros.AttrCreate>, "novalidate")>]
         let NoValidate value = Attr.Create "novalidate" value
         /// Create an HTML attribute "novalidate" with the given reactive value.
         [<Inline; CompiledName "novalidate">]
@@ -2037,7 +2037,7 @@ module Html =
         [<Inline; CompiledName "novalidate">]
         let NoValidateAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "novalidate" trans view convert.Invoke
         /// Create an HTML attribute "nowrap" with the given value.
-        [<Inline; CompiledName "nowrap">]
+        [<Inline; CompiledName "nowrap"; Macro(typeof<Macros.AttrCreate>, "nowrap")>]
         let NoWrap value = Attr.Create "nowrap" value
         /// Create an HTML attribute "nowrap" with the given reactive value.
         [<Inline; CompiledName "nowrap">]
@@ -2049,7 +2049,7 @@ module Html =
         [<Inline; CompiledName "nowrap">]
         let NoWrapAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "nowrap" trans view convert.Invoke
         /// Create an HTML attribute "object" with the given value.
-        [<Inline; CompiledName "object">]
+        [<Inline; CompiledName "object"; Macro(typeof<Macros.AttrCreate>, "object")>]
         let Object value = Attr.Create "object" value
         /// Create an HTML attribute "object" with the given reactive value.
         [<Inline; CompiledName "object">]
@@ -2061,7 +2061,7 @@ module Html =
         [<Inline; CompiledName "object">]
         let ObjectAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "object" trans view convert.Invoke
         /// Create an HTML attribute "open" with the given value.
-        [<Inline; CompiledName "open">]
+        [<Inline; CompiledName "open"; Macro(typeof<Macros.AttrCreate>, "open")>]
         let Open value = Attr.Create "open" value
         /// Create an HTML attribute "open" with the given reactive value.
         [<Inline; CompiledName "open">]
@@ -2073,7 +2073,7 @@ module Html =
         [<Inline; CompiledName "open">]
         let OpenAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "open" trans view convert.Invoke
         /// Create an HTML attribute "optimum" with the given value.
-        [<Inline; CompiledName "optimum">]
+        [<Inline; CompiledName "optimum"; Macro(typeof<Macros.AttrCreate>, "optimum")>]
         let Optimum value = Attr.Create "optimum" value
         /// Create an HTML attribute "optimum" with the given reactive value.
         [<Inline; CompiledName "optimum">]
@@ -2085,7 +2085,7 @@ module Html =
         [<Inline; CompiledName "optimum">]
         let OptimumAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "optimum" trans view convert.Invoke
         /// Create an HTML attribute "pattern" with the given value.
-        [<Inline; CompiledName "pattern">]
+        [<Inline; CompiledName "pattern"; Macro(typeof<Macros.AttrCreate>, "pattern")>]
         let Pattern value = Attr.Create "pattern" value
         /// Create an HTML attribute "pattern" with the given reactive value.
         [<Inline; CompiledName "pattern">]
@@ -2097,7 +2097,7 @@ module Html =
         [<Inline; CompiledName "pattern">]
         let PatternAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "pattern" trans view convert.Invoke
         /// Create an HTML attribute "ping" with the given value.
-        [<Inline; CompiledName "ping">]
+        [<Inline; CompiledName "ping"; Macro(typeof<Macros.AttrCreate>, "ping")>]
         let Ping value = Attr.Create "ping" value
         /// Create an HTML attribute "ping" with the given reactive value.
         [<Inline; CompiledName "ping">]
@@ -2109,7 +2109,7 @@ module Html =
         [<Inline; CompiledName "ping">]
         let PingAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "ping" trans view convert.Invoke
         /// Create an HTML attribute "placeholder" with the given value.
-        [<Inline; CompiledName "placeholder">]
+        [<Inline; CompiledName "placeholder"; Macro(typeof<Macros.AttrCreate>, "placeholder")>]
         let PlaceHolder value = Attr.Create "placeholder" value
         /// Create an HTML attribute "placeholder" with the given reactive value.
         [<Inline; CompiledName "placeholder">]
@@ -2121,7 +2121,7 @@ module Html =
         [<Inline; CompiledName "placeholder">]
         let PlaceHolderAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "placeholder" trans view convert.Invoke
         /// Create an HTML attribute "poster" with the given value.
-        [<Inline; CompiledName "poster">]
+        [<Inline; CompiledName "poster"; Macro(typeof<Macros.AttrCreate>, "poster")>]
         let Poster value = Attr.Create "poster" value
         /// Create an HTML attribute "poster" with the given reactive value.
         [<Inline; CompiledName "poster">]
@@ -2133,7 +2133,7 @@ module Html =
         [<Inline; CompiledName "poster">]
         let PosterAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "poster" trans view convert.Invoke
         /// Create an HTML attribute "preload" with the given value.
-        [<Inline; CompiledName "preload">]
+        [<Inline; CompiledName "preload"; Macro(typeof<Macros.AttrCreate>, "preload")>]
         let Preload value = Attr.Create "preload" value
         /// Create an HTML attribute "preload" with the given reactive value.
         [<Inline; CompiledName "preload">]
@@ -2145,7 +2145,7 @@ module Html =
         [<Inline; CompiledName "preload">]
         let PreloadAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "preload" trans view convert.Invoke
         /// Create an HTML attribute "profile" with the given value.
-        [<Inline; CompiledName "profile">]
+        [<Inline; CompiledName "profile"; Macro(typeof<Macros.AttrCreate>, "profile")>]
         let Profile value = Attr.Create "profile" value
         /// Create an HTML attribute "profile" with the given reactive value.
         [<Inline; CompiledName "profile">]
@@ -2157,7 +2157,7 @@ module Html =
         [<Inline; CompiledName "profile">]
         let ProfileAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "profile" trans view convert.Invoke
         /// Create an HTML attribute "prompt" with the given value.
-        [<Inline; CompiledName "prompt">]
+        [<Inline; CompiledName "prompt"; Macro(typeof<Macros.AttrCreate>, "prompt")>]
         let Prompt value = Attr.Create "prompt" value
         /// Create an HTML attribute "prompt" with the given reactive value.
         [<Inline; CompiledName "prompt">]
@@ -2169,7 +2169,7 @@ module Html =
         [<Inline; CompiledName "prompt">]
         let PromptAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "prompt" trans view convert.Invoke
         /// Create an HTML attribute "pubdate" with the given value.
-        [<Inline; CompiledName "pubdate">]
+        [<Inline; CompiledName "pubdate"; Macro(typeof<Macros.AttrCreate>, "pubdate")>]
         let PubDate value = Attr.Create "pubdate" value
         /// Create an HTML attribute "pubdate" with the given reactive value.
         [<Inline; CompiledName "pubdate">]
@@ -2181,7 +2181,7 @@ module Html =
         [<Inline; CompiledName "pubdate">]
         let PubDateAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "pubdate" trans view convert.Invoke
         /// Create an HTML attribute "radiogroup" with the given value.
-        [<Inline; CompiledName "radiogroup">]
+        [<Inline; CompiledName "radiogroup"; Macro(typeof<Macros.AttrCreate>, "radiogroup")>]
         let RadioGroup value = Attr.Create "radiogroup" value
         /// Create an HTML attribute "radiogroup" with the given reactive value.
         [<Inline; CompiledName "radiogroup">]
@@ -2193,7 +2193,7 @@ module Html =
         [<Inline; CompiledName "radiogroup">]
         let RadioGroupAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "radiogroup" trans view convert.Invoke
         /// Create an HTML attribute "readonly" with the given value.
-        [<Inline; CompiledName "readonly">]
+        [<Inline; CompiledName "readonly"; Macro(typeof<Macros.AttrCreate>, "readonly")>]
         let ReadOnly value = Attr.Create "readonly" value
         /// Create an HTML attribute "readonly" with the given reactive value.
         [<Inline; CompiledName "readonly">]
@@ -2205,7 +2205,7 @@ module Html =
         [<Inline; CompiledName "readonly">]
         let ReadOnlyAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "readonly" trans view convert.Invoke
         /// Create an HTML attribute "rel" with the given value.
-        [<Inline; CompiledName "rel">]
+        [<Inline; CompiledName "rel"; Macro(typeof<Macros.AttrCreate>, "rel")>]
         let Rel value = Attr.Create "rel" value
         /// Create an HTML attribute "rel" with the given reactive value.
         [<Inline; CompiledName "rel">]
@@ -2217,7 +2217,7 @@ module Html =
         [<Inline; CompiledName "rel">]
         let RelAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "rel" trans view convert.Invoke
         /// Create an HTML attribute "required" with the given value.
-        [<Inline; CompiledName "required">]
+        [<Inline; CompiledName "required"; Macro(typeof<Macros.AttrCreate>, "required")>]
         let Required value = Attr.Create "required" value
         /// Create an HTML attribute "required" with the given reactive value.
         [<Inline; CompiledName "required">]
@@ -2229,7 +2229,7 @@ module Html =
         [<Inline; CompiledName "required">]
         let RequiredAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "required" trans view convert.Invoke
         /// Create an HTML attribute "rev" with the given value.
-        [<Inline; CompiledName "rev">]
+        [<Inline; CompiledName "rev"; Macro(typeof<Macros.AttrCreate>, "rev")>]
         let Rev value = Attr.Create "rev" value
         /// Create an HTML attribute "rev" with the given reactive value.
         [<Inline; CompiledName "rev">]
@@ -2241,7 +2241,7 @@ module Html =
         [<Inline; CompiledName "rev">]
         let RevAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "rev" trans view convert.Invoke
         /// Create an HTML attribute "reversed" with the given value.
-        [<Inline; CompiledName "reversed">]
+        [<Inline; CompiledName "reversed"; Macro(typeof<Macros.AttrCreate>, "reversed")>]
         let Reversed value = Attr.Create "reversed" value
         /// Create an HTML attribute "reversed" with the given reactive value.
         [<Inline; CompiledName "reversed">]
@@ -2253,7 +2253,7 @@ module Html =
         [<Inline; CompiledName "reversed">]
         let ReversedAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "reversed" trans view convert.Invoke
         /// Create an HTML attribute "rows" with the given value.
-        [<Inline; CompiledName "rows">]
+        [<Inline; CompiledName "rows"; Macro(typeof<Macros.AttrCreate>, "rows")>]
         let Rows value = Attr.Create "rows" value
         /// Create an HTML attribute "rows" with the given reactive value.
         [<Inline; CompiledName "rows">]
@@ -2265,7 +2265,7 @@ module Html =
         [<Inline; CompiledName "rows">]
         let RowsAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "rows" trans view convert.Invoke
         /// Create an HTML attribute "rowspan" with the given value.
-        [<Inline; CompiledName "rowspan">]
+        [<Inline; CompiledName "rowspan"; Macro(typeof<Macros.AttrCreate>, "rowspan")>]
         let RowSpan value = Attr.Create "rowspan" value
         /// Create an HTML attribute "rowspan" with the given reactive value.
         [<Inline; CompiledName "rowspan">]
@@ -2277,7 +2277,7 @@ module Html =
         [<Inline; CompiledName "rowspan">]
         let RowSpanAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "rowspan" trans view convert.Invoke
         /// Create an HTML attribute "rules" with the given value.
-        [<Inline; CompiledName "rules">]
+        [<Inline; CompiledName "rules"; Macro(typeof<Macros.AttrCreate>, "rules")>]
         let Rules value = Attr.Create "rules" value
         /// Create an HTML attribute "rules" with the given reactive value.
         [<Inline; CompiledName "rules">]
@@ -2289,7 +2289,7 @@ module Html =
         [<Inline; CompiledName "rules">]
         let RulesAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "rules" trans view convert.Invoke
         /// Create an HTML attribute "sandbox" with the given value.
-        [<Inline; CompiledName "sandbox">]
+        [<Inline; CompiledName "sandbox"; Macro(typeof<Macros.AttrCreate>, "sandbox")>]
         let Sandbox value = Attr.Create "sandbox" value
         /// Create an HTML attribute "sandbox" with the given reactive value.
         [<Inline; CompiledName "sandbox">]
@@ -2301,7 +2301,7 @@ module Html =
         [<Inline; CompiledName "sandbox">]
         let SandboxAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "sandbox" trans view convert.Invoke
         /// Create an HTML attribute "scheme" with the given value.
-        [<Inline; CompiledName "scheme">]
+        [<Inline; CompiledName "scheme"; Macro(typeof<Macros.AttrCreate>, "scheme")>]
         let Scheme value = Attr.Create "scheme" value
         /// Create an HTML attribute "scheme" with the given reactive value.
         [<Inline; CompiledName "scheme">]
@@ -2313,7 +2313,7 @@ module Html =
         [<Inline; CompiledName "scheme">]
         let SchemeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "scheme" trans view convert.Invoke
         /// Create an HTML attribute "scope" with the given value.
-        [<Inline; CompiledName "scope">]
+        [<Inline; CompiledName "scope"; Macro(typeof<Macros.AttrCreate>, "scope")>]
         let Scope value = Attr.Create "scope" value
         /// Create an HTML attribute "scope" with the given reactive value.
         [<Inline; CompiledName "scope">]
@@ -2325,7 +2325,7 @@ module Html =
         [<Inline; CompiledName "scope">]
         let ScopeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "scope" trans view convert.Invoke
         /// Create an HTML attribute "scoped" with the given value.
-        [<Inline; CompiledName "scoped">]
+        [<Inline; CompiledName "scoped"; Macro(typeof<Macros.AttrCreate>, "scoped")>]
         let Scoped value = Attr.Create "scoped" value
         /// Create an HTML attribute "scoped" with the given reactive value.
         [<Inline; CompiledName "scoped">]
@@ -2337,7 +2337,7 @@ module Html =
         [<Inline; CompiledName "scoped">]
         let ScopedAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "scoped" trans view convert.Invoke
         /// Create an HTML attribute "scrolling" with the given value.
-        [<Inline; CompiledName "scrolling">]
+        [<Inline; CompiledName "scrolling"; Macro(typeof<Macros.AttrCreate>, "scrolling")>]
         let Scrolling value = Attr.Create "scrolling" value
         /// Create an HTML attribute "scrolling" with the given reactive value.
         [<Inline; CompiledName "scrolling">]
@@ -2349,7 +2349,7 @@ module Html =
         [<Inline; CompiledName "scrolling">]
         let ScrollingAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "scrolling" trans view convert.Invoke
         /// Create an HTML attribute "seamless" with the given value.
-        [<Inline; CompiledName "seamless">]
+        [<Inline; CompiledName "seamless"; Macro(typeof<Macros.AttrCreate>, "seamless")>]
         let Seamless value = Attr.Create "seamless" value
         /// Create an HTML attribute "seamless" with the given reactive value.
         [<Inline; CompiledName "seamless">]
@@ -2361,7 +2361,7 @@ module Html =
         [<Inline; CompiledName "seamless">]
         let SeamlessAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "seamless" trans view convert.Invoke
         /// Create an HTML attribute "selected" with the given value.
-        [<Inline; CompiledName "selected">]
+        [<Inline; CompiledName "selected"; Macro(typeof<Macros.AttrCreate>, "selected")>]
         let Selected value = Attr.Create "selected" value
         /// Create an HTML attribute "selected" with the given reactive value.
         [<Inline; CompiledName "selected">]
@@ -2373,7 +2373,7 @@ module Html =
         [<Inline; CompiledName "selected">]
         let SelectedAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "selected" trans view convert.Invoke
         /// Create an HTML attribute "shape" with the given value.
-        [<Inline; CompiledName "shape">]
+        [<Inline; CompiledName "shape"; Macro(typeof<Macros.AttrCreate>, "shape")>]
         let Shape value = Attr.Create "shape" value
         /// Create an HTML attribute "shape" with the given reactive value.
         [<Inline; CompiledName "shape">]
@@ -2385,7 +2385,7 @@ module Html =
         [<Inline; CompiledName "shape">]
         let ShapeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "shape" trans view convert.Invoke
         /// Create an HTML attribute "size" with the given value.
-        [<Inline; CompiledName "size">]
+        [<Inline; CompiledName "size"; Macro(typeof<Macros.AttrCreate>, "size")>]
         let Size value = Attr.Create "size" value
         /// Create an HTML attribute "size" with the given reactive value.
         [<Inline; CompiledName "size">]
@@ -2397,7 +2397,7 @@ module Html =
         [<Inline; CompiledName "size">]
         let SizeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "size" trans view convert.Invoke
         /// Create an HTML attribute "sizes" with the given value.
-        [<Inline; CompiledName "sizes">]
+        [<Inline; CompiledName "sizes"; Macro(typeof<Macros.AttrCreate>, "sizes")>]
         let Sizes value = Attr.Create "sizes" value
         /// Create an HTML attribute "sizes" with the given reactive value.
         [<Inline; CompiledName "sizes">]
@@ -2409,7 +2409,7 @@ module Html =
         [<Inline; CompiledName "sizes">]
         let SizesAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "sizes" trans view convert.Invoke
         /// Create an HTML attribute "span" with the given value.
-        [<Inline; CompiledName "span">]
+        [<Inline; CompiledName "span"; Macro(typeof<Macros.AttrCreate>, "span")>]
         let Span value = Attr.Create "span" value
         /// Create an HTML attribute "span" with the given reactive value.
         [<Inline; CompiledName "span">]
@@ -2421,7 +2421,7 @@ module Html =
         [<Inline; CompiledName "span">]
         let SpanAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "span" trans view convert.Invoke
         /// Create an HTML attribute "spellcheck" with the given value.
-        [<Inline; CompiledName "spellcheck">]
+        [<Inline; CompiledName "spellcheck"; Macro(typeof<Macros.AttrCreate>, "spellcheck")>]
         let SpellCheck value = Attr.Create "spellcheck" value
         /// Create an HTML attribute "spellcheck" with the given reactive value.
         [<Inline; CompiledName "spellcheck">]
@@ -2433,7 +2433,7 @@ module Html =
         [<Inline; CompiledName "spellcheck">]
         let SpellCheckAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "spellcheck" trans view convert.Invoke
         /// Create an HTML attribute "src" with the given value.
-        [<Inline; CompiledName "src">]
+        [<Inline; CompiledName "src"; Macro(typeof<Macros.AttrCreate>, "src")>]
         let Src value = Attr.Create "src" value
         /// Create an HTML attribute "src" with the given reactive value.
         [<Inline; CompiledName "src">]
@@ -2445,7 +2445,7 @@ module Html =
         [<Inline; CompiledName "src">]
         let SrcAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "src" trans view convert.Invoke
         /// Create an HTML attribute "srcdoc" with the given value.
-        [<Inline; CompiledName "srcdoc">]
+        [<Inline; CompiledName "srcdoc"; Macro(typeof<Macros.AttrCreate>, "srcdoc")>]
         let SrcDoc value = Attr.Create "srcdoc" value
         /// Create an HTML attribute "srcdoc" with the given reactive value.
         [<Inline; CompiledName "srcdoc">]
@@ -2457,7 +2457,7 @@ module Html =
         [<Inline; CompiledName "srcdoc">]
         let SrcDocAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "srcdoc" trans view convert.Invoke
         /// Create an HTML attribute "srclang" with the given value.
-        [<Inline; CompiledName "srclang">]
+        [<Inline; CompiledName "srclang"; Macro(typeof<Macros.AttrCreate>, "srclang")>]
         let SrcLang value = Attr.Create "srclang" value
         /// Create an HTML attribute "srclang" with the given reactive value.
         [<Inline; CompiledName "srclang">]
@@ -2469,7 +2469,7 @@ module Html =
         [<Inline; CompiledName "srclang">]
         let SrcLangAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "srclang" trans view convert.Invoke
         /// Create an HTML attribute "standby" with the given value.
-        [<Inline; CompiledName "standby">]
+        [<Inline; CompiledName "standby"; Macro(typeof<Macros.AttrCreate>, "standby")>]
         let StandBy value = Attr.Create "standby" value
         /// Create an HTML attribute "standby" with the given reactive value.
         [<Inline; CompiledName "standby">]
@@ -2481,7 +2481,7 @@ module Html =
         [<Inline; CompiledName "standby">]
         let StandByAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "standby" trans view convert.Invoke
         /// Create an HTML attribute "start" with the given value.
-        [<Inline; CompiledName "start">]
+        [<Inline; CompiledName "start"; Macro(typeof<Macros.AttrCreate>, "start")>]
         let Start value = Attr.Create "start" value
         /// Create an HTML attribute "start" with the given reactive value.
         [<Inline; CompiledName "start">]
@@ -2493,7 +2493,7 @@ module Html =
         [<Inline; CompiledName "start">]
         let StartAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "start" trans view convert.Invoke
         /// Create an HTML attribute "step" with the given value.
-        [<Inline; CompiledName "step">]
+        [<Inline; CompiledName "step"; Macro(typeof<Macros.AttrCreate>, "step")>]
         let Step value = Attr.Create "step" value
         /// Create an HTML attribute "step" with the given reactive value.
         [<Inline; CompiledName "step">]
@@ -2505,7 +2505,7 @@ module Html =
         [<Inline; CompiledName "step">]
         let StepAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "step" trans view convert.Invoke
         /// Create an HTML attribute "style" with the given value.
-        [<Inline; CompiledName "style">]
+        [<Inline; CompiledName "style"; Macro(typeof<Macros.AttrCreate>, "style")>]
         let Style value = Attr.Create "style" value
         /// Create an HTML attribute "style" with the given reactive value.
         [<Inline; CompiledName "style">]
@@ -2517,7 +2517,7 @@ module Html =
         [<Inline; CompiledName "style">]
         let StyleAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "style" trans view convert.Invoke
         /// Create an HTML attribute "subject" with the given value.
-        [<Inline; CompiledName "subject">]
+        [<Inline; CompiledName "subject"; Macro(typeof<Macros.AttrCreate>, "subject")>]
         let Subject value = Attr.Create "subject" value
         /// Create an HTML attribute "subject" with the given reactive value.
         [<Inline; CompiledName "subject">]
@@ -2529,7 +2529,7 @@ module Html =
         [<Inline; CompiledName "subject">]
         let SubjectAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "subject" trans view convert.Invoke
         /// Create an HTML attribute "summary" with the given value.
-        [<Inline; CompiledName "summary">]
+        [<Inline; CompiledName "summary"; Macro(typeof<Macros.AttrCreate>, "summary")>]
         let Summary value = Attr.Create "summary" value
         /// Create an HTML attribute "summary" with the given reactive value.
         [<Inline; CompiledName "summary">]
@@ -2541,7 +2541,7 @@ module Html =
         [<Inline; CompiledName "summary">]
         let SummaryAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "summary" trans view convert.Invoke
         /// Create an HTML attribute "tabindex" with the given value.
-        [<Inline; CompiledName "tabindex">]
+        [<Inline; CompiledName "tabindex"; Macro(typeof<Macros.AttrCreate>, "tabindex")>]
         let TabIndex value = Attr.Create "tabindex" value
         /// Create an HTML attribute "tabindex" with the given reactive value.
         [<Inline; CompiledName "tabindex">]
@@ -2553,7 +2553,7 @@ module Html =
         [<Inline; CompiledName "tabindex">]
         let TabIndexAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "tabindex" trans view convert.Invoke
         /// Create an HTML attribute "target" with the given value.
-        [<Inline; CompiledName "target">]
+        [<Inline; CompiledName "target"; Macro(typeof<Macros.AttrCreate>, "target")>]
         let Target value = Attr.Create "target" value
         /// Create an HTML attribute "target" with the given reactive value.
         [<Inline; CompiledName "target">]
@@ -2565,7 +2565,7 @@ module Html =
         [<Inline; CompiledName "target">]
         let TargetAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "target" trans view convert.Invoke
         /// Create an HTML attribute "text" with the given value.
-        [<Inline; CompiledName "text">]
+        [<Inline; CompiledName "text"; Macro(typeof<Macros.AttrCreate>, "text")>]
         let Text value = Attr.Create "text" value
         /// Create an HTML attribute "text" with the given reactive value.
         [<Inline; CompiledName "text">]
@@ -2577,7 +2577,7 @@ module Html =
         [<Inline; CompiledName "text">]
         let TextAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "text" trans view convert.Invoke
         /// Create an HTML attribute "title" with the given value.
-        [<Inline; CompiledName "title">]
+        [<Inline; CompiledName "title"; Macro(typeof<Macros.AttrCreate>, "title")>]
         let Title value = Attr.Create "title" value
         /// Create an HTML attribute "title" with the given reactive value.
         [<Inline; CompiledName "title">]
@@ -2589,7 +2589,7 @@ module Html =
         [<Inline; CompiledName "title">]
         let TitleAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "title" trans view convert.Invoke
         /// Create an HTML attribute "type" with the given value.
-        [<Inline; CompiledName "type">]
+        [<Inline; CompiledName "type"; Macro(typeof<Macros.AttrCreate>, "type")>]
         let Type value = Attr.Create "type" value
         /// Create an HTML attribute "type" with the given reactive value.
         [<Inline; CompiledName "type">]
@@ -2601,7 +2601,7 @@ module Html =
         [<Inline; CompiledName "type">]
         let TypeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "type" trans view convert.Invoke
         /// Create an HTML attribute "usemap" with the given value.
-        [<Inline; CompiledName "usemap">]
+        [<Inline; CompiledName "usemap"; Macro(typeof<Macros.AttrCreate>, "usemap")>]
         let UseMap value = Attr.Create "usemap" value
         /// Create an HTML attribute "usemap" with the given reactive value.
         [<Inline; CompiledName "usemap">]
@@ -2613,7 +2613,7 @@ module Html =
         [<Inline; CompiledName "usemap">]
         let UseMapAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "usemap" trans view convert.Invoke
         /// Create an HTML attribute "valign" with the given value.
-        [<Inline; CompiledName "valign">]
+        [<Inline; CompiledName "valign"; Macro(typeof<Macros.AttrCreate>, "valign")>]
         let VAlign value = Attr.Create "valign" value
         /// Create an HTML attribute "valign" with the given reactive value.
         [<Inline; CompiledName "valign">]
@@ -2625,7 +2625,7 @@ module Html =
         [<Inline; CompiledName "valign">]
         let VAlignAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "valign" trans view convert.Invoke
         /// Create an HTML attribute "value" with the given value.
-        [<Inline; CompiledName "value">]
+        [<Inline; CompiledName "value"; Macro(typeof<Macros.AttrCreate>, "value")>]
         let Value value = Attr.Create "value" value
         /// Create an HTML attribute "value" with the given reactive value.
         [<Inline; CompiledName "value">]
@@ -2637,7 +2637,7 @@ module Html =
         [<Inline; CompiledName "value">]
         let ValueAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "value" trans view convert.Invoke
         /// Create an HTML attribute "valuetype" with the given value.
-        [<Inline; CompiledName "valuetype">]
+        [<Inline; CompiledName "valuetype"; Macro(typeof<Macros.AttrCreate>, "valuetype")>]
         let ValueType value = Attr.Create "valuetype" value
         /// Create an HTML attribute "valuetype" with the given reactive value.
         [<Inline; CompiledName "valuetype">]
@@ -2649,7 +2649,7 @@ module Html =
         [<Inline; CompiledName "valuetype">]
         let ValueTypeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "valuetype" trans view convert.Invoke
         /// Create an HTML attribute "version" with the given value.
-        [<Inline; CompiledName "version">]
+        [<Inline; CompiledName "version"; Macro(typeof<Macros.AttrCreate>, "version")>]
         let Version value = Attr.Create "version" value
         /// Create an HTML attribute "version" with the given reactive value.
         [<Inline; CompiledName "version">]
@@ -2661,7 +2661,7 @@ module Html =
         [<Inline; CompiledName "version">]
         let VersionAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "version" trans view convert.Invoke
         /// Create an HTML attribute "vlink" with the given value.
-        [<Inline; CompiledName "vlink">]
+        [<Inline; CompiledName "vlink"; Macro(typeof<Macros.AttrCreate>, "vlink")>]
         let VLink value = Attr.Create "vlink" value
         /// Create an HTML attribute "vlink" with the given reactive value.
         [<Inline; CompiledName "vlink">]
@@ -2673,7 +2673,7 @@ module Html =
         [<Inline; CompiledName "vlink">]
         let VLinkAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "vlink" trans view convert.Invoke
         /// Create an HTML attribute "vspace" with the given value.
-        [<Inline; CompiledName "vspace">]
+        [<Inline; CompiledName "vspace"; Macro(typeof<Macros.AttrCreate>, "vspace")>]
         let VSpace value = Attr.Create "vspace" value
         /// Create an HTML attribute "vspace" with the given reactive value.
         [<Inline; CompiledName "vspace">]
@@ -2685,7 +2685,7 @@ module Html =
         [<Inline; CompiledName "vspace">]
         let VSpaceAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "vspace" trans view convert.Invoke
         /// Create an HTML attribute "width" with the given value.
-        [<Inline; CompiledName "width">]
+        [<Inline; CompiledName "width"; Macro(typeof<Macros.AttrCreate>, "width")>]
         let Width value = Attr.Create "width" value
         /// Create an HTML attribute "width" with the given reactive value.
         [<Inline; CompiledName "width">]
@@ -2697,7 +2697,7 @@ module Html =
         [<Inline; CompiledName "width">]
         let WidthAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "width" trans view convert.Invoke
         /// Create an HTML attribute "wrap" with the given value.
-        [<Inline; CompiledName "wrap">]
+        [<Inline; CompiledName "wrap"; Macro(typeof<Macros.AttrCreate>, "wrap")>]
         let Wrap value = Attr.Create "wrap" value
         /// Create an HTML attribute "wrap" with the given reactive value.
         [<Inline; CompiledName "wrap">]

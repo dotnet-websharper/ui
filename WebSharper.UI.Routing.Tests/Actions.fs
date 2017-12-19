@@ -6,24 +6,24 @@ open WebSharper.UI.Html
 
 [<JavaScript>]
 module Actions =
-
+    
     type PersonData =
         {
             Name : string
             Age : int
         }
 
-    type MessageSent =
-        {
-            [<Json>] Message : string // this goes into content
-            [<Query; OptionalField>] ReplyToMessageId : option<int> // this goes into query string
-            From : PersonData
-        }
+    //type MessageSent =
+    //    {
+    //        [<Json>] Message : string // this goes into content
+    //        [<Query; OptionalField>] ReplyToMessageId : option<int> // this goes into query string
+    //        From : PersonData
+    //    }
 
     type RouterTest =
         // record is parsed from/written to query argument:
         | [<EndPoint "/">] Root
-        | [<EndPoint "/about"; Query "p">] About of int option * p: PersonData option
+        | [<EndPoint "/about">] About of int option * p: PersonData option
 (*
         // record is parsed from/written to JSON request body:
         | [<EndPoint "/aboutjson"; Json "p">] AboutJson of int option * p: PersonData 
@@ -83,7 +83,7 @@ module Actions =
             rString / rInt |> Router.Map (fun (n, a) -> { Name = n; Age = a }) (fun p -> p.Name, p.Age) 
         Router.Sum [
             rRoot |> Router.MapTo Root
-            "about" / Router.Option rInt / (Router.Option rPersonData |> Router.Query "p") |> Router.Embed About (function About (i, p) -> Some (i, p) | _ -> None)
+            "about" / Router.Option rInt / (Router.Option rPersonData) |> Router.Embed About (function About (i, p) -> Some (i, p) | _ -> None)
         ]
 
     let routerTests =

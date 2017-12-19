@@ -1745,474 +1745,474 @@ module Html =
 
         // {{ svgattr normal
         /// Create an SVG attribute "accent-height" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "accent-height")>]
         let accentHeight value = Attr.Create "accent-height" value
         /// Create an SVG attribute "accumulate" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "accumulate")>]
         let accumulate value = Attr.Create "accumulate" value
         /// Create an SVG attribute "additive" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "additive")>]
         let additive value = Attr.Create "additive" value
         /// Create an SVG attribute "alignment-baseline" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "alignment-baseline")>]
         let alignmentBaseline value = Attr.Create "alignment-baseline" value
         /// Create an SVG attribute "ascent" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "ascent")>]
         let ascent value = Attr.Create "ascent" value
         /// Create an SVG attribute "attributeName" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "attributeName")>]
         let attributeName value = Attr.Create "attributeName" value
         /// Create an SVG attribute "attributeType" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "attributeType")>]
         let attributeType value = Attr.Create "attributeType" value
         /// Create an SVG attribute "azimuth" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "azimuth")>]
         let azimuth value = Attr.Create "azimuth" value
         /// Create an SVG attribute "baseFrequency" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "baseFrequency")>]
         let baseFrequency value = Attr.Create "baseFrequency" value
         /// Create an SVG attribute "baseline-shift" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "baseline-shift")>]
         let baselineShift value = Attr.Create "baseline-shift" value
         /// Create an SVG attribute "begin" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "begin")>]
         let ``begin`` value = Attr.Create "begin" value
         /// Create an SVG attribute "bias" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "bias")>]
         let bias value = Attr.Create "bias" value
         /// Create an SVG attribute "calcMode" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "calcMode")>]
         let calcMode value = Attr.Create "calcMode" value
         /// Create an SVG attribute "class" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "class")>]
         let ``class`` value = Attr.Create "class" value
         /// Create an SVG attribute "clip" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "clip")>]
         let clip value = Attr.Create "clip" value
         /// Create an SVG attribute "clip-path" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "clip-path")>]
         let clipPath value = Attr.Create "clip-path" value
         /// Create an SVG attribute "clipPathUnits" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "clipPathUnits")>]
         let clipPathUnits value = Attr.Create "clipPathUnits" value
         /// Create an SVG attribute "clip-rule" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "clip-rule")>]
         let clipRule value = Attr.Create "clip-rule" value
         /// Create an SVG attribute "color" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "color")>]
         let color value = Attr.Create "color" value
         /// Create an SVG attribute "color-interpolation" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "color-interpolation")>]
         let colorInterpolation value = Attr.Create "color-interpolation" value
         /// Create an SVG attribute "color-interpolation-filters" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "color-interpolation-filters")>]
         let colorInterpolationFilters value = Attr.Create "color-interpolation-filters" value
         /// Create an SVG attribute "color-profile" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "color-profile")>]
         let colorProfile value = Attr.Create "color-profile" value
         /// Create an SVG attribute "color-rendering" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "color-rendering")>]
         let colorRendering value = Attr.Create "color-rendering" value
         /// Create an SVG attribute "contentScriptType" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "contentScriptType")>]
         let contentScriptType value = Attr.Create "contentScriptType" value
         /// Create an SVG attribute "contentStyleType" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "contentStyleType")>]
         let contentStyleType value = Attr.Create "contentStyleType" value
         /// Create an SVG attribute "cursor" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "cursor")>]
         let cursor value = Attr.Create "cursor" value
         /// Create an SVG attribute "cx" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "cx")>]
         let cx value = Attr.Create "cx" value
         /// Create an SVG attribute "cy" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "cy")>]
         let cy value = Attr.Create "cy" value
         /// Create an SVG attribute "d" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "d")>]
         let d value = Attr.Create "d" value
         /// Create an SVG attribute "diffuseConstant" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "diffuseConstant")>]
         let diffuseConstant value = Attr.Create "diffuseConstant" value
         /// Create an SVG attribute "direction" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "direction")>]
         let direction value = Attr.Create "direction" value
         /// Create an SVG attribute "display" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "display")>]
         let display value = Attr.Create "display" value
         /// Create an SVG attribute "divisor" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "divisor")>]
         let divisor value = Attr.Create "divisor" value
         /// Create an SVG attribute "dominant-baseline" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "dominant-baseline")>]
         let dominantBaseline value = Attr.Create "dominant-baseline" value
         /// Create an SVG attribute "dur" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "dur")>]
         let dur value = Attr.Create "dur" value
         /// Create an SVG attribute "dx" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "dx")>]
         let dx value = Attr.Create "dx" value
         /// Create an SVG attribute "dy" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "dy")>]
         let dy value = Attr.Create "dy" value
         /// Create an SVG attribute "edgeMode" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "edgeMode")>]
         let edgeMode value = Attr.Create "edgeMode" value
         /// Create an SVG attribute "elevation" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "elevation")>]
         let elevation value = Attr.Create "elevation" value
         /// Create an SVG attribute "end" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "end")>]
         let ``end`` value = Attr.Create "end" value
         /// Create an SVG attribute "externalResourcesRequired" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "externalResourcesRequired")>]
         let externalResourcesRequired value = Attr.Create "externalResourcesRequired" value
         /// Create an SVG attribute "fill" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "fill")>]
         let fill value = Attr.Create "fill" value
         /// Create an SVG attribute "fill-opacity" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "fill-opacity")>]
         let fillOpacity value = Attr.Create "fill-opacity" value
         /// Create an SVG attribute "fill-rule" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "fill-rule")>]
         let fillRule value = Attr.Create "fill-rule" value
         /// Create an SVG attribute "filter" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "filter")>]
         let filter value = Attr.Create "filter" value
         /// Create an SVG attribute "filterRes" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "filterRes")>]
         let filterRes value = Attr.Create "filterRes" value
         /// Create an SVG attribute "filterUnits" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "filterUnits")>]
         let filterUnits value = Attr.Create "filterUnits" value
         /// Create an SVG attribute "flood-color" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "flood-color")>]
         let floodColor value = Attr.Create "flood-color" value
         /// Create an SVG attribute "flood-opacity" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "flood-opacity")>]
         let floodOpacity value = Attr.Create "flood-opacity" value
         /// Create an SVG attribute "font-family" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "font-family")>]
         let fontFamily value = Attr.Create "font-family" value
         /// Create an SVG attribute "font-size" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "font-size")>]
         let fontSize value = Attr.Create "font-size" value
         /// Create an SVG attribute "font-size-adjust" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "font-size-adjust")>]
         let fontSizeAdjust value = Attr.Create "font-size-adjust" value
         /// Create an SVG attribute "font-stretch" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "font-stretch")>]
         let fontStretch value = Attr.Create "font-stretch" value
         /// Create an SVG attribute "font-style" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "font-style")>]
         let fontStyle value = Attr.Create "font-style" value
         /// Create an SVG attribute "font-variant" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "font-variant")>]
         let fontVariant value = Attr.Create "font-variant" value
         /// Create an SVG attribute "font-weight" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "font-weight")>]
         let fontWeight value = Attr.Create "font-weight" value
         /// Create an SVG attribute "from" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "from")>]
         let from value = Attr.Create "from" value
         /// Create an SVG attribute "gradientTransform" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "gradientTransform")>]
         let gradientTransform value = Attr.Create "gradientTransform" value
         /// Create an SVG attribute "gradientUnits" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "gradientUnits")>]
         let gradientUnits value = Attr.Create "gradientUnits" value
         /// Create an SVG attribute "height" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "height")>]
         let height value = Attr.Create "height" value
         /// Create an SVG attribute "image-rendering" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "image-rendering")>]
         let imageRendering value = Attr.Create "image-rendering" value
         /// Create an SVG attribute "in" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "in")>]
         let ``in`` value = Attr.Create "in" value
         /// Create an SVG attribute "in2" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "in2")>]
         let in2 value = Attr.Create "in2" value
         /// Create an SVG attribute "k1" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "k1")>]
         let k1 value = Attr.Create "k1" value
         /// Create an SVG attribute "k2" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "k2")>]
         let k2 value = Attr.Create "k2" value
         /// Create an SVG attribute "k3" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "k3")>]
         let k3 value = Attr.Create "k3" value
         /// Create an SVG attribute "k4" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "k4")>]
         let k4 value = Attr.Create "k4" value
         /// Create an SVG attribute "kernelMatrix" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "kernelMatrix")>]
         let kernelMatrix value = Attr.Create "kernelMatrix" value
         /// Create an SVG attribute "kernelUnitLength" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "kernelUnitLength")>]
         let kernelUnitLength value = Attr.Create "kernelUnitLength" value
         /// Create an SVG attribute "kerning" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "kerning")>]
         let kerning value = Attr.Create "kerning" value
         /// Create an SVG attribute "keySplines" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "keySplines")>]
         let keySplines value = Attr.Create "keySplines" value
         /// Create an SVG attribute "keyTimes" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "keyTimes")>]
         let keyTimes value = Attr.Create "keyTimes" value
         /// Create an SVG attribute "letter-spacing" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "letter-spacing")>]
         let letterSpacing value = Attr.Create "letter-spacing" value
         /// Create an SVG attribute "lighting-color" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "lighting-color")>]
         let lightingColor value = Attr.Create "lighting-color" value
         /// Create an SVG attribute "limitingConeAngle" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "limitingConeAngle")>]
         let limitingConeAngle value = Attr.Create "limitingConeAngle" value
         /// Create an SVG attribute "local" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "local")>]
         let local value = Attr.Create "local" value
         /// Create an SVG attribute "marker-end" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "marker-end")>]
         let markerEnd value = Attr.Create "marker-end" value
         /// Create an SVG attribute "markerHeight" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "markerHeight")>]
         let markerHeight value = Attr.Create "markerHeight" value
         /// Create an SVG attribute "marker-mid" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "marker-mid")>]
         let markerMid value = Attr.Create "marker-mid" value
         /// Create an SVG attribute "marker-start" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "marker-start")>]
         let markerStart value = Attr.Create "marker-start" value
         /// Create an SVG attribute "markerUnits" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "markerUnits")>]
         let markerUnits value = Attr.Create "markerUnits" value
         /// Create an SVG attribute "markerWidth" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "markerWidth")>]
         let markerWidth value = Attr.Create "markerWidth" value
         /// Create an SVG attribute "mask" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "mask")>]
         let mask value = Attr.Create "mask" value
         /// Create an SVG attribute "maskContentUnits" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "maskContentUnits")>]
         let maskContentUnits value = Attr.Create "maskContentUnits" value
         /// Create an SVG attribute "maskUnits" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "maskUnits")>]
         let maskUnits value = Attr.Create "maskUnits" value
         /// Create an SVG attribute "max" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "max")>]
         let max value = Attr.Create "max" value
         /// Create an SVG attribute "min" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "min")>]
         let min value = Attr.Create "min" value
         /// Create an SVG attribute "mode" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "mode")>]
         let mode value = Attr.Create "mode" value
         /// Create an SVG attribute "numOctaves" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "numOctaves")>]
         let numOctaves value = Attr.Create "numOctaves" value
         /// Create an SVG attribute "opacity" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "opacity")>]
         let opacity value = Attr.Create "opacity" value
         /// Create an SVG attribute "operator" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "operator")>]
         let operator value = Attr.Create "operator" value
         /// Create an SVG attribute "order" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "order")>]
         let order value = Attr.Create "order" value
         /// Create an SVG attribute "overflow" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "overflow")>]
         let overflow value = Attr.Create "overflow" value
         /// Create an SVG attribute "paint-order" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "paint-order")>]
         let paintOrder value = Attr.Create "paint-order" value
         /// Create an SVG attribute "pathLength" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "pathLength")>]
         let pathLength value = Attr.Create "pathLength" value
         /// Create an SVG attribute "patternContentUnits" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "patternContentUnits")>]
         let patternContentUnits value = Attr.Create "patternContentUnits" value
         /// Create an SVG attribute "patternTransform" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "patternTransform")>]
         let patternTransform value = Attr.Create "patternTransform" value
         /// Create an SVG attribute "patternUnits" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "patternUnits")>]
         let patternUnits value = Attr.Create "patternUnits" value
         /// Create an SVG attribute "pointer-events" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "pointer-events")>]
         let pointerEvents value = Attr.Create "pointer-events" value
         /// Create an SVG attribute "points" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "points")>]
         let points value = Attr.Create "points" value
         /// Create an SVG attribute "pointsAtX" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "pointsAtX")>]
         let pointsAtX value = Attr.Create "pointsAtX" value
         /// Create an SVG attribute "pointsAtY" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "pointsAtY")>]
         let pointsAtY value = Attr.Create "pointsAtY" value
         /// Create an SVG attribute "pointsAtZ" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "pointsAtZ")>]
         let pointsAtZ value = Attr.Create "pointsAtZ" value
         /// Create an SVG attribute "preserveAlpha" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "preserveAlpha")>]
         let preserveAlpha value = Attr.Create "preserveAlpha" value
         /// Create an SVG attribute "preserveAspectRatio" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "preserveAspectRatio")>]
         let preserveAspectRatio value = Attr.Create "preserveAspectRatio" value
         /// Create an SVG attribute "primitiveUnits" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "primitiveUnits")>]
         let primitiveUnits value = Attr.Create "primitiveUnits" value
         /// Create an SVG attribute "r" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "r")>]
         let r value = Attr.Create "r" value
         /// Create an SVG attribute "radius" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "radius")>]
         let radius value = Attr.Create "radius" value
         /// Create an SVG attribute "repeatCount" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "repeatCount")>]
         let repeatCount value = Attr.Create "repeatCount" value
         /// Create an SVG attribute "repeatDur" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "repeatDur")>]
         let repeatDur value = Attr.Create "repeatDur" value
         /// Create an SVG attribute "requiredFeatures" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "requiredFeatures")>]
         let requiredFeatures value = Attr.Create "requiredFeatures" value
         /// Create an SVG attribute "restart" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "restart")>]
         let restart value = Attr.Create "restart" value
         /// Create an SVG attribute "result" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "result")>]
         let result value = Attr.Create "result" value
         /// Create an SVG attribute "rx" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "rx")>]
         let rx value = Attr.Create "rx" value
         /// Create an SVG attribute "ry" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "ry")>]
         let ry value = Attr.Create "ry" value
         /// Create an SVG attribute "scale" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "scale")>]
         let scale value = Attr.Create "scale" value
         /// Create an SVG attribute "seed" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "seed")>]
         let seed value = Attr.Create "seed" value
         /// Create an SVG attribute "shape-rendering" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "shape-rendering")>]
         let shapeRendering value = Attr.Create "shape-rendering" value
         /// Create an SVG attribute "specularConstant" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "specularConstant")>]
         let specularConstant value = Attr.Create "specularConstant" value
         /// Create an SVG attribute "specularExponent" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "specularExponent")>]
         let specularExponent value = Attr.Create "specularExponent" value
         /// Create an SVG attribute "stdDeviation" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "stdDeviation")>]
         let stdDeviation value = Attr.Create "stdDeviation" value
         /// Create an SVG attribute "stitchTiles" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "stitchTiles")>]
         let stitchTiles value = Attr.Create "stitchTiles" value
         /// Create an SVG attribute "stop-color" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "stop-color")>]
         let stopColor value = Attr.Create "stop-color" value
         /// Create an SVG attribute "stop-opacity" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "stop-opacity")>]
         let stopOpacity value = Attr.Create "stop-opacity" value
         /// Create an SVG attribute "stroke" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "stroke")>]
         let stroke value = Attr.Create "stroke" value
         /// Create an SVG attribute "stroke-dasharray" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "stroke-dasharray")>]
         let strokeDasharray value = Attr.Create "stroke-dasharray" value
         /// Create an SVG attribute "stroke-dashoffset" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "stroke-dashoffset")>]
         let strokeDashoffset value = Attr.Create "stroke-dashoffset" value
         /// Create an SVG attribute "stroke-linecap" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "stroke-linecap")>]
         let strokeLinecap value = Attr.Create "stroke-linecap" value
         /// Create an SVG attribute "stroke-linejoin" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "stroke-linejoin")>]
         let strokeLinejoin value = Attr.Create "stroke-linejoin" value
         /// Create an SVG attribute "stroke-miterlimit" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "stroke-miterlimit")>]
         let strokeMiterlimit value = Attr.Create "stroke-miterlimit" value
         /// Create an SVG attribute "stroke-opacity" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "stroke-opacity")>]
         let strokeOpacity value = Attr.Create "stroke-opacity" value
         /// Create an SVG attribute "stroke-width" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "stroke-width")>]
         let strokeWidth value = Attr.Create "stroke-width" value
         /// Create an SVG attribute "style" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "style")>]
         let style value = Attr.Create "style" value
         /// Create an SVG attribute "surfaceScale" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "surfaceScale")>]
         let surfaceScale value = Attr.Create "surfaceScale" value
         /// Create an SVG attribute "targetX" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "targetX")>]
         let targetX value = Attr.Create "targetX" value
         /// Create an SVG attribute "targetY" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "targetY")>]
         let targetY value = Attr.Create "targetY" value
         /// Create an SVG attribute "text-anchor" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "text-anchor")>]
         let textAnchor value = Attr.Create "text-anchor" value
         /// Create an SVG attribute "text-decoration" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "text-decoration")>]
         let textDecoration value = Attr.Create "text-decoration" value
         /// Create an SVG attribute "text-rendering" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "text-rendering")>]
         let textRendering value = Attr.Create "text-rendering" value
         /// Create an SVG attribute "to" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "to")>]
         let ``to`` value = Attr.Create "to" value
         /// Create an SVG attribute "transform" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "transform")>]
         let transform value = Attr.Create "transform" value
         /// Create an SVG attribute "type" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "type")>]
         let ``type`` value = Attr.Create "type" value
         /// Create an SVG attribute "values" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "values")>]
         let values value = Attr.Create "values" value
         /// Create an SVG attribute "viewBox" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "viewBox")>]
         let viewBox value = Attr.Create "viewBox" value
         /// Create an SVG attribute "visibility" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "visibility")>]
         let visibility value = Attr.Create "visibility" value
         /// Create an SVG attribute "width" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "width")>]
         let width value = Attr.Create "width" value
         /// Create an SVG attribute "word-spacing" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "word-spacing")>]
         let wordSpacing value = Attr.Create "word-spacing" value
         /// Create an SVG attribute "writing-mode" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "writing-mode")>]
         let writingMode value = Attr.Create "writing-mode" value
         /// Create an SVG attribute "x" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "x")>]
         let x value = Attr.Create "x" value
         /// Create an SVG attribute "x1" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "x1")>]
         let x1 value = Attr.Create "x1" value
         /// Create an SVG attribute "x2" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "x2")>]
         let x2 value = Attr.Create "x2" value
         /// Create an SVG attribute "xChannelSelector" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "xChannelSelector")>]
         let xChannelSelector value = Attr.Create "xChannelSelector" value
         /// Create an SVG attribute "y" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "y")>]
         let y value = Attr.Create "y" value
         /// Create an SVG attribute "y1" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "y1")>]
         let y1 value = Attr.Create "y1" value
         /// Create an SVG attribute "y2" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "y2")>]
         let y2 value = Attr.Create "y2" value
         /// Create an SVG attribute "yChannelSelector" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "yChannelSelector")>]
         let yChannelSelector value = Attr.Create "yChannelSelector" value
         /// Create an SVG attribute "z" with the given value.
-        [<JavaScript; Inline>]
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "z")>]
         let z value = Attr.Create "z" value
         // }}

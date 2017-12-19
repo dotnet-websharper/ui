@@ -13,6 +13,7 @@ using Microsoft.FSharp.Core;
 //using CAttr = WebSharper.UI.Client.Attr;
 using System.Threading.Tasks;
 using System;
+using static WebSharper.UI.V;
 
 namespace WebSharper.UI.CSharp.Tests
 {
@@ -64,10 +65,10 @@ namespace WebSharper.UI.CSharp.Tests
         }
 
         public class LoginData
-            {
-                public string Username { get; set; }
-                public string Password { get; set; }
-            }
+        {
+            public string Username { get; set; }
+            public string Password { get; set; }
+        }
 
         public class Rpc
         {
@@ -145,7 +146,7 @@ namespace WebSharper.UI.CSharp.Tests
         void LoginForm()
         {
             //type LoginData = { Username: string; Password: string }
-            
+
             //var rvSubmit = Var.Create<object>(null);
             //var rvUsername = Var.Create("");
             //var rvPassword = Var.Create("");
@@ -155,6 +156,12 @@ namespace WebSharper.UI.CSharp.Tests
             //        new { Username = u, Password = p }
             //        )
             //    ).SnapshotOn(null, rvSubmit.View).MapAsync(async res => LoginUser)
+        }
+
+        public class TestRecord
+        {
+            public string X;
+            public string P { get; set; }
         }
 
         [SPAEntryPoint]
@@ -191,7 +198,9 @@ namespace WebSharper.UI.CSharp.Tests
                             );                       
                     }
                 });
-                 
+
+            var testRecordVar = Var.Create(new TestRecord { X = "Hello from a field", P = "Hello from a property" });
+
             div(
                 h1("My list of unique people"),
                 ul(people.View.DocSeqCached((string x) => li(x))),
@@ -205,7 +214,12 @@ namespace WebSharper.UI.CSharp.Tests
                     div(newName.View)
                 ),
                 h1("Routed element:"),
-                routed
+                routed,
+                h1("V test:"),
+                ul(
+                    li(testRecordVar.V.X), 
+                    li(testRecordVar.V.P)
+                )
             ).RunById("main");
             TodoApp();
         }

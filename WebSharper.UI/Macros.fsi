@@ -26,5 +26,7 @@ module internal Macros =
     [<Class>] type TextView = inherit WebSharper.Core.Macro
     [<Class>] type AttrCreate = inherit WebSharper.Core.Macro
     [<Class>] type AttrStyle = inherit WebSharper.Core.Macro
+    [<Class>] type ElementMixed = inherit WebSharper.Core.Macro
+    [<Class>] type DocConcatMixed = inherit WebSharper.Core.Macro
     [<Class>] type Lens = inherit WebSharper.Core.Macro
     [<Class>] type InputV = inherit WebSharper.Core.Macro

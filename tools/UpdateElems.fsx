@@ -144,7 +144,7 @@ module Tags =
             | "svgattr" ->
                 [|
                     sprintf "/// Create an SVG attribute \"%s\" with the given value." e.Name
-                    "[<JavaScript; Inline>]"
+                    sprintf """[<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "%s")>]""" e.Name
                     sprintf "let %s value = Attr.Create \"%s\" value" e.LowNameEsc e.Name
                 |]
             | "event" ->
@@ -265,19 +265,19 @@ module Tags =
             | "tag" ->
                 [|
                     sprintf "/// Create an HTML element <%s> with children nodes." e.Name
-                    sprintf "[<Inline; CompiledName \"%s\">]" e.LowName
+                    sprintf "[<Inline; CompiledName \"%s\"; Macro(typeof<Macros.ElementMixed>, \"%s\")>]" e.LowName e.Name
                     sprintf """let %s ([<ParamArray>] ns : obj[]) = Doc.ElementMixed "%s" ns""" e.PascalName e.Name
                 |]
             | "svgtag" ->
                 [|
                     sprintf "/// Create an SVG element <%s> with children nodes." e.Name
-                    sprintf "[<Inline; CompiledName \"%s\">]" e.LowName
+                    sprintf "[<Inline; CompiledName \"%s\"; Macro(typeof<Macros.ElementMixed>, \"%s\")>]" e.LowName e.Name
                     sprintf """let %s ([<ParamArray>] ns : obj[]) = Doc.SvgElementMixed "%s" ns""" e.PascalName e.Name
                 |]
             | "attr" ->
                 [|
                     sprintf "/// Create an HTML attribute \"%s\" with the given value." e.Name
-                    sprintf "[<Inline; CompiledName \"%s\">]" e.LowName
+                    sprintf "[<Inline; CompiledName \"%s\"; Macro(typeof<Macros.AttrCreate>, \"%s\")>]" e.LowName e.Name
                     sprintf "let %s value = Attr.Create \"%s\" value" e.PascalName e.Name
                     sprintf "/// Create an HTML attribute \"%s\" with the given reactive value." e.Name
                     sprintf "[<Inline; CompiledName \"%s\">]" e.LowName
@@ -292,7 +292,7 @@ module Tags =
             | "svgattr" ->
                 [|
                     sprintf "/// Create an SVG attribute \"%s\" with the given value." e.Name
-                    sprintf "[<Inline; CompiledName \"%s\">]" e.LowName
+                    sprintf "[<Inline; CompiledName \"%s\"; Macro(typeof<Macros.AttrCreate>, \"%s\")>]" e.LowName e.Name
                     sprintf "let %s value = Attr.Create \"%s\" value" e.PascalName e.Name
                     sprintf "/// Create an SVG attribute \"%s\" with the given reactive value." e.Name
                     sprintf "[<Inline; CompiledName \"%s\">]" e.LowName
