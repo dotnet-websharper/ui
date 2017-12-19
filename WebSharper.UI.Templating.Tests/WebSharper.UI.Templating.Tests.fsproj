@@ -11,12 +11,13 @@
     <OutputType>Library</OutputType>
     <OutputPath>bin</OutputPath>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <Import Project="..\msbuild\FSharp.targets" />
   <ItemGroup>
@@ -27,6 +28,11 @@
     <Content Include="template.html" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\WebSharper.UI.CSharp\WebSharper.UI.CSharp.fsproj">
+      <Name>WebSharper.UI.CSharp</Name>
+      <Project>{13fba482-7285-4c83-a201-2d60ff89e586}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\WebSharper.UI.Templating.Common\WebSharper.UI.Templating.Common.fsproj">
       <Name>WebSharper.UI.Templating.Common</Name>
       <Project>{ae103526-34b2-4556-914c-3e45bb1cfb17}</Project>
@@ -47,6 +53,14 @@
       <Project>{085a6f78-50a7-46cf-b040-9853ec580be5}</Project>
       <Private>True</Private>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Data.DataSetExtensions.dll" />
+    <Reference Include="System.Web.ApplicationServices.dll" />
+    <Reference Include="System.Web.DynamicData.dll" />
+    <Reference Include="System.Web.Entity.dll" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml.Linq.dll" />
   </ItemGroup>
   <ProjectExtensions>
     <VisualStudio>
