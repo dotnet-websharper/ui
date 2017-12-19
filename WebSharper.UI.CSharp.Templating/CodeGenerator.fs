@@ -91,18 +91,18 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
             |]
         | HoleKind.Var (ValTy.Any | ValTy.String) ->
             [|
-                s "IRef<string>" "VarStr" "x"
+                s "Var<string>" "VarStr" "x"
             |]
         | HoleKind.Var ValTy.Number ->
             [|
-                s "IRef<int>" "VarIntUnchecked" "x"
-                s "IRef<CheckedInput<int>>" "VarInt" "x"
-                s "IRef<double>" "VardoubleUnchecked" "x"
-                s "IRef<CheckedInput<double>>" "Vardouble" "x"
+                s "Var<int>" "VarIntUnchecked" "x"
+                s "Var<CheckedInput<int>>" "VarInt" "x"
+                s "Var<double>" "VardoubleUnchecked" "x"
+                s "Var<CheckedInput<double>>" "Vardouble" "x"
             |]
         | HoleKind.Var ValTy.Bool ->
             [|
-                s "IRef<bool>" "VarBool" "x"
+                s "Var<bool>" "VarBool" "x"
             |]
         | HoleKind.Mapped (kind = k) -> build k
         | HoleKind.Unknown -> failwithf "Error: Unknown HoleKind: %s" holeName

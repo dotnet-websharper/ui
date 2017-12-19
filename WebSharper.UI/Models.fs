@@ -168,7 +168,7 @@ type ListModelState<'T> =
 type ListModel<'Key, 'T when 'Key : equality>
     (
         key : System.Func<'T, 'Key>,
-        var: IRef<'T[]>,
+        var: Var<'T[]>,
         storage : Storage<'T>
     ) =
 
@@ -217,7 +217,7 @@ module ListModels =
         let t = keyFn item
         Array.exists (fun it -> keyFn it = t) xs
 
-type ListModel<'Key,'T> with
+type ListModel<'Key,'T when 'Key : equality> with
 
     [<Inline>]
     member m.Key x = m.key x
@@ -376,10 +376,12 @@ type ListModel<'Key,'T> with
     member m.LengthAsView =
         m.Var.View |> View.Map (fun arr -> arr.Length)
 
-    member private m.LensInto'(get: 'T -> 'V, update: 'T -> 'V -> 'T, key : 'Key, view: View<'V>) : IRef<'V> =
+    member private m.LensInto'(get: 'T -> 'V, update: 'T -> 'V -> 'T, key : 'Key, view: View<'V>) : Var<'V> =
         let id = Fresh.Id()
 
-        { new IRef<'V> with
+        let view = m.FindByKeyAsView(key) |> View.Map get
+    
+        { new Var<'V>() with
 
             member r.Get() =
                 m.FindByKey key |> get
@@ -387,9 +389,8 @@ type ListModel<'Key,'T> with
             member r.Set(v) =
                 m.UpdateBy (fun i -> Some (update i v)) key
 
-            member r.Value
-                with get() = r.Get()
-                and set v = r.Set v
+            member r.SetFinal(v) =
+                r.Set(v)
 
             member r.Update(f) =
                 m.UpdateBy (fun i -> Some (update i (f (get i)))) key
@@ -404,12 +405,12 @@ type ListModel<'Key,'T> with
                 id
         }
 
-    member m.LensInto (get: 'T -> 'V) (update: 'T -> 'V -> 'T) (key : 'Key) : IRef<'V> =
+    member m.LensInto (get: 'T -> 'V) (update: 'T -> 'V -> 'T) (key : 'Key) : Var<'V> =
         let view = m.FindByKeyAsView(key) |> View.Map get
         m.LensInto'(get, update, key, view)
 
     [<Inline>]
-    member m.LensIntoU (get: 'T -> 'V, update: 'T -> 'V -> 'T, key : 'Key) : IRef<'V> =
+    member m.LensIntoU<'V> (get: 'T -> 'V, update: 'T -> 'V -> 'T, key : 'Key) : Var<'V> =
         m.LensInto get update key
 
     member m.Lens (key: 'Key) =
@@ -427,7 +428,7 @@ type ListModel<'Key,'T> with
     member m.Map (f: 'Key -> View<'T> -> 'V) : View<seq<'V>> =
         View.MapSeqCachedViewBy m.key f m.ViewState
 
-    member m.MapLens (f: 'Key -> IRef<'T> -> 'V) =
+    member m.MapLens (f: 'Key -> Var<'T> -> 'V) =
         let get k v =
             f k (m.LensInto'(id, (fun _ -> id), k, v))
         View.MapSeqCachedViewBy m.key get m.ViewState
@@ -456,7 +457,7 @@ type ListModel =
                 let t = createItem u
                 (!state).[underlying.Key u] <- t
                 t)
-        let var : IRef<'T[]> =
+        let var : Var<'T[]> =
             underlying.Var.Lens
                 <| fun us ->
                     let newState = Dictionary<'Key, 'T>()

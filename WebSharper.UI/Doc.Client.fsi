@@ -179,7 +179,7 @@ type DocExtensions =
     /// Convert a ListModel's items to Doc and concatenate result.
     /// Shorthand for Doc.BindListModelLens
     [<Extension>]
-    static member DocLens : ListModel<'K, 'T> * ('K -> IRef<'T> -> #Doc) -> Doc
+    static member DocLens : ListModel<'K, 'T> * ('K -> Var<'T> -> #Doc) -> Doc
 
 
     /// Runs a reactive Doc as contents of the given element.
@@ -1216,7 +1216,7 @@ module Doc =
 
     /// Convert a ListModel's items to Doc and concatenate result.
     /// Shorthand for ListModel.MapLens f m |> Doc.BindView Doc.Concat.
-    val BindListModelLens : f: ('K -> IRef<'T> -> #Doc) -> m: ListModel<'K, 'T> -> Doc
+    val BindListModelLens : f: ('K -> Var<'T> -> #Doc) -> m: ListModel<'K, 'T> -> Doc
 
   // Main entry-point combinators - use once per app
 
@@ -1259,7 +1259,7 @@ module Doc =
   // Form helpers
 
     /// Input box.
-    val Input : seq<Attr> -> IRef<string> -> Elt
+    val Input : seq<Attr> -> Var<string> -> Elt
 
     /// Input box.
     /// The var must be passed using the .V property.
@@ -1268,7 +1268,7 @@ module Doc =
     /// Input box with type="number".
     /// For validation to work properly in Internet Explorer 9 and older,
     /// needs to be inside a <form> with Attr.ValidateForm.
-    val IntInput : seq<Attr> -> IRef<CheckedInput<int>> -> Elt
+    val IntInput : seq<Attr> -> Var<CheckedInput<int>> -> Elt
 
     /// Input box with type="number".
     /// For validation to work properly in Internet Explorer 9 and older,
@@ -1280,7 +1280,7 @@ module Doc =
     /// If the input box is blank, the value is set to 0.
     /// If the input is not parseable as an int, the value is unchanged from its last valid value.
     /// It is advised to use IntInput instead for better user experience.
-    val IntInputUnchecked : seq<Attr> -> IRef<int> -> Elt
+    val IntInputUnchecked : seq<Attr> -> Var<int> -> Elt
 
     /// Input box with type="number".
     /// If the input box is blank, the value is set to 0.
@@ -1292,7 +1292,7 @@ module Doc =
     /// Input box with type="number".
     /// For validation to work properly in Internet Explorer 9 and older,
     /// needs to be inside a <form> with Attr.ValidateForm.
-    val FloatInput : seq<Attr> -> IRef<CheckedInput<float>> -> Elt
+    val FloatInput : seq<Attr> -> Var<CheckedInput<float>> -> Elt
 
     /// Input box with type="number".
     /// For validation to work properly in Internet Explorer 9 and older,
@@ -1304,7 +1304,7 @@ module Doc =
     /// If the input box is blank, the value is set to 0.
     /// If the input is not parseable as a float, the value is unchanged from its last valid value.
     /// It is advised to use FloatInput instead for better user experience.
-    val FloatInputUnchecked : seq<Attr> -> IRef<float> -> Elt
+    val FloatInputUnchecked : seq<Attr> -> Var<float> -> Elt
 
     /// Input box with type="number".
     /// If the input box is blank, the value is set to 0.
@@ -1314,14 +1314,14 @@ module Doc =
     val FloatInputUncheckedV : seq<Attr> -> float -> Elt
 
     /// Input text area.
-    val InputArea : seq<Attr> -> IRef<string> -> Elt
+    val InputArea : seq<Attr> -> Var<string> -> Elt
 
     /// Input text area.
     /// The var must be passed using the .V property.
     val InputAreaV : seq<Attr> -> string -> Elt
 
     /// Password box.
-    val PasswordBox : seq<Attr> -> IRef<string> -> Elt
+    val PasswordBox : seq<Attr> -> Var<string> -> Elt
 
     /// Password box.
     /// The var must be passed using the .V property.
@@ -1342,30 +1342,30 @@ module Doc =
     val LinkView : caption: string -> seq<Attr> -> View<'T> -> ('T -> unit) -> Elt
 
     /// Check Box.
-    val CheckBox : seq<Attr> -> IRef<bool> -> Elt
+    val CheckBox : seq<Attr> -> Var<bool> -> Elt
 
     /// Check Box Group.
-    val CheckBoxGroup : seq<Attr> -> 'T -> IRef<list<'T>> -> Elt
+    val CheckBoxGroup : seq<Attr> -> 'T -> Var<list<'T>> -> Elt
         when 'T : equality
 
     /// Select box.
-    val Select : seq<Attr> -> optionText: ('T -> string) -> options: list<'T> -> IRef<'T> -> Elt
+    val Select : seq<Attr> -> optionText: ('T -> string) -> options: list<'T> -> Var<'T> -> Elt
         when 'T : equality
 
     /// Select box with time-varying option list.
-    val SelectDyn : seq<Attr> -> optionText: ('T -> string) -> options: View<list<'T>> -> IRef<'T> -> Elt
+    val SelectDyn : seq<Attr> -> optionText: ('T -> string) -> options: View<list<'T>> -> Var<'T> -> Elt
         when 'T : equality
 
     /// Select box where the first option returns None.
-    val SelectOptional : seq<Attr> -> noneText: string -> optionText: ('T -> string) -> options: list<'T> -> IRef<option<'T>> -> Elt
+    val SelectOptional : seq<Attr> -> noneText: string -> optionText: ('T -> string) -> options: list<'T> -> Var<option<'T>> -> Elt
         when 'T : equality
 
     /// Select box with time-varying option list where the first option returns None.
-    val SelectDynOptional : seq<Attr> -> noneText: string -> optionText: ('T -> string) -> options: View<list<'T>> -> IRef<option<'T>> -> Elt
+    val SelectDynOptional : seq<Attr> -> noneText: string -> optionText: ('T -> string) -> options: View<list<'T>> -> Var<option<'T>> -> Elt
         when 'T : equality
 
     /// Radio button.
-    val Radio : seq<Attr> -> 'T -> IRef<'T> -> Elt
+    val Radio : seq<Attr> -> 'T -> Var<'T> -> Elt
         when 'T : equality
 
     /// Creates a wrapper that allows subscribing elements for DOM syncronization inserted through other means than UI combinators.
