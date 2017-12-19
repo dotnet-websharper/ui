@@ -75,13 +75,13 @@ type ViewExtensions =
         View.UpdateWhile a vb va
 
 [<Extension; JavaScript; Sealed>]
-type IRefExtension =
+type VarExtension =
     [<Extension; Inline>]
-    static member Update(ref: IRef<'A>, f: Func<'A, 'A>) =
+    static member Update(ref: Var<'A>, f: Func<'A, 'A>) =
         ref.Update (FSharpConvert.Fun f)
 
     [<Extension; Inline>]
-    static member Lens(ref: IRef<'A>, get: Func<'A, 'B>, set: Func<'A, 'B, 'A>) =
+    static member Lens(ref: Var<'A>, get: Func<'A, 'B>, set: Func<'A, 'B, 'A>) =
         Var.Lens ref (FSharpConvert.Fun get) (FSharpConvert.Fun set)
 
 [<Extension; JavaScript; Sealed>]

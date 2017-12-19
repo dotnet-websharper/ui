@@ -161,4 +161,4 @@ type ReactiveExtensions =
         View<ListModelState<'A>> * key: ('A -> 'K) * f: ('K -> View<'A> -> 'B) -> View<seq<'B>>
 
     [<Extension>]
-    static member LensAuto<'T, 'U> : ref: IRef<'T> * getter: ('T -> 'U) -> IRef<'U>
+    static member LensAuto<'T, 'U> : ref: Var<'T> * getter: ('T -> 'U) -> Var<'U>

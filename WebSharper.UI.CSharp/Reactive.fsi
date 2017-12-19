@@ -60,12 +60,12 @@ type ViewExtensions =
     static member UpdateWhile : View<'A> * 'A * View<bool> -> View<'A>
 
 [<Extension; Sealed>]
-type IRefExtension =
+type VarExtension =
     [<Extension>]
-    static member Update : IRef<'A> * Func<'A, 'A> -> unit
+    static member Update : Var<'A> * Func<'A, 'A> -> unit
 
     [<Extension>]
-    static member Lens : IRef<'A> * Func<'A, 'B> * Func<'A, 'B, 'A> -> IRef<'B>
+    static member Lens : Var<'A> * Func<'A, 'B> * Func<'A, 'B, 'A> -> Var<'B>
 
 [<Extension; Sealed>]
 type VarExtensions =

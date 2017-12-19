@@ -346,7 +346,7 @@ module Attr =
         As<Attr> (Attrs.Dynamic view (fun el v ->
             el?(name) <- v))
 
-    let CustomVar (var: IRef<'a>) (set: Element -> 'a -> unit) (get: Element -> 'a option) =
+    let CustomVar (var: Var<'a>) (set: Element -> 'a -> unit) (get: Element -> 'a option) =
         let onChange (el: Element) (e: DomEvent) =
             var.UpdateMaybe(fun v ->
                 match get el with
@@ -363,31 +363,31 @@ module Attr =
             DynamicCustom set var.View
         ]
 
-    let CustomValue (var: IRef<'a>) (toString : 'a -> string) (fromString : string -> 'a option) =
+    let CustomValue (var: Var<'a>) (toString : 'a -> string) (fromString : string -> 'a option) =
         CustomVar var (fun e v -> e?value <- toString v) (fun e -> fromString e?value)
 
-    let ContentEditableText (var: IRef<string>) =
+    let ContentEditableText (var: Var<string>) =
         CustomVar var (fun e v -> e.TextContent <- v) (fun e -> Some e.TextContent)
         |> Attr.Append (Attr.Create "contenteditable" "true")
 
-    let ContentEditableHtml (var: IRef<string>) =
+    let ContentEditableHtml (var: Var<string>) =
         CustomVar var (fun e v -> e?innerHTML <- v) (fun e -> Some e?innerHTML)
         |> Attr.Append (Attr.Create "contenteditable" "true")
 
-    let Value (var: IRef<string>) =
+    let Value (var: Var<string>) =
         CustomValue var id (id >> Some)
 
     [<JavaScript; Inline "$e.checkValidity?$e.checkValidity():true">]
     let CheckValidity (e: Dom.Element) = X<bool>
 
-    let IntValueUnchecked (var: IRef<int>) =
+    let IntValueUnchecked (var: Var<int>) =
         let parseInt (s: string) =
             if String.isBlank s then Some 0 else
             let pd : int = JS.Plus s
             if pd !==. (pd >>. 0) then None else Some pd
         CustomValue var string parseInt
 
-    let IntValue (var: IRef<CheckedInput<int>>) =
+    let IntValue (var: Var<CheckedInput<int>>) =
         let parseCheckedInt (el: Dom.Element) : option<CheckedInput<int>> =
             let s = el?value
             if String.isBlank s then
@@ -403,14 +403,14 @@ module Attr =
                 if el?value <> i then el?value <- i)
             parseCheckedInt
 
-    let FloatValueUnchecked (var: IRef<float>) =
+    let FloatValueUnchecked (var: Var<float>) =
         let parseFloat (s: string) =
             if String.isBlank s then Some 0. else
             let pd : float = JS.Plus s
             if JS.IsNaN pd then None else Some pd
         CustomValue var string parseFloat
 
-    let FloatValue (var: IRef<CheckedInput<float>>) =
+    let FloatValue (var: Var<CheckedInput<float>>) =
         let parseCheckedFloat (el: Dom.Element) : option<CheckedInput<float>> =
             let s = el?value
             if String.isBlank s then
@@ -425,7 +425,7 @@ module Attr =
                 if el?value <> i then el?value <- i)
             parseCheckedFloat
 
-    let Checked (var: IRef<bool>) =
+    let Checked (var: Var<bool>) =
         let onSet (el: Dom.Element) (ev: Dom.Event) =
             if var.Value <> el?``checked`` then
                 var.Value <- el?``checked``

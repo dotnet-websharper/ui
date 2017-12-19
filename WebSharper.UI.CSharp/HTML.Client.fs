@@ -9,7 +9,7 @@ open WebSharper.UI
 [<AutoOpen>]
 module private Helpers =
     [<JavaScript>]
-    let seqRefToListRef (l: IRef<seq<'T>>) =
+    let seqRefToListRef (l: Var<seq<'T>>) =
         Var.Lens l (Seq.toList) (fun _ b -> Seq.ofList b)
 
 [<JavaScript>]
@@ -111,17 +111,17 @@ module Html =
 
     /// Check Box which is part of a Group.
     [<Inline; CompiledName "checkbox">]
-    let CheckBoxGroup(vl, l: IRef<seq<'T>>, [<ParamArray>] attrs: Attr[]) =
+    let CheckBoxGroup(vl, l: Var<seq<'T>>, [<ParamArray>] attrs: Attr[]) =
         Client.Doc.CheckBoxGroup attrs vl (seqRefToListRef l) 
 
     /// Select box.
     [<Inline; CompiledName "select">]
-    let SelectInput(var: IRef<'T>, options: seq<'T>, text: Func<'T, string>, [<ParamArray>] attrs: Attr[]) =
+    let SelectInput(var: Var<'T>, options: seq<'T>, text: Func<'T, string>, [<ParamArray>] attrs: Attr[]) =
         Client.Doc.Select attrs (FSharpConvert.Fun text) (Seq.toList options) var
 
     /// Select box with time-varying option list.
     [<Inline; CompiledName "select">]
-    let SelectInputDyn(var: IRef<'T>, options: View<seq<'T>>, text: Func<'T, string>, [<ParamArray>] attrs: Attr[]) =
+    let SelectInputDyn(var: Var<'T>, options: View<seq<'T>>, text: Func<'T, string>, [<ParamArray>] attrs: Attr[]) =
         Client.Doc.SelectDyn attrs (FSharpConvert.Fun text) (View.Map Seq.toList options) var
 
     /// Select box where the first option returns None.

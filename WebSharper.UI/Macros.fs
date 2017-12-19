@@ -64,7 +64,6 @@ module internal Macros =
     let varModule = NonGeneric (ty "Var")
     let viewOf t = GenericType (ty "View`1") [t]
     let varOf t = GenericType (ty "Var`1") [t]
-    let irefOf t = GenericType (ty "IRef`1") [t]
     let seqOf t = GenericType (ty' "mscorlib" "System.Collections.Generic.IEnumerable`1") [t]
     let docT = NonGenericType (ty "Doc")
     let eltT = NonGenericType (ty "Elt")
@@ -75,7 +74,7 @@ module internal Macros =
     let V0 = viewOf T0
     let V1 = viewOf T1
     let V2 = viewOf T2
-    let viewPropOf t =   gen[t]       (meth "get_View"     []                         t)
+    let viewProp =       gen[]        (meth "get_View"     []                         (viewOf T0))
     let constFnOf t =    gen[t]       (meth "Const"        [T0]                       V0)
     let mapFnOf t u =    gen[t; u]    (meth "Map"          [T0 ^-> T1; V0]            V1)
     let map2FnOf t u v = gen[t; u; v] (meth "Map2"         [T0 ^-> T1 ^-> T2; V0; V1] V2)
@@ -84,8 +83,8 @@ module internal Macros =
     let attrDynFn =      gen[]        (meth "Dynamic"      [stringT; viewOf stringT]  attrT)
     let attrDynStyleFn = gen[]        (meth "DynamicStyle" [stringT; viewOf stringT]  attrT)
     let docEmbedFn t =   gen[t]       (meth "EmbedView"    [viewOf T0]                docT)
-    let lensFn t u =     gen[t; u]    (meth "Lens"         [irefOf T0; T0 ^-> T1; T0 ^-> T1 ^-> T0] (irefOf T1))
-    let inputFn n t =    gen[]        (meth n              [seqOf attrT; irefOf t]    eltT)
+    let lensFn t u =     gen[t; u]    (meth "Lens"         [varOf T0; T0 ^-> T1; T0 ^-> T1 ^-> T0] (varOf T1))
+    let inputFn n t =    gen[]        (meth n              [seqOf attrT; varOf t]     eltT)
     let elemMixedFn =    gen[]        (meth "ElementMixed" [stringT; seqOf objT]      eltT)
     let concatMixedFn =  gen[]        (meth "ConcatMixed"  [ArrayType(objT, 1)]       docT)
 
@@ -175,7 +174,7 @@ module internal Macros =
                         if isViewT ty.Entity && isV m.Entity then
                             addItem this.Value
                         elif isVarT ty.Entity && isV m.Entity then
-                            Call(Some this.Value, ty, viewPropOf ty.Generics.[0], [])
+                            Call(Some this.Value, ty, viewProp, [])
                             |> addItem
                         else base.TransformCall (this, ty, m, args)
                 }.TransformExpression e

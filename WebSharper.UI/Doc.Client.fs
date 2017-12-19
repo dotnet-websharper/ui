@@ -1152,12 +1152,12 @@ type private Doc' [<JavaScript>] (docNode, updates) =
         Doc'.Elem el (Attr.Concat (attr el)) Doc'.Empty'
 
     [<JavaScript>]
-    static member Input attr (var: IRef<string>) =
+    static member Input attr (var: Var<string>) =
         Doc'.InputInternal "input" (fun _ ->
             Seq.append attr [| Attr.Value var |])
 
     [<JavaScript>]
-    static member PasswordBox attr (var: IRef<string>) =
+    static member PasswordBox attr (var: Var<string>) =
         Doc'.InputInternal "input" (fun _ ->
             Seq.append attr [|
                 Attr.Value var
@@ -1165,7 +1165,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             |])
 
     [<JavaScript>]
-    static member IntInputUnchecked attr (var: IRef<int>) =
+    static member IntInputUnchecked attr (var: Var<int>) =
         Doc'.InputInternal "input" (fun _ ->
             Seq.append attr [|
                 (if var.Get() = 0 then Attr.Create "value" "0" else Attr.Empty)
@@ -1174,7 +1174,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             |])
 
     [<JavaScript>]
-    static member IntInput attr (var: IRef<CheckedInput<int>>) =
+    static member IntInput attr (var: Var<CheckedInput<int>>) =
         Doc'.InputInternal "input" (fun el ->
             Seq.append attr [|
                 Attr.IntValue var
@@ -1182,7 +1182,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             |])
 
     [<JavaScript>]
-    static member FloatInputUnchecked attr (var: IRef<float>) =
+    static member FloatInputUnchecked attr (var: Var<float>) =
         Doc'.InputInternal "input" (fun _ ->
             Seq.append attr [|
                 (if var.Get() = 0. then Attr.Create "value" "0" else Attr.Empty)
@@ -1191,7 +1191,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             |])
 
     [<JavaScript>]
-    static member FloatInput attr (var: IRef<CheckedInput<float>>) =
+    static member FloatInput attr (var: Var<CheckedInput<float>>) =
         Doc'.InputInternal "input" (fun el ->
             Seq.append attr [|
                 Attr.FloatValue var
@@ -1199,12 +1199,12 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             |])
 
     [<JavaScript>]
-    static member InputArea attr (var: IRef<string>) =
+    static member InputArea attr (var: Var<string>) =
         Doc'.InputInternal "textarea" (fun _ ->
             Seq.append attr [| Attr.Value var |])
 
     [<JavaScript>]
-    static member SelectImpl attrs (show: 'T -> string) (optionElements) (current: IRef<'T>) =
+    static member SelectImpl attrs (show: 'T -> string) (optionElements) (current: Var<'T>) =
         let options = ref []
         let getIndex (el: Element) =
             el?selectedIndex : int
@@ -1235,7 +1235,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
         Doc'.Elem el attrs (optionElements options)
 
     [<JavaScript>]
-    static member SelectDyn attrs (show: 'T -> string) (vOptions: View<list<'T>>) (current: IRef<'T>) =
+    static member SelectDyn attrs (show: 'T -> string) (vOptions: View<list<'T>>) (current: Var<'T>) =
         let optionElements options =
             vOptions
             |> View.Map (fun l ->
@@ -1281,7 +1281,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             current
 
     [<JavaScript>]
-    static member CheckBox attrs (chk: IRef<bool>) =
+    static member CheckBox attrs (chk: Var<bool>) =
         Doc'.InputInternal "input" (fun _ ->
             Seq.append attrs [
                 Attr.Create "type" "checkbox"
@@ -1289,7 +1289,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             ])
 
     [<JavaScript>]
-    static member CheckBoxGroup attrs (item: 'T) (chk: IRef<list<'T>>) =
+    static member CheckBoxGroup attrs (item: 'T) (chk: Var<list<'T>>) =
         let rv =
             chk.Lens
                 (List.exists ((=) item))
@@ -1334,7 +1334,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
         Doc'.Elem (DU.CreateElement "a") attrs (As (Doc.TextNode caption))
 
     [<JavaScript>]
-    static member Radio attrs value (var: IRef<_>) =
+    static member Radio attrs value (var: Var<_>) =
         // Radio buttons work by taking a common var, which is given a unique ID.
         // This ID is serialised and used as the name, giving us the "grouping"
         // behaviour.
@@ -1846,7 +1846,7 @@ module Doc =
     let BindListModelView f (m: ListModel<_, _>) = BindSeqCachedViewBy m.Key f m.ViewState
 
     [<Inline>]
-    let BindListModelLens (f: 'K -> IRef<'T> -> #Doc) (m: ListModel<'K, 'T>) =
+    let BindListModelLens (f: 'K -> Var<'T> -> #Doc) (m: ListModel<'K, 'T>) =
         As<Doc>(As<View<seq<Doc'>>>(ListModel.MapLens f m) |> Doc'.Flatten)
 
     [<Inline>]

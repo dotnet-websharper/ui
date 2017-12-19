@@ -56,13 +56,13 @@ module internal Utils =
         | TextViewHole of string
 
     let ViewOf ty = typedefof<View<_>>.MakeGenericType([|ty|])
-    let IRefOf ty = typedefof<IRef<_>>.MakeGenericType([|ty|])
+    let VarOf ty = typedefof<Var<_>>.MakeGenericType([|ty|])
     let EventTy = typeof<WebSharper.JavaScript.Dom.Element -> WebSharper.JavaScript.Dom.Event -> unit>
     let ElemHandlerTy = typeof<WebSharper.JavaScript.Dom.Element -> unit>
 
     [<RequireQualifiedAccess>]
     type Hole =
-        | IRef of valTy: System.Type * hasView: bool
+        | Var of valTy: System.Type * hasView: bool
         | View of valTy: System.Type
         | Event
         | ElemHandler
@@ -70,7 +70,7 @@ module internal Utils =
 
         member this.ArgType =
             match this with
-            | IRef (valTy = t) -> IRefOf t
+            | Var (valTy = t) -> VarOf t
             | View (valTy = t) -> ViewOf t
             | Event -> EventTy
             | ElemHandler -> ElemHandlerTy
@@ -243,9 +243,9 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                 holes.Add(name, Hole.Simple typeof<'T>)
                             Expr.Var (Var (name, typeof<'T>)) |> Expr.Cast
 
-                        let getVarHole name : Expr<IRef<'T>> =
+                        let getVarHole name : Expr<Var<'T>> =
                             match holes.TryGetValue(name) with
-                            | true, Hole.IRef(valTy = valTy) ->
+                            | true, Hole.Var(valTy = valTy) ->
                                 if valTy = typeof<'T> then
                                     ()
                                 else
@@ -253,7 +253,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                             | true, Hole.View valTy ->
                                 if valTy = typeof<'T> then
                                     holes.Remove(name) |> ignore
-                                    holes.Add(name, Hole.IRef(valTy = typeof<'T>, hasView = true))
+                                    holes.Add(name, Hole.Var(valTy = typeof<'T>, hasView = true))
                                 else
                                     failwithf "Invalid multiple use of variable name for differently typed View and Var: %s" name
                             | true, Hole.Simple _
@@ -261,16 +261,16 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                             | true, Hole.Event ->
                                 failwithf "Invalid multiple use of variable name in the same template: %s" name
                             | false, _ ->
-                                holes.Add(name, Hole.IRef(valTy = typeof<'T>, hasView = false))
-                            Expr.Var (Var (name, typeof<IRef<'T>>)) |> Expr.Cast
+                                holes.Add(name, Hole.Var(valTy = typeof<'T>, hasView = false))
+                            Expr.Var (Var (name, typeof<Var<'T>>)) |> Expr.Cast
 
                         let getViewHole name : Expr<View<'T>> =
                             match holes.TryGetValue(name) with
-                            | true, Hole.IRef(valTy = valTy; hasView = hasView) ->
+                            | true, Hole.Var(valTy = valTy; hasView = hasView) ->
                                 if valTy = typeof<'T> then
                                     if not hasView then
                                         holes.Remove(name) |> ignore
-                                        holes.Add(name, Hole.IRef(valTy = valTy, hasView = true))
+                                        holes.Add(name, Hole.Var(valTy = valTy, hasView = true))
                                 else
                                     failwithf "Invalid multiple use of variable name for differently typed View and Var: %s" name
                             | true, Hole.View valTy ->
@@ -291,7 +291,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                             | true, Hole.Event -> ()
                             | true, Hole.ElemHandler
                             | true, Hole.Simple _
-                            | true, Hole.IRef _
+                            | true, Hole.Var _
                             | true, Hole.View _ ->
                                 failwithf "Invalid multiple use of variable name in the same template: %s" name
                             | false, _ ->
@@ -303,7 +303,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                             | true, Hole.ElemHandler -> ()
                             | true, Hole.Event
                             | true, Hole.Simple _
-                            | true, Hole.IRef _
+                            | true, Hole.Var _
                             | true, Hole.View _ ->
                                 failwithf "Invalid multiple use of variable name in the same template: %s" name
                             | false, _ ->
@@ -470,13 +470,13 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                     varMap.Add((name, ElemHandlerTy), arg)
                                 | Hole.View valTy ->
                                     varMap.Add((name, ViewOf valTy), arg)
-                                | Hole.IRef(valTy, hasView) ->
-                                    let irefTy = IRefOf valTy
-                                    varMap.Add((name, irefTy), arg)
+                                | Hole.Var(valTy, hasView) ->
+                                    let varTy = VarOf valTy
+                                    varMap.Add((name, varTy), arg)
                                     if hasView then
                                         varMap.Add((name, ViewOf valTy),
                                             Expr.Call(arg,
-                                                irefTy.GetProperty("View").GetGetMethod(),
+                                                varTy.GetProperty("View").GetGetMethod(),
                                                 []))
                             mainExpr.Substitute(fun v ->
                                 match varMap.TryGetValue((v.Name, v.Type)) with

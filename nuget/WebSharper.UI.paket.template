@@ -23,6 +23,7 @@ files
     ../build/net40/WebSharper.UI.Templating.xml ==> lib/net40
     ../build/net40/WebSharper.UI.CSharp.dll ==> lib/net40
     ../build/net40/WebSharper.UI.CSharp.xml ==> lib/net40
+    ../build/net40/FSharp.Core.dll ==> tools
     ../build/net40/HtmlAgilityPack.dll ==> tools
     ../build/net40/WebSharper.UI.Templating.Common.dll ==> tools
     ../build/net45/WebSharper.UI.CSharp.Templating.dll ==> tools

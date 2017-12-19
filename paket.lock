@@ -16,13 +16,13 @@ NUGET
       System.Collections.Immutable (>= 1.1.36)
     System.ValueTuple (4.3)
   remote: https://nuget.intellifactory.com/nuget
-    WebSharper (4.1.0.160)
-    WebSharper.CSharp (4.1.0.160)
-      WebSharper (4.1.0.160)
-    WebSharper.FSharp (4.1.0.160)
-      WebSharper (4.1.0.160)
-    WebSharper.Testing (4.1.0.160)
-      WebSharper (4.1.0.160)
+    WebSharper (4.1.0.161)
+    WebSharper.CSharp (4.1.0.161)
+      WebSharper (4.1.0.161)
+    WebSharper.FSharp (4.1.0.161)
+      WebSharper (4.1.0.161)
+    WebSharper.Testing (4.1.0.161)
+      WebSharper (4.1.0.161)
 GITHUB
   remote: tarmil/FSharp.TypeProviders.SDK
     src/ProvidedTypes.fs (1b46411cf45dd98aef95e05707b89558d95bba1a)
@@ -33,7 +33,7 @@ NUGET
   remote: https://api.nuget.org/v3/index.json
     Chessie (0.6)
       FSharp.Core
-    FAKE (4.64.2)
+    FAKE (4.64.3)
     FSharp.Compiler.Tools (4.1.29)
     FSharp.Core (4.2.3)
     Mono.Cecil (0.10.0-beta7)
@@ -46,6 +46,6 @@ NUGET
       Newtonsoft.Json
 GITHUB
   remote: intellifactory/websharper
-    tools/WebSharper.Fake.cmd (7c6c304e8d5fe3599ef6358462da278268e83e05)
-    tools/WebSharper.Fake.fsx (7c6c304e8d5fe3599ef6358462da278268e83e05)
-    tools/WebSharper.Fake.sh (7c6c304e8d5fe3599ef6358462da278268e83e05)
+    tools/WebSharper.Fake.cmd (5d62d6730f3cf126d649aa043dac74fb768342c5)
+    tools/WebSharper.Fake.fsx (5d62d6730f3cf126d649aa043dac74fb768342c5)
+    tools/WebSharper.Fake.sh (5d62d6730f3cf126d649aa043dac74fb768342c5)

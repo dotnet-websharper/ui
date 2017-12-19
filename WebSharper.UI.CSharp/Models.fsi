@@ -47,6 +47,6 @@ type ListModelExtensions =
 
     [<Extension>]
     static member LensInto<'K,'T,'V when 'K : equality> :
-        ListModel<'K,'T> * 'K * Func<'T,'V> * Func<'T,'V,'T> -> IRef<'V>
+        ListModel<'K,'T> * 'K * Func<'T,'V> * Func<'T,'V,'T> -> Var<'V>
 
 

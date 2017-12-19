@@ -97,4 +97,4 @@ type ReactiveExtensions() =
         (v: View<ListModelState<'A>>, k: 'A -> 'K, f: 'K -> View<'A> -> 'B) = View.MapSeqCachedViewBy k f v
 
     [<Extension; Macro(typeof<Macros.Lens>)>]
-    static member LensAuto<'T, 'U>(ref: IRef<'T>, getter: 'T -> 'U) = X<IRef<'U>>
+    static member LensAuto<'T, 'U>(ref: Var<'T>, getter: 'T -> 'U) = X<Var<'U>>

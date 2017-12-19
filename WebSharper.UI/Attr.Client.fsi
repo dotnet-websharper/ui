@@ -79,34 +79,34 @@ module Attr =
     val DynamicPred : name: string -> predView: View<bool> -> valView: View<string> -> Attr
 
     /// Gets and sets the value of the element according to a Var.
-    val CustomValue : IRef<'a> -> ('a -> string) -> (string -> 'a option) -> Attr when 'a : equality
+    val CustomValue : Var<'a> -> ('a -> string) -> (string -> 'a option) -> Attr when 'a : equality
 
     /// Gets and sets custom properties on the element according to a Var.
-    val CustomVar : IRef<'a> -> set: (Element -> 'a -> unit) -> get: (Element -> 'a option) -> Attr when 'a : equality
+    val CustomVar : Var<'a> -> set: (Element -> 'a -> unit) -> get: (Element -> 'a option) -> Attr when 'a : equality
 
     /// Make the element's content editable and bind its text content to a Var.
-    val ContentEditableText : IRef<string> -> Attr
+    val ContentEditableText : Var<string> -> Attr
 
     /// Make the element's content editable and bind its HTML content to a Var.
-    val ContentEditableHtml : IRef<string> -> Attr
+    val ContentEditableHtml : Var<string> -> Attr
 
     /// Gets and sets the value of the element according to a Var.
-    val Value : IRef<string> -> Attr
+    val Value : Var<string> -> Attr
 
     /// Gets and sets the value of the element according to a Var.
-    val IntValueUnchecked : IRef<int> -> Attr
+    val IntValueUnchecked : Var<int> -> Attr
 
     /// Gets and sets the value of the element according to a Var.
-    val IntValue : IRef<CheckedInput<int>> -> Attr
+    val IntValue : Var<CheckedInput<int>> -> Attr
 
     /// Gets and sets the value of the element according to a Var.
-    val FloatValueUnchecked : IRef<float> -> Attr
+    val FloatValueUnchecked : Var<float> -> Attr
 
     /// Gets and sets the value of the element according to a Var.
-    val FloatValue : IRef<CheckedInput<float>> -> Attr
+    val FloatValue : Var<CheckedInput<float>> -> Attr
 
     /// Gets and sets the checked status of the element according to a Var.
-    val Checked : IRef<bool> -> Attr
+    val Checked : Var<bool> -> Attr
 
     /// Add this attribute to any <form> element that contains validation
     /// (including Doc.IntInput and Doc.FloatInput) for compatibility in Internet Explorer 9 and older.
