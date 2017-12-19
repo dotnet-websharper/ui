@@ -243,7 +243,6 @@ let getCodeInternal namespaceName templateName (item: ParseItem) =
         yield "using WebSharper;"
         yield "using WebSharper.UI;"
         yield "using WebSharper.UI.Templating;"
-        yield "using WebSharper.UI.CSharp.Client;"
         yield "using SDoc = WebSharper.UI.Doc;"
         yield "using DomElement = WebSharper.JavaScript.Dom.Element;"
         yield "using DomEvent = WebSharper.JavaScript.Dom.Event;"

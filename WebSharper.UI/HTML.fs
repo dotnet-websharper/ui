@@ -28,6 +28,7 @@ open WebSharper.JavaScript
 /// See tools/UpdateElems.fsx for the code-generation logic.
 // Warning: don't mark this module as JavaScript: some submodules _must_ not
 // be JavaScript because they are proxied.
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Html =
 
     /// Create a text node with constant content, or with dynamic content using `view.V`.

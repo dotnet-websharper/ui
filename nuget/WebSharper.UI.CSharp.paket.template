@@ -1,0 +1,33 @@
+type file
+id WebSharper.UI.CSharp
+authors
+    IntelliFactory
+owners
+    IntelliFactory
+licenseUrl http://websharper.com/licensing
+projectUrl https://github.com/intellifactory/websharper.ui.next
+description
+    C# extensions for WebSharper.UI
+tags
+    Web JavaScript C#
+files
+    ../msbuild/WebSharper.UI.CSharp.targets ==> build
+    ../build/net40/WebSharper.UI.CSharp.dll ==> lib/net40
+    ../build/net40/WebSharper.UI.CSharp.xml ==> lib/net40
+    ../build/net40/FSharp.Core.dll ==> tools
+    ../build/net40/HtmlAgilityPack.dll ==> tools
+    ../build/net40/WebSharper.UI.Templating.Common.dll ==> tools
+    ../build/net45/WebSharper.UI.CSharp.Templating.dll ==> tools
+    ../build/net45/WebSharper.UI.CSharp.Templating.Build.dll ==> tools
+    ../WebSharper.UI.CSharp.Templating.Analyzer/uninstall.ps1 ==> tools
+    ../WebSharper.UI.CSharp.Templating.Analyzer/install.ps1 ==> tools
+    ../build/net40/HtmlAgilityPack.dll ==> analyzers/dotnet/cs
+    ../build/net40/WebSharper.UI.Templating.Common.dll ==> analyzers/dotnet/cs
+    ../build/net45/WebSharper.UI.CSharp.Templating.dll ==> analyzers/dotnet/cs
+    ../build/net45/WebSharper.UI.CSharp.Templating.Analyzer.dll ==> analyzers/dotnet/cs
+dependencies
+        WebSharper >= LOCKEDVERSION
+        WebSharper.UI >= CURRENTVERSION
+frameworkAssemblies
+        System.Xml
+        System.Xml.Linq

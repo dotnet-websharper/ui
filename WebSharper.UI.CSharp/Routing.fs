@@ -18,7 +18,7 @@
 //
 // $end{copyright}
 
-namespace WebSharper.UI.CSharp.Client
+namespace WebSharper.UI.Client
 
 open System
 open System.Collections.Generic

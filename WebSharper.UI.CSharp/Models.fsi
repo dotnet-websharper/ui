@@ -1,4 +1,4 @@
-﻿namespace WebSharper.UI.CSharp
+﻿namespace WebSharper.UI
 
 open System
 open System.Runtime.CompilerServices
