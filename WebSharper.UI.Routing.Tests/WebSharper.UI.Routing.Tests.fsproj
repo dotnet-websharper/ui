@@ -61,11 +61,6 @@
       <Project>{88079fa1-e1c8-4868-a1d0-3815bf4dabe2}</Project>
       <Private>True</Private>
     </ProjectReference>
-    <ProjectReference Include="..\WebSharper.UI.CSharp\WebSharper.UI.CSharp.fsproj">
-      <Name>WebSharper.UI.CSharp</Name>
-      <Project>{13fba482-7285-4c83-a201-2d60ff89e586}</Project>
-      <Private>True</Private>
-    </ProjectReference>
     <ProjectReference Include="..\WebSharper.UI\WebSharper.UI.fsproj">
       <Name>WebSharper.UI</Name>
       <Project>{085a6f78-50a7-46cf-b040-9853ec580be5}</Project>
