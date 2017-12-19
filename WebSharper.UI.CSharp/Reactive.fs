@@ -1,11 +1,10 @@
-namespace WebSharper.UI.CSharp
+namespace WebSharper.UI
 
 open WebSharper
 
 open System
 open System.Threading.Tasks
 open System.Runtime.CompilerServices
-open WebSharper.UI
 
 [<Extension; JavaScript>]
 type ViewExtensions =

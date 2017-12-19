@@ -18,7 +18,7 @@
 //
 // $end{copyright}
 
-namespace WebSharper.UI.CSharp
+namespace WebSharper.UI
 
 open System
 

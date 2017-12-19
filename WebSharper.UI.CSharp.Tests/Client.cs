@@ -1,16 +1,12 @@
 using System.Linq;
 using WebSharper.UI;
 using WebSharper.UI.Client;
-using WebSharper.UI.CSharp;
-using WebSharper.UI.CSharp.Client;
-using static WebSharper.UI.CSharp.Client.Html;
+using static WebSharper.UI.Client.Html;
 using WebSharper;
 using WebSharper.Sitelets;
 using WebSharper.JavaScript;
 using Microsoft.FSharp.Core;
 
-//using CDoc = WebSharper.UI.Client.Doc;
-//using CAttr = WebSharper.UI.Client.Attr;
 using System.Threading.Tasks;
 using System;
 using static WebSharper.UI.V;

@@ -18,7 +18,7 @@
 //
 // $end{copyright}
 
-namespace WebSharper.UI.CSharp.Server
+namespace WebSharper.UI.Server
 
 open System
 open System.Runtime.CompilerServices

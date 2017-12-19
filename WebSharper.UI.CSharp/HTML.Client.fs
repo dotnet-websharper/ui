@@ -1,4 +1,4 @@
-namespace WebSharper.UI.CSharp.Client
+namespace WebSharper.UI.Client
 
 open System
 open System.Runtime.CompilerServices
@@ -10,7 +10,7 @@ open WebSharper.UI
 module private Helpers =
     [<JavaScript>]
     let seqRefToListRef (l: IRef<seq<'T>>) =
-        l.Lens (Seq.toList) (fun _ b -> Seq.ofList b)
+        Var.Lens l (Seq.toList) (fun _ b -> Seq.ofList b)
 
 [<JavaScript>]
 module Html =
