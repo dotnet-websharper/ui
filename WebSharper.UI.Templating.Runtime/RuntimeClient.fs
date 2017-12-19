@@ -157,8 +157,8 @@ type GetOrLoadTemplateMacro() =
                 let nameId = Id.New "n"
                 let expr =
                     let eBaseName = Value (Literal.String baseName)
-                    let name = Var nameId
-                    let holes = Var holesId
+                    let name = Expression.Var nameId
+                    let holes = Expression.Var holesId
                     Sequential(
                         loadRefs @
                         match inlineBaseName with
@@ -177,8 +177,8 @@ type GetOrLoadTemplateMacro() =
                             [Let(elId, el,
                                 Conditional(
                                     holes,
-                                    Call(None, NonGeneric DocModule, NonGeneric GetOrLoadTemplateMethod, [eBaseName; name; Var elId; holes]),
-                                    Call(None, NonGeneric DocModule, NonGeneric LoadTemplateMethod, [eBaseName; name; Var elId])
+                                    Call(None, NonGeneric DocModule, NonGeneric GetOrLoadTemplateMethod, [eBaseName; name; Expression.Var elId; holes]),
+                                    Call(None, NonGeneric DocModule, NonGeneric LoadTemplateMethod, [eBaseName; name; Expression.Var elId])
                                 )
                             )]
                     )
