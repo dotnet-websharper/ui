@@ -244,7 +244,6 @@ namespace WebSharper.UI.CSharp.Tests
                     new TaskItem("Have lunch", false)
                 };
 
-            var NewTaskName = Var.Create("");
             new Template.Template.Main()
                 .ListContainer(Tasks.View.DocSeqCached((TaskItem task) =>
                     new Template.Template.ListItem()
@@ -254,11 +253,10 @@ namespace WebSharper.UI.CSharp.Tests
                         .ShowDone(attr.@class("checked", task.Done.View, x => x))
                         .Elt()
                 ))
-                .NewTaskName(NewTaskName)
-                .Add((el, ev) =>
+                .Add((m) =>
                 {
-                    Tasks.Add(new TaskItem(NewTaskName.Value, false));
-                    NewTaskName.Value = "";
+                    Tasks.Add(new TaskItem(m.Vars.NewTaskName.Value, false));
+                    m.Vars.NewTaskName.Value = "";
                 })
                 .ClearCompleted((el, ev) => Tasks.RemoveBy(task => task.Done.Value))
                 .Doc()

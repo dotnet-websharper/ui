@@ -43,6 +43,9 @@ let formatString (s: string) =
 let capitalize (s: string) =
     s.[0..0].ToUpperInvariant() + s.[1..]
 
+let indent (s: seq<string>) =
+    s |> Seq.map (fun s -> "    " + s)
+
 type Ctx =
     {
         
@@ -80,9 +83,12 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
             |]
         | HoleKind.Event eventType ->
             let eventType = "WebSharper.JavaScript.Dom." + eventType
+            let argType = "WebSharper.UI.Templating.Runtime.Server.TemplateEvent<Vars, "+eventType+">"
             [|
                 s ("Action<DomElement, "+eventType+">") "ActionEvent" "x"
                 s "Action" "Event" ("FSharpConvert.Fun<DomElement, DomEvent>((a,b) => x())")
+                s ("Action<"+argType+">") "Event"
+                    ("FSharpConvert.Fun<DomElement, DomEvent>((a,b) => x(new "+argType+"(new Vars(instance), a, ("+eventType+")b)))")
             |]
         | HoleKind.Simple ->
             [|
@@ -124,31 +130,87 @@ let finalMethodBody (ctx: Ctx) =
                 |> formatString
             let templateId = optionValue formatString "string" templateId
             let fileId = formatString fileId
-            yield sprintf "{ %s, %s, %s }" fileId templateId src
+            yield sprintf "Tuple.Create(%s, %s, %s)" fileId templateId src
         ]
         |> String.concat ", "
         |> sprintf "new Tuple<string, FSharpOption<string>, string>[] { %s }"
-    sprintf "WebSharper.UI.Templating.Runtime.Server.Runtime.GetOrLoadTemplate(%s, %s, %s, %s, holes, %s, ServerLoad.%s, %s, %b)"
-        (formatString ctx.FileId)
-        (optionValue formatString "string" name)
-        (optionValue formatString "string" ctx.Path)
-        (formatString ctx.Template.Src)
-        (optionValue formatString "string" ctx.InlineFileId)
-        (string ctx.ServerLoad)
-        references
-        ctx.Template.IsElt
+    let vars =
+        [ for KeyValue(holeName, holeDef) in ctx.Template.Holes do
+            let holeName' = holeName.ToLowerInvariant()
+            match holeDef.Kind with
+            | HoleKind.Var AST.ValTy.Any
+            | HoleKind.Var AST.ValTy.String -> yield sprintf """Tuple.Create("%s", WebSharper.UI.Templating.Runtime.Server.ValTy.String)""" holeName'
+            | HoleKind.Var AST.ValTy.Number -> yield sprintf """Tuple.Create("%s", WebSharper.UI.Templating.Runtime.Server.ValTy.Number)""" holeName'
+            | HoleKind.Var AST.ValTy.Bool -> yield sprintf """Tuple.Create("%s", WebSharper.UI.Templating.Runtime.Server.ValTy.Bool)""" holeName'
+            | _ -> ()
+        ]
+        |> String.concat ", "
+        |> sprintf "new Tuple<string, WebSharper.UI.Templating.Runtime.Server.ValTy>[] { %s }"
+    [
+        sprintf "var completed = WebSharper.UI.Templating.Runtime.Server.Handler.CompleteHoles(key, holes, %s);" vars
+        sprintf "var doc = WebSharper.UI.Templating.Runtime.Server.Runtime.GetOrLoadTemplate(%s, %s, %s, %s, completed.Item1, %s, ServerLoad.%s, %s, %b);"
+            (formatString ctx.FileId)
+            (optionValue formatString "string" name)
+            (optionValue formatString "string" ctx.Path)
+            (formatString ctx.Template.Src)
+            (optionValue formatString "string" ctx.InlineFileId)
+            (string ctx.ServerLoad)
+            references
+            ctx.Template.IsElt
+        sprintf "instance = new Instance(completed.Item2, doc);"
+        sprintf "return instance;"
+    ]
+
+let varsClass (ctx: Ctx) =
+    [
+        yield "public struct Vars"
+        yield "{"
+        yield! indent [
+            yield """public Vars(Instance i) { instance = i; }"""
+            yield """readonly Instance instance;"""
+            for KeyValue(holeName, holeDef) in ctx.Template.Holes do
+                let holeName' = holeName.ToLowerInvariant()
+                match holeDef.Kind with
+                | HoleKind.Var AST.ValTy.Any
+                | HoleKind.Var AST.ValTy.String ->
+                    yield sprintf """[Inline] public Var<string> %s => (Var<string>)instance.Hole("%s");""" holeName holeName'
+                | HoleKind.Var AST.ValTy.Number ->
+                    yield sprintf """[Inline] public Var<float> %s => (Var<float>)instance.Hole("%s");""" holeName holeName'
+                | HoleKind.Var AST.ValTy.Bool ->
+                    yield sprintf """[Inline] public Var<bool> %s => (Var<bool>)instance.Hole("%s");""" holeName holeName'
+                | _ -> ()
+        ]
+        yield "}"
+    ]
+
+let instanceClass (ctx: Ctx) =
+    [
+        yield "public class Instance : WebSharper.UI.Templating.Runtime.Server.TemplateInstance"
+        yield "{"
+        yield! indent [
+            yield """public Instance(WebSharper.UI.Templating.Runtime.Server.CompletedHoles v, Doc d) : base(v, d) { }"""
+            yield """public Vars Vars => new Vars(this);"""
+        ]
+        yield "}"
+    ]
 
 let buildFinalMethods (ctx: Ctx) =
     [|
-        yield sprintf "public Doc Doc() => %s;" (finalMethodBody ctx)
+        yield! varsClass ctx
+        yield! instanceClass ctx
+        yield "public Instance Create() {"
+        yield! indent (finalMethodBody ctx)
+        yield "}"
+        yield "public Doc Doc() => Create().Doc;"
         if ctx.Template.IsElt then
-            yield sprintf "public Elt Elt() => (Elt)Doc();"
+            yield sprintf "[Inline] public Elt Elt() => (Elt)Doc();"
     |]
 
 let build typeName (ctx: Ctx) =
-    let src = formatString ctx.Template.Src
     [|
-        yield sprintf "List<TemplateHole> holes = new List<TemplateHole>();"
+        yield "string key = System.Guid.NewGuid().ToString();"
+        yield "List<TemplateHole> holes = new List<TemplateHole>();"
+        yield "Instance instance;"
         for KeyValue(holeName, holeDef) in ctx.Template.Holes do
             yield! buildHoleMethods typeName holeName holeDef
         yield! buildFinalMethods ctx
@@ -173,50 +235,51 @@ let getCodeInternal namespaceName templateName (item: ParseItem) =
         match item.ClientLoad with
         | ClientLoad.FromDocument -> Some baseId
         | _ -> None
-    let lines = 
-        [
-            yield "using System;"
-            yield "using System.Collections.Generic;"
-            yield "using System.Linq;"
-            yield "using Microsoft.FSharp.Core;"
-            yield "using WebSharper;"
-            yield "using WebSharper.UI;"
-            yield "using WebSharper.UI.Templating;"
-            yield "using WebSharper.UI.CSharp.Client;"
-            yield "using SDoc = WebSharper.UI.Doc;"
-            yield "using DomElement = WebSharper.JavaScript.Dom.Element;"
-            yield "using DomEvent = WebSharper.JavaScript.Dom.Event;"
-            yield "namespace " + namespaceName
+    [
+        yield "using System;"
+        yield "using System.Collections.Generic;"
+        yield "using System.Linq;"
+        yield "using Microsoft.FSharp.Core;"
+        yield "using WebSharper;"
+        yield "using WebSharper.UI;"
+        yield "using WebSharper.UI.Templating;"
+        yield "using WebSharper.UI.CSharp.Client;"
+        yield "using SDoc = WebSharper.UI.Doc;"
+        yield "using DomElement = WebSharper.JavaScript.Dom.Element;"
+        yield "using DomEvent = WebSharper.JavaScript.Dom.Event;"
+        yield "namespace " + namespaceName
+        yield "{"
+        yield! indent [
+            yield "[JavaScript]"
+            yield "public class " + templateName
             yield "{"
-            yield "    [JavaScript]"
-            yield "    public class " + templateName
-            yield "    {"
-
-            for KeyValue(name, tpl) in item.Templates do
-                let ctx =
-                    {
-                        Template = tpl
-                        FileId = baseId
-                        Id = name.IdAsOption
-                        Path = item.Path
-                        InlineFileId = inlineFileId
-                        ServerLoad = item.ServerLoad
-                        AllTemplates = item.Templates
-                    }
-                match name.NameAsOption with
-                | None ->
-                    for line in build templateName ctx do
-                        yield "        " + line
-                | Some name' ->
-                    yield "        public class " + name'
-                    yield "        {"
-                    for line in build name' ctx do
-                        yield "            " + line
-                    yield "        }"
-            yield "    }"
+            yield! indent [
+                for KeyValue(name, tpl) in item.Templates do
+                    let ctx =
+                        {
+                            Template = tpl
+                            FileId = baseId
+                            Id = name.IdAsOption
+                            Path = item.Path
+                            InlineFileId = inlineFileId
+                            ServerLoad = item.ServerLoad
+                            AllTemplates = item.Templates
+                        }
+                    match name.NameAsOption with
+                    | None ->
+                        for line in build templateName ctx do
+                            yield line
+                    | Some name' ->
+                        yield "public class " + name'
+                        yield "{"
+                        yield! indent (build name' ctx)
+                        yield "}"
+            ]
             yield "}"
         ]
-    String.concat Environment.NewLine lines
+        yield "}"
+    ]
+    |> String.concat Environment.NewLine
 
 let autoGeneratedComment =
     """//------------------------------------------------------------------------------
