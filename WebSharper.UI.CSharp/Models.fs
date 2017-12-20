@@ -50,3 +50,9 @@ type ListModelExtensions =
     static member LensInto<'K,'T,'V when 'K : equality>
         (lm: ListModel<'K,'T>, key, get: Func<'T,'V>, set: Func<'T,'V,'T>) =
         lm.LensIntoU (FSharpConvert.Fun get, FSharpConvert.Fun set, key)
+
+    [<Extension; Inline>]
+    static member Map(lm: ListModel<'K,'T>, f: Func<'K, 'V>) = lm.Map(FSharpConvert.Fun f)
+
+    [<Extension; Inline>]
+    static member Map(lm: ListModel<'K,'T>, f: Func<'K, View<'T>, 'V>) = lm.Map(FSharpConvert.Fun f)
