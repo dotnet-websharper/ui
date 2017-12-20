@@ -52,7 +52,9 @@ type ListModelExtensions =
         lm.LensIntoU (FSharpConvert.Fun get, FSharpConvert.Fun set, key)
 
     [<Extension; Inline>]
-    static member Map(lm: ListModel<'K,'T>, f: Func<'K, 'V>) = lm.Map(FSharpConvert.Fun f)
+    static member Map(lm: ListModel<'K, 'T>, f: Func<'T, 'V>) = 
+        View.MapSeqCachedBy lm.Key (FSharpConvert.Fun f) lm.ViewState
 
     [<Extension; Inline>]
-    static member Map(lm: ListModel<'K,'T>, f: Func<'K, View<'T>, 'V>) = lm.Map(FSharpConvert.Fun f)
+    static member Map(lm: ListModel<'K, 'T>, f: Func<'K, View<'T>, 'V>) = 
+        View.MapSeqCachedViewBy lm.Key (FSharpConvert.Fun f) lm.ViewState
