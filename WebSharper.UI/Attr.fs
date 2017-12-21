@@ -157,7 +157,7 @@ module private Internal =
                                     match value with
                                     | :? Expr as q ->
                                         let x, reqs' = compile !reqs q
-                                        reqs := reqs'
+                                        reqs := reqs' @ !reqs
                                         x
                                     | value ->
                                         let typ = value.GetType()
