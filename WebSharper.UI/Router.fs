@@ -77,18 +77,16 @@ module Router =
     /// Installs client-side routing on the hash part of the URL. 
     /// If initials URL parse fails, value is set to `onParseError`. 
     let InstallHash onParseError (router: Router<'T>) =
-        let parse (p: Route) = 
-            match p.Segments with
-            | "" :: t ->
-                Parse router { p with Segments = t }  
-            | _ -> None
+        let parse h = 
+            let p = Route.FromHash(h, true)
+            Parse router p
         let cur() : 'T =
-            let p = Route.FromHash(JS.Window.Location.Hash, true)
-            match parse p with
+            let h = JS.Window.Location.Hash
+            match parse h with
             | Some a -> 
                 a
             | None ->
-                printfn "Failed to parse route: %s" (p.ToLink()) 
+                printfn "Failed to parse route: %s" h 
                 onParseError
 
         let var = Var.Create (cur())
@@ -105,8 +103,7 @@ module Router =
                 if target.LocalName = "a" then
                     let href = target.GetAttribute("href")
                     if not (isNull href) && href.StartsWith "#" then
-                        let p = Route.FromHash(href, true)
-                        match parse p with
+                        match parse href with
                         | Some a -> 
                             set a
                             ev.PreventDefault()
