@@ -162,3 +162,6 @@ type ReactiveExtensions =
 
     [<Extension>]
     static member LensAuto<'T, 'U> : ref: Var<'T> * getter: ('T -> 'U) -> Var<'U>
+
+    [<Extension>]
+    static member MapLens<'A, 'B, 'K when 'K : equality> : Var<list<'A>> * ('A -> 'K) * (Var<'A> -> 'B) -> View<seq<'B>>

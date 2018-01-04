@@ -164,6 +164,10 @@ type DocExtensions =
     static member DocSeqCached : View<ListModelState<'T>> * ('T -> 'K) * ('K -> View<'T> -> #Doc) -> Doc
         when 'K : equality
 
+    [<Extension>]
+    static member DocLens : Var<list<'T>> * ('T -> 'K) * (Var<'T> -> #Doc) -> Doc
+        when 'K : equality
+
     /// Converts a ListModel to Doc using MapSeqCachedBy and embeds the concatenated result.
     /// Shorthand for Doc.BindListModel.
     [<Extension>]

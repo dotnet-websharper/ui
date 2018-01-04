@@ -1147,6 +1147,10 @@ type private Doc' [<JavaScript>] (docNode, updates) =
         View.MapSeqCachedViewBy key (As render) view |> Doc'.Flatten
 
     [<JavaScript>]
+    static member ConvertSeqVarBy key render var =
+        Var.MapLens key (As render) var |> Doc'.Flatten
+
+    [<JavaScript>]
     static member InputInternal elemTy attr =
         let el = DU.CreateElement elemTy
         Doc'.Elem el (Attr.Concat (attr el)) Doc'.Empty'
@@ -1837,6 +1841,10 @@ module Doc =
         As (Doc'.ConvertSeqBy key render view)
 
     [<Inline>]
+    let BindLens (key: 'T -> 'K) (render: Var<'T> -> #Doc) (var: Var<list<'T>>) : Doc =
+        As (Doc'.ConvertSeqVarBy key render var)
+
+    [<Inline>]
     let ConvertSeqBy k f (v: View<seq<_>>) = BindSeqCachedViewBy k f v
 
     [<Inline>]
@@ -2021,6 +2029,9 @@ type DocExtensions =
 
     [<Extension; Inline>]
     static member DocSeqCached(v: View<ListModelState<_>>, k, f) = Doc.BindSeqCachedViewBy k f v
+
+    [<Extension; Inline>]
+    static member DocLens(v: Var<list<_>>, k, f) = Doc.BindLens k f v
 
     [<Extension; Inline>]
     static member Doc(m: ListModel<_, _>, f) = Doc.BindListModel f m

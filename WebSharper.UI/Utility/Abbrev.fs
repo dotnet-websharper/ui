@@ -94,6 +94,20 @@ module internal String =
     let isBlank s =
         String.forall Char.IsWhiteSpace s
 
+module internal List =
+
+    // TODO: better impl only going to n?
+    [<JavaScript>]
+    let replaceFirst (k: 'A -> bool) (f: 'A -> 'A) (l: list<'A>) =
+        let didIt = ref false
+        l |> List.map (fun x -> if not !didIt && k x then f x else x)
+
+    // TODO: better impl only going to n?
+    [<JavaScript>]
+    let maybeReplaceFirst (k: 'A -> bool) (f: 'A -> option<'A>) (l: list<'A>) =
+        let didIt = ref false
+        l |> List.map (fun x -> if not !didIt && k x then defaultArg (f x) x else x)
+
 /// Abbreviations and small utilities for this assembly.
 [<AutoOpen>]
 module internal Abbrev =

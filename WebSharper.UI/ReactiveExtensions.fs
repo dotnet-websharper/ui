@@ -98,3 +98,6 @@ type ReactiveExtensions() =
 
     [<Extension; Macro(typeof<Macros.Lens>)>]
     static member LensAuto<'T, 'U>(ref: Var<'T>, getter: 'T -> 'U) = X<Var<'U>>
+
+    [<Extension; Inline>]
+    static member MapLens<'A, 'B, 'K when 'K : equality>(v: Var<list<'A>>, k: 'A -> 'K, f: Var<'A> -> 'B) = Var.MapLens k f v

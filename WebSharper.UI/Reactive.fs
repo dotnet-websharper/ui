@@ -482,6 +482,37 @@ type Var with
                 id
         }
 
+    static member MapLens<'A, 'B, 'K when 'K : equality> (getKey: 'A -> 'K) (f: Var<'A> -> 'B) (var: Var<list<'A>>) : View<seq<'B>> =
+        var.View |> View.MapSeqCachedViewBy getKey (fun k v ->
+            let id = Fresh.Id()
+            let isThis a =
+                getKey a = k
+            f { new Var<'A>() with
+
+                member this.Get() =
+                    List.find isThis var.Value
+
+                member this.Set(v) =
+                    var.Update (List.replaceFirst isThis (fun _ -> v))
+
+                member this.SetFinal(v) =
+                    this.Set(v)
+
+                member this.Update(f) =
+                    var.Update(List.replaceFirst isThis f)
+
+                member this.UpdateMaybe(f) =
+                    var.Update(List.maybeReplaceFirst isThis f)
+
+                member this.View =
+                    v
+
+                member this.Id =
+                    id
+            }
+        )
+
+
 // These methods apply to any View<'A>, so we can use `type View with`
 // and they'll be compiled as normal instance methods on View<'A>.
 type View<'T> with

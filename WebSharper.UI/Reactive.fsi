@@ -132,6 +132,8 @@ type Var =
     /// Gets a reference to part of a var's value.
     static member Lens : Var<'A> -> get: ('A -> 'V) -> update: ('A -> 'V -> 'A) -> Var<'V>
 
+    static member MapLens<'A, 'B, 'K when 'K : equality> : ('A -> 'K) -> (Var<'A> -> 'B) -> Var<list<'A>> -> View<seq<'B>>
+
 [<Sealed>]
 type internal Updates =
     member View : View<unit>
