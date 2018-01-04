@@ -23,6 +23,10 @@ namespace WebSharper.UI
 open System.Runtime.CompilerServices
 open WebSharper
 
+[<AutoOpen>]
+module VarModule =
+    val Lens : 'T -> Var<'T>
+
 /// More members on View.
 [<Extension; Class>]
 type ReactiveExtensions =

@@ -76,6 +76,7 @@ module internal Macros =
     let V2 = viewOf T2
     let viewProp =       gen[]        (meth "get_View"     []                         (viewOf T0))
     let constFnOf t =    gen[t]       (meth "Const"        [T0]                       V0)
+    let createFnOf t =   gen[t]       (meth "Create"       [T0]                       (varOf T0))
     let mapFnOf t u =    gen[t; u]    (meth "Map"          [T0 ^-> T1; V0]            V1)
     let map2FnOf t u v = gen[t; u; v] (meth "Map2"         [T0 ^-> T1 ^-> T2; V0; V1] V2)
     let applyFnOf t u =  gen[t; u]    (meth "Apply"        [viewOf (T0 ^-> T1); V0]   V1)
@@ -279,7 +280,7 @@ module internal Macros =
             | V.Kind.Const _ -> MacroFallback
             | V.Kind.View e -> MacroOk (Call (None, clientAttrModule, attrDynStyleFn, [call.Arguments.[0]; e]))
 
-    type Lens() =
+    type LensMeth() =
         inherit Macro()
 
         override this.TranslateCall(call) =
@@ -288,6 +289,12 @@ module internal Macros =
             | MacroOk setter ->
                 MacroOk (Call (None, varModule, lensFn t u, call.Arguments @ [setter]))
             | err -> err
+
+    type LensFunc() =
+        inherit Macro()
+
+        override this.TranslateCall(call) =
+            Lens.VMakeLens call.Compilation call.Method.Generics.[0] call.Arguments.[0]
 
     type InputV() =
         inherit Macro()
