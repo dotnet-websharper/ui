@@ -64,6 +64,8 @@ type Doc =
     /// Static variant of TextView.
     static member TextNode : string -> Doc
 
+    static member internal ClientSideImpl : Expr<#IControlBody> -> Doc
+
     /// Client-side control.
     static member ClientSide : Expr<#IControlBody> -> Doc
 

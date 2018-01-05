@@ -427,8 +427,11 @@ type Doc with
 
     static member TextNode t = ConcreteDoc(TextDoc t) :> Doc
 
-    static member ClientSide (expr: Expr<#IControlBody>) =
-        ConcreteDoc(INodeDoc (new Web.InlineControl<_>(<@ %expr :> IControlBody @>))) :> Doc
+    static member ClientSideImpl(expr: Expr<#IControlBody>) =
+        ConcreteDoc(INodeDoc (new Web.InlineControl<_>(expr))) :> Doc
+
+    static member ClientSide([<JavaScript>] expr: Expr<#IControlBody>) =
+        Doc.ClientSideImpl expr
 
     static member ClientSideLinq (expr: System.Linq.Expressions.Expression<System.Func<IControlBody>>) =
         ConcreteDoc(INodeDoc (new Web.CSharpInlineControl(expr))) :> Doc

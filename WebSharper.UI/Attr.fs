@@ -34,103 +34,22 @@ module P = FSharp.Quotations.Patterns
 
 module private Internal =
 
-    let getLocation' (q: Expr) =
-        let (|Val|_|) e : 't option =
-            match e with
-            | Quotations.Patterns.Value(:? 't as v,_) -> Some v
-            | _ -> None
-        let l =
-            q.CustomAttributes |> Seq.tryPick (function
-                | NewTuple [ Val "DebugRange";
-                             NewTuple [ Val (file: string)
-                                        Val (startLine: int)
-                                        Val (startCol: int)
-                                        Val (endLine: int)
-                                        Val (endCol: int) ] ] ->
-                    Some (sprintf "%s: %i.%i-%i.%i" file startLine startCol endLine endCol)
-                | _ -> None)
-        defaultArg l "(no location)"
+    open WebSharper.Core
+    open WebSharper.Web.ClientSideInternals
 
-    let gen = System.Random()
-
-    let (|Val|_|) e : 't option =
-        match e with
-        | Quotations.Patterns.Value(:? 't as v,_) -> Some v
-        | _ -> None
-
-    let getLocation (q: Expr) =
-        q.CustomAttributes |> Seq.tryPick (function
-            | P.NewTuple [ Val "DebugRange";
-                           P.NewTuple [ Val (file: string)
-                                        Val (startLine: int)
-                                        Val (startCol: int)
-                                        Val (endLine: int)
-                                        Val (endCol: int) ] ] ->
-                ({
-                    FileName = System.IO.Path.GetFileName(file)
-                    Start = (startLine, startCol)
-                    End = (endLine, endCol)
-                } : WebSharper.Core.AST.SourcePos)
-                |> Some
-            | _ -> None)
-
-    let rec findArgs (env: Set<string>) (setArg: string -> obj -> unit) (q: Expr) =
-        match q with
-        | P.ValueWithName (v, _, n) when not (env.Contains n) -> setArg n v
-        | P.AddressOf q
-        | P.Coerce (q, _)
-        | P.FieldGet (Some q, _)
-        | P.QuoteRaw q
-        | P.QuoteTyped q
-        | P.VarSet (_, q)
-        | P.WithValue (_, _, q)
-            -> findArgs env setArg q
-        | P.AddressSet (q1, q2)
-        | P.Application (q1, q2)
-        | P.Sequential (q1, q2)
-        | P.TryFinally (q1, q2)
-        | P.WhileLoop (q1, q2)
-            -> findArgs env setArg q1; findArgs env setArg q2
-        | P.PropertyGet (q, _, qs)
-        | P.Call (q, _, qs) ->
-            Option.iter (findArgs env setArg) q
-            List.iter (findArgs env setArg) qs
-        | P.FieldSet (q1, _, q2) ->
-            Option.iter (findArgs env setArg) q1; findArgs env setArg q2
-        | P.ForIntegerRangeLoop (v, q1, q2, q3) ->
-            findArgs env setArg q1
-            findArgs env setArg q2
-            findArgs (Set.add v.Name env) setArg q3
-        | P.IfThenElse (q1, q2, q3)
-            -> findArgs env setArg q1; findArgs env setArg q2; findArgs env setArg q3
-        | P.Lambda (v, q) ->
-            findArgs (Set.add v.Name env) setArg q
-        | P.Let (v, q1, q2) ->
-            findArgs env setArg q1
-            findArgs (Set.add v.Name env) setArg q2
-        | P.LetRecursive (vqs, q) ->
-            let vs, qs = List.unzip vqs
-            let env = (env, vs) ||> List.fold (fun env v -> Set.add v.Name env)
-            List.iter (findArgs env setArg) qs
-            findArgs env setArg q
-        | P.NewObject (_, qs)
-        | P.NewRecord (_, qs)
-        | P.NewTuple qs
-        | P.NewUnionCase (_, qs)
-        | P.NewArray (_, qs) ->
-            List.iter (findArgs env setArg) qs
-        | P.NewDelegate (_, vs, q) ->
-            let env = (env, vs) ||> List.fold (fun env v -> Set.add v.Name env)
-            findArgs env setArg q
-        | P.PropertySet (q1, _, qs, q2) ->
-            Option.iter (findArgs env setArg) q1
-            List.iter (findArgs env setArg) qs
-            findArgs env setArg q2
-        | P.TryWith (q, v1, q1, v2, q2) ->
-            findArgs env setArg q
-            findArgs (Set.add v1.Name env) setArg q1
-            findArgs (Set.add v2.Name env) setArg q2
-        | _ -> ()
+    let activateNode =
+        M.MethodNode(
+            AST.TypeDefinition {
+                Assembly = "WebSharper.Main"
+                FullName = "WebSharper.Activator"
+            },
+            AST.Method {
+                MethodName = "Activate"
+                Parameters = []
+                ReturnType = AST.VoidType
+                Generics = 0
+            } 
+        )
 
     let compile (meta: M.Info) (json: J.Provider) (reqs: list<M.Node>) (q: Expr) =
         let rec compile (reqs: list<M.Node>) (q: Expr) =
@@ -181,7 +100,7 @@ module private Internal =
                         sprintf "%s(%s)" funcall args, !reqs
             | None -> failwithf "Failed to find location of quotation: %A" q
         let s, reqs = compile reqs q 
-        s + "(this)(event)", reqs
+        s + "(this)(event)", activateNode :: reqs
 
 // We would have wanted to use UseNullAsTrueValue so that EmptyAttr = null,
 // which makes things much easier when it comes to optional arguments in Templating.
