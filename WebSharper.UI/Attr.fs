@@ -61,7 +61,7 @@ module private Internal =
                         meta.Quotations.Keys
                         |> Seq.map (sprintf "  %O")
                         |> String.concat "\n"
-                    failwithf "Failed to find compiled quotation at position %O\nExisting ones:\n%s" p ex
+                    None
                 | true, (declType, meth, argNames) ->
                     match meta.Classes.TryGetValue declType with
                     | false, _ -> failwithf "Error in Handler: Couldn't find JavaScript address for method %s.%s" declType.Value.FullName meth.Value.MethodName
@@ -75,7 +75,7 @@ module private Internal =
                                 args.[i] <-
                                     match value with
                                     | :? Expr as q ->
-                                        let x, reqs' = compile !reqs q
+                                        let x, reqs' = compile !reqs q |> Option.get
                                         reqs := reqs'
                                         x
                                     | value ->
@@ -97,10 +97,12 @@ module private Internal =
                             | _ -> failwithf "Error in Handler: Couldn't find JavaScript address for method %s.%s" declType.Value.FullName meth.Value.MethodName
                         let funcall = String.concat "." (List.rev addr)
                         let args = String.concat "," args
-                        sprintf "%s(%s)" funcall args, !reqs
-            | None -> failwithf "Failed to find location of quotation: %A" q
-        let s, reqs = compile reqs q 
-        s + "(this)(event)", activateNode :: reqs
+                        Some (sprintf "%s(%s)" funcall args, !reqs)
+            | None -> None
+        compile reqs q
+        |> Option.map (fun (s, reqs) ->
+            s + "(this)(event)", activateNode :: reqs
+        )
 
 // We would have wanted to use UseNullAsTrueValue so that EmptyAttr = null,
 // which makes things much easier when it comes to optional arguments in Templating.
@@ -158,7 +160,17 @@ type Attr =
         let value = ref None
         let init meta =
             if Option.isNone !value then
-                value := Some (Internal.compile meta json [] q)
+                value :=
+                    match Internal.compile meta json [] q with
+                    | Some _ as v -> v
+                    | _ ->
+                        let m =
+                            match q with
+                            | Lambda (x1, Lambda (y1, Call(None, m, [Var x2; (Var y2 | Coerce(Var y2, _))]))) when x1 = x2 && y1 = y2 -> m
+                            | _ -> failwithf "Invalid handler function: %A" q
+                        let loc = WebSharper.Web.ClientSideInternals.getLocation' q
+                        let func, reqs = Attr.HandlerFallback(m, loc) 
+                        Some (func meta, reqs)
         let getValue (meta: M.Info) =
             init meta
             fst (Option.get !value)
@@ -170,7 +182,7 @@ type Attr =
     static member Handler (event: string) ([<JavaScript>] q: Expr<Dom.Element -> #Dom.Event -> unit>) =
         Attr.HandlerImpl event q
 
-    static member HandlerLinqImpl(event, m, location) =
+    static member HandlerFallback(m, location) =
         let meth = R.ReadMethod m
         let declType = R.ReadTypeDefinition m.DeclaringType
         let reqs = [M.MethodNode (declType, meth); M.TypeNode declType]
@@ -192,6 +204,10 @@ type Attr =
                     s
                 | _ -> fail()
             | Some v -> v
+        func, reqs 
+
+    static member HandlerLinqImpl(event, m, location) =
+        let func, reqs = Attr.HandlerFallback(m, location)
         DepAttr ("on" + event, func, fun _ -> reqs :> _)
 
     static member HandlerLinq (event: string) (q: Expression<Action<Dom.Element, #Dom.Event>>) =

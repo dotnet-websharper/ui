@@ -40,7 +40,8 @@ module Html =
     let textView v = Client.Doc.TextView v
 
     /// Insert a client-side Doc.
-    let client ([<ReflectedDefinition; JavaScript>] q) = Doc.ClientSideImpl q
+    [<JavaScript; Inline>]
+    let client ([<ReflectedDefinition; JavaScript>] q) = Doc.ClientSide q
 
     // {{ tag normal
     /// Create an HTML element <a> with attributes and children.

@@ -1424,10 +1424,9 @@ type private Doc' [<JavaScript>] (docNode, updates) =
     static member TextNode (s: string) : Doc =
         As (Doc'.TextNode' s)
 
-    // Not proxied for now so that JavaScript attribute on argument does its job on the server
-    //[<JavaScript; Inline>]
-    //static member ClientSide (expr: Microsoft.FSharp.Quotations.Expr<#IControlBody>) : Doc =
-    //    As expr
+    [<JavaScript; Inline>]
+    static member ClientSide (expr: Microsoft.FSharp.Quotations.Expr<#IControlBody>) : Doc =
+        As expr
 
     [<JavaScript; Inline; Name "VerbatimProxy">]
     static member Verbatim (s: string) : Doc =
