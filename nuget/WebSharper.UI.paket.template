@@ -11,10 +11,10 @@ description
 tags
     Web JavaScript F# C#
 files
-    ../packages/HtmlAgilityPack/lib/netstandard2.0/HtmlAgilityPack.dll ==> lib/netstandard2.0
+    ../packages/includes/HtmlAgilityPack/lib/netstandard2.0/HtmlAgilityPack.dll ==> lib/netstandard2.0
     ../WebSharper.UI/bin/Release/netstandard2.0/WebSharper.UI.dll ==> lib/netstandard2.0
     ../WebSharper.UI/bin/Release/netstandard2.0/WebSharper.UI.xml ==> lib/netstandard2.0
-    ../packages/NETStandard.Library/build/netstandard2.0/ref/System.Reflection.dll ==> lib/netstandard2.0
+    ../packages/includes/NETStandard.Library/build/netstandard2.0/ref/System.Reflection.dll ==> lib/netstandard2.0
     ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.UI.Templating.Common.dll ==> lib/netstandard2.0
     ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.UI.Templating.Common.xml ==> lib/netstandard2.0
     ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.UI.Templating.Runtime.dll ==> lib/netstandard2.0

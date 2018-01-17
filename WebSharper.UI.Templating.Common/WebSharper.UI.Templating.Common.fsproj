@@ -7,7 +7,7 @@
     <Compile Include="AST.fs" />
     <Compile Include="Settings.fs" />
     <Compile Include="Parsing.fs" />
-    <EmbeddedResource Include="..\packages\WebSharper\tools\tags.csv">
+    <EmbeddedResource Include="..\packages\includes\WebSharper\tools\tags.csv">
       <Link>tags.csv</Link>
     </EmbeddedResource>
   </ItemGroup>

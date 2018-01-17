@@ -92,7 +92,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Analyzer Include="..\packages\HtmlAgilityPack\lib\netstandard2.0\HtmlAgilityPack.dll" />
+    <Analyzer Include="..\packages\includes\HtmlAgilityPack\lib\netstandard2.0\HtmlAgilityPack.dll" />
     <Analyzer Include="..\WebSharper.UI.Templating.Common\bin\$(Configuration)\netstandard2.0\WebSharper.UI.Templating.Common.dll" />
     <Analyzer Include="..\WebSharper.UI.CSharp.Templating.Analyzer\bin\$(Configuration)\netstandard2.0\WebSharper.UI.CSharp.Templating.Analyzer.dll" />
   </ItemGroup>
