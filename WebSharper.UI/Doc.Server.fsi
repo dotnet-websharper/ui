@@ -26,6 +26,7 @@ open WebSharper.Web
 open WebSharper.UI
 open WebSharper.Sitelets
 open WebSharper.Sitelets.Content
+open WebSharper.Core.Resources
 
 module Doc =
 
@@ -64,7 +65,7 @@ module Internal =
         inherit Doc
 
         new : seq<IRequiresResources>
-            * write: (Web.Context -> System.Web.UI.HtmlTextWriter -> bool -> unit)
+            * write: (Web.Context -> HtmlTextWriter -> bool -> unit)
             -> TemplateDoc
 
         new : seq<IRequiresResources> * doc: Doc -> TemplateDoc
@@ -74,7 +75,7 @@ module Internal =
         inherit Elt
 
         new : seq<IRequiresResources>
-            * write: (list<Attr> -> Web.Context -> System.Web.UI.HtmlTextWriter -> bool -> unit)
+            * write: (list<Attr> -> Web.Context -> HtmlTextWriter -> bool -> unit)
             -> TemplateElt
 
         new : seq<IRequiresResources> * elt: Elt -> TemplateElt

@@ -23,6 +23,7 @@ namespace WebSharper.UI
 open Microsoft.FSharp.Quotations
 open WebSharper.JavaScript
 module M = WebSharper.Core.Metadata
+open WebSharper.Core.Resources
 
 /// A potentially time-varying or animated attribute list.
 type Attr =
@@ -33,7 +34,7 @@ type Attr =
 
     interface WebSharper.IRequiresResources
 
-    member Write : M.Info * System.Web.UI.HtmlTextWriter * bool -> unit
+    member Write : M.Info * HtmlTextWriter * bool -> unit
 
     /// Sets a basic DOM attribute, such as `id` to a text value.
     static member Create : name: string -> value: string -> Attr

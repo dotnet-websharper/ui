@@ -23,9 +23,9 @@ module WebSharper.UI.Templating.Runtime.Server
 open System
 open System.IO
 open System.Collections.Generic
-open System.Web.UI
 open FSharp.Quotations
 open WebSharper
+open WebSharper.Core.Resources
 open WebSharper.Web
 open WebSharper.UI
 open WebSharper.UI.Server

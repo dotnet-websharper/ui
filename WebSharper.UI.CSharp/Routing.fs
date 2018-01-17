@@ -113,7 +113,7 @@ and private RouteMapBuilderMacro() =
 
     let mutable comp = Unchecked.defaultof<Metadata.ICompilation>
     let fsCoreType name = Hashed { Assembly = "FSharp.Core"; FullName = "Microsoft.FSharp." + name }
-    let sysType name = Hashed { Assembly = "mscorlib"; FullName = name }
+    let sysType name = Hashed { Assembly = "netstandard"; FullName = name }
     let optionOf' t = Generic (fsCoreType "Core.FSharpOption`1") [t]
     let optionOf t = ConcreteType (optionOf' t)
     let some t v = NewUnionCase (optionOf' t, "Some", [v])

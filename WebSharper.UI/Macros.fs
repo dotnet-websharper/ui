@@ -58,13 +58,13 @@ module internal Macros =
         | "WebSharper.UI.Doc" | "WebSharper.UI.Elt" -> true
         | _ -> false
     let isV (m: Method) = m.Value.MethodName = "get_V"
-    let stringT = NonGenericType (ty' "mscorlib" "System.String")
-    let objT = NonGenericType (ty' "mscorlib" "System.Object")
+    let stringT = NonGenericType (ty' "netstandard" "System.String")
+    let objT = NonGenericType (ty' "netstandard" "System.Object")
     let viewModule = NonGeneric (ty "View")
     let varModule = NonGeneric (ty "Var")
     let viewOf t = GenericType (ty "View`1") [t]
     let varOf t = GenericType (ty "Var`1") [t]
-    let seqOf t = GenericType (ty' "mscorlib" "System.Collections.Generic.IEnumerable`1") [t]
+    let seqOf t = GenericType (ty' "netstandard" "System.Collections.Generic.IEnumerable`1") [t]
     let docT = NonGenericType (ty "Doc")
     let eltT = NonGenericType (ty "Elt")
     let attrT = NonGenericType (ty "Attr")

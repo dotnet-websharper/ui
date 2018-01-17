@@ -22,11 +22,11 @@ namespace WebSharper.UI
 
 open System
 open System.Linq.Expressions
-open System.Web.UI
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.Patterns
 open WebSharper
 open WebSharper.JavaScript
+open WebSharper.Core.Resources
 module M = WebSharper.Core.Metadata
 module R = WebSharper.Core.AST.Reflection
 module J = WebSharper.Core.Json

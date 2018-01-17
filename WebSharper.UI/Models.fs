@@ -378,8 +378,6 @@ type ListModel<'Key,'T when 'Key : equality> with
 
     member private m.LensInto'(get: 'T -> 'V, update: 'T -> 'V -> 'T, key : 'Key, view: View<'V>) : Var<'V> =
         let id = Fresh.Id()
-
-        let view = m.FindByKeyAsView(key) |> View.Map get
     
         { new Var<'V>() with
 

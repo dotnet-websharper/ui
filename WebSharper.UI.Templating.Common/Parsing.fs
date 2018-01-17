@@ -141,7 +141,7 @@ module Impl =
         lazy
         let asm = typeof<ParseKind>.Assembly
         seq {
-            let s = asm.GetManifestResourceStream("tags.csv")
+            let s = asm.GetManifestResourceStream("WebSharper.UI.Templating.Common.tags.csv")
             use r = new StreamReader(s)
             let mutable line = null
             while (line <- r.ReadLine(); not (isNull line)) do

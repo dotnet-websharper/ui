@@ -113,16 +113,16 @@ module Client =
                     ] [textView tv]
                 )
                 .ListContainer(
-                    myItems.ViewState.DocSeqCached(Item.Key, fun key item ->
+                    myItems.DocLens(fun key item ->
                         MyTemplate.template.ListItem()
-                            .Key(item.Map(fun i -> string i.id))
-                            .Name(item.Map(fun i -> i.name))
-                            .Description(myItems.LensInto (fun i -> i.description) (fun i d -> { i with description = d }) key)
+                            .Key(item.View.Map(fun i -> string i.id))
+                            .Name(item.View.Map(fun i -> i.name))
+                            .Description(item.Lens (fun i -> i.description) (fun i d -> { i with description = d }))
                             .FontStyle("italic")
                             .FontWeight("bold")
                             .Remove(fun _ -> myItems.RemoveByKey key)
                             .Elt()
-                            .OnClickView(item, fun _ ev x -> Console.Log(x.name, ev.ClientX, ev.ClientY))
+                            .OnClickView(item.View, fun _ _ x -> JS.Alert x.name)
                     )
                 )
                 .LIKey("test1234")
