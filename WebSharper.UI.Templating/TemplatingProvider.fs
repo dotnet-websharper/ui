@@ -471,6 +471,10 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
 
     override this.ResolveAssembly(args) =
         let name = AssemblyName(args.Name).Name.ToLowerInvariant()
+        // First try to find the assembly in the same directory as this one
+        let nextToThis = FileInfo(Path.Combine(Path.GetDirectoryName(thisAssembly.Location), name + ".dll"))
+        if nextToThis.Exists then Assembly.LoadFrom nextToThis.FullName else
+        // Else get it from the project references
         let an =
             cfg.ReferencedAssemblies
             |> Seq.tryFind (fun an ->
