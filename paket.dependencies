@@ -14,6 +14,7 @@ nuget Microsoft.CodeAnalysis.CSharp 1.0.0
 nuget System.ValueTuple 4.3.0
 github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fsi
 github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fs
+nuget Microsoft.Build.Utilities.Core
 
 group build
     framework: net45

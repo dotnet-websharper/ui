@@ -10,9 +10,5 @@
     <ProjectReference Include="..\WebSharper.UI.CSharp.Templating\WebSharper.UI.CSharp.Templating.fsproj" />
     <ProjectReference Include="..\WebSharper.UI.Templating.Common\WebSharper.UI.Templating.Common.fsproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Microsoft.Build.Framework" />
-    <Reference Include="Microsoft.Build.Utilities.v4.0" />
-  </ItemGroup>
   <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>
