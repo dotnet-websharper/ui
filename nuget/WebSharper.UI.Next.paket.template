@@ -34,7 +34,7 @@ files
     ../build/net45/WebSharper.UI.Next.CSharp.Templating.dll ==> analyzers/dotnet/cs
     ../build/net45/WebSharper.UI.Next.CSharp.Templating.Analyzer.dll ==> analyzers/dotnet/cs
 dependencies
-        WebSharper LOCKEDVERSION
+        WebSharper >= LOCKEDVERSION
 frameworkAssemblies
         System.Xml
         System.Xml.Linq
