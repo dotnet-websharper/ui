@@ -8,4 +8,5 @@ else
     mono .paket/paket.exe restore -g build
 fi
 
+export NOT_DOTNET=true
 paket-files/build/intellifactory/websharper/tools/WebSharper.Fake.sh "$@"

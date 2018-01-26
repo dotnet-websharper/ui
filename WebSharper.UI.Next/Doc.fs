@@ -21,12 +21,13 @@
 namespace WebSharper.UI.Next
 
 open System
-open System.Web.UI
 open Microsoft.FSharp.Quotations
 open WebSharper
 open WebSharper.Web
 open WebSharper.Sitelets
 open WebSharper.JavaScript
+type private HtmlTextWriter = System.Web.UI.HtmlTextWriter
+type private WS_HTW = WebSharper.Core.Resources.HtmlTextWriter
 
 [<AbstractClass>]
 type Doc() =
@@ -62,7 +63,7 @@ type Doc() =
 and ConcreteDoc(dd: DynDoc) =
     inherit Doc()
 
-    override this.Write(ctx, w, res: option<Sitelets.Content.RenderedResources>) =
+    override this.Write(ctx: Web.Context, w: HtmlTextWriter, res: option<Sitelets.Content.RenderedResources>) =
         match dd with
         | AppendDoc docs ->
             docs |> List.iter (fun d -> d.Write(ctx, w, res))
@@ -71,7 +72,7 @@ and ConcreteDoc(dd: DynDoc) =
         | EmptyDoc -> ()
         | TextDoc t -> w.WriteEncodedText(t)
         | VerbatimDoc t -> w.Write(t)
-        | INodeDoc d -> d.Write(ctx, w)
+        | INodeDoc d -> d.Write(ctx, new WS_HTW(w))
 
     override this.HasNonScriptSpecialTags =
         match dd with
@@ -159,7 +160,7 @@ and Elt
                 attrs |> List.iter (fun a ->
                     if not (obj.ReferenceEquals(a, null))
                     then a.Write(ctx.Metadata, w, false))
-                if List.isEmpty children && HtmlTextWriter.IsSelfClosingTag tag then
+                if List.isEmpty children && WS_HTW.IsSelfClosingTag tag then
                     w.Write(HtmlTextWriter.SelfClosingTagEnd)
                 else
                     w.Write(HtmlTextWriter.TagRightChar)

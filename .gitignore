@@ -15,3 +15,4 @@ obj/
 /WebSharper.UI.Next.Templating/AssemblyReader.fs
 paket-files/
 .fake/
+nuget/*.paket.template
