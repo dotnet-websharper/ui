@@ -26,8 +26,8 @@ files
     ../WebSharper.UI.CSharp.Templating/bin/Release/netstandard2.0/WebSharper.UI.CSharp.Templating.dll ==> analyzers/dotnet/cs
     ../WebSharper.UI.CSharp.Templating.Analyzer/bin/Release/netstandard2.0/WebSharper.UI.CSharp.Templating.Analyzer.dll ==> analyzers/dotnet/cs
 dependencies
-        WebSharper >= LOCKEDVERSION
-        WebSharper.UI >= CURRENTVERSION
+        WebSharper ~> LOCKEDVERSION/3
+        WebSharper.UI CURRENTVERSION
 frameworkAssemblies
         System.Xml
         System.Xml.Linq
