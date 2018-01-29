@@ -8,4 +8,4 @@ if errorlevel 1 exit /b %errorlevel%
 if errorlevel 1 exit /b %errorlevel%
 
 set NOT_DOTNET=true
-paket-files\wsbuild\intellifactory\websharper\tools\WebSharper.Fake.cmd %*
+call paket-files\wsbuild\github.com\dotnet-websharper\build-script\WebSharper.Fake.cmd %*

@@ -11,4 +11,4 @@ else
 fi
 
 export NOT_DOTNET=true
-paket-files/wsbuild/intellifactory/websharper/tools/WebSharper.Fake.sh "$@"
+exec paket-files/wsbuild/github.com/dotnet-websharper/build-script/WebSharper.Fake.sh "$@"
