@@ -24,9 +24,7 @@ group build
     nuget Paket.Core 5.122.3
 
 group wsbuild
-    github intellifactory/websharper tools/WebSharper.Fake.fsx
-    github intellifactory/websharper tools/WebSharper.Fake.cmd
-    github intellifactory/websharper tools/WebSharper.Fake.sh
+    git https://github.com/dotnet-websharper/build-script
 
 group includes
     references: strict

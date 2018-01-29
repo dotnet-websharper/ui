@@ -7,4 +7,4 @@ if errorlevel 1 exit /b %errorlevel%
 .paket\paket.exe update -g wsbuild
 if errorlevel 1 exit /b %errorlevel%
 
-paket-files\wsbuild\intellifactory\websharper\tools\WebSharper.Fake.cmd %*
+call paket-files\wsbuild\github.com\dotnet-websharper\build-script\WebSharper.Fake.cmd %*
