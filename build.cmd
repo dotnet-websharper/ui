@@ -1,8 +1,10 @@
 @echo off
 setlocal
 
-set PATH=%GitToolPath%;%PATH%
-dotnet restore
+.paket\paket.exe restore -g build
 if errorlevel 1 exit /b %errorlevel%
 
-paket-files\build\intellifactory\websharper\tools\WebSharper.Fake.cmd %*
+.paket\paket.exe update -g wsbuild
+if errorlevel 1 exit /b %errorlevel%
+
+paket-files\wsbuild\intellifactory\websharper\tools\WebSharper.Fake.cmd %*

@@ -1,11 +1,9 @@
-#load "paket-files/build/intellifactory/websharper/tools/WebSharper.Fake.fsx"
+#load "paket-files/wsbuild/intellifactory/websharper/tools/WebSharper.Fake.fsx"
 open Fake
 open WebSharper.Fake
 
 let targets =
-    GetSemVerOf "WebSharper"
-    |> ComputeVersion
-    |> WSTargets.Default
+    WSTargets.Default (fun () -> GetSemVerOf "WebSharper" |> ComputeVersion)
     |> MakeTargets
 
 Target "Build" DoNothing
