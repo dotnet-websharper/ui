@@ -3,10 +3,10 @@ version 5.122.3
 source https://api.nuget.org/v3/index.json
 source https://nuget.intellifactory.com/nuget username: "%IF_USER%" password: "%IF_PASS%"
 
-nuget WebSharper ~> 4.2.0 alpha
-nuget WebSharper.CSharp ~> 4.2.0 alpha
-nuget WebSharper.FSharp ~> 4.2.0 alpha
-nuget WebSharper.Testing ~> 4.2.0 alpha
+nuget WebSharper ~> 4.2.0 prerelease
+nuget WebSharper.CSharp ~> 4.2.0 prerelease
+nuget WebSharper.FSharp ~> 4.2.0 prerelease
+nuget WebSharper.Testing ~> 4.2.0 prerelease
 nuget HtmlAgilityPack ~> 1.6.6
 nuget Microsoft.CodeAnalysis.CSharp 1.0.0
 nuget System.ValueTuple 4.3.0
@@ -20,6 +20,8 @@ group build
 
     nuget FAKE
     nuget Paket.Core 5.122.3
+
+group build
     github intellifactory/websharper tools/WebSharper.Fake.fsx
     github intellifactory/websharper tools/WebSharper.Fake.cmd
     github intellifactory/websharper tools/WebSharper.Fake.sh

@@ -3,9 +3,7 @@ open Fake
 open WebSharper.Fake
 
 let targets =
-    GetSemVerOf "WebSharper"
-    |> ComputeVersion
-    |> WSTargets.Default
+    WSTargets.Default (fun () -> GetSemVerOf "WebSharper" |> ComputeVersion)
     |> MakeTargets
 
 Target "Build" DoNothing
