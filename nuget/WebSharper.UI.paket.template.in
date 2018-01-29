@@ -11,7 +11,7 @@ description
 tags
     Web JavaScript F# C#
 files
-    ../packages/includes/HtmlAgilityPack/lib/netstandard2.0/HtmlAgilityPack.dll ==> lib/netstandard2.0
+    ../WebSharper.UI.CSharp.Templating.Build/bin/Release/net461/HtmlAgilityPack.dll ==> lib/netstandard2.0
     ../WebSharper.UI/bin/Release/netstandard2.0/WebSharper.UI.dll ==> lib/netstandard2.0
     ../WebSharper.UI/bin/Release/netstandard2.0/WebSharper.UI.xml ==> lib/netstandard2.0
     ../packages/includes/NETStandard.Library/build/netstandard2.0/ref/System.Reflection.dll ==> lib/netstandard2.0

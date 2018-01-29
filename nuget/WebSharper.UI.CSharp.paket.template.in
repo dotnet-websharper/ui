@@ -14,8 +14,8 @@ files
     ../msbuild/WebSharper.UI.CSharp.targets ==> build
     ../WebSharper.UI.CSharp/bin/Release/netstandard2.0/WebSharper.UI.CSharp.dll ==> lib/netstandard2.0
     ../WebSharper.UI.CSharp/bin/Release/netstandard2.0/WebSharper.UI.CSharp.xml ==> lib/netstandard2.0
-    ../packages/includes/FSharp.Core/lib/netstandard1.6/FSharp.Core.dll ==> tools
-    ../packages/includes/HtmlAgilityPack/lib/netstandard2.0/HtmlAgilityPack.dll ==> tools
+    ../WebSharper.UI.CSharp.Templating.Build/bin/Release/net461/FSharp.Core.dll ==> tools
+    ../WebSharper.UI.CSharp.Templating.Build/bin/Release/net461/HtmlAgilityPack.dll ==> tools
     ../WebSharper.UI.Templating.Common/bin/Release/netstandard2.0/WebSharper.UI.Templating.Common.dll ==> tools
     ../WebSharper.UI.CSharp.Templating/bin/Release/netstandard2.0/WebSharper.UI.CSharp.Templating.dll ==> tools
     ../WebSharper.UI.CSharp.Templating.Build/bin/Release/net461/WebSharper.UI.CSharp.Templating.Build.dll ==> tools

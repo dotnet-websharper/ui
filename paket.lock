@@ -764,14 +764,14 @@ NUGET
       System.Xml.XmlDocument (>= 4.3) - restriction: || (&& (< monotouch) (>= netstandard1.3) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (>= net46)
       System.Xml.XPath (>= 4.3) - restriction: || (&& (< monotouch) (>= netstandard1.3) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (>= net46)
   remote: https://nuget.intellifactory.com/nuget
-    WebSharper (4.2.0.191-alpha)
+    WebSharper (4.2.0.192-beta)
       Mono.Cecil (>= 0.10.0-beta6 < 0.11.0-beta)
-    WebSharper.CSharp (4.2.0.191-alpha)
-      WebSharper (4.2.0.191-alpha)
-    WebSharper.FSharp (4.2.0.191-alpha)
-      WebSharper (4.2.0.191-alpha)
-    WebSharper.Testing (4.2.0.191-alpha)
-      WebSharper (4.2.0.191-alpha)
+    WebSharper.CSharp (4.2.0.192-beta)
+      WebSharper (4.2.0.192-beta)
+    WebSharper.FSharp (4.2.0.192-beta)
+      WebSharper (4.2.0.192-beta)
+    WebSharper.Testing (4.2.0.192-beta)
+      WebSharper (4.2.0.192-beta)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
     src/ProvidedTypes.fs (b6d5c949e46c34f051e2adf88170e1a2d20cbfd9)
@@ -1272,3 +1272,11 @@ NUGET
   remote: https://nuget.intellifactory.com/nuget
     WebSharper (4.2.0.191-alpha)
       Mono.Cecil (>= 0.10.0-beta6 < 0.11.0-beta)
+
+GROUP wsbuild
+
+GITHUB
+  remote: intellifactory/websharper
+    tools/WebSharper.Fake.cmd (54cd7d4fa305ad5004b1250449acc296d70a18a1)
+    tools/WebSharper.Fake.fsx (54cd7d4fa305ad5004b1250449acc296d70a18a1)
+    tools/WebSharper.Fake.sh (54cd7d4fa305ad5004b1250449acc296d70a18a1)

@@ -32,7 +32,5 @@ group includes
     references: strict
     source https://api.nuget.org/v3/index.json
     source https://nuget.intellifactory.com/nuget username: "%IF_USER%" password: "%IF_PASS%"
-    nuget FSharp.Core ~> 4.2.0
-    nuget WebSharper prerelease
     nuget HtmlAgilityPack 1.6.15 framework: netstandard2.0
     nuget NETStandard.Library framework: netstandard2.0
