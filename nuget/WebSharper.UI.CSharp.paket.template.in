@@ -11,6 +11,8 @@ description
 tags
     Web JavaScript C#
 files
+    ../WebSharper.UI.CSharp/bin/Release/netstandard2.0/WebSharper.UI.CSharp.dll ==> lib/net461
+    ../WebSharper.UI.CSharp/bin/Release/netstandard2.0/WebSharper.UI.CSharp.xml ==> lib/net461
     ../msbuild/WebSharper.UI.CSharp.targets ==> build
     ../WebSharper.UI.CSharp/bin/Release/netstandard2.0/WebSharper.UI.CSharp.dll ==> lib/netstandard2.0
     ../WebSharper.UI.CSharp/bin/Release/netstandard2.0/WebSharper.UI.CSharp.xml ==> lib/netstandard2.0
