@@ -32,6 +32,7 @@
     <WebSharperUICSharpGeneratorTask
       AssemblyName="$(AssemblyName)"
       Content="@(Content)"
+      ProjectDir="$(MSBuildProjectDirectory)"
     />
   </Target>
 </Project>

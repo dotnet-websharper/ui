@@ -37,6 +37,8 @@ type WebSharperUICSharpGeneratorTask() =
 
     member val AssemblyName : string =  "Templates" with get, set
 
+    member val ProjectDir : string = null with get, set
+
     override this.Execute() =
         let namespaceName = this.AssemblyName + ".Template"
         let mutable result = true
@@ -44,8 +46,7 @@ type WebSharperUICSharpGeneratorTask() =
         for c in this.Content do
             let fullPath = c.ItemSpec
             if not (String.IsNullOrEmpty fullPath) && fullPath.ToLower().EndsWith ".html" then
-                let projectDir = Path.GetDirectoryName(this.BuildEngine.ProjectFileOfTaskNode)
-                let outputFile = CodeGenerator.GetOutputFilePath projectDir fullPath
+                let outputFile = CodeGenerator.GetOutputFilePath this.ProjectDir fullPath
                 try
                     let code =
                         CodeGenerator.GetCode namespaceName (Path.GetDirectoryName fullPath) (Path.GetFileName fullPath) 
