@@ -171,6 +171,9 @@ module Tags =
                 |]
             | "event" ->
                 [|
+                    sprintf "/// Create a handler for the event \"%s\"." e.Name
+                    "[<Inline>]"
+                    sprintf """static member %s (f: JavaScript.Dom.Element -> JavaScript.Dom.%s -> unit) = Attr.Handler "%s" f""" e.CamelNameEsc e.Category e.Name
                     sprintf "/// Create a handler for the event \"%s\" which also receives the value of a view at the time of the event." e.Name
                     "[<JavaScript; Inline>]"
                     sprintf """static member %sView (view: View<'T>) (f: Dom.Element -> Dom.%s -> 'T -> unit) = Client.Attr.HandlerView "%s" view f""" e.CamelName e.Category e.Name
