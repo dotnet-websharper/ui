@@ -50,7 +50,7 @@ type WebSharperCSharpTemplatingAnalyzer () =
         new DiagnosticDescriptor ("WebSharperUINextError", "WebSharper UI errors", "{0}", "WebSharper.UI", DiagnosticSeverity.Error, true, null, null)
 
     let generate fullPath =
-        let outputFile = Path.ChangeExtension(fullPath, "g.cs")
+        let outputFile = CodeGenerator.GuessOutputFilePath fullPath
         let needsUpdate =
             not (File.Exists outputFile) || File.GetLastWriteTimeUtc(outputFile) < File.GetLastWriteTimeUtc(fullPath) 
         if needsUpdate then

@@ -44,8 +44,8 @@ type WebSharperUICSharpGeneratorTask() =
         for c in this.Content do
             let fullPath = c.ItemSpec
             if not (String.IsNullOrEmpty fullPath) && fullPath.ToLower().EndsWith ".html" then
-
-                let outputFile = Path.ChangeExtension(fullPath, "g.cs")
+                let projectDir = Path.GetDirectoryName(this.BuildEngine.ProjectFileOfTaskNode)
+                let outputFile = CodeGenerator.GetOutputFilePath projectDir fullPath
                 try
                     let code =
                         CodeGenerator.GetCode namespaceName (Path.GetDirectoryName fullPath) (Path.GetFileName fullPath) 
