@@ -12,7 +12,7 @@ module Tags =
         true
 
     let tagsFilePath =
-        Path.Combine(__SOURCE_DIRECTORY__, "..", "packages", "WebSharper", "tools", "net40", "tags.csv")
+        Path.Combine(__SOURCE_DIRECTORY__, "..", "paket-files", "includes", "dotnet-websharper", "websharper", "src", "htmllib", "tags.csv")
 
     let groupByFst (s: seq<'a * 'b>) : seq<'a * seq<'b>> =
         s
