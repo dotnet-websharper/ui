@@ -547,7 +547,17 @@ module Main =
         let rv = Var.Create { x = "red"; y = { z = "green"; t = "test" } }
         div [Attr.Style "color" rv.V.y.z] [
             text "Test text x.V: enter a color: "
-            Doc.Input [attr.style ("background: " + rv.V.y.z)] (rv.LensAuto(fun v -> v.y.z))
+            Doc.Input [
+                attr.style ("background: " + rv.V.y.z)
+                on.click (fun el ev ->
+                    let f x = x // Inner generic function that fails to compile if this lambda is passed as an Expr.
+                                // This checks that we are calling:
+                                //      Client.on.click : (Element -> Event -> unit) -> Attr
+                                // and not:
+                                //      Html.on.click : Expr<Element -> Event -> unit> -> Attr
+                    ()
+                )
+            ] (rv.LensAuto(fun v -> v.y.z))
             Doc.PasswordBoxV [attr.style ("background: " + rv.V.y.z)] rv.V.y.z
             text (" You typed: " + rv.V.y.z)
             V(ul [] (rv.V.y.z |> Seq.map (fun c -> li [] [text (string c)] :> Doc))).V
