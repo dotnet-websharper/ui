@@ -3,7 +3,7 @@ RESTRICTION: || (== net40) (== net45)
 NUGET
   remote: https://api.nuget.org/v3/index.json
     FSharp.Core (4.0.0.1)
-    HtmlAgilityPack (1.6.11)
+    HtmlAgilityPack (1.6.15)
     Microsoft.CodeAnalysis.Analyzers (1.0)
     Microsoft.CodeAnalysis.Common (1.0)
       Microsoft.CodeAnalysis.Analyzers (1.0)
@@ -15,13 +15,13 @@ NUGET
     System.Reflection.Metadata (1.0.21)
       System.Collections.Immutable (>= 1.1.36)
     System.ValueTuple (4.3)
-    WebSharper (4.1.0.171)
-    WebSharper.CSharp (4.1.0.171)
-      WebSharper (4.1.0.171)
-    WebSharper.FSharp (4.1.0.171)
-      WebSharper (4.1.0.171)
-    WebSharper.Testing (4.1.0.171)
-      WebSharper (4.1.0.171)
+    WebSharper (4.1.5.203)
+    WebSharper.CSharp (4.1.5.203)
+      WebSharper (4.1.5.203)
+    WebSharper.FSharp (4.1.5.203)
+      WebSharper (4.1.5.203)
+    WebSharper.Testing (4.1.5.203)
+      WebSharper (4.1.5.203)
 GITHUB
   remote: tarmil/FSharp.TypeProviders.SDK
     src/ProvidedTypes.fs (1b46411cf45dd98aef95e05707b89558d95bba1a)
@@ -32,9 +32,9 @@ NUGET
   remote: https://api.nuget.org/v3/index.json
     Chessie (0.6)
       FSharp.Core
-    FAKE (4.64.3)
+    FAKE (4.64.4)
     FSharp.Compiler.Tools (4.1.29)
-    FSharp.Core (4.2.3)
+    FSharp.Core (4.3.3)
     Mono.Cecil (0.10.0-beta7)
     Newtonsoft.Json (10.0.3)
     Paket.Core (5.122.3)
@@ -43,8 +43,9 @@ NUGET
       FSharp.Core
       Mono.Cecil (>= 0.10.0-beta6)
       Newtonsoft.Json
-GITHUB
-  remote: intellifactory/websharper
-    tools/WebSharper.Fake.cmd (48c98ef7b00256af0aa44d535c6f8bd1f998a90d)
-    tools/WebSharper.Fake.fsx (48c98ef7b00256af0aa44d535c6f8bd1f998a90d)
-    tools/WebSharper.Fake.sh (48c98ef7b00256af0aa44d535c6f8bd1f998a90d)
+
+GROUP wsbuild
+
+GIT
+  remote: https://github.com/dotnet-websharper/build-script
+     (7ede4511374aed54fbf6422506909f78949408b1)
