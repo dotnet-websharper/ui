@@ -22,8 +22,6 @@
     <ProjectReference Include="../WebSharper.UI\WebSharper.UI.fsproj" />
     <ProjectReference Include="../WebSharper.UI.Templating.Common\WebSharper.UI.Templating.Common.fsproj" />
     <ProjectReference Include="../WebSharper.UI.Templating.Runtime\WebSharper.UI.Templating.Runtime.fsproj" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Runtime.Caching" />
   </ItemGroup>
   <Import Project="..\paket-files\wsbuild\github.com\dotnet-websharper\build-script\WebSharper.Fake.targets" Condition="Exists('..\paket-files\wsbuild\github.com\dotnet-websharper\build-script\WebSharper.Fake.targets')" />

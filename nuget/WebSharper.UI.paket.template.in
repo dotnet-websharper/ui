@@ -33,6 +33,4 @@ files
     ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.UI.Templating.xml ==> lib/netstandard2.0
 dependencies
         WebSharper ~> LOCKEDVERSION/3
-frameworkAssemblies
-        System.Xml
-        System.Xml.Linq
+        System.Xml.XDocument ~> 4.3

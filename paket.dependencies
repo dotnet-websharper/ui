@@ -12,9 +12,10 @@ nuget WebSharper.Testing prerelease
 nuget HtmlAgilityPack 1.6.15 framework: netstandard2.0
 nuget Microsoft.CodeAnalysis.CSharp 1.0.0
 nuget System.ValueTuple 4.3.0
-github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fsi
-github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fs
+github fsprojects/FSharp.TypeProviders.SDK:b6d5c949e46c34f051e2adf88170e1a2d20cbfd9 src/ProvidedTypes.fsi
+github fsprojects/FSharp.TypeProviders.SDK:b6d5c949e46c34f051e2adf88170e1a2d20cbfd9 src/ProvidedTypes.fs
 nuget Microsoft.Build.Utilities.Core
+nuget System.Xml.XDocument
 
 group build
     framework: net45
