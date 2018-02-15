@@ -470,6 +470,7 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
     do setupTP()
 
     override this.ResolveAssembly(args) =
+        eprintfn "Type provider looking for assembly: %s" args.Name
         let name = AssemblyName(args.Name).Name.ToLowerInvariant()
         let an =
             cfg.ReferencedAssemblies
@@ -477,7 +478,9 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
                 Path.GetFileNameWithoutExtension(an).ToLowerInvariant() = name)
         match an with
         | Some f -> Assembly.LoadFrom f
-        | None -> null
+        | None ->
+            eprintfn "Type provider didn't find assembly: %s" args.Name
+            null
 
 [<assembly:TypeProviderAssembly>]
 do ()

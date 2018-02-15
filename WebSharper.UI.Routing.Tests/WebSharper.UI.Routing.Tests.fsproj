@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
     <WebSharperProject>Site</WebSharperProject>
   </PropertyGroup>
   <ItemGroup>
@@ -14,6 +14,9 @@
   <ItemGroup>
     <ProjectReference Include="..\WebSharper.UI.CSharp.Tests\WebSharper.UI.CSharp.Tests.csproj" />
     <ProjectReference Include="..\WebSharper.UI\WebSharper.UI.fsproj" />
+  </ItemGroup>
+  <ItemGroup Condition="$(TargetFramework.StartsWith('net4'))">
+    <Reference Include="System.Web" />
   </ItemGroup>
   <Target Name="IncludeContent" BeforeTargets="Compile">
     <ItemGroup>
