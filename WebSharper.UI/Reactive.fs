@@ -266,6 +266,12 @@ type View =
                 (fun () -> if not !ok then obs ())
         obs ()
 
+    static member WithInit (x: 'T) (V observe) =
+        View.CreateLazy (fun () -> observe () |> Snap.WithInit x)
+
+    static member WithInitOption (V observe) =
+        View.CreateLazy (fun () -> observe () |> Snap.WithInitOption)
+
     static member GetAsync v =
         Async.FromContinuations (fun (ok, _, _) -> View.Get ok v)
 

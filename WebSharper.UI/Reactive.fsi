@@ -230,6 +230,14 @@ type View =
     /// Returns as soon as the given view's value matches the given filter.
     static member AsyncAwait : filter: ('A -> bool) -> View<'A> -> Async<'A>
 
+    /// Returns a view equivalent to v, except that if v is currently awaiting with no current value,
+    /// then the returned view's initial value is x.
+    static member WithInit : x: 'A -> v: View<'A> -> View<'A>
+
+    /// Returns a view equivalent to (View.Map Some v), except that if v is currently awaiting with no current value,
+    /// then the returned view's initial value is None.
+    static member WithInitOption : v: View<'A> -> View<option<'A>>
+
  // Collection transformations
 
     /// Starts a process doing stateful conversion with shallow memoization.

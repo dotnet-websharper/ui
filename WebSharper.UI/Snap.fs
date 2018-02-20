@@ -292,6 +292,32 @@ module Snap =
             When sn (fun a -> MarkDone res sn (fn a)) res
             res
 
+    let WithInit x sn =
+        match sn.State with
+        | Forever _
+        | Obsolete -> sn // optimization
+        | Ready (v, _) ->
+            let res = CreateWithValue v
+            WhenObsolete sn res
+            res
+        | Waiting _ ->
+            let res = CreateWithValue x
+            When sn (fun _ -> Snap.Obsolete res) res
+            res
+
+    let WithInitOption sn =
+        match sn.State with
+        | Forever x -> CreateForever (Some x) // optimization
+        | Obsolete -> { State = Obsolete }
+        | Ready (v, _) ->
+            let res = CreateWithValue (Some v)
+            WhenObsolete sn res
+            res
+        | Waiting _ ->
+            let res = CreateWithValue None
+            When sn (fun _ -> Snap.Obsolete res) res
+            res
+
     let Copy sn =
         match sn.State with
         | Forever _ 

@@ -437,6 +437,28 @@ module Main =
                 equalMsgAsync (View.GetAsync vapply) "12cb12db12e12" "Apply"
             }
 
+            Test "WithInit" {
+                let e = new Event<string>()
+                let v =
+                    Async.AwaitEvent e.Publish
+                    |> View.ConstAsync
+                    |> View.WithInit "waiting"
+                equalMsgAsync (View.GetAsync v) "waiting" "Initial value"
+                e.Trigger("done")
+                equalMsgAsync (View.GetAsync v) "done" "Value after waiting"
+            }
+
+            Test "WithInitOption" {
+                let e = new Event<string>()
+                let v =
+                    Async.AwaitEvent e.Publish
+                    |> View.ConstAsync
+                    |> View.WithInitOption
+                equalMsgAsync (View.GetAsync v) None "Initial value"
+                e.Trigger("done")
+                equalMsgAsync (View.GetAsync v) (Some "done") "Value after waiting"
+            }
+
             Test "Stress test" {
                 // we simulate a spreadsheet with changeable formulas of size n x n
                 let n = 400

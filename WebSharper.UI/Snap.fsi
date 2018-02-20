@@ -93,6 +93,14 @@ module internal Snap =
     /// Updates the second value while the first view is true
  //   val UpdateWhile : Snap<bool> -> Snap<'A> -> Snap<'A>
 
+    /// Returns a view equivalent to s, except that if s is Waiting,
+    /// then the returned view is Ready with value x.
+    val WithInit : x: 'A -> s: Snap<'A> -> Snap<'A>
+
+    /// Returns a view equivalent to (Snap.Map Some s), except that if s is Waiting,
+    /// then the returned view is Ready with value None.
+    val WithInitOption : s: Snap<'A> -> Snap<option<'A>>
+
   // eliminators
 
     /// Schedule callbacks on lifecycle events.
