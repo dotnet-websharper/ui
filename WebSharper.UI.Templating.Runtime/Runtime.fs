@@ -51,16 +51,21 @@ type ValTy =
 [<JavaScript; Serializable>]
 type TemplateInitializer(id: string, vars: array<string * ValTy>) =
 
-    do if IsClient then
-        let d = Dictionary()
-        for n, t in vars do
-            d.[n] <-
-                match t with
-                | ValTy.Bool -> box (Var.Create false)
-                | ValTy.Number -> box (Var.Create 0.)
-                | ValTy.String -> box (Var.Create "")
-                | _ -> failwith "Invalid value type"
-        TemplateInstances.Instances.[id] <- TemplateInstance(CompletedHoles.Client(d), Doc.Empty)
+    member this.Instance =
+        if JavaScript.JS.HasOwnProperty this "instance" then
+            JavaScript.JS.Get "instance" this : TemplateInstance
+        else
+            let d = Dictionary()
+            for n, t in vars do
+                d.[n] <-
+                    match t with
+                    | ValTy.Bool -> box (Var.Create false)
+                    | ValTy.Number -> box (Var.Create 0.)
+                    | ValTy.String -> box (Var.Create "")
+                    | _ -> failwith "Invalid value type"
+            let i = TemplateInstance(CompletedHoles.Client(d), Doc.Empty)
+            JavaScript.JS.Set this "instance" i
+            i
 
     // Members unused, but necessary to force `id` and `vars` to be fields
     // (and not just ctor arguments)
@@ -76,24 +81,16 @@ type TemplateInitializer(id: string, vars: array<string * ValTy>) =
             [id, json.GetEncoder<TemplateInitializer>().Encode(this)]
 
 and [<JavaScript>] TemplateInstances() =
-
-    static let instances = Dictionary<string, TemplateInstance>()
-
     [<JavaScript>]
-    static member Instances : Dictionary<string, TemplateInstance> = instances
-    [<JavaScript>]
-    static member GetInstance key = instances.[key]
+    static member GetInstance key =
+        let i = JavaScript.JS.Get key WebSharper.Activator.Instances : TemplateInitializer
+        i.Instance
 
 and CompletedHoles =
     | Client of Dictionary<string, obj>
     | Server of TemplateInitializer
 
 and TemplateInstance(c: CompletedHoles, doc: Doc) =
-    let doc =
-        let (CompletedHoles.Server i) = c
-        match doc with
-        | :? Elt as e -> Server.Internal.TemplateElt([i :> IRequiresResources], e) :> Doc
-        | doc -> Server.Internal.TemplateDoc([i :> IRequiresResources], doc) :> Doc
     
     member this.Doc = doc
 
@@ -168,7 +165,7 @@ type Handler private () =
             )
             |> Seq.append extraHoles
             |> Seq.cache
-        holes, Server (new TemplateInitializer(key, vars))
+        holes, Server (new TemplateInitializer(id = key, vars = vars))
 
 type private RenderContext =
     {
@@ -223,6 +220,7 @@ type Runtime private () =
                 inlineBaseName: option<string>,
                 serverLoad: ServerLoad,
                 refs: array<string * option<string> * string>,
+                completed: CompletedHoles,
                 isElt: bool
             ) : Doc =
         let getOrLoadSrc src =
@@ -233,6 +231,16 @@ type Runtime private () =
             let src = File.ReadAllText fullPath
             let parsed, _, _ = Parsing.ParseSource baseName src
             loaded.AddOrUpdate(baseName, parsed, fun _ _ -> parsed)
+        let requireResources = Dictionary(StringComparer.InvariantCultureIgnoreCase)
+        fillWith |> Seq.iter (function
+            | TemplateHole.Elt (n, d) when not (obj.ReferenceEquals(d, null)) ->
+                requireResources.Add(n, d :> IRequiresResources)
+            | TemplateHole.Attribute (n, a) when not (obj.ReferenceEquals(a, null)) ->
+                requireResources.Add(n, a :> IRequiresResources)
+            | TemplateHole.EventQ (n, _, e) ->
+                requireResources.Add(n, Attr.HandlerImpl "" e :> IRequiresResources)
+            | _ -> ()
+        )
 
         let rec writeWrappedTemplate templateName (template: Template) ctx =
             let tagName = template.Value |> Array.tryPick (function
@@ -272,10 +280,12 @@ type Runtime private () =
                 | Attr.Attr holeName when plain ->
                     ctx.Writer.WriteAttribute(AttrAttr, holeName)
                 | Attr.Attr holeName ->
-                    match ctx.FillWith.TryGetValue holeName with
-                    | true, TemplateHole.Attribute (_, a) -> a.Write(ctx.Context.Metadata, ctx.Writer, true)
-                    | true, _ -> failwithf "Invalid hole, expected attribute: %s" holeName
-                    | false, _ -> ()
+                    match requireResources.TryGetValue holeName with
+                    | true, (:? UI.Attr as a) ->
+                        a.Write(ctx.Context.Metadata, ctx.Writer, true)
+                    | _ ->
+                        if ctx.FillWith.ContainsKey holeName then
+                            failwithf "Invalid hole, expected attribute: %s" holeName
                 | Attr.Simple(name, value) ->
                     ctx.Writer.WriteAttribute(name, value)
                 | Attr.Compound(name, value) ->
@@ -283,10 +293,12 @@ type Runtime private () =
                 | Attr.Event(event, holeName) when plain ->
                     ctx.Writer.WriteAttribute(EventAttrPrefix + event, holeName)
                 | Attr.Event(event, holeName) ->
-                    match ctx.FillWith.TryGetValue holeName with
-                    | true, TemplateHole.EventQ (_, _, e) -> (Attr.HandlerImpl event e).Write(ctx.Context.Metadata, ctx.Writer, true)
-                    | true, _ -> failwithf "Invalid hole, expected quoted event: %s" holeName
-                    | false, _ -> ()
+                    match requireResources.TryGetValue holeName with
+                    | true, (:? UI.Attr as a) ->
+                        a.WithName("on" + event).Write(ctx.Context.Metadata, ctx.Writer, true)
+                    | _ ->
+                        if ctx.FillWith.ContainsKey holeName then
+                            failwithf "Invalid hole, expected quoted event: %s" holeName
                 | Attr.OnAfterRender holeName ->
                     if plain then ctx.Writer.WriteAttribute(AfterRenderAttr, holeName)
             let rec writeElement tag attrs dataVar children =
@@ -327,11 +339,14 @@ type Runtime private () =
                 | Node.DocHole ("scripts" | "styles" | "meta" as name) when Option.isSome ctx.Resources ->
                     ctx.Writer.Write(ctx.Resources.Value.[name])
                 | Node.DocHole holeName ->
-                    match ctx.FillWith.TryGetValue holeName with
-                    | true, TemplateHole.Elt (_, doc) -> doc.Write(ctx.Context, ctx.Writer, ctx.Resources)
-                    | true, TemplateHole.Text (_, txt) -> ctx.Writer.WriteEncodedText(txt)
-                    | true, _ -> failwithf "Invalid hole, expected Doc: %s" holeName
-                    | false, _ -> ()
+                    match requireResources.TryGetValue holeName with
+                    | true, (:? UI.Doc as doc) ->
+                        doc.Write(ctx.Context, ctx.Writer, ctx.Resources)
+                    | _ ->
+                        match ctx.FillWith.TryGetValue holeName with
+                        | true, TemplateHole.Text (_, txt) -> ctx.Writer.WriteEncodedText(txt)
+                        | true, _ -> failwithf "Invalid hole, expected Doc: %s" holeName
+                        | false, _ -> ()
                 | Node.Instantiate _ ->
                     failwithf "Template instantiation not yet supported on the server side"
             Array.iter writeNode template.Value
@@ -368,15 +383,14 @@ type Runtime private () =
                     | Some _, _ -> failwith "Invalid ServerLoad"
                 templates := Some t
                 getTemplate baseName (Parsing.WrappedTemplateName.OfOption name) t, t
-        let requireResources =
-            fillWith
-            |> Seq.choose (function
-                | TemplateHole.Elt (_, d) when not (obj.ReferenceEquals(d, null)) ->
-                    Some (d :> IRequiresResources)
-                | TemplateHole.Attribute (_, a) when not (obj.ReferenceEquals(a, null)) ->
-                    Some (a :> IRequiresResources)
-                | _ -> None
-            )
+        let tplInstance =
+            if obj.ReferenceEquals(completed, null) then
+                Seq.empty
+            else
+                match completed with
+                | CompletedHoles.Server i -> Seq.singleton (i :> IRequiresResources)
+                | CompletedHoles.Client _ -> failwith "Shouldn't happen"
+        let requireResources = Seq.append tplInstance requireResources.Values
         let write extraAttrs ctx w r =
             let template, templates = getTemplates ctx
             let r =

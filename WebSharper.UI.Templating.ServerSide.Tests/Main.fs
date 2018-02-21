@@ -32,21 +32,28 @@ module Client =
 [<Website>]
 let Main = Application.SinglePage(fun ctx ->
     Content.Page(
-        Body = [
-            MainTemplate.Main()
-                .Main(MainTemplate.template().Who("world").Doc())
-                .Client(
-                    [
-                        client <@ Client.Main("green") @>
-                        client <@ Client.Main("blue") @>
-                        client <@ Client.OldMain("old template") @>
-                        MainTemplate.Main.ServerTemplate().Elt()
-                            .OnClick(<@ Client.OnClick @>)
-                        :> Doc
-                        button [on.click(fun _ _ -> JavaScript.JS.Alert "hey!")] [text "Click me!"] :> _
-                    ])
-                .TBody([MainTemplate.Main.Row().Doc(); MainTemplate.Main.Row().Doc()])
-                .Doc()
-        ]
+        MainTemplate.Main()
+            .Main([
+                MainTemplate.template()
+                    .Who("world 1")
+                    .Click(fun _ -> JavaScript.JS.Alert "Clicked 1!")
+                    .Doc()
+                MainTemplate.template()
+                    .Who("world 2")
+                    .Click(fun _ -> JavaScript.JS.Alert "Clicked 2!")
+                    .Doc()
+            ])
+            .Client(
+                [
+                     client <@ Client.Main("green") @>
+                     client <@ Client.Main("blue") @>
+                     client <@ Client.OldMain("old template") @>
+                     MainTemplate.Main.ServerTemplate().Elt()
+                         .OnClick(<@ Client.OnClick @>)
+                     :> Doc
+                     button [on.click(fun _ _ -> JavaScript.JS.Alert "hey!")] [text "Click me!"] :> _
+                ])
+            .TBody([MainTemplate.Main.Row().Doc(); MainTemplate.Main.Row().Doc()])
+            .Doc()
     )
 )
