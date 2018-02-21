@@ -20,6 +20,8 @@
 
 namespace WebSharper.UI.Client
 
+#nowarn "44" // HTML deprecated
+
 open WebSharper
 open WebSharper.JavaScript
 open WebSharper.UI

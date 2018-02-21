@@ -1,5 +1,7 @@
 namespace WebSharper.UI.Client
 
+#nowarn "44" // HTML deprecated
+
 open System
 open System.Runtime.CompilerServices
 open WebSharper
