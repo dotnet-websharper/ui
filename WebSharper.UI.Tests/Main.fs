@@ -499,7 +499,7 @@ module Main =
                         let b = a |> View.Map ((+) 1)
                         Some (b, b)
                     )
-                    |> Seq.nth (n - 1)
+                    |> Seq.item (n - 1)
                 equalAsync (res |> View.GetAsync) 1000
                 v := 1
                 equalAsync (res |> View.GetAsync) 1001
@@ -537,7 +537,7 @@ module Main =
             Test "Typed" {
                 let s = Serializer.Typed<int list>
                 let x = s.Encode [1; 2; 3] |> Json.Stringify |> Json.Parse |> s.Decode
-                equal (Seq.nth 2 x) 3
+                equal (Seq.item 2 x) 3
             }
         }
 

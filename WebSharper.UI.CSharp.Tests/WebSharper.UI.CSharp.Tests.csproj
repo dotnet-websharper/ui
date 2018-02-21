@@ -37,6 +37,7 @@
     <OutputPath>bin\</OutputPath>
     <UseCommonOutputDirectory>true</UseCommonOutputDirectory>
     <Use64BitIISExpress />
+    <NoWarn>3218</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>

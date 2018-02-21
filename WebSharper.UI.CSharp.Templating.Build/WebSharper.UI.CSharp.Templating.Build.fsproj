@@ -2,6 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
+    <NoWarn>3218</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Task.fs" />

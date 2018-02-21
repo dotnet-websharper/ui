@@ -32,9 +32,9 @@ module Router =
 
     /// Installs client-side routing on the full URL. 
     /// If initials URL parse fails, value is set to `onParseError`. 
-    let Install onParseError (router: Router<'T>) : Var<'U> =
+    let Install onParseError (router: Router<'T>) : Var<'T> =
         let parse p = Parse router p
-        let cur() : 'U =
+        let cur() : 'T =
             let loc = JS.Window.Location
             let p = loc.Pathname + loc.Search |> Route.FromUrl
             match parse p with

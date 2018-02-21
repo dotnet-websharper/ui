@@ -90,7 +90,7 @@ and CompletedHoles =
 
 and TemplateInstance(c: CompletedHoles, doc: Doc) =
     let doc =
-        let (CompletedHoles.Server i) = c
+        let i = match c with CompletedHoles.Server i -> i | _ -> failwith "Should not happen"
         match doc with
         | :? Elt as e -> Server.Internal.TemplateElt([i :> IRequiresResources], e) :> Doc
         | doc -> Server.Internal.TemplateDoc([i :> IRequiresResources], doc) :> Doc

@@ -44,7 +44,7 @@ let private (|Box|) x = box x
 
 [<JavaScript; Proxy(typeof<TemplateInstance>)>]
 type private TemplateInstanceProxy(c: Server.CompletedHoles, doc: Doc) =
-    let (Server.CompletedHoles.Client allVars) = c
+    let allVars = match c with Server.CompletedHoles.Client v -> v | _ -> failwith "Should not happen"
     
     member this.Doc = doc
 

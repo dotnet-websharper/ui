@@ -284,11 +284,13 @@ module internal Macros =
         inherit Macro()
 
         override this.TranslateCall(call) =
-            let [t; u] = call.Method.Generics
-            match Lens.BasicMakeSetter call.Compilation call.Arguments.[1] with
-            | MacroOk setter ->
-                MacroOk (Call (None, varModule, lensFn t u, call.Arguments @ [setter]))
-            | err -> err
+            match call.Method.Generics with
+            | [t; u] ->
+                match Lens.BasicMakeSetter call.Compilation call.Arguments.[1] with
+                | MacroOk setter ->
+                    MacroOk (Call (None, varModule, lensFn t u, call.Arguments @ [setter]))
+                | err -> err
+            | _ -> failwith "Invalid call"
 
     type LensFunc() =
         inherit Macro()

@@ -35,7 +35,7 @@ module Client =
 
         async {
             do! Async.Sleep 1500
-            Var.Set (List.nth title (title.Length - 1)) 'e'
+            Var.Set (List.item (title.Length - 1) title) 'e'
         } |> Async.Start
 
         let tv = title

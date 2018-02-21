@@ -6,6 +6,7 @@
     <WebSharperSourceMap>false</WebSharperSourceMap>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <DefineConstants>NO_GENERATIVE</DefineConstants>
+    <NoWarn>3218</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../paket-files/fsprojects/FSharp.TypeProviders.SDK/src/ProvidedTypes.fsi">
@@ -22,7 +23,6 @@
     <ProjectReference Include="../WebSharper.UI\WebSharper.UI.fsproj" />
     <ProjectReference Include="../WebSharper.UI.Templating.Common\WebSharper.UI.Templating.Common.fsproj" />
     <ProjectReference Include="../WebSharper.UI.Templating.Runtime\WebSharper.UI.Templating.Runtime.fsproj" />
-    <Reference Include="System.Runtime.Caching" />
     <!-- These files are the facades necessary to run .NET Standard 2.0 components on .NET Framweork 4.6.1 (.NET Framework 4.7 will -->
     <!-- come with these facades included). Because the type provider is a .NET Standard 2.0 component, the deployment of the type -->
     <!--  provider must include these facade DLLs if it is to run hosted inside an F# compiler executing using  .NET Framework 4.6.1 or Mono 5.0. -->

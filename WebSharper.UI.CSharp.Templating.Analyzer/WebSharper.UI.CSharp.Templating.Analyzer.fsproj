@@ -2,6 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <NoWarn>3218</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Analyzer.fs" />

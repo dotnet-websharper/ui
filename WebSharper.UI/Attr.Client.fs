@@ -166,7 +166,7 @@ module Attrs =
         let nodes = Queue()
         let oar = Queue()
         let rec loop node =
-            if not (Object.ReferenceEquals(node, null)) then // work around WS issue with UseNullAsTrueValue
+          if not (Object.ReferenceEquals(node, null)) then // work around WS issue with UseNullAsTrueValue
             match node with
             | A0 -> ()
             | A1 n -> nodes.Enqueue n

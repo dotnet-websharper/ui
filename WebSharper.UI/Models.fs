@@ -507,7 +507,7 @@ type ListModel =
     static member MapLens f (m: ListModel<_, _>) =
         m.MapLens f
 
-type ListModel<'Key,'T> with
+type ListModel<'Key,'T when 'Key : equality> with
 
     member this.Wrap extract wrap update =
         ListModel.Wrap this extract wrap update
