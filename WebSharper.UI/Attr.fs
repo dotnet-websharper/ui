@@ -51,16 +51,13 @@ module private Internal =
             } 
         )
 
-    let compile (meta: M.Info) (json: J.Provider) (reqs: list<M.Node>) (q: Expr) =
-        let rec compile (reqs: list<M.Node>) (q: Expr) =
+    let compile (meta: M.Info) (json: J.Provider) (q: Expr) =
+        let reqs = ResizeArray<M.Node>()
+        let rec compile' (q: Expr) =
             match getLocation q with
             | Some p ->
                 match meta.Quotations.TryGetValue(p) with
                 | false, _ ->
-                    let ex =
-                        meta.Quotations.Keys
-                        |> Seq.map (sprintf "  %O")
-                        |> String.concat "\n"
                     None
                 | true, (declType, meth, argNames) ->
                     match meta.Classes.TryGetValue declType with
@@ -68,19 +65,18 @@ module private Internal =
                     | true, c ->
                         let argIndices = Map (argNames |> List.mapi (fun i x -> x, i))
                         let args = Array.create argNames.Length null
-                        let reqs = ref (M.MethodNode (declType, meth) :: M.TypeNode declType :: reqs)
+                        reqs.Add(M.MethodNode (declType, meth))
+                        reqs.Add(M.TypeNode declType)
                         let setArg (name: string) (value: obj) =
                             let i = argIndices.[name]
                             if isNull args.[i] then
                                 args.[i] <-
                                     match value with
                                     | :? Expr as q ->
-                                        let x, reqs' = compile !reqs q |> Option.get
-                                        reqs := reqs'
-                                        x
+                                        compile' q |> Option.get
                                     | value ->
                                         let typ = value.GetType()
-                                        reqs := M.TypeNode (WebSharper.Core.AST.Reflection.ReadTypeDefinition typ) :: !reqs
+                                        reqs.Add(M.TypeNode (WebSharper.Core.AST.Reflection.ReadTypeDefinition typ))
                                         let packed = json.GetEncoder(typ).Encode(value) |> json.Pack
                                         let s =
                                             WebSharper.Core.Json.Stringify(packed)
@@ -97,11 +93,12 @@ module private Internal =
                             | _ -> failwithf "Error in Handler: Couldn't find JavaScript address for method %s.%s" declType.Value.FullName meth.Value.MethodName
                         let funcall = String.concat "." (List.rev addr)
                         let args = String.concat "," args
-                        Some (sprintf "%s(%s)" funcall args, !reqs)
+                        Some (sprintf "%s(%s)" funcall args)
             | None -> None
-        compile reqs q
-        |> Option.map (fun (s, reqs) ->
-            s + "(this)(event)", activateNode :: reqs
+        compile' q
+        |> Option.map (fun s ->
+            reqs.Add(activateNode)
+            s + "(this)(event)", reqs :> seq<_>
         )
 
 // We would have wanted to use UseNullAsTrueValue so that EmptyAttr = null,
@@ -140,6 +137,12 @@ type Attr =
         member this.Encode (meta, json) =
             []
 
+    member this.WithName(n) =
+        match this with
+        | AppendAttr _ -> this
+        | SingleAttr(_, v) -> SingleAttr(n, v)
+        | DepAttr(_, v, d) -> DepAttr(n, v, d)
+
     static member Create name value =
         SingleAttr (name, value)
 
@@ -161,7 +164,7 @@ type Attr =
         let init meta =
             if Option.isNone !value then
                 value :=
-                    match Internal.compile meta json [] q with
+                    match Internal.compile meta json q with
                     | Some _ as v -> v
                     | _ ->
                         let m =
@@ -176,7 +179,7 @@ type Attr =
             fst (Option.get !value)
         let getReqs (meta: M.Info) =
             init meta
-            snd (Option.get !value) :> seq<_>
+            snd (Option.get !value)
         Attr.WithDependencies("on" + event, getValue, getReqs)
 
     static member Handler (event: string) ([<JavaScript>] q: Expr<Dom.Element -> #Dom.Event -> unit>) =
@@ -185,7 +188,7 @@ type Attr =
     static member HandlerFallback(m, location) =
         let meth = R.ReadMethod m
         let declType = R.ReadTypeDefinition m.DeclaringType
-        let reqs = [M.MethodNode (declType, meth); M.TypeNode declType]
+        let reqs = [M.MethodNode (declType, meth); M.TypeNode declType] :> seq<_>
         let value = ref None
         let fail() =
             failwithf "Error in Handler%s: Couldn't find JavaScript address for method %s.%s"
@@ -208,7 +211,7 @@ type Attr =
 
     static member HandlerLinqImpl(event, m, location) =
         let func, reqs = Attr.HandlerFallback(m, location)
-        DepAttr ("on" + event, func, fun _ -> reqs :> _)
+        DepAttr ("on" + event, func, fun _ -> reqs)
 
     static member HandlerLinq (event: string) (q: Expression<Action<Dom.Element, #Dom.Event>>) =
         let meth =

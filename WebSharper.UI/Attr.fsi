@@ -36,6 +36,8 @@ type Attr =
 
     member Write : M.Info * HtmlTextWriter * bool -> unit
 
+    member WithName : string -> Attr
+
     /// Sets a basic DOM attribute, such as `id` to a text value.
     static member Create : name: string -> value: string -> Attr
 

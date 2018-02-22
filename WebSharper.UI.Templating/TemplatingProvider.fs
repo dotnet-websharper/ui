@@ -257,6 +257,7 @@ module private Impl =
                     %OptionValue ctx.InlineFileId,
                     %%Expr.Value ctx.ServerLoad,
                     %%references,
+                    completed,
                     %%Expr.Value ctx.Template.IsElt
                 )
             rTI := TI(completed, doc)
