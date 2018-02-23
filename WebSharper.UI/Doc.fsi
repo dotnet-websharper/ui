@@ -28,6 +28,19 @@ open WebSharper
 open WebSharper.JavaScript
 open WebSharper.Core.Resources
 
+type SpecialHole =
+    | None          = 0y
+    | Scripts       = 0b001y
+    | Styles        = 0b010y
+    | Meta          = 0b100y
+    | NonScripts    = 0b110y
+
+module SpecialHole =
+
+    val RenderResources : holes: SpecialHole -> ctx: Web.Context -> reqs: seq<IRequiresResources> -> Sitelets.Content.RenderedResources
+
+    val FromName : string -> SpecialHole
+
 /// Represents a time-varying node or a node list.
 [<AbstractClass>]
 type Doc =
@@ -81,7 +94,7 @@ type Doc =
     abstract Write : Web.Context * HtmlTextWriter * res: option<Sitelets.Content.RenderedResources> -> unit
     abstract Write : Web.Context * HtmlTextWriter * renderResources: bool -> unit
     default Write : Web.Context * HtmlTextWriter * renderResources: bool -> unit
-    abstract HasNonScriptSpecialTags : bool
+    abstract SpecialHoles : SpecialHole
     abstract Encode : Core.Metadata.Info * Core.Json.Provider -> list<string * Core.Json.Encoded>
     abstract Requires : Core.Metadata.Info -> seq<Core.Metadata.Node>
     static member internal OfINode : Web.INode -> Doc
@@ -95,13 +108,13 @@ and [<Class>] Elt =
         : attrs: list<Attr>
         * encode: (Core.Metadata.Info -> Core.Json.Provider -> list<string * Core.Json.Encoded>)
         * requires: (list<Attr> -> Core.Metadata.Info -> seq<Core.Metadata.Node>)
-        * hasNonScriptSpecialTags: bool
+        * specialHoles: SpecialHole
         * write: (list<Attr> -> Web.Context -> HtmlTextWriter -> option<Sitelets.Content.RenderedResources> -> unit)
         * write': (option<list<Attr> -> Web.Context -> HtmlTextWriter -> bool -> unit>)
         -> Elt
 
     override Write : Web.Context * HtmlTextWriter * res: option<Sitelets.Content.RenderedResources> -> unit
-    override HasNonScriptSpecialTags : bool
+    override SpecialHoles : SpecialHole
     override Encode : Core.Metadata.Info * Core.Json.Provider -> list<string * Core.Json.Encoded>
     override Requires : Core.Metadata.Info -> seq<Core.Metadata.Node>
 

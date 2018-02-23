@@ -395,10 +395,7 @@ type Runtime private () =
             let template, templates = getTemplates ctx
             let r =
                 if r then
-                    if template.HasNonScriptSpecialTags then
-                        Some (ctx.GetSeparateResourcesAndScripts requireResources)
-                    else
-                        Some { Scripts = ctx.GetResourcesAndScripts requireResources; Styles = ""; Meta = "" }
+                    SpecialHole.RenderResources template.SpecialHoles ctx requireResources |> Some
                 else None
             let fillWith = buildFillDict fillWith template.Holes
             writeTemplate template false extraAttrs {

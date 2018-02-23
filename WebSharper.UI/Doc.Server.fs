@@ -65,7 +65,7 @@ module Internal =
         ) =
         inherit Doc()
 
-        override this.HasNonScriptSpecialTags = false
+        override this.SpecialHoles = SpecialHole.None
 
         override this.Encode(m, j) =
             List.concat (requireResources |> Seq.map (fun rr -> rr.Encode(m, j)))
@@ -93,7 +93,7 @@ module Internal =
                 List.concat (requireResources |> Seq.map (fun rr -> rr.Encode(m, j)))
             let requires (attrs: list<Attr>) m =
                 Seq.concat (requireResources |> Seq.map (fun rr -> rr.Requires(m)))
-            { inherit Elt([], encode, requires, false, (fun a ctx w _ -> write a ctx w false), Some write) }
+            { inherit Elt([], encode, requires, SpecialHole.None, (fun a ctx w _ -> write a ctx w false), Some write) }
 
         new (requireResources: seq<IRequiresResources>, elt: Elt) =
             TemplateElt(

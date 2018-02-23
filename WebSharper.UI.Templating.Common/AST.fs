@@ -77,7 +77,7 @@ type Template =
         Holes : Dictionary<HoleName, HoleDefinition>
         Value : Node[]
         Src : string
-        HasNonScriptSpecialTags : bool
+        SpecialHoles : WebSharper.UI.SpecialHole
         Line : int
         Column : int
         References : Set<string * option<string>>
