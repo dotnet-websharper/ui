@@ -11,7 +11,10 @@ open WebSharper.UI.Templating
 type LegacyTemplate = Template<"Main.html", legacyMode = LegacyMode.Old>
 type MainTemplate = Template<"Main.html,template.html", ClientLoad.FromDocument, ServerLoad.WhenChanged, LegacyMode.New>
 
-[<JavaScript>]
+type Css() =
+    inherit Resources.BaseResource("Main.css")
+
+[<JavaScript; Require(typeof<Css>)>]
 module Client =
     open WebSharper.UI.Client
     open WebSharper.JavaScript

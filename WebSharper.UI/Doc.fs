@@ -28,6 +28,36 @@ open WebSharper.Web
 open WebSharper.Sitelets
 open WebSharper.JavaScript
 
+type SpecialHole =
+    | None          = 0y
+    | Scripts       = 0b001y
+    | Styles        = 0b010y
+    | Meta          = 0b100y
+    | NonScripts    = 0b110y
+
+module SpecialHole =
+
+    let RenderResources (holes: SpecialHole) (ctx: Web.Context) (reqs: seq<IRequiresResources>) =
+        match holes &&& SpecialHole.NonScripts with
+        | SpecialHole.NonScripts ->
+            ctx.GetSeparateResourcesAndScripts reqs
+        | SpecialHole.Meta ->
+            let r = ctx.GetSeparateResourcesAndScripts reqs
+            { r with Meta = r.Meta + r.Styles; Styles = "" }
+        | SpecialHole.Styles ->
+            let r = ctx.GetSeparateResourcesAndScripts reqs
+            { r with Styles = r.Meta + r.Styles; Meta = "" }
+        | SpecialHole.None ->
+            { Scripts = ctx.GetResourcesAndScripts reqs; Styles = ""; Meta = "" }
+        | _ ->
+            failwith "Cannot happen"
+
+    let FromName = function
+        | "scripts" -> SpecialHole.Scripts
+        | "styles" -> SpecialHole.Styles
+        | "meta" -> SpecialHole.Meta
+        | _ -> SpecialHole.None
+
 [<AbstractClass>]
 type Doc() =
 
@@ -44,18 +74,14 @@ type Doc() =
 
     abstract Write : Web.Context * HtmlTextWriter * res: option<Sitelets.Content.RenderedResources> -> unit
     abstract Write : Web.Context * HtmlTextWriter * renderResources: bool -> unit
-    abstract HasNonScriptSpecialTags : bool
+    abstract SpecialHoles : SpecialHole
     abstract Encode : Core.Metadata.Info * Core.Json.Provider -> list<string * Core.Json.Encoded>
     abstract Requires : Core.Metadata.Info -> seq<Core.Metadata.Node>
 
     default this.Write(ctx: Web.Context, w: HtmlTextWriter, renderResources: bool) =
         let resources =
-            if renderResources then
-                if this.HasNonScriptSpecialTags then
-                    ctx.GetSeparateResourcesAndScripts [this]
-                else
-                    { Scripts = ctx.GetResourcesAndScripts [this]; Styles = ""; Meta = "" }
-                |> Some
+            if renderResources
+            then SpecialHole.RenderResources this.SpecialHoles ctx [this] |> Some
             else None
         this.Write(ctx, w, resources)
 
@@ -73,13 +99,13 @@ and ConcreteDoc(dd: DynDoc) =
         | VerbatimDoc t -> w.Write(t)
         | INodeDoc d -> d.Write(ctx, w)
 
-    override this.HasNonScriptSpecialTags =
+    override this.SpecialHoles =
         match dd with
         | AppendDoc docs ->
-            docs |> List.exists (fun d -> d.HasNonScriptSpecialTags)
+            (SpecialHole.None, docs) ||> List.fold (fun h d -> h ||| d.SpecialHoles)
         | ElemDoc elt ->
-            (elt :> Doc).HasNonScriptSpecialTags
-        | _ -> false
+            (elt :> Doc).SpecialHoles
+        | _ -> SpecialHole.None
 
     override this.Encode(meta, json) =
         match dd with
@@ -108,7 +134,7 @@ and HoleName = Replace | Hole
 and Elt
     (
         attrs: list<Attr>,
-        encode, requires, hasNonScriptSpecialTags,
+        encode, requires, specialHoles,
         write: list<Attr> -> Web.Context -> System.Web.UI.HtmlTextWriter -> option<Sitelets.Content.RenderedResources> -> unit,
         write': option<list<Attr> -> Web.Context -> System.Web.UI.HtmlTextWriter -> bool -> unit>
     ) =
@@ -116,7 +142,7 @@ and Elt
 
     let mutable attrs = attrs
 
-    override this.HasNonScriptSpecialTags = hasNonScriptSpecialTags
+    override this.SpecialHoles = specialHoles
 
     override this.Encode(m, j) = encode m j
 
@@ -166,16 +192,18 @@ and Elt
                     children |> List.iter (fun e -> e.Write(ctx, w, res))
                     w.WriteEndTag(tag)
 
-        let hasNonScriptSpecialTags =
+        let specialHoles =
             let rec testAttr a =
-                if obj.ReferenceEquals(a, null) then false else
+                if obj.ReferenceEquals(a, null) then SpecialHole.None else
                 match a with
-                | Attr.AppendAttr attrs -> List.exists testAttr attrs
-                | Attr.SingleAttr (("ws-replace" | "ws-hole" | "data-replace" | "data-hole"), ("styles" | "meta")) -> true
+                | Attr.AppendAttr attrs ->
+                    (SpecialHole.None, attrs) ||> List.fold (fun h a -> h ||| testAttr a)
+                | Attr.SingleAttr (("ws-replace" | "ws-hole" | "data-replace" | "data-hole"), v) ->
+                    SpecialHole.FromName v
                 | Attr.SingleAttr _
-                | Attr.DepAttr _ -> false
-            (attrs |> List.exists testAttr)
-            || (children |> List.exists (fun d -> d.HasNonScriptSpecialTags))
+                | Attr.DepAttr _ -> SpecialHole.None
+            let a = (SpecialHole.None, attrs) ||> List.fold (fun h a -> h ||| testAttr a)
+            (a, children) ||> List.fold (fun h d -> h ||| d.SpecialHoles)
 
         let encode meta json =
             children |> List.collect (fun e -> (e :> IRequiresResources).Encode(meta, json))
@@ -188,7 +216,7 @@ and Elt
                     else (a :> IRequiresResources).Requires(meta)))
                 (children |> Seq.collect (fun e -> (e :> IRequiresResources).Requires(meta)))
 
-        Elt(attrs, encode, requires, hasNonScriptSpecialTags, write, None)
+        Elt(attrs, encode, requires, specialHoles, write, None)
 
     member this.OnImpl(ev, cb) =
         attrs <- Attr.HandlerImpl ev cb :: attrs
