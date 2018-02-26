@@ -54,6 +54,9 @@
     <Compile Include="Input.fs" />
     <EmbeddedResource Include="h5f.js" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../WebSharper.UI.Templating.Common\WebSharper.UI.Templating.Common.fsproj" />
+  </ItemGroup>
   <ItemGroup Condition="$(TargetFramework.StartsWith('net4'))">
     <Reference Include="System.Web" />
   </ItemGroup>

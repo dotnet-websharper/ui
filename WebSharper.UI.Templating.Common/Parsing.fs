@@ -28,9 +28,6 @@ open System.Text.RegularExpressions
 open HtmlAgilityPack
 open WebSharper.UI.Templating.AST
 
-type SpecialHole = WebSharper.UI.SpecialHole
-module SpecialHole = WebSharper.UI.SpecialHole
-
 [<RequireQualifiedAccess>]
 type ParseKind =
     | Inline

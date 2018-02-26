@@ -30,12 +30,7 @@ open WebSharper.Sitelets
 open WebSharper.JavaScript
 open WebSharper.Core.Resources
 
-type SpecialHole =
-    | None          = 0y
-    | Scripts       = 0b001y
-    | Styles        = 0b010y
-    | Meta          = 0b100y
-    | NonScripts    = 0b110y
+type SpecialHole = WebSharper.UI.Templating.AST.SpecialHole
 
 module SpecialHole =
 
@@ -54,11 +49,7 @@ module SpecialHole =
         | _ ->
             failwith "Cannot happen"
 
-    let FromName = function
-        | "scripts" -> SpecialHole.Scripts
-        | "styles" -> SpecialHole.Styles
-        | "meta" -> SpecialHole.Meta
-        | _ -> SpecialHole.None
+    let FromName name = WebSharper.UI.Templating.AST.SpecialHole.FromName name
 
 [<AbstractClass>]
 type Doc() =

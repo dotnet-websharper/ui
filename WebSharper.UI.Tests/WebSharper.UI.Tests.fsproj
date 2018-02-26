@@ -13,6 +13,7 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../WebSharper.UI.Templating.Common\WebSharper.UI.Templating.Common.fsproj" />
     <ProjectReference Include="../WebSharper.UI\WebSharper.UI.fsproj" />
   </ItemGroup>
   <Import Project="..\paket-files\wsbuild\github.com\dotnet-websharper\build-script\WebSharper.Fake.targets" Condition="Exists('..\paket-files\wsbuild\github.com\dotnet-websharper\build-script\WebSharper.Fake.targets')" />

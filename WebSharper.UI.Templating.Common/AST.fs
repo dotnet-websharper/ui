@@ -72,12 +72,27 @@ type Node =
     | DocHole of HoleName
     | Instantiate of fileName: option<string> * templateName: option<string> * holeMaps: Dictionary<string, string> * attrHoles: Dictionary<string, Attr[]> * contentHoles: Dictionary<string, Node[]> * textHole: option<string>
 
+type SpecialHole =
+    | None          = 0y
+    | Scripts       = 0b001y
+    | Styles        = 0b010y
+    | Meta          = 0b100y
+    | NonScripts    = 0b110y
+
+module SpecialHole =
+
+    let FromName = function
+        | "scripts" -> SpecialHole.Scripts
+        | "styles" -> SpecialHole.Styles
+        | "meta" -> SpecialHole.Meta
+        | _ -> SpecialHole.None
+
 type Template =
     {
         Holes : Dictionary<HoleName, HoleDefinition>
         Value : Node[]
         Src : string
-        SpecialHoles : WebSharper.UI.SpecialHole
+        SpecialHoles : SpecialHole
         Line : int
         Column : int
         References : Set<string * option<string>>

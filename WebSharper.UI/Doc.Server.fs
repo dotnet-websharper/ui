@@ -65,7 +65,7 @@ module Internal =
         ) =
         inherit Doc()
 
-        override this.SpecialHoles = SpecialHole.None
+        override this.SpecialHoles = WebSharper.UI.Templating.AST.SpecialHole.None
 
         override this.Encode(m, j) =
             List.concat (requireResources |> Seq.map (fun rr -> rr.Encode(m, j)))

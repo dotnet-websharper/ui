@@ -28,16 +28,11 @@ open WebSharper
 open WebSharper.JavaScript
 open WebSharper.Core.Resources
 
-type SpecialHole =
-    | None          = 0y
-    | Scripts       = 0b001y
-    | Styles        = 0b010y
-    | Meta          = 0b100y
-    | NonScripts    = 0b110y
+type SpecialHole = WebSharper.UI.Templating.AST.SpecialHole
 
 module SpecialHole =
 
-    val RenderResources : holes: SpecialHole -> ctx: Web.Context -> reqs: seq<IRequiresResources> -> Sitelets.Content.RenderedResources
+    val RenderResources : holes: WebSharper.UI.Templating.AST.SpecialHole -> ctx: Web.Context -> reqs: seq<IRequiresResources> -> Sitelets.Content.RenderedResources
 
     val FromName : string -> SpecialHole
 
