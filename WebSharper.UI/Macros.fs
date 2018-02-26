@@ -59,6 +59,7 @@ module internal Macros =
         | _ -> false
     let isV (m: Method) = m.Value.MethodName = "get_V"
     let stringT = NonGenericType (ty' "netstandard" "System.String")
+    let boolT = NonGenericType (ty' "netstandard" "System.Boolean")
     let objT = NonGenericType (ty' "netstandard" "System.Object")
     let viewModule = NonGeneric (ty "View")
     let varModule = NonGeneric (ty "Var")
@@ -83,6 +84,7 @@ module internal Macros =
     let textViewFn =     gen[]        (meth "TextView"     [viewOf stringT]           docT)
     let attrDynFn =      gen[]        (meth "Dynamic"      [stringT; viewOf stringT]  attrT)
     let attrDynStyleFn = gen[]        (meth "DynamicStyle" [stringT; viewOf stringT]  attrT)
+    let attrDynClassFn = gen[]    (meth "DynamicClassPred" [stringT; viewOf boolT]    attrT)
     let docEmbedFn t =   gen[t]       (meth "EmbedView"    [viewOf T0]                docT)
     let lensFn t u =     gen[t; u]    (meth "Lens"         [varOf T0; T0 ^-> T1; T0 ^-> T1 ^-> T0] (varOf T1))
     let inputFn n t =    gen[]        (meth n              [seqOf attrT; varOf t]     eltT)
@@ -279,6 +281,14 @@ module internal Macros =
             match V.Visit stringT call.Arguments.[1] with
             | V.Kind.Const _ -> MacroFallback
             | V.Kind.View e -> MacroOk (Call (None, clientAttrModule, attrDynStyleFn, [call.Arguments.[0]; e]))
+
+    type AttrClass() =
+        inherit Macro()
+
+        override this.TranslateCall(call) =
+            match V.Visit stringT call.Arguments.[1] with
+            | V.Kind.Const _ -> MacroFallback
+            | V.Kind.View e -> MacroOk (Call (None, clientAttrModule, attrDynClassFn, [call.Arguments.[0]; e]))
 
     type LensMeth() =
         inherit Macro()

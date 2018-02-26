@@ -72,7 +72,14 @@ module Attr =
     /// Sets a CSS class.
     val Class : name: string -> Attr
 
+    // new; V-enabled on `isSet` (turns it into DynamicClassPred)
+    val ClassPred : name: string -> isSet: bool -> Attr
+
+    /// Dynamic variant of Style.
+    val DynamicClassPred : name: string -> isSet: View<bool> -> Attr
+
     /// Sets a CSS class when the given view satisfies a predicate.
+    [<System.Obsolete "Use ClassPred or DynamicClassPred">]
     val DynamicClass : name: string -> view: View<'T> -> apply: ('T -> bool) -> Attr
 
     /// Sets an attribute when a view satisfies a predicate.

@@ -293,9 +293,6 @@ module Attr =
     let Style name value =
         As<Attr> (Attrs.Static (fun el -> DU.SetStyle el name value))
 
-    let Class name =
-        As<Attr> (Attrs.Static (fun el -> DU.AddClass el name))
-
     let Animated name tr view attr =
         As<Attr> (Attrs.Animated tr view (fun el v -> DU.SetAttr el name (attr v)))
 
@@ -329,9 +326,19 @@ module Attr =
             (OnAfterRender (fun el -> callback el el?(id)))
             (DynamicCustom (fun el x -> el?(id) <- x) v)
 
-    let DynamicClass name view ok =
+    let DynamicClassPred name view =
         As<Attr> (Attrs.Dynamic view (fun el v ->
-            if ok v then DU.AddClass el name else DU.RemoveClass el name))
+            if v then DU.AddClass el name else DU.RemoveClass el name))
+
+    [<JavaScript; Macro(typeof<Macros.AttrClass>)>]
+    let ClassPred name isSet =
+        As<Attr> (Attrs.Static (fun el ->
+            if isSet then DU.AddClass el name else DU.RemoveClass el name))
+
+    let Class name = ClassPred name true
+
+    let DynamicClass name view ok =
+        DynamicClassPred name (View.Map ok view)
 
     let DynamicPred name predView valView =
         let viewFn el (p, v) =
