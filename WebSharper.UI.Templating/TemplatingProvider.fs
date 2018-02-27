@@ -471,7 +471,7 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
     do setupTP()
 
     override this.ResolveAssembly(args) =
-        eprintfn "Type provider looking for assembly: %s" args.Name
+        //eprintfn "Type provider looking for assembly: %s" args.Name
         let name = AssemblyName(args.Name).Name.ToLowerInvariant()
         let an =
             cfg.ReferencedAssemblies
@@ -480,7 +480,7 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
         match an with
         | Some f -> Assembly.LoadFrom f
         | None ->
-            eprintfn "Type provider didn't find assembly: %s" args.Name
+            //eprintfn "Type provider didn't find assembly: %s" args.Name
             null
 
 [<assembly:TypeProviderAssembly>]
