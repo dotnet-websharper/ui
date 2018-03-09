@@ -2,6 +2,7 @@ version 5.142.0
 
 source https://api.nuget.org/v3/index.json
 source https://nuget.intellifactory.com/nuget username: "%IF_USER%" password: "%IF_PASS%"
+strategy: min
 storage: none
 
 nuget FSharp.Core ~> 4.2.0
@@ -10,7 +11,7 @@ nuget WebSharper.CSharp prerelease
 nuget WebSharper.FSharp prerelease
 nuget WebSharper.Testing prerelease
 nuget HtmlAgilityPack 1.6.15
-nuget Microsoft.CodeAnalysis.CSharp 1.0.0
+nuget Microsoft.CodeAnalysis.CSharp ~> 2.6.0
 nuget System.ValueTuple 4.3.0
 github fsprojects/FSharp.TypeProviders.SDK:b6d5c949e46c34f051e2adf88170e1a2d20cbfd9 src/ProvidedTypes.fsi
 github fsprojects/FSharp.TypeProviders.SDK:b6d5c949e46c34f051e2adf88170e1a2d20cbfd9 src/ProvidedTypes.fs
