@@ -13,11 +13,6 @@ tags
 files
     ../WebSharper.UI/bin/Release/net461/WebSharper.UI.dll ==> lib/net461
     ../WebSharper.UI/bin/Release/net461/WebSharper.UI.xml ==> lib/net461
-    ../WebSharper.UI.Templating/bin/Release/net461/netstandard.dll ==> lib/net461
-    ../WebSharper.UI.Templating/bin/Release/net461/System.Globalization.dll ==> lib/net461
-    ../WebSharper.UI.Templating/bin/Release/net461/System.Reflection.dll ==> lib/net461
-    ../WebSharper.UI.Templating/bin/Release/net461/System.Runtime.dll ==> lib/net461
-    ../WebSharper.UI.Templating/bin/Release/net461/HtmlAgilityPack.dll ==> lib/net461
     ../WebSharper.UI.Templating/bin/Release/net461/WebSharper.UI.Templating.Common.dll ==> lib/net461
     ../WebSharper.UI.Templating/bin/Release/net461/WebSharper.UI.Templating.Common.xml ==> lib/net461
     ../WebSharper.UI.Templating/bin/Release/net461/WebSharper.UI.Templating.Runtime.dll ==> lib/net461
@@ -26,11 +21,6 @@ files
     ../WebSharper.UI.Templating/bin/Release/net461/WebSharper.UI.Templating.xml ==> lib/net461
     ../WebSharper.UI/bin/Release/netstandard2.0/WebSharper.UI.dll ==> lib/netstandard2.0
     ../WebSharper.UI/bin/Release/netstandard2.0/WebSharper.UI.xml ==> lib/netstandard2.0
-    ../WebSharper.UI.Templating/bin/Release/net461/netstandard.dll ==> lib/netstandard2.0
-    ../WebSharper.UI.Templating/bin/Release/net461/System.Globalization.dll ==> lib/netstandard2.0
-    ../WebSharper.UI.Templating/bin/Release/net461/System.Reflection.dll ==> lib/netstandard2.0
-    ../WebSharper.UI.Templating/bin/Release/net461/System.Runtime.dll ==> lib/netstandard2.0
-    ../WebSharper.UI.Templating/bin/Release/net461/HtmlAgilityPack.dll ==> lib/netstandard2.0
     ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.UI.Templating.Common.dll ==> lib/netstandard2.0
     ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.UI.Templating.Common.xml ==> lib/netstandard2.0
     ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.UI.Templating.Runtime.dll ==> lib/netstandard2.0
