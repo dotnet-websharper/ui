@@ -33,7 +33,7 @@ type CheckedInput<'T> =
 
 module Attr =
 
-    /// Dynamic variant of Create.
+    /// Sets a basic DOM attribute, such as `id` to a dynamic text value.
     val Dynamic : name: string -> value: View<string> -> Attr
 
     /// Dynamically set a property of the DOM element.
@@ -42,16 +42,16 @@ module Attr =
     /// Dynamic with a custom setter.
     val DynamicCustom : set: (Element -> 'T -> unit) -> value: View<'T> -> Attr
 
-    /// Animated variant of Create.
+    /// Sets a basic DOM attribute, such as `id` to a dynamic text value with an animation.
     val Animated : name: string -> Trans<'T> -> view: View<'T> -> value: ('T -> string) -> Attr
 
-    /// Sets a style attribute, such as `background-color`.
+    /// Sets a style attribute, such as `background-color`, with constant content, or with dynamic content using `view.V`.
     val Style : name: string -> value: string -> Attr
 
-    /// Dynamic variant of Style.
+    /// Sets a style attribute, such as `background-color`, with dynamic content.
     val DynamicStyle : name: string -> value: View<string> -> Attr
 
-    /// Animated variant of Style.
+    /// Sets a style attribute, such as `background-color`, with animated content.
     val AnimatedStyle : name: string -> Trans<'T> -> view: View<'T> -> value: ('T -> string) -> Attr
 
     /// Sets an event handler, for a given event such as `click`.
@@ -75,7 +75,7 @@ module Attr =
     // new; V-enabled on `isSet` (turns it into DynamicClassPred)
     val ClassPred : name: string -> isSet: bool -> Attr
 
-    /// Dynamic variant of Style.
+    /// Dynamic variant of Class.
     val DynamicClassPred : name: string -> isSet: View<bool> -> Attr
 
     /// Sets a CSS class when the given view satisfies a predicate.

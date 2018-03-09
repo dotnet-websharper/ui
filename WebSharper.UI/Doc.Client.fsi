@@ -28,6 +28,10 @@ open WebSharper
 open WebSharper.JavaScript
 open WebSharper.UI
 
+module Settings =
+    /// Batch UI updates to minimize refreshing. Default: true.
+    val mutable BatchUpdatesEnabled : bool
+
 [<AutoOpen>]
 module EltExtensions =
 

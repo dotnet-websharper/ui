@@ -13,6 +13,10 @@ module DU = DomUtility
 type private A = Attr
 
 [<JavaScript>]
+module Settings =
+    let mutable BatchUpdatesEnabled = true
+
+[<JavaScript>]
 type DocNode =
     | AppendDoc of DocNode * DocNode
     | ElemDoc of DocElemNode
@@ -366,12 +370,15 @@ module Docs =
         |> Array.map (fun n -> Attrs.GetEnterAnim n.Attr)
         |> Anim.Concat
 
-    let SyncElemNodesNextFrame st = 
-        Async.FromContinuations <| fun (ok, _, _) ->
-            JS.RequestAnimationFrame (fun _ ->
-                SyncElemNode st.Top
-                ok()
-            ) |> ignore
+    let SyncElemNodesNextFrame st =
+        if Settings.BatchUpdatesEnabled then
+            Async.FromContinuations <| fun (ok, _, _) ->
+                JS.RequestAnimationFrame (fun _ ->
+                    SyncElemNode st.Top
+                    ok()
+                ) |> ignore
+        else
+            async.Return(SyncElemNode st.Top)
 
     /// The main function: how to perform an animated top-level document update.
     let PerformAnimatedUpdate st doc =
@@ -388,6 +395,11 @@ module Docs =
             }
         else
             SyncElemNodesNextFrame st
+
+    let PerformSyncUpdate st doc =
+        let cur = NodeSet.FindAll doc
+        SyncElemNode st.Top
+        st.PreviousNodes <- cur
 
     /// EmbedNode constructor.
     [<MethodImpl(MethodImplOptions.NoInlining)>]
@@ -521,7 +533,11 @@ type private Doc' [<JavaScript>] (docNode, updates) =
     static member RunBetween ldelim rdelim (doc: Doc') =
         Docs.LinkPrevElement rdelim doc.DocNode
         let st = Docs.CreateDelimitedRunState ldelim rdelim doc.DocNode
-        let p = Mailbox.StartProcessor (Docs.PerformAnimatedUpdate st doc.DocNode)
+        let p =
+            if Anim.UseAnimations || Settings.BatchUpdatesEnabled then
+                Mailbox.StartProcessor (Docs.PerformAnimatedUpdate st doc.DocNode)
+            else
+                fun () -> Docs.PerformSyncUpdate st doc.DocNode
         View.Sink p doc.Updates
 
     [<JavaScript>]
