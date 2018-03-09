@@ -27,10 +27,7 @@ files
     ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.UI.Templating.Runtime.xml ==> lib/netstandard2.0
     ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.UI.Templating.dll ==> lib/netstandard2.0
     ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.UI.Templating.xml ==> lib/netstandard2.0
-    ../WebSharper.UI.Templating/bin/Release/net461/netstandard.dll ==> lib/netstandard2.0
-    ../WebSharper.UI.Templating/bin/Release/net461/System.Globalization.dll ==> lib/netstandard2.0
-    ../WebSharper.UI.Templating/bin/Release/net461/System.Reflection.dll ==> lib/netstandard2.0
-    ../WebSharper.UI.Templating/bin/Release/net461/System.Runtime.dll ==> lib/netstandard2.0dependencies
+dependencies
     WebSharper ~> LOCKEDVERSION/3
     System.Xml.XDocument ~> 4.3
     HtmlAgilityPack ~> LOCKEDVERSION/3
