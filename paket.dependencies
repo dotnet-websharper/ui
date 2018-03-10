@@ -34,6 +34,5 @@ group includes
     source https://api.nuget.org/v3/index.json
     source https://nuget.intellifactory.com/nuget username: "%IF_USER%" password: "%IF_PASS%"
 
-    nuget HtmlAgilityPack 1.7.1 framework: netstandard2.0
     nuget NETStandard.Library framework: netstandard2.0
     github dotnet-websharper/websharper src/htmllib/tags.csv
