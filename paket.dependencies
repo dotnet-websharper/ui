@@ -11,7 +11,7 @@ nuget WebSharper prerelease
 nuget WebSharper.CSharp prerelease
 nuget WebSharper.FSharp prerelease
 nuget WebSharper.Testing prerelease
-nuget HtmlAgilityPack 1.6.15
+nuget HtmlAgilityPack 1.7.1
 nuget Microsoft.CodeAnalysis.CSharp ~> 2.6.0
 nuget System.ValueTuple 4.3.0
 github fsprojects/FSharp.TypeProviders.SDK:b6d5c949e46c34f051e2adf88170e1a2d20cbfd9 src/ProvidedTypes.fsi
@@ -34,6 +34,6 @@ group includes
     source https://api.nuget.org/v3/index.json
     source https://nuget.intellifactory.com/nuget username: "%IF_USER%" password: "%IF_PASS%"
 
-    nuget HtmlAgilityPack 1.6.15 framework: netstandard2.0
+    nuget HtmlAgilityPack 1.7.1 framework: netstandard2.0
     nuget NETStandard.Library framework: netstandard2.0
     github dotnet-websharper/websharper src/htmllib/tags.csv

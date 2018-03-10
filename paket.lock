@@ -27,7 +27,7 @@ NUGET
       System.Threading.Thread (>= 4.0) - restriction: || (&& (== net461) (< net45) (>= netstandard1.6)) (== netstandard2.0)
       System.Threading.ThreadPool (>= 4.0.10) - restriction: || (&& (== net461) (< net45) (>= netstandard1.6)) (== netstandard2.0)
       System.Threading.Timer (>= 4.0.1) - restriction: || (&& (== net461) (< net45) (>= netstandard1.6)) (== netstandard2.0)
-    HtmlAgilityPack (1.6.15)
+    HtmlAgilityPack (1.7.1)
       System.Net.Http (>= 4.3.2) - restriction: || (&& (== net461) (< net40) (>= netstandard2.0)) (&& (== net461) (>= uap10.0)) (== netstandard2.0)
       System.Xml.XmlDocument (>= 4.3) - restriction: || (&& (== net461) (< net40)) (== netstandard2.0)
       System.Xml.XPath (>= 4.3) - restriction: || (&& (== net461) (< net40)) (&& (== net461) (>= uap10.0)) (== netstandard2.0)
@@ -857,7 +857,7 @@ GROUP includes
 REFERENCES: STRICT
 NUGET
   remote: https://api.nuget.org/v3/index.json
-    HtmlAgilityPack (1.6.15) - restriction: == netstandard2.0
+    HtmlAgilityPack (1.7.1) - restriction: == netstandard2.0
       System.Net.Http (>= 4.3.2) - restriction: || (&& (< net40) (>= netstandard2.0)) (>= uap10.0)
       System.Xml.XmlDocument (>= 4.3) - restriction: || (&& (< net40) (>= netstandard1.3) (< netstandard1.6) (< win8)) (&& (< net40) (>= netstandard1.6) (< netstandard2.0)) (&& (< net40) (>= netstandard2.0))
       System.Xml.XPath (>= 4.3) - restriction: || (&& (< net40) (>= netstandard1.3) (< netstandard1.6) (< win8)) (&& (< net40) (>= netstandard1.6) (< netstandard2.0)) (&& (< net40) (>= netstandard2.0)) (>= uap10.0)
