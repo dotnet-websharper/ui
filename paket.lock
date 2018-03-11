@@ -53,7 +53,7 @@ NUGET
       runtime.win10-x86.Microsoft.Net.UWPCoreRuntimeSdk (>= 2.1.2) - restriction: >= uap10.1
     Microsoft.NETCore.Platforms (2.0.1) - restriction: >= uap10.1
     Microsoft.NETCore.Targets (2.0) - restriction: || (&& (>= dnxcore50) (>= netstandard1.0)) (&& (< monoandroid) (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (&& (< monoandroid) (< net45) (>= netstandard1.0) (< netstandard1.3) (< win8) (< wp8) (< wpa81))
-    Microsoft.NETCore.UniversalWindowsPlatform (6.0.7) - restriction: >= uap10.0
+    Microsoft.NETCore.UniversalWindowsPlatform (6.0.8) - restriction: >= uap10.0
       Microsoft.Net.Native.Compiler (>= 2.0.3) - restriction: >= uap10.1
       Microsoft.Net.UWPCoreRuntimeSdk (>= 2.1.2) - restriction: >= uap10.1
       Microsoft.NETCore.Platforms (>= 2.0) - restriction: >= uap10.1
@@ -648,17 +648,17 @@ NUGET
       System.Xml.XmlDocument (>= 4.3) - restriction: || (&& (< monoandroid) (< monotouch) (>= netstandard1.3) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (>= net46)
       System.Xml.XPath (>= 4.3) - restriction: || (&& (< monoandroid) (< monotouch) (>= netstandard1.3) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (>= net46)
   remote: https://nuget.intellifactory.com/nuget
-    WebSharper (4.2.3.236)
-    WebSharper.CSharp (4.2.3.236)
-      WebSharper (4.2.3.236)
-    WebSharper.FSharp (4.2.3.236)
-      WebSharper (4.2.3.236)
-    WebSharper.Testing (4.2.3.236)
-      WebSharper (4.2.3.236)
+    WebSharper (4.2.4.247)
+    WebSharper.CSharp (4.2.4.247)
+      WebSharper (4.2.4.247)
+    WebSharper.FSharp (4.2.4.247)
+      WebSharper (4.2.4.247)
+    WebSharper.Testing (4.2.4.247)
+      WebSharper (4.2.4.247)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (a23cf5dcd4309cc528bbd4662c5971fe163a0bab)
-    src/ProvidedTypes.fsi (a23cf5dcd4309cc528bbd4662c5971fe163a0bab)
+    src/ProvidedTypes.fs (f0c4a6300db313eb2616c4f792cd6ae68c255e56)
+    src/ProvidedTypes.fsi (f0c4a6300db313eb2616c4f792cd6ae68c255e56)
 GROUP build
 RESTRICTION: == net45
 NUGET

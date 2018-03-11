@@ -1502,6 +1502,12 @@
     <Analyzer Include="..\packages\WebSharper.CSharp\analyzers\dotnet\cs\FSharp.Core.dll">
       <Paket>True</Paket>
     </Analyzer>
+    <Analyzer Include="..\packages\WebSharper.CSharp\analyzers\dotnet\cs\Microsoft.DotNet.PlatformAbstractions.dll">
+      <Paket>True</Paket>
+    </Analyzer>
+    <Analyzer Include="..\packages\WebSharper.CSharp\analyzers\dotnet\cs\Microsoft.Extensions.DependencyModel.dll">
+      <Paket>True</Paket>
+    </Analyzer>
     <Analyzer Include="..\packages\WebSharper.CSharp\analyzers\dotnet\cs\Mono.Cecil.Mdb.dll">
       <Paket>True</Paket>
     </Analyzer>
@@ -1509,9 +1515,6 @@
       <Paket>True</Paket>
     </Analyzer>
     <Analyzer Include="..\packages\WebSharper.CSharp\analyzers\dotnet\cs\Mono.Cecil.dll">
-      <Paket>True</Paket>
-    </Analyzer>
-    <Analyzer Include="..\packages\WebSharper.CSharp\analyzers\dotnet\cs\System.ValueTuple.dll">
       <Paket>True</Paket>
     </Analyzer>
     <Analyzer Include="..\packages\WebSharper.CSharp\analyzers\dotnet\cs\WebSharper.CSharp.Analyzer.dll">
@@ -1530,6 +1533,9 @@
       <Paket>True</Paket>
     </Analyzer>
     <Analyzer Include="..\packages\WebSharper.CSharp\analyzers\dotnet\cs\WebSharper.InterfaceGenerator.dll">
+      <Paket>True</Paket>
+    </Analyzer>
+    <Analyzer Include="..\packages\WebSharper.CSharp\analyzers\dotnet\cs\netstandard.dll">
       <Paket>True</Paket>
     </Analyzer>
   </ItemGroup>
