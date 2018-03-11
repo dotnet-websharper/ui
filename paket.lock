@@ -824,13 +824,13 @@ NUGET
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
   remote: https://nuget.intellifactory.com/nuget
-    WebSharper (4.2.4.245)
-    WebSharper.CSharp (4.2.4.245)
-      WebSharper (4.2.4.245)
-    WebSharper.FSharp (4.2.4.245)
-      WebSharper (4.2.4.245)
-    WebSharper.Testing (4.2.4.245)
-      WebSharper (4.2.4.245)
+    WebSharper (4.2.4.247)
+    WebSharper.CSharp (4.2.4.247)
+      WebSharper (4.2.4.247)
+    WebSharper.FSharp (4.2.4.247)
+      WebSharper (4.2.4.247)
+    WebSharper.Testing (4.2.4.247)
+      WebSharper (4.2.4.247)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
     src/ProvidedTypes.fs (b6d5c949e46c34f051e2adf88170e1a2d20cbfd9)
@@ -867,4 +867,4 @@ GROUP wsbuild
 
 GIT
   remote: https://github.com/dotnet-websharper/build-script
-     (7daa4afa9ec361e6dd20bd2ac05b76def2e58f87)
+     (1fde3d5c3233c63777f1ec9154ddd2e03b8a5530)
