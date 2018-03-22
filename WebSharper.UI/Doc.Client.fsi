@@ -1178,6 +1178,9 @@ module Doc =
     /// Construct a Doc using a given loaded template by name and template fillers.
     val GetOrLoadTemplate : string -> option<string> -> (unit -> Node[]) -> seq<TemplateHole> -> Doc
 
+    /// Run the full document as a template with the given fillers.
+    val RunFullDocTemplate : seq<TemplateHole> -> Doc
+
   // Collections.
 
     /// Converts a collection to Doc using View.MapSeqCached and embeds the concatenated result.

@@ -6,11 +6,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" type="text/css" href="Content/WebSharper.UI.Templating.Tests.css" />
     <script type="text/javascript" src="Content/WebSharper.UI.Templating.Tests.head.js"></script>
-    <style>[ws-template],[ws-children-template]{display:none;}</style>
+    <style>
+      [ws-template], [ws-children-template]{
+        display:none;
+      }
+      .fail::before {
+        content: '[FAIL] ';
+      }
+      .ok::before {
+        content: '[OK] ';
+      }
+    </style>
 </head>
 <body>
-    <div id="main">
+    <div id="main-template">
+      <!-- Testing Bind() -->
+      <h1>Template holes directly in the main file</h1>
+      <p ws-hole="Hole">[FAIL] This should be replaced by a ws-hole.</p>
+      <p ws-replace="Replace">[FAIL] This should be replaced by a ws-replace.</p>
+      <p>${TextHole}</p>
+      <p class="fail" ws-attr="Attr">This is marked ok by ws-attr.</p>
+      <p ws-onmouseenter="MouseEnter">This is marked ok by ws-onmouseenter.</p>
+      <p ws-onafterrender="AfterRender">[FAIL] This should be replaced by a ws-onafterrender.</p>
+      <p class="fail ${OkClass}">This is marked ok by a ${text} hole in an attribute.</p>
+      <p><input ws-var="Input" ws-onmouseenter="InputMouseEnter" /></p>
+      <p>${Input} This is marked ok by a ws-var on the above input (set on mouseenter).</p>
+      <p>${OkView} This is marked ok by a View ${text} hole.</p>
+      <p class="fail ${OkClassView}">This is marked ok by a ${text} View hole in an attribute.</p>
+      <p>The following is a ws-instanciation of Form.</p>
+      <ws-Form Submit Welcome></ws-Form>
     </div>
+    <div id="main"></div>
     <div ws-template="Form">
         <input type="text" ws-var="Username" />
         <br />

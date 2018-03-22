@@ -81,6 +81,8 @@ module private Impl =
                 "Get the reactive variable \"" + n + "\" for this template instance."
             let Instance =
                 "Create an instance of this template."
+            let Bind =
+                "Bind the template instance to the document."
 
     let ReflectedDefinitionCtor =
         typeof<ReflectedDefinitionAttribute>.GetConstructor([||])
@@ -213,39 +215,52 @@ module private Impl =
         | None -> <@ None @>
         | Some x -> <@ Some (%%Expr.Value x : 'T) @>
 
-    let InstanceBody (ctx: Ctx) = fun (args: list<Expr>) ->
+    let References (ctx: Ctx) =
+        Expr.NewArray(typeof<string * option<string> * string>,
+            [ for (fileId, templateId) in ctx.Template.References do
+                let src =
+                    match ctx.AllTemplates.TryFind fileId with
+                    | Some m ->
+                        match m.TryFind templateId with
+                        | Some t -> t.Src
+                        | None -> failwithf "Template %A not found in file %A" templateId fileId
+                    | None -> failwithf "File %A not found, expecting it with template %A" fileId templateId
+                yield Expr.NewTuple [
+                    Expr.Value fileId
+                    OptionValue templateId
+                    Expr.Value src
+                ]
+            ]
+        )
+
+    let InstanceVars (ctx: Ctx) =
+        Expr.NewArray(typeof<string * RTS.ValTy>,
+            [
+                for KeyValue(holeName, holeDef) in ctx.Template.Holes do
+                    let holeName' = holeName.ToLowerInvariant()
+                    match holeDef.Kind with
+                    | HoleKind.Var AST.ValTy.Any
+                    | HoleKind.Var AST.ValTy.String -> yield <@@ (holeName', RTS.ValTy.String) @@>
+                    | HoleKind.Var AST.ValTy.Number -> yield <@@ (holeName', RTS.ValTy.Number) @@>
+                    | HoleKind.Var AST.ValTy.Bool -> yield <@@ (holeName', RTS.ValTy.Bool) @@>
+                    | _ -> ()
+            ]
+        )
+
+    let BindBody (ctx: Ctx) (args: list<Expr>) =
+        // TODO: anything to do with this?
+        // let references = References ctx
+        let vars = InstanceVars ctx
+        <@@ let rTI, key, holes = ((%%args.[0] : obj) :?> State)
+            let holes, completed = RTS.Handler.CompleteHoles(key, holes, %%vars)
+            let doc = RTS.Runtime.RunTemplate holes
+            rTI := TI(completed, doc) @@>
+
+    let InstanceBody (ctx: Ctx) (args: list<Expr>) =
         let name = ctx.Id |> Option.map (fun s -> s.ToLowerInvariant())
-        let references =
-            Expr.NewArray(typeof<string * option<string> * string>,
-                [ for (fileId, templateId) in ctx.Template.References do
-                    let src =
-                        match ctx.AllTemplates.TryFind fileId with
-                        | Some m ->
-                            match m.TryFind templateId with
-                            | Some t -> t.Src
-                            | None -> failwithf "Template %A not found in file %A" templateId fileId
-                        | None -> failwithf "File %A not found, expecting it with template %A" fileId templateId
-                    yield Expr.NewTuple [
-                        Expr.Value fileId
-                        OptionValue templateId
-                        Expr.Value src
-                    ]
-                ]
-            )
-        let vars =
-            Expr.NewArray(typeof<string * RTS.ValTy>,
-                [
-                    for KeyValue(holeName, holeDef) in ctx.Template.Holes do
-                        let holeName' = holeName.ToLowerInvariant()
-                        match holeDef.Kind with
-                        | HoleKind.Var AST.ValTy.Any
-                        | HoleKind.Var AST.ValTy.String -> yield <@@ (holeName', RTS.ValTy.String) @@>
-                        | HoleKind.Var AST.ValTy.Number -> yield <@@ (holeName', RTS.ValTy.Number) @@>
-                        | HoleKind.Var AST.ValTy.Bool -> yield <@@ (holeName', RTS.ValTy.Bool) @@>
-                        | _ -> ()
-                ]
-            )
-        <@  let rTI, key, holes = ((%%args.[0] : obj) :?> State)
+        let references = References ctx
+        let vars = InstanceVars ctx
+        <@@ let rTI, key, holes = ((%%args.[0] : obj) :?> State)
             let holes, completed = RTS.Handler.CompleteHoles(key, holes, %%vars)
             let doc =
                 RTS.Runtime.GetOrLoadTemplate(
@@ -261,8 +276,7 @@ module private Impl =
                     %%Expr.Value ctx.Template.IsElt
                 )
             rTI := TI(completed, doc)
-            !rTI @>
-        :> Expr
+            !rTI @@>
             
     let BuildInstanceType (ty: PT.Type) (ctx: Ctx) =
         let res =
@@ -299,13 +313,17 @@ module private Impl =
         ]
         res, vars
 
-    let BuildOneTemplate (ty: PT.Type) (ctx: Ctx) =
+    let BuildOneTemplate (ty: PT.Type) (isRoot: bool) (ctx: Ctx) =
         ty.AddMembers [
             let instanceTy, varsTy = BuildInstanceType ty ctx
             for KeyValue (holeName, holeKind) in ctx.Template.Holes do
                 yield! BuildHoleMethods holeName holeKind ty instanceTy varsTy ctx
-            yield ProvidedMethod("Create", [], instanceTy, InstanceBody ctx)
-                .WithXmlDoc(XmlDoc.Member.Instance) :> _
+            if isRoot then
+                yield ProvidedMethod("Bind", [], typeof<unit>, BindBody ctx)
+                    .WithXmlDoc(XmlDoc.Member.Bind) :> _
+            else
+                yield ProvidedMethod("Create", [], instanceTy, InstanceBody ctx)
+                    .WithXmlDoc(XmlDoc.Member.Instance) :> _
             yield ProvidedMethod("Doc", [], typeof<Doc>, fun args ->
                 <@@ (%%InstanceBody ctx args : TI).Doc @@>)
                 .WithXmlDoc(XmlDoc.Member.Instance) :> _
@@ -339,13 +357,14 @@ module private Impl =
             }
             match tn.NameAsOption with
             | None ->
-                BuildOneTemplate (containerTy.WithXmlDoc(XmlDoc.Type.Template "")) ctx
+                BuildOneTemplate (containerTy.WithXmlDoc(XmlDoc.Type.Template ""))
+                    (item.ClientLoad = ClientLoad.FromDocument) ctx
             | Some n ->
                 let ty =
                     ProvidedTypeDefinition(n, None)
                         .WithXmlDoc(XmlDoc.Type.Template n)
                         .AddTo(containerTy)
-                BuildOneTemplate ty ctx
+                BuildOneTemplate ty false ctx
 
     let BuildTP (parsed: Parsing.ParseItem[]) (containerTy: PT.Type) =
         let allTemplates =

@@ -220,6 +220,10 @@ type private RuntimeProxy =
             ) : Doc =
         X<Doc>
 
+    [<JavaScript>]
+    static member RunTemplate (fillWith: seq<TemplateHole>): Doc =
+        WebSharper.UI.Client.Doc.RunFullDocTemplate fillWith
+
 [<Proxy(typeof<Server.Handler>)>]
 type private HandlerProxy =
 

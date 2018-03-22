@@ -242,4 +242,27 @@ module Client =
         ]
         |> Doc.RunById "main"
 
+        let welcome = Var.Create ""
+        MyTemplate.index()
+            .Hole(text "[OK] This replaces a ws-hole.")
+            .Replace(p [] [text "[OK] This replaces a ws-replace."])
+            .TextHole("[OK] This replaces a ${text} hole.")
+            .MouseEnter(fun e ->
+                JQuery.JQuery(e.Target).AddClass("ok").Ignore
+            )
+            .Attr(Attr.Class "ok")
+            .AfterRender(fun (el: Dom.Element) ->
+                el.TextContent <- "[OK] This replaces text with ws-onafterrender.")
+            .InputMouseEnter(fun e ->
+                e.Vars.Input := "[OK]"
+            )
+            .OkClass("ok")
+            .OkView(View.Const "[OK]")
+            .OkClassView(View.Const "ok")
+            .Submit(fun e ->
+                welcome := "Welcome! (TODO: pass Vars through template instantiation)"
+            )
+            .Welcome(welcome.View)
+            .Bind()
+
         Console.Log("Running JavaScript Entry Point..")

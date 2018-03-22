@@ -589,13 +589,17 @@ type private Doc' [<JavaScript>] (docNode, updates) =
         | el -> Doc'.RunPrepend el doc
 
     [<JavaScript>]
-    static member Run parent (doc: Doc') =
-        Doc'.LoadLocalTemplates()
+    static member RunInPlace parent (doc: Doc') =
         let d = doc.DocNode
-        Docs.LinkElement parent d
         let st = Docs.CreateRunState parent d
         let p = Mailbox.StartProcessor (Docs.PerformAnimatedUpdate st d)
         View.Sink p doc.Updates
+
+    [<JavaScript>]
+    static member Run parent (doc: Doc') =
+        Doc'.LoadLocalTemplates()
+        Docs.LinkElement parent doc.DocNode
+        Doc'.RunInPlace parent doc
 
     [<JavaScript>]
     static member RunById id tr =
@@ -621,7 +625,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
         Doc'.ChildrenTemplate (Doc'.FakeRoot els) fillWith
 
     [<JavaScript>]
-    static member ChildrenTemplate (el: Element) (fillWith: seq<TemplateHole>) =
+    static member InlineTemplate (el: Dom.Element) (fillWith: seq<TemplateHole>) =
         let holes : DocElemNode[] = [||]
         let updates : View<unit>[] = [||]
         let attrs : (Element * Attrs.Dyn)[] = [||]
@@ -803,12 +807,22 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             }
         let updates =
             updates |> Array.TreeReduce (View.Const ()) View.Map2Unit
+        docTreeNode, updates
 
-        match els with
+    [<JavaScript>]
+    static member ChildrenTemplate (el: Element) (fillWith: seq<TemplateHole>) =
+        let docTreeNode, updates = Doc'.InlineTemplate el fillWith
+        match docTreeNode.Els with
         | [| Union1Of2 e |] when e.NodeType = Dom.NodeType.Element ->
             Elt'.TreeNode(docTreeNode, updates) :> Doc'
         | _ ->
             Doc'.Mk (TreeDoc docTreeNode) updates
+
+    [<JavaScript>]
+    static member RunFullDocTemplate (fillWith: seq<TemplateHole>) =
+        Doc'.PrepareTemplateStrict "" None (DomUtility.ChildrenArray JS.Document.Body) (Some JS.Document.Body)
+        Doc'.ChildrenTemplate JS.Document.Body fillWith
+        |>! Doc'.RunInPlace JS.Document.Body
 
     [<JavaScript>]
     static member FakeRoot (els: Node[]) =
@@ -829,14 +843,10 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 let n = JS.Document.CreateElement(el.TagName)
                 n.SetAttribute("ws-replace", replace)
                 p.ReplaceChild(n, el) |> ignore
-        Doc'.PrepareTemplateStrict baseName name [| el |]
+        Doc'.PrepareTemplateStrict baseName name [| el |] None
 
     [<JavaScript>]
-    static member ComposeName baseName name =
-        (baseName + "/" + defaultArg name "").ToLower()
-
-    [<JavaScript>]
-    static member PrepareTemplateStrict (baseName: string) (name: option<string>) (els: Node[]) =
+    static member PrepareTemplateStrict (baseName: string) (name: option<string>) (els: Node[]) (root: option<Element>) =
         let convertAttrs (el: Dom.Element) =
             let attrs = el.Attributes
             let toRemove = [||]
@@ -1086,7 +1096,10 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                     convertElement (n :?> Dom.Element)
                 convert p next
 
-        let fakeroot = Doc'.FakeRoot els
+        let fakeroot =
+            match root with
+            | None -> Doc'.FakeRoot els
+            | Some r -> r
         let name = (defaultArg name "").ToLower()
         Docs.LoadedTemplateFile(baseName).[name] <- fakeroot
         if els.Length > 0 then convert fakeroot els.[0]
@@ -1099,7 +1112,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
                 match el.ParentNode :?> Element with
                 | null -> ()
                 | p -> p.RemoveChild(el) |> ignore
-            Doc'.PrepareTemplateStrict baseName name els
+            Doc'.PrepareTemplateStrict baseName name els None
 
     [<JavaScript>]
     static member LoadLocalTemplates() =
@@ -1777,6 +1790,10 @@ module Doc =
     [<Inline>]
     let GetOrLoadTemplate (baseName: string) (name: option<string>) (el: unit -> Node[]) (fillWith: seq<TemplateHole>) : Doc =
         As (Doc'.GetOrLoadTemplate baseName name el fillWith)
+
+    [<Inline>]
+    let RunFullDocTemplate (fillWith: seq<TemplateHole>) : Doc =
+        As (Doc'.RunFullDocTemplate fillWith)
 
     [<Inline>]
     let Run parent (doc: Doc) =

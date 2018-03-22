@@ -210,6 +210,9 @@ type Runtime private () =
         ]
     static let defaultTemplateWrappers = ("""<div style="display:none" {0}="{1}">""", "</div>")
 
+    static member RunTemplate (fillWith: seq<TemplateHole>): Doc =
+        failwith "Template.Bind() can only be called from the client side."
+
     static member GetOrLoadTemplate
             (
                 baseName: string,
