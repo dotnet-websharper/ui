@@ -83,23 +83,64 @@ type DocExtension =
     /// Converts a collection to Doc using View.MapSeqCached and embeds the concatenated result.
     /// Shorthand for Doc.BindSeqCached.
     [<Extension>]
-    static member DocSeqCached : View<seq<'T>> * Func<'T, #Doc> -> Doc
-        when 'T : equality
+    static member DocSeqCached<'T when 'T : equality>
+        : View<seq<'T>>
+        * Func<'T, Doc>
+        -> Doc
 
     /// DocSeqCached with a custom key.
     /// Shorthand for Doc.BindSeqCachedBy.
     [<Extension>]
-    static member DocSeqCached : View<seq<'T>> * Func<'T,'K> * Func<'T, #Doc> -> Doc
-        when 'K : equality
+    static member DocSeqCached<'T, 'K when 'K : equality>
+        : View<seq<'T>>
+        * Func<'T,'K>
+        * Func<'T, Doc>
+        -> Doc
 
     /// Converts a collection to Doc using View.MapSeqCachedView and embeds the concatenated result.
     /// Shorthand for Doc.BindSeqCachedView.
     [<Extension>]
-    static member DocSeqCached : View<seq<'T>> * Func<View<'T>, #Doc> -> Doc
-        when 'T : equality
+    static member DocSeqCached<'T when 'T : equality>
+        : View<seq<'T>>
+        * Func<View<'T>, Doc>
+        -> Doc
 
     /// DocSeqCached with a custom key.
     /// Shorthand for Doc.BindSeqCachedViewBy.
     [<Extension>]
-    static member DocSeqCached : View<seq<'T>> * Func<'T, 'K> * Func<'K, View<'T>, #Doc> -> Doc
-        when 'K : equality
+    static member DocSeqCached<'T, 'K when 'K : equality>
+        : View<seq<'T>>
+        * Func<'T, 'K>
+        * Func<'K, View<'T>, Doc>
+        -> Doc
+
+    [<Extension>]
+    static member DocLens<'T, 'K when 'K : equality>
+        : Var<list<'T>>
+        * Func<'T, 'K>
+        * Func<Var<'T>, Doc>
+        -> Doc
+
+    /// Converts a ListModel to Doc using MapSeqCachedBy and embeds the concatenated result.
+    /// Shorthand for Doc.BindListModel.
+    [<Extension>]
+    static member Doc<'T, 'K when 'K : equality>
+        : ListModel<'K, 'T>
+        * Func<'T, Doc>
+        -> Doc
+    
+    /// Converts a ListModel to Doc using MapSeqCachedViewBy and embeds the concatenated result.
+    /// Shorthand for Doc.BindListModelView.
+    [<Extension>]
+    static member Doc<'T, 'K when 'K : equality>
+        : ListModel<'K, 'T>
+        * Func<'K, View<'T>, Doc>
+        -> Doc
+
+    /// Convert a ListModel's items to Doc and concatenate result.
+    /// Shorthand for Doc.BindListModelLens
+    [<Extension>]
+    static member DocLens<'T, 'K when 'K : equality>
+        : ListModel<'K, 'T>
+        * Func<'K, Var<'T>, Doc>
+        -> Doc

@@ -93,35 +93,49 @@ type VarExtensions =
 
 [<Extension; Sealed; JavaScript>]
 type DocExtension =
-    /// Embeds time-varying fragments.
-    /// Equivalent to Doc.BindView.
     [<Extension; Inline>]
     static member Doc(v, f: Func<'T, Doc>) =
         Client.Doc.BindView (FSharpConvert.Fun f) v
 
-    /// Converts a collection to Doc using View.MapSeqCached and embeds the concatenated result.
-    /// Shorthand for Doc.BindSeqCached.
     [<Extension; Inline>]
-    static member DocSeqCached<'T,'D when 'T : equality and 'D :> Doc>
-        (v, f: Func<'T, 'D>) = Client.Doc.BindSeqCached (FSharpConvert.Fun f) v
+    static member DocSeqCached<'T when 'T : equality>
+        (v: View<seq<'T>>, f: Func<'T, Doc>) =
+        Client.Doc.BindSeqCached (FSharpConvert.Fun f) v
 
-    /// DocSeqCached with a custom key.
-    /// Shorthand for Doc.BindSeqCachedBy.
     [<Extension; Inline>]
-    static member DocSeqCached<'T,'K,'D when 'K : equality and 'D :> Doc> 
-        (v, f: Func<'T,'K>, g: Func<'T, 'D>) = Client.Doc.BindSeqCachedBy (FSharpConvert.Fun f) (FSharpConvert.Fun g) v
+    static member DocSeqCached<'T,'K when 'K : equality>
+        (v: View<seq<'T>>, f: Func<'T,'K>, g: Func<'T, Doc>) =
+        Client.Doc.BindSeqCachedBy (FSharpConvert.Fun f) (FSharpConvert.Fun g) v
 
-    /// Converts a collection to Doc using View.MapSeqCachedView and embeds the concatenated result.
-    /// Shorthand for Doc.BindSeqCachedView.
     [<Extension; Inline>]
-    static member DocSeqCached<'T, 'D when 'T : equality and 'D :> Doc>
-        (v, f: Func<View<'T>, 'D>) = Client.Doc.BindSeqCachedView (FSharpConvert.Fun f) v
+    static member DocSeqCached<'T when 'T : equality>
+        (v: View<seq<'T>>, f: Func<View<'T>, Doc>) =
+        Client.Doc.BindSeqCachedView (FSharpConvert.Fun f) v
 
-    /// DocSeqCached with a custom key.
-    /// Shorthand for Doc.BindSeqCachedViewBy.
     [<Extension>]
-    static member DocSeqCached<'T,'K,'D when 'K : equality and 'D :> Doc>
-        (v, f: Func<'T, 'K>, g: Func<'K, View<'T>, 'D>) = Client.Doc.BindSeqCachedViewBy (FSharpConvert.Fun f) (FSharpConvert.Fun g) v
+    static member DocSeqCached<'T,'K when 'K : equality>
+        (v: View<seq<'T>>, f: Func<'T, 'K>, g: Func<'K, View<'T>, Doc>) =
+        Client.Doc.BindSeqCachedViewBy (FSharpConvert.Fun f) (FSharpConvert.Fun g) v
+
+    [<Extension>]
+    static member DocLens<'T,'K when 'K : equality>
+        (v: Var<list<'T>>, f: Func<'T, 'K>, g: Func<Var<'T>, Doc>) =
+        Client.DocExtensions.DocLens(v, FSharpConvert.Fun f, FSharpConvert.Fun g)
+
+    [<Extension>]
+    static member Doc<'T,'K when 'K : equality>
+        (model: ListModel<'K, 'T>, f: Func<'T, Doc>) =
+        Client.DocExtensions.Doc(model, FSharpConvert.Fun f)
+
+    [<Extension>]
+    static member Doc<'T,'K when 'K : equality>
+        (model: ListModel<'K, 'T>, f: Func<'K, View<'T>, Doc>) =
+        Client.DocExtensions.Doc(model, FSharpConvert.Fun f)
+
+    [<Extension>]
+    static member DocLens<'T, 'K when 'K : equality>
+        (model: ListModel<'K, 'T>, f: Func<'K, Var<'T>, Doc>) =
+        Client.DocExtensions.DocLens(model, FSharpConvert.Fun f)
 
 [<assembly:Extension>]
 do ()
