@@ -99,8 +99,6 @@ type ListModel<'Key,'T when 'Key : equality> =
  
     interface seq<'T>
 
-type ListModel<'Key,'T when 'Key : equality> with
-
     /// Views the current items as a ListModelState.
     /// This is fast but doesn't guarantee immutability if the ListModel is changed.
     member ViewState : View<ListModelState<'T>>
@@ -230,6 +228,8 @@ type ListModel<'Key,'T when 'Key : equality> with
     /// and only updating the passed view when the corresponding item has changed.
     member Map : f: ('Key -> View<'T> -> 'V) -> View<seq<'V>>
 
+    /// Map each item to a reactive sequence, only calling f once per item
+    /// and only updating the passed view when the corresponding item has changed.
     member MapLens : f: ('Key -> Var<'T> -> 'V) -> View<seq<'V>>
 
 /// ListModel combinators.
@@ -277,4 +277,6 @@ type ListModel =
     /// and only updating the passed view when the corresponding item has changed.
     static member MapView : ('Key -> View<'T> -> 'V) -> ListModel<'Key, 'T> -> View<seq<'V>>
 
+    /// Map each item to a reactive sequence, only calling f once per item
+    /// and only updating the passed view when the corresponding item has changed.
     static member MapLens : f: ('Key -> Var<'T> -> 'V) -> ListModel<'Key, 'T> -> View<seq<'V>>
