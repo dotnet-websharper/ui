@@ -32,11 +32,17 @@ module Client =
     let OnClick (el: Dom.Element) (ev: Dom.Event) =
         JS.Alert "clicked!"
 
+    let OnStartup() =
+        MainTemplate.Main()
+            .ClientSide(div [] [text "[OK] Inserted using Bind()"])
+            .Bind()
+
 [<Website>]
 let Main = Application.SinglePage(fun ctx ->
     Content.Page(
         MainTemplate.Main()
-            .Main([
+            .Main(
+                [
                 MainTemplate.template()
                     .Who("world 1")
                     .Click(fun _ -> JavaScript.JS.Alert "Clicked 1!")
@@ -45,7 +51,7 @@ let Main = Application.SinglePage(fun ctx ->
                     .Who("world 2")
                     .Click(fun _ -> JavaScript.JS.Alert "Clicked 2!")
                     .Doc()
-            ])
+                ])
             .Client(
                 [
                      client <@ Client.Main("green") @>
@@ -56,7 +62,8 @@ let Main = Application.SinglePage(fun ctx ->
                      :> Doc
                      button [on.click(fun _ _ -> JavaScript.JS.Alert "hey!")] [text "Click me!"] :> _
                 ])
+            .AfterRender(fun () -> Client.OnStartup())
             .TBody([MainTemplate.Main.Row().Doc(); MainTemplate.Main.Row().Doc()])
-            .Doc()
+            .Doc(keepUnfilled = true)
     )
 )

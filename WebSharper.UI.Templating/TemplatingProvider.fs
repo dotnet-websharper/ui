@@ -81,6 +81,9 @@ module private Impl =
                 "Get the reactive variable \"" + n + "\" for this template instance."
             let Instance =
                 "Create an instance of this template."
+            let Instance_withUnfilled =
+                """<summary>Create an instance of this template.</summary>
+                    <param name="keepUnfilled">Server-side only: set to true to keep all unfilled holes, to be filled by the client with Bind.</param>"""
             let Bind =
                 "Bind the template instance to the document."
 
@@ -273,7 +276,8 @@ module private Impl =
                     %%Expr.Value ctx.ServerLoad,
                     %%references,
                     completed,
-                    %%Expr.Value ctx.Template.IsElt
+                    %%Expr.Value ctx.Template.IsElt,
+                    %%(match args with _::keepUnfilled::_ -> keepUnfilled | _ -> Expr.Value false)
                 )
             rTI := TI(completed, doc)
             !rTI @@>
@@ -324,7 +328,11 @@ module private Impl =
             else
                 yield ProvidedMethod("Create", [], instanceTy, InstanceBody ctx)
                     .WithXmlDoc(XmlDoc.Member.Instance) :> _
-            yield ProvidedMethod("Doc", [], typeof<Doc>, fun args ->
+            let docParams =
+                if isRoot then
+                    [ProvidedParameter("keepUnfilled", typeof<bool>, optionalValue = box false)]
+                else []
+            yield ProvidedMethod("Doc", docParams, typeof<Doc>, fun args ->
                 <@@ (%%InstanceBody ctx args : TI).Doc @@>)
                 .WithXmlDoc(XmlDoc.Member.Instance) :> _
             if ctx.Template.IsElt then

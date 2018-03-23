@@ -224,7 +224,8 @@ type Runtime private () =
                 serverLoad: ServerLoad,
                 refs: array<string * option<string> * string>,
                 completed: CompletedHoles,
-                isElt: bool
+                isElt: bool,
+                keepUnfilled: bool
             ) : Doc =
         let getOrLoadSrc src =
             loaded.GetOrAdd(baseName, fun _ -> let t, _, _ = Parsing.ParseSource baseName src in t)
@@ -261,54 +262,59 @@ type Runtime private () =
                 text |> Array.iter (function
                     | StringPart.Text t -> w.Write(t)
                     | StringPart.Hole holeName ->
-                        if plain then w.Write("${" + holeName + "}") else
+                        let doPlain() = w.Write("${" + holeName + "}")
+                        if plain then doPlain() else
                         match ctx.FillWith.TryGetValue holeName with
                         | true, TemplateHole.Text (_, t) -> w.WriteEncodedText(t)
                         | true, _ -> failwithf "Invalid hole, expected text: %s" holeName
-                        | false, _ -> ()
+                        | false, _ -> if keepUnfilled then doPlain()
                 )
             let unencodedStringParts text =
                 text
                 |> Array.map (function
                     | StringPart.Text t -> t
                     | StringPart.Hole holeName ->
-                        if plain then "${" + holeName + "}" else
+                        let doPlain() = "${" + holeName + "}"
+                        if plain then doPlain() else
                         match ctx.FillWith.TryGetValue holeName with
                         | true, TemplateHole.Text (_, t) -> t
                         | true, _ -> failwithf "Invalid hole, expected text: %s" holeName
-                        | false, _ -> ""
+                        | false, _ -> if keepUnfilled then doPlain() else ""
                 )
                 |> String.concat ""
             let writeAttr = function
-                | Attr.Attr holeName when plain ->
-                    ctx.Writer.WriteAttribute(AttrAttr, holeName)
                 | Attr.Attr holeName ->
+                    let doPlain() = ctx.Writer.WriteAttribute(AttrAttr, holeName)
+                    if plain then doPlain() else
                     match requireResources.TryGetValue holeName with
                     | true, (:? UI.Attr as a) ->
                         a.Write(ctx.Context.Metadata, ctx.Writer, true)
                     | _ ->
                         if ctx.FillWith.ContainsKey holeName then
                             failwithf "Invalid hole, expected attribute: %s" holeName
+                        elif keepUnfilled then doPlain()
                 | Attr.Simple(name, value) ->
                     ctx.Writer.WriteAttribute(name, value)
                 | Attr.Compound(name, value) ->
                     ctx.Writer.WriteAttribute(name, unencodedStringParts value)
-                | Attr.Event(event, holeName) when plain ->
-                    ctx.Writer.WriteAttribute(EventAttrPrefix + event, holeName)
                 | Attr.Event(event, holeName) ->
+                    let doPlain() = ctx.Writer.WriteAttribute(EventAttrPrefix + event, holeName)
+                    if plain then doPlain() else
                     match requireResources.TryGetValue holeName with
                     | true, (:? UI.Attr as a) ->
                         a.WithName("on" + event).Write(ctx.Context.Metadata, ctx.Writer, true)
                     | _ ->
                         if ctx.FillWith.ContainsKey holeName then
                             failwithf "Invalid hole, expected quoted event: %s" holeName
+                        elif keepUnfilled then doPlain()
                 | Attr.OnAfterRender holeName ->
-                    if plain then ctx.Writer.WriteAttribute(AfterRenderAttr, holeName)
-            let rec writeElement tag attrs dataVar children =
+                    if plain || keepUnfilled then
+                        ctx.Writer.WriteAttribute(AfterRenderAttr, holeName)
+            let rec writeElement tag attrs wsVar children =
                 ctx.Writer.WriteBeginTag(tag)
                 attrs |> Array.iter writeAttr
                 extraAttrs |> List.iter (fun a -> a.Write(ctx.Context.Metadata, ctx.Writer, true))
-                dataVar |> Option.iter (fun v -> ctx.Writer.WriteAttribute("ws-var", v))
+                wsVar |> Option.iter (fun v -> ctx.Writer.WriteAttribute("ws-var", v))
                 if Array.isEmpty children && HtmlTextWriter.IsSelfClosingTag tag then
                     ctx.Writer.Write(HtmlTextWriter.SelfClosingTagEnd)
                 else
@@ -322,34 +328,39 @@ type Runtime private () =
                         )
                     ctx.Writer.WriteEndTag(tag)
             and writeNode = function
-                | Node.Input (tag, holeName, attrs, children) when plain ->
-                    writeElement tag attrs (Some holeName) children
                 | Node.Element (tag, _, attrs, children) ->
                     writeElement tag attrs None children
                 | Node.Input (tag, holeName, attrs, children) ->
-                    let attrs =
+                    let doPlain() = writeElement tag attrs (Some holeName) children
+                    if plain then doPlain() else
+                    let wsVar, attrs =
                         match ctx.FillWith.TryGetValue holeName with
-                        | true, TemplateHole.EventQ (_, _, _) -> Array.append [|Attr.Event("input", holeName)|] attrs
-                        | _ -> attrs
-                    writeElement tag attrs None children
+                        | true, TemplateHole.EventQ (_, _, _) ->
+                            None, Array.append [|Attr.Event("input", holeName)|] attrs
+                        | _ ->
+                            Some holeName, attrs
+                    writeElement tag attrs wsVar children
                 | Node.Text text ->
                     writeStringParts text ctx.Writer
-                | Node.DocHole holeName when plain ->
-                    ctx.Writer.WriteBeginTag("div")
-                    ctx.Writer.WriteAttribute(ReplaceAttr, holeName)
-                    ctx.Writer.Write(HtmlTextWriter.TagRightChar)
-                    ctx.Writer.WriteEndTag("div")
-                | Node.DocHole ("scripts" | "styles" | "meta" as name) when Option.isSome ctx.Resources ->
-                    ctx.Writer.Write(ctx.Resources.Value.[name])
                 | Node.DocHole holeName ->
-                    match requireResources.TryGetValue holeName with
-                    | true, (:? UI.Doc as doc) ->
-                        doc.Write(ctx.Context, ctx.Writer, ctx.Resources)
+                    let doPlain() =
+                        ctx.Writer.WriteBeginTag("div")
+                        ctx.Writer.WriteAttribute(ReplaceAttr, holeName)
+                        ctx.Writer.Write(HtmlTextWriter.TagRightChar)
+                        ctx.Writer.WriteEndTag("div")
+                    if plain then doPlain() else
+                    match holeName with
+                    | "scripts" | "styles" | "meta" when Option.isSome ctx.Resources ->
+                        ctx.Writer.Write(ctx.Resources.Value.[holeName])
                     | _ ->
-                        match ctx.FillWith.TryGetValue holeName with
-                        | true, TemplateHole.Text (_, txt) -> ctx.Writer.WriteEncodedText(txt)
-                        | true, _ -> failwithf "Invalid hole, expected Doc: %s" holeName
-                        | false, _ -> ()
+                        match requireResources.TryGetValue holeName with
+                        | true, (:? UI.Doc as doc) ->
+                            doc.Write(ctx.Context, ctx.Writer, ctx.Resources)
+                        | _ ->
+                            match ctx.FillWith.TryGetValue holeName with
+                            | true, TemplateHole.Text (_, txt) -> ctx.Writer.WriteEncodedText(txt)
+                            | true, _ -> failwithf "Invalid hole, expected Doc: %s" holeName
+                            | false, _ -> if keepUnfilled then doPlain()
                 | Node.Instantiate _ ->
                     failwithf "Template instantiation not yet supported on the server side"
             Array.iter writeNode template.Value

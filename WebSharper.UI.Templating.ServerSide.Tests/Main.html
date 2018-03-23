@@ -1,11 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <title>WebSharper.UI.Tests</title>
     <meta charset="utf-8" />
     <meta ws-replace="meta" />
 </head>
-<body>
+<body ws-onafterrender="AfterRender">
     <div ws-replace="Main">
         <div ws-template="ClientTemplate" style="color:${Input};opacity:${Opacity}">
             This started as ${Before}, but let's make it
@@ -28,6 +28,7 @@
             $!{Input}
         </div>
     </div>
+    <div ws-hole="ClientSide"></div>
     <script ws-replace="scripts"></script>
 </body>
 </html>
