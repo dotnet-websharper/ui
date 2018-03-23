@@ -243,6 +243,8 @@ module Client =
         |> Doc.RunById "main"
 
         let welcome = Var.Create ""
+        // TODO #162: this var shouldn't be necessary, it should be created in .Vars
+        let username = Var.Create ""
         MyTemplate.index()
             .Hole(text "[OK] This replaces a ws-hole.")
             .Replace(p [] [text "[OK] This replaces a ws-replace."])
@@ -259,8 +261,9 @@ module Client =
             .OkClass("ok")
             .OkView(View.Const "[OK]")
             .OkClassView(View.Const "ok")
+            .Username(username)
             .Submit(fun e ->
-                welcome := "Welcome! (TODO: pass Vars through template instantiation)"
+                welcome := sprintf "Welcome %s!" !username
             )
             .Welcome(welcome.View)
             .Bind()
