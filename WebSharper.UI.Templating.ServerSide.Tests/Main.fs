@@ -54,13 +54,18 @@ let Main = Application.SinglePage(fun ctx ->
                 ])
             .Client(
                 [
-                     client <@ Client.Main("green") @>
-                     client <@ Client.Main("blue") @>
-                     client <@ Client.OldMain("old template") @>
-                     MainTemplate.Main.ServerTemplate().Elt()
-                         .OnClick(<@ Client.OnClick @>)
-                     :> Doc
-                     button [on.click(fun _ _ -> JavaScript.JS.Alert "hey!")] [text "Click me!"] :> _
+                    client <@ Client.Main("green") @>
+                    client <@ Client.Main("blue") @>
+                    client <@ Client.OldMain("old template") @>
+                    MainTemplate.Main.ServerTemplate().Elt()
+                        .OnClick(<@ Client.OnClick @>)
+                    :> Doc
+                    button [
+                        on.click(fun _ _ -> JavaScript.JS.Alert "hey!")
+                    ] [text "Click me!"] :> _
+                    div [
+                        on.afterRender(fun el -> el.TextContent <- "[OK] on.afterRender")
+                    ] [text "[FAIL] on.afterRender"] :> _
                 ])
             .AfterRender(fun () -> Client.OnStartup())
             .TBody([MainTemplate.Main.Row().Doc(); MainTemplate.Main.Row().Doc()])

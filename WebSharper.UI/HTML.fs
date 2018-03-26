@@ -1323,6 +1323,10 @@ module Html =
 
     type on =
 
+        /// Adds a callback to be called after the element has been inserted in the DOM.
+        /// The callback is guaranteed to be called only once, even if the element is moved or removed and reinserted.
+        static member afterRender ([<JavaScript; ReflectedDefinition>] f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> unit>) = Attr.OnAfterRenderImpl(f)
+
         // {{ event
         /// Create a handler for the event "abort".
         /// When called on the server side, the handler must be a top-level function or a static member.
