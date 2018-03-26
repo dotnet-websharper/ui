@@ -1524,6 +1524,9 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Elt">]
         | _ -> failwith "Invalid docNode in Elt"
         this
 
+    member this.OnAfterRender (cb: Microsoft.FSharp.Quotations.Expr<Dom.Element -> unit>) =
+        this.OnAfterRender (As<Dom.Element -> unit> cb)
+
     member this.OnAfterRenderView (view: View<'T>, cb: Dom.Element -> 'T -> unit) =
         let id = Fresh.Id()
         this.AppendDoc(Doc'.BindView (fun x -> this.Element?(id) <- x; Doc'.Empty') view)

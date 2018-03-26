@@ -66,9 +66,15 @@ let Main = Application.SinglePage(fun ctx ->
                     div [
                         on.afterRender(fun el -> el.TextContent <- "[OK] on.afterRender")
                     ] [text "[FAIL] on.afterRender"] :> _
+                    (div [] [text "[FAIL] .OnAfterRender()"])
+                        .OnAfterRender(fun el ->
+                            let s = "[OK] Inserted using .OnAfterRender()"
+                            el.TextContent <- s
+                        )
+                    :> _
                 ])
             .AfterRender(fun () -> Client.OnStartup())
             .TBody([MainTemplate.Main.Row().Doc(); MainTemplate.Main.Row().Doc()])
-            .Doc(keepUnfilled = true)
+            .Elt(keepUnfilled = true)
     )
 )

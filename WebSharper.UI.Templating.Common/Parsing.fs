@@ -496,6 +496,30 @@ let ParseOptions (html: HtmlDocument) =
         )
         !clientLoad, !serverLoad
 
+let TryGetAsSingleElement (doc: HtmlNode) =
+    // Find the first Element among n and its next siblings,
+    // return None if there isn't any or if there's a non-whitespace text node first.
+    let rec tryFindFirstElement (n: HtmlNode) =
+        if isNull n then None else
+        match n.NodeType with
+        | HtmlNodeType.Text
+            when not <| String.IsNullOrWhiteSpace (n :?> HtmlTextNode).Text ->
+            None
+        | HtmlNodeType.Element -> Some n
+        | _ -> tryFindFirstElement n.NextSibling
+    // Check that there is no significant content (element or non-whitespace text)
+    // among n and its next siblings.
+    let rec checkNoContent (n: HtmlNode) =
+        if isNull n then true else
+        match n.NodeType with
+        | HtmlNodeType.Text
+            when not <| String.IsNullOrWhiteSpace (n :?> HtmlTextNode).Text ->
+            false
+        | HtmlNodeType.Element -> false
+        | _ -> checkNoContent n.NextSibling
+    tryFindFirstElement doc.FirstChild
+    |> Option.filter (fun n -> checkNoContent n.NextSibling)
+
 let ParseSource fileId (src: string) =
     let html = HtmlDocument()
     html.LoadHtml(src)
@@ -519,7 +543,10 @@ let ParseSource fileId (src: string) =
             if templates.ContainsKey w then
                 failwithf "Template defined multiple times: %s" templateName
             templates.Add(w, parseNodeAndSiblingsAsTemplate fileId n.FirstChild)
-    let rootTemplate = parseNodeAndSiblingsAsTemplate fileId html.DocumentNode.FirstChild
+    let rootTemplate =
+        match TryGetAsSingleElement html.DocumentNode with
+        | Some n -> parseNodeAsTemplate fileId n
+        | None -> parseNodeAndSiblingsAsTemplate fileId html.DocumentNode.FirstChild
     templates.Add(WrappedTemplateName null, rootTemplate)
     Map [ for KeyValue(k, v) in templates -> k, v ], clientLoad, serverLoad
 

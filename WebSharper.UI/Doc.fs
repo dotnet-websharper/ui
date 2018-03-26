@@ -127,7 +127,7 @@ and HoleName = Replace | Hole
 and Elt
     (
         attrs: list<Attr>,
-        encode, requires, specialHoles,
+        requireResources: seq<IRequiresResources>, specialHoles,
         write: list<Attr> -> Web.Context -> HtmlTextWriter -> option<Sitelets.Content.RenderedResources> -> unit,
         write': option<list<Attr> -> Web.Context -> HtmlTextWriter -> bool -> unit>
     ) =
@@ -137,9 +137,15 @@ and Elt
 
     override this.SpecialHoles = specialHoles
 
-    override this.Encode(m, j) = encode m j
+    override this.Encode(m, j) =
+        [
+            for r in Seq.append requireResources (Seq.cast attrs) do
+                yield! r.Encode(m, j)
+        ]
 
-    override this.Requires(meta) = requires attrs meta
+    override this.Requires(meta) =
+        Seq.append requireResources (Seq.cast attrs)
+        |> Seq.collect (fun r -> r.Requires(meta))
 
     override this.Write(ctx, h, res) = write attrs ctx h res
 
@@ -198,18 +204,8 @@ and Elt
             let a = (SpecialHole.None, attrs) ||> List.fold (fun h a -> h ||| testAttr a)
             (a, children) ||> List.fold (fun h d -> h ||| d.SpecialHoles)
 
-        let encode meta json =
-            children |> List.collect (fun e -> (e :> IRequiresResources).Encode(meta, json))
 
-        let requires attrs meta =
-            Seq.append
-                (attrs |> Seq.collect (fun a ->
-                    if obj.ReferenceEquals(a, null)
-                    then Seq.empty
-                    else (a :> IRequiresResources).Requires(meta)))
-                (children |> Seq.collect (fun e -> (e :> IRequiresResources).Requires(meta)))
-
-        Elt(attrs, encode, requires, specialHoles, write, None)
+        Elt(attrs, Seq.cast children, specialHoles, write, None)
 
     member this.OnImpl(ev, cb) =
         attrs <- Attr.HandlerImpl(ev, cb) :: attrs
@@ -220,6 +216,10 @@ and Elt
 
     member this.OnLinq(ev, cb) =
         attrs <- Attr.HandlerLinq ev cb :: attrs
+        this
+
+    member this.OnAfterRender([<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> unit>) =
+        attrs <- Attr.OnAfterRenderImpl(cb) :: attrs
         this
 
     member this.WithAttrs(a) =

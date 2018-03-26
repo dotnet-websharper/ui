@@ -101,8 +101,7 @@ and [<Class>] Elt =
 
     internal new
         : attrs: list<Attr>
-        * encode: (Core.Metadata.Info -> Core.Json.Provider -> list<string * Core.Json.Encoded>)
-        * requires: (list<Attr> -> Core.Metadata.Info -> seq<Core.Metadata.Node>)
+        * requireResources: seq<IRequiresResources>
         * specialHoles: SpecialHole
         * write: (list<Attr> -> Web.Context -> HtmlTextWriter -> option<Sitelets.Content.RenderedResources> -> unit)
         * write': (option<list<Attr> -> Web.Context -> HtmlTextWriter -> bool -> unit>)
@@ -121,424 +120,428 @@ and [<Class>] Elt =
     /// When called on the server side, the handler must be a top-level function or a static member.
     member OnLinq : event: string * callback: System.Linq.Expressions.Expression<System.Action<Dom.Element, #Dom.Event>> -> Elt
 
+    /// Adds a callback to be called after the element has been inserted in the DOM.
+    /// The callback is guaranteed to be called only once, even if the element is moved or removed and reinserted.
+    member OnAfterRender : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> unit> -> Elt
+
     // {{ event
     /// Add a handler for the event "abort".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnAbort : cb: Expr<Dom.Element -> Dom.UIEvent -> unit> -> Elt
+    member OnAbort : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.UIEvent -> unit> -> Elt
     /// Add a handler for the event "afterprint".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnAfterPrint : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnAfterPrint : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "animationend".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnAnimationEnd : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnAnimationEnd : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "animationiteration".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnAnimationIteration : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnAnimationIteration : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "animationstart".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnAnimationStart : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnAnimationStart : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "audioprocess".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnAudioProcess : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnAudioProcess : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "beforeprint".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnBeforePrint : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnBeforePrint : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "beforeunload".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnBeforeUnload : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnBeforeUnload : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "beginEvent".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnBeginEvent : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnBeginEvent : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "blocked".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnBlocked : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnBlocked : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "blur".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnBlur : cb: Expr<Dom.Element -> Dom.FocusEvent -> unit> -> Elt
+    member OnBlur : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.FocusEvent -> unit> -> Elt
     /// Add a handler for the event "cached".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnCached : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnCached : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "canplay".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnCanPlay : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnCanPlay : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "canplaythrough".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnCanPlayThrough : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnCanPlayThrough : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "change".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnChange : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnChange : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "chargingchange".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnChargingChange : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnChargingChange : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "chargingtimechange".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnChargingTimeChange : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnChargingTimeChange : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "checking".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnChecking : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnChecking : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "click".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnClick : cb: Expr<Dom.Element -> Dom.MouseEvent -> unit> -> Elt
+    member OnClick : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.MouseEvent -> unit> -> Elt
     /// Add a handler for the event "close".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnClose : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnClose : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "complete".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnComplete : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnComplete : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "compositionend".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnCompositionEnd : cb: Expr<Dom.Element -> Dom.CompositionEvent -> unit> -> Elt
+    member OnCompositionEnd : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.CompositionEvent -> unit> -> Elt
     /// Add a handler for the event "compositionstart".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnCompositionStart : cb: Expr<Dom.Element -> Dom.CompositionEvent -> unit> -> Elt
+    member OnCompositionStart : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.CompositionEvent -> unit> -> Elt
     /// Add a handler for the event "compositionupdate".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnCompositionUpdate : cb: Expr<Dom.Element -> Dom.CompositionEvent -> unit> -> Elt
+    member OnCompositionUpdate : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.CompositionEvent -> unit> -> Elt
     /// Add a handler for the event "contextmenu".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnContextMenu : cb: Expr<Dom.Element -> Dom.MouseEvent -> unit> -> Elt
+    member OnContextMenu : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.MouseEvent -> unit> -> Elt
     /// Add a handler for the event "copy".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnCopy : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnCopy : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "cut".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnCut : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnCut : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "dblclick".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnDblClick : cb: Expr<Dom.Element -> Dom.MouseEvent -> unit> -> Elt
+    member OnDblClick : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.MouseEvent -> unit> -> Elt
     /// Add a handler for the event "devicelight".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnDeviceLight : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnDeviceLight : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "devicemotion".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnDeviceMotion : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnDeviceMotion : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "deviceorientation".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnDeviceOrientation : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnDeviceOrientation : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "deviceproximity".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnDeviceProximity : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnDeviceProximity : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "dischargingtimechange".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnDischargingTimeChange : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnDischargingTimeChange : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "DOMActivate".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnDOMActivate : cb: Expr<Dom.Element -> Dom.UIEvent -> unit> -> Elt
+    member OnDOMActivate : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.UIEvent -> unit> -> Elt
     /// Add a handler for the event "DOMAttributeNameChanged".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnDOMAttributeNameChanged : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnDOMAttributeNameChanged : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "DOMAttrModified".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnDOMAttrModified : cb: Expr<Dom.Element -> Dom.MutationEvent -> unit> -> Elt
+    member OnDOMAttrModified : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.MutationEvent -> unit> -> Elt
     /// Add a handler for the event "DOMCharacterDataModified".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnDOMCharacterDataModified : cb: Expr<Dom.Element -> Dom.MutationEvent -> unit> -> Elt
+    member OnDOMCharacterDataModified : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.MutationEvent -> unit> -> Elt
     /// Add a handler for the event "DOMContentLoaded".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnDOMContentLoaded : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnDOMContentLoaded : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "DOMElementNameChanged".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnDOMElementNameChanged : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnDOMElementNameChanged : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "DOMNodeInserted".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnDOMNodeInserted : cb: Expr<Dom.Element -> Dom.MutationEvent -> unit> -> Elt
+    member OnDOMNodeInserted : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.MutationEvent -> unit> -> Elt
     /// Add a handler for the event "DOMNodeInsertedIntoDocument".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnDOMNodeInsertedIntoDocument : cb: Expr<Dom.Element -> Dom.MutationEvent -> unit> -> Elt
+    member OnDOMNodeInsertedIntoDocument : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.MutationEvent -> unit> -> Elt
     /// Add a handler for the event "DOMNodeRemoved".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnDOMNodeRemoved : cb: Expr<Dom.Element -> Dom.MutationEvent -> unit> -> Elt
+    member OnDOMNodeRemoved : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.MutationEvent -> unit> -> Elt
     /// Add a handler for the event "DOMNodeRemovedFromDocument".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnDOMNodeRemovedFromDocument : cb: Expr<Dom.Element -> Dom.MutationEvent -> unit> -> Elt
+    member OnDOMNodeRemovedFromDocument : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.MutationEvent -> unit> -> Elt
     /// Add a handler for the event "DOMSubtreeModified".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnDOMSubtreeModified : cb: Expr<Dom.Element -> Dom.MutationEvent -> unit> -> Elt
+    member OnDOMSubtreeModified : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.MutationEvent -> unit> -> Elt
     /// Add a handler for the event "downloading".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnDownloading : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnDownloading : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "drag".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnDrag : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnDrag : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "dragend".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnDragEnd : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnDragEnd : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "dragenter".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnDragEnter : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnDragEnter : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "dragleave".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnDragLeave : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnDragLeave : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "dragover".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnDragOver : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnDragOver : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "dragstart".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnDragStart : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnDragStart : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "drop".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnDrop : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnDrop : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "durationchange".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnDurationChange : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnDurationChange : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "emptied".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnEmptied : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnEmptied : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "ended".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnEnded : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnEnded : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "endEvent".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnEndEvent : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnEndEvent : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "error".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnError : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnError : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "focus".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnFocus : cb: Expr<Dom.Element -> Dom.FocusEvent -> unit> -> Elt
+    member OnFocus : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.FocusEvent -> unit> -> Elt
     /// Add a handler for the event "fullscreenchange".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnFullScreenChange : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnFullScreenChange : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "fullscreenerror".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnFullScreenError : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnFullScreenError : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "gamepadconnected".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnGamepadConnected : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnGamepadConnected : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "gamepaddisconnected".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnGamepadDisconnected : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnGamepadDisconnected : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "hashchange".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnHashChange : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnHashChange : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "input".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnInput : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnInput : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "invalid".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnInvalid : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnInvalid : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "keydown".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnKeyDown : cb: Expr<Dom.Element -> Dom.KeyboardEvent -> unit> -> Elt
+    member OnKeyDown : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.KeyboardEvent -> unit> -> Elt
     /// Add a handler for the event "keypress".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnKeyPress : cb: Expr<Dom.Element -> Dom.KeyboardEvent -> unit> -> Elt
+    member OnKeyPress : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.KeyboardEvent -> unit> -> Elt
     /// Add a handler for the event "keyup".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnKeyUp : cb: Expr<Dom.Element -> Dom.KeyboardEvent -> unit> -> Elt
+    member OnKeyUp : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.KeyboardEvent -> unit> -> Elt
     /// Add a handler for the event "languagechange".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnLanguageChange : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnLanguageChange : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "levelchange".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnLevelChange : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnLevelChange : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "load".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnLoad : cb: Expr<Dom.Element -> Dom.UIEvent -> unit> -> Elt
+    member OnLoad : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.UIEvent -> unit> -> Elt
     /// Add a handler for the event "loadeddata".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnLoadedData : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnLoadedData : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "loadedmetadata".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnLoadedMetadata : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnLoadedMetadata : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "loadend".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnLoadEnd : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnLoadEnd : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "loadstart".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnLoadStart : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnLoadStart : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "message".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnMessage : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnMessage : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "mousedown".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnMouseDown : cb: Expr<Dom.Element -> Dom.MouseEvent -> unit> -> Elt
+    member OnMouseDown : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.MouseEvent -> unit> -> Elt
     /// Add a handler for the event "mouseenter".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnMouseEnter : cb: Expr<Dom.Element -> Dom.MouseEvent -> unit> -> Elt
+    member OnMouseEnter : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.MouseEvent -> unit> -> Elt
     /// Add a handler for the event "mouseleave".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnMouseLeave : cb: Expr<Dom.Element -> Dom.MouseEvent -> unit> -> Elt
+    member OnMouseLeave : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.MouseEvent -> unit> -> Elt
     /// Add a handler for the event "mousemove".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnMouseMove : cb: Expr<Dom.Element -> Dom.MouseEvent -> unit> -> Elt
+    member OnMouseMove : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.MouseEvent -> unit> -> Elt
     /// Add a handler for the event "mouseout".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnMouseOut : cb: Expr<Dom.Element -> Dom.MouseEvent -> unit> -> Elt
+    member OnMouseOut : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.MouseEvent -> unit> -> Elt
     /// Add a handler for the event "mouseover".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnMouseOver : cb: Expr<Dom.Element -> Dom.MouseEvent -> unit> -> Elt
+    member OnMouseOver : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.MouseEvent -> unit> -> Elt
     /// Add a handler for the event "mouseup".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnMouseUp : cb: Expr<Dom.Element -> Dom.MouseEvent -> unit> -> Elt
+    member OnMouseUp : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.MouseEvent -> unit> -> Elt
     /// Add a handler for the event "noupdate".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnNoUpdate : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnNoUpdate : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "obsolete".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnObsolete : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnObsolete : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "offline".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnOffline : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnOffline : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "online".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnOnline : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnOnline : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "open".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnOpen : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnOpen : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "orientationchange".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnOrientationChange : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnOrientationChange : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "pagehide".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnPageHide : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnPageHide : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "pageshow".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnPageShow : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnPageShow : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "paste".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnPaste : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnPaste : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "pause".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnPause : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnPause : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "play".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnPlay : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnPlay : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "playing".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnPlaying : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnPlaying : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "pointerlockchange".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnPointerLockChange : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnPointerLockChange : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "pointerlockerror".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnPointerLockError : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnPointerLockError : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "popstate".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnPopState : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnPopState : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "progress".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnProgress : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnProgress : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "ratechange".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnRateChange : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnRateChange : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "readystatechange".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnReadyStateChange : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnReadyStateChange : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "repeatEvent".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnRepeatEvent : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnRepeatEvent : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "reset".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnReset : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnReset : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "resize".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnResize : cb: Expr<Dom.Element -> Dom.UIEvent -> unit> -> Elt
+    member OnResize : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.UIEvent -> unit> -> Elt
     /// Add a handler for the event "scroll".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnScroll : cb: Expr<Dom.Element -> Dom.UIEvent -> unit> -> Elt
+    member OnScroll : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.UIEvent -> unit> -> Elt
     /// Add a handler for the event "seeked".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnSeeked : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnSeeked : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "seeking".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnSeeking : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnSeeking : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "select".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnSelect : cb: Expr<Dom.Element -> Dom.UIEvent -> unit> -> Elt
+    member OnSelect : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.UIEvent -> unit> -> Elt
     /// Add a handler for the event "show".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnShow : cb: Expr<Dom.Element -> Dom.MouseEvent -> unit> -> Elt
+    member OnShow : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.MouseEvent -> unit> -> Elt
     /// Add a handler for the event "stalled".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnStalled : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnStalled : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "storage".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnStorage : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnStorage : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "submit".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnSubmit : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnSubmit : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "success".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnSuccess : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnSuccess : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "suspend".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnSuspend : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnSuspend : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "SVGAbort".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnSVGAbort : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnSVGAbort : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "SVGError".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnSVGError : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnSVGError : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "SVGLoad".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnSVGLoad : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnSVGLoad : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "SVGResize".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnSVGResize : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnSVGResize : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "SVGScroll".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnSVGScroll : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnSVGScroll : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "SVGUnload".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnSVGUnload : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnSVGUnload : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "SVGZoom".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnSVGZoom : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnSVGZoom : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "timeout".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnTimeOut : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnTimeOut : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "timeupdate".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnTimeUpdate : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnTimeUpdate : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "touchcancel".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnTouchCancel : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnTouchCancel : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "touchend".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnTouchEnd : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnTouchEnd : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "touchenter".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnTouchEnter : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnTouchEnter : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "touchleave".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnTouchLeave : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnTouchLeave : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "touchmove".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnTouchMove : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnTouchMove : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "touchstart".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnTouchStart : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnTouchStart : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "transitionend".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnTransitionEnd : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnTransitionEnd : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "unload".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnUnload : cb: Expr<Dom.Element -> Dom.UIEvent -> unit> -> Elt
+    member OnUnload : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.UIEvent -> unit> -> Elt
     /// Add a handler for the event "updateready".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnUpdateReady : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnUpdateReady : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "upgradeneeded".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnUpgradeNeeded : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnUpgradeNeeded : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "userproximity".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnUserProximity : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnUserProximity : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "versionchange".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnVersionChange : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnVersionChange : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "visibilitychange".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnVisibilityChange : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnVisibilityChange : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "volumechange".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnVolumeChange : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnVolumeChange : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "waiting".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnWaiting : cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
+    member OnWaiting : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.Event -> unit> -> Elt
     /// Add a handler for the event "wheel".
     /// When called on the server side, the handler must be a top-level function or a static member.
-    member OnWheel : cb: Expr<Dom.Element -> Dom.WheelEvent -> unit> -> Elt
+    member OnWheel : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.WheelEvent -> unit> -> Elt
     // }}
 
     member WithAttrs : list<Attr> -> Elt

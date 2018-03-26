@@ -319,16 +319,17 @@ type Runtime private () =
                         if ctx.FillWith.ContainsKey holeName then
                             failwithf "Invalid hole, expected onafterrender: %s" holeName
                         elif keepUnfilled then doPlain()
-            let rec writeElement tag attrs wsVar children =
+            let rec writeElement isRoot tag attrs wsVar children =
                 ctx.Writer.WriteBeginTag(tag)
                 attrs |> Array.iter writeAttr
-                extraAttrs |> List.iter (fun a -> a.Write(ctx.Context.Metadata, ctx.Writer, true))
+                if isRoot then
+                    extraAttrs |> List.iter (fun a -> a.Write(ctx.Context.Metadata, ctx.Writer, true))
                 wsVar |> Option.iter (fun v -> ctx.Writer.WriteAttribute("ws-var", v))
                 if Array.isEmpty children && HtmlTextWriter.IsSelfClosingTag tag then
                     ctx.Writer.Write(HtmlTextWriter.SelfClosingTagEnd)
                 else
                     ctx.Writer.Write(HtmlTextWriter.TagRightChar)
-                    Array.iter writeNode children
+                    Array.iter (writeNode false) children
                     if tag = "body" && Option.isNone name && Option.isSome inlineBaseName then
                         ctx.Templates |> Seq.iter (fun (KeyValue(k, v)) ->
                             match k.NameAsOption with
@@ -336,11 +337,11 @@ type Runtime private () =
                             | None -> ()
                         )
                     ctx.Writer.WriteEndTag(tag)
-            and writeNode = function
+            and writeNode isRoot = function
                 | Node.Element (tag, _, attrs, children) ->
-                    writeElement tag attrs None children
+                    writeElement isRoot tag attrs None children
                 | Node.Input (tag, holeName, attrs, children) ->
-                    let doPlain() = writeElement tag attrs (Some holeName) children
+                    let doPlain() = writeElement isRoot tag attrs (Some holeName) children
                     if plain then doPlain() else
                     let wsVar, attrs =
                         match ctx.FillWith.TryGetValue holeName with
@@ -348,7 +349,7 @@ type Runtime private () =
                             None, Array.append [|Attr.Event("input", holeName)|] attrs
                         | _ ->
                             Some holeName, attrs
-                    writeElement tag attrs wsVar children
+                    writeElement isRoot tag attrs wsVar children
                 | Node.Text text ->
                     writeStringParts text ctx.Writer
                 | Node.DocHole holeName ->
@@ -372,7 +373,7 @@ type Runtime private () =
                             | false, _ -> if keepUnfilled then doPlain()
                 | Node.Instantiate _ ->
                     failwithf "Template instantiation not yet supported on the server side"
-            Array.iter writeNode template.Value
+            Array.iter (writeNode true) template.Value
         let templates = ref None
         let getTemplates (ctx: Web.Context) =
             match !templates with
@@ -418,7 +419,9 @@ type Runtime private () =
             let template, templates = getTemplates ctx
             let r =
                 if r then
-                    SpecialHole.RenderResources template.SpecialHoles ctx requireResources |> Some
+                    SpecialHole.RenderResources template.SpecialHoles ctx
+                        (Seq.append requireResources (Seq.cast extraAttrs))
+                    |> Some
                 else None
             let fillWith = buildFillDict fillWith template.Holes
             writeTemplate template false extraAttrs {

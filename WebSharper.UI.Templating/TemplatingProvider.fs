@@ -81,8 +81,8 @@ module private Impl =
                 "Get the reactive variable \"" + n + "\" for this template instance."
             let Instance =
                 "Create an instance of this template."
-            let Instance_withUnfilled =
-                """<summary>Create an instance of this template.</summary>
+            let Doc_withUnfilled =
+                """<summary>Get the Doc to insert this template instance into the page.</summary>
                     <param name="keepUnfilled">Server-side only: set to true to keep all unfilled holes, to be filled by the client with Bind.</param>"""
             let Bind =
                 "Bind the template instance to the document."
@@ -327,17 +327,17 @@ module private Impl =
             else
                 yield ProvidedMethod("Create", [], instanceTy, InstanceBody ctx)
                     .WithXmlDoc(XmlDoc.Member.Instance) :> _
-            let docParams =
+            let docParams, docXmldoc =
                 if isRoot then
-                    [ProvidedParameter("keepUnfilled", typeof<bool>, optionalValue = box false)]
-                else []
+                    [ProvidedParameter("keepUnfilled", typeof<bool>, optionalValue = box false)], XmlDoc.Member.Doc_withUnfilled
+                else [], XmlDoc.Member.Doc
             yield ProvidedMethod("Doc", docParams, typeof<Doc>, fun args ->
                 <@@ (%%InstanceBody ctx args : TI).Doc @@>)
-                .WithXmlDoc(XmlDoc.Member.Instance) :> _
+                .WithXmlDoc(docXmldoc) :> _
             if ctx.Template.IsElt then
-                yield ProvidedMethod("Elt", [], typeof<Elt>, fun args ->
+                yield ProvidedMethod("Elt", docParams, typeof<Elt>, fun args ->
                     <@@ (%%InstanceBody ctx args : TI).Doc :?> Elt @@>)
-                    .WithXmlDoc(XmlDoc.Member.Doc) :> _
+                    .WithXmlDoc(docXmldoc) :> _
             let ctor =
                 ProvidedConstructor([], fun _ ->
                     <@@ box (ref Unchecked.defaultof<TI>, Guid.NewGuid().ToString(), ([] : list<TemplateHole>) : State) @@>)
