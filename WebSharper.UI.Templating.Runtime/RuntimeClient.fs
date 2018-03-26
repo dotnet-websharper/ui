@@ -51,31 +51,12 @@ type private TemplateInstanceProxy(c: Server.CompletedHoles, doc: Doc) =
     member this.Hole(name) = allVars.[name]
 
 [<Inline; MethodImpl(MethodImplOptions.NoInlining)>]
-let WrapEvent (f: unit -> unit) =
-    ()
-    (fun (el: Dom.Element) (ev: Dom.Event) -> f())
+let AfterRenderQ(name: string, [<JavaScript>] f: Expr<Dom.Element -> unit>) =
+    TemplateHole.AfterRenderQ(name, f)
 
 [<Inline; MethodImpl(MethodImplOptions.NoInlining)>]
-let WrapAfterRender (f: unit -> unit) =
-    ()
-    (fun (el: Dom.Element) -> f())
-
-[<JavaScript>]
-let WrapInstanceEvent (ti: ref<TemplateInstance>) (f: System.Action<obj>) =
-    ()
-    fun (_: Dom.Element) (_: Dom.Event) -> f.Invoke !ti
-
-[<JavaScript>]
-let WrapInstanceEventWithArgs (ti: ref<TemplateInstance>) (f: System.Action<obj, Dom.Element, Dom.Event>) =
-    ()
-    fun (el: Dom.Element) (ev: Dom.Event) -> f.Invoke(!ti, el, ev)
-
-
-[<JavaScript>]
-let WrapEventWithOnlyArgs (f: System.Action<Dom.Element, Dom.Event>) =
-    ()
-    fun (el: Dom.Element) (ev: Dom.Event) -> f.Invoke(el, ev)
-
+let AfterRenderQ2(name: string, [<JavaScript>] f: Expr<unit -> unit>) =
+    AfterRenderQ(name, <@ fun el -> (WebSharper.JavaScript.Pervasives.As f)() @>)
 
 [<Inline; MethodImpl(MethodImplOptions.NoInlining)>]
 let LazyParseHtml (src: string) =

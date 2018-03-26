@@ -265,11 +265,11 @@ type AttrProxy with
         Array.ofSeqNonCopying xs
         |> Array.TreeReduce Attr.Empty Attr.Append
 
-    static member HandlerImpl (event: string) (q: Expr<Element -> #DomEvent-> unit>) =
+    static member HandlerImpl(event: string, q: Expr<Element -> #DomEvent-> unit>) =
         As<Attr> (Attrs.Static (fun el -> el.AddEventListener(event, (As<Element -> DomEvent -> unit> q) el, false)))
 
     static member Handler (event: string) (q: Expr<Element -> #DomEvent-> unit>) =
-        AttrProxy.HandlerImpl event q
+        AttrProxy.HandlerImpl(event, q)
 
 [<JavaScript; Name "WebSharper.UI.CheckedInput">]
 type CheckedInput<'T> =

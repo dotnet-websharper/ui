@@ -552,6 +552,7 @@ type TemplateHole =
     | Event of name: string * fillWith: (Element -> Dom.Event -> unit)
     | EventQ of name: string * isGenerated: bool * fillWith: Expr<Element -> Dom.Event -> unit>
     | AfterRender of name: string * fillWith: (Element -> unit)
+    | AfterRenderQ of name: string * fillWith: Expr<Element -> unit>
     | VarStr of name: string * fillWith: Var<string>
     | VarBool of name: string * fillWith: Var<bool>
     | VarInt of name: string * fillWith: Var<Client.CheckedInput<int>>

@@ -51,7 +51,7 @@ module private Internal =
             } 
         )
 
-    let compile (meta: M.Info) (json: J.Provider) (q: Expr) =
+    let compile (meta: M.Info) (json: J.Provider) (q: Expr) (doCall: string -> string) =
         let reqs = ResizeArray<M.Node>()
         let rec compile' (q: Expr) =
             match getLocation q with
@@ -98,8 +98,21 @@ module private Internal =
         compile' q
         |> Option.map (fun s ->
             reqs.Add(activateNode)
-            s + "(this)(event)", reqs :> seq<_>
+            doCall s, reqs :> seq<_>
         )
+
+type private OnAfterRenderControl() =
+    inherit Web.Control()
+
+    [<JavaScript>]
+    override this.Body =
+        let l = JS.Document.QuerySelectorAll("[ws-runafterrender]")
+        for i = 0 to l.Length - 1 do
+            let x = l.[i] :?> Dom.Element
+            let f = JS.Eval(x.GetAttribute("ws-runafterrender")) :?> (Dom.Element -> unit)
+            x.RemoveAttribute("ws-runafterrender")
+            f x
+        { new IControlBody with member this.ReplaceInDom(_) = () }
 
 // We would have wanted to use UseNullAsTrueValue so that EmptyAttr = null,
 // which makes things much easier when it comes to optional arguments in Templating.
@@ -108,7 +121,7 @@ module private Internal =
 type Attr =
     | AppendAttr of list<Attr>
     | SingleAttr of string * string
-    | DepAttr of string * (M.Info -> string) * (M.Info -> seq<M.Node>)
+    | DepAttr of string * (M.Info -> string) * (M.Info -> seq<M.Node>) * (M.Info -> J.Provider -> list<string * J.Encoded>)
 
     member this.Write(meta, w: HtmlTextWriter, removeWsHole) =
         match this with
@@ -119,7 +132,7 @@ type Attr =
         | SingleAttr (n, v) ->
             if not (removeWsHole && n = "ws-hole") then
                 w.WriteAttribute(n, v)
-        | DepAttr (n, v, _) ->
+        | DepAttr (n, v, _, _) ->
             w.WriteAttribute(n, v meta)
 
     interface IRequiresResources with
@@ -131,17 +144,24 @@ type Attr =
                     if obj.ReferenceEquals(a, null)
                     then Seq.empty
                     else (a :> IRequiresResources).Requires(meta))
-            | DepAttr (_, _, reqs) -> reqs meta
-            | _ -> Seq.empty
+            | DepAttr (_, _, reqs, _) -> reqs meta
+            | SingleAttr _ -> Seq.empty
 
         member this.Encode (meta, json) =
-            []
+            match this with
+            | AppendAttr attrs ->
+                attrs |> List.collect (fun a ->
+                    if obj.ReferenceEquals(a, null)
+                    then []
+                    else (a :> IRequiresResources).Encode(meta, json))
+            | DepAttr (_, _, _, enc) -> enc meta json
+            | SingleAttr _ -> []
 
     member this.WithName(n) =
         match this with
         | AppendAttr _ -> this
         | SingleAttr(_, v) -> SingleAttr(n, v)
-        | DepAttr(_, v, d) -> DepAttr(n, v, d)
+        | DepAttr(_, v, d, e) -> DepAttr(n, v, d, e)
 
     static member Create name value =
         SingleAttr (name, value)
@@ -156,15 +176,42 @@ type Attr =
         AppendAttr (List.ofSeq xs)
 
     static member WithDependencies(name, getValue, deps) =
-        DepAttr (name, getValue, deps)
+        DepAttr (name, getValue, deps, fun _ _ -> [])
 
-    static member HandlerImpl (event: string) (q: Expr<Dom.Element -> #Dom.Event -> unit>) =
+    static member OnAfterRenderImpl(q: Expr<Dom.Element -> unit>) =
         let json = WebSharper.Web.Shared.Json // TODO: fix?
         let value = ref None
         let init meta =
             if Option.isNone !value then
                 value :=
-                    match Internal.compile meta json q with
+                    match Internal.compile meta json q id with
+                    | Some _ as v -> v
+                    | _ ->
+                        let m =
+                            match q with
+                            | Lambda (x1, Call(None, m, [Var x2])) when x1 = x2 -> m
+                            | _ -> failwithf "Invalid handler function: %A" q
+                        let loc = WebSharper.Web.ClientSideInternals.getLocation' q
+                        let func, reqs = Attr.HandlerFallback(m, loc, id)
+                        Some (func meta, reqs)
+        let getValue (meta: M.Info) =
+            init meta
+            fst (Option.get !value)
+        let getReqs (meta: M.Info) =
+            init meta
+            snd (Option.get !value)
+        let enc (meta: M.Info) (json: J.Provider) =
+            init meta
+            (new OnAfterRenderControl() :> IRequiresResources).Encode(meta, json)
+        DepAttr("ws-runafterrender", getValue, getReqs, enc)
+
+    static member HandlerImpl(event: string, q: Expr<Dom.Element -> #Dom.Event -> unit>) =
+        let json = WebSharper.Web.Shared.Json // TODO: fix?
+        let value = ref None
+        let init meta =
+            if Option.isNone !value then
+                value :=
+                    match Internal.compile meta json q (fun s -> s + "(this)(event)") with
                     | Some _ as v -> v
                     | _ ->
                         let m =
@@ -172,7 +219,7 @@ type Attr =
                             | Lambda (x1, Lambda (y1, Call(None, m, [Var x2; (Var y2 | Coerce(Var y2, _))]))) when x1 = x2 && y1 = y2 -> m
                             | _ -> failwithf "Invalid handler function: %A" q
                         let loc = WebSharper.Web.ClientSideInternals.getLocation' q
-                        let func, reqs = Attr.HandlerFallback(m, loc) 
+                        let func, reqs = Attr.HandlerFallback(m, loc, fun s -> s + "(this, event)")
                         Some (func meta, reqs)
         let getValue (meta: M.Info) =
             init meta
@@ -183,12 +230,12 @@ type Attr =
         Attr.WithDependencies("on" + event, getValue, getReqs)
 
     static member Handler (event: string) ([<JavaScript>] q: Expr<Dom.Element -> #Dom.Event -> unit>) =
-        Attr.HandlerImpl event q
+        Attr.HandlerImpl(event, q)
 
-    static member HandlerFallback(m, location) =
+    static member HandlerFallback(m, location, doCall) =
         let meth = R.ReadMethod m
         let declType = R.ReadTypeDefinition m.DeclaringType
-        let reqs = [M.MethodNode (declType, meth); M.TypeNode declType] :> seq<_>
+        let reqs = [M.MethodNode (declType, meth); M.TypeNode declType]
         let value = ref None
         let fail() =
             failwithf "Error in Handler%s: Couldn't find JavaScript address for method %s.%s"
@@ -202,16 +249,16 @@ type Attr =
                         match c.Methods.TryGetValue meth with
                         | true, (M.CompiledMember.Static x, _, _) -> x.Value
                         | _ -> fail()
-                    let s = String.concat "." (List.rev addr) + "(this, event)"
+                    let s = String.concat "." (List.rev addr) |> doCall
                     value := Some s
                     s
                 | _ -> fail()
             | Some v -> v
-        func, reqs 
+        func, reqs :> seq<_>
 
     static member HandlerLinqImpl(event, m, location) =
-        let func, reqs = Attr.HandlerFallback(m, location)
-        DepAttr ("on" + event, func, fun _ -> reqs)
+        let func, reqs = Attr.HandlerFallback(m, location, fun s -> s + "(this, event)")
+        DepAttr ("on" + event, func, (fun _ -> reqs), (fun _ _ -> []))
 
     static member HandlerLinq (event: string) (q: Expression<Action<Dom.Element, #Dom.Event>>) =
         let meth =

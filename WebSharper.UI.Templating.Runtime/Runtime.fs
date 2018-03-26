@@ -242,7 +242,9 @@ type Runtime private () =
             | TemplateHole.Attribute (n, a) when not (obj.ReferenceEquals(a, null)) ->
                 requireResources.Add(n, a :> IRequiresResources)
             | TemplateHole.EventQ (n, _, e) ->
-                requireResources.Add(n, Attr.HandlerImpl "" e :> IRequiresResources)
+                requireResources.Add(n, Attr.HandlerImpl("", e) :> IRequiresResources)
+            | TemplateHole.AfterRenderQ (n, e) ->
+                requireResources.Add(n, Attr.OnAfterRenderImpl(e) :> IRequiresResources)
             | _ -> ()
         )
 
@@ -308,8 +310,15 @@ type Runtime private () =
                             failwithf "Invalid hole, expected quoted event: %s" holeName
                         elif keepUnfilled then doPlain()
                 | Attr.OnAfterRender holeName ->
-                    if plain || keepUnfilled then
-                        ctx.Writer.WriteAttribute(AfterRenderAttr, holeName)
+                    let doPlain() = ctx.Writer.WriteAttribute(AfterRenderAttr, holeName)
+                    if plain then doPlain() else
+                    match requireResources.TryGetValue holeName with
+                    | true, (:? UI.Attr as a) ->
+                        a.Write(ctx.Context.Metadata, ctx.Writer, true)
+                    | _ ->
+                        if ctx.FillWith.ContainsKey holeName then
+                            failwithf "Invalid hole, expected onafterrender: %s" holeName
+                        elif keepUnfilled then doPlain()
             let rec writeElement tag attrs wsVar children =
                 ctx.Writer.WriteBeginTag(tag)
                 attrs |> Array.iter writeAttr

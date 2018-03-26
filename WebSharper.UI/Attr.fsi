@@ -23,6 +23,7 @@ namespace WebSharper.UI
 open Microsoft.FSharp.Quotations
 open WebSharper.JavaScript
 module M = WebSharper.Core.Metadata
+module J = WebSharper.Core.Json
 open WebSharper.Core.Resources
 
 /// A potentially time-varying or animated attribute list.
@@ -30,7 +31,7 @@ type Attr =
     internal
     | AppendAttr of list<Attr>
     | SingleAttr of string * string
-    | DepAttr of string * (M.Info -> string) * (M.Info -> seq<M.Node>)
+    | DepAttr of string * (M.Info -> string) * (M.Info -> seq<M.Node>) * (M.Info -> J.Provider -> list<string * J.Encoded>)
 
     interface WebSharper.IRequiresResources
 
@@ -62,4 +63,6 @@ type Attr =
     /// When called on the server side, the handler must be a top-level function or a static member.
     static member HandlerLinq : event: string -> callback: (System.Linq.Expressions.Expression<System.Action<Dom.Element, #Dom.Event>>) -> Attr
 
-    static member HandlerImpl : event: string -> callback: (Expr<Dom.Element -> #Dom.Event -> unit>) -> Attr
+    static member HandlerImpl : event: string * callback: (Expr<Dom.Element -> #Dom.Event -> unit>) -> Attr
+
+    static member OnAfterRenderImpl : callback: (Expr<Dom.Element -> unit>) -> Attr

@@ -726,6 +726,9 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             | true, TemplateHole.AfterRender (_, handler) ->
                 e.RemoveAttribute("ws-onafterrender")
                 addAttr e (Attr.OnAfterRender handler)
+            | true, TemplateHole.AfterRenderQ (_, handler) ->
+                e.RemoveAttribute("ws-onafterrender")
+                addAttr e (Attr.OnAfterRender (As handler))
             | true, _ -> Console.Warn("onafterrender hole filled with non-onafterrender data", name)
             | false, _ -> ()
 

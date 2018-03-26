@@ -146,10 +146,10 @@ module private Impl =
                 ]
             | HoleKind.ElemHandler ->
                 [
-                    mk <| fun _ (x: Expr<DomElement -> unit>) ->
-                        <@ TemplateHole.AfterRender(holeName', %x) @>
-                    mk <| fun _ (x: Expr<unit -> unit>) ->
-                        <@ TemplateHole.AfterRender(holeName', RTC.WrapAfterRender %x) @>
+                    mk <| fun _ (x: Expr<Expr<DomElement -> unit>>) ->
+                        <@ RTC.AfterRenderQ(holeName', %x) @>
+                    mk <| fun _ (x: Expr<Expr<unit -> unit>>) ->
+                        <@ RTC.AfterRenderQ2(holeName', %x) @>
                 ]
             | HoleKind.Event eventType ->
                 let exprTy t = typedefof<Expr<_>>.MakeGenericType [| t |]
@@ -158,7 +158,6 @@ module private Impl =
                     let a = typeof<WebSharper.JavaScript.Dom.Event>.Assembly
                     a.GetType("WebSharper.JavaScript.Dom." + eventType)
                 let templateEventTy t u = typedefof<RTS.TemplateEvent<_,_>>.MakeGenericType [| t; u |]
-                let varsM = instanceTy.GetProperty("Vars").GetGetMethod()
                 [
                     BuildMethod' holeName (exprTy (templateEventTy varsTy evTy ^-> typeof<unit>)) resTy holeDef.Line holeDef.Column ctx (fun e x ->
                         Expr.Call(typeof<RTS.Handler>.GetMethod("EventQ2").MakeGenericMethod(evTy),
