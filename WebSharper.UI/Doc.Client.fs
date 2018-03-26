@@ -233,7 +233,7 @@ module Docs =
     let rec Sync doc =
         match doc with
         | AppendDoc (a, b) -> Sync a; Sync b
-        | ElemDoc el -> SyncElemNode el
+        | ElemDoc el -> SyncElemNode false el
         | EmbedDoc n -> Sync n.Current
         | EmptyDoc
         | TextNodeDoc _ -> ()
@@ -242,13 +242,14 @@ module Docs =
                 d.Text.NodeValue <- d.Value
                 d.Dirty <- false
         | TreeDoc t ->
-            Array.iter SyncElemNode t.Holes
+            Array.iter (SyncElemNode false) t.Holes
             Array.iter (fun (e, a) -> Attrs.Sync e a) t.Attrs
             AfterRender (As t)
 
     /// Synchronizes an element node (deep).
-    and [<MethodImpl(MethodImplOptions.NoInlining)>] SyncElemNode el =
-        SyncElement el
+    and [<MethodImpl(MethodImplOptions.NoInlining)>] SyncElemNode childrenOnly el =
+        if not childrenOnly then
+            SyncElement el
         Sync el.Children
         AfterRender el
 
@@ -370,18 +371,18 @@ module Docs =
         |> Array.map (fun n -> Attrs.GetEnterAnim n.Attr)
         |> Anim.Concat
 
-    let SyncElemNodesNextFrame st =
+    let SyncElemNodesNextFrame childrenOnly st =
         if Settings.BatchUpdatesEnabled then
             Async.FromContinuations <| fun (ok, _, _) ->
                 JS.RequestAnimationFrame (fun _ ->
-                    SyncElemNode st.Top
+                    SyncElemNode childrenOnly st.Top
                     ok()
                 ) |> ignore
         else
-            async.Return(SyncElemNode st.Top)
+            async.Return(SyncElemNode childrenOnly st.Top)
 
     /// The main function: how to perform an animated top-level document update.
-    let PerformAnimatedUpdate st doc =
+    let PerformAnimatedUpdate childrenOnly st doc =
         if Anim.UseAnimations then
             async {
                 let cur = NodeSet.FindAll doc
@@ -389,16 +390,16 @@ module Docs =
                 let enter = ComputeEnterAnim st cur
                 let exit = ComputeExitAnim st cur
                 do! Anim.Play (Anim.Append change exit)
-                do! SyncElemNodesNextFrame st
+                do! SyncElemNodesNextFrame childrenOnly st
                 do! Anim.Play enter
                 return st.PreviousNodes <- cur
             }
         else
-            SyncElemNodesNextFrame st
+            SyncElemNodesNextFrame childrenOnly st
 
-    let PerformSyncUpdate st doc =
+    let PerformSyncUpdate childrenOnly st doc =
         let cur = NodeSet.FindAll doc
-        SyncElemNode st.Top
+        SyncElemNode childrenOnly st.Top
         st.PreviousNodes <- cur
 
     /// EmbedNode constructor.
@@ -535,9 +536,9 @@ type private Doc' [<JavaScript>] (docNode, updates) =
         let st = Docs.CreateDelimitedRunState ldelim rdelim doc.DocNode
         let p =
             if Anim.UseAnimations || Settings.BatchUpdatesEnabled then
-                Mailbox.StartProcessor (Docs.PerformAnimatedUpdate st doc.DocNode)
+                Mailbox.StartProcessor (Docs.PerformAnimatedUpdate false st doc.DocNode)
             else
-                fun () -> Docs.PerformSyncUpdate st doc.DocNode
+                fun () -> Docs.PerformSyncUpdate false st doc.DocNode
         View.Sink p doc.Updates
 
     [<JavaScript>]
@@ -589,17 +590,21 @@ type private Doc' [<JavaScript>] (docNode, updates) =
         | el -> Doc'.RunPrepend el doc
 
     [<JavaScript>]
-    static member RunInPlace parent (doc: Doc') =
+    static member RunInPlace childrenOnly parent (doc: Doc') =
         let d = doc.DocNode
         let st = Docs.CreateRunState parent d
-        let p = Mailbox.StartProcessor (Docs.PerformAnimatedUpdate st d)
+        let p =
+            if Anim.UseAnimations || Settings.BatchUpdatesEnabled then
+                Mailbox.StartProcessor (Docs.PerformAnimatedUpdate childrenOnly st doc.DocNode)
+            else
+                fun () -> Docs.PerformSyncUpdate childrenOnly st doc.DocNode
         View.Sink p doc.Updates
 
     [<JavaScript>]
     static member Run parent (doc: Doc') =
         Doc'.LoadLocalTemplates()
         Docs.LinkElement parent doc.DocNode
-        Doc'.RunInPlace parent doc
+        Doc'.RunInPlace false parent doc
 
     [<JavaScript>]
     static member RunById id tr =
@@ -637,8 +642,9 @@ type private Doc' [<JavaScript>] (docNode, updates) =
             let attr = Attrs.Insert el attr
             updates.JS.Push (Attrs.Updates attr) |> ignore
             attrs.JS.Push ((el, attr)) |> ignore
-            Attrs.GetOnAfterRender attr |> Option.iter (fun f ->
-                afterRender.JS.Push(fun _ -> f el) |> ignore)
+            match Attrs.GetOnAfterRender attr with
+            | Some f -> afterRender.JS.Push(fun _ -> f el) |> ignore
+            | None -> ()
         let tryGetAsDoc name =
             match fw.TryGetValue(name) with
             | true, TemplateHole.Elt (_, doc) -> Some (As<Doc'> doc)
@@ -825,7 +831,7 @@ type private Doc' [<JavaScript>] (docNode, updates) =
     static member RunFullDocTemplate (fillWith: seq<TemplateHole>) =
         Doc'.PrepareTemplateStrict "" None (DomUtility.ChildrenArray JS.Document.Body) (Some JS.Document.Body)
         Doc'.ChildrenTemplate JS.Document.Body fillWith
-        |>! Doc'.RunInPlace JS.Document.Body
+        |>! Doc'.RunInPlace true JS.Document.Body
 
     [<JavaScript>]
     static member FakeRoot (els: Node[]) =
