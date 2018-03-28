@@ -123,7 +123,24 @@ module private Impl =
         BuildMethod' holeName typeof<'T> resTy line column ctx wrapArg
 
     let BuildHoleMethods (holeName: HoleName) (holeDef: HoleDefinition) (resTy: Type) (instanceTy: Type) (varsTy: Type) (ctx: Ctx) : list<MemberInfo> =
-        let mk wrapArg = BuildMethod holeName resTy holeDef.Line holeDef.Column ctx wrapArg
+        let mk wrapArg = BuildMethod holeName resTy holeDef.Line holeDef.Column ctx wrapArg :> MemberInfo
+        let mkVar (wrapArg: Expr<State> -> Expr<Var<'T>> -> Expr<TemplateHole>) =
+            let varMakeMeth =
+                let viewTy = typedefof<View<_>>.MakeGenericType(typeof<'T>)
+                let setterTy = typedefof<FSharpFunc<_,_>>.MakeGenericType(typeof<'T>, typeof<unit>)
+                ProvidedMethod(
+                    holeName,
+                    [ProvidedParameter("view", viewTy); ProvidedParameter("setter", setterTy)],
+                    resTy,
+                    function
+                    | [this; view; setter] ->
+                        let this = <@ (%%this : obj) :?> State @>
+                        let arg = <@ UINVar.Make %%view %%setter @>
+                        <@@ let rTI, key, th = %this
+                            box (rTI, key, (%wrapArg this arg) :: th) @@>
+                    | _ -> failwith "Incorrect invoke"
+                ) :> MemberInfo
+            [mk wrapArg; varMakeMeth]
         let holeName' = holeName.ToLowerInvariant()
         let rec build : _ -> list<MemberInfo> = function
             | HoleKind.Attr ->
@@ -179,33 +196,33 @@ module private Impl =
                 ]
             | HoleKind.Var (ValTy.Any | ValTy.String) ->
                 [
-                    mk <| fun _ (x: Expr<Var<string>>) ->
+                    yield! mkVar <| fun _ (x: Expr<Var<string>>) ->
                         <@ TemplateHole.VarStr(holeName', %x) @>
-                    mk <| fun _ (x: Expr<string>) ->
+                    yield mk <| fun _ (x: Expr<string>) ->
                         <@ TemplateHole.VarStr(holeName', UINVar.Create %x) @>
                 ]
             | HoleKind.Var ValTy.Number ->
                 [
-                    mk <| fun _ (x: Expr<Var<int>>) ->
+                    yield! mkVar <| fun _ (x: Expr<Var<int>>) ->
                         <@ TemplateHole.VarIntUnchecked(holeName', %x) @>
-                    mk <| fun _ (x: Expr<int>) ->
+                    yield mk <| fun _ (x: Expr<int>) ->
                         <@ TemplateHole.VarIntUnchecked(holeName', UINVar.Create %x) @>
-                    mk <| fun _ (x: Expr<Var<CheckedInput<int>>>) ->
+                    yield! mkVar <| fun _ (x: Expr<Var<CheckedInput<int>>>) ->
                         <@ TemplateHole.VarInt(holeName', %x) @>
-                    mk <| fun _ (x: Expr<CheckedInput<int>>) ->
+                    yield mk <| fun _ (x: Expr<CheckedInput<int>>) ->
                         <@ TemplateHole.VarInt(holeName', UINVar.Create %x) @>
-                    mk <| fun _ (x: Expr<Var<float>>) ->
+                    yield! mkVar <| fun _ (x: Expr<Var<float>>) ->
                         <@ TemplateHole.VarFloatUnchecked(holeName', %x) @>
-                    mk <| fun _ (x: Expr<float>) ->
+                    yield mk <| fun _ (x: Expr<float>) ->
                         <@ TemplateHole.VarFloatUnchecked(holeName', UINVar.Create %x) @>
-                    mk <| fun _ (x: Expr<Var<CheckedInput<float>>>) ->
+                    yield! mkVar <| fun _ (x: Expr<Var<CheckedInput<float>>>) ->
                         <@ TemplateHole.VarFloat(holeName', %x) @>
-                    mk <| fun _ (x: Expr<CheckedInput<float>>) ->
+                    yield mk <| fun _ (x: Expr<CheckedInput<float>>) ->
                         <@ TemplateHole.VarFloat(holeName', UINVar.Create %x) @>
                 ]
             | HoleKind.Var ValTy.Bool ->
                 [
-                    mk <| fun _ (x: Expr<Var<bool>>) ->
+                    yield! mkVar <| fun _ (x: Expr<Var<bool>>) ->
                         <@ TemplateHole.VarBool(holeName', %x) @>
                 ]
             | HoleKind.Mapped (kind = k) -> build k

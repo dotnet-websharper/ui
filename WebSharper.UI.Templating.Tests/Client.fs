@@ -245,6 +245,7 @@ module Client =
         let welcome = Var.Create ""
         // TODO #162: this var shouldn't be necessary, it should be created in .Vars
         let username = Var.Create ""
+        let varView = Var.Create "[OK]"
         MyTemplate.index()
             .Hole(text "[OK] This replaces a ws-hole.")
             .Replace(p [] [text "[OK] This replaces a ws-replace."])
@@ -261,6 +262,7 @@ module Client =
             .OkClass("ok")
             .OkView(View.Const "[OK]")
             .OkClassView(View.Const "ok")
+            .VarView(varView.View, Var.Set varView)
             .Username(username)
             .Submit(fun e ->
                 welcome := sprintf "Welcome %s!" !username

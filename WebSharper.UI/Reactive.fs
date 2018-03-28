@@ -568,6 +568,40 @@ type Var<'T> with
     member var.Lens get update =
         Var.Lens var get update
 
+[<JavaScript>]
+type FromView<'T>(view: View<'T>, set: 'T -> unit) =
+    inherit Var<'T>()
+
+    let id = Fresh.Int()
+    let mutable current = jsNull<'T>()
+    let view = view |> View.Map (fun x -> current <- x; x)
+
+    override this.View = view
+
+    override this.Get() = current
+
+    override this.Set(x) = set x
+
+    override this.UpdateMaybe(f) =
+        view |> View.Get (fun x ->
+            match f x with
+            | None -> ()
+            | Some x -> set x
+        )
+
+    override this.Update(f) =
+        view |> View.Get (f >> set)
+
+    override this.SetFinal(x) = set x
+
+    override this.Id = "uinref" + string id
+
+type Var with
+
+    [<JavaScript; Inline>]
+    static member Make view set =
+        FromView(view, set) :> Var<_>
+
 type ViewBuilder =
     | B
 

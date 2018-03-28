@@ -111,6 +111,9 @@ type Var =
     /// Stores it on window.UINVars object with the given key for debugging purposes.
     static member CreateLogged : string -> 'A -> Var<'A>
 
+    /// Creates a variable from a View and a setter.
+    static member Make : View<'A> -> ('A -> unit) -> Var<'A>
+
     /// Obtains the current value.
     static member Get : Var<'A> -> 'A
 

@@ -27,11 +27,17 @@
     <p ws-onmouseenter="MouseEnter">This is marked ok by ws-onmouseenter.</p>
     <p ws-onafterrender="AfterRender">[FAIL] This should be replaced by a ws-onafterrender.</p>
     <p class="fail ${OkClass}">This is marked ok by a ${text} hole in an attribute.</p>
-    <p><input ws-var="Input" ws-onmouseenter="InputMouseEnter" /></p>
-    <p>${Input} This is marked ok by a ws-var on the above input (set on mouseenter).</p>
+    <p>
+      ${Input} This is marked ok by a ws-var on the following input (set on mouseenter).
+      <input ws-var="Input" ws-onmouseenter="InputMouseEnter" />
+    </p>
     <p>${OkView} This is marked ok by a View ${text} hole.</p>
     <p class="fail ${OkClassView}">This is marked ok by a ${text} View hole in an attribute.</p>
-    <p>The following is a ws-instanciation of Form.</p>
+    <p>
+      ${VarView} This is marked ok by a (View, setter) Var method on the following input.
+      <input ws-var="VarView" />
+    </p>
+    <p>The following is a ws-instantiation of Form.</p>
     <ws-Form Username Submit Welcome></ws-Form>
     <div id="main"></div>
     <div ws-template="Form">
