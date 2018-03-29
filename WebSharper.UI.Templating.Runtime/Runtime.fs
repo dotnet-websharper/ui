@@ -182,6 +182,24 @@ type Runtime private () =
 
     static let watchers = ConcurrentDictionary<string, FileSystemWatcher>()
 
+    static let reloader = MailboxProcessor.Start(fun mb -> async {
+        while true do
+            let! baseName, fullPath as msg = mb.Receive()
+            try Some (File.ReadAllText fullPath)
+            with _ ->
+                async {
+                    do! Async.Sleep(1000)
+                    mb.Post(msg)
+                }
+                |> Async.StartImmediate
+                None
+            |> Option.iter (fun src ->
+                let parsed, _, _ = Parsing.ParseSource baseName src
+                loaded.AddOrUpdate(baseName, parsed, fun _ _ -> parsed)
+                |> ignore
+            )
+    })
+
     static let getTemplate baseName name (templates: IDictionary<_,_>) : Template =
         match templates.TryGetValue name with
         | false, _ -> failwithf "Template not defined: %s/%A" baseName name
@@ -231,10 +249,6 @@ type Runtime private () =
             loaded.GetOrAdd(baseName, fun _ -> let t, _, _ = Parsing.ParseSource baseName src in t)
         let getOrLoadPath fullPath =
             loaded.GetOrAdd(baseName, fun _ -> let t, _, _ = Parsing.ParseSource baseName (File.ReadAllText fullPath) in t)
-        let reload fullPath =
-            let src = File.ReadAllText fullPath
-            let parsed, _, _ = Parsing.ParseSource baseName src
-            loaded.AddOrUpdate(baseName, parsed, fun _ _ -> parsed)
         let requireResources = Dictionary(StringComparer.InvariantCultureIgnoreCase)
         fillWith |> Seq.iter (function
             | TemplateHole.Elt (n, d) when not (obj.ReferenceEquals(d, null)) ->
@@ -400,7 +414,7 @@ type Runtime private () =
                                     NotifyFilter = (NotifyFilters.LastWrite ||| NotifyFilters.Security ||| NotifyFilters.FileName),
                                     EnableRaisingEvents = true)
                             let handler _ =
-                                reload fullPath |> ignore
+                                reloader.Post(baseName, fullPath)
                             watcher.Changed.Add handler
                             watcher)
                         getOrLoadPath fullPath
