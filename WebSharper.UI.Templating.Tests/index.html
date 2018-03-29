@@ -10,10 +10,13 @@
       [ws-template], [ws-children-template]{
         display:none;
       }
-      .fail::before {
+      .fail::before,
+      .ok1::before,
+      .ok2::before {
         content: '[FAIL] ';
       }
-      .ok::before {
+      .ok::before,
+      .ok1.ok2::before {
         content: '[OK] ';
       }
     </style>
@@ -24,6 +27,7 @@
     <p ws-replace="Replace">[FAIL] This should be replaced by a ws-replace.</p>
     <p>${TextHole}</p>
     <p class="fail" ws-attr="Attr">This is marked ok by ws-attr.</p>
+    <p ws-attr="MultiAttr">This is marked ok by ws-attr filled with ParamArray arguments.</p>
     <p ws-onmouseenter="MouseEnter">This is marked ok by ws-onmouseenter.</p>
     <p ws-onafterrender="AfterRender">[FAIL] This should be replaced by a ws-onafterrender.</p>
     <p class="fail ${OkClass}">This is marked ok by a ${text} hole in an attribute.</p>

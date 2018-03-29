@@ -94,53 +94,45 @@ module private Impl =
         let n = typeof<Expr>.FullName
         fun (x: Type) -> x.FullName.StartsWith n
 
-    let BuildMethod' (holeName: HoleName) (argTy: Type) (resTy: Type)
-            line column (ctx: Ctx) (wrapArg: Expr<State> -> Expr -> Expr<TemplateHole>) =
+    let BuildMethod'' (holeName: HoleName) (param: list<ProvidedParameter>) (resTy: Type)
+            line column (ctx: Ctx) (wrapArgs: Expr<State> -> list<Expr> -> Expr<TemplateHole>) =
         let m =
-            let param = ProvidedParameter(holeName, argTy)
-            if IsExprType argTy then
-                param.AddCustomAttribute {
-                    new CustomAttributeData() with
-                        member __.Constructor = ReflectedDefinitionCtor
-                        member __.ConstructorArguments = [||] :> _
-                        member __.NamedArguments = [||] :> _
-                }
-            ProvidedMethod(holeName, [param], resTy, function
-                | [this; arg] ->
+            ProvidedMethod(holeName, param, resTy, function
+                | this :: args ->
                     let this = <@ (%%this : obj) :?> State @>
                     <@@ let rTI, key, th = %this
-                        box (rTI, key, (%wrapArg this arg) :: th) @@>
+                        box (rTI, key, (%wrapArgs this args) :: th) @@>
                 | _ -> failwith "Incorrect invoke")
                 .WithXmlDoc(XmlDoc.Member.Hole holeName)
         match ctx.Path with
         | Some p -> m.AddDefinitionLocation(line, column, p)
         | None -> ()
-        m
+        m :> MemberInfo
+
+    let BuildMethod' holeName argTy resTy line column ctx wrapArg =
+        let param = ProvidedParameter(holeName, argTy, IsReflectedDefinition = IsExprType argTy)
+        BuildMethod'' holeName [param] resTy line column ctx (fun st args -> wrapArg st (List.head args))
 
     let BuildMethod<'T> (holeName: HoleName) (resTy: Type)
             line column (ctx: Ctx) (wrapArg: Expr<State> -> Expr<'T> -> Expr<TemplateHole>) =
         let wrapArg a b = wrapArg a (Expr.Cast b)
         BuildMethod' holeName typeof<'T> resTy line column ctx wrapArg
 
-    let BuildHoleMethods (holeName: HoleName) (holeDef: HoleDefinition) (resTy: Type) (instanceTy: Type) (varsTy: Type) (ctx: Ctx) : list<MemberInfo> =
-        let mk wrapArg = BuildMethod holeName resTy holeDef.Line holeDef.Column ctx wrapArg :> MemberInfo
+    let BuildHoleMethods (holeName: HoleName) (holeDef: HoleDefinition) (resTy: Type) (varsTy: Type) (ctx: Ctx) : list<MemberInfo> =
+        let mk wrapArg = BuildMethod holeName resTy holeDef.Line holeDef.Column ctx wrapArg
         let mkVar (wrapArg: Expr<State> -> Expr<Var<'T>> -> Expr<TemplateHole>) =
             let varMakeMeth =
                 let viewTy = typedefof<View<_>>.MakeGenericType(typeof<'T>)
                 let setterTy = typedefof<FSharpFunc<_,_>>.MakeGenericType(typeof<'T>, typeof<unit>)
-                ProvidedMethod(
-                    holeName,
-                    [ProvidedParameter("view", viewTy); ProvidedParameter("setter", setterTy)],
-                    resTy,
-                    function
-                    | [this; view; setter] ->
-                        let this = <@ (%%this : obj) :?> State @>
-                        let arg = <@ UINVar.Make %%view %%setter @>
-                        <@@ let rTI, key, th = %this
-                            box (rTI, key, (%wrapArg this arg) :: th) @@>
+                let param = [ProvidedParameter("view", viewTy); ProvidedParameter("setter", setterTy)]
+                BuildMethod'' holeName param resTy holeDef.Line holeDef.Column ctx <| fun st args ->
+                    match args with
+                    | [view; setter] -> wrapArg st <@ UINVar.Make %%view %%setter @>
                     | _ -> failwith "Incorrect invoke"
-                ) :> MemberInfo
             [mk wrapArg; varMakeMeth]
+        let mkParamArray (wrapArg: _ -> Expr<'T[]> -> _) =
+            let param = ProvidedParameter(holeName, typeof<'T>.MakeArrayType(), IsParamArray = true)
+            BuildMethod'' holeName [param] resTy holeDef.Line holeDef.Column ctx (fun st args -> wrapArg st (List.head args |> Expr.Cast))
         let holeName' = holeName.ToLowerInvariant()
         let rec build : _ -> list<MemberInfo> = function
             | HoleKind.Attr ->
@@ -149,12 +141,16 @@ module private Impl =
                         <@ TemplateHole.Attribute(holeName', %x) @>
                     mk <| fun _ (x: Expr<seq<Attr>>) ->
                         <@ TemplateHole.Attribute(holeName', Attr.Concat %x) @>
+                    mkParamArray <| fun _ (x: Expr<Attr[]>) ->
+                        <@ TemplateHole.Attribute(holeName', Attr.Concat %x) @>
                 ]
             | HoleKind.Doc ->
                 [
                     mk <| fun _ (x: Expr<Doc>) ->
                         <@ TemplateHole.Elt(holeName', %x) @>
                     mk <| fun _ (x: Expr<seq<Doc>>) ->
+                        <@ TemplateHole.Elt(holeName', Doc.Concat %x) @>
+                    mkParamArray <| fun _ (x: Expr<Doc[]>) ->
                         <@ TemplateHole.Elt(holeName', Doc.Concat %x) @>
                     mk <| fun _ (x: Expr<string>) ->
                         <@ TemplateHole.Text(holeName', %x) @>
@@ -337,7 +333,7 @@ module private Impl =
         ty.AddMembers [
             let instanceTy, varsTy = BuildInstanceType ty ctx
             for KeyValue (holeName, holeKind) in ctx.Template.Holes do
-                yield! BuildHoleMethods holeName holeKind ty instanceTy varsTy ctx
+                yield! BuildHoleMethods holeName holeKind ty varsTy ctx
             if isRoot then
                 yield ProvidedMethod("Bind", [], typeof<unit>, BindBody ctx)
                     .WithXmlDoc(XmlDoc.Member.Bind) :> _

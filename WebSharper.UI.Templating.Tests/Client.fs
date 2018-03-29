@@ -254,6 +254,7 @@ module Client =
                 JQuery.JQuery(e.Target).AddClass("ok").Ignore
             )
             .Attr(Attr.Class "ok")
+            .MultiAttr(Attr.Class "ok1", Attr.Class "ok2")
             .AfterRender(fun (el: Dom.Element) ->
                 el.TextContent <- "[OK] This replaces text with ws-onafterrender.")
             .InputMouseEnter(fun e ->
