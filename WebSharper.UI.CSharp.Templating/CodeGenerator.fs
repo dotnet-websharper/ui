@@ -73,11 +73,13 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
             [|
                 s "Attr" "Attribute" "x"
                 s "IEnumerable<Attr>" "Attribute" "Attr.Concat(x)"
+                s "params Attr[]" "Attribute" "Attr.Concat(x)"
             |]
         | HoleKind.Doc ->
             [|
                 s "Doc" "Elt" "x"
                 s "IEnumerable<Doc>" "Elt" "SDoc.Concat(x)"
+                s "params Doc[]" "Elt" "SDoc.Concat(x)"
                 s "string" "Text" "x"
                 s "View<string>" "TextView" "x"
             |]
