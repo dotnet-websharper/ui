@@ -29,6 +29,8 @@ open WebSharper.UI
 
 [<Proxy(typeof<Html.on>)>]
 type private onProxy =
+    [<JavaScript; Inline>]
+    static member afterRender (f: Expr<Dom.Element -> unit>) = Attr.OnAfterRenderImpl(f)
     // {{ event
     [<JavaScript; Inline>]
     static member abort (f: Expr<Dom.Element -> Dom.UIEvent -> unit>) = Attr.HandlerImpl("abort", f)

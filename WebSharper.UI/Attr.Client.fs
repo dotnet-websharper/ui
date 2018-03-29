@@ -265,6 +265,9 @@ type AttrProxy with
         Array.ofSeqNonCopying xs
         |> Array.TreeReduce Attr.Empty Attr.Append
 
+    static member OnAfterRenderImpl(q: Expr<Element -> unit>) =
+        As<Attr> (A4 (As q))
+
     static member HandlerImpl(event: string, q: Expr<Element -> #DomEvent-> unit>) =
         As<Attr> (Attrs.Static (fun el -> el.AddEventListener(event, (As<Element -> DomEvent -> unit> q) el, false)))
 
