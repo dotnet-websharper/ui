@@ -576,7 +576,10 @@ type FromView<'T>(view: View<'T>, set: 'T -> unit) =
     inherit Var<'T>()
 
     let id = Fresh.Int()
-    let mutable current = jsNull<'T>()
+    let mutable current =
+        match View.TryGet view with
+        | Some x -> x
+        | None -> jsNull<'T>()
     let view = view |> View.Map (fun x -> current <- x; x)
 
     override this.View = view

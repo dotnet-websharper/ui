@@ -112,6 +112,7 @@ type Var =
     static member CreateLogged : string -> 'A -> Var<'A>
 
     /// Creates a variable from a View and a setter.
+    /// If the View might be in a waiting state (eg. due to View.Async), consider using View.WithInit.
     static member Make : View<'A> -> ('A -> unit) -> Var<'A>
 
     /// Obtains the current value.
