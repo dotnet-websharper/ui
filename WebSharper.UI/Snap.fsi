@@ -122,3 +122,6 @@ module internal Snap =
 
     /// Checks if the snap is obsolete.
     val IsObsolete : Snap<'T> -> bool
+
+    /// Gets the snap's value if it has been set, None if it hasn't.
+    val TryGet : Snap<'T> ->  option<'T>

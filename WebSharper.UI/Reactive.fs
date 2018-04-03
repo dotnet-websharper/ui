@@ -255,6 +255,9 @@ type View =
     static member MapAsync2 fn v1 v2 =
         View.Map2 fn v1 v2 |> View.MapAsync id
 
+    static member TryGet (V observe) =
+        Snap.TryGet (observe ())
+
     static member Get (f: 'T -> unit) (V observe) =
         let ok = ref false
         let rec obs () =

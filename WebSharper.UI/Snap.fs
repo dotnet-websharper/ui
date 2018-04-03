@@ -145,6 +145,11 @@ module Snap =
         | Forever _ | Ready _ -> true
         | _ -> false
 
+    let TryGet snap =
+        match snap.State with
+        | Forever x | Ready (x, _) -> Some x
+        | _ -> None
+
   // transitions
 
     let MarkForever sn v =

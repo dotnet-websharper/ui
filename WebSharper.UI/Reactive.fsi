@@ -224,6 +224,9 @@ type View =
     /// Only keeps the latest value of the second view when the predicate is true
     static member UpdateWhile : 'A -> View<bool> -> View<'A> -> View<'A>
 
+    /// Retrieve the current value of the view if ready, or None if currently awaiting.
+    static member TryGet : View<'A> -> option<'A>
+
     /// Retrieve the current value of the view, or as soon as it is ready if currently awaiting.
     static member Get : ('A -> unit) -> View<'A> -> unit
 
