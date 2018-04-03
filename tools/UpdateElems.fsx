@@ -203,6 +203,13 @@ module Tags =
             match e.Type with
             | "event" ->
                 [|
+                    "[<Inline>]"
+                    sprintf "member this.On%s(cb: Microsoft.FSharp.Quotations.Expr<Dom.Element -> Dom.%s -> unit>) = this.onExpr(\"%s\", cb)" e.PascalName e.Category e.Name
+                |]
+        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI", "Doc.Extensions.fs")) all <| fun e ->
+            match e.Type with
+            | "event" ->
+                [|
                     "[<Extension; Inline>]"
                     sprintf "static member On%s(this: Elt, cb: Dom.Element -> Dom.%s -> unit) = As<Elt> ((As<Elt'> this).on(\"%s\", cb))" e.PascalName e.Category e.Name
                     "[<Extension; Inline>]"
@@ -213,7 +220,7 @@ module Tags =
 //                    "[<Extension; Inline>]"
 //                    sprintf "static member On%sView(this: Elt, view: View<'T>, cb: System.Action<Dom.Element, Dom.%s, 'T>) = As<Elt> ((As<Elt'> this).onViewDel(\"%s\", view, cb))" e.PascalName e.Category e.Name
                 |]
-        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI", "Doc.Client.fsi")) all <| fun e ->
+        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI", "Doc.Extensions.fsi")) all <| fun e ->
             match e.Type with
             | "event" ->
                 [|
