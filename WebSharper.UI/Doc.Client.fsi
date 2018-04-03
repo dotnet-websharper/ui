@@ -326,7 +326,7 @@ and [<Class>] internal Elt' =
     abstract ClearHoles : unit -> unit 
     member on : string * (Dom.Element -> #Dom.Event -> unit) -> Elt'
     member onView : string * View<'T> * (Dom.Element -> #Dom.Event -> 'T -> unit) -> Elt'
-    member OnAfterRender : (Dom.Element -> unit) -> Elt'
+    member OnAfterRender' : (Dom.Element -> unit) -> Elt'
     member OnAfterRenderView : View<'T> * (Dom.Element -> 'T -> unit) -> Elt'
     member ToUpdater : unit -> EltUpdater'
     member AppendDoc : Doc' -> unit

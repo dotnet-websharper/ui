@@ -134,7 +134,7 @@ type DocExtensions =
 
     [<Extension; Inline>]
     static member OnAfterRender(this: Elt, cb: Dom.Element -> unit) =
-        As<Elt> ((As<Elt'> this).OnAfterRender(cb))
+        As<Elt> ((As<Elt'> this).OnAfterRender'(cb))
 
     [<Extension; Inline>]
     static member OnAfterRenderView(this: Elt, view: View<'T>, cb: Dom.Element -> 'T -> unit) =

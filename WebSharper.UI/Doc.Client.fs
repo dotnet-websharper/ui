@@ -1509,7 +1509,7 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Elt">]
     member this.onExpr (ev: string, cb: Microsoft.FSharp.Quotations.Expr<Dom.Element -> #Dom.Event -> unit>) =
         this.on (ev, As<_ -> _ -> _> cb)
 
-    member this.OnAfterRender (cb: Dom.Element -> unit) =
+    member this.OnAfterRender' (cb: Dom.Element -> unit) =
         match docNode with
         | ElemDoc e ->
             e.Render <-
@@ -1525,12 +1525,12 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Elt">]
         this
 
     member this.OnAfterRender (cb: Microsoft.FSharp.Quotations.Expr<Dom.Element -> unit>) =
-        this.OnAfterRender (As<Dom.Element -> unit> cb)
+        this.OnAfterRender' (As<Dom.Element -> unit> cb)
 
     member this.OnAfterRenderView (view: View<'T>, cb: Dom.Element -> 'T -> unit) =
         let id = Fresh.Id()
         this.AppendDoc(Doc'.BindView (fun x -> this.Element?(id) <- x; Doc'.Empty') view)
-        this.OnAfterRender(fun e -> cb e e?(id))
+        this.OnAfterRender'(fun e -> cb e e?(id))
 
     abstract AddHole : DocElemNode -> unit 
     default this.AddHole h = 
