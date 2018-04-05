@@ -442,7 +442,6 @@ module Attr =
         Attr.Concat [
             DynamicProp "checked" var.View
             Handler "change" onSet
-            Handler "click" onSet
         ]
 
     let ValidateForm () =
