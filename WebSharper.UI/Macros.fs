@@ -22,7 +22,7 @@ namespace WebSharper.UI
 
 open WebSharper
 
-module internal Macros =
+module Macros =
     open WebSharper.Core
     open WebSharper.Core.AST
     module M = WebSharper.Core.Metadata
@@ -120,7 +120,7 @@ module internal Macros =
                     | _ -> setterFail()
                 | _ -> setterFail()
 
-        let BasicMakeSetter comp = function
+        let MakeSetter comp = function
             | Lambda ([x], body)
             | ExprSourcePos(_, Lambda ([x], body)) ->
                 let y = Id.New(mut = false)
@@ -290,19 +290,19 @@ module internal Macros =
             | V.Kind.Const _ -> MacroFallback
             | V.Kind.View e -> MacroOk (Call (None, clientAttrModule, attrDynClassFn, [call.Arguments.[0]; e]))
 
-    type LensMeth() =
+    type LensMethod() =
         inherit Macro()
 
         override this.TranslateCall(call) =
             match call.Method.Generics with
             | [t; u] ->
-                match Lens.BasicMakeSetter call.Compilation call.Arguments.[1] with
+                match Lens.MakeSetter call.Compilation call.Arguments.[1] with
                 | MacroOk setter ->
                     MacroOk (Call (None, varModule, lensFn t u, call.Arguments @ [setter]))
                 | err -> err
             | _ -> failwith "Invalid call"
 
-    type LensFunc() =
+    type LensFunction() =
         inherit Macro()
 
         override this.TranslateCall(call) =

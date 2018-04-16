@@ -27,7 +27,7 @@ open WebSharper.JavaScript
 [<AutoOpen>]
 module VarModule =
 
-    [<Macro(typeof<Macros.LensFunc>)>]
+    [<Macro(typeof<Macros.LensFunction>)>]
     let Lens (x: 'T) = Var.Create x
 
 // These methods apply to specific types of View (such as View<seq<'A>> when 'A : equality)
@@ -102,7 +102,7 @@ type ReactiveExtensions() =
     static member MapSeqCached<'A, 'B, 'K when 'K : equality>
         (v: View<ListModelState<'A>>, k: 'A -> 'K, f: 'K -> View<'A> -> 'B) = View.MapSeqCachedViewBy k f v
 
-    [<Extension; Macro(typeof<Macros.LensMeth>)>]
+    [<Extension; Macro(typeof<Macros.LensMethod>)>]
     static member LensAuto<'T, 'U>(ref: Var<'T>, getter: 'T -> 'U) = X<Var<'U>>
 
     [<Extension; Inline>]

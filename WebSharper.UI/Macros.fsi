@@ -20,15 +20,53 @@
 
 namespace WebSharper.UI
 
-module internal Macros =
-    [<Class>] type V = inherit WebSharper.Core.Macro
-    [<Class>] type LensFunc = inherit WebSharper.Core.Macro
-    [<Class>] type VProp = inherit WebSharper.Core.Macro
-    [<Class>] type TextView = inherit WebSharper.Core.Macro
-    [<Class>] type AttrCreate = inherit WebSharper.Core.Macro
-    [<Class>] type AttrStyle = inherit WebSharper.Core.Macro
-    [<Class>] type AttrClass = inherit WebSharper.Core.Macro
-    [<Class>] type ElementMixed = inherit WebSharper.Core.Macro
-    [<Class>] type DocConcatMixed = inherit WebSharper.Core.Macro
-    [<Class>] type LensMeth = inherit WebSharper.Core.Macro
-    [<Class>] type InputV = inherit WebSharper.Core.Macro
+module Macros =
+    open WebSharper.Core
+
+    [<Class>]
+    type V =
+        inherit Macro
+        new : unit -> V
+    [<Class>]
+    type LensFunction =
+        inherit Macro
+        new : unit -> LensFunction
+    [<Class>]
+    type VProp =
+        inherit Macro
+        new : unit -> VProp
+    [<Class>]
+    type TextView =
+        inherit Macro
+        new : unit -> TextView
+    [<Class>]
+    type AttrCreate =
+        inherit Macro
+        new : unit -> AttrCreate
+    [<Class>]
+    type AttrStyle =
+        inherit Macro
+        new : unit -> AttrStyle
+    [<Class>]
+    type AttrClass =
+        inherit Macro
+        new : unit -> AttrClass
+    [<Class>]
+    type ElementMixed =
+        inherit Macro
+        new : unit -> ElementMixed
+    [<Class>]
+    type DocConcatMixed =
+        inherit Macro
+        new : unit -> DocConcatMixed
+    [<Class>]
+    type LensMethod =
+        inherit Macro
+        new : unit -> LensMethod
+    [<Class>]
+    type InputV =
+        inherit Macro
+        new : unit -> InputV
+
+    module Lens =
+        val MakeSetter : Metadata.ICompilation -> AST.Expression -> MacroResult

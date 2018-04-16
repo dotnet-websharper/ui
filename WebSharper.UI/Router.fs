@@ -30,20 +30,21 @@ module Router =
 
     open WebSharper.Sitelets.Router
 
-    /// Installs client-side routing on the full URL. 
-    /// If initials URL parse fails, value is set to `onParseError`. 
-    let Install onParseError (router: Router<'T>) : Var<'T> =
-        let parse p = Parse router p
-        let cur() : 'T =
-            let loc = JS.Window.Location
-            let p = loc.Pathname + loc.Search |> Route.FromUrl
-            match parse p with
-            | Some a -> a
-            | None ->
-                printfn "Failed to parse route: %s" (p.ToLink()) 
-                onParseError
+    let private getCurrent parse onParseError =
+        let loc = JS.Window.Location
+        let p = loc.Pathname + loc.Search |> Route.FromUrl
+        match parse p with
+        | Some a -> a
+        | None ->
+            printfn "Failed to parse route: %s" (p.ToLink()) 
+            onParseError
 
-        let var = Var.Create (cur())
+    /// Installs client-side routing on the full URL. 
+    /// If initials URL parse fails, value is left as the initial value of `var`.
+    let InstallInto (var: Var<'T>) onParseError (router: Router<'T>) : unit =
+        let parse p = Parse router p
+        let cur() : 'T = getCurrent parse onParseError
+
         let set value =
             if var.Value <> value then
                 var.Value <- value
@@ -72,24 +73,32 @@ module Router =
                 let url = Link router value
                 JS.Window.History.PushState(null, null, url)
         )
-        var
-    
-    /// Installs client-side routing on the hash part of the URL. 
+
+    /// Installs client-side routing on the full URL. 
     /// If initials URL parse fails, value is set to `onParseError`. 
-    let InstallHash onParseError (router: Router<'T>) =
+    let Install onParseError (router: Router<'T>) : Var<'T> =
+        let parse p = Parse router p
+        let cur() : 'T = getCurrent parse onParseError
+        let var = Var.Create (cur())
+        InstallInto var onParseError router
+        var
+
+    let private getCurrentHash parse onParseError =
+        let h = JS.Window.Location.Hash
+        match parse h with
+        | Some a -> 
+            a
+        | None ->
+            printfn "Failed to parse route: %s" h 
+            onParseError
+
+    /// Installs client-side routing on the hash part of the URL. 
+    /// If initials URL parse fails, value is left as the initial value of `var`.
+    let InstallHashInto (var: Var<'T>) onParseError (router: Router<'T>) =
         let parse h = 
             let p = Route.FromHash(h, true)
             Parse router p
-        let cur() : 'T =
-            let h = JS.Window.Location.Hash
-            match parse h with
-            | Some a -> 
-                a
-            | None ->
-                printfn "Failed to parse route: %s" h 
-                onParseError
-
-        let var = Var.Create (cur())
+        let cur() : 'T = getCurrentHash parse onParseError
         let set value =
             if var.Value <> value then
                 var.Value <- value
@@ -117,6 +126,16 @@ module Router =
                 let url = HashLink router value
                 JS.Window.History.PushState(null, null, url)
         )
+
+    /// Installs client-side routing on the hash part of the URL. 
+    /// If initials URL parse fails, value is set to `onParseError`. 
+    let InstallHash onParseError (router: Router<'T>) =
+        let parse h = 
+            let p = Route.FromHash(h, true)
+            Parse router p
+        let cur() : 'T = getCurrentHash parse onParseError
+        let var = Var.Create (cur())
+        InstallHashInto var onParseError router
         var
 
 open System.Runtime.CompilerServices
