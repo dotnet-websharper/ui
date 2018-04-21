@@ -45,13 +45,15 @@
     <ws-Form Username Submit Welcome></ws-Form>
     <div id="main"></div>
     <div ws-template="Form">
-      <input type="text" ws-var="Username" />
+      <ws-FormInput Var="Username"><Type>text</Type></ws-FormInput>
       <br />
-      <input type="password" ws-var="Password" />
+      <ws-FormInput Var="Password"><Type>password</Type></ws-FormInput>
       <br />
       <input type="submit" value="Submit" ws-onclick="Submit" />
       <div>${Welcome}</div>
       <div ws-hole="LeaveEmpty">THIS SHOULD NOT APPEAR</div>
+      <!-- Regression Test for #170: out-of-order use of nested subtemplate -->
+      <input ws-template="FormInput" type="${Type}" ws-var="Var" />
     </div>
     <script type="text/javascript" src="Content/WebSharper.UI.Templating.Tests.js"></script>
   </body>

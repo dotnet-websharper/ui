@@ -1083,20 +1083,11 @@ type internal Doc' [<JavaScript>] (docNode, updates) =
                 el.ParentNode.RemoveChild(el) |> ignore
 
         and convertElement (el: Dom.Element) =
-            if el.NodeName.ToLower().StartsWith "ws-" && not (el.HasAttribute "ws-template") then
+            if el.NodeName.ToLower().StartsWith "ws-" then
                 convertInstantiation el
             else
                 convertAttrs el
-                match el.GetAttribute("ws-template") with
-                | null ->
-                    match el.GetAttribute("ws-children-template") with
-                    | null -> convert el el.FirstChild
-                    | name ->
-                        el.RemoveAttribute("ws-children-template")
-                        Doc'.PrepareTemplate baseName (Some name) (fun () -> DomUtility.ChildrenArray el)
-                        // if it was already prepared, the above does nothing, so always clean anyway!
-                        while el.HasChildNodes() do el.RemoveChild(el.LastChild) |> ignore
-                | name -> Doc'.PrepareSingleTemplate baseName (Some name) el
+                convert el el.FirstChild
 
         and convert (p: Element) (n: Node) =
             if n !==. null then
@@ -1107,13 +1098,30 @@ type internal Doc' [<JavaScript>] (docNode, updates) =
                     convertElement (n :?> Dom.Element)
                 convert p next
 
+        let rec convertNestedTemplates (el: Element) =
+            match el.QuerySelector "[ws-template]" with
+            | null ->
+                match el.QuerySelector "[ws-children-template]" with
+                | null -> ()
+                | n ->
+                    let name = n.GetAttribute "ws-children-template"
+                    n.RemoveAttribute "ws-children-template"
+                    Doc'.PrepareTemplate baseName (Some name) (fun () -> DomUtility.ChildrenArray n)
+                    convertNestedTemplates el
+            | n ->
+                let name = n.GetAttribute "ws-template"
+                Doc'.PrepareSingleTemplate baseName (Some name) n
+                convertNestedTemplates el
+
         let fakeroot =
             match root with
             | None -> Doc'.FakeRoot els
             | Some r -> r
         let name = (defaultArg name "").ToLower()
         Docs.LoadedTemplateFile(baseName).[name] <- fakeroot
-        if els.Length > 0 then convert fakeroot els.[0]
+        if els.Length > 0 then
+            convertNestedTemplates fakeroot
+            convert fakeroot els.[0]
 
     [<JavaScript>]
     static member PrepareTemplate (baseName: string) (name: option<string>) (els: unit -> Node[]) =

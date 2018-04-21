@@ -402,12 +402,22 @@ module Impl =
           SpecialHoles = state.SpecialHoles
           Line = line; Column = col }
 
+    let withoutAttr (n: HtmlNode) attrName f =
+        match n.GetAttributeValue(attrName, null) with
+        | null -> f()
+        | a ->
+            n.Attributes.Remove(attrName)
+            let res = f()
+            n.Attributes.Add(attrName, a)
+            res
+
     let parseNodeAsTemplate fileId (n: HtmlNode) =
         match n.Attributes.[HoleAttr] with
         | null ->
             let instState = ParseState(fileId)
             match n with
             | Instantiation instState el ->
+                withoutAttr n TemplateAttr <| fun () ->
                 {
                     Value = [| el |]
                     Holes = instState.Holes
@@ -422,26 +432,18 @@ module Impl =
             let isSvg = n.Name = "svg"
             let state = ParseState(fileId, templateForChildren.Holes, templateForChildren.SpecialHoles)
             let el = normalElement n isSvg (lazy templateForChildren.Value) state
-            let a = n.GetAttributeValue(TemplateAttr, null)
-            n.Attributes.Remove(TemplateAttr)
-            let txt =
-                let replace = n.Attributes.["ws-replace"]
-                if replace <> null then n.Attributes.Remove(replace)
-                let s = n.WriteTo()
-                if replace <> null then n.Attributes.Add(replace)
-                s
-            let t =
-                {
-                    Value = [| el |]
-                    Src = txt
-                    Line = n.Line
-                    Column = n.LinePosition
-                    References = Set.union templateForChildren.References state.References
-                    SpecialHoles = state.SpecialHoles
-                    Holes = templateForChildren.Holes
-                }
-            if a <> null then n.Attributes.Add(TemplateAttr, a)
-            t
+            withoutAttr n TemplateAttr <| fun () ->
+            withoutAttr n "ws-replace" <| fun () ->
+            let txt = n.WriteTo()
+            {
+                Value = [| el |]
+                Src = txt
+                Line = n.Line
+                Column = n.LinePosition
+                References = Set.union templateForChildren.References state.References
+                SpecialHoles = state.SpecialHoles
+                Holes = templateForChildren.Holes
+            }
         | hole ->
             let holeName = hole.Value
             let state = ParseState(fileId)
