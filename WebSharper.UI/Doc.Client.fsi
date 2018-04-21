@@ -28,10 +28,6 @@ open WebSharper
 open WebSharper.JavaScript
 open WebSharper.UI
 
-module Settings =
-    /// Batch UI updates to minimize refreshing. Default: true.
-    val mutable BatchUpdatesEnabled : bool
-
 [<AutoOpen>]
 module EltExtensions =
 
@@ -51,19 +47,6 @@ module EltExtensions =
 
         /// Get or set the element's text content.
         member Text : string with get, set
-
-[<Class>]
-type EltUpdater =
-    inherit Elt
-
-    /// Subscribes an element inserted by outside DOM changes to be updated with this element
-    member AddUpdated : Elt -> unit
-    
-    /// Desubscribes an element added by AddUpdated
-    member RemoveUpdated : Elt -> unit
-
-    /// Desubscribes all elements added by AddUpdated
-    member RemoveAllUpdated : unit -> unit
 
 module Doc =
 
@@ -309,39 +292,3 @@ module Doc =
     /// Creates a wrapper that allows subscribing elements for DOM syncronization inserted through other means than UI combinators.
     /// Removes automatic DOM synchronization of children elements, but not attributes.
     val ToUpdater : Elt -> EltUpdater
-
-///// Internal types, needed by DocExtensions
-
-[<Sealed>]
-type internal DocElemNode
-
-and [<Class>] internal Doc' =
-    interface IControlBody
-    static member RunById : string -> Doc' -> unit
-    static member Run : Dom.Element -> Doc' -> unit
-
-and [<Class>] internal Elt' =
-    inherit Doc'
-    abstract AddHole : DocElemNode -> unit 
-    abstract ClearHoles : unit -> unit 
-    member on : string * (Dom.Element -> #Dom.Event -> unit) -> Elt'
-    member onView : string * View<'T> * (Dom.Element -> #Dom.Event -> 'T -> unit) -> Elt'
-    member OnAfterRender' : (Dom.Element -> unit) -> Elt'
-    member OnAfterRenderView : View<'T> * (Dom.Element -> 'T -> unit) -> Elt'
-    member ToUpdater : unit -> EltUpdater'
-    member AppendDoc : Doc' -> unit
-    member PrependDoc : Doc' -> unit
-    member Clear' : unit -> unit
-    member SetAttribute' : string * string -> unit
-    member GetAttribute' : string -> string
-    member HasAttribute' : string -> bool
-    member RemoveAttribute' : string -> unit
-    member SetProperty' : string * 'T -> unit
-    member GetProperty' : string -> 'T
-    member AddClass' : string -> unit
-    member RemoveClass' : string -> unit
-    member HasClass' : string -> bool
-    member SetStyle' : string * string -> unit
-
-and [<Class>] internal EltUpdater' =
-    inherit Elt'

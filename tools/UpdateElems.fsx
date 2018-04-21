@@ -199,7 +199,7 @@ module Tags =
                     "/// When called on the server side, the handler must be a top-level function or a static member."
                     sprintf "member On%s : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.%s -> unit> -> Elt" e.PascalName e.Category
                 |]
-        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI", "Doc.Client.fs")) all <| fun e ->
+        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI", "Doc.Proxy.fs")) all <| fun e ->
             match e.Type with
             | "event" ->
                 [|

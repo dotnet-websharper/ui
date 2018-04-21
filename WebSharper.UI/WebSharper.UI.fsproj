@@ -36,6 +36,8 @@
     <Compile Include="Doc.fs" />
     <Compile Include="Doc.Server.fsi" />
     <Compile Include="Doc.Server.fs" />
+    <None Include="Doc.Proxy.fsi" />
+    <Compile Include="Doc.Proxy.fs" />
     <Compile Include="Doc.Client.fsi" />
     <Compile Include="Doc.Client.fs" />
     <Compile Include="DocExtensions.fsi" />
