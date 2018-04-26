@@ -195,7 +195,7 @@ module Impl =
                     addHole attr.Value (holeDef HoleKind.ElemHandler)
                     yield Attr.OnAfterRender attr.Value
                 | VarAttr | HoleAttr | ReplaceAttr | TemplateAttr | ChildrenTemplateAttr ->
-                    () // These are handled separately in parseNode*
+                    () // These are handled separately in parseNode* and detach*Node
                 | s when s.StartsWith EventAttrPrefix ->
                     let eventName = s.[EventAttrPrefix.Length..]
                     let eventType = getEventType eventName
@@ -363,14 +363,10 @@ module Impl =
                 let thisIsSvg = isSvg || node.Name = "svg"
                 match node.Attributes.[ReplaceAttr] with
                 | null ->
-                    if node.Attributes.Contains(TemplateAttr) then
-                        Some ([||], (isSvg, node.NextSibling))
-                    else
                     let children =
                         lazy
                         match node.Attributes.[HoleAttr] with
                         | null ->
-                            if node.Attributes.Contains(ChildrenTemplateAttr) then [||] else
                             parseNodeAndSiblings thisIsSvg state node.FirstChild
                         | holeAttr ->
                             state.AddSpecialHole(SpecialHole.FromName holeAttr.Value)
@@ -385,19 +381,16 @@ module Impl =
         )
         |> Array.concat
 
-    let parseNodeAndSiblingsAsTemplate fileId (node: HtmlNode) =
+    let parseNodeChildrenAsTemplate fileId (parentNode: HtmlNode) =
         let state = ParseState(fileId)
         let src =
             use s = new StringWriter()
             let rec l = function
                 | null -> s.ToString()
                 | (n : HtmlNode) -> n.WriteTo s; l n.NextSibling
-            l node
-        let line, col =
-            match node with
-            | null -> 0, 0
-            | node -> node.ParentNode.Line, node.ParentNode.LinePosition
-        let value = parseNodeAndSiblings false state node
+            l parentNode.FirstChild
+        let line, col = parentNode.Line, parentNode.LinePosition
+        let value = parseNodeAndSiblings false state parentNode.FirstChild
         { Holes = state.Holes; Value = value; Src = src; References = state.References
           SpecialHoles = state.SpecialHoles
           Line = line; Column = col }
@@ -411,13 +404,59 @@ module Impl =
             n.Attributes.Add(attrName, a)
             res
 
+    /// Detach a ws-template node from its parent.
+    /// If it had a ws-replace attr, leave a dummy instead.
+    /// Return it wrapped in a dummy parent.
+    let detachTemplateNode (n: HtmlNode) =
+        let doc = n.OwnerDocument
+        match n.Attributes.[ReplaceAttr] with
+        | null ->
+            n.Remove()
+        | a ->
+            let repl = doc.CreateElement("div")
+            repl.SetAttributeValue(ReplaceAttr, a.Value) |> ignore
+            n.ParentNode.ReplaceChild(repl, n) |> ignore
+            n.Attributes.Remove(ReplaceAttr)
+        n.Attributes.Remove(TemplateAttr)
+        let fakeroot = doc.CreateElement("div")
+        fakeroot.AppendChild(n) |> ignore
+        fakeroot
+
+    /// Detach the contents of a ws-children-template node from their parent.
+    /// Returns them in a new artificial parent.
+    let detachChildrenTemplateNode (n: HtmlNode) =
+        let repl = n.OwnerDocument.CreateElement(n.Name)
+        for a in n.Attributes do
+            if a.Name <> ChildrenTemplateAttr then
+                repl.Attributes.Add(a)
+        n.ParentNode.ReplaceChild(repl, n) |> ignore
+        n.Attributes.RemoveAll()
+        n
+
+    /// Find all the ws-template nodes, detach them and populate wsTemplates.
+    let detachAllTemplateNodes (nodes: HtmlNode[]) (wsTemplates: Dictionary<WrappedTemplateName, HtmlNode>) =
+        for n in nodes do
+            let templateName = n.GetAttributeValue(TemplateAttr, "")
+            let w = WrappedTemplateName(templateName)
+            if wsTemplates.ContainsKey w then
+                failwithf "Template defined multiple times: %s" templateName
+            wsTemplates.Add(w, detachTemplateNode n)
+
+    /// Find all the ws-children-template nodes, detach them and populate wsTemplates.
+    let detachAllChildrenTemplateNodes (nodes: HtmlNode[]) (wsTemplates: Dictionary<WrappedTemplateName, HtmlNode>) =
+        for n in nodes do
+            let templateName = n.GetAttributeValue(ChildrenTemplateAttr, "")
+            let w = WrappedTemplateName(templateName)
+            if wsTemplates.ContainsKey w then
+                failwithf "Template defined multiple times: %s" templateName
+            wsTemplates.Add(w, detachChildrenTemplateNode n)
+
     let parseNodeAsTemplate fileId (n: HtmlNode) =
         match n.Attributes.[HoleAttr] with
         | null ->
             let instState = ParseState(fileId)
             match n with
             | Instantiation instState el ->
-                withoutAttr n TemplateAttr <| fun () ->
                 {
                     Value = [| el |]
                     Holes = instState.Holes
@@ -428,12 +467,11 @@ module Impl =
                     References = instState.References
                 }
             | _ ->
-            let templateForChildren = parseNodeAndSiblingsAsTemplate fileId n.FirstChild
+            let templateForChildren = parseNodeChildrenAsTemplate fileId n
             let isSvg = n.Name = "svg"
             let state = ParseState(fileId, templateForChildren.Holes, templateForChildren.SpecialHoles)
             let el = normalElement n isSvg (lazy templateForChildren.Value) state
-            withoutAttr n TemplateAttr <| fun () ->
-            withoutAttr n "ws-replace" <| fun () ->
+            withoutAttr n ReplaceAttr <| fun () ->
             let txt = n.WriteTo()
             {
                 Value = [| el |]
@@ -526,29 +564,24 @@ let ParseSource fileId (src: string) =
     let html = HtmlDocument()
     html.LoadHtml(src)
     let clientLoad, serverLoad = ParseOptions html
+    let wsTemplates = Dictionary()
+    let childrenTemplateNodes =
+        match html.DocumentNode.SelectNodes("//*[@"+ChildrenTemplateAttr+"]") with
+        | null -> [||]
+        | x -> Array.ofSeq x
+    let templateNodes =
+        match html.DocumentNode.SelectNodes("//*[@"+TemplateAttr+"]") with
+        | null -> [||]
+        | x -> Array.ofSeq x
+    detachAllChildrenTemplateNodes childrenTemplateNodes wsTemplates
+    detachAllTemplateNodes templateNodes wsTemplates
     let templates = Dictionary()
-    match html.DocumentNode.SelectNodes("//*[@"+TemplateAttr+"]") with
-    | null -> ()
-    | nodes ->
-        for n in nodes do
-            let templateName = n.GetAttributeValue(TemplateAttr, "")
-            let w = WrappedTemplateName(templateName)
-            if templates.ContainsKey w then
-                failwithf "Template defined multiple times: %s" templateName
-            templates.Add(w, parseNodeAsTemplate fileId n)
-    match html.DocumentNode.SelectNodes("//*[@"+ChildrenTemplateAttr+"]") with
-    | null -> ()
-    | nodes ->
-        for n in nodes do
-            let templateName = n.GetAttributeValue(ChildrenTemplateAttr, "")
-            let w = WrappedTemplateName(templateName)
-            if templates.ContainsKey w then
-                failwithf "Template defined multiple times: %s" templateName
-            templates.Add(w, parseNodeAndSiblingsAsTemplate fileId n.FirstChild)
+    for KeyValue(k, v) in wsTemplates do
+        templates.Add(k, parseNodeChildrenAsTemplate fileId v)
     let rootTemplate =
         match TryGetAsSingleElement html.DocumentNode with
         | Some n -> parseNodeAsTemplate fileId n
-        | None -> parseNodeAndSiblingsAsTemplate fileId html.DocumentNode.FirstChild
+        | None -> parseNodeChildrenAsTemplate fileId html.DocumentNode
     templates.Add(WrappedTemplateName null, rootTemplate)
     Map [ for KeyValue(k, v) in templates -> k, v ], clientLoad, serverLoad
 
