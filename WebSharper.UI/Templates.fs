@@ -236,7 +236,8 @@ module internal Templates =
                 p.ReplaceChild(n, el) |> ignore
         FakeRoot [| el |]
 
-    let rec PrepareTemplateStrict (baseName: string) (name: option<string>) (els: Node[]) (root: option<Element>) (prepareLocalTemplate: option<string -> unit>) =
+    module private Prepare =
+
         let convertAttrs (el: Dom.Element) =
             let attrs = el.Attributes
             let toRemove = [||]
@@ -363,10 +364,10 @@ module internal Templates =
                             ))
                     e.SetAttribute(attrName, s)
 
-        let fillTextHole (instance: Dom.Element) (fillWith: string) =
+        let fillTextHole (instance: Dom.Element) (fillWith: string) (templateName: string) =
             match instance.QuerySelector "[ws-replace]" with
             | null ->
-                Console.Warn("Filling non-existent text hole", name)
+                Console.Warn("Filling non-existent text hole", templateName)
                 None
             | n ->
                 n.ParentNode.ReplaceChild(Dom.Text fillWith, n) |> ignore
@@ -379,6 +380,7 @@ module internal Templates =
         let failNotLoaded (name: string) =
             Console.Warn("Instantiating non-loaded template", name)
 
+    let rec PrepareTemplateStrict (baseName: string) (name: option<string>) (els: Node[]) (root: option<Element>) (prepareLocalTemplate: option<string -> unit>) =
         let rec fillDocHole (instance: Dom.Element) (fillWith: Dom.Element) =
             let name = fillWith.NodeName.ToLower()
             let fillHole (p: Dom.Node) (n: Dom.Node) =
@@ -390,7 +392,7 @@ module internal Templates =
                     for i in parsed do
                         fillWith.AppendChild(i) |> ignore
                 convertElement fillWith
-                fill fillWith p n
+                Prepare.fill fillWith p n
             DomUtility.IterSelector instance "[ws-attr-holes]" <| fun e ->
                 let holeAttrs = e.GetAttribute("ws-attr-holes").Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
                 for attrName in holeAttrs do
@@ -415,47 +417,32 @@ module internal Templates =
             if el.NodeName.ToLower().StartsWith "ws-" then
                 convertInstantiation el
             else
-                convertAttrs el
+                Prepare.convertAttrs el
                 convertNodeAndSiblings el.FirstChild
 
         and convertNodeAndSiblings (n: Node) =
             if n !==. null then
                 let next = n.NextSibling
                 if n.NodeType = Dom.NodeType.Text then
-                    convertTextNode n
+                    Prepare.convertTextNode n
                 elif n.NodeType = Dom.NodeType.Element then
                     convertElement (n :?> Dom.Element)
                 convertNodeAndSiblings next
 
-        and convertTemplateFromBody (name: string) =
-            match JS.Document.Body.QuerySelector("[ws-template=" + name + "]") with
-            | null ->
-                match JS.Document.Body.QuerySelector("[ws-children-template=" + name + "]") with
-                | null -> failNotLoaded name
-                | n ->
-                    let name = n.GetAttribute "ws-children-template"
-                    n.RemoveAttribute "ws-children-template"
-                    PrepareTemplateStrict "" (Some name) (DomUtility.ChildrenArray n) None None
-            | n ->
-                let name = n.GetAttribute "ws-template"
-                PrepareSingleTemplate baseName (Some name) n None
-
         and convertInstantiation (el: Dom.Element) =
-            let currentIsLocal = baseName = ""
             let name = el.NodeName.[3..].ToLower()
-            let baseName, name =
+            let instBaseName, instName =
                 match name.IndexOf('.') with
                 | -1 -> baseName, name
                 | n -> name.[..n-1], name.[n+1..]
-            if baseName <> "" && not (LoadedTemplates.ContainsKey baseName) then
-                failNotLoaded name
+            if instBaseName <> "" && not (LoadedTemplates.ContainsKey instBaseName) then
+                Prepare.failNotLoaded instName
             else
-            if baseName = "" && prepareLocalTemplate.IsSome then
-                prepareLocalTemplate.Value name
-            let d = LoadedTemplates.[baseName]
-            if not (d.ContainsKey name) then
-                if currentIsLocal then convertTemplateFromBody name else failNotLoaded name
-            let t = d.[name]
+            if instBaseName = "" && prepareLocalTemplate.IsSome then
+                prepareLocalTemplate.Value instName
+            let d = LoadedTemplates.[instBaseName]
+            if not (d.ContainsKey instName) then Prepare.failNotLoaded instName else
+            let t = d.[instName]
             let instance = t.CloneNode(true) :?> Dom.Element
             let usedHoles = HashSet()
             let mappings = Dictionary()
@@ -472,14 +459,14 @@ module internal Templates =
                 if n.NodeType = Dom.NodeType.Element then
                     let n = n :?> Dom.Element
                     if not (usedHoles.Add(n.NodeName.ToLower())) then
-                        Console.Warn("Hole filled twice", name)
+                        Console.Warn("Hole filled twice", instName)
             // 2. If single text hole, apply it.
             let singleTextFill = el.ChildNodes.Length = 1 && el.FirstChild.NodeType = Dom.NodeType.Text
             if singleTextFill then
-                fillTextHole instance el.FirstChild.TextContent
+                Prepare.fillTextHole instance el.FirstChild.TextContent instName
                 |> Option.iter (usedHoles.Add >> ignore)
             // 3. eliminate non-mapped/filled holes.
-            removeHolesExcept instance usedHoles
+            Prepare.removeHolesExcept instance usedHoles
             // 4. apply mappings/fillings.
             if not singleTextFill then
                 for i = 0 to el.ChildNodes.Length - 1 do
@@ -487,12 +474,12 @@ module internal Templates =
                     if n.NodeType = Dom.NodeType.Element then
                         let n = n :?> Dom.Element
                         if n.HasAttributes() then
-                            fillInstanceAttrs instance n
+                            Prepare.fillInstanceAttrs instance n
                         else
                             fillDocHole instance n
-            mapHoles instance mappings
+            Prepare.mapHoles instance mappings
             // 5. insert result.
-            fill instance el.ParentNode el
+            Prepare.fill instance el.ParentNode el
             el.ParentNode.RemoveChild(el) |> ignore
 
         let rec convertNestedTemplates (el: Element) =
@@ -510,10 +497,7 @@ module internal Templates =
                 PrepareSingleTemplate baseName (Some name) n None
                 convertNestedTemplates el
 
-        let fakeroot =
-            match root with
-            | None -> FakeRoot els
-            | Some r -> r
+        let fakeroot = root |> Option.defaultWith (fun () -> FakeRoot els)
         let name = (defaultArg name "").ToLower()
         LoadedTemplateFile(baseName).[name] <- fakeroot
         if els.Length > 0 then
