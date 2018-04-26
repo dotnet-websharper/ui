@@ -71,7 +71,7 @@ module Doc =
     /// Construct a Doc using a given set of DOM nodes and template fillers.
     val Template : Node[] -> seq<TemplateHole> -> Doc
 
-    /// Load templates declared in the current document with `data-template="name"`.
+    /// Load templates declared in the current document with `ws-template="name"`.
     val LoadLocalTemplates : string -> unit
 
     /// Load a template with the given name, if it wasn't loaded yet.

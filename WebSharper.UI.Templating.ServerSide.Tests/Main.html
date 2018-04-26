@@ -13,6 +13,14 @@
             (you said &quot;${Input}") with opacity <!--"-->
             <input ws-var="Opacity" type="number" />
             ${Count}
+            <p>Testing client-side HTML instantiation from sitelet: (this should show a 3-row table)</p>
+            <table>
+              <tbody>
+                <ws-Row></ws-Row>
+                <ws-Row></ws-Row>
+                <ws-Row></ws-Row>
+              </tbody>
+            </table>
         </div>
         <button ws-template="ServerTemplate" style="font-weight: bold;">Testing an Elt server template; click me!</button>
     </div>

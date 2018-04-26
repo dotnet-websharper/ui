@@ -202,7 +202,7 @@ type private RuntimeProxy =
             ) : Doc =
         X<Doc>
 
-    [<JavaScript>]
+    [<Inline>]
     static member RunTemplate (fillWith: seq<TemplateHole>): Doc =
         WebSharper.UI.Client.Doc.RunFullDocTemplate fillWith
 

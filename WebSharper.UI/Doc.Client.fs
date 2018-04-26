@@ -50,74 +50,86 @@ module Doc =
 
     [<Inline>]
     let Template (el: Node[]) (fillWith: seq<TemplateHole>) : Doc =
-        As (Doc'.Template el fillWith)
+        As (Templates.Template el fillWith)
 
     [<Inline>]
     let LoadLocalTemplates baseName =
-        Doc'.LoadLocalTemplates baseName
+        Templates.LoadLocalTemplates baseName
 
     [<Inline>]
     let LoadTemplate (baseName: string) (name: option<string>) (el: unit -> Node[]) =
-        Doc'.PrepareTemplate baseName name el
+        Templates.PrepareTemplate baseName name el
 
     [<Inline>]
     let NamedTemplate (baseName: string) (name: option<string>) (fillWith: seq<TemplateHole>) : Doc =
-        As (Doc'.NamedTemplate baseName name fillWith)
+        As (Templates.NamedTemplate baseName name fillWith)
 
     [<Inline>]
     let GetOrLoadTemplate (baseName: string) (name: option<string>) (el: unit -> Node[]) (fillWith: seq<TemplateHole>) : Doc =
-        As (Doc'.GetOrLoadTemplate baseName name el fillWith)
+        As (Templates.GetOrLoadTemplate baseName name el fillWith)
 
     [<Inline>]
     let RunFullDocTemplate (fillWith: seq<TemplateHole>) : Doc =
-        As (Doc'.RunFullDocTemplate fillWith)
+        As (Templates.RunFullDocTemplate fillWith)
 
     [<Inline>]
     let Run parent (doc: Doc) =
+        Templates.LoadLocalTemplates ""
         Doc'.Run parent (As doc)
 
     [<Inline>]
     let RunById id (tr: Doc) =
+        Templates.LoadLocalTemplates ""
         Doc'.RunById id (As tr)
 
     [<Inline>]
     let RunBefore parent (doc: Doc) =
+        Templates.LoadLocalTemplates ""
         Doc'.RunBefore parent (As doc)
 
     [<Inline>]
     let RunBeforeById id (tr: Doc) =
+        Templates.LoadLocalTemplates ""
         Doc'.RunBeforeById id (As tr)
 
     [<Inline>]
     let RunAfter parent (doc: Doc) =
+        Templates.LoadLocalTemplates ""
         Doc'.RunAfter parent (As doc)
 
     [<Inline>]
     let RunAfterById id (tr: Doc) =
+        Templates.LoadLocalTemplates ""
         Doc'.RunAfterById id (As tr)
 
     [<Inline>]
     let RunAppend parent (doc: Doc) =
+        Templates.LoadLocalTemplates ""
         Doc'.RunAppend parent (As doc)
 
     [<Inline>]
     let RunAppendById id (tr: Doc) =
+        Templates.LoadLocalTemplates ""
         Doc'.RunAppendById id (As tr)
 
     [<Inline>]
     let RunPrepend parent (doc: Doc) =
+        Templates.LoadLocalTemplates ""
         Doc'.RunPrepend parent (As doc)
 
     [<Inline>]
     let RunPrependById id (tr: Doc) =
+        Templates.LoadLocalTemplates ""
         Doc'.RunPrependById id (As tr)
 
     [<Inline>]
     let RunReplace (elt: Node) (doc: Doc) =
+        Templates.LoadLocalTemplates ""
         (doc :> IControlBody).ReplaceInDom(elt)
 
     [<Inline>]
     let RunReplaceById id (tr: Doc) =
+        Templates.LoadLocalTemplates ""
         Doc'.RunReplaceById id (As tr)
 
     [<Inline>]
