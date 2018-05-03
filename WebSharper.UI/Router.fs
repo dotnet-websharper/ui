@@ -39,6 +39,34 @@ module Router =
             printfn "Failed to parse route: %s" (p.ToLink()) 
             onParseError
 
+    /// Trim the #fragment, if any, from a URL.
+    let private trimFragment (url: string) =
+        match url.IndexOf('#') with
+        | -1 -> url
+        | i -> url.[..i-1]
+
+    /// Transform the url from an <a href="XYZ"> tag into an absolute path+query,
+    /// if it is indeed a URL that Install wants to handle.
+    let private hrefToAbsolute (href: string) =
+        if isNull href then
+            None
+        elif href.StartsWith("?") then
+            // Query only, just add it to the current path
+            Some (JS.Window.Location.Pathname + href |> trimFragment)
+        elif href.StartsWith("#") then
+            // Fragment only, Install doesn't handle it
+            None
+        elif href.StartsWith("/") then
+            // Absolute path, just use it
+            Some (href |> trimFragment)
+        elif RegExp("^[a-zA-Z0-9]:").Test(href) then
+            // Full URL (eg: "http://foo.bar"), we don't handle it
+            None
+        else
+            // Relative URL, combine it with the current path
+            let s = JS.Window.Location.Pathname
+            Some (s.[..s.LastIndexOf('/')] + href |> trimFragment)
+
     /// Installs client-side routing on the full URL. 
     /// If initials URL parse fails, value is left as the initial value of `var`.
     let InstallInto (var: Var<'T>) onParseError (router: Router<'T>) : unit =
@@ -56,14 +84,15 @@ module Router =
             match JQuery.JQuery.Of(ev.Target).Closest("a").ToArray() with
             | [| target |] ->
                 if target.LocalName = "a" then
-                    let href = target.GetAttribute("href")
-                    if not (isNull href) then
+                    match target.GetAttribute("href") |> hrefToAbsolute with
+                    | Some href ->
                         let p = href |> Route.FromUrl
                         match parse p with
                         | Some a -> 
                             set a
                             ev.PreventDefault()
                         | None -> ()
+                    | None -> ()
             | _ -> ()
         ).Ignore
         
@@ -78,8 +107,7 @@ module Router =
     /// If initials URL parse fails, value is set to `onParseError`. 
     let Install onParseError (router: Router<'T>) : Var<'T> =
         let parse p = Parse router p
-        let cur() : 'T = getCurrent parse onParseError
-        let var = Var.Create (cur())
+        let var = Var.Create (getCurrent parse onParseError)
         InstallInto var onParseError router
         var
 

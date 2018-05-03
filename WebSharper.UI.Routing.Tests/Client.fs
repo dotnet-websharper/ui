@@ -29,7 +29,12 @@ module Client =
                 )
             Doc.Concat (Seq.append fSharpTests cSharpTests)
         | Inferred test ->
-            div [] [ text (sprintf "%A" test) ] :> Doc
+            Doc.Concat [
+                div [] [ text (sprintf "%A" test) ] :> Doc
+                (match test with
+                | Root -> div [] [ a [ attr.href "constructed/about/None/None" ] [ text "Plain relative URL to constructed About(null, null)" ] ] :> Doc
+                | _ -> Doc.Empty)
+            ]
         | Constructed test ->
             div [] [ text (sprintf "%A" test) ] :> Doc
         | CSharpInferred test ->

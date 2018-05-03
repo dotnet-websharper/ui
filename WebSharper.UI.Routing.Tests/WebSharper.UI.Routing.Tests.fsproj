@@ -4,6 +4,7 @@
     <TargetFramework>net461</TargetFramework>
     <WebSharperProject>Site</WebSharperProject>
     <NoWarn>3218</NoWarn>
+    <Signed>false</Signed>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Actions.fs" />
@@ -24,6 +25,12 @@
       <Content Include="Content/**/*.*" />
       <Content Include="Scripts/**/*.*" />
     </ItemGroup>
+  </Target>
+  <Target Name="CopyBin" Condition="'$(TargetFramework)' == net461" AfterTargets="Build">
+    <ItemGroup>
+      <_BinFiles Include="bin/$(Configuration)/$(TargetFramework)/*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_BinFiles)" DestinationFolder="bin" />
   </Target>
   <Import Project="..\paket-files\wsbuild\github.com\dotnet-websharper\build-script\WebSharper.Fake.targets" Condition="Exists('..\paket-files\wsbuild\github.com\dotnet-websharper\build-script\WebSharper.Fake.targets')" />
   <Import Project="..\.paket\Paket.Restore.targets" />
