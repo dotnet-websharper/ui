@@ -214,7 +214,13 @@ module Macros =
         override this.TranslateCall(call) =
             match call.DefiningType.Generics.[0] with
             | ConcreteType td as t when isDocOrEltT td.Entity ->
-                Call(None, clientDocModule, docEmbedFn t, [call.This.Value])
+                let arg =
+                    if isViewT call.DefiningType.Entity then
+                        call.This.Value
+                    elif isVarT call.DefiningType.Entity then
+                        Call(call.This, call.DefiningType, viewProp, [])
+                    else failwith "Impossible"
+                Call(None, clientDocModule, docEmbedFn t, [arg])
                 |> MacroOk
             | _ ->
                 MacroError "View<'T>.V can only be called in an argument to a V-enabled function or if 'T = Doc."

@@ -567,6 +567,7 @@ module Main =
         ]
         |> Doc.RunAppend JS.Document.Body
         let rv = Var.Create { x = "red"; y = { z = "green"; t = "test" } }
+        let rd = Var.Create (p [] [text "[OK] var.V"])
         div [
             Attr.Style "color" rv.V.y.z
         ] [
@@ -588,5 +589,6 @@ module Main =
             p [] [text (" You typed: " + rv.V.y.z)]
             V(ul [] (rv.V.y.z |> Seq.map (fun c -> li [] [text (string c)] :> Doc))).V
             p [Attr.ClassPred "is-green" (rv.V.y.z = "green")] [text "this should be bordered with green iff you typed \"green\"."]
+            rd.V
         ]
         |> Doc.RunAppend JS.Document.Body
