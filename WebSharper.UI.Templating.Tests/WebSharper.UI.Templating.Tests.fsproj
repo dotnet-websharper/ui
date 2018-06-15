@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <WebSharperProject>Bundle</WebSharperProject>
-    <WebSharperBundleOutputDir>Content</WebSharperBundleOutputDir>
+    <WebSharperBundleOutputDir>$(MSBuildThisFileDirectory)/Content</WebSharperBundleOutputDir>
     <WebSharperSourceMap>true</WebSharperSourceMap>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>3218</NoWarn>

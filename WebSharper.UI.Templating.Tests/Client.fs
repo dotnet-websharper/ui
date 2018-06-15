@@ -133,9 +133,9 @@ module Client =
                 .LIExtraAttr(Attr.Class "class4")
                 .Replace2("Replace2")
                 .NewDescription(newDescr)
-                .NewItem(fun e -> myItems.Add { id = freshKey(); name = e.Vars.NewName.Value; description = newDescr.Value })
-                .SubmitItems(fun _ -> itemsSub.Trigger())
-                .ClearItems(fun _ -> myItems.Clear())
+                // .NewItem(fun e -> myItems.Add { id = freshKey(); name = e.Vars.NewName.Value; description = newDescr.Value })
+                // .SubmitItems(fun _ -> itemsSub.Trigger())
+                // .ClearItems(fun _ -> myItems.Clear())
                 .Test102(
                     // Test #102: this would empty the whole containing div
                     myItems.ViewState
@@ -219,11 +219,11 @@ module Client =
                         ] :> Doc
                     ]
                 )
-                .AddDiv(fun _ -> addDiv())
-                .RemoveUpdater(fun _ -> removeUpdater())
-                .ReAddUpdater(fun _ -> reAddUpdater())
-                .RemoveAllUpdaters(fun _ -> removeAllUpdaters())
-                .IncrEltUpdaterTest(fun _ -> testCounter := !testCounter + 1)
+                // .AddDiv(fun _ -> addDiv())
+                // .RemoveUpdater(fun _ -> removeUpdater())
+                // .ReAddUpdater(fun _ -> reAddUpdater())
+                // .RemoveAllUpdaters(fun _ -> removeAllUpdaters())
+                // .IncrEltUpdaterTest(fun _ -> testCounter := !testCounter + 1)
                 .EltUpdaterTest(eltUpdater)
                 .Username(username)
                 .Password(password)

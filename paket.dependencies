@@ -2,20 +2,21 @@ version 5.142.0
 
 source https://api.nuget.org/v3/index.json
 source https://nuget.intellifactory.com/nuget username: "%IF_USER%" password: "%IF_PASS%"
-framework: net461, netstandard2.0
+source c:\if\websharper\build
+framework: net461, netstandard2.0, net471
 strategy: min
 storage: none
 
 nuget FSharp.Core ~> 4.2.0
-nuget WebSharper prerelease
-nuget WebSharper.CSharp prerelease
-nuget WebSharper.FSharp prerelease
-nuget WebSharper.Testing prerelease
+nuget WebSharper 4.2.14.2004
+nuget WebSharper.CSharp 4.2.14.2004
+nuget WebSharper.FSharp 4.2.14.2004
+nuget WebSharper.Testing 4.2.14.2004
 nuget HtmlAgilityPack 1.7.1
 nuget Microsoft.CodeAnalysis.CSharp ~> 2.6.0
 nuget System.ValueTuple 4.3.0
-github fsprojects/FSharp.TypeProviders.SDK:b6d5c949e46c34f051e2adf88170e1a2d20cbfd9 src/ProvidedTypes.fsi
-github fsprojects/FSharp.TypeProviders.SDK:b6d5c949e46c34f051e2adf88170e1a2d20cbfd9 src/ProvidedTypes.fs
+github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fsi
+github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fs
 nuget Microsoft.Build.Utilities.Core
 nuget System.Xml.XDocument
 
@@ -23,7 +24,7 @@ group build
     framework: net45
     source https://api.nuget.org/v3/index.json
 
-    nuget FAKE
+    nuget FAKE ~> 4.0
     nuget Paket.Core 5.141.0
 
 group wsbuild

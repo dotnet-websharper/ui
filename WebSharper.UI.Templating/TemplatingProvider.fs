@@ -87,12 +87,12 @@ module private Impl =
             let Bind =
                 "Bind the template instance to the document."
 
-    let ReflectedDefinitionCtor =
-        typeof<ReflectedDefinitionAttribute>.GetConstructor([||])
-
     let IsExprType =
         let n = typeof<Expr>.FullName
-        fun (x: Type) -> x.FullName.StartsWith n
+        fun (x: Type) ->
+            // Work around https://github.com/fsprojects/FSharp.TypeProviders.SDK/issues/236
+            let x = if x.IsGenericType then x.GetGenericTypeDefinition() else x
+            x.FullName.StartsWith n
 
     let BuildMethod'' (holeName: HoleName) (param: list<ProvidedParameter>) (resTy: Type)
             line column (ctx: Ctx) (wrapArgs: Expr<State> -> list<Expr> -> Expr<TemplateHole>) =
@@ -110,7 +110,8 @@ module private Impl =
         m :> MemberInfo
 
     let BuildMethod' holeName argTy resTy line column ctx wrapArg =
-        let param = ProvidedParameter(holeName, argTy, IsReflectedDefinition = IsExprType argTy)
+        let isRefl = IsExprType argTy
+        let param = ProvidedParameter(holeName, argTy, IsReflectedDefinition = isRefl)
         BuildMethod'' holeName [param] resTy line column ctx (fun st args -> wrapArg st (List.head args))
 
     let BuildMethod<'T> (holeName: HoleName) (resTy: Type)
@@ -263,13 +264,13 @@ module private Impl =
         )
 
     let BindBody (ctx: Ctx) (args: list<Expr>) =
-        // TODO: anything to do with this?
-        // let references = References ctx
         let vars = InstanceVars ctx
         <@@ let rTI, key, holes = ((%%args.[0] : obj) :?> State)
             let holes, completed = RTS.Handler.CompleteHoles(key, holes, %%vars)
             let doc = RTS.Runtime.RunTemplate holes
-            rTI := TI(completed, doc) @@>
+            let x = TI(completed, doc)
+            //rTI := x
+            () @@>
 
     let InstanceBody (ctx: Ctx) (args: list<Expr>) =
         let name = ctx.Id |> Option.map (fun s -> s.ToLowerInvariant())
@@ -291,7 +292,7 @@ module private Impl =
                     %%Expr.Value ctx.Template.IsElt,
                     %%(match args with _::keepUnfilled::_ -> keepUnfilled | _ -> Expr.Value false)
                 )
-            rTI := TI(completed, doc)
+            // rTI := TI(completed, doc)
             !rTI @@>
             
     let BuildInstanceType (ty: PT.Type) (ctx: Ctx) =
@@ -300,7 +301,7 @@ module private Impl =
                 .WithXmlDoc(XmlDoc.Type.Instance)
                 .AddTo(ty)
         let vars =
-            ProvidedTypeDefinition("Vars", None)
+            ProvidedTypeDefinition("Vars", Some typeof<obj>)
                 .WithXmlDoc(XmlDoc.Type.Vars)
                 .AddTo(ty)
         vars.AddMembers [
@@ -381,7 +382,7 @@ module private Impl =
                     (item.ClientLoad = ClientLoad.FromDocument) ctx
             | Some n ->
                 let ty =
-                    ProvidedTypeDefinition(n, None)
+                    ProvidedTypeDefinition(n, Some typeof<obj>)
                         .WithXmlDoc(XmlDoc.Type.Template n)
                         .AddTo(containerTy)
                 BuildOneTemplate ty false ctx
@@ -402,7 +403,7 @@ module private Impl =
                     match item.Name with
                     | None -> containerTy
                     | Some name ->
-                        ProvidedTypeDefinition(name, None)
+                        ProvidedTypeDefinition(name, Some typeof<obj>)
                             .AddTo(containerTy)
                 BuildOneFile item allTemplates containerTy (inlineFileId item)
             )
@@ -442,7 +443,7 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
 
     let thisAssembly = Assembly.GetExecutingAssembly()
     let rootNamespace = "WebSharper.UI.Templating"
-    let templateTy = ProvidedTypeDefinition(thisAssembly, rootNamespace, "Template", None)
+    let templateTy = ProvidedTypeDefinition(thisAssembly, rootNamespace, "Template", Some typeof<obj>)
 
     let fileWatcher = FileWatcher(this.Invalidate, this.Disposing, cfg)
 
@@ -486,9 +487,9 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
                     | a -> failwithf "Unexpected parameter values: %A" a
                 let ty = //lazy (
                     let parsed = Parsing.Parse pathOrHtml cfg.ResolutionFolder serverLoad clientLoad
-                    setupWatcher parsed.ParseKind
+                    // setupWatcher parsed.ParseKind
                     let ty =
-                        ProvidedTypeDefinition(thisAssembly, rootNamespace, typename, None)
+                        ProvidedTypeDefinition(thisAssembly, rootNamespace, typename, Some typeof<obj>)
                             .WithXmlDoc(XmlDoc.TemplateType "")
                     match legacyMode with
                     | LegacyMode.Both ->
