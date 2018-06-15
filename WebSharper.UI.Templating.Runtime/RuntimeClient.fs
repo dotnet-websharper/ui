@@ -213,11 +213,11 @@ type private HandlerProxy =
     static member EventQ (holeName: string, isGenerated: bool, f: Expr<Dom.Element -> Dom.Event -> unit>) =
         TemplateHole.EventQ(holeName, isGenerated, f)
 
-    [<Inline; MethodImpl(MethodImplOptions.NoInlining)>]
-    static member EventQ2<'E when 'E :> DomEvent> (key: string, holeName: string, ti: ref<TemplateInstance>, [<JavaScript>] f: Expr<TemplateEvent<obj, 'E> -> unit>) =
+    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    static member EventQ2<'E when 'E :> DomEvent> (key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, 'E> -> unit>) =
         TemplateHole.EventQ(holeName, true, <@ fun el ev ->
             (%f) {
-                    Vars = box !ti
+                    Vars = box (ti())
                     Target = el
                     Event = downcast ev
                 }

@@ -48,7 +48,7 @@ module private Impl =
     module RTC = Runtime.Client
     module RTS = Runtime.Server
     type TI = RTS.TemplateInstance
-    type State = ref<TI> * string * list<TemplateHole>
+    type Builder = RTS.ProviderBuilder
 
     type Ctx =
         {
@@ -95,13 +95,14 @@ module private Impl =
             x.FullName.StartsWith n
 
     let BuildMethod'' (holeName: HoleName) (param: list<ProvidedParameter>) (resTy: Type)
-            line column (ctx: Ctx) (wrapArgs: Expr<State> -> list<Expr> -> Expr<TemplateHole>) =
+            line column (ctx: Ctx) (wrapArgs: Expr<Builder> -> list<Expr> -> Expr<TemplateHole>) =
         let m =
             ProvidedMethod(holeName, param, resTy, function
                 | this :: args ->
-                    let this = <@ (%%this : obj) :?> State @>
-                    <@@ let rTI, key, th = %this
-                        box (rTI, key, (%wrapArgs this args) :: th) @@>
+                    let var = Var("this", typeof<Builder>)
+                    Expr.Let(var, <@ (%%this : obj) :?> Builder @>,
+                        let this : Expr<Builder> = Expr.Var(var) |> Expr.Cast
+                        <@@ box ((%this).WithHole(%wrapArgs this args)) @@>)
                 | _ -> failwith "Incorrect invoke")
                 .WithXmlDoc(XmlDoc.Member.Hole holeName)
         match ctx.Path with
@@ -115,13 +116,13 @@ module private Impl =
         BuildMethod'' holeName [param] resTy line column ctx (fun st args -> wrapArg st (List.head args))
 
     let BuildMethod<'T> (holeName: HoleName) (resTy: Type)
-            line column (ctx: Ctx) (wrapArg: Expr<State> -> Expr<'T> -> Expr<TemplateHole>) =
+            line column (ctx: Ctx) (wrapArg: Expr<Builder> -> Expr<'T> -> Expr<TemplateHole>) =
         let wrapArg a b = wrapArg a (Expr.Cast b)
         BuildMethod' holeName typeof<'T> resTy line column ctx wrapArg
 
     let BuildHoleMethods (holeName: HoleName) (holeDef: HoleDefinition) (resTy: Type) (varsTy: Type) (ctx: Ctx) : list<MemberInfo> =
         let mk wrapArg = BuildMethod holeName resTy holeDef.Line holeDef.Column ctx wrapArg
-        let mkVar (wrapArg: Expr<State> -> Expr<Var<'T>> -> Expr<TemplateHole>) =
+        let mkVar (wrapArg: Expr<Builder> -> Expr<Var<'T>> -> Expr<TemplateHole>) =
             let varMakeMeth =
                 let viewTy = typedefof<View<_>>.MakeGenericType(typeof<'T>)
                 let setterTy = typedefof<FSharpFunc<_,_>>.MakeGenericType(typeof<'T>, typeof<unit>)
@@ -176,9 +177,9 @@ module private Impl =
                     BuildMethod' holeName (exprTy (templateEventTy varsTy evTy ^-> typeof<unit>)) resTy holeDef.Line holeDef.Column ctx (fun e x ->
                         Expr.Call(typeof<RTS.Handler>.GetMethod("EventQ2").MakeGenericMethod(evTy),
                             [
-                                Expr.TupleGet(e, 1)
+                                <@ (%e).Key @>
                                 <@ holeName' @>
-                                Expr.TupleGet(e, 0)
+                                <@ fun () -> (%e).Instance @>
                                 x
                             ])
                         |> Expr.Cast
@@ -265,19 +266,18 @@ module private Impl =
 
     let BindBody (ctx: Ctx) (args: list<Expr>) =
         let vars = InstanceVars ctx
-        <@@ let rTI, key, holes = ((%%args.[0] : obj) :?> State)
-            let holes, completed = RTS.Handler.CompleteHoles(key, holes, %%vars)
+        <@@ let builder = (%%args.[0] : obj) :?> Builder
+            let holes, completed = RTS.Handler.CompleteHoles(builder.Key, builder.Holes, %%vars)
             let doc = RTS.Runtime.RunTemplate holes
-            let x = TI(completed, doc)
-            //rTI := x
+            let _ = builder.SetInstance(TI(completed, doc))
             () @@>
 
     let InstanceBody (ctx: Ctx) (args: list<Expr>) =
         let name = ctx.Id |> Option.map (fun s -> s.ToLowerInvariant())
         let references = References ctx
         let vars = InstanceVars ctx
-        <@@ let rTI, key, holes = ((%%args.[0] : obj) :?> State)
-            let holes, completed = RTS.Handler.CompleteHoles(key, holes, %%vars)
+        <@@ let builder = (%%args.[0] : obj) :?> Builder
+            let holes, completed = RTS.Handler.CompleteHoles(builder.Key, builder.Holes, %%vars)
             let doc =
                 RTS.Runtime.GetOrLoadTemplate(
                     %%Expr.Value ctx.FileId,
@@ -292,9 +292,8 @@ module private Impl =
                     %%Expr.Value ctx.Template.IsElt,
                     %%(match args with _::keepUnfilled::_ -> keepUnfilled | _ -> Expr.Value false)
                 )
-            // rTI := TI(completed, doc)
-            !rTI @@>
-            
+            builder.SetInstance(TI(completed, doc)) @@>
+
     let BuildInstanceType (ty: PT.Type) (ctx: Ctx) =
         let res =
             ProvidedTypeDefinition("Instance", Some typeof<TI>)
@@ -353,8 +352,7 @@ module private Impl =
                     <@@ (%%InstanceBody ctx args : TI).Doc :?> Elt @@>)
                     .WithXmlDoc(docXmldoc) :> _
             let ctor =
-                ProvidedConstructor([], fun _ ->
-                    <@@ box (ref Unchecked.defaultof<TI>, Guid.NewGuid().ToString(), ([] : list<TemplateHole>) : State) @@>)
+                ProvidedConstructor([], fun _ -> <@@ box (Builder.Make()) @@>)
             match ctx.Path with
             | Some path -> ctor.AddDefinitionLocation(ctx.Template.Line, ctx.Template.Column, path)
             | None -> ()
@@ -467,17 +465,17 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
             try
                 let (|ClientLoad|) (o: obj) =
                     match o with
-                    | :? ClientLoad as clientLoad -> clientLoad  
+                    | :? ClientLoad as clientLoad -> clientLoad
                     | :? int as clientLoad -> enum clientLoad
                     | _ ->  failwithf "Expecting a ClientLoad or int static parameter value for clientLoad"
                 let (|ServerLoad|) (o: obj) =
                     match o with
-                    | :? ServerLoad as serverLoad -> serverLoad  
+                    | :? ServerLoad as serverLoad -> serverLoad
                     | :? int as serverLoad -> enum serverLoad
                     | _ ->  failwithf "Expecting a ServerLoad or int static parameter value for serverLoad"
                 let (|LegacyMode|) (o: obj) =
                     match o with
-                    | :? LegacyMode as legacyMode -> legacyMode  
+                    | :? LegacyMode as legacyMode -> legacyMode
                     | :? int as legacyMode -> enum legacyMode
                     | _ ->  failwithf "Expecting a LegacyMode or int static parameter value for legacyMode"
                 let pathOrHtml, clientLoad, serverLoad, legacyMode =
@@ -487,7 +485,7 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
                     | a -> failwithf "Unexpected parameter values: %A" a
                 let ty = //lazy (
                     let parsed = Parsing.Parse pathOrHtml cfg.ResolutionFolder serverLoad clientLoad
-                    // setupWatcher parsed.ParseKind
+                    setupWatcher parsed.ParseKind
                     let ty =
                         ProvidedTypeDefinition(thisAssembly, rootNamespace, typename, Some typeof<obj>)
                             .WithXmlDoc(XmlDoc.TemplateType "")

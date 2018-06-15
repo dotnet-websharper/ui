@@ -113,7 +113,7 @@ type Handler private () =
         TemplateHole.EventQ(holeName, isGenerated, f)
 
     [<MethodImpl(MethodImplOptions.NoInlining)>]
-    static member EventQ2<'E when 'E :> DomEvent> (key: string, holeName: string, ti: ref<TemplateInstance>, [<JavaScript>] f: Expr<TemplateEvent<obj, 'E> -> unit>) =
+    static member EventQ2<'E when 'E :> DomEvent> (key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, 'E> -> unit>) =
         Handler.EventQ(holeName, true, <@ fun el ev ->
             let k = key
             (WebSharper.JavaScript.Pervasives.As<TemplateEvent<obj, 'E> -> unit> f)
@@ -175,6 +175,30 @@ type private RenderContext =
         Templates: Map<Parsing.WrappedTemplateName, Template>
         FillWith: Holes
     }
+
+[<JavaScript>]
+type ProviderBuilder =
+    {
+        [<Name "i">] mutable Instance: TemplateInstance
+        [<Name "k">] Key: string
+        [<Name "h">] Holes: ResizeArray<TemplateHole>
+    }
+
+    member this.WithHole(h) =
+        this.Holes.Add(h)
+        this
+
+    [<Inline>]
+    member this.SetInstance(i) =
+        this.Instance <- i
+        i
+
+    static member Make() =
+        {
+            Instance = Unchecked.defaultof<TemplateInstance>
+            Key = Guid.NewGuid().ToString()
+            Holes = ResizeArray()
+        }
 
 type Runtime private () =
 
