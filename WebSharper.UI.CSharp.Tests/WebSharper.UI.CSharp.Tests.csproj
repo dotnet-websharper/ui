@@ -7,7 +7,7 @@
     <WebSharperSourceMap>true</WebSharperSourceMap>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <WebSharperUICSharpTaskAssembly>..\WebSharper.UI.CSharp.Templating.Build\bin\$(Configuration)\netstandard2.0\WebSharper.UI.CSharp.Templating.Build.dll</WebSharperUICSharpTaskAssembly>
-    <NoWarn>3218</NoWarn>
+    <NoWarn>3218;CS1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="index.html" />
