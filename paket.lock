@@ -659,13 +659,13 @@ NUGET
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
   remote: c:\if\websharper\build
-    WebSharper (4.2.14.2004)
-    WebSharper.CSharp (4.2.14.2004)
-      WebSharper (4.2.14.2004)
-    WebSharper.FSharp (4.2.14.2004)
-      WebSharper (4.2.14.2004)
-    WebSharper.Testing (4.2.14.2004)
-      WebSharper (4.2.14.2004)
+    WebSharper (4.3.0.265-alpha)
+    WebSharper.CSharp (4.3.0.265-alpha)
+      WebSharper (4.3.0.265-alpha)
+    WebSharper.FSharp (4.3.0.265-alpha)
+      WebSharper (4.3.0.265-alpha)
+    WebSharper.Testing (4.3.0.265-alpha)
+      WebSharper (4.3.0.265-alpha)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
     src/ProvidedTypes.fs (4b9ce4b75b6fd727a96378eb4c0f303638db2e71)
@@ -697,7 +697,7 @@ NUGET
       Microsoft.NETCore.Platforms (>= 1.1) - restriction: || (&& (>= net45) (< netstandard1.3)) (&& (< net45) (>= netstandard1.1) (< netstandard1.2) (< win8)) (&& (< net45) (>= netstandard1.2) (< netstandard1.3) (< win8) (< wpa81)) (&& (< net45) (>= netstandard1.3) (< netstandard1.4) (< win8) (< wpa81)) (&& (< net45) (>= netstandard1.4) (< netstandard1.5) (< win8) (< wpa81)) (&& (< net45) (>= netstandard1.5) (< netstandard1.6)) (&& (< net45) (>= netstandard1.6) (< netstandard2.0)) (&& (< net45) (>= netstandard2.0)) (&& (>= net46) (< netstandard1.4)) (>= net461) (>= netcoreapp2.0) (&& (>= netstandard1.0) (< portable-net45+win8+wpa81)) (&& (< netstandard1.0) (>= portable-net45+win8) (< win8)) (&& (< netstandard1.0) (< portable-net45+win8) (>= portable-net45+win8+wpa81)) (&& (< netstandard1.0) (>= portable-net45+win8+wp8+wpa81) (< portable-net45+win8+wpa81)) (&& (< netstandard1.0) (>= win8)) (&& (< netstandard1.3) (< win8) (>= wpa81)) (>= uap10.0) (>= wp8)
 GITHUB
   remote: dotnet-websharper/websharper
-    src/htmllib/tags.csv (29eee107a736575210cbd95a12d0d02ba4006d43)
+    src/htmllib/tags.csv (35fe5846793f8e4efbff4a3fdef4eac86fc5ba0c)
 GROUP wsbuild
 
 GIT

@@ -2,16 +2,15 @@ version 5.142.0
 
 source https://api.nuget.org/v3/index.json
 source https://nuget.intellifactory.com/nuget username: "%IF_USER%" password: "%IF_PASS%"
-source c:\if\websharper\build
 framework: net461, netstandard2.0, net471
 strategy: min
 storage: none
 
 nuget FSharp.Core ~> 4.2.0
-nuget WebSharper 4.2.14.2004
-nuget WebSharper.CSharp 4.2.14.2004
-nuget WebSharper.FSharp 4.2.14.2004
-nuget WebSharper.Testing 4.2.14.2004
+nuget WebSharper prerelease
+nuget WebSharper.CSharp prerelease
+nuget WebSharper.FSharp prerelease
+nuget WebSharper.Testing prerelease
 nuget HtmlAgilityPack 1.7.1
 nuget Microsoft.CodeAnalysis.CSharp ~> 2.6.0
 nuget System.ValueTuple 4.3.0
