@@ -23,6 +23,13 @@ files
     ../WebSharper.UI.CSharp.Templating.Build/bin/Release/net461/WebSharper.UI.CSharp.Templating.Build.dll ==> tools
     ../WebSharper.UI.CSharp.Templating.Analyzer/uninstall.ps1 ==> tools
     ../WebSharper.UI.CSharp.Templating.Analyzer/install.ps1 ==> tools
+    ../WebSharper.UI.CSharp.Templating.Build/bin/Release/netstandard2.0/FSharp.Core.dll ==> tools/netstandard2.0
+    ../WebSharper.UI.CSharp.Templating.Build/bin/Release/netstandard2.0/HtmlAgilityPack.dll ==> tools/netstandard2.0
+    ../WebSharper.UI.Templating.Common/bin/Release/netstandard2.0/WebSharper.UI.Templating.Common.dll ==> tools/netstandard2.0
+    ../WebSharper.UI.CSharp.Templating/bin/Release/netstandard2.0/WebSharper.UI.CSharp.Templating.dll ==> tools/netstandard2.0
+    ../WebSharper.UI.CSharp.Templating.Build/bin/Release/netstandard2.0/WebSharper.UI.CSharp.Templating.Build.dll ==> tools/netstandard2.0
+    ../WebSharper.UI.CSharp.Templating.Analyzer/uninstall.ps1 ==> tools/netstandard2.0
+    ../WebSharper.UI.CSharp.Templating.Analyzer/install.ps1 ==> tools/netstandard2.0
     ../WebSharper.UI.Templating.Common/bin/Release/netstandard2.0/HtmlAgilityPack.dll ==> analyzers/dotnet/cs
     ../WebSharper.UI.Templating.Common/bin/Release/netstandard2.0/WebSharper.UI.Templating.Common.dll ==> analyzers/dotnet/cs
     ../WebSharper.UI.CSharp.Templating/bin/Release/netstandard2.0/WebSharper.UI.CSharp.Templating.dll ==> analyzers/dotnet/cs

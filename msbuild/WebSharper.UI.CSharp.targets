@@ -23,16 +23,21 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <AdditionalFileItemNames>$(AdditionalFileItemNames);Content</AdditionalFileItemNames>
-  </PropertyGroup>
-  <PropertyGroup>
     <WebSharperUICSharpTaskAssembly Condition=" '$(WebSharperUICSharpTaskAssembly)' == '' ">$(MSBuildThisFileDirectory)/../tools/WebSharper.UI.CSharp.Templating.Build.dll</WebSharperUICSharpTaskAssembly>
   </PropertyGroup>
-  <UsingTask AssemblyFile="$(WebSharperUICSharpTaskAssembly)" TaskName="WebSharper.UI.CSharp.Templating.Build.WebSharperUICSharpGeneratorTask" />
-  <Target Condition=" '$(MSBuildProjectExtension)' == '.csproj' " Name="WebSharperUICSharpTemplating" BeforeTargets="CoreCompile">
+  <UsingTask AssemblyFile="$(WebSharperUICSharpTaskAssembly)"
+             TaskName="WebSharper.UI.CSharp.Templating.Build.WebSharperUICSharpGeneratorTask"
+             Condition="Exists('$(WebSharperUICSharpTaskAssembly)')" />
+  <Target Condition=" '$(MSBuildProjectExtension)' == '.csproj' AND Exists('$(WebSharperUICSharpTaskAssembly)') "
+          Name="WebSharperUICSharpTemplating"
+          BeforeTargets="BeforeBuild">
     <WebSharperUICSharpGeneratorTask
       AssemblyName="$(AssemblyName)"
       Content="@(Content)"
       ProjectDir="$(MSBuildProjectDirectory)"
     />
+    <ItemGroup>
+      <Compile Include="$(MSBuildProjectDirectory)\WebSharper.UI.Templates\*.cs" />
+    </ItemGroup>
   </Target>
 </Project>

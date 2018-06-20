@@ -17,6 +17,7 @@
   <ItemGroup>
     <Analyzer Include="..\WebSharper.UI.Templating.Common\bin\$(Configuration)\netstandard2.0\HtmlAgilityPack.dll" />
     <Analyzer Include="..\WebSharper.UI.Templating.Common\bin\$(Configuration)\netstandard2.0\WebSharper.UI.Templating.Common.dll" />
+    <Analyzer Include="..\WebSharper.UI.CSharp.Templating\bin\$(Configuration)\netstandard2.0\WebSharper.UI.CSharp.Templating.dll" />
     <Analyzer Include="..\WebSharper.UI.CSharp.Templating.Analyzer\bin\$(Configuration)\netstandard2.0\WebSharper.UI.CSharp.Templating.Analyzer.dll" />
   </ItemGroup>
   <ItemGroup>
@@ -25,5 +26,6 @@
     <ProjectReference Include="../WebSharper.UI.CSharp\WebSharper.UI.CSharp.fsproj" />
     <ProjectReference Include="../WebSharper.UI.Templating.Runtime\WebSharper.UI.Templating.Runtime.fsproj" />
   </ItemGroup>
+  <Import Project="..\msbuild\WebSharper.UI.CSharp.targets" />
   <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>
