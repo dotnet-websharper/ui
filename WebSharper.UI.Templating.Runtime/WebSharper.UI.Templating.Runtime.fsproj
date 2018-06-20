@@ -14,7 +14,6 @@
   <ItemGroup>
     <ProjectReference Include="../WebSharper.UI\WebSharper.UI.fsproj" />
     <ProjectReference Include="../WebSharper.UI.Templating.Common\WebSharper.UI.Templating.Common.fsproj" />
-    <Reference Include="System.Runtime.Caching" />
   </ItemGroup>
   <ItemGroup Condition="$(TargetFramework.StartsWith('net4'))">
     <Reference Include="System.Web" />
