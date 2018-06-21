@@ -23,21 +23,31 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <AdditionalFileItemNames>$(AdditionalFileItemNames);Content</AdditionalFileItemNames>
-    <WebSharperUICSharpTaskAssembly Condition=" '$(WebSharperUICSharpTaskAssembly)' == '' ">$(MSBuildThisFileDirectory)/../tools/WebSharper.UI.CSharp.Templating.Build.dll</WebSharperUICSharpTaskAssembly>
+    <WebSharperUICSharpTaskAssembly Condition=" '$(WebSharperUICSharpTaskAssembly)' == '' AND '$(MSBuildRuntimeType)' == 'Core' ">$(MSBuildThisFileDirectory)/../tools/netstandard2.0/WebSharper.UI.CSharp.Templating.Build.dll</WebSharperUICSharpTaskAssembly>
+    <WebSharperUICSharpTaskAssembly Condition=" '$(WebSharperUICSharpTaskAssembly)' == '' AND '$(MSBuildRuntimeType)' != 'Core' ">$(MSBuildThisFileDirectory)/../tools/net461/WebSharper.UI.CSharp.Templating.Build.dll</WebSharperUICSharpTaskAssembly>
   </PropertyGroup>
   <UsingTask AssemblyFile="$(WebSharperUICSharpTaskAssembly)"
              TaskName="WebSharper.UI.CSharp.Templating.Build.WebSharperUICSharpGeneratorTask"
-             Condition="Exists('$(WebSharperUICSharpTaskAssembly)')" />
-  <Target Condition=" '$(MSBuildProjectExtension)' == '.csproj' AND Exists('$(WebSharperUICSharpTaskAssembly)') "
+             />
+  <Target Condition=" '$(MSBuildProjectExtension)' == '.csproj'"
           Name="WebSharperUICSharpTemplating"
-          BeforeTargets="BeforeBuild">
+          BeforeTargets="BeforeBuild"
+          >
+    <Message Text="Generating code for WebSharper templates..." Importance="High" />
     <WebSharperUICSharpGeneratorTask
       AssemblyName="$(AssemblyName)"
       Content="@(Content)"
       ProjectDir="$(MSBuildProjectDirectory)"
-    />
+      ExistingCompile="@(Compile)"
+      >
+      <Output TaskParameter="TemplateFiles" ItemName="_WebSharperTemplateFiles" />
+      <Output TaskParameter="OutputSourceFiles" ItemName="_WebSharperTemplateCsFiles" />
+      <Output TaskParameter="NewOutputSourceFiles" ItemName="_WebSharperTemplateNewCsFiles" />
+    </WebSharperUICSharpGeneratorTask>
+    <Message Text="Generated code for WebSharper templates: @(_WebSharperTemplateFiles)" Importance="High" />
     <ItemGroup>
-      <Compile Include="$(MSBuildProjectDirectory)\WebSharper.UI.Templates\*.cs" />
+      <Compile Include="@(_WebSharperTemplateNewCsFiles)" />
+      <FileWrites Include="@(_WebSharperTemplateCsFiles)" />
     </ItemGroup>
   </Target>
 </Project>
