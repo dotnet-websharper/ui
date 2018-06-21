@@ -33,7 +33,7 @@
           Name="WebSharperUICSharpTemplating"
           BeforeTargets="BeforeBuild"
           >
-    <Message Text="Generating code for WebSharper templates..." Importance="High" />
+    <Message Text="Generating code for WebSharper templates..." />
     <WebSharperUICSharpGeneratorTask
       AssemblyName="$(AssemblyName)"
       Content="@(Content)"
@@ -44,7 +44,7 @@
       <Output TaskParameter="OutputSourceFiles" ItemName="_WebSharperTemplateCsFiles" />
       <Output TaskParameter="NewOutputSourceFiles" ItemName="_WebSharperTemplateNewCsFiles" />
     </WebSharperUICSharpGeneratorTask>
-    <Message Text="Generated code for WebSharper templates: @(_WebSharperTemplateFiles)" Importance="High" />
+    <Message Text="Generated code for WebSharper templates: @(_WebSharperTemplateFiles)" />
     <ItemGroup>
       <Compile Include="@(_WebSharperTemplateNewCsFiles)" />
       <FileWrites Include="@(_WebSharperTemplateCsFiles)" />
