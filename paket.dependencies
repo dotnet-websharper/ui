@@ -3,10 +3,12 @@ version 5.142.0
 source https://api.nuget.org/v3/index.json
 source https://nuget.intellifactory.com/nuget username: "%IF_USER%" password: "%IF_PASS%"
 
-nuget WebSharper ~> 4.2.0 prerelease
-nuget WebSharper.CSharp ~> 4.2.0 prerelease
-nuget WebSharper.FSharp ~> 4.2.0 prerelease
-nuget WebSharper.Testing ~> 4.2.0 prerelease
+framework: net461, net471
+
+nuget WebSharper prerelease
+nuget WebSharper.CSharp prerelease
+nuget WebSharper.FSharp prerelease
+nuget WebSharper.Testing prerelease
 nuget HtmlAgilityPack ~> 1.6.6
 nuget Microsoft.CodeAnalysis.CSharp 1.0.0
 nuget System.ValueTuple 4.3.0
