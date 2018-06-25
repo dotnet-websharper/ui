@@ -155,7 +155,7 @@ module private Impl =
                     mkParamArray <| fun _ (x: Expr<Doc[]>) ->
                         <@ TemplateHole.Elt(holeName', Doc.Concat %x) @>
                     mk <| fun _ (x: Expr<string>) ->
-                        <@ TemplateHole.Text(holeName', %x) @>
+                        <@ TemplateHole.MakeText(holeName', %x) @>
                     mk <| fun _ (x: Expr<View<string>>) ->
                         <@ TemplateHole.TextView(holeName', %x) @>
                 ]
@@ -188,7 +188,7 @@ module private Impl =
             | HoleKind.Simple ->
                 [
                     mk <| fun _ (x: Expr<string>) ->
-                        <@ TemplateHole.Text(holeName', %x) @>
+                        <@ TemplateHole.MakeText(holeName', %x) @>
                     mk <| fun _ (x: Expr<View<string>>) ->
                         <@ TemplateHole.TextView(holeName', %x) @>
                 ]
@@ -197,31 +197,33 @@ module private Impl =
                     yield! mkVar <| fun _ (x: Expr<Var<string>>) ->
                         <@ TemplateHole.VarStr(holeName', %x) @>
                     yield mk <| fun _ (x: Expr<string>) ->
-                        <@ TemplateHole.VarStr(holeName', UINVar.Create %x) @>
+                        <@ TemplateHole.MakeVarLens(holeName', %x) @>
                 ]
             | HoleKind.Var ValTy.Number ->
                 [
                     yield! mkVar <| fun _ (x: Expr<Var<int>>) ->
                         <@ TemplateHole.VarIntUnchecked(holeName', %x) @>
                     yield mk <| fun _ (x: Expr<int>) ->
-                        <@ TemplateHole.VarIntUnchecked(holeName', UINVar.Create %x) @>
+                        <@ TemplateHole.MakeVarLens(holeName', %x) @>
                     yield! mkVar <| fun _ (x: Expr<Var<CheckedInput<int>>>) ->
                         <@ TemplateHole.VarInt(holeName', %x) @>
                     yield mk <| fun _ (x: Expr<CheckedInput<int>>) ->
-                        <@ TemplateHole.VarInt(holeName', UINVar.Create %x) @>
+                        <@ TemplateHole.MakeVarLens(holeName', %x) @>
                     yield! mkVar <| fun _ (x: Expr<Var<float>>) ->
                         <@ TemplateHole.VarFloatUnchecked(holeName', %x) @>
                     yield mk <| fun _ (x: Expr<float>) ->
-                        <@ TemplateHole.VarFloatUnchecked(holeName', UINVar.Create %x) @>
+                        <@ TemplateHole.MakeVarLens(holeName', %x) @>
                     yield! mkVar <| fun _ (x: Expr<Var<CheckedInput<float>>>) ->
                         <@ TemplateHole.VarFloat(holeName', %x) @>
                     yield mk <| fun _ (x: Expr<CheckedInput<float>>) ->
-                        <@ TemplateHole.VarFloat(holeName', UINVar.Create %x) @>
+                        <@ TemplateHole.MakeVarLens(holeName', %x) @>
                 ]
             | HoleKind.Var ValTy.Bool ->
                 [
                     yield! mkVar <| fun _ (x: Expr<Var<bool>>) ->
                         <@ TemplateHole.VarBool(holeName', %x) @>
+                    yield mk <| fun _ (x: Expr<bool>) ->
+                        <@ TemplateHole.MakeVarLens(holeName', %x) @>
                 ]
             | HoleKind.Mapped (kind = k) -> build k
             | HoleKind.Unknown -> failwithf "Error: Unknown HoleKind: %s" holeName

@@ -388,6 +388,62 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
     static member NewActionEvent<'T when 'T :> Dom.Event>(name: string, f: Action<Element, 'T>) =
         Event(name, fun el ev -> f.Invoke(el, downcast ev))
 
+    [<Macro(typeof<Macros.TemplateText>); Inline>]
+    static member MakeText(name: string, text: string) =
+        Text(name, text)
+
+    [<Inline>]
+    static member MakeTextView(name: string, text: View<string>) =
+        TextView(name, text)
+
+    [<Macro(typeof<Macros.TemplateVar>); Inline>]
+    static member MakeVarLens(name: string, v: string) =
+        VarStr(name, Var.Create v)
+
+    [<Inline>]
+    static member MakeVar(name: string, var: Var<string>) =
+        VarStr(name, var)
+
+    [<Macro(typeof<Macros.TemplateVar>); Inline>]
+    static member MakeVarLens(name: string, v: bool) =
+        VarBool(name, Var.Create v)
+
+    [<Inline>]
+    static member MakeVar(name: string, var: Var<bool>) =
+        VarBool(name, var)
+
+    [<Macro(typeof<Macros.TemplateVar>); Inline>]
+    static member MakeVarLens(name: string, v: Client.CheckedInput<int>) =
+        VarInt(name, Var.Create v)
+
+    [<Inline>]
+    static member MakeVar(name: string, var: Var<Client.CheckedInput<int>>) =
+        VarInt(name, var)
+
+    [<Macro(typeof<Macros.TemplateVar>); Inline>]
+    static member MakeVarLens(name: string, v: int) =
+        VarIntUnchecked(name, Var.Create v)
+
+    [<Inline>]
+    static member MakeVar(name: string, var: Var<int>) =
+        VarIntUnchecked(name, var)
+
+    [<Macro(typeof<Macros.TemplateVar>); Inline>]
+    static member MakeVarLens(name: string, v: Client.CheckedInput<float>) =
+        VarFloat(name, Var.Create v)
+
+    [<Inline>]
+    static member MakeVar(name: string, var: Var<Client.CheckedInput<float>>) =
+        VarFloat(name, var)
+
+    [<Macro(typeof<Macros.TemplateVar>); Inline>]
+    static member MakeVarLens(name: string, v: float) =
+        VarFloatUnchecked(name, Var.Create v)
+
+    [<Inline>]
+    static member MakeVar(name: string, var: Var<float>) =
+        VarFloatUnchecked(name, var)
+
     [<Inline "$x.$0">]
     static member Name x =
         match x with

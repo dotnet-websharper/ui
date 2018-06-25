@@ -72,6 +72,8 @@ module Macros =
     let docModule = NonGeneric (ty "Doc")
     let clientDocModule = NonGeneric (ty "Client.Doc")
     let clientAttrModule = NonGeneric (ty "Client.Attr")
+    let tplHoleModule = NonGeneric (ty "TemplateHole")
+    let tplHoleT = NonGenericType (ty "TemplateHole")
     let V0 = viewOf T0
     let V1 = viewOf T1
     let V2 = viewOf T2
@@ -90,6 +92,8 @@ module Macros =
     let inputFn n t =    gen[]        (meth n              [seqOf attrT; varOf t]     eltT)
     let elemMixedFn =    gen[]        (meth "ElementMixed" [stringT; seqOf objT]      eltT)
     let concatMixedFn =  gen[]        (meth "ConcatMixed"  [ArrayType(objT, 1)]       docT)
+    let tplHoleTextView =gen[]        (meth "MakeTextView" [stringT; viewOf stringT]  tplHoleT)
+    let tplHoleVar t =   gen[]        (meth "MakeVar"      [stringT; varOf t]         tplHoleT)
 
     module Lens =
 
@@ -198,6 +202,14 @@ module Macros =
                     Call(None, viewModule, applyFnOf targ targ (* ??? *), [e; v]))
                 |> Kind.View
 
+    let getBound (call: MacroCall) e =
+        match e with
+        | IgnoreSourcePos.Var id ->
+            match call.BoundVars.TryGetValue id with
+            | true, e -> Some id, e
+            | false, _ -> None, e
+        | _ -> None, e
+
     type V() =
         inherit Macro()
 
@@ -232,6 +244,19 @@ module Macros =
             match V.Visit stringT call.Arguments.[0] with
             | V.Kind.Const _ -> MacroFallback
             | V.Kind.View e -> MacroOk (Call (None, clientDocModule, textViewFn, [e]))
+
+    type TemplateText() =
+        inherit Macro()
+
+        override this.TranslateCall(call) =
+            let id, e = getBound call call.Arguments.[1]
+            match V.Visit stringT e with
+            | V.Kind.Const _ -> MacroFallback
+            | V.Kind.View e ->
+                let res = MacroOk (Call (None, tplHoleModule, tplHoleTextView, [call.Arguments.[0]; e]))
+                match id with
+                | Some id -> MacroUsedBoundVar(id, res)
+                | None -> res
 
     type AttrCreate() =
         inherit Macro()
@@ -323,6 +348,20 @@ module Macros =
             | MacroOk lens ->
                 MacroOk (Call (None, clientDocModule, inputFn (downcast call.Parameter.Value) t, [call.Arguments.[0]; lens]))
             | err -> err
+
+    type TemplateVar() =
+        inherit Macro()
+
+        override this.TranslateCall(call) =
+            let t = call.Method.Entity.Value.Parameters.[1]
+            let id, e = getBound call call.Arguments.[1]
+            match Lens.VMakeLens call.Compilation t e with
+            | MacroOk lens ->
+                let res = MacroOk (Call (None, tplHoleModule, tplHoleVar t, [call.Arguments.[0]; lens]))
+                match id with
+                | Some id -> MacroUsedBoundVar(id, res)
+                | None -> res
+            | _ -> MacroFallback
 
 [<assembly: System.Runtime.CompilerServices.InternalsVisibleToAttribute 
     "WebSharper.UI.CSharp">]

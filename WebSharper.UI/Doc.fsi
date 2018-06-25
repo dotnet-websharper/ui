@@ -567,6 +567,15 @@ type TemplateHole =
 
     static member NewActionEvent<'T when 'T :> Dom.Event> : name: string * f: Action<Element, 'T> -> TemplateHole
 
+    static member MakeText : name: string * text: string -> TemplateHole
+
+    static member MakeVarLens : name: string * value: string -> TemplateHole
+    static member MakeVarLens : name: string * value: bool -> TemplateHole
+    static member MakeVarLens : name: string * value: Client.CheckedInput<int> -> TemplateHole
+    static member MakeVarLens : name: string * value: int -> TemplateHole
+    static member MakeVarLens : name: string * value: Client.CheckedInput<float> -> TemplateHole
+    static member MakeVarLens : name: string * value: float -> TemplateHole
+
 type DynDoc =
     | AppendDoc of list<Doc>
     | ElemDoc of Elt

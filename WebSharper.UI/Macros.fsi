@@ -40,6 +40,10 @@ module Macros =
         inherit Macro
         new : unit -> TextView
     [<Class>]
+    type TemplateText =
+        inherit Macro
+        new : unit -> TemplateText
+    [<Class>]
     type AttrCreate =
         inherit Macro
         new : unit -> AttrCreate
@@ -67,6 +71,10 @@ module Macros =
     type InputV =
         inherit Macro
         new : unit -> InputV
+    [<Class>]
+    type TemplateVar =
+        inherit Macro
+        new : unit -> TemplateVar
 
     module Lens =
         val MakeSetter : Metadata.ICompilation -> AST.Expression -> MacroResult

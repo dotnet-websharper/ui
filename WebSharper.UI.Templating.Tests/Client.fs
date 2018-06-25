@@ -115,9 +115,9 @@ module Client =
                 .ListContainer(
                     myItems.DocLens(fun key item ->
                         MyTemplate.template.ListItem()
-                            .Key(item.View.Map(fun i -> string i.id))
-                            .Name(item.View.Map(fun i -> i.name))
-                            .Description(item.Lens (fun i -> i.description) (fun i d -> { i with description = d }))
+                            .Key(string item.V.id)
+                            .Name(item.V.name)
+                            .Description(item.V.description)
                             .FontStyle("italic")
                             .FontWeight("bold")
                             .Remove(fun _ -> myItems.RemoveByKey key)
@@ -168,8 +168,8 @@ module Client =
                 .ListView(
                     itemsSub.View.DocSeqCached(Item.Key, fun key item ->
                         MyTemplate.template.ListViewItem()
-                            .Name(item.Map(fun i -> i.name))
-                            .Description(item.Map(fun i -> i.description))
+                            .Name(item.V.name)
+                            .Description(item.V.description)
                             .Doc()
                     )
                 )
@@ -178,7 +178,7 @@ module Client =
                 .MyCallback(fun _ -> btnSub.Trigger())
                 .ButtonExtraText(" now")
                 .Checked(chk)
-                .IsChecked(chk.View.Map(function true -> "checked" | false -> "not checked"))
+                .IsChecked(if chk.V then "checked" else "not checked")
                 .NameChanged(fun e -> 
                    let key = if e.Event?which then e.Event?which else e.Event?keyCode
                    if key = 13 then e.Vars.NewName := "")
@@ -197,7 +197,7 @@ module Client =
                         ] :> Doc
                         p [] [
                             Doc.CheckBox [] chk 
-                            textView (chk.View.Map(function false -> "Check this" | true -> "Uncheck this"))
+                            text (if chk.V then "Uncheck this" else "Check this")
                         ] :> Doc
                         p [] [
                             for i in 1 .. 5 ->
