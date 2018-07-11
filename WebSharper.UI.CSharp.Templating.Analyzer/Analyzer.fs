@@ -79,6 +79,12 @@ type WebSharperCSharpTemplatingAnalyzer () =
                 generate fullPath
                 watcher.Created.Add handler
                 watcher.Changed.Add handler
+                watcher.Renamed.Add(fun e ->
+                    if e.FullPath = fullPath then
+                        // renaming _to_ this file
+                        handler e
+                    // else renaming _from_ this file
+                )
                 watcher
             )
             |> ignore

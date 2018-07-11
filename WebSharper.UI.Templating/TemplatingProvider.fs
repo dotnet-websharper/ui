@@ -423,7 +423,9 @@ type FileWatcher (invalidate: unit -> unit, disposing: IEvent<EventHandler, Even
             watchers.Clear()
 
     member this.WatchPath(path) =
-        let rootedPath = Path.Combine(cfg.ResolutionFolder, path)
+        let rootedPath =
+            Path.Combine(cfg.ResolutionFolder, path)
+            |> Path.GetFullPath // canonicalize so that Renamed test below works
         if not (watchers.ContainsKey rootedPath) then
             let watcher =
                 new FileSystemWatcher(
@@ -432,8 +434,12 @@ type FileWatcher (invalidate: unit -> unit, disposing: IEvent<EventHandler, Even
                 )
             let inv _ = invalidateFile rootedPath watcher
             watcher.Changed.Add inv
-            watcher.Deleted.Add inv
-            watcher.Renamed.Add inv
+            watcher.Renamed.Add(fun e ->
+                if e.FullPath = rootedPath then
+                    // renaming _to_ this file
+                    inv e
+                // else renaming _from_ this file
+            )
             watcher.Created.Add inv
             watchers.Add(rootedPath, watcher)
 
