@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <NoWarn>3218</NoWarn>
+    <Signed>False</Signed>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Analyzer.fs" />

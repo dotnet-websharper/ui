@@ -5,6 +5,7 @@
     <NoWarn>3218</NoWarn>
     <Signed Condition="!$(TargetFramework.StartsWith('net4'))">false</Signed>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <Signed>False</Signed>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Task.fs" />

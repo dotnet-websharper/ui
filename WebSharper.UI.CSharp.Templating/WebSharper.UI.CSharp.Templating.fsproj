@@ -6,6 +6,7 @@
     <WebSharperSourceMap>false</WebSharperSourceMap>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>3218</NoWarn>
+    <Signed>False</Signed>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CodeGenerator.fs" />
