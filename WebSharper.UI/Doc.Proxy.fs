@@ -1100,8 +1100,13 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Elt">]
     member this.GetProperty'(name: string) : 'T =
         elt?(name)
 
-    [<Name "AddClass"; Direct "$this.elt.className += ' ' + $cls">]
-    member this.AddClass'(cls: string) = X<unit>
+    [<Name "AddClass">]
+    member this.AddClass'(cls: string) =
+        let c = elt?className
+        if c = "" then
+            elt?className <- cls
+        elif not <| (clsRE cls).Test(c) then
+            elt?className <- elt?className + " " + cls
 
     [<Name "RemoveClass">]
     member this.RemoveClass'(cls: string) =
