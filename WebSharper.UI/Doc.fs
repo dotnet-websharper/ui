@@ -222,7 +222,7 @@ and Elt
         attrs <- Attr.OnAfterRenderImpl(cb) :: attrs
         this
 
-    member this.WithAttrs(a) =
+    member internal this.WithAttrs(a) =
         attrs <- a @ attrs
         this
 

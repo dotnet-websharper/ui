@@ -544,7 +544,7 @@ and [<Class>] Elt =
     member OnWheel : [<JavaScript; ReflectedDefinition>] cb: Expr<Dom.Element -> Dom.WheelEvent -> unit> -> Elt
     // }}
 
-    member WithAttrs : list<Attr> -> Elt
+    member internal WithAttrs : list<Attr> -> Elt
 
 [<RequireQualifiedAccess>]
 type TemplateHole =
