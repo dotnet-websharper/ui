@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
     <WebSharperProject>Site</WebSharperProject>
+    <WebProjectOutputDir>$(MSBuildThisFileDirectory)</WebProjectOutputDir>
     <NoWarn>3218</NoWarn>
     <Signed>false</Signed>
   </PropertyGroup>

@@ -163,6 +163,9 @@ namespace WebSharper.UI.CSharp.Tests
         [SPAEntryPoint]
         public static void Main()
         {
+            // Don't run the entry point in Routing.Tests
+            if (JS.Document.GetElementById("main") == null) return;
+
             var people = ListModel.FromSeq(new[] { "John", "Paul" });
             var newName = Var.Create("");
             var router = InferRouter.Router.Infer<Home>();
