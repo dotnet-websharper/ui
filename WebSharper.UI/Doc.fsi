@@ -552,10 +552,10 @@ type TemplateHole =
     | Text of name: string * fillWith: string
     | TextView of name: string * fillWith: View<string>
     | Attribute of name: string * fillWith: Attr
-    | Event of name: string * fillWith: (Element -> Dom.Event -> unit)
-    | EventQ of name: string * isGenerated: bool * fillWith: Expr<Element -> Dom.Event -> unit>
-    | AfterRender of name: string * fillWith: (Element -> unit)
-    | AfterRenderQ of name: string * fillWith: Expr<Element -> unit>
+    | Event of name: string * fillWith: (Dom.Element -> Dom.Event -> unit)
+    | EventQ of name: string * isGenerated: bool * fillWith: Expr<Dom.Element -> Dom.Event -> unit>
+    | AfterRender of name: string * fillWith: (Dom.Element -> unit)
+    | AfterRenderQ of name: string * fillWith: Expr<Dom.Element -> unit>
     | VarStr of name: string * fillWith: Var<string>
     | VarBool of name: string * fillWith: Var<bool>
     | VarInt of name: string * fillWith: Var<Client.CheckedInput<int>>
@@ -565,7 +565,7 @@ type TemplateHole =
 
     static member Name : TemplateHole -> string
 
-    static member NewActionEvent<'T when 'T :> Dom.Event> : name: string * f: Action<Element, 'T> -> TemplateHole
+    static member NewActionEvent<'T when 'T :> Dom.Event> : name: string * f: Action<Dom.Element, 'T> -> TemplateHole
 
     static member MakeText : name: string * text: string -> TemplateHole
 

@@ -88,7 +88,6 @@ type Anim =
 [<JavaScript>]
 module Anims =
 
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
     let List (Anim xs) =
         xs
 
@@ -98,7 +97,6 @@ module Anims =
             | Finally f -> f ()
             | _ -> ())
 
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
     let Def d f =
         { Compute = f; Duration = d}
 

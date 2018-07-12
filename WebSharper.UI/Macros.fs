@@ -20,6 +20,7 @@
 
 namespace WebSharper.UI
 
+open System.Collections.Generic
 open WebSharper
 
 module Macros =

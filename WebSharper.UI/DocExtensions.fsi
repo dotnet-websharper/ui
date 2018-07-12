@@ -156,7 +156,7 @@ type DocExtensions =
 
     /// Runs a reactive Doc as contents of the given element.
     [<Extension>]
-    static member Run : Doc * Element -> unit
+    static member Run : Doc * Dom.Element -> unit
 
     /// Same as Run, but looks up the element by ID.
     [<Extension>]

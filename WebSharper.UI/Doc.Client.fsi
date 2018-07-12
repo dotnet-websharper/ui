@@ -60,7 +60,7 @@ module Doc =
     val BindView : ('T -> #Doc) -> View<'T> -> Doc
 
     /// Creates a Doc using a given DOM element.
-    val Static : Element -> Elt
+    val Static : Dom.Element -> Elt
 
     /// Constructs a reactive text node.
     val TextView : View<string> -> Doc
@@ -69,19 +69,19 @@ module Doc =
     val Async : Async<#Doc> -> Doc
 
     /// Construct a Doc using a given set of DOM nodes and template fillers.
-    val Template : Node[] -> seq<TemplateHole> -> Doc
+    val Template : Dom.Node[] -> seq<TemplateHole> -> Doc
 
     /// Load templates declared in the current document with `ws-template="name"`.
     val LoadLocalTemplates : string -> unit
 
     /// Load a template with the given name, if it wasn't loaded yet.
-    val LoadTemplate : string -> option<string> -> (unit -> Node[]) -> unit
+    val LoadTemplate : string -> option<string> -> (unit -> Dom.Node[]) -> unit
 
     /// Construct a Doc using a given loaded template by name and template fillers.
     val NamedTemplate : string -> option<string> -> seq<TemplateHole> -> Doc
 
     /// Construct a Doc using a given loaded template by name and template fillers.
-    val GetOrLoadTemplate : string -> option<string> -> (unit -> Node[]) -> seq<TemplateHole> -> Doc
+    val GetOrLoadTemplate : string -> option<string> -> (unit -> Dom.Node[]) -> seq<TemplateHole> -> Doc
 
     /// Run the full document as a template with the given fillers.
     val RunFullDocTemplate : seq<TemplateHole> -> Doc
@@ -142,19 +142,19 @@ module Doc =
   // Main entry-point combinators - use once per app
 
     /// Runs a reactive Doc as contents of the given element.
-    val Run : Element -> Doc -> unit
+    val Run : Dom.Element -> Doc -> unit
 
     /// Runs a reactive Doc as contents of the element with the given ID.
     val RunById : id: string -> Doc -> unit
 
     /// Runs a reactive Doc as first child(ren) of the given element.
-    val RunPrepend : Element -> Doc -> unit
+    val RunPrepend : Dom.Element -> Doc -> unit
 
     /// Runs a reactive Doc as first child(ren) of the element with the given ID.
     val RunPrependById : string -> Doc -> unit
 
     /// Runs a reactive Doc as last child(ren) of the given element.
-    val RunAppend : Element -> Doc -> unit
+    val RunAppend : Dom.Element -> Doc -> unit
 
     /// Runs a reactive Doc as last child(ren) of the element with the given ID.
     val RunAppendById : string -> Doc -> unit

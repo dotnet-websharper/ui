@@ -31,16 +31,16 @@ type IAttrNode =
     [<Name "NChanged">]
     abstract Changed : View<unit>
     [<Name "NGetChangeAnim">]
-    abstract GetChangeAnim : Element -> Anim
+    abstract GetChangeAnim : Dom.Element -> Anim
     [<Name "NGetEnterAnim">]
-    abstract GetEnterAnim : Element -> Anim
+    abstract GetEnterAnim : Dom.Element -> Anim
     [<Name "NGetExitAnim">]
-    abstract GetExitAnim : Element -> Anim
+    abstract GetExitAnim : Dom.Element -> Anim
     [<Name "NSync">]
-    abstract Sync : Element -> unit
+    abstract Sync : Dom.Element -> unit
 
 [<JavaScript; Sealed; Name "WebSharper.UI.AnimatedAttrNode">]
-type AnimatedAttrNode<'T>(tr: Trans<'T>, view: View<'T>, push: Element -> 'T -> unit) =
+type AnimatedAttrNode<'T>(tr: Trans<'T>, view: View<'T>, push: Dom.Element -> 'T -> unit) =
     let mutable logical : option<'T> = None // current logical value
     let mutable visible : option<'T> = None // current value pushed to the parent element
     let mutable dirty = true // logical <> visible
@@ -101,8 +101,8 @@ type AnimatedAttrNode<'T>(tr: Trans<'T>, view: View<'T>, push: Element -> 'T -> 
         member a.Changed = updates
 
 [<JavaScript; Sealed; Name "WebSharper.UI.DynamicAttrNode">]
-type DynamicAttrNode<'T>(view: View<'T>, push: Element -> 'T -> unit) =
-    let mutable value = U
+type DynamicAttrNode<'T>(view: View<'T>, push: Dom.Element -> 'T -> unit) =
+    let mutable value = JS.Undefined
     let mutable dirty = false
     let updates = view |> View.Map (fun x -> value <- x; dirty <- true)
     interface IAttrNode with
@@ -123,19 +123,19 @@ type internal AttrProxy =
     | [<Constant(null)>] A0
     | A1 of IAttrNode
     | A2 of AttrProxy * AttrProxy
-    | A3 of init: (Element -> unit)
-    | A4 of onAfterRender: (Element -> unit)
+    | A3 of init: (Dom.Element -> unit)
+    | A4 of onAfterRender: (Dom.Element -> unit)
 
 [<JavaScript; Name "WebSharper.UI.Attrs">]
 module Attrs =
 
     type Dyn =
         {
-            DynElem : Element
+            DynElem : Dom.Element
             DynFlags : AttrFlags
             DynNodes : IAttrNode []
             [<OptionalField>]
-            OnAfterRender : option<Element -> unit>
+            OnAfterRender : option<Dom.Element -> unit>
         }
 
     let HasChangeAnim attr =
@@ -166,7 +166,7 @@ module Attrs =
         let nodes = Queue()
         let oar = Queue()
         let rec loop node =
-          if not (Object.ReferenceEquals(node, null)) then // work around WS issue with UseNullAsTrueValue
+          if not (obj.ReferenceEquals(node, null)) then // work around WS issue with UseNullAsTrueValue
             match node with
             | A0 -> ()
             | A1 n -> nodes.Enqueue n
@@ -216,8 +216,8 @@ module Attrs =
 
     let AppendTree a b =
         // work around WS issue with UseNullAsTrueValue
-        if Object.ReferenceEquals(a, null) then b
-        elif Object.ReferenceEquals(b, null) then a
+        if obj.ReferenceEquals(a, null) then b
+        elif obj.ReferenceEquals(b, null) then a
         else
         let x = A2 (a, b)
         SetFlags x (Flags a ||| Flags b)
@@ -239,11 +239,9 @@ module Attrs =
         SetFlags n flags
         n
 
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
     let internal Dynamic view set =
         A1 (DynamicAttrNode (view, set))
 
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
     let internal Static attr =
         A3 attr
 
@@ -265,13 +263,13 @@ type AttrProxy with
         Array.ofSeqNonCopying xs
         |> Array.TreeReduce Attr.Empty Attr.Append
 
-    static member OnAfterRenderImpl(q: Expr<Element -> unit>) =
+    static member OnAfterRenderImpl(q: Expr<Dom.Element -> unit>) =
         As<Attr> (A4 (As q))
 
-    static member HandlerImpl(event: string, q: Expr<Element -> #DomEvent-> unit>) =
-        As<Attr> (Attrs.Static (fun el -> el.AddEventListener(event, (As<Element -> DomEvent -> unit> q) el, false)))
+    static member HandlerImpl(event: string, q: Expr<Dom.Element -> #Dom.Event-> unit>) =
+        As<Attr> (Attrs.Static (fun el -> el.AddEventListener(event, (As<Dom.Element -> Dom.Event -> unit> q) el, false)))
 
-    static member Handler (event: string) (q: Expr<Element -> #DomEvent-> unit>) =
+    static member Handler (event: string) (q: Expr<Dom.Element -> #Dom.Event-> unit>) =
         AttrProxy.HandlerImpl(event, q)
 
 [<JavaScript; Name "WebSharper.UI.CheckedInput">]
@@ -311,19 +309,19 @@ module Attr =
     let DynamicStyle name view =
         As<Attr> (Attrs.Dynamic view (fun el v -> DU.SetStyle el name v))
 
-    let Handler name (callback: Element -> #DomEvent -> unit) =
-        As<Attr> (Attrs.Static (fun el -> el.AddEventListener(name, As<DomEvent -> unit> (callback el), false)))
+    let Handler name (callback: Dom.Element -> #Dom.Event -> unit) =
+        As<Attr> (Attrs.Static (fun el -> el.AddEventListener(name, As<Dom.Event -> unit> (callback el), false)))
 
-    let HandlerView name (view: View<'T>) (callback: Element -> #DomEvent -> 'T -> unit) =
-        let init (el: Element) =
+    let HandlerView name (view: View<'T>) (callback: Dom.Element -> #Dom.Event -> 'T -> unit) =
+        let init (el: Dom.Element) =
             let callback = callback el
-            el.AddEventListener(name, (fun (ev: DomEvent) -> View.Get (callback (As ev)) view), false)
+            el.AddEventListener(name, (fun (ev: Dom.Event) -> View.Get (callback (As ev)) view), false)
         As<Attr> (Attrs.Static init)
 
-    let OnAfterRender (callback: Element -> unit) =
+    let OnAfterRender (callback: Dom.Element -> unit) =
         As<Attr> (A4 callback)
 
-    let OnAfterRenderView (v: View<'T>) (callback: Element -> 'T -> unit) =
+    let OnAfterRenderView (v: View<'T>) (callback: Dom.Element -> 'T -> unit) =
         let id = Fresh.Id()
         Attr.Append
             (OnAfterRender (fun el -> callback el el?(id)))
@@ -356,8 +354,8 @@ module Attr =
         As<Attr> (Attrs.Dynamic view (fun el v ->
             el?(name) <- v))
 
-    let CustomVar (var: Var<'a>) (set: Element -> 'a -> unit) (get: Element -> 'a option) =
-        let onChange (el: Element) (e: DomEvent) =
+    let CustomVar (var: Var<'a>) (set: Dom.Element -> 'a -> unit) (get: Dom.Element -> 'a option) =
+        let onChange (el: Dom.Element) (e: Dom.Event) =
             var.UpdateMaybe(fun v ->
                 match get el with
                 | Some x as o when x <> v -> o

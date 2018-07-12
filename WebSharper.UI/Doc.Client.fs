@@ -49,7 +49,7 @@ module Doc =
         As (Doc'.Async (As a))
 
     [<Inline>]
-    let Template (el: Node[]) (fillWith: seq<TemplateHole>) : Doc =
+    let Template (el: Dom.Node[]) (fillWith: seq<TemplateHole>) : Doc =
         As (Templates.Template el fillWith)
 
     [<Inline>]
@@ -57,7 +57,7 @@ module Doc =
         Templates.LoadLocalTemplates baseName
 
     [<Inline>]
-    let LoadTemplate (baseName: string) (name: option<string>) (el: unit -> Node[]) =
+    let LoadTemplate (baseName: string) (name: option<string>) (el: unit -> Dom.Node[]) =
         Templates.PrepareTemplate baseName name el
 
     [<Inline>]
@@ -65,7 +65,7 @@ module Doc =
         As (Templates.NamedTemplate baseName name fillWith)
 
     [<Inline>]
-    let GetOrLoadTemplate (baseName: string) (name: option<string>) (el: unit -> Node[]) (fillWith: seq<TemplateHole>) : Doc =
+    let GetOrLoadTemplate (baseName: string) (name: option<string>) (el: unit -> Dom.Node[]) (fillWith: seq<TemplateHole>) : Doc =
         As (Templates.GetOrLoadTemplate baseName name el fillWith)
 
     [<Inline>]
@@ -123,7 +123,7 @@ module Doc =
         Doc'.RunPrependById id (As tr)
 
     [<Inline>]
-    let RunReplace (elt: Node) (doc: Doc) =
+    let RunReplace (elt: Dom.Node) (doc: Doc) =
         Templates.LoadLocalTemplates ""
         (doc :> IControlBody).ReplaceInDom(elt)
 

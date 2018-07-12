@@ -21,7 +21,7 @@
 namespace WebSharper.UI
 
 open System
-open System.Collections
+open System.Collections.Generic
 open WebSharper
 open WebSharper.JavaScript
 
@@ -70,7 +70,7 @@ module Array =
             xs :?> 'T[]
         elif xs :? _ list then
             Array.ofList (xs :?> 'T list)
-        elif Object.ReferenceEquals(xs, null) then
+        elif obj.ReferenceEquals(xs, null) then
             [||]
         else
             let q : 'T [] = [||]
@@ -111,33 +111,6 @@ module internal List =
 /// Abbreviations and small utilities for this assembly.
 [<AutoOpen>]
 module internal Abbrev =
-
-    type Dictionary<'K,'V> = Generic.Dictionary<'K,'V>
-    type Document = Dom.Document
-    type Element = Dom.Element
-    type HashSet<'T> = Generic.HashSet<'T>
-    type IComparable = System.IComparable
-    type IEnumerable = Collections.IEnumerable
-    type IEnumerable<'T> = Generic.IEnumerable<'T>
-    type IEqualityComparer<'T> = Generic.IEqualityComparer<'T>
-    type MethodImplAttribute = System.Runtime.CompilerServices.MethodImplAttribute
-    type MethodImplOptions = System.Runtime.CompilerServices.MethodImplOptions
-    type Node = Dom.Node
-    type Object = System.Object
-    type TextNode = Dom.Text
-    type DomEvent = Dom.Event
-
-    [<JavaScript; Inline>]
-    let U<'T> = As<'T> JS.Undefined
-
-    [<Inline "$f()">]
-    let lock root f = lock root f
-
-    [<Inline; JavaScript>]
-    let ( ? ) (x: obj) (y: string) = ( ? ) x y
-
-    [<Inline; JavaScript>]
-    let ( ?<- ) (x: obj) (y: string) (z: obj) = ( ?<- ) x y z
 
     [<JavaScript>]
     module Fresh =
@@ -189,7 +162,7 @@ module internal Abbrev =
     module Queue =
 
         [<Inline "$q">]
-        let ToArray (q: Generic.Queue<_>) = q.ToArray()
+        let ToArray (q: Queue<_>) = q.ToArray()
 
     [<JavaScript>]
     [<Sealed>]

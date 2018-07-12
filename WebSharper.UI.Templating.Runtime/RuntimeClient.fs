@@ -21,7 +21,6 @@
 module WebSharper.UI.Templating.Runtime.Client
 
 open System
-open System.Runtime.CompilerServices
 open System.Collections.Generic
 open FSharp.Quotations
 open FSharp.Quotations.Patterns
@@ -50,15 +49,15 @@ type private TemplateInstanceProxy(c: Server.CompletedHoles, doc: Doc) =
 
     member this.Hole(name) = allVars.[name]
 
-[<Inline; MethodImpl(MethodImplOptions.NoInlining)>]
+[<Inline>]
 let AfterRenderQ(name: string, [<JavaScript>] f: Expr<Dom.Element -> unit>) =
     TemplateHole.AfterRenderQ(name, f)
 
-[<Inline; MethodImpl(MethodImplOptions.NoInlining)>]
+[<Inline>]
 let AfterRenderQ2(name: string, [<JavaScript>] f: Expr<unit -> unit>) =
     AfterRenderQ(name, <@ fun el -> (WebSharper.JavaScript.Pervasives.As f)() @>)
 
-[<Inline; MethodImpl(MethodImplOptions.NoInlining)>]
+[<Inline>]
 let LazyParseHtml (src: string) =
     ()
     fun () -> As<Dom.Node[]>(JQuery.ParseHTML src)
@@ -209,11 +208,10 @@ type private RuntimeProxy =
 [<Proxy(typeof<Server.Handler>)>]
 type private HandlerProxy =
 
-    [<Inline; MethodImpl(MethodImplOptions.NoInlining)>]
+    [<Inline>]
     static member EventQ (holeName: string, isGenerated: bool, f: Expr<Dom.Element -> Dom.Event -> unit>) =
         TemplateHole.EventQ(holeName, isGenerated, f)
 
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
     static member EventQ2<'E when 'E :> DomEvent> (key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, 'E> -> unit>) =
         TemplateHole.EventQ(holeName, true, <@ fun el ev ->
             (%f) {
@@ -223,7 +221,7 @@ type private HandlerProxy =
                 }
         @>)
 
-    [<JavaScript; MethodImpl(MethodImplOptions.NoInlining)>]
+    [<JavaScript>]
     static member CompleteHoles(_: string, filledHoles: seq<TemplateHole>, vars: array<string * Server.ValTy>) : seq<TemplateHole> * Server.CompletedHoles =
         let allVars = Dictionary<string, obj>()
         let filledVars = HashSet()

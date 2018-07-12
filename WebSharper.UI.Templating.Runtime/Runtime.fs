@@ -34,7 +34,6 @@ open WebSharper.UI.Templating.AST
 open WebSharper.Sitelets
 open WebSharper.Sitelets.Content
 open System.Collections.Concurrent
-open System.Runtime.CompilerServices
 
 module M = WebSharper.Core.Metadata
 module J = WebSharper.Core.Json
@@ -108,11 +107,9 @@ type TemplateEvent<'TI, 'E when 'E :> DomEvent> =
 
 type Handler private () =
 
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
     static member EventQ (holeName: string, isGenerated: bool, [<JavaScript>] f: Expr<DomElement -> DomEvent -> unit>) =
         TemplateHole.EventQ(holeName, isGenerated, f)
 
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
     static member EventQ2<'E when 'E :> DomEvent> (key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, 'E> -> unit>) =
         Handler.EventQ(holeName, true, <@ fun el ev ->
             let k = key
@@ -124,7 +121,6 @@ type Handler private () =
                 }
         @>)
 
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
     static member CompleteHoles(key: string, filledHoles: seq<TemplateHole>, vars: array<string * ValTy>) : seq<TemplateHole> * CompletedHoles =
         let filledVars = HashSet()
         for h in filledHoles do

@@ -20,6 +20,7 @@
 
 namespace WebSharper.UI.Client
 
+open WebSharper.JavaScript
 open WebSharper.UI
 
 type CheckedInput<'T> =
@@ -40,7 +41,7 @@ module Attr =
     val DynamicProp : name: string -> value: View<'T> -> Attr
 
     /// Dynamic with a custom setter.
-    val DynamicCustom : set: (Element -> 'T -> unit) -> value: View<'T> -> Attr
+    val DynamicCustom : set: (Dom.Element -> 'T -> unit) -> value: View<'T> -> Attr
 
     /// Sets a basic DOM attribute, such as `id` to a dynamic text value with an animation.
     val Animated : name: string -> Trans<'T> -> view: View<'T> -> value: ('T -> string) -> Attr
@@ -55,19 +56,19 @@ module Attr =
     val AnimatedStyle : name: string -> Trans<'T> -> view: View<'T> -> value: ('T -> string) -> Attr
 
     /// Sets an event handler, for a given event such as `click`.
-    val Handler : name: string -> callback: (Element -> #DomEvent -> unit) -> Attr
+    val Handler : name: string -> callback: (Dom.Element -> #Dom.Event -> unit) -> Attr
 
     /// Sets an event handler, for a given event such as `click`.
-    val HandlerView : name: string -> view: View<'T> -> callback: (Element -> #DomEvent -> 'T -> unit) -> Attr
+    val HandlerView : name: string -> view: View<'T> -> callback: (Dom.Element -> #Dom.Event -> 'T -> unit) -> Attr
 
     /// Adds a callback to be called after the element has been inserted in the DOM.
     /// The callback is guaranteed to be called only once, even if the element is moved or removed and reinserted.
-    val OnAfterRender : callback: (Element -> unit) -> Attr
+    val OnAfterRender : callback: (Dom.Element -> unit) -> Attr
 
     /// Adds a callback to be called after the element has been inserted in the DOM,
     /// which also receives the value of a view at the time of the event.
     /// The callback is guaranteed to be called only once, even if the element is moved or removed and reinserted.
-    val OnAfterRenderView : view: View<'T> -> callback: (Element -> 'T -> unit) -> Attr
+    val OnAfterRenderView : view: View<'T> -> callback: (Dom.Element -> 'T -> unit) -> Attr
 
     /// Sets a CSS class.
     val Class : name: string -> Attr
@@ -89,7 +90,7 @@ module Attr =
     val CustomValue : Var<'a> -> ('a -> string) -> (string -> 'a option) -> Attr when 'a : equality
 
     /// Gets and sets custom properties on the element according to a Var.
-    val CustomVar : Var<'a> -> set: (Element -> 'a -> unit) -> get: (Element -> 'a option) -> Attr when 'a : equality
+    val CustomVar : Var<'a> -> set: (Dom.Element -> 'a -> unit) -> get: (Dom.Element -> 'a option) -> Attr when 'a : equality
 
     /// Make the element's content editable and bind its text content to a Var.
     val ContentEditableText : Var<string> -> Attr
@@ -126,14 +127,14 @@ module internal Attrs =
     type Dyn
 
     /// Inserts static attributes and computes dynamic attributes.
-    val Insert : Element -> Attr -> Dyn
+    val Insert : Dom.Element -> Attr -> Dyn
 
-    val Empty : Element -> Dyn
+    val Empty : Dom.Element -> Dyn
 
     /// Synchronizes dynamic attributes.
     /// Exception: does not sync nodes that animate change transitions.
     /// Those synchronize when the relevant transition is played.
-    val Sync : Element -> Dyn -> unit
+    val Sync : Dom.Element -> Dyn -> unit
 
     /// Dynamic updates of attributes.
     val Updates : Dyn -> View<unit>
@@ -157,4 +158,4 @@ module internal Attrs =
     val GetExitAnim : Dyn -> Anim
 
     /// Get OnAfterRender callback, if any.
-    val GetOnAfterRender : Dyn -> option<Element -> unit>
+    val GetOnAfterRender : Dyn -> option<Dom.Element -> unit>

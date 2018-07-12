@@ -46,9 +46,9 @@ module Input =
         if not MouseBtnSt.Active then
             MouseBtnSt.Active <- true
             JS.Document.AddEventListener("mousedown",
-                (fun (evt: DomEvent) -> buttonListener (evt :?> Dom.MouseEvent) true), false)
+                (fun (evt: Dom.Event) -> buttonListener (evt :?> Dom.MouseEvent) true), false)
             JS.Document.AddEventListener("mouseup",
-                (fun (evt: DomEvent) -> buttonListener (evt :?> Dom.MouseEvent) false), false)
+                (fun (evt: Dom.Event) -> buttonListener (evt :?> Dom.MouseEvent) false), false)
 
     [<Sealed>]
     type Mouse =

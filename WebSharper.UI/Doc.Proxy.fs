@@ -4,7 +4,6 @@
 
 open System
 open System.Collections.Generic
-open System.Runtime.CompilerServices
 open WebSharper
 open WebSharper.JavaScript
 open WebSharper.UI
@@ -23,7 +22,7 @@ type internal DocNode =
     | EmbedDoc of DocEmbedNode
     | [<Constant(null)>] EmptyDoc
     | TextDoc of DocTextNode
-    | TextNodeDoc of TextNode
+    | TextNodeDoc of Dom.Text
     | TreeDoc of DocTreeNode
 
 and [<CustomEquality>]
@@ -35,8 +34,8 @@ and [<CustomEquality>]
         Attr : Attrs.Dyn
         mutable Children : DocNode
         [<OptionalField>]
-        Delimiters : (Node * Node) option
-        El : Element
+        Delimiters : (Dom.Node * Dom.Node) option
+        El : Dom.Element
         ElKey : int
         [<OptionalField>]
         mutable Render : option<Dom.Element -> unit>
@@ -56,17 +55,17 @@ and internal DocEmbedNode =
 
 and internal DocTextNode =
     {
-        Text : TextNode
+        Text : Dom.Text
         mutable Dirty : bool
         mutable Value : string
     }
 
 and internal DocTreeNode =
     {
-        mutable Els : Union<Node, DocNode>[]
+        mutable Els : Union<Dom.Node, DocNode>[]
         mutable Dirty : bool
         mutable Holes : DocElemNode[]
-        Attrs : (Element * Attrs.Dyn)[]
+        Attrs : (Dom.Element * Attrs.Dyn)[]
         [<OptionalField>]
         mutable Render : option<Dom.Element -> unit>
     }
@@ -83,10 +82,10 @@ module internal Docs =
 
     /// Sets of DOM nodes.
     type DomNodes =
-        | DomNodes of Node[]
+        | DomNodes of Dom.Node[]
 
         /// Actual chidlren of an element.
-        static member Children (elem: Element) (delims: option<Node * Node>) =
+        static member Children (elem: Dom.Element) (delims: option<Dom.Node * Dom.Node>) =
             match delims with
             | None ->
                 DomNodes (Array.init elem.ChildNodes.Length elem.ChildNodes.Item)
@@ -105,10 +104,10 @@ module internal Docs =
                 match doc with
                 | AppendDoc (a, b) -> loop a; loop b
                 | EmbedDoc d -> loop d.Current
-                | ElemDoc e -> q.Enqueue (e.El :> Node)
+                | ElemDoc e -> q.Enqueue (e.El :> Dom.Node)
                 | EmptyDoc -> ()
-                | TextNodeDoc tn -> q.Enqueue (tn :> Node)
-                | TextDoc t -> q.Enqueue (t.Text :> Node)
+                | TextNodeDoc tn -> q.Enqueue (tn :> Dom.Node)
+                | TextDoc t -> q.Enqueue (t.Text :> Dom.Node)
                 | TreeDoc t ->
                     t.Els |> Array.iter (function
                         | Union1Of2 e -> q.Enqueue e
@@ -135,7 +134,6 @@ module internal Docs =
             Array.foldBack f ns z
 
     /// Inserts a node at position.
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
     let InsertNode parent node pos =
         DU.InsertAt parent pos node
         DU.BeforeNode node
@@ -207,13 +205,11 @@ module internal Docs =
             DoSyncElement el
 
     /// Links an element to children by inserting them.
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
     let LinkElement el children =
         InsertDoc el children DU.AtEnd |> ignore
 
     /// Links an element to previous siblings by inserting them.
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
-    let LinkPrevElement (el: Node) children =
+    let LinkPrevElement (el: Dom.Node) children =
         InsertDoc (el.ParentNode :?> _) children (DU.BeforeNode el) |> ignore
 
     let InsertBeforeDelim (afterDelim: Dom.Node) (doc: DocNode) =
@@ -247,7 +243,7 @@ module internal Docs =
             AfterRender (As t)
 
     /// Synchronizes an element node (deep).
-    and [<MethodImpl(MethodImplOptions.NoInlining)>] SyncElemNode childrenOnly el =
+    and SyncElemNode childrenOnly el =
         if not childrenOnly then
             SyncElement el
         Sync el.Children
@@ -318,7 +314,7 @@ module internal Docs =
         }
 
     /// Creates an element node that handles a delimited subset of its children.
-    let CreateDelimitedElemNode (ldelim: Node) (rdelim: Node) attr children =
+    let CreateDelimitedElemNode (ldelim: Dom.Node) (rdelim: Dom.Node) attr children =
         let el = ldelim.ParentNode :?> Dom.Element
         LinkPrevElement rdelim children
         let attr = Attrs.Insert el attr
@@ -403,7 +399,6 @@ module internal Docs =
         st.PreviousNodes <- cur
 
     /// EmbedNode constructor.
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
     let CreateEmbedNode () =
         {
             Current = EmptyDoc
@@ -411,13 +406,11 @@ module internal Docs =
         }
 
     /// EmbedNode update (marks dirty).
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
     let UpdateEmbedNode node upd =
         node.Current <- upd
         node.Dirty <- true
 
     /// Text node constructor.
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
     let CreateTextNode () =
         {
             Dirty = false
@@ -426,7 +419,6 @@ module internal Docs =
         }
 
     /// Text node update (marks dirty).
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
     let UpdateTextNode n t =
         n.Value <- t
         n.Dirty <- true
@@ -450,7 +442,7 @@ type internal Doc' [<JavaScript>] (docNode, updates) =
             elt.ParentNode.ReplaceChild(rdelim, elt) |> ignore
             Doc'.RunBefore rdelim this
 
-    [<JavaScript; MethodImpl(MethodImplOptions.NoInlining)>]
+    [<JavaScript>]
     static member Mk node updates =
         Doc'(node, updates)
 
@@ -467,7 +459,7 @@ type internal Doc' [<JavaScript>] (docNode, updates) =
 
     [<JavaScript>]
     static member Empty
-        with [<MethodImpl(MethodImplOptions.NoInlining)>] get () =
+        with get () =
             Doc'.Mk EmptyDoc (View.Const ())
 
     [<JavaScript; Inline>]
@@ -495,7 +487,7 @@ type internal Doc' [<JavaScript>] (docNode, updates) =
             if n.NodeType = Dom.NodeType.Text then
                 TextNodeDoc (n :?> Dom.Text)
             else
-                ElemDoc (Docs.CreateElemNode (n :?> Element) Attr.Empty EmptyDoc)
+                ElemDoc (Docs.CreateElemNode (n :?> Dom.Element) Attr.Empty EmptyDoc)
         let append x y = AppendDoc (x, y)
         let es = Array.MapTreeReduce elem EmptyDoc append a
         Doc'.Mk es (View.Const ())
@@ -700,22 +692,22 @@ type internal Doc' [<JavaScript>] (docNode, updates) =
     [<JavaScript>]
     static member SelectImpl attrs (show: 'T -> string) (optionElements) (current: Var<'T>) =
         let options = ref []
-        let getIndex (el: Element) =
+        let getIndex (el: Dom.Element) =
             el?selectedIndex : int
-        let setIndex (el: Element) (i: int) =
+        let setIndex (el: Dom.Element) (i: int) =
             el?selectedIndex <- i
         let getSelectedItem el =
             let i = getIndex el
             (!options).[i]
         let itemIndex x =
             List.findIndex ((=) x) !options
-        let setSelectedItem (el: Element) item =
+        let setSelectedItem (el: Dom.Element) item =
             setIndex el (itemIndex item)
         let el = DU.CreateElement "select"
         let selectedItemAttr =
             current.View
             |> Attr.DynamicCustom setSelectedItem
-        let onChange (x: DomEvent) =
+        let onChange (x: Dom.Event) =
             current.UpdateMaybe(fun x ->
                 let y = getSelectedItem el
                 if x = y then None else Some y
@@ -796,7 +788,7 @@ type internal Doc' [<JavaScript>] (docNode, updates) =
     [<JavaScript>]
     static member Clickable elem action =
         let el = DU.CreateElement elem
-        el.AddEventListener("click", (fun (ev: DomEvent) ->
+        el.AddEventListener("click", (fun (ev: Dom.Event) ->
             ev.PreventDefault()
             action ()), false)
         el
@@ -831,7 +823,7 @@ type internal Doc' [<JavaScript>] (docNode, updates) =
         // This ID is serialised and used as the name, giving us the "grouping"
         // behaviour.
         let el = DU.CreateElement "input"
-        el.AddEventListener("click", (fun (x : DomEvent) -> var.Set value), false)
+        el.AddEventListener("click", (fun (x : Dom.Event) -> var.Set value), false)
         let predView = View.Map (fun x -> x = value) var.View
         let valAttr = Attr.DynamicProp "checked" predView
         let (==>) k v = Attr.Create k v
@@ -855,7 +847,7 @@ type internal Doc' [<JavaScript>] (docNode, updates) =
         match o with
         | :? Doc' as d -> d
         | :? string as t -> Doc'.TextNode t
-        | :? Element as e -> Doc'.StaticProxy e :> Doc'
+        | :? Dom.Element as e -> Doc'.StaticProxy e :> Doc'
         | :? Function as v ->
             Doc'.EmbedView ((As<View<_>>v).Map Doc'.ToMixedDoc)
         | :? Var<obj> as v ->

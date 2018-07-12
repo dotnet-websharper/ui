@@ -19,9 +19,10 @@
 // $end{copyright}
 
 namespace WebSharper.UI
-open WebSharper
 
 open System
+open System.Collections.Generic
+open WebSharper
 
 [<JavaScript>]
 type Key =

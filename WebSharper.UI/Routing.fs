@@ -42,12 +42,10 @@ module Route =
         if s.StartsWith("#") then s.Substring(1) else s
 
     [<Inline "decodeURIComponent($x)">]
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
-    let private Decode (x: string) : string = U
+    let private Decode (x: string) : string = JS.Undefined
 
     [<Inline "encodeURIComponent($x)">]
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
-    let private Encode (x: string) : string = U
+    let private Encode (x: string) : string = JS.Undefined
 
     type T =
         private
@@ -85,7 +83,6 @@ module Route =
             |> Seq.map (fun (KeyValue(k, v)) -> Encode k + "=" + Encode v)
             |> String.concat "&")
 
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
     let SameHash a b =
         NoHash a = NoHash b
 
@@ -128,11 +125,9 @@ module Routing =
                 win.Location.Replace ("#" + ha))
         var
 
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
     let DoRoute map route =
         map.Des (Route.ToList route)
 
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
     let DoLink map va =
         Route.FromList (map.Ser va)
 

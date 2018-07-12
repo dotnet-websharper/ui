@@ -24,12 +24,12 @@ module internal Templates =
     let InlineTemplate (el: Dom.Element) (fillWith: seq<TemplateHole>) =
         let holes : DocElemNode[] = [||]
         let updates : View<unit>[] = [||]
-        let attrs : (Element * Attrs.Dyn)[] = [||]
-        let afterRender : (Element -> unit)[] = [||]
+        let attrs : (Dom.Element * Attrs.Dyn)[] = [||]
+        let afterRender : (Dom.Element -> unit)[] = [||]
         let fw = Dictionary()
         for x in fillWith do fw.[TemplateHole.Name x] <- x
         let els = As<Union<Dom.Node, DocNode>[]> (DomUtility.ChildrenArray el)
-        let addAttr (el: Element) (attr: Attr) =
+        let addAttr (el: Dom.Element) (attr: Attr) =
             let attr = Attrs.Insert el attr
             updates.JS.Push (Attrs.Updates attr) |> ignore
             attrs.JS.Push ((el, attr)) |> ignore
@@ -209,7 +209,7 @@ module internal Templates =
             updates |> Array.TreeReduce (View.Const ()) View.Map2Unit
         docTreeNode, updates
 
-    let ChildrenTemplate (el: Element) (fillWith: seq<TemplateHole>) =
+    let ChildrenTemplate (el: Dom.Element) (fillWith: seq<TemplateHole>) =
         let docTreeNode, updates = InlineTemplate el fillWith
         match docTreeNode.Els with
         | [| Union1Of2 e |] when e.NodeType = Dom.NodeType.Element ->
@@ -217,12 +217,12 @@ module internal Templates =
         | _ ->
             Doc'.Mk (TreeDoc docTreeNode) updates
 
-    let FakeRoot (els: Node[]) =
+    let FakeRoot (els: Dom.Node[]) =
         let fakeroot = JS.Document.CreateElement("div")
         for el in els do fakeroot.AppendChild el |> ignore
         fakeroot
 
-    let FakeRootSingle (el: Element) =
+    let FakeRootSingle (el: Dom.Element) =
         el.RemoveAttribute("ws-template")
         match el.GetAttribute("ws-replace") with
         | null -> ()
@@ -380,7 +380,7 @@ module internal Templates =
         let failNotLoaded (name: string) =
             Console.Warn("Instantiating non-loaded template", name)
 
-    let rec PrepareTemplateStrict (baseName: string) (name: option<string>) (els: Node[]) (root: option<Element>) (prepareLocalTemplate: option<string -> unit>) =
+    let rec PrepareTemplateStrict (baseName: string) (name: option<string>) (els: Dom.Node[]) (root: option<Dom.Element>) (prepareLocalTemplate: option<string -> unit>) =
         let rec fillDocHole (instance: Dom.Element) (fillWith: Dom.Element) =
             let name = fillWith.NodeName.ToLower()
             let fillHole (p: Dom.Node) (n: Dom.Node) =
@@ -420,7 +420,7 @@ module internal Templates =
                 Prepare.convertAttrs el
                 convertNodeAndSiblings el.FirstChild
 
-        and convertNodeAndSiblings (n: Node) =
+        and convertNodeAndSiblings (n: Dom.Node) =
             if n !==. null then
                 let next = n.NextSibling
                 if n.NodeType = Dom.NodeType.Text then
@@ -482,7 +482,7 @@ module internal Templates =
             Prepare.fill instance el.ParentNode el
             el.ParentNode.RemoveChild(el) |> ignore
 
-        let rec convertNestedTemplates (el: Element) =
+        let rec convertNestedTemplates (el: Dom.Element) =
             match el.QuerySelector "[ws-template]" with
             | null ->
                 match el.QuerySelector "[ws-children-template]" with
@@ -504,32 +504,32 @@ module internal Templates =
             convertNestedTemplates fakeroot
             convertNodeAndSiblings els.[0]
 
-    and PrepareSingleTemplate (baseName: string) (name: option<string>) (el: Element) =
+    and PrepareSingleTemplate (baseName: string) (name: option<string>) (el: Dom.Element) =
         let root = FakeRootSingle el
         PrepareTemplateStrict baseName name [| el |] (Some root)
 
-    let PrepareTemplate (baseName: string) (name: option<string>) (els: unit -> Node[]) =
+    let PrepareTemplate (baseName: string) (name: option<string>) (els: unit -> Dom.Node[]) =
         if not (LoadedTemplateFile(baseName).ContainsKey(defaultArg name "")) then
             let els = els()
             for el in els do
-                match el.ParentNode :?> Element with
+                match el.ParentNode :?> Dom.Element with
                 | null -> ()
                 | p -> p.RemoveChild(el) |> ignore
             PrepareTemplateStrict baseName name els None None
 
     /// Load all the templates declared nested under `root` into `baseName`.
-    let LoadNestedTemplates (root: Element) baseName =
+    let LoadNestedTemplates (root: Dom.Element) baseName =
         let loadedTpls = LoadedTemplateFile baseName
         let rawTpls = Dictionary()
         let wsTemplates = root.QuerySelectorAll "[ws-template]"
         for i = 0 to wsTemplates.Length - 1 do
-            let node = wsTemplates.[i] :?> Element
+            let node = wsTemplates.[i] :?> Dom.Element
             let name = node.GetAttribute("ws-template").ToLower()
             node.RemoveAttribute("ws-template")
-            rawTpls.[name] <- ([| node :> Node |], FakeRootSingle node)
+            rawTpls.[name] <- ([| node :> Dom.Node |], FakeRootSingle node)
         let wsChildrenTemplates = root.QuerySelectorAll "[ws-children-template]"
         for i = 0 to wsChildrenTemplates.Length - 1 do
-            let node = wsChildrenTemplates.[i] :?> Element
+            let node = wsChildrenTemplates.[i] :?> Dom.Element
             let name = node.GetAttribute("ws-children-template").ToLower()
             node.RemoveAttribute("ws-children-template")
             rawTpls.[name] <-
@@ -563,7 +563,7 @@ module internal Templates =
         ChildrenTemplate JS.Document.Body fillWith
         |>! Doc'.RunInPlace true JS.Document.Body
 
-    let Template (els: Node[]) (fillWith: seq<TemplateHole>) =
+    let Template (els: Dom.Node[]) (fillWith: seq<TemplateHole>) =
         ChildrenTemplate (FakeRoot els) fillWith
 
     let NamedTemplate (baseName: string) (name: option<string>) (fillWith: seq<TemplateHole>) =
@@ -571,7 +571,7 @@ module internal Templates =
         | true, t -> ChildrenTemplate (t.CloneNode(true) :?> Dom.Element) fillWith
         | false, _ -> Console.Warn("Local template doesn't exist", name); Doc'.Empty
 
-    let GetOrLoadTemplate (baseName: string) (name: option<string>) (els: unit -> Node[]) (fillWith: seq<TemplateHole>) =
+    let GetOrLoadTemplate (baseName: string) (name: option<string>) (els: unit -> Dom.Node[]) (fillWith: seq<TemplateHole>) =
         LoadLocalTemplates ""
         PrepareTemplate baseName name els
         NamedTemplate baseName name fillWith

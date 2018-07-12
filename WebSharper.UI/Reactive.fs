@@ -22,7 +22,9 @@ namespace WebSharper.UI
 
 #nowarn "40" // AsyncAwait let rec
 
+open System.Collections.Generic
 open WebSharper
+module JS = WebSharper.JavaScript.JS
 
 [<JavaScript; AbstractClass>]
 type Var<'T>() =
@@ -98,19 +100,27 @@ type ConcreteVar<'T>(isConst: bool, initSnap: Snap<'T>, initValue: 'T) =
 
     override this.Id = "uinref" + string id
 
-and [<JavaScript; Sealed>] Var =
+and [<JavaScript; Sealed>] Var private () =
 
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
+    [<Inline>]
+    static let (?) x f = WebSharper.JavaScript.Pervasives.(?) x f
+
+    [<Inline>]
+    static let (?<-) x f v = WebSharper.JavaScript.Pervasives.(?<-) x f v
+
     static member Create v =
         ConcreteVar<'T>(false, Snap.CreateWithValue v, v)
         :> Var<'T>
 
     static member CreateLogged (name: string) v =
-        if not (WebSharper.JavaScript.JS.Global?UINVars) then
-            WebSharper.JavaScript.JS.Global?UINVars <- [||]
-        let res = Var.Create v
-        WebSharper.JavaScript.JS.Global?UINVars?push([| name; WebSharper.JavaScript.Pervasives.As res |])
-        res
+        if IsClient then
+            if not (JS.Global?UINVars) then
+                JS.Global?UINVars <- [||]
+            let res = Var.Create v
+            JS.Global?UINVars?push([| name; unbox res |])
+            res
+        else
+            Var.Create v
 
     static member Create() =
         ConcreteVar<unit>(false, Snap.CreateWithValue(), ())

@@ -47,7 +47,6 @@ module Trie =
         TrieBranch (Map [key, trie])
 
     /// Finds a value in a multi-map.
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
     let MultiFind key map =
         defaultArg (M.tryFind key map) []
 
@@ -76,7 +75,6 @@ module Trie =
         |> Option.map Map.ofSeq
 
     /// Checks for leaves.
-    [<MethodImpl(MethodImplOptions.NoInlining)>]
     let IsLeaf t =
         match t with
         | TrieLeaf _ -> true
