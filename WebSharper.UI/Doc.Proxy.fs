@@ -899,8 +899,6 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Elt">]
     internal Elt'(docNode, updates, elt: Dom.Element, rvUpdates: Updates) =
     inherit Doc'(docNode, updates)
 
-    let clsRE cls = new RegExp(@"(\s|^)(" + cls + @")(\s|$)", "g")
-
     static member New(el: Dom.Element, attr: Attr, children: Doc') =
         let node = Docs.CreateElemNode el attr children.DocNode
         let rvUpdates = Updates.Create children.Updates
@@ -1100,22 +1098,13 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Elt">]
     member this.GetProperty'(name: string) : 'T =
         elt?(name)
 
-    [<Name "AddClass">]
+    [<Inline>]
     member this.AddClass'(cls: string) =
-        let c = elt?className
-        if c = "" then
-            elt?className <- cls
-        elif not <| (clsRE cls).Test(c) then
-            elt?className <- elt?className + " " + cls
+        DU.AddClass elt cls
 
-    [<Name "RemoveClass">]
+    [<Inline>]
     member this.RemoveClass'(cls: string) =
-        elt?className <-
-            (clsRE cls).Replace(elt?className,
-                FuncWithArgs(fun (_fullStr, before, _cls, after) ->
-                    if before = "" || after = "" then "" else " "
-                )
-            )
+        DU.RemoveClass elt cls
 
     [<Name "HasClass">]
     member this.HasClass'(cls: string) =

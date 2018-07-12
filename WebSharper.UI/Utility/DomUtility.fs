@@ -115,13 +115,23 @@ module internal DomUtility =
         if not canSkip then
             parent.InsertBefore(node, As pos) |> ignore
 
+    let private clsRE cls =
+        new RegExp(@"(\s+|^)" + cls + @"(?:\s+" + cls + ")*(\s+|$)", "g")
+
     /// Adds a class.
     let AddClass (element: Element) (cl: string) =
-        JQuery.Of(element).AddClass(cl) |> ignore
+        let c = element?className
+        if c = "" then
+            element.ClassName <- cl
+        elif not <| (clsRE cl).Test(c) then
+            element.ClassName <- element.ClassName + " " + cl
 
     /// Removes a class.
     let RemoveClass (element: Element) (cl: string) =
-        JQuery.Of(element).RemoveClass(cl) |> ignore
+        element.ClassName <- 
+            (clsRE cl).Replace(element.ClassName, FuncWithArgs(fun (_fullStr, before, after) ->
+                if before = "" || after = "" then "" else " "
+            ))
 
     /// Retrieve the children of an element as an array.
     let ChildrenArray (element: Element) : Dom.Node[] =

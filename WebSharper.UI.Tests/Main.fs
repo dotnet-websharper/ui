@@ -560,18 +560,28 @@ module Main =
                 isTrueMsg (elt.HasClass "extra1") "extra1"
                 isTrueMsg (elt.HasClass "extra2") "extra2"
                 isTrueMsg (elt.HasClass "extra3") "extra3"
-                equalMsg elt.Dom?className "base1 base2 extra1 extra2 extra3" "full initial"
+                equalMsg elt.Dom.ClassName "base1 base2 extra1 extra2 extra3" "full initial"
                 elt.AddClass "extra4"
                 isTrueMsg (elt.HasClass "extra4") "extra4"
-                equalMsg elt.Dom?className "base1 base2 extra1 extra2 extra3 extra4" "after AddClass"
+                equalMsg elt.Dom.ClassName "base1 base2 extra1 extra2 extra3 extra4" "after AddClass"
                 elt.AddClass "extra4"
-                equalMsg elt.Dom?className "base1 base2 extra1 extra2 extra3 extra4" "after double AddClass"
+                equalMsg elt.Dom.ClassName "base1 base2 extra1 extra2 extra3 extra4" "after double AddClass"
                 elt.RemoveClass "extra1"
                 isFalseMsg (elt.HasClass "extra1") "remove extra1"
-                equalMsg elt.Dom?className "base1 base2 extra2 extra3 extra4" "after remove extra1"
+                equalMsg elt.Dom.ClassName "base1 base2 extra2 extra3 extra4" "after remove extra1"
                 elt.RemoveClass "extra4"
                 isFalseMsg (elt.HasClass "extra4") "remove extra4"
-                equalMsg elt.Dom?className "base1 base2 extra2 extra3" "after remove extra4"
+                equalMsg elt.Dom.ClassName "base1 base2 extra2 extra3" "after remove extra4"
+                elt.RemoveClass "base1"
+                isFalseMsg (elt.HasClass "base1") "remove base1"
+                equalMsg elt.Dom.ClassName "base2 extra2 extra3" "after remove base1"
+
+                let elt = div [attr.``class`` "cls1 cls2 cls2 cls3 cls3"] []
+                equalMsg elt.Dom.ClassName "cls1 cls2 cls2 cls3 cls3" "initial with duplicate"
+                elt.RemoveClass "cls2"
+                equalMsg elt.Dom.ClassName "cls1 cls3 cls3" "remove duplicate"
+                elt.RemoveClass "cls3"
+                equalMsg elt.Dom.ClassName "cls1" "remove duplicate in final position"
             }
 
         }
