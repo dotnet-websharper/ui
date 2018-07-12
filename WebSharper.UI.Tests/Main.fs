@@ -541,6 +541,41 @@ module Main =
             }
         }
 
+    let EltTest =
+        TestCategory "Elt" {
+
+            Test "Class" {
+                let elt =
+                    div [
+                        attr.``class`` "overridden1"
+                        Attr.Class "overridden2"
+                        attr.``class`` "base1 base2"
+                        Attr.Class "extra1"
+                        Attr.Class "extra2 extra3"
+                    ] []
+                isFalseMsg (elt.HasClass "overridden1") "overridden1"
+                isFalseMsg (elt.HasClass "overridden2") "overridden2"
+                isTrueMsg (elt.HasClass "base1") "base1"
+                isTrueMsg (elt.HasClass "base2") "base2"
+                isTrueMsg (elt.HasClass "extra1") "extra1"
+                isTrueMsg (elt.HasClass "extra2") "extra2"
+                isTrueMsg (elt.HasClass "extra3") "extra3"
+                equalMsg elt.Dom?className "base1 base2 extra1 extra2 extra3" "full initial"
+                elt.AddClass "extra4"
+                isTrueMsg (elt.HasClass "extra4") "extra4"
+                equalMsg elt.Dom?className "base1 base2 extra1 extra2 extra3 extra4" "after AddClass"
+                elt.AddClass "extra4"
+                equalMsg elt.Dom?className "base1 base2 extra1 extra2 extra3 extra4" "after double AddClass"
+                elt.RemoveClass "extra1"
+                isFalseMsg (elt.HasClass "extra1") "remove extra1"
+                equalMsg elt.Dom?className "base1 base2 extra2 extra3 extra4" "after remove extra1"
+                elt.RemoveClass "extra4"
+                isFalseMsg (elt.HasClass "extra4") "remove extra4"
+                equalMsg elt.Dom?className "base1 base2 extra2 extra3" "after remove extra4"
+            }
+
+        }
+
     type Rec = { x: string; y: Rec2 }
     and Rec2 = { z: string; t: string }
 
@@ -551,6 +586,7 @@ module Main =
                 VarTest
                 ViewTest
                 ListModelTest
+                EltTest
             |]
         ).ReplaceInDom(JS.Document.QuerySelector "#main")
 
