@@ -28,8 +28,6 @@ open WebSharper.Sitelets
 [<JavaScript>]
 module Router =
 
-    open WebSharper.Sitelets.Router
-
     let private getCurrent parse onParseError =
         let loc = JS.Window.Location
         let p = loc.Pathname + loc.Search |> Route.FromUrl
@@ -70,7 +68,7 @@ module Router =
     /// Installs client-side routing on the full URL. 
     /// If initials URL parse fails, value is left as the initial value of `var`.
     let InstallInto (var: Var<'T>) onParseError (router: Router<'T>) : unit =
-        let parse p = Parse router p
+        let parse p = Router.Parse router p
         let cur() : 'T = getCurrent parse onParseError
 
         let set value =
@@ -80,33 +78,31 @@ module Router =
         JS.Window.Onpopstate <- fun ev ->
             set (cur())
 
-        JQuery.JQuery.Of(JS.Document.Body).Click(fun el ev ->
-            match JQuery.JQuery.Of(ev.Target).Closest("a").ToArray() with
-            | [| target |] ->
-                if target.LocalName = "a" then
-                    match target.GetAttribute("href") |> hrefToAbsolute with
-                    | Some href ->
-                        let p = href |> Route.FromUrl
-                        match parse p with
-                        | Some a -> 
-                            set a
-                            ev.PreventDefault()
-                        | None -> ()
-                    | None -> ()
-            | _ -> ()
-        ).Ignore
+        JS.Document.Body.AddEventListener("click", (fun (ev: Dom.Event) ->
+            let rec findLinkElt (n: Dom.Node) =
+                if (n :?> Dom.Element).TagName = "A" then Some (n :?> Dom.Element)
+                elif n ===. JS.Document.Body then None
+                else findLinkElt n.ParentNode
+            findLinkElt (As ev.Target)
+            |> Option.bind (fun t -> t.GetAttribute("href") |> hrefToAbsolute)
+            |> Option.bind (Route.FromUrl >> parse)
+            |> Option.iter (fun a ->
+                set a
+                ev.PreventDefault()
+            )
+        ), false)
         
         var.View
         |> View.Sink (fun value ->
             if value <> cur() then 
-                let url = Link router value
+                let url = Router.Link router value
                 JS.Window.History.PushState(null, null, url)
         )
 
     /// Installs client-side routing on the full URL. 
     /// If initials URL parse fails, value is set to `onParseError`. 
     let Install onParseError (router: Router<'T>) : Var<'T> =
-        let parse p = Parse router p
+        let parse p = Router.Parse router p
         let var = Var.Create (getCurrent parse onParseError)
         InstallInto var onParseError router
         var
@@ -125,7 +121,7 @@ module Router =
     let InstallHashInto (var: Var<'T>) onParseError (router: Router<'T>) =
         let parse h = 
             let p = Route.FromHash(h, true)
-            Parse router p
+            Router.Parse router p
         let cur() : 'T = getCurrentHash parse onParseError
         let set value =
             if var.Value <> value then
@@ -151,7 +147,7 @@ module Router =
         var.View
         |> View.Sink (fun value ->
             if value <> cur() then 
-                let url = HashLink router value
+                let url = Router.HashLink router value
                 JS.Window.History.PushState(null, null, url)
         )
 
@@ -160,7 +156,7 @@ module Router =
     let InstallHash onParseError (router: Router<'T>) =
         let parse h = 
             let p = Route.FromHash(h, true)
-            Parse router p
+            Router.Parse router p
         let cur() : 'T = getCurrentHash parse onParseError
         let var = Var.Create (cur())
         InstallHashInto var onParseError router

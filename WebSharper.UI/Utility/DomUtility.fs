@@ -22,7 +22,6 @@ namespace WebSharper.UI
 
 open WebSharper
 open WebSharper.JavaScript
-open WebSharper.JQuery
 
 /// Utility functions for manipulating DOM.
 [<JavaScript>]

@@ -24,7 +24,7 @@ namespace WebSharper.UI
 
 open System.Collections.Generic
 open WebSharper
-module JS = WebSharper.JavaScript.JS
+type private JS = WebSharper.JavaScript.JS
 
 [<JavaScript; AbstractClass>]
 type Var<'T>() =
