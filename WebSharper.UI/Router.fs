@@ -46,9 +46,7 @@ module Router =
     /// Transform the url from an <a href="XYZ"> tag into an absolute path+query,
     /// if it is indeed a URL that Install wants to handle.
     let private hrefToAbsolute (href: string) =
-        if isNull href then
-            None
-        elif href.StartsWith("?") then
+        if href.StartsWith("?") then
             // Query only, just add it to the current path
             Some (JS.Window.Location.Pathname + href |> trimFragment)
         elif href.StartsWith("#") then
@@ -65,6 +63,14 @@ module Router =
             let s = JS.Window.Location.Pathname
             Some (s.[..s.LastIndexOf('/')] + href |> trimFragment)
 
+    let rec private findLinkHref (n: Dom.Element) =
+        if n.TagName = "A" then
+            n.GetAttribute("href") |> Option.ofObj
+        elif n ===. JS.Document.Body then
+            None
+        else
+            findLinkHref (n.ParentNode :?> Dom.Element)
+
     /// Installs client-side routing on the full URL. 
     /// If initials URL parse fails, value is left as the initial value of `var`.
     let InstallInto (var: Var<'T>) onParseError (router: Router<'T>) : unit =
@@ -75,16 +81,11 @@ module Router =
             if var.Value <> value then
                 var.Value <- value
         
-        JS.Window.Onpopstate <- fun ev ->
-            set (cur())
+        JS.Window.AddEventListener("popstate", (fun () -> set (cur())), false)
 
         JS.Document.Body.AddEventListener("click", (fun (ev: Dom.Event) ->
-            let rec findLinkElt (n: Dom.Node) =
-                if (n :?> Dom.Element).TagName = "A" then Some (n :?> Dom.Element)
-                elif n ===. JS.Document.Body then None
-                else findLinkElt n.ParentNode
-            findLinkElt (As ev.Target)
-            |> Option.bind (fun t -> t.GetAttribute("href") |> hrefToAbsolute)
+            findLinkHref (As ev.Target)
+            |> Option.bind hrefToAbsolute
             |> Option.bind (Route.FromUrl >> parse)
             |> Option.iter (fun a ->
                 set a
@@ -127,23 +128,18 @@ module Router =
             if var.Value <> value then
                 var.Value <- value
        
-        JS.Window.Onpopstate <- fun ev -> set (cur()) 
-        JS.Window.Onhashchange <- fun ev -> set (cur()) 
+        JS.Window.AddEventListener("popstate", (fun () -> set (cur())), false)
+        JS.Window.AddEventListener("hashchange", (fun () -> set (cur())), false)
 
-        JQuery.JQuery.Of(JS.Document.Body).Click(fun el ev ->
-            match JQuery.JQuery.Of(ev.Target).Closest("a").ToArray() with
-            | [| target |] ->
-                if target.LocalName = "a" then
-                    let href = target.GetAttribute("href")
-                    if not (isNull href) && href.StartsWith "#" then
-                        match parse href with
-                        | Some a -> 
-                            set a
-                            ev.PreventDefault()
-                        | None -> ()
-            | _ -> ()
-        ).Ignore
-        
+        JS.Document.Body.AddEventListener("click", (fun (ev: Dom.Event) ->
+            findLinkHref (As ev.Target)
+            |> Option.bind (fun href -> if href.StartsWith "#" then parse href else None)
+            |> Option.iter (fun a ->
+                set a
+                ev.PreventDefault()
+            )
+        ), false)
+
         var.View
         |> View.Sink (fun value ->
             if value <> cur() then 
