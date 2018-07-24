@@ -248,6 +248,18 @@ type Runtime private () =
         ]
     static let defaultTemplateWrappers = ("""<div style="display:none" {0}="{1}">""", "</div>")
 
+    static let holeTagName parent =
+        match parent with
+        | Some "select" -> "option"
+        | Some "fieldset" -> "legend"
+        | Some "map" -> "area"
+        | Some "object" -> "param"
+        | Some "table" -> "tbody"
+        | Some "tbody" -> "tr"
+        | Some "colgroup" -> "col"
+        | Some "tr" -> "td"
+        | _ -> "div"
+
     static member RunTemplate (fillWith: seq<TemplateHole>): Doc =
         failwith "Template.Bind() can only be called from the client side."
 
@@ -363,7 +375,7 @@ type Runtime private () =
                     ctx.Writer.Write(HtmlTextWriter.SelfClosingTagEnd)
                 else
                     ctx.Writer.Write(HtmlTextWriter.TagRightChar)
-                    Array.iter (writeNode false plain) children
+                    Array.iter (writeNode (Some tag) plain) children
                     if tag = "body" && Option.isNone name && Option.isSome inlineBaseName then
                         ctx.Templates |> Seq.iter (fun (KeyValue(k, v)) ->
                             match k.NameAsOption with
@@ -371,11 +383,11 @@ type Runtime private () =
                             | None -> ()
                         )
                     ctx.Writer.WriteEndTag(tag)
-            and writeNode isRoot plain = function
+            and writeNode parent plain = function
                 | Node.Element (tag, _, attrs, children) ->
-                    writeElement isRoot plain tag attrs None children
+                    writeElement (Option.isNone parent) plain tag attrs None children
                 | Node.Input (tag, holeName, attrs, children) ->
-                    let doPlain() = writeElement isRoot plain tag attrs (Some holeName) children
+                    let doPlain() = writeElement (Option.isNone parent) plain tag attrs (Some holeName) children
                     if plain then doPlain() else
                     let wsVar, attrs =
                         match ctx.FillWith.TryGetValue holeName with
@@ -383,15 +395,16 @@ type Runtime private () =
                             None, Array.append [|Attr.Event("input", holeName)|] attrs
                         | _ ->
                             Some holeName, attrs
-                    writeElement isRoot plain tag attrs wsVar children
+                    writeElement (Option.isNone parent) plain tag attrs wsVar children
                 | Node.Text text ->
                     writeStringParts text ctx.Writer
                 | Node.DocHole holeName ->
                     let doPlain() =
-                        ctx.Writer.WriteBeginTag("div")
+                        let tagName = holeTagName parent
+                        ctx.Writer.WriteBeginTag(tagName)
                         ctx.Writer.WriteAttribute(ReplaceAttr, holeName)
                         ctx.Writer.Write(HtmlTextWriter.TagRightChar)
-                        ctx.Writer.WriteEndTag("div")
+                        ctx.Writer.WriteEndTag(tagName)
                     if plain then doPlain() else
                     match holeName with
                     | "scripts" | "styles" | "meta" when Option.isSome ctx.Resources ->
@@ -427,7 +440,7 @@ type Runtime private () =
                     writeElement false true k [||] None v
                 textHole |> Option.iter ctx.Writer.WriteEncodedText
                 ctx.Writer.WriteEndTag(tagName)
-            Array.iter (writeNode true plain) template.Value
+            Array.iter (writeNode None plain) template.Value
         let templates = ref None
         let getTemplates (ctx: Web.Context) =
             match !templates with
