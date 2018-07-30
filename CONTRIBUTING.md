@@ -2,6 +2,8 @@
 
 WebSharper is a Free Software project, and we welcome your contributions!
 
+[The UI repository](https://github.com/dotnet-websharper/ui) contains the WebSharper.UI reactive programming and HTML libraries. WebSharper consists of this repository as well as a constellation of libraries and extensions, located [in the `dotnet-websharper` GitHub organization](https://github.com/dotnet-websharper). Don't hesitate to contribute to these too!
+
 * [What to contribute](#what-to-contribute)
 * [How to contribute](#how-to-contribute)
   * [Required software](#requirements)
@@ -16,8 +18,7 @@ WebSharper is a Free Software project, and we welcome your contributions!
 We welcome all types of contributions, particularly:
 
 * Bug fixes in [the issue tracker](https://github.com/dotnet-websharper/ui/issues)
-* Standard library improvements (JavaScript APIs, etc.)
-* Compiler optimizations and improvements
+* Library improvements
 * Feature suggestions are welcome on [the Gitter chat](https://gitter.im/intellifactory/websharper) and [the issue tracker](https://github.com/dotnet-websharper/ui/issues); we suggest that you discuss new features with the rest of the team on these channels before getting started on implementation.
 
 <a name="how-to-contribute"></a>
