@@ -9,6 +9,7 @@ simple to construct animated UI in the browser.
 * [Examples](http://intellifactory.github.io/websharper.ui.next.samples/)
 * [Example Site Repository](http://github.com/intellifactory/websharper.ui.next.samples)
 * [Tutorial and documentation](https://developers.websharper.com/docs/v4.x/fs/ui)
+* [Guide for contributing to this project](https://github.com/dotnet-websharper/ui/blob/master/CONTRIBUTING.md)
 
 > Note: WebSharper.UI is the new name of WebSharper.UI.Next. If you have been using the latter, we recommend that you upgrade to UI.
 
