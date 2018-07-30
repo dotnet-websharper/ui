@@ -42,7 +42,7 @@ NUGET
       System.Runtime.InteropServices.RuntimeInformation (>= 4.3)
       System.Text.Encoding.CodePages (>= 4.4) - restriction: || (&& (== net461) (< net46) (>= netstandard2.0)) (&& (== net471) (< net46)) (== netstandard2.0)
     Microsoft.CodeAnalysis.Analyzers (1.1)
-    Microsoft.CodeAnalysis.Common (2.6.1)
+    Microsoft.CodeAnalysis.Common (2.8.2)
       Microsoft.CodeAnalysis.Analyzers (>= 1.1)
       System.AppContext (>= 4.3)
       System.Collections (>= 4.3)
@@ -82,8 +82,8 @@ NUGET
       System.Xml.XDocument (>= 4.3)
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath.XDocument (>= 4.3)
-    Microsoft.CodeAnalysis.CSharp (2.6.1)
-      Microsoft.CodeAnalysis.Common (2.6.1)
+    Microsoft.CodeAnalysis.CSharp (2.8.2)
+      Microsoft.CodeAnalysis.Common (2.8.2)
     Microsoft.NETCore.Platforms (1.1) - restriction: || (&& (== net461) (>= dnxcore50) (>= netstandard2.0)) (&& (== net461) (< net40) (>= netstandard2.0)) (&& (== net461) (>= uap10.0)) (&& (== net471) (>= dnxcore50)) (&& (== net471) (< net40)) (&& (== net471) (>= uap10.0)) (== netstandard2.0)
     Microsoft.NETCore.Targets (1.1) - restriction: || (&& (== net461) (>= dnxcore50)) (&& (== net461) (< net45)) (&& (== net471) (>= dnxcore50)) (&& (== net471) (< net45)) (== netstandard2.0)
     Microsoft.VisualStudio.Setup.Configuration.Interop (1.16.30) - restriction: || (== net461) (== net471) (&& (== netstandard2.0) (>= net46))
@@ -659,17 +659,17 @@ NUGET
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
   remote: https://nuget.intellifactory.com/nuget
-    WebSharper (4.4.0.280)
-    WebSharper.CSharp (4.4.0.280)
-      WebSharper (4.4.0.280)
-    WebSharper.FSharp (4.4.0.280)
-      WebSharper (4.4.0.280)
-    WebSharper.Testing (4.4.0.280)
-      WebSharper (4.4.0.280)
+    WebSharper (4.4.1.286)
+    WebSharper.CSharp (4.4.1.286)
+      WebSharper (4.4.1.286)
+    WebSharper.FSharp (4.4.1.286)
+      WebSharper (4.4.1.286)
+    WebSharper.Testing (4.4.1.286)
+      WebSharper (4.4.1.286)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (1d9f236c03e749712b069c4fed51aec40a3c1601)
-    src/ProvidedTypes.fsi (1d9f236c03e749712b069c4fed51aec40a3c1601)
+    src/ProvidedTypes.fs (d50b7556cc57c403cd53bd1116027450d60c72db)
+    src/ProvidedTypes.fsi (d50b7556cc57c403cd53bd1116027450d60c72db)
 GROUP build
 RESTRICTION: == net45
 NUGET
@@ -678,7 +678,7 @@ NUGET
       FSharp.Core
     FAKE (4.64.13)
     FSharp.Compiler.Tools (10.0.2)
-    FSharp.Core (4.5)
+    FSharp.Core (4.5.1)
     Mono.Cecil (0.10)
     Newtonsoft.Json (11.0.2)
     Paket.Core (5.141)
@@ -697,7 +697,7 @@ NUGET
       Microsoft.NETCore.Platforms (>= 1.1) - restriction: || (&& (>= net45) (< netstandard1.3)) (&& (< net45) (>= netstandard1.1) (< netstandard1.2) (< win8)) (&& (< net45) (>= netstandard1.2) (< netstandard1.3) (< win8) (< wpa81)) (&& (< net45) (>= netstandard1.3) (< netstandard1.4) (< win8) (< wpa81)) (&& (< net45) (>= netstandard1.4) (< netstandard1.5) (< win8) (< wpa81)) (&& (< net45) (>= netstandard1.5) (< netstandard1.6)) (&& (< net45) (>= netstandard1.6) (< netstandard2.0)) (&& (< net45) (>= netstandard2.0)) (&& (>= net46) (< netstandard1.4)) (>= net461) (>= netcoreapp2.0) (&& (>= netstandard1.0) (< portable-net45+win8+wpa81)) (&& (< netstandard1.0) (>= portable-net45+win8) (< win8)) (&& (< netstandard1.0) (< portable-net45+win8) (>= portable-net45+win8+wpa81)) (&& (< netstandard1.0) (>= portable-net45+win8+wp8+wpa81) (< portable-net45+win8+wpa81)) (&& (< netstandard1.0) (>= win8)) (&& (< netstandard1.3) (< win8) (>= wpa81)) (>= uap10.0) (>= wp8)
 GITHUB
   remote: dotnet-websharper/websharper
-    src/htmllib/tags.csv (96f32b83687f497ebcf46921a6f04ec8f34ef08a)
+    src/htmllib/tags.csv (fa25a1d9f3b6f0a1b958b978165fe34f5b20c6c8)
 GROUP wsbuild
 
 GIT
