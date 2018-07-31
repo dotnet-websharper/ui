@@ -14,18 +14,18 @@ NUGET
     System.Reflection.Metadata (1.6)
       System.Collections.Immutable (>= 1.5)
     System.ValueTuple (4.3)
-  remote: https://nuget.intellifactory.com/nuget
     WebSharper (4.4.0.280)
-    WebSharper.CSharp (4.4.0.280)
-      WebSharper (4.4.0.280)
     WebSharper.FSharp (4.4.0.280)
+      WebSharper (4.4.0.280)
+  remote: https://nuget.intellifactory.com/nuget
+    WebSharper.CSharp (4.4.0.280)
       WebSharper (4.4.0.280)
     WebSharper.Testing (4.4.0.280)
       WebSharper (4.4.0.280)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (1d9f236c03e749712b069c4fed51aec40a3c1601)
-    src/ProvidedTypes.fsi (1d9f236c03e749712b069c4fed51aec40a3c1601)
+    src/ProvidedTypes.fs (d50b7556cc57c403cd53bd1116027450d60c72db)
+    src/ProvidedTypes.fsi (d50b7556cc57c403cd53bd1116027450d60c72db)
 GROUP build
 RESTRICTION: == net45
 NUGET
