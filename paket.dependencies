@@ -1,7 +1,7 @@
 version 5.142.0
 
 source https://api.nuget.org/v3/index.json
-source https://nuget.intellifactory.com/nuget username: "%IF_USER%" password: "%IF_PASS%"
+source https://daily.websharper.com/nuget
 framework: net461, netstandard2.0, net471
 strategy: min
 storage: none

@@ -6,6 +6,7 @@
     <WebProjectOutputDir>$(MSBuildThisFileDirectory)</WebProjectOutputDir>
     <NoWarn>3218</NoWarn>
     <Signed>false</Signed>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Actions.fs" />

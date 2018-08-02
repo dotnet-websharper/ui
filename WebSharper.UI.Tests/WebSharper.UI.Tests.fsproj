@@ -6,6 +6,7 @@
     <WebSharperSourceMap>true</WebSharperSourceMap>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>3218</NoWarn>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Main.fs" />
