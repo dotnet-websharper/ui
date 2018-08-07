@@ -64,7 +64,7 @@ module Client =
 
         let testCounter = Var.Create 0
         let eltUpdater =
-            div [ 
+            Elt.div [ 
                 Attr.DynamicStyle "background" (testCounter.View.Map(fun i -> if i % 2 = 0 then "white" else "lightgray"))
             ] [
                 testCounter.View.Doc(fun _ -> Doc.Empty)
@@ -76,7 +76,7 @@ module Client =
 
         let addDiv () =
             let child =
-                div [] [ textView testCounterStr ]  
+                Elt.div [] [ textView testCounterStr ]  
             added.Enqueue child
             eltUpdater.Dom.AppendChild(child.Dom) |> ignore
             eltUpdater.AddUpdated child
@@ -195,29 +195,29 @@ module Client =
                         p [] [
                             Doc.Button "Click me" [] (fun () -> clk := "Clicked!")
                             textView clk.View
-                        ] :> Doc
+                        ]
                         p [] [
                             Doc.CheckBox [] chk 
                             text (if chk.V then "Uncheck this" else "Check this")
-                        ] :> Doc
+                        ]
                         p [] [
                             for i in 1 .. 5 ->
                                 Doc.CheckBoxGroup [] i chkl :> Doc 
                             yield textView (chkl.View.Map(fun l -> "Checked indices:" + (l |> List.map string |> String.concat ", ")))
-                        ] :> Doc
+                        ]
                         p [] [
                             Doc.Input [] inp 
                             textView (inp.View.Map(fun s -> "You said: " + s))
-                        ] :> Doc
+                        ]
                         p [] [
                             Doc.IntInput [] iinp 
                             textView (iinp.View.Map(function Valid (i, _) -> "It's an int: " + string i | Invalid _ -> "Can't parse" | Blank _ -> "Empty" ))
-                        ] :> Doc
+                        ]
                         p [] [
                             for i in 1 .. 5 ->
                                 Doc.Radio [] i ri :> Doc 
                             yield textView (ri.View.Map(fun i -> "Checked index:" + string i))
-                        ] :> Doc
+                        ]
                     ]
                 )
                 .AddDiv(fun _ -> addDiv())
@@ -285,11 +285,11 @@ module Client =
                     p [] [
                         text (if has1 then "[OK] " else "[KO] ")
                         text txt1
-                    ] :> Doc
+                    ]
                     p [] [
                         text (if has2 then "[KO] " else "[OK] ")
                         text txt2
-                    ] :> Doc
+                    ]
                 ])
             .Username(username)
             .Submit(fun e ->

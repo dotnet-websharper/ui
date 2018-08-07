@@ -30,15 +30,18 @@ module Tags =
         |> Map.ofSeq
 
     let start =
-        Regex("
+        Regex("""
             # indentation
             ^(\s*)
             # comment and {{ marker
-            //\s*{{\s*
+            //\s* {{ \s*
             # type (tag, attr, event, etc.)
-            ([a-z]+)
+            ([a-z]+) \s*
             # categories (normal, deprecated, colliding, event arg type)
-            (?:\s*([a-z]+))*",
+            (?: ([a-z]+) \s* )*
+            # identifier to distinguish between blocks in the same file
+            (?: \[ ([a-z]+) \] )?
+            """,
             RegexOptions.IgnorePatternWhitespace)
     let finish = Regex("// *}}")
     let dash = Regex("-([a-z])")
@@ -58,6 +61,8 @@ module Tags =
             LowNameEsc: string
             /// PascalCase name for F# source
             PascalName: string
+            /// Unique identifier for a group in a given F# file
+            Uid: string
         }
         /// camelCase name for F# source
         member this.CamelName =
@@ -99,6 +104,10 @@ module Tags =
                                                 for elt in elts do yield s.Value, elt
                                     }
                                 |> Seq.sortBy (fun (_, (_, _, s)) -> s.ToLower())
+                            let uid =
+                                match m.Groups.[4].Captures |> Seq.cast<Capture> |> Seq.tryHead with
+                                | Some c -> c.Value
+                                | None -> ""
                             for category, (isKeyword, name, upname) in allType do
                                 let lowname = dash.Replace(name, fun m ->
                                     m.Groups.[1].Value.ToUpperInvariant())
@@ -111,6 +120,7 @@ module Tags =
                                         LowName = lowname
                                         LowNameEsc = lownameEsc
                                         PascalName = upname
+                                        Uid = uid
                                     }
                                 for l in f x do
                                     yield indent + l
@@ -121,40 +131,52 @@ module Tags =
     let Run() =
         let all = Parse()
         RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI", "HTML.fs")) all <| fun e ->
-            match e.Type with
-            | "tag" ->
+            match e.Type, e.Uid with
+            | "tag", "elt" ->
                 [|
                     sprintf "/// Create an HTML element <%s> with attributes and children." e.Name
                     "[<JavaScript; Inline>]"
                     sprintf """let %s ats ch = Doc.Element "%s" ats ch""" e.LowNameEsc e.Name
                 |]
-            | "svgtag" ->
+            | "svgtag", "elt" ->
                 [|
                     sprintf "/// Create an SVG element <%s> with attributes and children." e.Name
                     "[<JavaScript; Inline>]"
                     sprintf """let %s ats ch = Doc.SvgElement "%s" ats ch""" e.LowNameEsc e.Name
                 |]
-            | "attr" ->
+            | "tag", "doc" ->
+                [|
+                    sprintf "/// Create an HTML element <%s> with attributes and children." e.Name
+                    "[<JavaScript; Inline>]"
+                    sprintf """let %s ats ch = Elt.%s ats ch :> Doc""" e.LowNameEsc e.LowNameEsc
+                |]
+            | "svgtag", "doc" ->
+                [|
+                    sprintf "/// Create an SVG element <%s> with attributes and children." e.Name
+                    "[<JavaScript; Inline>]"
+                    sprintf """let %s ats ch = Elt.%s ats ch :> Doc""" e.LowNameEsc e.LowNameEsc
+                |]
+            | "attr", _ ->
                 [|
                     sprintf "/// Create an HTML attribute \"%s\" with the given value." e.Name
                     sprintf "/// The value can be reactive using `view.V`."
                     sprintf """[<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "%s")>]""" e.Name
                     sprintf "static member %s value = Attr.Create \"%s\" value" e.LowNameEsc e.Name
                 |]
-            | "svgattr" ->
+            | "svgattr", _ ->
                 [|
                     sprintf "/// Create an SVG attribute \"%s\" with the given value." e.Name
                     sprintf """[<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "%s")>]""" e.Name
                     sprintf "let %s value = Attr.Create \"%s\" value" e.LowNameEsc e.Name
                 |]
-            | "event" ->
+            | "event", _ ->
                 [|
                     sprintf "/// Create a handler for the event \"%s\"." e.Name
                     "/// When called on the server side, the handler must be a top-level function or a static member."
                     // "[<Inline>]"
                     sprintf """static member %s ([<JavaScript; ReflectedDefinition>] f: Microsoft.FSharp.Quotations.Expr<JavaScript.Dom.Element -> JavaScript.Dom.%s -> unit>) = Attr.HandlerImpl("%s", f)""" e.CamelNameEsc e.Category e.Name
                 |]
-            | ty -> failwithf "unknown type: %s" ty
+            | ty, _ -> failwithf "unknown type: %s" ty
         RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI", "HTML.Client.fs")) all <| fun e ->
             match e.Type with
             | "attr" ->
@@ -206,7 +228,7 @@ module Tags =
                     "[<Inline>]"
                     sprintf "member this.On%s(cb: Microsoft.FSharp.Quotations.Expr<Dom.Element -> Dom.%s -> unit>) = this.onExpr(\"%s\", cb)" e.PascalName e.Category e.Name
                 |]
-        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI", "Doc.Extensions.fs")) all <| fun e ->
+        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI", "DocExtensions.fs")) all <| fun e ->
             match e.Type with
             | "event" ->
                 [|
@@ -220,7 +242,7 @@ module Tags =
 //                    "[<Extension; Inline>]"
 //                    sprintf "static member On%sView(this: Elt, view: View<'T>, cb: System.Action<Dom.Element, Dom.%s, 'T>) = As<Elt> ((As<Elt'> this).onViewDel(\"%s\", view, cb))" e.PascalName e.Category e.Name
                 |]
-        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI", "Doc.Extensions.fsi")) all <| fun e ->
+        RunOn (Path.Combine(__SOURCE_DIRECTORY__, "..", "WebSharper.UI", "DocExtensions.fsi")) all <| fun e ->
             match e.Type with
             | "event" ->
                 [|

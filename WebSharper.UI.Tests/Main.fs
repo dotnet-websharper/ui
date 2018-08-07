@@ -546,7 +546,7 @@ module Main =
 
             Test "Class" {
                 let elt =
-                    div [
+                    Elt.div [
                         attr.``class`` "overridden1"
                         Attr.Class "overridden2"
                         attr.``class`` "base1 base2"
@@ -576,7 +576,7 @@ module Main =
                 isFalseMsg (elt.HasClass "base1") "remove base1"
                 equalMsg elt.Dom.ClassName "base2 extra2 extra3" "after remove base1"
 
-                let elt = div [attr.``class`` "cls1 cls2 cls2 cls3 cls3"] []
+                let elt = Elt.div [attr.``class`` "cls1 cls2 cls2 cls3 cls3"] []
                 equalMsg elt.Dom.ClassName "cls1 cls2 cls2 cls3 cls3" "initial with duplicate"
                 elt.RemoveClass "cls2"
                 equalMsg elt.Dom.ClassName "cls1 cls3 cls3" "remove duplicate"
