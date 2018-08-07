@@ -123,6 +123,7 @@ module Client =
                             .Remove(fun _ -> myItems.RemoveByKey key)
                             .Elt()
                             .OnClickView(item.View, fun _ _ x -> JS.Alert x.name)
+                            .OnAfterRender(fun e -> Console.Log e)
                     )
                 )
                 .LIKey("test1234")

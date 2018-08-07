@@ -68,6 +68,8 @@ and internal DocTreeNode =
         Attrs : (Dom.Element * Attrs.Dyn)[]
         [<OptionalField>]
         mutable Render : option<Dom.Element -> unit>
+        [<OptionalField>]
+        El : option<Dom.Element>
     }
 
 type EltUpdater =
@@ -1028,6 +1030,7 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Elt">]
                     Attrs = [| elt, e.Attr |]
                     Render = None
                     Dirty = true
+                    El = Some elt
                 }
             | TreeDoc e -> e
             | _ -> failwith "Invalid docNode in Elt"

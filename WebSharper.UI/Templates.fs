@@ -204,6 +204,10 @@ module internal Templates =
                     then None
                     else Some (fun el -> Array.iter (fun f -> f el) afterRender)
                 Dirty = true
+                El =
+                    match els with
+                    | [| Union1Of2 (:? Dom.Element as el) |] -> Some el
+                    | _ -> None
             }
         let updates =
             updates |> Array.TreeReduce (View.Const ()) View.Map2Unit
