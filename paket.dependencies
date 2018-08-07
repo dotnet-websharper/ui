@@ -1,4 +1,4 @@
-version 5.142.0
+version 5.173.1
 
 source https://api.nuget.org/v3/index.json
 source https://daily.websharper.com/nuget
@@ -24,7 +24,7 @@ group build
     source https://api.nuget.org/v3/index.json
 
     nuget FAKE ~> 4.0
-    nuget Paket.Core 5.141.0
+    nuget Paket.Core 5.173.1
 
 group wsbuild
     git https://github.com/dotnet-websharper/build-script
