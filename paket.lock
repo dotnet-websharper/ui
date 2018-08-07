@@ -14,14 +14,14 @@ NUGET
     System.Reflection.Metadata (1.6)
       System.Collections.Immutable (>= 1.5)
     System.ValueTuple (4.3)
-    WebSharper (4.4.0.280)
-    WebSharper.FSharp (4.4.0.280)
-      WebSharper (4.4.0.280)
-  remote: https://nuget.intellifactory.com/nuget
-    WebSharper.CSharp (4.4.0.280)
-      WebSharper (4.4.0.280)
-    WebSharper.Testing (4.4.0.280)
-      WebSharper (4.4.0.280)
+  remote: https://daily.websharper.com/nuget
+    WebSharper (4.5.0.290)
+    WebSharper.CSharp (4.5.0.290)
+      WebSharper (4.5.0.290)
+    WebSharper.FSharp (4.5.0.290)
+      WebSharper (4.5.0.290)
+    WebSharper.Testing (4.5.0.290)
+      WebSharper (4.5.0.290)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
     src/ProvidedTypes.fs (d50b7556cc57c403cd53bd1116027450d60c72db)
@@ -32,12 +32,12 @@ NUGET
   remote: https://api.nuget.org/v3/index.json
     Chessie (0.6)
       FSharp.Core
-    FAKE (5.1)
+    FAKE (5.3)
     FSharp.Compiler.Tools (10.0.2)
-    FSharp.Core (4.5)
+    FSharp.Core (4.5.2)
     Mono.Cecil (0.10)
     Newtonsoft.Json (11.0.2)
-    Paket.Core (5.141)
+    Paket.Core (5.173.1)
       Chessie (>= 0.6)
       FSharp.Compiler.Tools
       FSharp.Core
@@ -48,4 +48,4 @@ GROUP wsbuild
 
 GIT
   remote: https://github.com/dotnet-websharper/build-script
-     (d57d7d132dbd715f9d3c0d942e845d76039a0470)
+     (ba0f9d10f68ae96f0784f07548863a3c0bb1ee6f)
