@@ -113,18 +113,33 @@ module internal DomUtility =
     let private clsRE cls =
         new RegExp(@"(\s+|^)" + cls + @"(?:\s+" + cls + ")*(\s+|$)", "g")
 
+    [<Inline "$element instanceof SVGElement">]
+    let private isSvg (element: Dom.Element) = X<bool>
+
+    let private getClass (element: Dom.Element) =
+        if isSvg element then
+            element.GetAttribute("class")
+        else
+            element.ClassName
+
+    let private setClass (element: Dom.Element) (value: string) =
+        if isSvg element then
+            element.SetAttribute("class", value)
+        else
+            element.ClassName <- value
+
     /// Adds a class.
     let AddClass (element: Dom.Element) (cl: string) =
-        let c = element?className
+        let c = getClass element
         if c = "" then
-            element.ClassName <- cl
+            setClass element cl
         elif not <| (clsRE cl).Test(c) then
-            element.ClassName <- element.ClassName + " " + cl
+            setClass element (c + " " + cl)
 
     /// Removes a class.
     let RemoveClass (element: Dom.Element) (cl: string) =
-        element.ClassName <- 
-            (clsRE cl).Replace(element.ClassName, FuncWithArgs(fun (_fullStr, before, after) ->
+        setClass element <|
+            (clsRE cl).Replace(getClass element, FuncWithArgs(fun (_fullStr, before, after) ->
                 if before = "" || after = "" then "" else " "
             ))
 

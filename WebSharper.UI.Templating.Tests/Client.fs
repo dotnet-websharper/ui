@@ -226,6 +226,13 @@ module Client =
                 .RemoveAllUpdaters(fun _ -> removeAllUpdaters())
                 .IncrEltUpdaterTest(fun _ -> testCounter := !testCounter + 1)
                 .EltUpdaterTest(eltUpdater)
+                .SvgCircleHole(
+                    let el =
+                        MyTemplate.template.SvgCircle()
+                            .Elt()
+                    el.AddClass("my-svg-circle")
+                    el
+                )
                 .Username(username)
                 .Password(password)
                 .Username1(username.View)
@@ -265,6 +272,25 @@ module Client =
             .OkView(View.Const "[OK]")
             .OkClassView(View.Const "ok")
             .VarView(varView.View, Var.Set varView)
+            .ExtraOkItems(
+                let circle = JS.Document.QuerySelector("circle")
+                let testClass (cls: string) =
+                    if circle.GetAttribute("class").Contains(cls) then
+                        true, "Circle contains class " + cls
+                    else
+                        false, "Circle doesn't contain class " + cls
+                let has1, txt1 = testClass "my-svg-circle"
+                let has2, txt2 = testClass "unset-svg-circle"
+                [
+                    p [] [
+                        text (if has1 then "[OK] " else "[KO] ")
+                        text txt1
+                    ] :> Doc
+                    p [] [
+                        text (if has2 then "[KO] " else "[OK] ")
+                        text txt2
+                    ] :> Doc
+                ])
             .Username(username)
             .Submit(fun e ->
                 welcome := sprintf "Welcome %s!" !username
