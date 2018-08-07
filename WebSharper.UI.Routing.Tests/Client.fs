@@ -19,26 +19,26 @@ module Client =
             let fSharpTests =
                 RouterTestValues |> Seq.collect (fun test ->
                     [
-                        div [] [ Link (clientOrServer (Inferred test)) (sprintf "F# inferred %A" test) ] :> Doc
-                        div [] [ Link (clientOrServer (Constructed test)) (sprintf "F# constructed %A" test) ] :> _
+                        div [] [ Link (clientOrServer (Inferred test)) (sprintf "F# inferred %A" test) ]
+                        div [] [ Link (clientOrServer (Constructed test)) (sprintf "F# constructed %A" test) ]
                     ]
                 )
             let cSharpTests =
                 WebSharper.UI.CSharp.Routing.Tests.Root.TestValues |> Seq.map (fun test ->
-                    div [] [ Link (clientOrServer (CSharpInferred test)) (sprintf "C# inferred %A" test) ] :> Doc
+                    div [] [ Link (clientOrServer (CSharpInferred test)) (sprintf "C# inferred %A" test) ]
                 )
             Doc.Concat (Seq.append fSharpTests cSharpTests)
         | Inferred test ->
             Doc.Concat [
-                div [] [ text (sprintf "%A" test) ] :> Doc
+                div [] [ text (sprintf "%A" test) ]
                 (match test with
-                | Root -> div [] [ a [ attr.href "constructed/about/None/None" ] [ text "Plain relative URL to constructed About(null, null)" ] ] :> Doc
+                | Root -> div [] [ a [ attr.href "constructed/about/None/None" ] [ text "Plain relative URL to constructed About(null, null)" ] ]
                 | _ -> Doc.Empty)
             ]
         | Constructed test ->
-            div [] [ text (sprintf "%A" test) ] :> Doc
+            div [] [ text (sprintf "%A" test) ]
         | CSharpInferred test ->
-            div [] [ text (sprintf "%A" test) ] :> Doc
+            div [] [ text (sprintf "%A" test) ]
 
     let ClientSideRoutingPage () =
         let location = 

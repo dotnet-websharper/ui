@@ -45,646 +45,1283 @@ module Html =
     [<JavaScript; Inline>]
     let client ([<ReflectedDefinition; JavaScript>] q) = Doc.ClientSide q
 
-    // {{ tag normal
-    /// Create an HTML element <a> with attributes and children.
-    [<JavaScript; Inline>]
-    let a ats ch = Doc.Element "a" ats ch
-    /// Create an HTML element <abbr> with attributes and children.
-    [<JavaScript; Inline>]
-    let abbr ats ch = Doc.Element "abbr" ats ch
-    /// Create an HTML element <address> with attributes and children.
-    [<JavaScript; Inline>]
-    let address ats ch = Doc.Element "address" ats ch
-    /// Create an HTML element <area> with attributes and children.
-    [<JavaScript; Inline>]
-    let area ats ch = Doc.Element "area" ats ch
-    /// Create an HTML element <article> with attributes and children.
-    [<JavaScript; Inline>]
-    let article ats ch = Doc.Element "article" ats ch
-    /// Create an HTML element <aside> with attributes and children.
-    [<JavaScript; Inline>]
-    let aside ats ch = Doc.Element "aside" ats ch
-    /// Create an HTML element <audio> with attributes and children.
-    [<JavaScript; Inline>]
-    let audio ats ch = Doc.Element "audio" ats ch
-    /// Create an HTML element <b> with attributes and children.
-    [<JavaScript; Inline>]
-    let b ats ch = Doc.Element "b" ats ch
-    /// Create an HTML element <base> with attributes and children.
-    [<JavaScript; Inline>]
-    let ``base`` ats ch = Doc.Element "base" ats ch
-    /// Create an HTML element <bdi> with attributes and children.
-    [<JavaScript; Inline>]
-    let bdi ats ch = Doc.Element "bdi" ats ch
-    /// Create an HTML element <bdo> with attributes and children.
-    [<JavaScript; Inline>]
-    let bdo ats ch = Doc.Element "bdo" ats ch
-    /// Create an HTML element <blockquote> with attributes and children.
-    [<JavaScript; Inline>]
-    let blockquote ats ch = Doc.Element "blockquote" ats ch
-    /// Create an HTML element <body> with attributes and children.
-    [<JavaScript; Inline>]
-    let body ats ch = Doc.Element "body" ats ch
-    /// Create an HTML element <br> with attributes and children.
-    [<JavaScript; Inline>]
-    let br ats ch = Doc.Element "br" ats ch
-    /// Create an HTML element <button> with attributes and children.
-    [<JavaScript; Inline>]
-    let button ats ch = Doc.Element "button" ats ch
-    /// Create an HTML element <canvas> with attributes and children.
-    [<JavaScript; Inline>]
-    let canvas ats ch = Doc.Element "canvas" ats ch
-    /// Create an HTML element <caption> with attributes and children.
-    [<JavaScript; Inline>]
-    let caption ats ch = Doc.Element "caption" ats ch
-    /// Create an HTML element <cite> with attributes and children.
-    [<JavaScript; Inline>]
-    let cite ats ch = Doc.Element "cite" ats ch
-    /// Create an HTML element <code> with attributes and children.
-    [<JavaScript; Inline>]
-    let code ats ch = Doc.Element "code" ats ch
-    /// Create an HTML element <col> with attributes and children.
-    [<JavaScript; Inline>]
-    let col ats ch = Doc.Element "col" ats ch
-    /// Create an HTML element <colgroup> with attributes and children.
-    [<JavaScript; Inline>]
-    let colgroup ats ch = Doc.Element "colgroup" ats ch
-    /// Create an HTML element <command> with attributes and children.
-    [<JavaScript; Inline>]
-    let command ats ch = Doc.Element "command" ats ch
-    /// Create an HTML element <datalist> with attributes and children.
-    [<JavaScript; Inline>]
-    let datalist ats ch = Doc.Element "datalist" ats ch
-    /// Create an HTML element <dd> with attributes and children.
-    [<JavaScript; Inline>]
-    let dd ats ch = Doc.Element "dd" ats ch
-    /// Create an HTML element <del> with attributes and children.
-    [<JavaScript; Inline>]
-    let del ats ch = Doc.Element "del" ats ch
-    /// Create an HTML element <details> with attributes and children.
-    [<JavaScript; Inline>]
-    let details ats ch = Doc.Element "details" ats ch
-    /// Create an HTML element <dfn> with attributes and children.
-    [<JavaScript; Inline>]
-    let dfn ats ch = Doc.Element "dfn" ats ch
-    /// Create an HTML element <div> with attributes and children.
-    [<JavaScript; Inline>]
-    let div ats ch = Doc.Element "div" ats ch
-    /// Create an HTML element <dl> with attributes and children.
-    [<JavaScript; Inline>]
-    let dl ats ch = Doc.Element "dl" ats ch
-    /// Create an HTML element <dt> with attributes and children.
-    [<JavaScript; Inline>]
-    let dt ats ch = Doc.Element "dt" ats ch
-    /// Create an HTML element <em> with attributes and children.
-    [<JavaScript; Inline>]
-    let em ats ch = Doc.Element "em" ats ch
-    /// Create an HTML element <embed> with attributes and children.
-    [<JavaScript; Inline>]
-    let embed ats ch = Doc.Element "embed" ats ch
-    /// Create an HTML element <fieldset> with attributes and children.
-    [<JavaScript; Inline>]
-    let fieldset ats ch = Doc.Element "fieldset" ats ch
-    /// Create an HTML element <figcaption> with attributes and children.
-    [<JavaScript; Inline>]
-    let figcaption ats ch = Doc.Element "figcaption" ats ch
-    /// Create an HTML element <figure> with attributes and children.
-    [<JavaScript; Inline>]
-    let figure ats ch = Doc.Element "figure" ats ch
-    /// Create an HTML element <footer> with attributes and children.
-    [<JavaScript; Inline>]
-    let footer ats ch = Doc.Element "footer" ats ch
-    /// Create an HTML element <form> with attributes and children.
-    [<JavaScript; Inline>]
-    let form ats ch = Doc.Element "form" ats ch
-    /// Create an HTML element <h1> with attributes and children.
-    [<JavaScript; Inline>]
-    let h1 ats ch = Doc.Element "h1" ats ch
-    /// Create an HTML element <h2> with attributes and children.
-    [<JavaScript; Inline>]
-    let h2 ats ch = Doc.Element "h2" ats ch
-    /// Create an HTML element <h3> with attributes and children.
-    [<JavaScript; Inline>]
-    let h3 ats ch = Doc.Element "h3" ats ch
-    /// Create an HTML element <h4> with attributes and children.
-    [<JavaScript; Inline>]
-    let h4 ats ch = Doc.Element "h4" ats ch
-    /// Create an HTML element <h5> with attributes and children.
-    [<JavaScript; Inline>]
-    let h5 ats ch = Doc.Element "h5" ats ch
-    /// Create an HTML element <h6> with attributes and children.
-    [<JavaScript; Inline>]
-    let h6 ats ch = Doc.Element "h6" ats ch
-    /// Create an HTML element <head> with attributes and children.
-    [<JavaScript; Inline>]
-    let head ats ch = Doc.Element "head" ats ch
-    /// Create an HTML element <header> with attributes and children.
-    [<JavaScript; Inline>]
-    let header ats ch = Doc.Element "header" ats ch
-    /// Create an HTML element <hgroup> with attributes and children.
-    [<JavaScript; Inline>]
-    let hgroup ats ch = Doc.Element "hgroup" ats ch
-    /// Create an HTML element <hr> with attributes and children.
-    [<JavaScript; Inline>]
-    let hr ats ch = Doc.Element "hr" ats ch
-    /// Create an HTML element <html> with attributes and children.
-    [<JavaScript; Inline>]
-    let html ats ch = Doc.Element "html" ats ch
-    /// Create an HTML element <i> with attributes and children.
-    [<JavaScript; Inline>]
-    let i ats ch = Doc.Element "i" ats ch
-    /// Create an HTML element <iframe> with attributes and children.
-    [<JavaScript; Inline>]
-    let iframe ats ch = Doc.Element "iframe" ats ch
-    /// Create an HTML element <img> with attributes and children.
-    [<JavaScript; Inline>]
-    let img ats ch = Doc.Element "img" ats ch
-    /// Create an HTML element <input> with attributes and children.
-    [<JavaScript; Inline>]
-    let input ats ch = Doc.Element "input" ats ch
-    /// Create an HTML element <ins> with attributes and children.
-    [<JavaScript; Inline>]
-    let ins ats ch = Doc.Element "ins" ats ch
-    /// Create an HTML element <kbd> with attributes and children.
-    [<JavaScript; Inline>]
-    let kbd ats ch = Doc.Element "kbd" ats ch
-    /// Create an HTML element <keygen> with attributes and children.
-    [<JavaScript; Inline>]
-    let keygen ats ch = Doc.Element "keygen" ats ch
-    /// Create an HTML element <label> with attributes and children.
-    [<JavaScript; Inline>]
-    let label ats ch = Doc.Element "label" ats ch
-    /// Create an HTML element <legend> with attributes and children.
-    [<JavaScript; Inline>]
-    let legend ats ch = Doc.Element "legend" ats ch
-    /// Create an HTML element <li> with attributes and children.
-    [<JavaScript; Inline>]
-    let li ats ch = Doc.Element "li" ats ch
-    /// Create an HTML element <link> with attributes and children.
-    [<JavaScript; Inline>]
-    let link ats ch = Doc.Element "link" ats ch
-    /// Create an HTML element <mark> with attributes and children.
-    [<JavaScript; Inline>]
-    let mark ats ch = Doc.Element "mark" ats ch
-    /// Create an HTML element <meta> with attributes and children.
-    [<JavaScript; Inline>]
-    let meta ats ch = Doc.Element "meta" ats ch
-    /// Create an HTML element <meter> with attributes and children.
-    [<JavaScript; Inline>]
-    let meter ats ch = Doc.Element "meter" ats ch
-    /// Create an HTML element <nav> with attributes and children.
-    [<JavaScript; Inline>]
-    let nav ats ch = Doc.Element "nav" ats ch
-    /// Create an HTML element <noframes> with attributes and children.
-    [<JavaScript; Inline>]
-    let noframes ats ch = Doc.Element "noframes" ats ch
-    /// Create an HTML element <noscript> with attributes and children.
-    [<JavaScript; Inline>]
-    let noscript ats ch = Doc.Element "noscript" ats ch
-    /// Create an HTML element <ol> with attributes and children.
-    [<JavaScript; Inline>]
-    let ol ats ch = Doc.Element "ol" ats ch
-    /// Create an HTML element <optgroup> with attributes and children.
-    [<JavaScript; Inline>]
-    let optgroup ats ch = Doc.Element "optgroup" ats ch
-    /// Create an HTML element <output> with attributes and children.
-    [<JavaScript; Inline>]
-    let output ats ch = Doc.Element "output" ats ch
-    /// Create an HTML element <p> with attributes and children.
-    [<JavaScript; Inline>]
-    let p ats ch = Doc.Element "p" ats ch
-    /// Create an HTML element <param> with attributes and children.
-    [<JavaScript; Inline>]
-    let param ats ch = Doc.Element "param" ats ch
-    /// Create an HTML element <picture> with attributes and children.
-    [<JavaScript; Inline>]
-    let picture ats ch = Doc.Element "picture" ats ch
-    /// Create an HTML element <pre> with attributes and children.
-    [<JavaScript; Inline>]
-    let pre ats ch = Doc.Element "pre" ats ch
-    /// Create an HTML element <progress> with attributes and children.
-    [<JavaScript; Inline>]
-    let progress ats ch = Doc.Element "progress" ats ch
-    /// Create an HTML element <q> with attributes and children.
-    [<JavaScript; Inline>]
-    let q ats ch = Doc.Element "q" ats ch
-    /// Create an HTML element <rp> with attributes and children.
-    [<JavaScript; Inline>]
-    let rp ats ch = Doc.Element "rp" ats ch
-    /// Create an HTML element <rt> with attributes and children.
-    [<JavaScript; Inline>]
-    let rt ats ch = Doc.Element "rt" ats ch
-    /// Create an HTML element <rtc> with attributes and children.
-    [<JavaScript; Inline>]
-    let rtc ats ch = Doc.Element "rtc" ats ch
-    /// Create an HTML element <ruby> with attributes and children.
-    [<JavaScript; Inline>]
-    let ruby ats ch = Doc.Element "ruby" ats ch
-    /// Create an HTML element <samp> with attributes and children.
-    [<JavaScript; Inline>]
-    let samp ats ch = Doc.Element "samp" ats ch
-    /// Create an HTML element <script> with attributes and children.
-    [<JavaScript; Inline>]
-    let script ats ch = Doc.Element "script" ats ch
-    /// Create an HTML element <section> with attributes and children.
-    [<JavaScript; Inline>]
-    let section ats ch = Doc.Element "section" ats ch
-    /// Create an HTML element <select> with attributes and children.
-    [<JavaScript; Inline>]
-    let select ats ch = Doc.Element "select" ats ch
-    /// Create an HTML element <shadow> with attributes and children.
-    [<JavaScript; Inline>]
-    let shadow ats ch = Doc.Element "shadow" ats ch
-    /// Create an HTML element <small> with attributes and children.
-    [<JavaScript; Inline>]
-    let small ats ch = Doc.Element "small" ats ch
-    /// Create an HTML element <source> with attributes and children.
-    [<JavaScript; Inline>]
-    let source ats ch = Doc.Element "source" ats ch
-    /// Create an HTML element <span> with attributes and children.
-    [<JavaScript; Inline>]
-    let span ats ch = Doc.Element "span" ats ch
-    /// Create an HTML element <strong> with attributes and children.
-    [<JavaScript; Inline>]
-    let strong ats ch = Doc.Element "strong" ats ch
-    /// Create an HTML element <sub> with attributes and children.
-    [<JavaScript; Inline>]
-    let sub ats ch = Doc.Element "sub" ats ch
-    /// Create an HTML element <summary> with attributes and children.
-    [<JavaScript; Inline>]
-    let summary ats ch = Doc.Element "summary" ats ch
-    /// Create an HTML element <sup> with attributes and children.
-    [<JavaScript; Inline>]
-    let sup ats ch = Doc.Element "sup" ats ch
-    /// Create an HTML element <table> with attributes and children.
-    [<JavaScript; Inline>]
-    let table ats ch = Doc.Element "table" ats ch
-    /// Create an HTML element <tbody> with attributes and children.
-    [<JavaScript; Inline>]
-    let tbody ats ch = Doc.Element "tbody" ats ch
-    /// Create an HTML element <td> with attributes and children.
-    [<JavaScript; Inline>]
-    let td ats ch = Doc.Element "td" ats ch
-    /// Create an HTML element <textarea> with attributes and children.
-    [<JavaScript; Inline>]
-    let textarea ats ch = Doc.Element "textarea" ats ch
-    /// Create an HTML element <tfoot> with attributes and children.
-    [<JavaScript; Inline>]
-    let tfoot ats ch = Doc.Element "tfoot" ats ch
-    /// Create an HTML element <th> with attributes and children.
-    [<JavaScript; Inline>]
-    let th ats ch = Doc.Element "th" ats ch
-    /// Create an HTML element <thead> with attributes and children.
-    [<JavaScript; Inline>]
-    let thead ats ch = Doc.Element "thead" ats ch
-    /// Create an HTML element <time> with attributes and children.
-    [<JavaScript; Inline>]
-    let time ats ch = Doc.Element "time" ats ch
-    /// Create an HTML element <tr> with attributes and children.
-    [<JavaScript; Inline>]
-    let tr ats ch = Doc.Element "tr" ats ch
-    /// Create an HTML element <track> with attributes and children.
-    [<JavaScript; Inline>]
-    let track ats ch = Doc.Element "track" ats ch
-    /// Create an HTML element <ul> with attributes and children.
-    [<JavaScript; Inline>]
-    let ul ats ch = Doc.Element "ul" ats ch
-    /// Create an HTML element <video> with attributes and children.
-    [<JavaScript; Inline>]
-    let video ats ch = Doc.Element "video" ats ch
-    /// Create an HTML element <wbr> with attributes and children.
-    [<JavaScript; Inline>]
-    let wbr ats ch = Doc.Element "wbr" ats ch
-    // }}
+    module Elt =
 
-    /// HTML5 element functions.
-    module Tags =
-
-        // {{ tag colliding deprecated
+        // {{ tag normal colliding deprecated [elt]
+        /// Create an HTML element <a> with attributes and children.
+        [<JavaScript; Inline>]
+        let a ats ch = Doc.Element "a" ats ch
+        /// Create an HTML element <abbr> with attributes and children.
+        [<JavaScript; Inline>]
+        let abbr ats ch = Doc.Element "abbr" ats ch
         /// Create an HTML element <acronym> with attributes and children.
         [<JavaScript; Inline>]
         let acronym ats ch = Doc.Element "acronym" ats ch
+        /// Create an HTML element <address> with attributes and children.
+        [<JavaScript; Inline>]
+        let address ats ch = Doc.Element "address" ats ch
         /// Create an HTML element <applet> with attributes and children.
         [<JavaScript; Inline>]
         let applet ats ch = Doc.Element "applet" ats ch
+        /// Create an HTML element <area> with attributes and children.
+        [<JavaScript; Inline>]
+        let area ats ch = Doc.Element "area" ats ch
+        /// Create an HTML element <article> with attributes and children.
+        [<JavaScript; Inline>]
+        let article ats ch = Doc.Element "article" ats ch
+        /// Create an HTML element <aside> with attributes and children.
+        [<JavaScript; Inline>]
+        let aside ats ch = Doc.Element "aside" ats ch
+        /// Create an HTML element <audio> with attributes and children.
+        [<JavaScript; Inline>]
+        let audio ats ch = Doc.Element "audio" ats ch
+        /// Create an HTML element <b> with attributes and children.
+        [<JavaScript; Inline>]
+        let b ats ch = Doc.Element "b" ats ch
+        /// Create an HTML element <base> with attributes and children.
+        [<JavaScript; Inline>]
+        let ``base`` ats ch = Doc.Element "base" ats ch
         /// Create an HTML element <basefont> with attributes and children.
         [<JavaScript; Inline>]
         let basefont ats ch = Doc.Element "basefont" ats ch
+        /// Create an HTML element <bdi> with attributes and children.
+        [<JavaScript; Inline>]
+        let bdi ats ch = Doc.Element "bdi" ats ch
+        /// Create an HTML element <bdo> with attributes and children.
+        [<JavaScript; Inline>]
+        let bdo ats ch = Doc.Element "bdo" ats ch
         /// Create an HTML element <big> with attributes and children.
         [<JavaScript; Inline>]
         let big ats ch = Doc.Element "big" ats ch
+        /// Create an HTML element <blockquote> with attributes and children.
+        [<JavaScript; Inline>]
+        let blockquote ats ch = Doc.Element "blockquote" ats ch
+        /// Create an HTML element <body> with attributes and children.
+        [<JavaScript; Inline>]
+        let body ats ch = Doc.Element "body" ats ch
+        /// Create an HTML element <br> with attributes and children.
+        [<JavaScript; Inline>]
+        let br ats ch = Doc.Element "br" ats ch
+        /// Create an HTML element <button> with attributes and children.
+        [<JavaScript; Inline>]
+        let button ats ch = Doc.Element "button" ats ch
+        /// Create an HTML element <canvas> with attributes and children.
+        [<JavaScript; Inline>]
+        let canvas ats ch = Doc.Element "canvas" ats ch
+        /// Create an HTML element <caption> with attributes and children.
+        [<JavaScript; Inline>]
+        let caption ats ch = Doc.Element "caption" ats ch
         /// Create an HTML element <center> with attributes and children.
         [<JavaScript; Inline>]
         let center ats ch = Doc.Element "center" ats ch
+        /// Create an HTML element <cite> with attributes and children.
+        [<JavaScript; Inline>]
+        let cite ats ch = Doc.Element "cite" ats ch
+        /// Create an HTML element <code> with attributes and children.
+        [<JavaScript; Inline>]
+        let code ats ch = Doc.Element "code" ats ch
+        /// Create an HTML element <col> with attributes and children.
+        [<JavaScript; Inline>]
+        let col ats ch = Doc.Element "col" ats ch
+        /// Create an HTML element <colgroup> with attributes and children.
+        [<JavaScript; Inline>]
+        let colgroup ats ch = Doc.Element "colgroup" ats ch
+        /// Create an HTML element <command> with attributes and children.
+        [<JavaScript; Inline>]
+        let command ats ch = Doc.Element "command" ats ch
         /// Create an HTML element <content> with attributes and children.
         [<JavaScript; Inline>]
         let content ats ch = Doc.Element "content" ats ch
         /// Create an HTML element <data> with attributes and children.
         [<JavaScript; Inline>]
         let data ats ch = Doc.Element "data" ats ch
+        /// Create an HTML element <datalist> with attributes and children.
+        [<JavaScript; Inline>]
+        let datalist ats ch = Doc.Element "datalist" ats ch
+        /// Create an HTML element <dd> with attributes and children.
+        [<JavaScript; Inline>]
+        let dd ats ch = Doc.Element "dd" ats ch
+        /// Create an HTML element <del> with attributes and children.
+        [<JavaScript; Inline>]
+        let del ats ch = Doc.Element "del" ats ch
+        /// Create an HTML element <details> with attributes and children.
+        [<JavaScript; Inline>]
+        let details ats ch = Doc.Element "details" ats ch
+        /// Create an HTML element <dfn> with attributes and children.
+        [<JavaScript; Inline>]
+        let dfn ats ch = Doc.Element "dfn" ats ch
         /// Create an HTML element <dir> with attributes and children.
         [<JavaScript; Inline>]
         let dir ats ch = Doc.Element "dir" ats ch
+        /// Create an HTML element <div> with attributes and children.
+        [<JavaScript; Inline>]
+        let div ats ch = Doc.Element "div" ats ch
+        /// Create an HTML element <dl> with attributes and children.
+        [<JavaScript; Inline>]
+        let dl ats ch = Doc.Element "dl" ats ch
+        /// Create an HTML element <dt> with attributes and children.
+        [<JavaScript; Inline>]
+        let dt ats ch = Doc.Element "dt" ats ch
+        /// Create an HTML element <em> with attributes and children.
+        [<JavaScript; Inline>]
+        let em ats ch = Doc.Element "em" ats ch
+        /// Create an HTML element <embed> with attributes and children.
+        [<JavaScript; Inline>]
+        let embed ats ch = Doc.Element "embed" ats ch
+        /// Create an HTML element <fieldset> with attributes and children.
+        [<JavaScript; Inline>]
+        let fieldset ats ch = Doc.Element "fieldset" ats ch
+        /// Create an HTML element <figcaption> with attributes and children.
+        [<JavaScript; Inline>]
+        let figcaption ats ch = Doc.Element "figcaption" ats ch
+        /// Create an HTML element <figure> with attributes and children.
+        [<JavaScript; Inline>]
+        let figure ats ch = Doc.Element "figure" ats ch
         /// Create an HTML element <font> with attributes and children.
         [<JavaScript; Inline>]
         let font ats ch = Doc.Element "font" ats ch
+        /// Create an HTML element <footer> with attributes and children.
+        [<JavaScript; Inline>]
+        let footer ats ch = Doc.Element "footer" ats ch
+        /// Create an HTML element <form> with attributes and children.
+        [<JavaScript; Inline>]
+        let form ats ch = Doc.Element "form" ats ch
         /// Create an HTML element <frame> with attributes and children.
         [<JavaScript; Inline>]
         let frame ats ch = Doc.Element "frame" ats ch
         /// Create an HTML element <frameset> with attributes and children.
         [<JavaScript; Inline>]
         let frameset ats ch = Doc.Element "frameset" ats ch
+        /// Create an HTML element <h1> with attributes and children.
+        [<JavaScript; Inline>]
+        let h1 ats ch = Doc.Element "h1" ats ch
+        /// Create an HTML element <h2> with attributes and children.
+        [<JavaScript; Inline>]
+        let h2 ats ch = Doc.Element "h2" ats ch
+        /// Create an HTML element <h3> with attributes and children.
+        [<JavaScript; Inline>]
+        let h3 ats ch = Doc.Element "h3" ats ch
+        /// Create an HTML element <h4> with attributes and children.
+        [<JavaScript; Inline>]
+        let h4 ats ch = Doc.Element "h4" ats ch
+        /// Create an HTML element <h5> with attributes and children.
+        [<JavaScript; Inline>]
+        let h5 ats ch = Doc.Element "h5" ats ch
+        /// Create an HTML element <h6> with attributes and children.
+        [<JavaScript; Inline>]
+        let h6 ats ch = Doc.Element "h6" ats ch
+        /// Create an HTML element <head> with attributes and children.
+        [<JavaScript; Inline>]
+        let head ats ch = Doc.Element "head" ats ch
+        /// Create an HTML element <header> with attributes and children.
+        [<JavaScript; Inline>]
+        let header ats ch = Doc.Element "header" ats ch
+        /// Create an HTML element <hgroup> with attributes and children.
+        [<JavaScript; Inline>]
+        let hgroup ats ch = Doc.Element "hgroup" ats ch
+        /// Create an HTML element <hr> with attributes and children.
+        [<JavaScript; Inline>]
+        let hr ats ch = Doc.Element "hr" ats ch
+        /// Create an HTML element <html> with attributes and children.
+        [<JavaScript; Inline>]
+        let html ats ch = Doc.Element "html" ats ch
+        /// Create an HTML element <i> with attributes and children.
+        [<JavaScript; Inline>]
+        let i ats ch = Doc.Element "i" ats ch
+        /// Create an HTML element <iframe> with attributes and children.
+        [<JavaScript; Inline>]
+        let iframe ats ch = Doc.Element "iframe" ats ch
+        /// Create an HTML element <img> with attributes and children.
+        [<JavaScript; Inline>]
+        let img ats ch = Doc.Element "img" ats ch
+        /// Create an HTML element <input> with attributes and children.
+        [<JavaScript; Inline>]
+        let input ats ch = Doc.Element "input" ats ch
+        /// Create an HTML element <ins> with attributes and children.
+        [<JavaScript; Inline>]
+        let ins ats ch = Doc.Element "ins" ats ch
         /// Create an HTML element <isindex> with attributes and children.
         [<JavaScript; Inline>]
         let isindex ats ch = Doc.Element "isindex" ats ch
+        /// Create an HTML element <kbd> with attributes and children.
+        [<JavaScript; Inline>]
+        let kbd ats ch = Doc.Element "kbd" ats ch
+        /// Create an HTML element <keygen> with attributes and children.
+        [<JavaScript; Inline>]
+        let keygen ats ch = Doc.Element "keygen" ats ch
+        /// Create an HTML element <label> with attributes and children.
+        [<JavaScript; Inline>]
+        let label ats ch = Doc.Element "label" ats ch
+        /// Create an HTML element <legend> with attributes and children.
+        [<JavaScript; Inline>]
+        let legend ats ch = Doc.Element "legend" ats ch
+        /// Create an HTML element <li> with attributes and children.
+        [<JavaScript; Inline>]
+        let li ats ch = Doc.Element "li" ats ch
+        /// Create an HTML element <link> with attributes and children.
+        [<JavaScript; Inline>]
+        let link ats ch = Doc.Element "link" ats ch
         /// Create an HTML element <main> with attributes and children.
         [<JavaScript; Inline>]
         let main ats ch = Doc.Element "main" ats ch
         /// Create an HTML element <map> with attributes and children.
         [<JavaScript; Inline>]
         let map ats ch = Doc.Element "map" ats ch
+        /// Create an HTML element <mark> with attributes and children.
+        [<JavaScript; Inline>]
+        let mark ats ch = Doc.Element "mark" ats ch
         /// Create an HTML element <menu> with attributes and children.
         [<JavaScript; Inline>]
         let menu ats ch = Doc.Element "menu" ats ch
         /// Create an HTML element <menuitem> with attributes and children.
         [<JavaScript; Inline>]
         let menuitem ats ch = Doc.Element "menuitem" ats ch
+        /// Create an HTML element <meta> with attributes and children.
+        [<JavaScript; Inline>]
+        let meta ats ch = Doc.Element "meta" ats ch
+        /// Create an HTML element <meter> with attributes and children.
+        [<JavaScript; Inline>]
+        let meter ats ch = Doc.Element "meter" ats ch
+        /// Create an HTML element <nav> with attributes and children.
+        [<JavaScript; Inline>]
+        let nav ats ch = Doc.Element "nav" ats ch
+        /// Create an HTML element <noframes> with attributes and children.
+        [<JavaScript; Inline>]
+        let noframes ats ch = Doc.Element "noframes" ats ch
+        /// Create an HTML element <noscript> with attributes and children.
+        [<JavaScript; Inline>]
+        let noscript ats ch = Doc.Element "noscript" ats ch
         /// Create an HTML element <object> with attributes and children.
         [<JavaScript; Inline>]
         let ``object`` ats ch = Doc.Element "object" ats ch
+        /// Create an HTML element <ol> with attributes and children.
+        [<JavaScript; Inline>]
+        let ol ats ch = Doc.Element "ol" ats ch
+        /// Create an HTML element <optgroup> with attributes and children.
+        [<JavaScript; Inline>]
+        let optgroup ats ch = Doc.Element "optgroup" ats ch
         /// Create an HTML element <option> with attributes and children.
         [<JavaScript; Inline>]
         let option ats ch = Doc.Element "option" ats ch
+        /// Create an HTML element <output> with attributes and children.
+        [<JavaScript; Inline>]
+        let output ats ch = Doc.Element "output" ats ch
+        /// Create an HTML element <p> with attributes and children.
+        [<JavaScript; Inline>]
+        let p ats ch = Doc.Element "p" ats ch
+        /// Create an HTML element <param> with attributes and children.
+        [<JavaScript; Inline>]
+        let param ats ch = Doc.Element "param" ats ch
+        /// Create an HTML element <picture> with attributes and children.
+        [<JavaScript; Inline>]
+        let picture ats ch = Doc.Element "picture" ats ch
+        /// Create an HTML element <pre> with attributes and children.
+        [<JavaScript; Inline>]
+        let pre ats ch = Doc.Element "pre" ats ch
+        /// Create an HTML element <progress> with attributes and children.
+        [<JavaScript; Inline>]
+        let progress ats ch = Doc.Element "progress" ats ch
+        /// Create an HTML element <q> with attributes and children.
+        [<JavaScript; Inline>]
+        let q ats ch = Doc.Element "q" ats ch
+        /// Create an HTML element <rp> with attributes and children.
+        [<JavaScript; Inline>]
+        let rp ats ch = Doc.Element "rp" ats ch
+        /// Create an HTML element <rt> with attributes and children.
+        [<JavaScript; Inline>]
+        let rt ats ch = Doc.Element "rt" ats ch
+        /// Create an HTML element <rtc> with attributes and children.
+        [<JavaScript; Inline>]
+        let rtc ats ch = Doc.Element "rtc" ats ch
+        /// Create an HTML element <ruby> with attributes and children.
+        [<JavaScript; Inline>]
+        let ruby ats ch = Doc.Element "ruby" ats ch
         /// Create an HTML element <s> with attributes and children.
         [<JavaScript; Inline>]
         let s ats ch = Doc.Element "s" ats ch
+        /// Create an HTML element <samp> with attributes and children.
+        [<JavaScript; Inline>]
+        let samp ats ch = Doc.Element "samp" ats ch
+        /// Create an HTML element <script> with attributes and children.
+        [<JavaScript; Inline>]
+        let script ats ch = Doc.Element "script" ats ch
+        /// Create an HTML element <section> with attributes and children.
+        [<JavaScript; Inline>]
+        let section ats ch = Doc.Element "section" ats ch
+        /// Create an HTML element <select> with attributes and children.
+        [<JavaScript; Inline>]
+        let select ats ch = Doc.Element "select" ats ch
+        /// Create an HTML element <shadow> with attributes and children.
+        [<JavaScript; Inline>]
+        let shadow ats ch = Doc.Element "shadow" ats ch
+        /// Create an HTML element <small> with attributes and children.
+        [<JavaScript; Inline>]
+        let small ats ch = Doc.Element "small" ats ch
+        /// Create an HTML element <source> with attributes and children.
+        [<JavaScript; Inline>]
+        let source ats ch = Doc.Element "source" ats ch
+        /// Create an HTML element <span> with attributes and children.
+        [<JavaScript; Inline>]
+        let span ats ch = Doc.Element "span" ats ch
         /// Create an HTML element <strike> with attributes and children.
         [<JavaScript; Inline>]
         let strike ats ch = Doc.Element "strike" ats ch
+        /// Create an HTML element <strong> with attributes and children.
+        [<JavaScript; Inline>]
+        let strong ats ch = Doc.Element "strong" ats ch
         /// Create an HTML element <style> with attributes and children.
         [<JavaScript; Inline>]
         let style ats ch = Doc.Element "style" ats ch
+        /// Create an HTML element <sub> with attributes and children.
+        [<JavaScript; Inline>]
+        let sub ats ch = Doc.Element "sub" ats ch
+        /// Create an HTML element <summary> with attributes and children.
+        [<JavaScript; Inline>]
+        let summary ats ch = Doc.Element "summary" ats ch
+        /// Create an HTML element <sup> with attributes and children.
+        [<JavaScript; Inline>]
+        let sup ats ch = Doc.Element "sup" ats ch
+        /// Create an HTML element <table> with attributes and children.
+        [<JavaScript; Inline>]
+        let table ats ch = Doc.Element "table" ats ch
+        /// Create an HTML element <tbody> with attributes and children.
+        [<JavaScript; Inline>]
+        let tbody ats ch = Doc.Element "tbody" ats ch
+        /// Create an HTML element <td> with attributes and children.
+        [<JavaScript; Inline>]
+        let td ats ch = Doc.Element "td" ats ch
         /// Create an HTML element <template> with attributes and children.
         [<JavaScript; Inline>]
         let template ats ch = Doc.Element "template" ats ch
+        /// Create an HTML element <textarea> with attributes and children.
+        [<JavaScript; Inline>]
+        let textarea ats ch = Doc.Element "textarea" ats ch
+        /// Create an HTML element <tfoot> with attributes and children.
+        [<JavaScript; Inline>]
+        let tfoot ats ch = Doc.Element "tfoot" ats ch
+        /// Create an HTML element <th> with attributes and children.
+        [<JavaScript; Inline>]
+        let th ats ch = Doc.Element "th" ats ch
+        /// Create an HTML element <thead> with attributes and children.
+        [<JavaScript; Inline>]
+        let thead ats ch = Doc.Element "thead" ats ch
+        /// Create an HTML element <time> with attributes and children.
+        [<JavaScript; Inline>]
+        let time ats ch = Doc.Element "time" ats ch
         /// Create an HTML element <title> with attributes and children.
         [<JavaScript; Inline>]
         let title ats ch = Doc.Element "title" ats ch
+        /// Create an HTML element <tr> with attributes and children.
+        [<JavaScript; Inline>]
+        let tr ats ch = Doc.Element "tr" ats ch
+        /// Create an HTML element <track> with attributes and children.
+        [<JavaScript; Inline>]
+        let track ats ch = Doc.Element "track" ats ch
         /// Create an HTML element <tt> with attributes and children.
         [<JavaScript; Inline>]
         let tt ats ch = Doc.Element "tt" ats ch
         /// Create an HTML element <u> with attributes and children.
         [<JavaScript; Inline>]
         let u ats ch = Doc.Element "u" ats ch
+        /// Create an HTML element <ul> with attributes and children.
+        [<JavaScript; Inline>]
+        let ul ats ch = Doc.Element "ul" ats ch
         /// Create an HTML element <var> with attributes and children.
         [<JavaScript; Inline>]
         let var ats ch = Doc.Element "var" ats ch
+        /// Create an HTML element <video> with attributes and children.
+        [<JavaScript; Inline>]
+        let video ats ch = Doc.Element "video" ats ch
+        /// Create an HTML element <wbr> with attributes and children.
+        [<JavaScript; Inline>]
+        let wbr ats ch = Doc.Element "wbr" ats ch
+        // }}
+
+    // {{ tag normal [doc]
+    /// Create an HTML element <a> with attributes and children.
+    [<JavaScript; Inline>]
+    let a ats ch = Elt.a ats ch :> Doc
+    /// Create an HTML element <abbr> with attributes and children.
+    [<JavaScript; Inline>]
+    let abbr ats ch = Elt.abbr ats ch :> Doc
+    /// Create an HTML element <address> with attributes and children.
+    [<JavaScript; Inline>]
+    let address ats ch = Elt.address ats ch :> Doc
+    /// Create an HTML element <area> with attributes and children.
+    [<JavaScript; Inline>]
+    let area ats ch = Elt.area ats ch :> Doc
+    /// Create an HTML element <article> with attributes and children.
+    [<JavaScript; Inline>]
+    let article ats ch = Elt.article ats ch :> Doc
+    /// Create an HTML element <aside> with attributes and children.
+    [<JavaScript; Inline>]
+    let aside ats ch = Elt.aside ats ch :> Doc
+    /// Create an HTML element <audio> with attributes and children.
+    [<JavaScript; Inline>]
+    let audio ats ch = Elt.audio ats ch :> Doc
+    /// Create an HTML element <b> with attributes and children.
+    [<JavaScript; Inline>]
+    let b ats ch = Elt.b ats ch :> Doc
+    /// Create an HTML element <base> with attributes and children.
+    [<JavaScript; Inline>]
+    let ``base`` ats ch = Elt.``base`` ats ch :> Doc
+    /// Create an HTML element <bdi> with attributes and children.
+    [<JavaScript; Inline>]
+    let bdi ats ch = Elt.bdi ats ch :> Doc
+    /// Create an HTML element <bdo> with attributes and children.
+    [<JavaScript; Inline>]
+    let bdo ats ch = Elt.bdo ats ch :> Doc
+    /// Create an HTML element <blockquote> with attributes and children.
+    [<JavaScript; Inline>]
+    let blockquote ats ch = Elt.blockquote ats ch :> Doc
+    /// Create an HTML element <body> with attributes and children.
+    [<JavaScript; Inline>]
+    let body ats ch = Elt.body ats ch :> Doc
+    /// Create an HTML element <br> with attributes and children.
+    [<JavaScript; Inline>]
+    let br ats ch = Elt.br ats ch :> Doc
+    /// Create an HTML element <button> with attributes and children.
+    [<JavaScript; Inline>]
+    let button ats ch = Elt.button ats ch :> Doc
+    /// Create an HTML element <canvas> with attributes and children.
+    [<JavaScript; Inline>]
+    let canvas ats ch = Elt.canvas ats ch :> Doc
+    /// Create an HTML element <caption> with attributes and children.
+    [<JavaScript; Inline>]
+    let caption ats ch = Elt.caption ats ch :> Doc
+    /// Create an HTML element <cite> with attributes and children.
+    [<JavaScript; Inline>]
+    let cite ats ch = Elt.cite ats ch :> Doc
+    /// Create an HTML element <code> with attributes and children.
+    [<JavaScript; Inline>]
+    let code ats ch = Elt.code ats ch :> Doc
+    /// Create an HTML element <col> with attributes and children.
+    [<JavaScript; Inline>]
+    let col ats ch = Elt.col ats ch :> Doc
+    /// Create an HTML element <colgroup> with attributes and children.
+    [<JavaScript; Inline>]
+    let colgroup ats ch = Elt.colgroup ats ch :> Doc
+    /// Create an HTML element <command> with attributes and children.
+    [<JavaScript; Inline>]
+    let command ats ch = Elt.command ats ch :> Doc
+    /// Create an HTML element <datalist> with attributes and children.
+    [<JavaScript; Inline>]
+    let datalist ats ch = Elt.datalist ats ch :> Doc
+    /// Create an HTML element <dd> with attributes and children.
+    [<JavaScript; Inline>]
+    let dd ats ch = Elt.dd ats ch :> Doc
+    /// Create an HTML element <del> with attributes and children.
+    [<JavaScript; Inline>]
+    let del ats ch = Elt.del ats ch :> Doc
+    /// Create an HTML element <details> with attributes and children.
+    [<JavaScript; Inline>]
+    let details ats ch = Elt.details ats ch :> Doc
+    /// Create an HTML element <dfn> with attributes and children.
+    [<JavaScript; Inline>]
+    let dfn ats ch = Elt.dfn ats ch :> Doc
+    /// Create an HTML element <div> with attributes and children.
+    [<JavaScript; Inline>]
+    let div ats ch = Elt.div ats ch :> Doc
+    /// Create an HTML element <dl> with attributes and children.
+    [<JavaScript; Inline>]
+    let dl ats ch = Elt.dl ats ch :> Doc
+    /// Create an HTML element <dt> with attributes and children.
+    [<JavaScript; Inline>]
+    let dt ats ch = Elt.dt ats ch :> Doc
+    /// Create an HTML element <em> with attributes and children.
+    [<JavaScript; Inline>]
+    let em ats ch = Elt.em ats ch :> Doc
+    /// Create an HTML element <embed> with attributes and children.
+    [<JavaScript; Inline>]
+    let embed ats ch = Elt.embed ats ch :> Doc
+    /// Create an HTML element <fieldset> with attributes and children.
+    [<JavaScript; Inline>]
+    let fieldset ats ch = Elt.fieldset ats ch :> Doc
+    /// Create an HTML element <figcaption> with attributes and children.
+    [<JavaScript; Inline>]
+    let figcaption ats ch = Elt.figcaption ats ch :> Doc
+    /// Create an HTML element <figure> with attributes and children.
+    [<JavaScript; Inline>]
+    let figure ats ch = Elt.figure ats ch :> Doc
+    /// Create an HTML element <footer> with attributes and children.
+    [<JavaScript; Inline>]
+    let footer ats ch = Elt.footer ats ch :> Doc
+    /// Create an HTML element <form> with attributes and children.
+    [<JavaScript; Inline>]
+    let form ats ch = Elt.form ats ch :> Doc
+    /// Create an HTML element <h1> with attributes and children.
+    [<JavaScript; Inline>]
+    let h1 ats ch = Elt.h1 ats ch :> Doc
+    /// Create an HTML element <h2> with attributes and children.
+    [<JavaScript; Inline>]
+    let h2 ats ch = Elt.h2 ats ch :> Doc
+    /// Create an HTML element <h3> with attributes and children.
+    [<JavaScript; Inline>]
+    let h3 ats ch = Elt.h3 ats ch :> Doc
+    /// Create an HTML element <h4> with attributes and children.
+    [<JavaScript; Inline>]
+    let h4 ats ch = Elt.h4 ats ch :> Doc
+    /// Create an HTML element <h5> with attributes and children.
+    [<JavaScript; Inline>]
+    let h5 ats ch = Elt.h5 ats ch :> Doc
+    /// Create an HTML element <h6> with attributes and children.
+    [<JavaScript; Inline>]
+    let h6 ats ch = Elt.h6 ats ch :> Doc
+    /// Create an HTML element <head> with attributes and children.
+    [<JavaScript; Inline>]
+    let head ats ch = Elt.head ats ch :> Doc
+    /// Create an HTML element <header> with attributes and children.
+    [<JavaScript; Inline>]
+    let header ats ch = Elt.header ats ch :> Doc
+    /// Create an HTML element <hgroup> with attributes and children.
+    [<JavaScript; Inline>]
+    let hgroup ats ch = Elt.hgroup ats ch :> Doc
+    /// Create an HTML element <hr> with attributes and children.
+    [<JavaScript; Inline>]
+    let hr ats ch = Elt.hr ats ch :> Doc
+    /// Create an HTML element <html> with attributes and children.
+    [<JavaScript; Inline>]
+    let html ats ch = Elt.html ats ch :> Doc
+    /// Create an HTML element <i> with attributes and children.
+    [<JavaScript; Inline>]
+    let i ats ch = Elt.i ats ch :> Doc
+    /// Create an HTML element <iframe> with attributes and children.
+    [<JavaScript; Inline>]
+    let iframe ats ch = Elt.iframe ats ch :> Doc
+    /// Create an HTML element <img> with attributes and children.
+    [<JavaScript; Inline>]
+    let img ats ch = Elt.img ats ch :> Doc
+    /// Create an HTML element <input> with attributes and children.
+    [<JavaScript; Inline>]
+    let input ats ch = Elt.input ats ch :> Doc
+    /// Create an HTML element <ins> with attributes and children.
+    [<JavaScript; Inline>]
+    let ins ats ch = Elt.ins ats ch :> Doc
+    /// Create an HTML element <kbd> with attributes and children.
+    [<JavaScript; Inline>]
+    let kbd ats ch = Elt.kbd ats ch :> Doc
+    /// Create an HTML element <keygen> with attributes and children.
+    [<JavaScript; Inline>]
+    let keygen ats ch = Elt.keygen ats ch :> Doc
+    /// Create an HTML element <label> with attributes and children.
+    [<JavaScript; Inline>]
+    let label ats ch = Elt.label ats ch :> Doc
+    /// Create an HTML element <legend> with attributes and children.
+    [<JavaScript; Inline>]
+    let legend ats ch = Elt.legend ats ch :> Doc
+    /// Create an HTML element <li> with attributes and children.
+    [<JavaScript; Inline>]
+    let li ats ch = Elt.li ats ch :> Doc
+    /// Create an HTML element <link> with attributes and children.
+    [<JavaScript; Inline>]
+    let link ats ch = Elt.link ats ch :> Doc
+    /// Create an HTML element <mark> with attributes and children.
+    [<JavaScript; Inline>]
+    let mark ats ch = Elt.mark ats ch :> Doc
+    /// Create an HTML element <meta> with attributes and children.
+    [<JavaScript; Inline>]
+    let meta ats ch = Elt.meta ats ch :> Doc
+    /// Create an HTML element <meter> with attributes and children.
+    [<JavaScript; Inline>]
+    let meter ats ch = Elt.meter ats ch :> Doc
+    /// Create an HTML element <nav> with attributes and children.
+    [<JavaScript; Inline>]
+    let nav ats ch = Elt.nav ats ch :> Doc
+    /// Create an HTML element <noframes> with attributes and children.
+    [<JavaScript; Inline>]
+    let noframes ats ch = Elt.noframes ats ch :> Doc
+    /// Create an HTML element <noscript> with attributes and children.
+    [<JavaScript; Inline>]
+    let noscript ats ch = Elt.noscript ats ch :> Doc
+    /// Create an HTML element <ol> with attributes and children.
+    [<JavaScript; Inline>]
+    let ol ats ch = Elt.ol ats ch :> Doc
+    /// Create an HTML element <optgroup> with attributes and children.
+    [<JavaScript; Inline>]
+    let optgroup ats ch = Elt.optgroup ats ch :> Doc
+    /// Create an HTML element <output> with attributes and children.
+    [<JavaScript; Inline>]
+    let output ats ch = Elt.output ats ch :> Doc
+    /// Create an HTML element <p> with attributes and children.
+    [<JavaScript; Inline>]
+    let p ats ch = Elt.p ats ch :> Doc
+    /// Create an HTML element <param> with attributes and children.
+    [<JavaScript; Inline>]
+    let param ats ch = Elt.param ats ch :> Doc
+    /// Create an HTML element <picture> with attributes and children.
+    [<JavaScript; Inline>]
+    let picture ats ch = Elt.picture ats ch :> Doc
+    /// Create an HTML element <pre> with attributes and children.
+    [<JavaScript; Inline>]
+    let pre ats ch = Elt.pre ats ch :> Doc
+    /// Create an HTML element <progress> with attributes and children.
+    [<JavaScript; Inline>]
+    let progress ats ch = Elt.progress ats ch :> Doc
+    /// Create an HTML element <q> with attributes and children.
+    [<JavaScript; Inline>]
+    let q ats ch = Elt.q ats ch :> Doc
+    /// Create an HTML element <rp> with attributes and children.
+    [<JavaScript; Inline>]
+    let rp ats ch = Elt.rp ats ch :> Doc
+    /// Create an HTML element <rt> with attributes and children.
+    [<JavaScript; Inline>]
+    let rt ats ch = Elt.rt ats ch :> Doc
+    /// Create an HTML element <rtc> with attributes and children.
+    [<JavaScript; Inline>]
+    let rtc ats ch = Elt.rtc ats ch :> Doc
+    /// Create an HTML element <ruby> with attributes and children.
+    [<JavaScript; Inline>]
+    let ruby ats ch = Elt.ruby ats ch :> Doc
+    /// Create an HTML element <samp> with attributes and children.
+    [<JavaScript; Inline>]
+    let samp ats ch = Elt.samp ats ch :> Doc
+    /// Create an HTML element <script> with attributes and children.
+    [<JavaScript; Inline>]
+    let script ats ch = Elt.script ats ch :> Doc
+    /// Create an HTML element <section> with attributes and children.
+    [<JavaScript; Inline>]
+    let section ats ch = Elt.section ats ch :> Doc
+    /// Create an HTML element <select> with attributes and children.
+    [<JavaScript; Inline>]
+    let select ats ch = Elt.select ats ch :> Doc
+    /// Create an HTML element <shadow> with attributes and children.
+    [<JavaScript; Inline>]
+    let shadow ats ch = Elt.shadow ats ch :> Doc
+    /// Create an HTML element <small> with attributes and children.
+    [<JavaScript; Inline>]
+    let small ats ch = Elt.small ats ch :> Doc
+    /// Create an HTML element <source> with attributes and children.
+    [<JavaScript; Inline>]
+    let source ats ch = Elt.source ats ch :> Doc
+    /// Create an HTML element <span> with attributes and children.
+    [<JavaScript; Inline>]
+    let span ats ch = Elt.span ats ch :> Doc
+    /// Create an HTML element <strong> with attributes and children.
+    [<JavaScript; Inline>]
+    let strong ats ch = Elt.strong ats ch :> Doc
+    /// Create an HTML element <sub> with attributes and children.
+    [<JavaScript; Inline>]
+    let sub ats ch = Elt.sub ats ch :> Doc
+    /// Create an HTML element <summary> with attributes and children.
+    [<JavaScript; Inline>]
+    let summary ats ch = Elt.summary ats ch :> Doc
+    /// Create an HTML element <sup> with attributes and children.
+    [<JavaScript; Inline>]
+    let sup ats ch = Elt.sup ats ch :> Doc
+    /// Create an HTML element <table> with attributes and children.
+    [<JavaScript; Inline>]
+    let table ats ch = Elt.table ats ch :> Doc
+    /// Create an HTML element <tbody> with attributes and children.
+    [<JavaScript; Inline>]
+    let tbody ats ch = Elt.tbody ats ch :> Doc
+    /// Create an HTML element <td> with attributes and children.
+    [<JavaScript; Inline>]
+    let td ats ch = Elt.td ats ch :> Doc
+    /// Create an HTML element <textarea> with attributes and children.
+    [<JavaScript; Inline>]
+    let textarea ats ch = Elt.textarea ats ch :> Doc
+    /// Create an HTML element <tfoot> with attributes and children.
+    [<JavaScript; Inline>]
+    let tfoot ats ch = Elt.tfoot ats ch :> Doc
+    /// Create an HTML element <th> with attributes and children.
+    [<JavaScript; Inline>]
+    let th ats ch = Elt.th ats ch :> Doc
+    /// Create an HTML element <thead> with attributes and children.
+    [<JavaScript; Inline>]
+    let thead ats ch = Elt.thead ats ch :> Doc
+    /// Create an HTML element <time> with attributes and children.
+    [<JavaScript; Inline>]
+    let time ats ch = Elt.time ats ch :> Doc
+    /// Create an HTML element <tr> with attributes and children.
+    [<JavaScript; Inline>]
+    let tr ats ch = Elt.tr ats ch :> Doc
+    /// Create an HTML element <track> with attributes and children.
+    [<JavaScript; Inline>]
+    let track ats ch = Elt.track ats ch :> Doc
+    /// Create an HTML element <ul> with attributes and children.
+    [<JavaScript; Inline>]
+    let ul ats ch = Elt.ul ats ch :> Doc
+    /// Create an HTML element <video> with attributes and children.
+    [<JavaScript; Inline>]
+    let video ats ch = Elt.video ats ch :> Doc
+    /// Create an HTML element <wbr> with attributes and children.
+    [<JavaScript; Inline>]
+    let wbr ats ch = Elt.wbr ats ch :> Doc
+    // }}
+
+    /// HTML5 element functions.
+    module Tags =
+
+        // {{ tag colliding deprecated [doc]
+        /// Create an HTML element <acronym> with attributes and children.
+        [<JavaScript; Inline>]
+        let acronym ats ch = Elt.acronym ats ch :> Doc
+        /// Create an HTML element <applet> with attributes and children.
+        [<JavaScript; Inline>]
+        let applet ats ch = Elt.applet ats ch :> Doc
+        /// Create an HTML element <basefont> with attributes and children.
+        [<JavaScript; Inline>]
+        let basefont ats ch = Elt.basefont ats ch :> Doc
+        /// Create an HTML element <big> with attributes and children.
+        [<JavaScript; Inline>]
+        let big ats ch = Elt.big ats ch :> Doc
+        /// Create an HTML element <center> with attributes and children.
+        [<JavaScript; Inline>]
+        let center ats ch = Elt.center ats ch :> Doc
+        /// Create an HTML element <content> with attributes and children.
+        [<JavaScript; Inline>]
+        let content ats ch = Elt.content ats ch :> Doc
+        /// Create an HTML element <data> with attributes and children.
+        [<JavaScript; Inline>]
+        let data ats ch = Elt.data ats ch :> Doc
+        /// Create an HTML element <dir> with attributes and children.
+        [<JavaScript; Inline>]
+        let dir ats ch = Elt.dir ats ch :> Doc
+        /// Create an HTML element <font> with attributes and children.
+        [<JavaScript; Inline>]
+        let font ats ch = Elt.font ats ch :> Doc
+        /// Create an HTML element <frame> with attributes and children.
+        [<JavaScript; Inline>]
+        let frame ats ch = Elt.frame ats ch :> Doc
+        /// Create an HTML element <frameset> with attributes and children.
+        [<JavaScript; Inline>]
+        let frameset ats ch = Elt.frameset ats ch :> Doc
+        /// Create an HTML element <isindex> with attributes and children.
+        [<JavaScript; Inline>]
+        let isindex ats ch = Elt.isindex ats ch :> Doc
+        /// Create an HTML element <main> with attributes and children.
+        [<JavaScript; Inline>]
+        let main ats ch = Elt.main ats ch :> Doc
+        /// Create an HTML element <map> with attributes and children.
+        [<JavaScript; Inline>]
+        let map ats ch = Elt.map ats ch :> Doc
+        /// Create an HTML element <menu> with attributes and children.
+        [<JavaScript; Inline>]
+        let menu ats ch = Elt.menu ats ch :> Doc
+        /// Create an HTML element <menuitem> with attributes and children.
+        [<JavaScript; Inline>]
+        let menuitem ats ch = Elt.menuitem ats ch :> Doc
+        /// Create an HTML element <object> with attributes and children.
+        [<JavaScript; Inline>]
+        let ``object`` ats ch = Elt.``object`` ats ch :> Doc
+        /// Create an HTML element <option> with attributes and children.
+        [<JavaScript; Inline>]
+        let option ats ch = Elt.option ats ch :> Doc
+        /// Create an HTML element <s> with attributes and children.
+        [<JavaScript; Inline>]
+        let s ats ch = Elt.s ats ch :> Doc
+        /// Create an HTML element <strike> with attributes and children.
+        [<JavaScript; Inline>]
+        let strike ats ch = Elt.strike ats ch :> Doc
+        /// Create an HTML element <style> with attributes and children.
+        [<JavaScript; Inline>]
+        let style ats ch = Elt.style ats ch :> Doc
+        /// Create an HTML element <template> with attributes and children.
+        [<JavaScript; Inline>]
+        let template ats ch = Elt.template ats ch :> Doc
+        /// Create an HTML element <title> with attributes and children.
+        [<JavaScript; Inline>]
+        let title ats ch = Elt.title ats ch :> Doc
+        /// Create an HTML element <tt> with attributes and children.
+        [<JavaScript; Inline>]
+        let tt ats ch = Elt.tt ats ch :> Doc
+        /// Create an HTML element <u> with attributes and children.
+        [<JavaScript; Inline>]
+        let u ats ch = Elt.u ats ch :> Doc
+        /// Create an HTML element <var> with attributes and children.
+        [<JavaScript; Inline>]
+        let var ats ch = Elt.var ats ch :> Doc
         // }}
 
     /// SVG elements.
     module SvgElements =
 
-        // {{ svgtag normal
+        module Elt =
+
+            // {{ svgtag normal [elt]
+            /// Create an SVG element <a> with attributes and children.
+            [<JavaScript; Inline>]
+            let a ats ch = Doc.SvgElement "a" ats ch
+            /// Create an SVG element <altglyph> with attributes and children.
+            [<JavaScript; Inline>]
+            let altglyph ats ch = Doc.SvgElement "altglyph" ats ch
+            /// Create an SVG element <altglyphdef> with attributes and children.
+            [<JavaScript; Inline>]
+            let altglyphdef ats ch = Doc.SvgElement "altglyphdef" ats ch
+            /// Create an SVG element <altglyphitem> with attributes and children.
+            [<JavaScript; Inline>]
+            let altglyphitem ats ch = Doc.SvgElement "altglyphitem" ats ch
+            /// Create an SVG element <animate> with attributes and children.
+            [<JavaScript; Inline>]
+            let animate ats ch = Doc.SvgElement "animate" ats ch
+            /// Create an SVG element <animatecolor> with attributes and children.
+            [<JavaScript; Inline>]
+            let animatecolor ats ch = Doc.SvgElement "animatecolor" ats ch
+            /// Create an SVG element <animatemotion> with attributes and children.
+            [<JavaScript; Inline>]
+            let animatemotion ats ch = Doc.SvgElement "animatemotion" ats ch
+            /// Create an SVG element <animatetransform> with attributes and children.
+            [<JavaScript; Inline>]
+            let animatetransform ats ch = Doc.SvgElement "animatetransform" ats ch
+            /// Create an SVG element <circle> with attributes and children.
+            [<JavaScript; Inline>]
+            let circle ats ch = Doc.SvgElement "circle" ats ch
+            /// Create an SVG element <clippath> with attributes and children.
+            [<JavaScript; Inline>]
+            let clippath ats ch = Doc.SvgElement "clippath" ats ch
+            /// Create an SVG element <color-profile> with attributes and children.
+            [<JavaScript; Inline>]
+            let colorProfile ats ch = Doc.SvgElement "color-profile" ats ch
+            /// Create an SVG element <cursor> with attributes and children.
+            [<JavaScript; Inline>]
+            let cursor ats ch = Doc.SvgElement "cursor" ats ch
+            /// Create an SVG element <defs> with attributes and children.
+            [<JavaScript; Inline>]
+            let defs ats ch = Doc.SvgElement "defs" ats ch
+            /// Create an SVG element <desc> with attributes and children.
+            [<JavaScript; Inline>]
+            let desc ats ch = Doc.SvgElement "desc" ats ch
+            /// Create an SVG element <ellipse> with attributes and children.
+            [<JavaScript; Inline>]
+            let ellipse ats ch = Doc.SvgElement "ellipse" ats ch
+            /// Create an SVG element <feblend> with attributes and children.
+            [<JavaScript; Inline>]
+            let feblend ats ch = Doc.SvgElement "feblend" ats ch
+            /// Create an SVG element <fecolormatrix> with attributes and children.
+            [<JavaScript; Inline>]
+            let fecolormatrix ats ch = Doc.SvgElement "fecolormatrix" ats ch
+            /// Create an SVG element <fecomponenttransfer> with attributes and children.
+            [<JavaScript; Inline>]
+            let fecomponenttransfer ats ch = Doc.SvgElement "fecomponenttransfer" ats ch
+            /// Create an SVG element <fecomposite> with attributes and children.
+            [<JavaScript; Inline>]
+            let fecomposite ats ch = Doc.SvgElement "fecomposite" ats ch
+            /// Create an SVG element <feconvolvematrix> with attributes and children.
+            [<JavaScript; Inline>]
+            let feconvolvematrix ats ch = Doc.SvgElement "feconvolvematrix" ats ch
+            /// Create an SVG element <fediffuselighting> with attributes and children.
+            [<JavaScript; Inline>]
+            let fediffuselighting ats ch = Doc.SvgElement "fediffuselighting" ats ch
+            /// Create an SVG element <fedisplacementmap> with attributes and children.
+            [<JavaScript; Inline>]
+            let fedisplacementmap ats ch = Doc.SvgElement "fedisplacementmap" ats ch
+            /// Create an SVG element <fedistantlight> with attributes and children.
+            [<JavaScript; Inline>]
+            let fedistantlight ats ch = Doc.SvgElement "fedistantlight" ats ch
+            /// Create an SVG element <feflood> with attributes and children.
+            [<JavaScript; Inline>]
+            let feflood ats ch = Doc.SvgElement "feflood" ats ch
+            /// Create an SVG element <fefunca> with attributes and children.
+            [<JavaScript; Inline>]
+            let fefunca ats ch = Doc.SvgElement "fefunca" ats ch
+            /// Create an SVG element <fefuncb> with attributes and children.
+            [<JavaScript; Inline>]
+            let fefuncb ats ch = Doc.SvgElement "fefuncb" ats ch
+            /// Create an SVG element <fefuncg> with attributes and children.
+            [<JavaScript; Inline>]
+            let fefuncg ats ch = Doc.SvgElement "fefuncg" ats ch
+            /// Create an SVG element <fefuncr> with attributes and children.
+            [<JavaScript; Inline>]
+            let fefuncr ats ch = Doc.SvgElement "fefuncr" ats ch
+            /// Create an SVG element <fegaussianblur> with attributes and children.
+            [<JavaScript; Inline>]
+            let fegaussianblur ats ch = Doc.SvgElement "fegaussianblur" ats ch
+            /// Create an SVG element <feimage> with attributes and children.
+            [<JavaScript; Inline>]
+            let feimage ats ch = Doc.SvgElement "feimage" ats ch
+            /// Create an SVG element <femerge> with attributes and children.
+            [<JavaScript; Inline>]
+            let femerge ats ch = Doc.SvgElement "femerge" ats ch
+            /// Create an SVG element <femergenode> with attributes and children.
+            [<JavaScript; Inline>]
+            let femergenode ats ch = Doc.SvgElement "femergenode" ats ch
+            /// Create an SVG element <femorphology> with attributes and children.
+            [<JavaScript; Inline>]
+            let femorphology ats ch = Doc.SvgElement "femorphology" ats ch
+            /// Create an SVG element <feoffset> with attributes and children.
+            [<JavaScript; Inline>]
+            let feoffset ats ch = Doc.SvgElement "feoffset" ats ch
+            /// Create an SVG element <fepointlight> with attributes and children.
+            [<JavaScript; Inline>]
+            let fepointlight ats ch = Doc.SvgElement "fepointlight" ats ch
+            /// Create an SVG element <fespecularlighting> with attributes and children.
+            [<JavaScript; Inline>]
+            let fespecularlighting ats ch = Doc.SvgElement "fespecularlighting" ats ch
+            /// Create an SVG element <fespotlight> with attributes and children.
+            [<JavaScript; Inline>]
+            let fespotlight ats ch = Doc.SvgElement "fespotlight" ats ch
+            /// Create an SVG element <fetile> with attributes and children.
+            [<JavaScript; Inline>]
+            let fetile ats ch = Doc.SvgElement "fetile" ats ch
+            /// Create an SVG element <feturbulence> with attributes and children.
+            [<JavaScript; Inline>]
+            let feturbulence ats ch = Doc.SvgElement "feturbulence" ats ch
+            /// Create an SVG element <filter> with attributes and children.
+            [<JavaScript; Inline>]
+            let filter ats ch = Doc.SvgElement "filter" ats ch
+            /// Create an SVG element <font> with attributes and children.
+            [<JavaScript; Inline>]
+            let font ats ch = Doc.SvgElement "font" ats ch
+            /// Create an SVG element <font-face> with attributes and children.
+            [<JavaScript; Inline>]
+            let fontFace ats ch = Doc.SvgElement "font-face" ats ch
+            /// Create an SVG element <font-face-format> with attributes and children.
+            [<JavaScript; Inline>]
+            let fontFaceFormat ats ch = Doc.SvgElement "font-face-format" ats ch
+            /// Create an SVG element <font-face-name> with attributes and children.
+            [<JavaScript; Inline>]
+            let fontFaceName ats ch = Doc.SvgElement "font-face-name" ats ch
+            /// Create an SVG element <font-face-src> with attributes and children.
+            [<JavaScript; Inline>]
+            let fontFaceSrc ats ch = Doc.SvgElement "font-face-src" ats ch
+            /// Create an SVG element <font-face-uri> with attributes and children.
+            [<JavaScript; Inline>]
+            let fontFaceUri ats ch = Doc.SvgElement "font-face-uri" ats ch
+            /// Create an SVG element <foreignobject> with attributes and children.
+            [<JavaScript; Inline>]
+            let foreignobject ats ch = Doc.SvgElement "foreignobject" ats ch
+            /// Create an SVG element <g> with attributes and children.
+            [<JavaScript; Inline>]
+            let g ats ch = Doc.SvgElement "g" ats ch
+            /// Create an SVG element <glyph> with attributes and children.
+            [<JavaScript; Inline>]
+            let glyph ats ch = Doc.SvgElement "glyph" ats ch
+            /// Create an SVG element <glyphref> with attributes and children.
+            [<JavaScript; Inline>]
+            let glyphref ats ch = Doc.SvgElement "glyphref" ats ch
+            /// Create an SVG element <hkern> with attributes and children.
+            [<JavaScript; Inline>]
+            let hkern ats ch = Doc.SvgElement "hkern" ats ch
+            /// Create an SVG element <image> with attributes and children.
+            [<JavaScript; Inline>]
+            let image ats ch = Doc.SvgElement "image" ats ch
+            /// Create an SVG element <line> with attributes and children.
+            [<JavaScript; Inline>]
+            let line ats ch = Doc.SvgElement "line" ats ch
+            /// Create an SVG element <lineargradient> with attributes and children.
+            [<JavaScript; Inline>]
+            let lineargradient ats ch = Doc.SvgElement "lineargradient" ats ch
+            /// Create an SVG element <marker> with attributes and children.
+            [<JavaScript; Inline>]
+            let marker ats ch = Doc.SvgElement "marker" ats ch
+            /// Create an SVG element <mask> with attributes and children.
+            [<JavaScript; Inline>]
+            let mask ats ch = Doc.SvgElement "mask" ats ch
+            /// Create an SVG element <metadata> with attributes and children.
+            [<JavaScript; Inline>]
+            let metadata ats ch = Doc.SvgElement "metadata" ats ch
+            /// Create an SVG element <missing-glyph> with attributes and children.
+            [<JavaScript; Inline>]
+            let missingGlyph ats ch = Doc.SvgElement "missing-glyph" ats ch
+            /// Create an SVG element <mpath> with attributes and children.
+            [<JavaScript; Inline>]
+            let mpath ats ch = Doc.SvgElement "mpath" ats ch
+            /// Create an SVG element <path> with attributes and children.
+            [<JavaScript; Inline>]
+            let path ats ch = Doc.SvgElement "path" ats ch
+            /// Create an SVG element <pattern> with attributes and children.
+            [<JavaScript; Inline>]
+            let pattern ats ch = Doc.SvgElement "pattern" ats ch
+            /// Create an SVG element <polygon> with attributes and children.
+            [<JavaScript; Inline>]
+            let polygon ats ch = Doc.SvgElement "polygon" ats ch
+            /// Create an SVG element <polyline> with attributes and children.
+            [<JavaScript; Inline>]
+            let polyline ats ch = Doc.SvgElement "polyline" ats ch
+            /// Create an SVG element <radialgradient> with attributes and children.
+            [<JavaScript; Inline>]
+            let radialgradient ats ch = Doc.SvgElement "radialgradient" ats ch
+            /// Create an SVG element <rect> with attributes and children.
+            [<JavaScript; Inline>]
+            let rect ats ch = Doc.SvgElement "rect" ats ch
+            /// Create an SVG element <script> with attributes and children.
+            [<JavaScript; Inline>]
+            let script ats ch = Doc.SvgElement "script" ats ch
+            /// Create an SVG element <set> with attributes and children.
+            [<JavaScript; Inline>]
+            let set ats ch = Doc.SvgElement "set" ats ch
+            /// Create an SVG element <stop> with attributes and children.
+            [<JavaScript; Inline>]
+            let stop ats ch = Doc.SvgElement "stop" ats ch
+            /// Create an SVG element <style> with attributes and children.
+            [<JavaScript; Inline>]
+            let style ats ch = Doc.SvgElement "style" ats ch
+            /// Create an SVG element <svg> with attributes and children.
+            [<JavaScript; Inline>]
+            let svg ats ch = Doc.SvgElement "svg" ats ch
+            /// Create an SVG element <switch> with attributes and children.
+            [<JavaScript; Inline>]
+            let switch ats ch = Doc.SvgElement "switch" ats ch
+            /// Create an SVG element <symbol> with attributes and children.
+            [<JavaScript; Inline>]
+            let symbol ats ch = Doc.SvgElement "symbol" ats ch
+            /// Create an SVG element <text> with attributes and children.
+            [<JavaScript; Inline>]
+            let text ats ch = Doc.SvgElement "text" ats ch
+            /// Create an SVG element <textpath> with attributes and children.
+            [<JavaScript; Inline>]
+            let textpath ats ch = Doc.SvgElement "textpath" ats ch
+            /// Create an SVG element <title> with attributes and children.
+            [<JavaScript; Inline>]
+            let title ats ch = Doc.SvgElement "title" ats ch
+            /// Create an SVG element <tref> with attributes and children.
+            [<JavaScript; Inline>]
+            let tref ats ch = Doc.SvgElement "tref" ats ch
+            /// Create an SVG element <tspan> with attributes and children.
+            [<JavaScript; Inline>]
+            let tspan ats ch = Doc.SvgElement "tspan" ats ch
+            /// Create an SVG element <use> with attributes and children.
+            [<JavaScript; Inline>]
+            let ``use`` ats ch = Doc.SvgElement "use" ats ch
+            /// Create an SVG element <view> with attributes and children.
+            [<JavaScript; Inline>]
+            let view ats ch = Doc.SvgElement "view" ats ch
+            /// Create an SVG element <vkern> with attributes and children.
+            [<JavaScript; Inline>]
+            let vkern ats ch = Doc.SvgElement "vkern" ats ch
+            // }}
+
+        // {{ svgtag normal [doc]
         /// Create an SVG element <a> with attributes and children.
         [<JavaScript; Inline>]
-        let a ats ch = Doc.SvgElement "a" ats ch
+        let a ats ch = Elt.a ats ch :> Doc
         /// Create an SVG element <altglyph> with attributes and children.
         [<JavaScript; Inline>]
-        let altglyph ats ch = Doc.SvgElement "altglyph" ats ch
+        let altglyph ats ch = Elt.altglyph ats ch :> Doc
         /// Create an SVG element <altglyphdef> with attributes and children.
         [<JavaScript; Inline>]
-        let altglyphdef ats ch = Doc.SvgElement "altglyphdef" ats ch
+        let altglyphdef ats ch = Elt.altglyphdef ats ch :> Doc
         /// Create an SVG element <altglyphitem> with attributes and children.
         [<JavaScript; Inline>]
-        let altglyphitem ats ch = Doc.SvgElement "altglyphitem" ats ch
+        let altglyphitem ats ch = Elt.altglyphitem ats ch :> Doc
         /// Create an SVG element <animate> with attributes and children.
         [<JavaScript; Inline>]
-        let animate ats ch = Doc.SvgElement "animate" ats ch
+        let animate ats ch = Elt.animate ats ch :> Doc
         /// Create an SVG element <animatecolor> with attributes and children.
         [<JavaScript; Inline>]
-        let animatecolor ats ch = Doc.SvgElement "animatecolor" ats ch
+        let animatecolor ats ch = Elt.animatecolor ats ch :> Doc
         /// Create an SVG element <animatemotion> with attributes and children.
         [<JavaScript; Inline>]
-        let animatemotion ats ch = Doc.SvgElement "animatemotion" ats ch
+        let animatemotion ats ch = Elt.animatemotion ats ch :> Doc
         /// Create an SVG element <animatetransform> with attributes and children.
         [<JavaScript; Inline>]
-        let animatetransform ats ch = Doc.SvgElement "animatetransform" ats ch
+        let animatetransform ats ch = Elt.animatetransform ats ch :> Doc
         /// Create an SVG element <circle> with attributes and children.
         [<JavaScript; Inline>]
-        let circle ats ch = Doc.SvgElement "circle" ats ch
+        let circle ats ch = Elt.circle ats ch :> Doc
         /// Create an SVG element <clippath> with attributes and children.
         [<JavaScript; Inline>]
-        let clippath ats ch = Doc.SvgElement "clippath" ats ch
+        let clippath ats ch = Elt.clippath ats ch :> Doc
         /// Create an SVG element <color-profile> with attributes and children.
         [<JavaScript; Inline>]
-        let colorProfile ats ch = Doc.SvgElement "color-profile" ats ch
+        let colorProfile ats ch = Elt.colorProfile ats ch :> Doc
         /// Create an SVG element <cursor> with attributes and children.
         [<JavaScript; Inline>]
-        let cursor ats ch = Doc.SvgElement "cursor" ats ch
+        let cursor ats ch = Elt.cursor ats ch :> Doc
         /// Create an SVG element <defs> with attributes and children.
         [<JavaScript; Inline>]
-        let defs ats ch = Doc.SvgElement "defs" ats ch
+        let defs ats ch = Elt.defs ats ch :> Doc
         /// Create an SVG element <desc> with attributes and children.
         [<JavaScript; Inline>]
-        let desc ats ch = Doc.SvgElement "desc" ats ch
+        let desc ats ch = Elt.desc ats ch :> Doc
         /// Create an SVG element <ellipse> with attributes and children.
         [<JavaScript; Inline>]
-        let ellipse ats ch = Doc.SvgElement "ellipse" ats ch
+        let ellipse ats ch = Elt.ellipse ats ch :> Doc
         /// Create an SVG element <feblend> with attributes and children.
         [<JavaScript; Inline>]
-        let feblend ats ch = Doc.SvgElement "feblend" ats ch
+        let feblend ats ch = Elt.feblend ats ch :> Doc
         /// Create an SVG element <fecolormatrix> with attributes and children.
         [<JavaScript; Inline>]
-        let fecolormatrix ats ch = Doc.SvgElement "fecolormatrix" ats ch
+        let fecolormatrix ats ch = Elt.fecolormatrix ats ch :> Doc
         /// Create an SVG element <fecomponenttransfer> with attributes and children.
         [<JavaScript; Inline>]
-        let fecomponenttransfer ats ch = Doc.SvgElement "fecomponenttransfer" ats ch
+        let fecomponenttransfer ats ch = Elt.fecomponenttransfer ats ch :> Doc
         /// Create an SVG element <fecomposite> with attributes and children.
         [<JavaScript; Inline>]
-        let fecomposite ats ch = Doc.SvgElement "fecomposite" ats ch
+        let fecomposite ats ch = Elt.fecomposite ats ch :> Doc
         /// Create an SVG element <feconvolvematrix> with attributes and children.
         [<JavaScript; Inline>]
-        let feconvolvematrix ats ch = Doc.SvgElement "feconvolvematrix" ats ch
+        let feconvolvematrix ats ch = Elt.feconvolvematrix ats ch :> Doc
         /// Create an SVG element <fediffuselighting> with attributes and children.
         [<JavaScript; Inline>]
-        let fediffuselighting ats ch = Doc.SvgElement "fediffuselighting" ats ch
+        let fediffuselighting ats ch = Elt.fediffuselighting ats ch :> Doc
         /// Create an SVG element <fedisplacementmap> with attributes and children.
         [<JavaScript; Inline>]
-        let fedisplacementmap ats ch = Doc.SvgElement "fedisplacementmap" ats ch
+        let fedisplacementmap ats ch = Elt.fedisplacementmap ats ch :> Doc
         /// Create an SVG element <fedistantlight> with attributes and children.
         [<JavaScript; Inline>]
-        let fedistantlight ats ch = Doc.SvgElement "fedistantlight" ats ch
+        let fedistantlight ats ch = Elt.fedistantlight ats ch :> Doc
         /// Create an SVG element <feflood> with attributes and children.
         [<JavaScript; Inline>]
-        let feflood ats ch = Doc.SvgElement "feflood" ats ch
+        let feflood ats ch = Elt.feflood ats ch :> Doc
         /// Create an SVG element <fefunca> with attributes and children.
         [<JavaScript; Inline>]
-        let fefunca ats ch = Doc.SvgElement "fefunca" ats ch
+        let fefunca ats ch = Elt.fefunca ats ch :> Doc
         /// Create an SVG element <fefuncb> with attributes and children.
         [<JavaScript; Inline>]
-        let fefuncb ats ch = Doc.SvgElement "fefuncb" ats ch
+        let fefuncb ats ch = Elt.fefuncb ats ch :> Doc
         /// Create an SVG element <fefuncg> with attributes and children.
         [<JavaScript; Inline>]
-        let fefuncg ats ch = Doc.SvgElement "fefuncg" ats ch
+        let fefuncg ats ch = Elt.fefuncg ats ch :> Doc
         /// Create an SVG element <fefuncr> with attributes and children.
         [<JavaScript; Inline>]
-        let fefuncr ats ch = Doc.SvgElement "fefuncr" ats ch
+        let fefuncr ats ch = Elt.fefuncr ats ch :> Doc
         /// Create an SVG element <fegaussianblur> with attributes and children.
         [<JavaScript; Inline>]
-        let fegaussianblur ats ch = Doc.SvgElement "fegaussianblur" ats ch
+        let fegaussianblur ats ch = Elt.fegaussianblur ats ch :> Doc
         /// Create an SVG element <feimage> with attributes and children.
         [<JavaScript; Inline>]
-        let feimage ats ch = Doc.SvgElement "feimage" ats ch
+        let feimage ats ch = Elt.feimage ats ch :> Doc
         /// Create an SVG element <femerge> with attributes and children.
         [<JavaScript; Inline>]
-        let femerge ats ch = Doc.SvgElement "femerge" ats ch
+        let femerge ats ch = Elt.femerge ats ch :> Doc
         /// Create an SVG element <femergenode> with attributes and children.
         [<JavaScript; Inline>]
-        let femergenode ats ch = Doc.SvgElement "femergenode" ats ch
+        let femergenode ats ch = Elt.femergenode ats ch :> Doc
         /// Create an SVG element <femorphology> with attributes and children.
         [<JavaScript; Inline>]
-        let femorphology ats ch = Doc.SvgElement "femorphology" ats ch
+        let femorphology ats ch = Elt.femorphology ats ch :> Doc
         /// Create an SVG element <feoffset> with attributes and children.
         [<JavaScript; Inline>]
-        let feoffset ats ch = Doc.SvgElement "feoffset" ats ch
+        let feoffset ats ch = Elt.feoffset ats ch :> Doc
         /// Create an SVG element <fepointlight> with attributes and children.
         [<JavaScript; Inline>]
-        let fepointlight ats ch = Doc.SvgElement "fepointlight" ats ch
+        let fepointlight ats ch = Elt.fepointlight ats ch :> Doc
         /// Create an SVG element <fespecularlighting> with attributes and children.
         [<JavaScript; Inline>]
-        let fespecularlighting ats ch = Doc.SvgElement "fespecularlighting" ats ch
+        let fespecularlighting ats ch = Elt.fespecularlighting ats ch :> Doc
         /// Create an SVG element <fespotlight> with attributes and children.
         [<JavaScript; Inline>]
-        let fespotlight ats ch = Doc.SvgElement "fespotlight" ats ch
+        let fespotlight ats ch = Elt.fespotlight ats ch :> Doc
         /// Create an SVG element <fetile> with attributes and children.
         [<JavaScript; Inline>]
-        let fetile ats ch = Doc.SvgElement "fetile" ats ch
+        let fetile ats ch = Elt.fetile ats ch :> Doc
         /// Create an SVG element <feturbulence> with attributes and children.
         [<JavaScript; Inline>]
-        let feturbulence ats ch = Doc.SvgElement "feturbulence" ats ch
+        let feturbulence ats ch = Elt.feturbulence ats ch :> Doc
         /// Create an SVG element <filter> with attributes and children.
         [<JavaScript; Inline>]
-        let filter ats ch = Doc.SvgElement "filter" ats ch
+        let filter ats ch = Elt.filter ats ch :> Doc
         /// Create an SVG element <font> with attributes and children.
         [<JavaScript; Inline>]
-        let font ats ch = Doc.SvgElement "font" ats ch
+        let font ats ch = Elt.font ats ch :> Doc
         /// Create an SVG element <font-face> with attributes and children.
         [<JavaScript; Inline>]
-        let fontFace ats ch = Doc.SvgElement "font-face" ats ch
+        let fontFace ats ch = Elt.fontFace ats ch :> Doc
         /// Create an SVG element <font-face-format> with attributes and children.
         [<JavaScript; Inline>]
-        let fontFaceFormat ats ch = Doc.SvgElement "font-face-format" ats ch
+        let fontFaceFormat ats ch = Elt.fontFaceFormat ats ch :> Doc
         /// Create an SVG element <font-face-name> with attributes and children.
         [<JavaScript; Inline>]
-        let fontFaceName ats ch = Doc.SvgElement "font-face-name" ats ch
+        let fontFaceName ats ch = Elt.fontFaceName ats ch :> Doc
         /// Create an SVG element <font-face-src> with attributes and children.
         [<JavaScript; Inline>]
-        let fontFaceSrc ats ch = Doc.SvgElement "font-face-src" ats ch
+        let fontFaceSrc ats ch = Elt.fontFaceSrc ats ch :> Doc
         /// Create an SVG element <font-face-uri> with attributes and children.
         [<JavaScript; Inline>]
-        let fontFaceUri ats ch = Doc.SvgElement "font-face-uri" ats ch
+        let fontFaceUri ats ch = Elt.fontFaceUri ats ch :> Doc
         /// Create an SVG element <foreignobject> with attributes and children.
         [<JavaScript; Inline>]
-        let foreignobject ats ch = Doc.SvgElement "foreignobject" ats ch
+        let foreignobject ats ch = Elt.foreignobject ats ch :> Doc
         /// Create an SVG element <g> with attributes and children.
         [<JavaScript; Inline>]
-        let g ats ch = Doc.SvgElement "g" ats ch
+        let g ats ch = Elt.g ats ch :> Doc
         /// Create an SVG element <glyph> with attributes and children.
         [<JavaScript; Inline>]
-        let glyph ats ch = Doc.SvgElement "glyph" ats ch
+        let glyph ats ch = Elt.glyph ats ch :> Doc
         /// Create an SVG element <glyphref> with attributes and children.
         [<JavaScript; Inline>]
-        let glyphref ats ch = Doc.SvgElement "glyphref" ats ch
+        let glyphref ats ch = Elt.glyphref ats ch :> Doc
         /// Create an SVG element <hkern> with attributes and children.
         [<JavaScript; Inline>]
-        let hkern ats ch = Doc.SvgElement "hkern" ats ch
+        let hkern ats ch = Elt.hkern ats ch :> Doc
         /// Create an SVG element <image> with attributes and children.
         [<JavaScript; Inline>]
-        let image ats ch = Doc.SvgElement "image" ats ch
+        let image ats ch = Elt.image ats ch :> Doc
         /// Create an SVG element <line> with attributes and children.
         [<JavaScript; Inline>]
-        let line ats ch = Doc.SvgElement "line" ats ch
+        let line ats ch = Elt.line ats ch :> Doc
         /// Create an SVG element <lineargradient> with attributes and children.
         [<JavaScript; Inline>]
-        let lineargradient ats ch = Doc.SvgElement "lineargradient" ats ch
+        let lineargradient ats ch = Elt.lineargradient ats ch :> Doc
         /// Create an SVG element <marker> with attributes and children.
         [<JavaScript; Inline>]
-        let marker ats ch = Doc.SvgElement "marker" ats ch
+        let marker ats ch = Elt.marker ats ch :> Doc
         /// Create an SVG element <mask> with attributes and children.
         [<JavaScript; Inline>]
-        let mask ats ch = Doc.SvgElement "mask" ats ch
+        let mask ats ch = Elt.mask ats ch :> Doc
         /// Create an SVG element <metadata> with attributes and children.
         [<JavaScript; Inline>]
-        let metadata ats ch = Doc.SvgElement "metadata" ats ch
+        let metadata ats ch = Elt.metadata ats ch :> Doc
         /// Create an SVG element <missing-glyph> with attributes and children.
         [<JavaScript; Inline>]
-        let missingGlyph ats ch = Doc.SvgElement "missing-glyph" ats ch
+        let missingGlyph ats ch = Elt.missingGlyph ats ch :> Doc
         /// Create an SVG element <mpath> with attributes and children.
         [<JavaScript; Inline>]
-        let mpath ats ch = Doc.SvgElement "mpath" ats ch
+        let mpath ats ch = Elt.mpath ats ch :> Doc
         /// Create an SVG element <path> with attributes and children.
         [<JavaScript; Inline>]
-        let path ats ch = Doc.SvgElement "path" ats ch
+        let path ats ch = Elt.path ats ch :> Doc
         /// Create an SVG element <pattern> with attributes and children.
         [<JavaScript; Inline>]
-        let pattern ats ch = Doc.SvgElement "pattern" ats ch
+        let pattern ats ch = Elt.pattern ats ch :> Doc
         /// Create an SVG element <polygon> with attributes and children.
         [<JavaScript; Inline>]
-        let polygon ats ch = Doc.SvgElement "polygon" ats ch
+        let polygon ats ch = Elt.polygon ats ch :> Doc
         /// Create an SVG element <polyline> with attributes and children.
         [<JavaScript; Inline>]
-        let polyline ats ch = Doc.SvgElement "polyline" ats ch
+        let polyline ats ch = Elt.polyline ats ch :> Doc
         /// Create an SVG element <radialgradient> with attributes and children.
         [<JavaScript; Inline>]
-        let radialgradient ats ch = Doc.SvgElement "radialgradient" ats ch
+        let radialgradient ats ch = Elt.radialgradient ats ch :> Doc
         /// Create an SVG element <rect> with attributes and children.
         [<JavaScript; Inline>]
-        let rect ats ch = Doc.SvgElement "rect" ats ch
+        let rect ats ch = Elt.rect ats ch :> Doc
         /// Create an SVG element <script> with attributes and children.
         [<JavaScript; Inline>]
-        let script ats ch = Doc.SvgElement "script" ats ch
+        let script ats ch = Elt.script ats ch :> Doc
         /// Create an SVG element <set> with attributes and children.
         [<JavaScript; Inline>]
-        let set ats ch = Doc.SvgElement "set" ats ch
+        let set ats ch = Elt.set ats ch :> Doc
         /// Create an SVG element <stop> with attributes and children.
         [<JavaScript; Inline>]
-        let stop ats ch = Doc.SvgElement "stop" ats ch
+        let stop ats ch = Elt.stop ats ch :> Doc
         /// Create an SVG element <style> with attributes and children.
         [<JavaScript; Inline>]
-        let style ats ch = Doc.SvgElement "style" ats ch
+        let style ats ch = Elt.style ats ch :> Doc
         /// Create an SVG element <svg> with attributes and children.
         [<JavaScript; Inline>]
-        let svg ats ch = Doc.SvgElement "svg" ats ch
+        let svg ats ch = Elt.svg ats ch :> Doc
         /// Create an SVG element <switch> with attributes and children.
         [<JavaScript; Inline>]
-        let switch ats ch = Doc.SvgElement "switch" ats ch
+        let switch ats ch = Elt.switch ats ch :> Doc
         /// Create an SVG element <symbol> with attributes and children.
         [<JavaScript; Inline>]
-        let symbol ats ch = Doc.SvgElement "symbol" ats ch
+        let symbol ats ch = Elt.symbol ats ch :> Doc
         /// Create an SVG element <text> with attributes and children.
         [<JavaScript; Inline>]
-        let text ats ch = Doc.SvgElement "text" ats ch
+        let text ats ch = Elt.text ats ch :> Doc
         /// Create an SVG element <textpath> with attributes and children.
         [<JavaScript; Inline>]
-        let textpath ats ch = Doc.SvgElement "textpath" ats ch
+        let textpath ats ch = Elt.textpath ats ch :> Doc
         /// Create an SVG element <title> with attributes and children.
         [<JavaScript; Inline>]
-        let title ats ch = Doc.SvgElement "title" ats ch
+        let title ats ch = Elt.title ats ch :> Doc
         /// Create an SVG element <tref> with attributes and children.
         [<JavaScript; Inline>]
-        let tref ats ch = Doc.SvgElement "tref" ats ch
+        let tref ats ch = Elt.tref ats ch :> Doc
         /// Create an SVG element <tspan> with attributes and children.
         [<JavaScript; Inline>]
-        let tspan ats ch = Doc.SvgElement "tspan" ats ch
+        let tspan ats ch = Elt.tspan ats ch :> Doc
         /// Create an SVG element <use> with attributes and children.
         [<JavaScript; Inline>]
-        let ``use`` ats ch = Doc.SvgElement "use" ats ch
+        let ``use`` ats ch = Elt.``use`` ats ch :> Doc
         /// Create an SVG element <view> with attributes and children.
         [<JavaScript; Inline>]
-        let view ats ch = Doc.SvgElement "view" ats ch
+        let view ats ch = Elt.view ats ch :> Doc
         /// Create an SVG element <vkern> with attributes and children.
         [<JavaScript; Inline>]
-        let vkern ats ch = Doc.SvgElement "vkern" ats ch
+        let vkern ats ch = Elt.vkern ats ch :> Doc
         // }}
 
     [<JavaScript; Sealed>]

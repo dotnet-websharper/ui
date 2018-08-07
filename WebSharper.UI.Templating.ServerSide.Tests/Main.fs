@@ -62,11 +62,11 @@ let Main = Application.SinglePage(fun ctx ->
                     :> Doc
                     button [
                         on.click(fun _ _ -> JavaScript.JS.Alert "hey!")
-                    ] [text "Click me!"] :> _
+                    ] [text "Click me!"]
                     div [
                         on.afterRender(fun el -> el.TextContent <- "[OK] on.afterRender")
-                    ] [text "[FAIL] on.afterRender"] :> _
-                    (div [] [text "[FAIL] .OnAfterRender()"])
+                    ] [text "[FAIL] on.afterRender"]
+                    (Elt.div [] [text "[FAIL] .OnAfterRender()"])
                         .OnAfterRender(fun el ->
                             let s = "[OK] Inserted using .OnAfterRender()"
                             el.TextContent <- s
