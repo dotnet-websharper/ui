@@ -633,7 +633,7 @@ module Main =
                 Doc.PasswordBoxV [attr.style ("background: " + rv.V.y.z)] rv.V.y.z
             ]
             p [] [text (" You typed: " + rv.V.y.z)]
-            V(ul [] (rv.V.y.z |> Seq.map (fun c -> li [] [text (string c)] :> Doc))).V
+            V(ul [] (rv.V.y.z |> Seq.map (fun c -> li [] [text (string c)]))).V
             p [Attr.ClassPred "is-green" (rv.V.y.z = "green")] [text "this should be bordered with green iff you typed \"green\"."]
             rd.V
         ]

@@ -69,7 +69,7 @@ module Client =
             ] [
                 testCounter.View.Doc(fun _ -> Doc.Empty)
             ]
-            |> Doc.ToUpdater
+            |> Elt.ToUpdater
         let testCounterStr = testCounter.View.Map(string)
         let added = System.Collections.Generic.Queue<Elt>()
         let removed = System.Collections.Generic.Queue<Elt>()
@@ -202,7 +202,7 @@ module Client =
                         ]
                         p [] [
                             for i in 1 .. 5 ->
-                                Doc.CheckBoxGroup [] i chkl :> Doc 
+                                Doc.CheckBoxGroup [] i chkl
                             yield textView (chkl.View.Map(fun l -> "Checked indices:" + (l |> List.map string |> String.concat ", ")))
                         ]
                         p [] [
@@ -215,7 +215,7 @@ module Client =
                         ]
                         p [] [
                             for i in 1 .. 5 ->
-                                Doc.Radio [] i ri :> Doc 
+                                Doc.Radio [] i ri
                             yield textView (ri.View.Map(fun i -> "Checked index:" + string i))
                         ]
                     ]

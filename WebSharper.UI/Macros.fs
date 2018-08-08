@@ -90,7 +90,7 @@ module Macros =
     let attrDynClassFn = gen[]    (meth "DynamicClassPred" [stringT; viewOf boolT]    attrT)
     let docEmbedFn t =   gen[t]       (meth "EmbedView"    [viewOf T0]                docT)
     let lensFn t u =     gen[t; u]    (meth "Lens"         [varOf T0; T0 ^-> T1; T0 ^-> T1 ^-> T0] (varOf T1))
-    let inputFn n t =    gen[]        (meth n              [seqOf attrT; varOf t]     eltT)
+    let inputFn n t o =  gen[]        (meth n              [seqOf attrT; varOf t]     o)
     let elemMixedFn =    gen[]        (meth "ElementMixed" [stringT; seqOf objT]      eltT)
     let concatMixedFn =  gen[]        (meth "ConcatMixed"  [ArrayType(objT, 1)]       docT)
     let tplHoleTextView =gen[]        (meth "MakeTextView" [stringT; viewOf stringT]  tplHoleT)
@@ -347,7 +347,8 @@ module Macros =
             let t = call.Method.Entity.Value.Parameters.[1]
             match Lens.VMakeLens call.Compilation t call.Arguments.[1] with
             | MacroOk lens ->
-                MacroOk (Call (None, clientDocModule, inputFn (downcast call.Parameter.Value) t, [call.Arguments.[0]; lens]))
+                let o = call.Method.Entity.Value.ReturnType
+                MacroOk (Call (None, clientDocModule, inputFn (downcast call.Parameter.Value) t o, [call.Arguments.[0]; lens]))
             | err -> err
 
     type TemplateVar() =

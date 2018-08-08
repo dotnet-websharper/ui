@@ -180,10 +180,102 @@ module Doc =
     let BindListModelLens (f: 'K -> Var<'T> -> #Doc) (m: ListModel<'K, 'T>) : Doc =
         As (ListModel.MapLens f m |> As |> Doc'.Flatten)
 
-    [<Inline>]
-    let ToUpdater (e: Elt) = As<EltUpdater>((As<Elt'> e).ToUpdater() )
-
   // Form helpers ---------------------------------------------------------------
+
+    [<Inline>]
+    let Input attr var : Doc =
+        As (Doc'.Input attr var)
+
+    [<Macro(typeof<Macros.InputV>, "Input")>]
+    let InputV (attr: seq<Attr>) (var: string) = X<Doc>
+
+    [<Inline>]
+    let PasswordBox attr var : Doc =
+        As (Doc'.PasswordBox attr var)
+
+    [<Macro(typeof<Macros.InputV>, "PasswordBox")>]
+    let PasswordBoxV (attr: seq<Attr>) (var: string) = X<Doc>
+
+    [<Inline>]
+    let IntInput attr var : Doc =
+        As (Doc'.IntInput attr var)
+
+    [<Macro(typeof<Macros.InputV>, "IntInput")>]
+    let IntInputV (attr: seq<Attr>) (var: CheckedInput<int>) = X<Doc>
+
+    [<Inline>]
+    let IntInputUnchecked attr var : Doc =
+        As (Doc'.IntInputUnchecked attr var)
+
+    [<Macro(typeof<Macros.InputV>, "IntInputUnchecked")>]
+    let IntInputUncheckedV (attr: seq<Attr>) (var: int) = X<Doc>
+
+    [<Inline>]
+    let FloatInput attr var : Doc =
+        As (Doc'.FloatInput attr var)
+
+    [<Macro(typeof<Macros.InputV>, "FloatInput")>]
+    let FloatInputV (attr: seq<Attr>) (var: CheckedInput<float>) = X<Doc>
+
+    [<Inline>]
+    let FloatInputUnchecked attr var : Doc =
+        As (Doc'.FloatInputUnchecked attr var)
+
+    [<Macro(typeof<Macros.InputV>, "FloatInputUnchecked")>]
+    let FloatInputUncheckedV (attr: seq<Attr>) (var: float) = X<Doc>
+
+    [<Inline>]
+    let InputArea attr var : Doc =
+        As (Doc'.InputArea attr var)
+
+    [<Macro(typeof<Macros.InputV>, "InputArea")>]
+    let InputAreaV (attr: seq<Attr>) (var: string) = X<Doc>
+
+    [<Inline>]
+    let Select attrs show options current : Doc =
+        As (Doc'.Select attrs show options current)
+
+    [<Inline>]
+    let SelectDyn attrs show options current : Doc =
+        As (Doc'.SelectDyn attrs show options current)
+
+    [<Inline>]
+    let SelectOptional attrs noneText show options current : Doc =
+        As (Doc'.SelectOptional attrs noneText show options current)
+
+    [<Inline>]
+    let SelectDynOptional attrs noneText show options current : Doc =
+        As (Doc'.SelectDynOptional attrs noneText show options current)
+
+    [<Inline>]
+    let CheckBox attrs chk : Doc =
+        As (Doc'.CheckBox attrs chk)
+
+    [<Inline>]
+    let CheckBoxGroup attrs item chk : Doc =
+        As (Doc'.CheckBoxGroup attrs item chk)
+
+    [<Inline>]
+    let Button caption attrs action : Doc =
+        As (Doc'.Button caption attrs action)
+
+    [<Inline>]
+    let ButtonView caption attrs view action : Doc =
+        As (Doc'.ButtonView caption attrs view action)
+
+    [<Inline>]
+    let Link caption attrs action : Doc =
+        As (Doc'.Link caption attrs action)
+
+    [<Inline>]
+    let LinkView caption attrs view action : Doc =
+        As (Doc'.LinkView caption attrs view action)
+
+    [<Inline>]
+    let Radio attrs value var : Doc =
+        As (Doc'.Radio attrs value var)
+
+module Elt =
 
     [<Inline>]
     let Input attr var : Elt =
@@ -277,3 +369,6 @@ module Doc =
     [<Inline>]
     let Radio attrs value var : Elt =
         As (Doc'.Radio attrs value var)
+
+    [<Inline>]
+    let ToUpdater (e: Elt) = As<EltUpdater>((As<Elt'> e).ToUpdater() )

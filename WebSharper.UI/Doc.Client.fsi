@@ -180,6 +180,118 @@ module Doc =
   // Form helpers
 
     /// Input box.
+    val Input : seq<Attr> -> Var<string> -> Doc
+
+    /// Input box.
+    /// The var must be passed using the .V property.
+    val InputV : seq<Attr> -> var: string -> Doc
+
+    /// Input box with type="number".
+    /// For validation to work properly in Internet Explorer 9 and older,
+    /// needs to be inside a <form> with Attr.ValidateForm.
+    val IntInput : seq<Attr> -> Var<CheckedInput<int>> -> Doc
+
+    /// Input box with type="number".
+    /// For validation to work properly in Internet Explorer 9 and older,
+    /// needs to be inside a <form> with Attr.ValidateForm.
+    /// The var must be passed using the .V property.
+    val IntInputV : seq<Attr> -> CheckedInput<int> -> Doc
+
+    /// Input box with type="number".
+    /// If the input box is blank, the value is set to 0.
+    /// If the input is not parseable as an int, the value is unchanged from its last valid value.
+    /// It is advised to use IntInput instead for better user experience.
+    val IntInputUnchecked : seq<Attr> -> Var<int> -> Doc
+
+    /// Input box with type="number".
+    /// If the input box is blank, the value is set to 0.
+    /// If the input is not parseable as an int, the value is unchanged from its last valid value.
+    /// It is advised to use IntInput instead for better user experience.
+    /// The var must be passed using the .V property.
+    val IntInputUncheckedV : seq<Attr> -> int -> Doc
+
+    /// Input box with type="number".
+    /// For validation to work properly in Internet Explorer 9 and older,
+    /// needs to be inside a <form> with Attr.ValidateForm.
+    val FloatInput : seq<Attr> -> Var<CheckedInput<float>> -> Doc
+
+    /// Input box with type="number".
+    /// For validation to work properly in Internet Explorer 9 and older,
+    /// needs to be inside a <form> with Attr.ValidateForm.
+    /// The var must be passed using the .V property.
+    val FloatInputV : seq<Attr> -> CheckedInput<float> -> Doc
+
+    /// Input box with type="number".
+    /// If the input box is blank, the value is set to 0.
+    /// If the input is not parseable as a float, the value is unchanged from its last valid value.
+    /// It is advised to use FloatInput instead for better user experience.
+    val FloatInputUnchecked : seq<Attr> -> Var<float> -> Doc
+
+    /// Input box with type="number".
+    /// If the input box is blank, the value is set to 0.
+    /// If the input is not parseable as a float, the value is unchanged from its last valid value.
+    /// It is advised to use FloatInput instead for better user experience.
+    /// The var must be passed using the .V property.
+    val FloatInputUncheckedV : seq<Attr> -> float -> Doc
+
+    /// Input text area.
+    val InputArea : seq<Attr> -> Var<string> -> Doc
+
+    /// Input text area.
+    /// The var must be passed using the .V property.
+    val InputAreaV : seq<Attr> -> string -> Doc
+
+    /// Password box.
+    val PasswordBox : seq<Attr> -> Var<string> -> Doc
+
+    /// Password box.
+    /// The var must be passed using the .V property.
+    val PasswordBoxV : seq<Attr> -> string -> Doc
+
+    /// Submit button. Calls the callback function when the button is pressed.
+    val Button : caption: string -> seq<Attr> -> (unit -> unit) -> Doc
+
+    /// Submit button. Takes a view of reactive components with which it is associated,
+    /// and a callback function of what to do with this view once the button is pressed.
+    val ButtonView : caption: string -> seq<Attr> -> View<'T> -> ('T-> unit) -> Doc
+
+    /// Hyperlink. Calls the callback function when the link is clicked.
+    val Link : caption: string -> seq<Attr> -> (unit -> unit) -> Doc
+
+    /// Hyperlink. Takes a view of reactive components with which it is associated,
+    /// and a callback function of what to do with this view once the link is clicked.
+    val LinkView : caption: string -> seq<Attr> -> View<'T> -> ('T -> unit) -> Doc
+
+    /// Check Box.
+    val CheckBox : seq<Attr> -> Var<bool> -> Doc
+
+    /// Check Box Group.
+    val CheckBoxGroup : seq<Attr> -> 'T -> Var<list<'T>> -> Doc
+        when 'T : equality
+
+    /// Select box.
+    val Select : seq<Attr> -> optionText: ('T -> string) -> options: list<'T> -> Var<'T> -> Doc
+        when 'T : equality
+
+    /// Select box with time-varying option list.
+    val SelectDyn : seq<Attr> -> optionText: ('T -> string) -> options: View<list<'T>> -> Var<'T> -> Doc
+        when 'T : equality
+
+    /// Select box where the first option returns None.
+    val SelectOptional : seq<Attr> -> noneText: string -> optionText: ('T -> string) -> options: list<'T> -> Var<option<'T>> -> Doc
+        when 'T : equality
+
+    /// Select box with time-varying option list where the first option returns None.
+    val SelectDynOptional : seq<Attr> -> noneText: string -> optionText: ('T -> string) -> options: View<list<'T>> -> Var<option<'T>> -> Doc
+        when 'T : equality
+
+    /// Radio button.
+    val Radio : seq<Attr> -> 'T -> Var<'T> -> Doc
+        when 'T : equality
+
+module Elt =
+
+    /// Input box.
     val Input : seq<Attr> -> Var<string> -> Elt
 
     /// Input box.

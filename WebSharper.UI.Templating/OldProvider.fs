@@ -375,19 +375,19 @@ let RunOldProvider addWarnings (pathOrXml: string) (cfg: TypeProviderConfig) (ty
                     let var a unchecked =
                         if n.ToLower() = "input" then
                             match e.Attribute(xn"type") with
-                            | null -> <@ Doc.Input %attrs %(getVarHole a) :> Doc @>
+                            | null -> <@ Doc.Input %attrs %(getVarHole a) @>
                             | t ->
                                 match t.Value with
-                                | "checkbox" -> <@ Doc.CheckBox %attrs %(getVarHole a) :> _ @>
+                                | "checkbox" -> <@ Doc.CheckBox %attrs %(getVarHole a) @>
                                 | "number" ->
                                     if unchecked then
-                                        <@ Doc.FloatInputUnchecked %attrs %(getVarHole a) :> _ @>
+                                        <@ Doc.FloatInputUnchecked %attrs %(getVarHole a) @>
                                     else
-                                        <@ Doc.FloatInput %attrs %(getVarHole a) :> _ @>
-                                | "password" -> <@ Doc.PasswordBox %attrs %(getVarHole a) :> _ @>
-                                | "text" | _ -> <@ Doc.Input %attrs %(getVarHole a) :> _ @>
+                                        <@ Doc.FloatInput %attrs %(getVarHole a) @>
+                                | "password" -> <@ Doc.PasswordBox %attrs %(getVarHole a) @>
+                                | "text" | _ -> <@ Doc.Input %attrs %(getVarHole a) @>
                         elif n.ToLower() = "textarea" then
-                            <@ Doc.InputArea %attrs %(getVarHole a) :> _ @>
+                            <@ Doc.InputArea %attrs %(getVarHole a) @>
                         elif n.ToLower() = "select" then
                             mkElement <@ "select" @> 
                                 <@ Seq.append
