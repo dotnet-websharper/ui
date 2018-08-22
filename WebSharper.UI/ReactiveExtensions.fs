@@ -23,6 +23,7 @@ namespace WebSharper.UI
 open System.Runtime.CompilerServices
 open WebSharper
 open WebSharper.JavaScript
+type private KV<'K, 'V> = System.Collections.Generic.KeyValuePair<'K, 'V>
 
 [<AutoOpen>]
 module VarModule =
@@ -101,6 +102,14 @@ type ReactiveExtensions() =
     [<Extension; Inline>]
     static member MapSeqCached<'A, 'B, 'K when 'K : equality>
         (v: View<ListModelState<'A>>, k: 'A -> 'K, f: 'K -> View<'A> -> 'B) = View.MapSeqCachedViewBy k f v
+
+    [<Extension; Inline>]
+    static member MapSeqCached<'A, 'B, 'K when 'K : equality and 'K : comparison>
+        (v: View<Map<'K, 'A>>, f: 'K -> View<'A> -> 'B) =
+        View.MapSeqCachedViewBy
+            (fun (kv: KV<'K, 'A>) -> kv.Key)
+            (fun k v -> f k (View.Map (fun (kv: KV<'K, 'A>) -> kv.Value) v))
+            v
 
     [<Extension; Macro(typeof<Macros.LensMethod>)>]
     static member LensAuto<'T, 'U>(ref: Var<'T>, getter: 'T -> 'U) = X<Var<'U>>

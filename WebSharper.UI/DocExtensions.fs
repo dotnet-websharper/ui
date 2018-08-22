@@ -8,6 +8,7 @@ open System.Runtime.CompilerServices
 open WebSharper
 open WebSharper.JavaScript
 open WebSharper.UI
+type private KV<'K, 'V> = System.Collections.Generic.KeyValuePair<'K, 'V>
 
 [<Extension; Sealed; JavaScript>]
 type DocExtensions =
@@ -83,6 +84,13 @@ type DocExtensions =
 
     [<Extension; Inline>]
     static member DocSeqCached(v: View<ListModelState<_>>, k, f) = Doc.BindSeqCachedViewBy k f v
+
+    [<Extension; Inline>]
+    static member DocSeqCached(v: View<Map<_, _>>, f) =
+        Doc.BindSeqCachedViewBy
+            (fun (kv: KV<_, _>) -> kv.Key)
+            (fun k v -> f k (View.Map (fun (kv: KV<_, _>) -> kv.Value) v))
+            v
 
     [<Extension; Inline>]
     static member DocLens(v: Var<list<_>>, k, f) = Doc.BindLens k f v

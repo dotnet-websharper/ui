@@ -132,6 +132,11 @@ type DocExtensions =
     static member DocSeqCached : View<ListModelState<'T>> * ('T -> 'K) * ('K -> View<'T> -> #Doc) -> Doc
         when 'K : equality
 
+    /// DocSeqCached with a custom key.
+    [<Extension>]
+    static member DocSeqCached : View<Map<'K, 'T>> * ('K -> View<'T> -> #Doc) -> Doc
+        when 'K : equality and 'K : comparison
+
     [<Extension>]
     static member DocLens : Var<list<'T>> * ('T -> 'K) * (Var<'T> -> #Doc) -> Doc
         when 'K : equality

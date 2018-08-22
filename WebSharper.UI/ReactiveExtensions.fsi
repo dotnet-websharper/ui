@@ -164,6 +164,15 @@ type ReactiveExtensions =
     static member MapSeqCached<'A,'B,'K when 'K : equality> :
         View<ListModelState<'A>> * key: ('A -> 'K) * f: ('K -> View<'A> -> 'B) -> View<seq<'B>>
 
+    /// Starts a process doing stateful conversion with shallow memoization.
+    /// The process remembers inputs from the previous step, and re-uses outputs
+    /// from the previous step when possible instead of calling the mapping function.
+    /// Memory use is proportional to the longest sequence taken by the View.
+    /// Inputs are compared via their key in the Map.
+    [<Extension>]
+    static member MapSeqCached<'A,'B,'K when 'K : equality and 'K : comparison> :
+        View<Map<'K, 'A>> * f: ('K -> View<'A> -> 'B) -> View<seq<'B>>
+
     [<Extension>]
     static member LensAuto<'T, 'U> : ref: Var<'T> * getter: ('T -> 'U) -> Var<'U>
 
