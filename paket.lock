@@ -15,13 +15,13 @@ NUGET
       System.Collections.Immutable (>= 1.5)
     System.ValueTuple (4.3)
   remote: https://daily.websharper.com/nuget
-    WebSharper (4.5.0.290)
-    WebSharper.CSharp (4.5.0.290)
-      WebSharper (4.5.0.290)
-    WebSharper.FSharp (4.5.0.290)
-      WebSharper (4.5.0.290)
-    WebSharper.Testing (4.5.0.290)
-      WebSharper (4.5.0.290)
+    WebSharper (4.5.1.304)
+    WebSharper.CSharp (4.5.1.304)
+      WebSharper (4.5.1.304)
+    WebSharper.FSharp (4.5.1.304)
+      WebSharper (4.5.1.304)
+    WebSharper.Testing (4.5.1.304)
+      WebSharper (4.5.1.304)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
     src/ProvidedTypes.fs (d50b7556cc57c403cd53bd1116027450d60c72db)
