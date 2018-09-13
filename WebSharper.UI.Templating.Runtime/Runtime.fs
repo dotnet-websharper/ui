@@ -178,6 +178,7 @@ type ProviderBuilder =
         [<Name "i">] mutable Instance: TemplateInstance
         [<Name "k">] Key: string
         [<Name "h">] Holes: ResizeArray<TemplateHole>
+        [<OptionalField; Name "s">] Source: option<string>
     }
 
     member this.WithHole(h) =
@@ -194,6 +195,15 @@ type ProviderBuilder =
             Instance = Unchecked.defaultof<TemplateInstance>
             Key = Guid.NewGuid().ToString()
             Holes = ResizeArray()
+            Source = None
+        }
+
+    static member Make(src) =
+        {
+            Instance = Unchecked.defaultof<TemplateInstance>
+            Key = Guid.NewGuid().ToString()
+            Holes = ResizeArray()
+            Source = Some src
         }
 
 type Runtime private () =
@@ -268,7 +278,8 @@ type Runtime private () =
                 baseName: string,
                 name: option<string>,
                 path: option<string>,
-                src: string,
+                origSrc: string,
+                dynSrc: option<string>,
                 fillWith: seq<TemplateHole>,
                 inlineBaseName: option<string>,
                 serverLoad: ServerLoad,
@@ -277,8 +288,10 @@ type Runtime private () =
                 isElt: bool,
                 keepUnfilled: bool
             ) : Doc =
+        let getSrc src =
+            let t, _, _ = Parsing.ParseSource baseName src in t
         let getOrLoadSrc src =
-            loaded.GetOrAdd(baseName, fun _ -> let t, _, _ = Parsing.ParseSource baseName src in t)
+            loaded.GetOrAdd(baseName, fun _ -> getSrc src)
         let getOrLoadPath fullPath =
             loaded.GetOrAdd(baseName, fun _ -> let t, _, _ = Parsing.ParseSource baseName (File.ReadAllText fullPath) in t)
         let requireResources = Dictionary(StringComparer.InvariantCultureIgnoreCase)
@@ -443,18 +456,19 @@ type Runtime private () =
             Array.iter (writeNode None plain) template.Value
         let templates = ref None
         let getTemplates (ctx: Web.Context) =
-            match !templates with
-            | Some t -> getTemplate baseName (Parsing.WrappedTemplateName.OfOption name) t, t
-            | None ->
+            let t =
+                match dynSrc, !templates with
+                | Some dynSrc, _ -> getSrc dynSrc
+                | None, Some t -> t
+                | None, None ->
                 let t =
                     match path, serverLoad with
                     | None, _
                     | Some _, ServerLoad.Once ->
-                        getOrLoadSrc src
+                        getOrLoadSrc origSrc
                     | Some path, ServerLoad.PerRequest ->
                         let fullPath = Path.Combine(ctx.RootFolder, path)
-                        let t, _, _ = Parsing.ParseSource baseName (File.ReadAllText fullPath)
-                        t
+                        getSrc (File.ReadAllText fullPath)
                     | Some path, ServerLoad.WhenChanged ->
                         let fullPath = Path.Combine(ctx.RootFolder, path)
                         let watcher = watchers.GetOrAdd(baseName, fun _ ->
@@ -473,7 +487,8 @@ type Runtime private () =
                         getOrLoadPath fullPath
                     | Some _, _ -> failwith "Invalid ServerLoad"
                 templates := Some t
-                getTemplate baseName (Parsing.WrappedTemplateName.OfOption name) t, t
+                t
+            getTemplate baseName (Parsing.WrappedTemplateName.OfOption name) t, t
         let tplInstance =
             if obj.ReferenceEquals(completed, null) then
                 Seq.empty

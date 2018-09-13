@@ -286,6 +286,7 @@ module private Impl =
                     %OptionValue name,
                     %OptionValue ctx.Path,
                     %%Expr.Value ctx.Template.Src,
+                    builder.Source,
                     holes,
                     %OptionValue ctx.InlineFileId,
                     %%Expr.Value ctx.ServerLoad,
@@ -353,12 +354,17 @@ module private Impl =
                 yield ProvidedMethod("Elt", docParams, typeof<Elt>, fun args ->
                     <@@ (%%InstanceBody ctx args : TI).Doc :?> Elt @@>)
                     .WithXmlDoc(docXmldoc) :> _
-            let ctor =
+            let ctors = [
                 ProvidedConstructor([], fun _ -> <@@ box (Builder.Make()) @@>)
+                ProvidedConstructor([ProvidedParameter("content", typeof<string>)],
+                                    fun args -> <@@ box (Builder.Make(%%args.[0]:string)) @@>)
+            ]
             match ctx.Path with
-            | Some path -> ctor.AddDefinitionLocation(ctx.Template.Line, ctx.Template.Column, path)
+            | Some path ->
+                for ctor in ctors do
+                    ctor.AddDefinitionLocation(ctx.Template.Line, ctx.Template.Column, path)
             | None -> ()
-            yield ctor :> _
+            yield! Seq.cast ctors
         ]
 
     let BuildOneFile (item: Parsing.ParseItem)

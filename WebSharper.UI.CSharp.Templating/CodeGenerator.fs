@@ -155,7 +155,7 @@ let finalMethodBody (ctx: Ctx) =
         |> sprintf "new Tuple<string, WebSharper.UI.Templating.Runtime.Server.ValTy>[] { %s }"
     [
         sprintf "var completed = WebSharper.UI.Templating.Runtime.Server.Handler.CompleteHoles(key, holes, %s);" vars
-        sprintf "var doc = WebSharper.UI.Templating.Runtime.Server.Runtime.GetOrLoadTemplate(%s, %s, %s, %s, completed.Item1, %s, ServerLoad.%s, %s, null, %b, false);"
+        sprintf "var doc = WebSharper.UI.Templating.Runtime.Server.Runtime.GetOrLoadTemplate(%s, %s, %s, %s, null, completed.Item1, %s, ServerLoad.%s, %s, null, %b, false);"
             (formatString ctx.FileId)
             (optionValue formatString "string" name)
             (optionValue formatString "string" ctx.Path)

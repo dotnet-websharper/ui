@@ -166,7 +166,7 @@ type GetOrLoadTemplateMacro() =
                 comp.AddMetadataEntry(meKey, M.CompositeEntry [ M.TypeDefinitionEntry td; M.MethodEntry m ])
                 td, m
         match call.Arguments with
-        | [ baseName; name; path; src; fillWith; inlineBaseName; serverLoad; refs; completedHoles; isElt; keepUnfilled ] ->
+        | [ baseName; name; path; src; dynSrc; fillWith; inlineBaseName; serverLoad; refs; completedHoles; isElt; keepUnfilled ] ->
             let inlineBaseName =
                 match ExtractOption inlineBaseName with
                 | Some (I.Value (String n)) -> Some n
@@ -190,7 +190,8 @@ type private RuntimeProxy =
                 baseName: string,
                 name: option<string>,
                 path: option<string>,
-                src: string,
+                origSrc: string,
+                dynSrc: option<string>,
                 fillWith: seq<TemplateHole>,
                 inlineBaseName: option<string>,
                 serverLoad: ServerLoad,

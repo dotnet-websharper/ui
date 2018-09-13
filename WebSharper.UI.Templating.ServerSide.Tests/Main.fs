@@ -51,6 +51,10 @@ let Main = Application.SinglePage(fun ctx ->
                     .Who("world 2")
                     .Click(fun _ -> JavaScript.JS.Alert "Clicked 2!")
                     .Doc()
+                MainTemplate.template("""<a ws-onclick="Click" href="#">Greetings ${Who}!</button>""")
+                    .Who("world 3")
+                    .Click(fun _ -> JavaScript.JS.Alert "Clicked 3!")
+                    .Doc()
                 ])
             .Client(
                 [
