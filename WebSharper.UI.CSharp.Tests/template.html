@@ -41,7 +41,7 @@
                     <div class="checkbox">
                         <label ws-attr="ShowDone">
                             <input type="checkbox" ws-var="Done" />
-                            ${Task}
+                            [${Priority}] ${Task}
                             <button class="btn btn-danger btn-xs pull-right" type="button" ws-onclick="Clear">X</button>
                         </label>
                     </div>
@@ -52,6 +52,7 @@
                     <label>New task</label>
                     <div class="input-group">
                         <input class="form-control" ws-var="NewTaskName" />
+                        <input class="form-control" ws-var="NewTaskPriority" type="number" />
                         <span class="input-group-btn">
                             <button class="btn btn-primary" type="button" ws-onclick="Add">Add</button>
                         </span>

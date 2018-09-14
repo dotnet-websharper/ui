@@ -1,14 +1,14 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.FSharp.Core;
+using WebSharper;
+using WebSharper.JavaScript;
+using WebSharper.Sitelets;
 using WebSharper.UI;
 using WebSharper.UI.Client;
 using static WebSharper.UI.Client.Html;
-using WebSharper;
-using WebSharper.Sitelets;
-using WebSharper.JavaScript;
-using Microsoft.FSharp.Core;
-
-using System.Threading.Tasks;
-using System;
 using static WebSharper.UI.V;
 
 namespace WebSharper.UI.CSharp.Tests
@@ -226,11 +226,13 @@ namespace WebSharper.UI.CSharp.Tests
         public class TaskItem
         {
             public string Name { get; private set; }
+            public int Priority { get; private set; }
             public Var<bool> Done { get; private set; }
 
-            public TaskItem(string name, bool done)
+            public TaskItem(string name, int priority, bool done)
             {
                 Name = name;
+                Priority = priority;
                 Done = Var.Create(done);
             }
         }
@@ -239,25 +241,30 @@ namespace WebSharper.UI.CSharp.Tests
         {
             var Tasks =
                 new ListModel<string, TaskItem>(task => task.Name) {
-                    new TaskItem("Have breakfast", true),
-                    new TaskItem("Have lunch", false)
+                    new TaskItem("Have breakfast", 8, true),
+                    new TaskItem("Have lunch", 6, false)
                 };
+            var newTaskPriority = Var.Create(5);
 
             new Template.Template.Main()
-                .ListContainer(Tasks.View.DocSeqCached((TaskItem task) =>
-                    new Template.Template.ListItem()
-                        .Task(task.Name)
-                        .Clear((el, ev) => Tasks.RemoveByKey(task.Name))
-                        .Done(task.Done)
-                        .ShowDone(attr.@class("checked", task.Done.View, x => x))
-                        .Elt()
-                ))
+                .ListContainer(
+                    Tasks.View
+                        .Map(l => (IEnumerable<TaskItem>)l.OrderByDescending(t => t.Priority))
+                        .DocSeqCached((TaskItem task) => new Template.Template.ListItem()
+                            .Task(task.Name)
+                            .Priority(task.Priority.ToString())
+                            .Clear((el, ev) => Tasks.RemoveByKey(task.Name))
+                            .Done(task.Done)
+                            .ShowDone(attr.@class("checked", task.Done.View, x => x))
+                            .Elt()
+                        ))
                 .Add((m) =>
                 {
-                    Tasks.Add(new TaskItem(m.Vars.NewTaskName.Value, false));
+                    Tasks.Add(new TaskItem(m.Vars.NewTaskName.Value, newTaskPriority.Value, false));
                     m.Vars.NewTaskName.Value = "";
                 })
                 .ClearCompleted((el, ev) => Tasks.RemoveBy(task => task.Done.Value))
+                .NewTaskPriority(newTaskPriority)
                 .Doc()
                 .RunById("tasks");
             new Template.Index.tasksTitle()
