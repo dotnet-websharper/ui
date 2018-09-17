@@ -660,14 +660,14 @@ NUGET
       System.Xml.ReaderWriter (>= 4.3) - restriction: || (&& (== net461) (< net46)) (&& (== net471) (< net46)) (== netstandard2.0)
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
+    WebSharper.CSharp (4.5.2.309)
+      WebSharper (4.5.2.309)
+    WebSharper.Testing (4.5.2.309)
+      WebSharper (4.5.2.309)
   remote: https://daily.websharper.com/nuget
-    WebSharper (4.5.2.308)
-    WebSharper.CSharp (4.5.2.308)
-      WebSharper (4.5.2.308)
-    WebSharper.FSharp (4.5.2.308)
-      WebSharper (4.5.2.308)
-    WebSharper.Testing (4.5.2.308)
-      WebSharper (4.5.2.308)
+    WebSharper (4.5.2.309)
+    WebSharper.FSharp (4.5.2.309)
+      WebSharper (4.5.2.309)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
     src/ProvidedTypes.fs (6d90bfc8a6385ba2ab0319d4c08620aafc207803)
