@@ -80,7 +80,8 @@ module Router =
         let set value =
             if var.Value <> value then
                 var.Value <- value
-        
+        set (cur())
+
         JS.Window.AddEventListener("popstate", (fun () -> set (cur())), false)
 
         JS.Document.Body.AddEventListener("click", (fun (ev: Dom.Event) ->
@@ -104,7 +105,7 @@ module Router =
     /// If initials URL parse fails, value is set to `onParseError`. 
     let Install onParseError (router: Router<'T>) : Var<'T> =
         let parse p = Router.Parse router p
-        let var = Var.Create (getCurrent parse onParseError)
+        let var = Var.Create JS.Undefined
         InstallInto var onParseError router
         var
 
@@ -127,7 +128,8 @@ module Router =
         let set value =
             if var.Value <> value then
                 var.Value <- value
-       
+        set (cur())
+
         JS.Window.AddEventListener("popstate", (fun () -> set (cur())), false)
         JS.Window.AddEventListener("hashchange", (fun () -> set (cur())), false)
 
@@ -153,8 +155,7 @@ module Router =
         let parse h = 
             let p = Route.FromHash(h, true)
             Router.Parse router p
-        let cur() : 'T = getCurrentHash parse onParseError
-        let var = Var.Create (cur())
+        let var = Var.Create JS.Undefined
         InstallHashInto var onParseError router
         var
 

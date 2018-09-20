@@ -10,4 +10,3 @@ obj/
 *.g.cs
 paket-files/
 .fake/
-nuget/*.paket.template
