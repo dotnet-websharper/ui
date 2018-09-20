@@ -88,6 +88,7 @@ module Macros =
     let attrDynFn =      gen[]        (meth "Dynamic"      [stringT; viewOf stringT]  attrT)
     let attrDynStyleFn = gen[]        (meth "DynamicStyle" [stringT; viewOf stringT]  attrT)
     let attrDynClassFn = gen[]    (meth "DynamicClassPred" [stringT; viewOf boolT]    attrT)
+    let attrDynPropFn t =gen[t]       (meth "DynamicProp"  [stringT; viewOf T0]       attrT)
     let docEmbedFn t =   gen[t]       (meth "EmbedView"    [viewOf T0]                docT)
     let lensFn t u =     gen[t; u]    (meth "Lens"         [varOf T0; T0 ^-> T1; T0 ^-> T1 ^-> T0] (varOf T1))
     let inputFn n t o =  gen[]        (meth n              [seqOf attrT; varOf t]     o)
@@ -321,6 +322,15 @@ module Macros =
             match V.Visit stringT call.Arguments.[1] with
             | V.Kind.Const _ -> MacroFallback
             | V.Kind.View e -> MacroOk (Call (None, clientAttrModule, attrDynClassFn, [call.Arguments.[0]; e]))
+
+    type AttrProp() =
+        inherit Macro()
+
+        override this.TranslateCall(call) =
+            let targ = call.Method.Generics.[0]
+            match V.Visit stringT call.Arguments.[1] with
+            | V.Kind.Const _ -> MacroFallback
+            | V.Kind.View e -> MacroOk (Call (None, clientAttrModule, attrDynPropFn targ, [call.Arguments.[0]; e]))
 
     type LensMethod() =
         inherit Macro()

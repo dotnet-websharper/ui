@@ -56,6 +56,10 @@ module Macros =
         inherit Macro
         new : unit -> AttrClass
     [<Class>]
+    type AttrProp =
+        inherit Macro
+        new : unit -> AttrProp
+    [<Class>]
     type ElementMixed =
         inherit Macro
         new : unit -> ElementMixed

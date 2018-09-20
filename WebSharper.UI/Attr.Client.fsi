@@ -37,6 +37,10 @@ module Attr =
     /// Sets a basic DOM attribute, such as `id` to a dynamic text value.
     val Dynamic : name: string -> value: View<string> -> Attr
 
+    /// Set a property of the DOM element.
+    /// Dynamic if value uses `view.V`.
+    val Prop : name: string -> value: 'T -> Attr
+
     /// Dynamically set a property of the DOM element.
     val DynamicProp : name: string -> value: View<'T> -> Attr
 
@@ -73,10 +77,11 @@ module Attr =
     /// Sets a CSS class.
     val Class : name: string -> Attr
 
-    // new; V-enabled on `isSet` (turns it into DynamicClassPred)
+    /// Sets a CSS class if isSet is true, unsets it if false.
+    /// Dynamic if isSet uses `view.V`.
     val ClassPred : name: string -> isSet: bool -> Attr
 
-    /// Dynamic variant of Class.
+    /// Dynamically sets a CSS class if isSet is true, unsets it if false.
     val DynamicClassPred : name: string -> isSet: View<bool> -> Attr
 
     /// Sets a CSS class when the given view satisfies a predicate.

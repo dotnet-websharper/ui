@@ -614,6 +614,7 @@ module Main =
         |> Doc.RunAppend JS.Document.Body
         let rv = Var.Create { x = "red"; y = { z = "green"; t = "test" } }
         let rd = Var.Create (p [] [text "[OK] var.V"])
+        let rvDisabled = Var.Create false
         div [
             Attr.Style "color" rv.V.y.z
         ] [
@@ -621,6 +622,7 @@ module Main =
                 text "Test text x.V: enter a color: "
                 Doc.Input [
                     attr.style ("background: " + rv.V.y.z)
+                    Attr.Prop "disabled" rvDisabled.V
                     on.click (fun el ev ->
                         let f x = x // Inner generic function that fails to compile if this lambda is passed as an Expr.
                                     // This checks that we are calling:
@@ -631,6 +633,10 @@ module Main =
                     )
                 ] (rv.LensAuto(fun v -> v.y.z))
                 Doc.PasswordBoxV [attr.style ("background: " + rv.V.y.z)] rv.V.y.z
+                label [] [
+                    Doc.CheckBox [] rvDisabled
+                    text "Disable input"
+                ]
             ]
             p [] [text (" You typed: " + rv.V.y.z)]
             V(ul [] (rv.V.y.z |> Seq.map (fun c -> li [] [text (string c)]))).V
