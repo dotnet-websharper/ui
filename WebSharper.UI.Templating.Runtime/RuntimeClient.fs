@@ -28,7 +28,6 @@ open FSharp.Quotations.DerivedPatterns
 open WebSharper
 open WebSharper.Core
 open WebSharper.Core.AST
-open WebSharper.JQuery
 open WebSharper.JavaScript
 open WebSharper.UI
 open WebSharper.UI.Templating

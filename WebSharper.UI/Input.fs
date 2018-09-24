@@ -4,7 +4,6 @@ open WebSharper
 open WebSharper.JavaScript
 open WebSharper.UI
 open WebSharper.UI.Notation
-open WebSharper.JQuery
 
 [<JavaScript>]
 module Input =
@@ -45,26 +44,22 @@ module Input =
 
         if not MouseBtnSt.Active then
             MouseBtnSt.Active <- true
-            JS.Document.AddEventListener("mousedown",
-                (fun (evt: Dom.Event) -> buttonListener (evt :?> Dom.MouseEvent) true), false)
-            JS.Document.AddEventListener("mouseup",
-                (fun (evt: Dom.Event) -> buttonListener (evt :?> Dom.MouseEvent) false), false)
+            JS.Document.AddEventListener("mousedown", fun (evt: Dom.Event) ->
+                buttonListener (evt :?> Dom.MouseEvent) true)
+            JS.Document.AddEventListener("mouseup", fun (evt: Dom.Event) ->
+                buttonListener (evt :?> Dom.MouseEvent) false)
 
     [<Sealed>]
     type Mouse =
 
         static member Position =
-
-            let onMouseMove (evt: Dom.Event) =
-                // We know this is a mouse event, so safe to downcast
-                let mEvt = evt :?> Dom.MouseEvent
-                Var.Set MousePosSt.PosV (mEvt.ClientX, mEvt.ClientY)
-
             // Add the mouse movement event if it's not there already.
             if not MousePosSt.Active then
-                JS.Document.AddEventListener("mousemove", onMouseMove, false)
+                JS.Document.AddEventListener("mousemove", fun (evt: Dom.Event) ->
+                    // We know this is a mouse event, so safe to downcast
+                    let mEvt = evt :?> Dom.MouseEvent
+                    Var.Set MousePosSt.PosV (mEvt.ClientX, mEvt.ClientY))
                 MousePosSt.Active <- true
-
             View.FromVar MousePosSt.PosV
 
         static member LeftPressed =
@@ -107,20 +102,24 @@ module Input =
 
     let ActivateKeyListener =
         if not KeyListenerState.KeyListenerActive then
-            // Using JQuery for cross-compatibility.
-            JQuery.Of(JS.Document).Keydown(fun el evt ->
+            KeyListenerState.KeyListenerActive <- true
+            JS.Document.AddEventListener("keydown", fun (evt: Dom.Event) ->
+                let evt = evt :?> Dom.KeyboardEvent
                 let keyCode = evt.Which
+                let keyCode = if keyCode ===. null then evt.KeyCode else keyCode
                 Var.Set KeyListenerState.LastPressed keyCode
                 let xs = Var.Get KeyListenerState.KeysPressed
                 if not (List.exists (fun x -> x = keyCode) xs) then
                     KeyListenerState.KeysPressed.Value <- xs @ [keyCode]
-            ) |> ignore
+            )
 
-            JQuery.Of(JS.Document).Keyup(fun el evt ->
+            JS.Document.AddEventListener("keyup", fun (evt: Dom.Event) ->
+                let evt = evt :?> Dom.KeyboardEvent
                 let keyCode = evt.Which
+                let keyCode = if keyCode ===. null then evt.KeyCode else keyCode
                 Var.Update KeyListenerState.KeysPressed
                     (List.filter (fun x -> x <> keyCode))
-            ) |> ignore
+            )
 
     [<Sealed>]
     type Keyboard =
