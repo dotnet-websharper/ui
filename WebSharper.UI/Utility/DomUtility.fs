@@ -27,54 +27,37 @@ open WebSharper.JavaScript
 [<JavaScript>]
 module DomUtility =
 
-    /// The current DOM Document.
-    let Doc = JS.Document
-
-    /// Appends a child node to the given DOM element.
-    let AppendTo (ctx: Dom.Element) node =
-        ctx.AppendChild(node) |> ignore
-
-    /// Removes all attributes from the given DOM element.
-    let ClearAttrs (ctx: Dom.Element) =
-        while ctx.HasAttributes() do
-            ctx.RemoveAttributeNode(ctx.Attributes.[0] :?> _) |> ignore
-
-    /// Removes all child nodes from the given DOM element.
-    let Clear (ctx: Dom.Element) =
-        while ctx.HasChildNodes() do
-            ctx.RemoveChild(ctx.FirstChild) |> ignore
-
     /// Creates a new DOM element.
+    [<Inline>]
     let CreateElement (name: string) =
-        Doc.CreateElement name
+        JS.Document.CreateElement name
 
     /// Creates an element in the SVG namespace.
+    [<Inline>]
     let CreateSvgElement (name: string) =
-        Doc.CreateElementNS("http://www.w3.org/2000/svg", name)
+        JS.Document.CreateElementNS("http://www.w3.org/2000/svg", name)
 
     /// Creates a new DOM text node with the given value.
+    [<Inline>]
     let CreateText s =
-        Doc.CreateTextNode(s)
-
-    /// Creates a new DOM attribute.
-    let CreateAttr name value =
-        let a = Doc.CreateAttribute(name)
-        a.Value <- value
-        a
+        JS.Document.CreateTextNode(s)
 
     /// Removes a DOM attribute.
+    [<Inline>]
     let RemoveAttr (el: Dom.Element) (attrName: string) =
         el.RemoveAttribute attrName
 
     /// Sets the value of the attribute given by
     /// `name` to `value` in element `el`.
+    [<Inline>]
     let SetAttr (el: Dom.Element) name value =
         el.SetAttribute(name, value)
 
-    [<Direct "$target.setProperty($name, $value)">]
+    [<Inline "$target.setProperty($name, $value)">]
     let private SetProperty (target: obj) (name: string) (value: string) = ()
 
     /// Sets a style property.
+    [<Inline>]
     let SetStyle (el: Dom.Element) name value =
         SetProperty el?style name value
 

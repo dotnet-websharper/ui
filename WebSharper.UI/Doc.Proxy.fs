@@ -532,7 +532,7 @@ type internal Doc' [<JavaScript>] (docNode, updates) =
 
     [<JavaScript>]
     static member RunBeforeById id doc =
-        match DU.Doc.GetElementById(id) with
+        match JS.Document.GetElementById(id) with
         | null -> failwith ("invalid id: " + id)
         | el -> Doc'.RunBefore el doc
 
@@ -544,7 +544,7 @@ type internal Doc' [<JavaScript>] (docNode, updates) =
 
     [<JavaScript>]
     static member RunAfterById id doc =
-        match DU.Doc.GetElementById(id) with
+        match JS.Document.GetElementById(id) with
         | null -> failwith ("invalid id: " + id)
         | el -> Doc'.RunAfter el doc
 
@@ -556,7 +556,7 @@ type internal Doc' [<JavaScript>] (docNode, updates) =
 
     [<JavaScript>]
     static member RunAppendById id doc =
-        match DU.Doc.GetElementById(id) with
+        match JS.Document.GetElementById(id) with
         | null -> failwith ("invalid id: " + id)
         | el -> Doc'.RunAppend el doc
 
@@ -568,7 +568,7 @@ type internal Doc' [<JavaScript>] (docNode, updates) =
 
     [<JavaScript>]
     static member RunPrependById id doc =
-        match DU.Doc.GetElementById(id) with
+        match JS.Document.GetElementById(id) with
         | null -> failwith ("invalid id: " + id)
         | el -> Doc'.RunPrepend el doc
 
@@ -590,13 +590,13 @@ type internal Doc' [<JavaScript>] (docNode, updates) =
 
     [<JavaScript>]
     static member RunById id tr =
-        match DU.Doc.GetElementById(id) with
+        match JS.Document.GetElementById(id) with
         | null -> failwith ("invalid id: " + id)
         | el -> Doc'.Run el tr
 
     [<JavaScript>]
     static member RunReplaceById id (tr: Doc') =
-        match DU.Doc.GetElementById(id) with
+        match JS.Document.GetElementById(id) with
         | null -> failwith ("invalid id: " + id)
         | el -> (tr :> IControlBody).ReplaceInDom(el)
 
