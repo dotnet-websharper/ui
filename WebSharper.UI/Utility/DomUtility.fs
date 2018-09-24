@@ -159,11 +159,17 @@ module DomUtility =
     let private rtagName = RegExp("""<([\w:]+)""")
     let private rhtml = RegExp("""<|&#?\w+;""")
     let private wrapMap =
+        let table = (1, "<table>", "</table>")
         Object<int * string * string> [|
             "option", (1, "<select multiple='multiple'>", "</select>")
-            "thead", (1, "<table>", "</table>")
-            "col", (2, "<table><colgroup>", "</colgoup></table>")
+            "legend", (1, "<fieldset>", "</fieldset>")
+            "area", (1, "<map>", "</map>")
+            "param", (1, "<object>", "</object>")
+            "thead", table
+            "tbody", table
+            "tfoot", table
             "tr", (2, "<table><tbody>", "</tbody></table>")
+            "col", (2, "<table><colgroup>", "</colgoup></table>")
             "td", (3, "<table><tbody><tr>", "</tr></tbody></table>")
         |]
     let private defaultWrap = (0, "", "")

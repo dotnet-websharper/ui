@@ -252,6 +252,7 @@ type Runtime private () =
             Some "param", ("""<object style="display:none" {0}="{1}">""", "</object>")
             Some "thead", ("""<table style="display:none" {0}="{1}">""", "</table>")
             Some "tbody", ("""<table style="display:none" {0}="{1}">""", "</table>")
+            Some "tfoot", ("""<table style="display:none" {0}="{1}">""", "</table>")
             Some "tr", ("""<table style="display:none"><tbody {0}="{1}">""", """</tbody></table>""")
             Some "col", ("""<table style="display:none"><tbody></tbody><colgroup {0}="{1}">""", """</colgroup></table>""")
             Some "td", ("""<table style="display:none"><tbody><tr {0}="{1}">""", """</tr></tbody></table>""")
