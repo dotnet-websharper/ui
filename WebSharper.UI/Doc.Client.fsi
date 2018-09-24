@@ -68,20 +68,17 @@ module Doc =
     /// Embeds an asynchronous Doc. The resulting Doc is empty until the Async returns.
     val Async : Async<#Doc> -> Doc
 
-    /// Construct a Doc using a given set of DOM nodes and template fillers.
-    val Template : Dom.Node[] -> seq<TemplateHole> -> Doc
-
     /// Load templates declared in the current document with `ws-template="name"`.
     val LoadLocalTemplates : string -> unit
 
-    /// Load a template with the given name, if it wasn't loaded yet.
-    val LoadTemplate : string -> option<string> -> (unit -> Dom.Node[]) -> unit
+    /// Load a template with the given name from the children of the given element, if it wasn't loaded yet.
+    val LoadTemplate : string -> option<string> -> (unit -> Dom.Element) -> unit
 
     /// Construct a Doc using a given loaded template by name and template fillers.
     val NamedTemplate : string -> option<string> -> seq<TemplateHole> -> Doc
 
     /// Construct a Doc using a given loaded template by name and template fillers.
-    val GetOrLoadTemplate : string -> option<string> -> (unit -> Dom.Node[]) -> seq<TemplateHole> -> Doc
+    val GetOrLoadTemplate : string -> option<string> -> (unit -> Dom.Element) -> seq<TemplateHole> -> Doc
 
     /// Run the full document as a template with the given fillers.
     val RunFullDocTemplate : seq<TemplateHole> -> Doc

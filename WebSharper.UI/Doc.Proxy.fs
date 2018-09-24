@@ -482,9 +482,8 @@ type internal Doc' [<JavaScript>] (docNode, updates) =
     [<JavaScript>]
     static member Verbatim html =
         let a =
-            match JQuery.JQuery.ParseHTML html with
-            | null -> [||]
-            | a -> a
+            DomUtility.ParseHTMLIntoFakeRoot html
+            |> DomUtility.ChildrenArray
         let elem (n: Dom.Node) =
             if n.NodeType = Dom.NodeType.Text then
                 TextNodeDoc (n :?> Dom.Text)

@@ -102,6 +102,10 @@ module Client =
             added.Clear()
             Console.Log "removed all updaters"
 
+        // Needed so that templates.html can reference index.html as "index";
+        // otherwise it's only available as "" since it's ClientLoad.FromDocument.
+        Doc.LoadLocalTemplates "index"
+
         let doc =
             MyTemplate.template()
                 .Attr(Attr.Style "font-weight" "bold")
@@ -258,9 +262,7 @@ module Client =
             .Hole(text "[OK] This replaces a ws-hole.")
             .Replace(p [] [text "[OK] This replaces a ws-replace."])
             .TextHole("[OK] This replaces a ${text} hole.")
-            .MouseEnter(fun e ->
-                JQuery.JQuery(e.Target).AddClass("ok").Ignore
-            )
+            .MouseEnter(fun e -> DomUtility.AddClass e.Target "ok")
             .Attr(Attr.Class "ok")
             .MultiAttr(Attr.Class "ok1", Attr.Class "ok2")
             .AfterRender(fun (el: Dom.Element) ->

@@ -25,7 +25,7 @@ open WebSharper.JavaScript
 
 /// Utility functions for manipulating DOM.
 [<JavaScript>]
-module internal DomUtility =
+module DomUtility =
 
     /// The current DOM Document.
     let Doc = JS.Document
@@ -154,3 +154,37 @@ module internal DomUtility =
     let IterSelector (el: Dom.Element) (selector: string) (f: Dom.Element -> unit) =
         let l = el.QuerySelectorAll(selector)
         for i = 0 to l.Length - 1 do f (l.[i] :?> Dom.Element)
+
+    let private rxhtmlTag = RegExp("""<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>""", "gi")
+    let private rtagName = RegExp("""<([\w:]+)""")
+    let private rhtml = RegExp("""<|&#?\w+;""")
+    let private wrapMap =
+        Object<int * string * string> [|
+            "option", (1, "<select multiple='multiple'>", "</select>")
+            "thead", (1, "<table>", "</table>")
+            "col", (2, "<table><colgroup>", "</colgoup></table>")
+            "tr", (2, "<table><tbody>", "</tbody></table>")
+            "td", (3, "<table><tbody><tr>", "</tr></tbody></table>")
+        |]
+    let private defaultWrap = (0, "", "")
+
+    /// From https://gist.github.com/Munawwar/6e6362dbdf77c7865a99
+    /// which is itself from jQuery.
+    let ParseHTMLIntoFakeRoot (elem: string) : Dom.Element =
+        let root = JS.Document.CreateElement("div")
+        if not (rhtml.Test elem) then
+            root.AppendChild(JS.Document.CreateTextNode(elem)) |> ignore
+            root
+        else
+            let tag =
+                match rtagName.Exec(elem) with
+                | null -> ""
+                | res -> res.[1].JS.ToLowerCase()
+            let nesting, start, finish =
+                let w = wrapMap.[tag]
+                if As w then w else defaultWrap
+            root.InnerHTML <- start + rxhtmlTag.Replace(elem, "<$1></$2>") + finish
+            let rec unwrap (elt: Dom.Node) = function
+                | 0 -> elt
+                | i -> unwrap elt.LastChild (i - 1)
+            unwrap root nesting :?> Dom.Element

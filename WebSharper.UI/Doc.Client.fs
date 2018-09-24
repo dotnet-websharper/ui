@@ -49,15 +49,11 @@ module Doc =
         As (Doc'.Async (As a))
 
     [<Inline>]
-    let Template (el: Dom.Node[]) (fillWith: seq<TemplateHole>) : Doc =
-        As (Templates.Template el fillWith)
-
-    [<Inline>]
     let LoadLocalTemplates baseName =
         Templates.LoadLocalTemplates baseName
 
     [<Inline>]
-    let LoadTemplate (baseName: string) (name: option<string>) (el: unit -> Dom.Node[]) =
+    let LoadTemplate (baseName: string) (name: option<string>) (el: unit -> Dom.Element) =
         Templates.PrepareTemplate baseName name el
 
     [<Inline>]
@@ -65,7 +61,7 @@ module Doc =
         As (Templates.NamedTemplate baseName name fillWith)
 
     [<Inline>]
-    let GetOrLoadTemplate (baseName: string) (name: option<string>) (el: unit -> Dom.Node[]) (fillWith: seq<TemplateHole>) : Doc =
+    let GetOrLoadTemplate (baseName: string) (name: option<string>) (el: unit -> Dom.Element) (fillWith: seq<TemplateHole>) : Doc =
         As (Templates.GetOrLoadTemplate baseName name el fillWith)
 
     [<Inline>]

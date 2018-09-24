@@ -60,7 +60,7 @@ let AfterRenderQ2(name: string, [<JavaScript>] f: Expr<unit -> unit>) =
 [<Inline>]
 let LazyParseHtml (src: string) =
     ()
-    fun () -> As<Dom.Node[]>(JQuery.ParseHTML src)
+    fun () -> DomUtility.ParseHTMLIntoFakeRoot src
 
 [<AutoOpen>]
 module private MacroHelpers =
