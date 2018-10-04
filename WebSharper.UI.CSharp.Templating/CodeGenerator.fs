@@ -109,9 +109,9 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
         | HoleKind.Var ValTy.Number ->
             [|
                 s "Var<int>" "VarIntUnchecked" "x"
-                s "Var<Client.CheckedInput<int>>" "VarInt" "x"
+                s "Var<WebSharper.UI.Client.CheckedInput<int>>" "VarInt" "x"
                 s "Var<double>" "VarFloatUnchecked" "x"
-                s "Var<Client.CheckedInput<double>>" "VarFloat" "x"
+                s "Var<WebSharper.UI.Client.CheckedInput<double>>" "VarFloat" "x"
             |]
         | HoleKind.Var ValTy.Bool ->
             [|
