@@ -78,10 +78,7 @@ module private Internal =
                                         let typ = value.GetType()
                                         reqs.Add(M.TypeNode (WebSharper.Core.AST.Reflection.ReadTypeDefinition typ))
                                         let packed = json.GetEncoder(typ).Encode(value) |> json.Pack
-                                        let s =
-                                            WebSharper.Core.Json.Stringify(packed)
-                                                .Replace("&", "&amp;")
-                                                .Replace("\"", "&quot;")
+                                        let s = WebSharper.Core.Json.Stringify(packed)
                                         match packed with
                                         | WebSharper.Core.Json.Object ((("$TYPES" | "$DATA"), _) :: _) ->
                                             "WebSharper.Json.Activate(" + s + ")"

@@ -75,6 +75,7 @@ let Main = Application.SinglePage(fun ctx ->
                     .Click(fun _ -> JavaScript.JS.Alert "Clicked 3!")
                     .Doc()
                 ])
+            .Click(fun _ -> JavaScript.JS.Alert "Clicked 4!")
             .Client(
                 [
                     client <@ Client.Main("green") @>
