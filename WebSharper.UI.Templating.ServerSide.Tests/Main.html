@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <title>WebSharper.UI.Tests</title>
@@ -37,6 +37,25 @@
         </div>
     </div>
     <div ws-hole="ClientSide"></div>
+    <div class="container">
+        <div ws-template="Field">
+            Hello, ${Name}!
+        </div>
+        <ws-Field>
+            <Name>World</Name>
+        </ws-Field>
+        <div ws-template="Field2">
+            Hello, <div ws-replace="Name" />!
+        </div>
+        <ws-Field2>
+            <Name>
+                <i>Doc</i>
+                <ws-Field>
+                    <Name>Recursion</Name>
+                </ws-Field>
+            </Name>
+        </ws-Field2>
+    </div>
     <script ws-replace="scripts"></script>
 </body>
 </html>

@@ -170,6 +170,7 @@ type private RenderContext =
         Resources: option<RenderedResources>
         Templates: Map<Parsing.WrappedTemplateName, Template>
         FillWith: Holes
+        RequireResources: Dictionary<string, IRequiresResources>
     }
 
 [<JavaScript>]
@@ -296,17 +297,19 @@ type Runtime private () =
         let getOrLoadPath fullPath =
             loaded.GetOrAdd(baseName, fun _ -> let t, _, _ = Parsing.ParseSource baseName (File.ReadAllText fullPath) in t)
         let requireResources = Dictionary(StringComparer.InvariantCultureIgnoreCase)
-        fillWith |> Seq.iter (function
+        let addTemplateHole (dict: Dictionary<_,_>) x =
+            match x with
             | TemplateHole.Elt (n, d) when not (obj.ReferenceEquals(d, null)) ->
-                requireResources.Add(n, d :> IRequiresResources)
+                dict.Add(n, d :> IRequiresResources)
             | TemplateHole.Attribute (n, a) when not (obj.ReferenceEquals(a, null)) ->
-                requireResources.Add(n, a :> IRequiresResources)
+                dict.Add(n, a :> IRequiresResources)
             | TemplateHole.EventQ (n, _, e) ->
-                requireResources.Add(n, Attr.HandlerImpl("", e) :> IRequiresResources)
+                dict.Add(n, Attr.HandlerImpl("", e) :> IRequiresResources)
             | TemplateHole.AfterRenderQ (n, e) ->
-                requireResources.Add(n, Attr.OnAfterRenderImpl(e) :> IRequiresResources)
+                dict.Add(n, Attr.OnAfterRenderImpl(e) :> IRequiresResources)
             | _ -> ()
-        )
+        
+        fillWith |> Seq.iter (addTemplateHole requireResources)
 
         let rec writeWrappedTemplate templateName (template: Template) ctx =
             let tagName = template.Value |> Array.tryPick (function
@@ -348,7 +351,7 @@ type Runtime private () =
                 | Attr.Attr holeName ->
                     let doPlain() = ctx.Writer.WriteAttribute(AttrAttr, holeName)
                     if plain then doPlain() else
-                    match requireResources.TryGetValue holeName with
+                    match ctx.RequireResources.TryGetValue holeName with
                     | true, (:? UI.Attr as a) ->
                         a.Write(ctx.Context.Metadata, ctx.Writer, true)
                     | _ ->
@@ -362,7 +365,7 @@ type Runtime private () =
                 | Attr.Event(event, holeName) ->
                     let doPlain() = ctx.Writer.WriteAttribute(EventAttrPrefix + event, holeName)
                     if plain then doPlain() else
-                    match requireResources.TryGetValue holeName with
+                    match ctx.RequireResources.TryGetValue holeName with
                     | true, (:? UI.Attr as a) ->
                         a.WithName("on" + event).Write(ctx.Context.Metadata, ctx.Writer, true)
                     | _ ->
@@ -372,7 +375,7 @@ type Runtime private () =
                 | Attr.OnAfterRender holeName ->
                     let doPlain() = ctx.Writer.WriteAttribute(AfterRenderAttr, holeName)
                     if plain then doPlain() else
-                    match requireResources.TryGetValue holeName with
+                    match ctx.RequireResources.TryGetValue holeName with
                     | true, (:? UI.Attr as a) ->
                         a.Write(ctx.Context.Metadata, ctx.Writer, true)
                     | _ ->
@@ -424,7 +427,7 @@ type Runtime private () =
                     | "scripts" | "styles" | "meta" when Option.isSome ctx.Resources ->
                         ctx.Writer.Write(ctx.Resources.Value.[holeName])
                     | _ ->
-                        match requireResources.TryGetValue holeName with
+                        match ctx.RequireResources.TryGetValue holeName with
                         | true, (:? UI.Doc as doc) ->
                             doc.Write(ctx.Context, ctx.Writer, ctx.Resources)
                         | _ ->
@@ -436,7 +439,60 @@ type Runtime private () =
                     if plain then
                         writePlainInstantiation fileName templateName holeMaps attrHoles contentHoles textHole
                     else
-                        failwithf "Template instantiation not yet supported on the server side"
+                        let attrFromInstantiation (a: Attr) =
+                            match a with
+                            | Attr.Attr holeName -> 
+                                match ctx.FillWith.TryGetValue holeName with
+                                | true, TemplateHole.Attribute (_, a) -> a
+                                | true, _ -> failwithf "Invalid hole, expected Attr: %s" holeName
+                                | false, _ -> Attr.Empty
+                            | Attr.Simple(name, value) ->
+                                Attr.Create name value
+                            | Attr.Compound(name, value) ->
+                                Attr.Create name (unencodedStringParts value)
+                            | Attr.Event(event, holeName) ->
+                                match ctx.RequireResources.TryGetValue holeName with
+                                | true, (:? UI.Attr as a) ->
+                                    a.WithName("on" + event)
+                                | _ ->
+                                    if ctx.FillWith.ContainsKey holeName then
+                                        failwithf "Invalid hole, expected quoted event: %s" holeName
+                                    else Attr.Empty
+                            | Attr.OnAfterRender holeName ->
+                                match ctx.RequireResources.TryGetValue holeName with
+                                | true, (:? UI.Attr as a) ->
+                                    a
+                                | _ ->
+                                    if ctx.FillWith.ContainsKey holeName then
+                                        failwithf "Invalid hole, expected onafterrender: %s" holeName
+                                    else Attr.Empty
+                        
+                        let holes = Dictionary(StringComparer.InvariantCultureIgnoreCase)
+                        let reqRes = Dictionary(StringComparer.InvariantCultureIgnoreCase)
+                        for KeyValue(k, v) in holeMaps do
+                            let mapped = ctx.FillWith.[v].WithName k
+                            holes.Add(k, mapped)
+                            mapped |> addTemplateHole reqRes
+                        for KeyValue(k, v) in attrHoles do
+                            let attr = TemplateHole.Attribute(k, Attr.Concat (v |> Seq.map attrFromInstantiation))
+                            holes.Add(k, attr)
+                            attr |> addTemplateHole reqRes
+                        for KeyValue(k, v) in contentHoles do
+                            match v with
+                            | [| Node.Text [| StringPart.Text t |] |] ->
+                                let text = TemplateHole.Text(k, t)
+                                holes.Add(k, text)
+                            | _ ->
+                                let writeContent ctx w r =
+                                    v |> Array.iter (writeNode parent false)
+                                let doc = TemplateHole.Elt(k, Server.Internal.TemplateDoc([], writeContent))
+                                holes.Add(k, doc)
+                                doc |> addTemplateHole reqRes
+                        // TODO template in another file
+                        match ctx.Templates |> Map.tryFind (Parsing.WrappedTemplateName.OfOption templateName) with
+                        | Some instTemplate ->
+                            writeTemplate instTemplate false [] { ctx with FillWith = holes; RequireResources = reqRes }
+                        | None -> ()
             and writePlainInstantiation fileName templateName holeMaps attrHoles contentHoles textHole =
                 let tagName =
                     let filePrefix =
@@ -497,13 +553,13 @@ type Runtime private () =
                 match completed with
                 | CompletedHoles.Server i -> Seq.singleton (i :> IRequiresResources)
                 | CompletedHoles.Client _ -> failwith "Shouldn't happen"
-        let requireResources = Seq.append tplInstance requireResources.Values
+        let requireResourcesSeq = Seq.append tplInstance requireResources.Values
         let write extraAttrs ctx w r =
             let template, templates = getTemplates ctx
             let r =
                 if r then
                     SpecialHole.RenderResources template.SpecialHoles ctx
-                        (Seq.append requireResources (Seq.cast extraAttrs))
+                        (Seq.append requireResourcesSeq (Seq.cast extraAttrs))
                     |> Some
                 else None
             let fillWith = buildFillDict fillWith template.Holes
@@ -513,8 +569,9 @@ type Runtime private () =
                 Resources = r
                 Templates = templates
                 FillWith = fillWith
+                RequireResources = requireResources
             }
         if isElt then
-            Server.Internal.TemplateElt(requireResources, write) :> _
+            Server.Internal.TemplateElt(requireResourcesSeq, write) :> _
         else
-            Server.Internal.TemplateDoc(requireResources, write []) :> _
+            Server.Internal.TemplateDoc(requireResourcesSeq, write []) :> _
