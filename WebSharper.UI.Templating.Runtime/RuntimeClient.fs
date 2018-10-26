@@ -165,19 +165,23 @@ type GetOrLoadTemplateMacro() =
                 comp.AddMetadataEntry(meKey, M.CompositeEntry [ M.TypeDefinitionEntry td; M.MethodEntry m ])
                 td, m
         match call.Arguments with
-        | [ baseName; name; path; src; dynSrc; fillWith; inlineBaseName; serverLoad; refs; completedHoles; isElt; keepUnfilled ] ->
-            let inlineBaseName =
-                match ExtractOption inlineBaseName with
-                | Some (I.Value (String n)) -> Some n
-                | _ -> None
-            let baseName =
-                match baseName with
-                | I.Value (String n) -> n
-                | x -> failwithf "Expecting a string literal for baseName argument, got %A" x
-            // store location of generated code in metadata keyed by the source
-            let td, m = getOrAddFunc baseName name src refs inlineBaseName
-            Call(None, NonGeneric td, NonGeneric m, [ fillWith ])
-            |> MacroOk
+        | [ baseName; name; path; src; dynSrc; fillWith; inlineBaseName; serverLoad; refs; completedHoles; isElt; keepUnfilled; serverOnly ] ->
+            match serverOnly with
+            | I.Value (Bool true) ->
+                MacroOk AST.Undefined
+            | _ ->
+                let inlineBaseName =
+                    match ExtractOption inlineBaseName with
+                    | Some (I.Value (String n)) -> Some n
+                    | _ -> None
+                let baseName =
+                    match baseName with
+                    | I.Value (String n) -> n
+                    | x -> failwithf "Expecting a string literal for baseName argument, got %A" x
+                // store location of generated code in metadata keyed by the source
+                let td, m = getOrAddFunc baseName name src refs inlineBaseName
+                Call(None, NonGeneric td, NonGeneric m, [ fillWith ])
+                |> MacroOk
         | _ -> failwith "LoadTemplateMacro error"
 
 [<Proxy(typeof<Server.Runtime>)>]
@@ -197,7 +201,8 @@ type private RuntimeProxy =
                 refs: array<string * option<string> * string>,
                 completed: Server.CompletedHoles,
                 isElt: bool,
-                keepUnfilled: bool
+                keepUnfilled: bool,
+                serverOnly: bool
             ) : Doc =
         X<Doc>
 

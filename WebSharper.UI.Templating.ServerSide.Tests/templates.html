@@ -1,0 +1,16 @@
+<div ws-template="Field3">
+    Hello, ${Name}!
+</div>
+<div ws-template="Field4">
+    ${Hello}, ${Name}!
+</div>
+<div ws-template="Field5">
+    <ws-Field4 Hello>
+        <Name>${Name} again</Name>
+    </ws-Field4>
+</div>
+<div ws-template="Field6">
+    <ws-Field4 Name>
+        <Hello>Hello missing name</Hello>
+    </ws-Field4>
+</div>

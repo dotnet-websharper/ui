@@ -12,6 +12,7 @@
   <ItemGroup>
     <Compile Include="Main.fs" />
     <Content Include="Main.html" />
+    <Content Include="templates.html" />
     <Content Include="Web.config" />
     <Content Include="template.html" />
   </ItemGroup>

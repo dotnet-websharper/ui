@@ -462,6 +462,23 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
         | TemplateHole.AfterRenderQ (name, _)
         | TemplateHole.Attribute (name, _) -> name
 
+    member this.WithName name =
+        match this with
+        | TemplateHole.Elt (_, fillWith) -> TemplateHole.Elt (name, fillWith)
+        | TemplateHole.Text (_, fillWith) -> TemplateHole.Text (name, fillWith)
+        | TemplateHole.TextView (_, fillWith) -> TemplateHole.TextView (name, fillWith)
+        | TemplateHole.VarStr (_, fillWith) ->  TemplateHole.VarStr (name, fillWith)
+        | TemplateHole.VarBool (_, fillWith) -> TemplateHole.VarBool (name, fillWith)
+        | TemplateHole.VarInt (_, fillWith) -> TemplateHole.VarInt (name, fillWith)
+        | TemplateHole.VarIntUnchecked (_, fillWith) -> TemplateHole.VarIntUnchecked (name, fillWith)
+        | TemplateHole.VarFloat (_, fillWith) -> TemplateHole.VarFloat (name, fillWith)
+        | TemplateHole.VarFloatUnchecked (_, fillWith) -> TemplateHole.VarFloatUnchecked (name, fillWith)
+        | TemplateHole.Event (_, fillWith) -> TemplateHole.Event (name, fillWith) 
+        | TemplateHole.EventQ (_, isGenerated, fillWith) -> TemplateHole.EventQ (name, isGenerated, fillWith)
+        | TemplateHole.AfterRender (_, fillWith) -> TemplateHole.AfterRender (name, fillWith) 
+        | TemplateHole.AfterRenderQ (_, fillWith) -> TemplateHole.AfterRenderQ (name, fillWith) 
+        | TemplateHole.Attribute (_, fillWith) -> TemplateHole.Attribute (name, fillWith)
+
 type Doc with
 
     static member ListOfSeq (s: seq<'T>) =

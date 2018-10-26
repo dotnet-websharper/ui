@@ -576,6 +576,8 @@ type TemplateHole =
     static member MakeVarLens : name: string * value: Client.CheckedInput<float> -> TemplateHole
     static member MakeVarLens : name: string * value: float -> TemplateHole
 
+    member WithName : name: string -> TemplateHole
+
 type DynDoc =
     | AppendDoc of list<Doc>
     | ElemDoc of Elt

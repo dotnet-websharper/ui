@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <title>WebSharper.UI.Tests</title>
@@ -39,6 +39,35 @@
     </div>
     <div ws-template="OAR"></div>
     <div ws-hole="ClientSide"></div>
+    <div class="container">
+        <div ws-template="Field">
+            Hello, ${Name}!
+        </div>
+        <ws-Field>
+            <Name>World</Name>
+        </ws-Field>
+        <ws-Field>World by default text hole</ws-Field>
+        <ws-templates.Field3>
+            <Name>World from another file</Name>
+        </ws-templates.Field3>
+        <div ws-template="Field2">
+            Hello, <div ws-replace="Name" /><span ws-attr="Attrs">!</span>
+        </div>
+        <ws-Field2>
+            <Name>
+                <i>Doc</i>
+                <ws-Field>
+                    <Name>Recursion</Name>
+                </ws-Field>
+            </Name>
+            <Attrs style="color:red" />
+        </ws-Field2>
+        <ws-templates.Field5>
+            <Hello>Hello</Hello>
+            <Name>World</Name>
+        </ws-templates.Field5>
+        <ws-templates.Field6 />
+    </div>
     <script ws-replace="scripts"></script>
 </body>
 </html>

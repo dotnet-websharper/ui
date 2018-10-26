@@ -28,7 +28,7 @@ open WebSharper.UI.Notation
 open WebSharper.UI.Templating
 
 type LegacyTemplate = Template<"Main.html", legacyMode = LegacyMode.Old>
-type MainTemplate = Template<"Main.html,template.html", ClientLoad.FromDocument, ServerLoad.WhenChanged, LegacyMode.New>
+type MainTemplate = Template<"Main.html,template.html,templates.html", ClientLoad.FromDocument, ServerLoad.WhenChanged, LegacyMode.New>
 
 type Css() =
     inherit Resources.BaseResource("Main.css")
