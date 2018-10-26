@@ -82,6 +82,7 @@ module Doc =
 
     /// Run the full document as a template with the given fillers
     /// in addition to those registered with RegisterGlobalHole.
+    /// If RunFullDocTemplate has alredy been run, this does nothing and re-returns the same Doc.
     val RunFullDocTemplate : seq<TemplateHole> -> Doc
 
     /// Register a hole filler to make it available in RunFullDocTemplate.

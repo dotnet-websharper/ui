@@ -577,11 +577,19 @@ module internal Templates =
             LoadNestedTemplates JS.Document.Body ""
         LoadedTemplates.[baseName] <- LoadedTemplateFile("")
 
+    let mutable RenderedFullDocTemplate = None
+
     let RunFullDocTemplate (fillWith: seq<TemplateHole>) =
-        LoadLocalTemplates ""
-        PrepareTemplateStrict "" None JS.Document.Body None
-        ChildrenTemplate JS.Document.Body fillWith
-        |>! Doc'.RunInPlace true JS.Document.Body
+        match RenderedFullDocTemplate with
+        | Some d -> d
+        | None ->
+            let d =
+                LoadLocalTemplates ""
+                PrepareTemplateStrict "" None JS.Document.Body None
+                ChildrenTemplate JS.Document.Body fillWith
+                |>! Doc'.RunInPlace true JS.Document.Body
+            RenderedFullDocTemplate <- Some d
+            d
 
     let NamedTemplate (baseName: string) (name: option<string>) (fillWith: seq<TemplateHole>) =
         match LoadedTemplateFile(baseName).TryGetValue(defaultArg name "") with

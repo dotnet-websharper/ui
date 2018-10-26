@@ -147,8 +147,7 @@ type TemplateInitializer(id: string, vars: array<string * ValTy>) =
         member this.Initialize(_) = ()
 
         member this.PostInitialize(key) =
-            // TODO: run Bind() if it wasn't run yet
-            ()
+            Client.Doc.RunFullDocTemplate [] |> ignore
 
 and [<JavaScript>] TemplateInstances() =
     [<JavaScript>]
