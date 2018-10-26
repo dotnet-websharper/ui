@@ -44,8 +44,11 @@
         <ws-Field>
             <Name>World</Name>
         </ws-Field>
+        <ws-templates.Field3>
+            <Name>World from another file</Name>
+        </ws-templates.Field3>
         <div ws-template="Field2">
-            Hello, <div ws-replace="Name" />!
+            Hello, <div ws-replace="Name" /><span ws-attr="Attrs">!</span>
         </div>
         <ws-Field2>
             <Name>
@@ -54,7 +57,12 @@
                     <Name>Recursion</Name>
                 </ws-Field>
             </Name>
+            <Attrs style="color:red" />
         </ws-Field2>
+        <ws-templates.Field5>
+            <Hello>Hello</Hello>
+            <Name>World</Name>
+        </ws-templates.Field5>
     </div>
     <script ws-replace="scripts"></script>
 </body>

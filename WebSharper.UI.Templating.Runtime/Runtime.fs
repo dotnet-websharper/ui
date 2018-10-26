@@ -213,6 +213,8 @@ type Runtime private () =
 
     static let watchers = ConcurrentDictionary<string, FileSystemWatcher>()
 
+    static let toInitialize = ConcurrentQueue<Web.Context -> unit>()
+
     static let reloader = MailboxProcessor.Start(fun mb -> async {
         while true do
             let! baseName, fullPath as msg = mb.Receive()
@@ -288,7 +290,8 @@ type Runtime private () =
                 refs: array<string * option<string> * string>,
                 completed: CompletedHoles,
                 isElt: bool,
-                keepUnfilled: bool
+                keepUnfilled: bool,
+                serverOnly: bool
             ) : Doc =
         let getSrc src =
             let t, _, _ = Parsing.ParseSource baseName src in t
@@ -439,60 +442,74 @@ type Runtime private () =
                     if plain then
                         writePlainInstantiation fileName templateName holeMaps attrHoles contentHoles textHole
                     else
-                        let attrFromInstantiation (a: Attr) =
-                            match a with
-                            | Attr.Attr holeName -> 
-                                match ctx.FillWith.TryGetValue holeName with
-                                | true, TemplateHole.Attribute (_, a) -> a
-                                | true, _ -> failwithf "Invalid hole, expected Attr: %s" holeName
-                                | false, _ -> Attr.Empty
-                            | Attr.Simple(name, value) ->
-                                Attr.Create name value
-                            | Attr.Compound(name, value) ->
-                                Attr.Create name (unencodedStringParts value)
-                            | Attr.Event(event, holeName) ->
-                                match ctx.RequireResources.TryGetValue holeName with
-                                | true, (:? UI.Attr as a) ->
-                                    a.WithName("on" + event)
-                                | _ ->
-                                    if ctx.FillWith.ContainsKey holeName then
-                                        failwithf "Invalid hole, expected quoted event: %s" holeName
-                                    else Attr.Empty
-                            | Attr.OnAfterRender holeName ->
-                                match ctx.RequireResources.TryGetValue holeName with
-                                | true, (:? UI.Attr as a) ->
-                                    a
-                                | _ ->
-                                    if ctx.FillWith.ContainsKey holeName then
-                                        failwithf "Invalid hole, expected onafterrender: %s" holeName
-                                    else Attr.Empty
-                        
-                        let holes = Dictionary(StringComparer.InvariantCultureIgnoreCase)
-                        let reqRes = Dictionary(StringComparer.InvariantCultureIgnoreCase)
-                        for KeyValue(k, v) in holeMaps do
-                            let mapped = ctx.FillWith.[v].WithName k
-                            holes.Add(k, mapped)
-                            mapped |> addTemplateHole reqRes
-                        for KeyValue(k, v) in attrHoles do
-                            let attr = TemplateHole.Attribute(k, Attr.Concat (v |> Seq.map attrFromInstantiation))
-                            holes.Add(k, attr)
-                            attr |> addTemplateHole reqRes
-                        for KeyValue(k, v) in contentHoles do
-                            match v with
-                            | [| Node.Text [| StringPart.Text t |] |] ->
-                                let text = TemplateHole.Text(k, t)
-                                holes.Add(k, text)
-                            | _ ->
-                                let writeContent ctx w r =
-                                    v |> Array.iter (writeNode parent false)
-                                let doc = TemplateHole.Elt(k, Server.Internal.TemplateDoc([], writeContent))
-                                holes.Add(k, doc)
-                                doc |> addTemplateHole reqRes
-                        // TODO template in another file
-                        match ctx.Templates |> Map.tryFind (Parsing.WrappedTemplateName.OfOption templateName) with
-                        | Some instTemplate ->
-                            writeTemplate instTemplate false [] { ctx with FillWith = holes; RequireResources = reqRes }
-                        | None -> ()
+                        writeInstantiation parent fileName templateName holeMaps attrHoles contentHoles textHole
+            and writeInstantiation parent fileName templateName holeMaps attrHoles contentHoles textHole =
+                let attrFromInstantiation (a: Attr) =
+                    match a with
+                    | Attr.Attr holeName -> 
+                        match ctx.FillWith.TryGetValue holeName with
+                        | true, TemplateHole.Attribute (_, a) -> a
+                        | true, _ -> failwithf "Invalid hole, expected Attr: %s" holeName
+                        | false, _ -> Attr.Empty
+                    | Attr.Simple(name, value) ->
+                        Attr.Create name value
+                    | Attr.Compound(name, value) ->
+                        Attr.Create name (unencodedStringParts value)
+                    | Attr.Event(event, holeName) ->
+                        match ctx.RequireResources.TryGetValue holeName with
+                        | true, (:? UI.Attr as a) ->
+                            a.WithName("on" + event)
+                        | _ ->
+                            if ctx.FillWith.ContainsKey holeName then
+                                failwithf "Invalid hole, expected quoted event: %s" holeName
+                            else Attr.Empty
+                    | Attr.OnAfterRender holeName ->
+                        match ctx.RequireResources.TryGetValue holeName with
+                        | true, (:? UI.Attr as a) ->
+                            a
+                        | _ ->
+                            if ctx.FillWith.ContainsKey holeName then
+                                failwithf "Invalid hole, expected onafterrender: %s" holeName
+                            else Attr.Empty
+                let holes = Dictionary(StringComparer.InvariantCultureIgnoreCase)
+                let reqRes = Dictionary(StringComparer.InvariantCultureIgnoreCase)
+                for KeyValue(k, v) in holeMaps do
+                    let mapped = ctx.FillWith.[v].WithName k
+                    holes.Add(k, mapped)
+                    mapped |> addTemplateHole reqRes
+                for KeyValue(k, v) in attrHoles do
+                    let attr = TemplateHole.Attribute(k, Attr.Concat (v |> Seq.map attrFromInstantiation))
+                    holes.Add(k, attr)
+                    attr |> addTemplateHole reqRes
+                for KeyValue(k, v) in contentHoles do
+                    match v with
+                    | [| Node.Text text |] ->
+                        holes.Add(k, TemplateHole.Text(k, unencodedStringParts text))
+                    | _ ->
+                        let writeContent ctx w r =
+                            v |> Array.iter (writeNode parent false)
+                        let doc = TemplateHole.Elt(k, Server.Internal.TemplateDoc([], writeContent))
+                        holes.Add(k, doc)
+                        doc |> addTemplateHole reqRes
+                let templates =
+                    match fileName with
+                    | None -> ctx.Templates
+                    | Some fileName ->
+                        match loaded.TryGetValue fileName with
+                        | true, templates -> templates
+                        | false, _ -> failwithf "Template file reference has not been loaded: %s" fileName
+                match templates |> Map.tryFind (Parsing.WrappedTemplateName.OfOption templateName) with
+                | Some instTemplate ->
+                    writeTemplate instTemplate false []
+                        { ctx with 
+                            Templates = templates
+                            RequireResources = reqRes
+                            FillWith = holes
+                        }
+                | None ->
+                    let fullName = 
+                        Option.toList fileName @ Option.toList templateName |> String.concat "." 
+                    failwithf "Sub-template not found: %s" fullName
             and writePlainInstantiation fileName templateName holeMaps attrHoles contentHoles textHole =
                 let tagName =
                     let filePrefix =
@@ -555,6 +572,13 @@ type Runtime private () =
                 | CompletedHoles.Client _ -> failwith "Shouldn't happen"
         let requireResourcesSeq = Seq.append tplInstance requireResources.Values
         let write extraAttrs ctx w r =
+            let rec runInits() = 
+                match toInitialize.TryDequeue() with
+                | true, init ->
+                    init ctx
+                    runInits ()
+                | _ -> ()
+            runInits()
             let template, templates = getTemplates ctx
             let r =
                 if r then
@@ -571,6 +595,11 @@ type Runtime private () =
                 FillWith = fillWith
                 RequireResources = requireResources
             }
+        if not (loaded.ContainsKey baseName) then
+            toInitialize.Enqueue(fun ctx ->
+                if not (loaded.ContainsKey baseName) then
+                    getTemplates ctx |> ignore
+            )
         if isElt then
             Server.Internal.TemplateElt(requireResourcesSeq, write) :> _
         else

@@ -274,12 +274,40 @@ module private Impl =
             let _ = builder.SetInstance(TI(completed, doc))
             () @@>
 
-    let InstanceBody (ctx: Ctx) (args: list<Expr>) =
+    let ServerOnlyInitBody (ctx: Ctx) =
+        let name = ctx.Id |> Option.map (fun s -> s.ToLowerInvariant())
+        let references = References ctx
+        <@@
+            RTS.Runtime.GetOrLoadTemplate(
+                %%Expr.Value ctx.FileId,
+                %OptionValue name,
+                %OptionValue ctx.Path,
+                %%Expr.Value ctx.Template.Src,
+                None,
+                [],
+                %OptionValue ctx.InlineFileId,
+                %%Expr.Value ctx.ServerLoad,
+                %%references,
+                Unchecked.defaultof<Runtime.Server.CompletedHoles>,
+                %%Expr.Value ctx.Template.IsElt,
+                false,
+                false
+            ) |> ignore
+        @@>
+    
+    let InstanceBody (ctx: Ctx) (refInits: Map<string, Expr>) (args: list<Expr>) =
         let name = ctx.Id |> Option.map (fun s -> s.ToLowerInvariant())
         let references = References ctx
         let vars = InstanceVars ctx
+        let inits = 
+            let fileIds = ctx.Template.References |> Seq.map fst |> Seq.distinct |> List.ofSeq
+            if List.isEmpty fileIds then <@@ () @@> else 
+                fileIds |> List.choose (fun f -> refInits |> Map.tryFind f)
+                |> List.reduce (fun a b -> Expr.Sequential(a, b))
+        
         <@@ let builder = (%%args.[0] : obj) :?> Builder
             let holes, completed = RTS.Handler.CompleteHoles(builder.Key, builder.Holes, %%vars)
+            %%inits
             let doc =
                 RTS.Runtime.GetOrLoadTemplate(
                     %%Expr.Value ctx.FileId,
@@ -293,7 +321,8 @@ module private Impl =
                     %%references,
                     completed,
                     %%Expr.Value ctx.Template.IsElt,
-                    %%(match args with _::keepUnfilled::_ -> keepUnfilled | _ -> Expr.Value false)
+                    %%(match args with _::keepUnfilled::_ -> keepUnfilled | _ -> Expr.Value false),
+                    false
                 )
             builder.SetInstance(TI(completed, doc)) @@>
 
@@ -332,7 +361,7 @@ module private Impl =
         ]
         res, vars
 
-    let BuildOneTemplate (ty: PT.Type) (isRoot: bool) (ctx: Ctx) =
+    let BuildOneTemplate (ty: PT.Type) (isRoot: bool) (ctx: Ctx) (refInits: Map<string, Expr>) =
         ty.AddMembers [
             let instanceTy, varsTy = BuildInstanceType ty ctx
             for KeyValue (holeName, holeKind) in ctx.Template.Holes do
@@ -341,18 +370,18 @@ module private Impl =
                 yield ProvidedMethod("Bind", [], typeof<unit>, BindBody ctx)
                     .WithXmlDoc(XmlDoc.Member.Bind) :> _
             else
-                yield ProvidedMethod("Create", [], instanceTy, InstanceBody ctx)
+                yield ProvidedMethod("Create", [], instanceTy, InstanceBody ctx refInits)
                     .WithXmlDoc(XmlDoc.Member.Instance) :> _
             let docParams, docXmldoc =
                 if isRoot then
                     [ProvidedParameter("keepUnfilled", typeof<bool>, optionalValue = box false)], XmlDoc.Member.Doc_withUnfilled
                 else [], XmlDoc.Member.Doc
             yield ProvidedMethod("Doc", docParams, typeof<Doc>, fun args ->
-                <@@ (%%InstanceBody ctx args : TI).Doc @@>)
+                <@@ (%%InstanceBody ctx refInits args : TI).Doc @@>)
                 .WithXmlDoc(docXmldoc) :> _
             if ctx.Template.IsElt then
                 yield ProvidedMethod("Elt", docParams, typeof<Elt>, fun args ->
-                    <@@ (%%InstanceBody ctx args : TI).Doc :?> Elt @@>)
+                    <@@ (%%InstanceBody ctx refInits args : TI).Doc :?> Elt @@>)
                     .WithXmlDoc(docXmldoc) :> _
             let ctors = [
                 ProvidedConstructor([], fun _ -> <@@ box (Builder.Make()) @@>)
@@ -370,7 +399,8 @@ module private Impl =
     let BuildOneFile (item: Parsing.ParseItem)
             (allTemplates: Map<string, Map<option<string>, Template>>)
             (containerTy: PT.Type)
-            (inlineFileId: option<string>) =
+            (inlineFileId: option<string>) 
+            (refInits: Map<string, Expr>) =
         let baseId =
             match item.Id with
             | "" -> "t" + string (Guid.NewGuid().ToString("N"))
@@ -385,13 +415,30 @@ module private Impl =
             match tn.NameAsOption with
             | None ->
                 BuildOneTemplate (containerTy.WithXmlDoc(XmlDoc.Type.Template ""))
-                    (item.ClientLoad = ClientLoad.FromDocument) ctx
+                    (item.ClientLoad = ClientLoad.FromDocument) ctx refInits
             | Some n ->
                 let ty =
                     ProvidedTypeDefinition(n, Some typeof<obj>)
                         .WithXmlDoc(XmlDoc.Type.Template n)
                         .AddTo(containerTy)
-                BuildOneTemplate ty false ctx
+                BuildOneTemplate ty false ctx refInits
+
+    let BuildServerOnlyInit (item: Parsing.ParseItem)
+            (allTemplates: Map<string, Map<option<string>, Template>>) =
+        let baseId =
+            match item.Id with
+            | "" -> "t" + string (Guid.NewGuid().ToString("N"))
+            | p -> p
+        match item.Templates |> Seq.tryHead with
+        | Some (KeyValue (tn, t)) ->
+            let ctx = {
+                Template = t
+                FileId = baseId; Id = tn.IdAsOption; Path = item.Path
+                InlineFileId = None; ServerLoad = item.ServerLoad
+                AllTemplates = allTemplates
+            }
+            Some (baseId, ServerOnlyInitBody ctx)
+        | None -> None
 
     let BuildTP (parsed: Parsing.ParseItem[]) (containerTy: PT.Type) =
         let allTemplates =
@@ -402,8 +449,12 @@ module private Impl =
             | _ -> None
         match parsed with
         | [| item |] ->
-            BuildOneFile item allTemplates containerTy (inlineFileId item)
+            BuildOneFile item allTemplates containerTy (inlineFileId item) |> ignore
         | items ->
+            let inits = 
+                items |> Seq.choose (fun item ->
+                    BuildServerOnlyInit item allTemplates
+                ) |> Map.ofSeq
             items |> Array.iter (fun item ->
                 let containerTy =
                     match item.Name with
@@ -411,7 +462,7 @@ module private Impl =
                     | Some name ->
                         ProvidedTypeDefinition(name, Some typeof<obj>)
                             .AddTo(containerTy)
-                BuildOneFile item allTemplates containerTy (inlineFileId item)
+                BuildOneFile item allTemplates containerTy (inlineFileId item) inits
             )
 
 type FileWatcher (invalidate: unit -> unit, disposing: IEvent<EventHandler, EventArgs>, cfg: TypeProviderConfig) =
