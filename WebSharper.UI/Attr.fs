@@ -78,10 +78,7 @@ module private Internal =
                                         let typ = value.GetType()
                                         reqs.Add(M.TypeNode (WebSharper.Core.AST.Reflection.ReadTypeDefinition typ))
                                         let packed = json.GetEncoder(typ).Encode(value) |> json.Pack
-                                        let s =
-                                            WebSharper.Core.Json.Stringify(packed)
-                                                .Replace("&", "&amp;")
-                                                .Replace("\"", "&quot;")
+                                        let s = WebSharper.Core.Json.Stringify(packed)
                                         match packed with
                                         | WebSharper.Core.Json.Object ((("$TYPES" | "$DATA"), _) :: _) ->
                                             "WebSharper.Json.Activate(" + s + ")"
@@ -101,8 +98,10 @@ module private Internal =
             doCall s, reqs :> seq<_>
         )
 
-type private OnAfterRenderControl() =
+type private OnAfterRenderControl private () =
     inherit Web.Control()
+
+    static member val Instance = new OnAfterRenderControl(ID = "ws.ui.oar") :> IRequiresResources
 
     [<JavaScript>]
     override this.Body =
@@ -184,8 +183,9 @@ type Attr =
         let init meta =
             if Option.isNone !value then
                 value :=
+                    let oarReqs = OnAfterRenderControl.Instance.Requires meta
                     match Internal.compile meta json q id with
-                    | Some _ as v -> v
+                    | Some (v, m) -> Some (v, Seq.append oarReqs m)
                     | _ ->
                         let m =
                             match q with
@@ -193,7 +193,7 @@ type Attr =
                             | _ -> failwithf "Invalid handler function: %A" q
                         let loc = WebSharper.Web.ClientSideInternals.getLocation' q
                         let func, reqs = Attr.HandlerFallback(m, loc, id)
-                        Some (func meta, reqs)
+                        Some (func meta, Seq.append oarReqs reqs)
         let getValue (meta: M.Info) =
             init meta
             fst (Option.get !value)
@@ -202,7 +202,7 @@ type Attr =
             snd (Option.get !value)
         let enc (meta: M.Info) (json: J.Provider) =
             init meta
-            (new OnAfterRenderControl() :> IRequiresResources).Encode(meta, json)
+            OnAfterRenderControl.Instance.Encode(meta, json)
         DepAttr("ws-runafterrender", getValue, getReqs, enc)
 
     static member HandlerImpl(event: string, q: Expr<Dom.Element -> #Dom.Event -> unit>) =

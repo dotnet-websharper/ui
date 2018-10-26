@@ -75,6 +75,7 @@ let Main = Application.SinglePage(fun ctx ->
                     .Click(fun _ -> JavaScript.JS.Alert "Clicked 3!")
                     .Doc()
                 ])
+            .Click(fun _ -> JavaScript.JS.Alert "Clicked 4!")
             .Client(
                 [
                     client <@ Client.Main("green") @>
@@ -94,10 +95,22 @@ let Main = Application.SinglePage(fun ctx ->
                             let s = "[OK] Inserted using .OnAfterRender()"
                             el.TextContent <- s
                         )
-                    :> _
+                    :> Doc
+                    div [attr.id "oar-main"] []
+                    MainTemplate.Main.OAR()
+                        .Elt()
+                        .OnAfterRender(fun el ->
+                            let s = "[OK] Inserted using .OnAfterRender() on template"
+                            el.TextContent <- s
+                        )
+                    :> Doc
                 ])
             .AfterRender(fun () -> Client.OnStartup())
             .TBody([MainTemplate.Main.Row().Doc(); MainTemplate.Main.Row().Doc()])
             .Elt(keepUnfilled = true)
+            .OnAfterRender(fun (_: JavaScript.Dom.Element) ->
+                let s = "[OK] Inserted using .OnAfterRender() on main template"
+                JavaScript.JS.Document.GetElementById("oar-main").TextContent <- s
+            )
     )
 )
