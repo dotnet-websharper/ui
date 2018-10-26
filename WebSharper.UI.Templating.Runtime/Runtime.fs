@@ -170,6 +170,7 @@ type private RenderContext =
         Resources: option<RenderedResources>
         Templates: Map<Parsing.WrappedTemplateName, Template>
         FillWith: Holes
+        FillWithText: option<string>
         RequireResources: Dictionary<string, IRequiresResources>
     }
 
@@ -335,7 +336,10 @@ type Runtime private () =
                         match ctx.FillWith.TryGetValue holeName with
                         | true, TemplateHole.Text (_, t) -> w.WriteEncodedText(t)
                         | true, _ -> failwithf "Invalid hole, expected text: %s" holeName
-                        | false, _ -> if keepUnfilled then doPlain()
+                        | false, _ -> 
+                            match ctx.FillWithText with
+                            | Some t -> w.WriteEncodedText(t)
+                            | _ -> if keepUnfilled then doPlain()
                 )
             let unencodedStringParts text =
                 text
@@ -347,7 +351,10 @@ type Runtime private () =
                         match ctx.FillWith.TryGetValue holeName with
                         | true, TemplateHole.Text (_, t) -> t
                         | true, _ -> failwithf "Invalid hole, expected text: %s" holeName
-                        | false, _ -> if keepUnfilled then doPlain() else ""
+                        | false, _ ->
+                            match ctx.FillWithText with
+                            | Some t -> t
+                            | _ -> if keepUnfilled then doPlain() else ""
                 )
                 |> String.concat ""
             let writeAttr plain = function
@@ -437,7 +444,10 @@ type Runtime private () =
                             match ctx.FillWith.TryGetValue holeName with
                             | true, TemplateHole.Text (_, txt) -> ctx.Writer.WriteEncodedText(txt)
                             | true, _ -> failwithf "Invalid hole, expected Doc: %s" holeName
-                            | false, _ -> if keepUnfilled then doPlain()
+                            | false, _ ->
+                                match ctx.FillWithText with
+                                | Some t -> ctx.Writer.WriteEncodedText(t)
+                                | _ -> if keepUnfilled then doPlain()
                 | Node.Instantiate (fileName, templateName, holeMaps, attrHoles, contentHoles, textHole) ->
                     if plain then
                         writePlainInstantiation fileName templateName holeMaps attrHoles contentHoles textHole
@@ -474,9 +484,12 @@ type Runtime private () =
                 let holes = Dictionary(StringComparer.InvariantCultureIgnoreCase)
                 let reqRes = Dictionary(StringComparer.InvariantCultureIgnoreCase)
                 for KeyValue(k, v) in holeMaps do
-                    let mapped = ctx.FillWith.[v].WithName k
-                    holes.Add(k, mapped)
-                    mapped |> addTemplateHole reqRes
+                    match ctx.FillWith.TryGetValue v with
+                    | true, h -> 
+                        let mapped = h.WithName k
+                        holes.Add(k, mapped)
+                        mapped |> addTemplateHole reqRes
+                    | _ -> ()
                 for KeyValue(k, v) in attrHoles do
                     let attr = TemplateHole.Attribute(k, Attr.Concat (v |> Seq.map attrFromInstantiation))
                     holes.Add(k, attr)
@@ -505,6 +518,7 @@ type Runtime private () =
                             Templates = templates
                             RequireResources = reqRes
                             FillWith = holes
+                            FillWithText = textHole
                         }
                 | None ->
                     let fullName = 
@@ -557,6 +571,8 @@ type Runtime private () =
                             let handler _ =
                                 reloader.Post(baseName, fullPath)
                             watcher.Changed.Add handler
+                            watcher.Created.Add handler
+                            watcher.Renamed.Add handler
                             watcher)
                         getOrLoadPath fullPath
                     | Some _, _ -> failwith "Invalid ServerLoad"
@@ -593,6 +609,7 @@ type Runtime private () =
                 Resources = r
                 Templates = templates
                 FillWith = fillWith
+                FillWithText = None
                 RequireResources = requireResources
             }
         if not (loaded.ContainsKey baseName) then
