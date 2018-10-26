@@ -287,8 +287,102 @@ type CheckedInput<'T> =
         | Invalid x
         | Blank x -> x
 
+[<JavaScript; Name "WebSharper.UI.BindVar">]
+module BindVar =
+
+    [<JavaScript; Inline "$e.checkValidity?$e.checkValidity():true">]
+    let CheckValidity (e: Dom.Element) = X<bool>
+
+    type Set<'a> = Dom.Element -> 'a -> unit
+    type Get<'a> = Dom.Element -> 'a option
+    type Apply<'a, 'o1, 'o2> = Var<'a> -> ((Dom.Element -> unit) -> 'o1) -> ((Dom.Element -> 'a -> unit) -> 'o2) -> 'o1 * 'o2
+
+    let ApplyValue get set : Apply<'a, 'o1, 'o2> = fun var el cb ->
+        el (fun el ->
+            let onChange () =
+                var.UpdateMaybe(fun v ->
+                    match get el with
+                    | Some x as o when x <> v -> o
+                    | _ -> None)
+            el.AddEventListener("change", onChange)
+            el.AddEventListener("input", onChange)
+            el.AddEventListener("keypress", onChange)),
+        cb (fun el v ->
+            match get el with
+            | Some x when x = v -> ()
+            | _ -> set el v)
+
+    let BoolCheckedApply<'o1, 'o2> : Apply<bool, 'o1, 'o2> =
+        ()
+        fun var el cb ->
+            el (fun el ->
+                el.AddEventListener("change", fun () ->
+                    if var.Value <> el?``checked`` then
+                        var.Value <- el?``checked``)),
+            cb (fun el v ->
+                el?``checked`` <- v)
+
+    let StringSet : Set<string> = fun el s ->
+        el?value <- s
+    let StringGet : Get<string> = fun el ->
+        Some el?value
+    let StringApply<'o1, 'o2> : Apply<string, 'o1, 'o2> =
+        ApplyValue StringGet StringSet
+
+    let IntSetUnchecked : Set<int> = fun el i ->
+        el?value <- string i
+    let IntGetUnchecked : Get<int> = fun el ->
+        let s = el?value
+        if String.isBlank s then Some 0 else
+        let pd : int = JS.Plus s
+        if pd !==. (pd >>. 0) then None else Some pd
+    let IntApplyUnchecked<'o1, 'o2> : Apply<int, 'o1, 'o2> =
+        ApplyValue IntGetUnchecked IntSetUnchecked
+
+    let IntSetChecked : Set<CheckedInput<int>> = fun el i ->
+        let i = i.Input
+        if el?value <> i then el?value <- i
+    let IntGetChecked : Get<CheckedInput<int>> = fun el ->
+        let s = el?value
+        if String.isBlank s then
+            if CheckValidity el then Blank s else Invalid s
+        else
+            match System.Int32.TryParse(s) with
+            | true, i -> Valid (i, s)
+            | false, _ -> Invalid s
+        |> Some
+    let IntApplyChecked<'o1, 'o2> : Apply<CheckedInput<int>, 'o1, 'o2> =
+        ApplyValue IntGetChecked IntSetChecked
+
+    let FloatSetUnchecked : Set<float> = fun el i ->
+        el?value <- string i
+    let FloatGetUnchecked : Get<float> = fun el ->
+        let s = el?value
+        if String.isBlank s then Some 0. else
+        let pd : float = JS.Plus s
+        if JS.IsNaN pd then None else Some pd
+    let FloatApplyUnchecked<'o1, 'o2> : Apply<float, 'o1, 'o2> =
+        ApplyValue FloatGetUnchecked FloatSetUnchecked
+
+    let FloatSetChecked : Set<CheckedInput<float>> = fun el i ->
+        let i = i.Input
+        if el?value <> i then el?value <- i
+    let FloatGetChecked : Get<CheckedInput<float>> = fun el ->
+            let s = el?value
+            if String.isBlank s then
+                if CheckValidity el then Blank s else Invalid s
+            else
+                let i = JS.Plus s
+                if JS.IsNaN i then Invalid s else Valid (i, s)
+            |> Some
+    let FloatApplyChecked<'o1, 'o2> : Apply<CheckedInput<float>, 'o1, 'o2> =
+        ApplyValue FloatGetChecked FloatSetChecked
+
 [<JavaScript; Name "WebSharper.UI.AttrModule">]
 module Attr =
+
+    [<Inline>]
+    let Static f = As<Attr> (Attrs.Static f)
 
     [<JavaScript; Macro(typeof<Macros.AttrStyle>)>]
     let Style name value =
@@ -359,21 +453,8 @@ module Attr =
             el?(name) <- v))
 
     let CustomVar (var: Var<'a>) (set: Dom.Element -> 'a -> unit) (get: Dom.Element -> 'a option) =
-        let onChange (el: Dom.Element) (e: Dom.Event) =
-            var.UpdateMaybe(fun v ->
-                match get el with
-                | Some x as o when x <> v -> o
-                | _ -> None)
-        let set e v =
-            match get e with
-            | Some x when x = v -> ()
-            | _ -> set e v
-        Attr.Concat [
-            Handler "change" onChange
-            Handler "input" onChange
-            Handler "keypress" onChange
-            DynamicCustom set var.View
-        ]
+        BindVar.ApplyValue get set var Static (fun f -> DynamicCustom f var.View)
+        ||> Attr.Append
 
     let CustomValue (var: Var<'a>) (toString : 'a -> string) (fromString : string -> 'a option) =
         CustomVar var (fun e v -> e?value <- toString v) (fun e -> fromString e?value)
@@ -387,64 +468,28 @@ module Attr =
         |> Attr.Append (Attr.Create "contenteditable" "true")
 
     let Value (var: Var<string>) =
-        CustomValue var id (id >> Some)
-
-    [<JavaScript; Inline "$e.checkValidity?$e.checkValidity():true">]
-    let CheckValidity (e: Dom.Element) = X<bool>
+        BindVar.StringApply var Static (fun f -> DynamicCustom f var.View)
+        ||> Attr.Append
 
     let IntValueUnchecked (var: Var<int>) =
-        let parseInt (s: string) =
-            if String.isBlank s then Some 0 else
-            let pd : int = JS.Plus s
-            if pd !==. (pd >>. 0) then None else Some pd
-        CustomValue var string parseInt
+        BindVar.IntApplyUnchecked var Static (fun f -> DynamicCustom f var.View)
+        ||> Attr.Append
 
     let IntValue (var: Var<CheckedInput<int>>) =
-        let parseCheckedInt (el: Dom.Element) : option<CheckedInput<int>> =
-            let s = el?value
-            if String.isBlank s then
-                if CheckValidity el then Blank s else Invalid s
-            else
-                match System.Int32.TryParse(s) with
-                | true, i -> Valid (i, s)
-                | false, _ -> Invalid s
-            |> Some
-        CustomVar var
-            (fun el i ->
-                let i = i.Input
-                if el?value <> i then el?value <- i)
-            parseCheckedInt
+        BindVar.IntApplyChecked var Static (fun f -> DynamicCustom f var.View)
+        ||> Attr.Append
 
     let FloatValueUnchecked (var: Var<float>) =
-        let parseFloat (s: string) =
-            if String.isBlank s then Some 0. else
-            let pd : float = JS.Plus s
-            if JS.IsNaN pd then None else Some pd
-        CustomValue var string parseFloat
+        BindVar.FloatApplyUnchecked var Static (fun f -> DynamicCustom f var.View)
+        ||> Attr.Append
 
     let FloatValue (var: Var<CheckedInput<float>>) =
-        let parseCheckedFloat (el: Dom.Element) : option<CheckedInput<float>> =
-            let s = el?value
-            if String.isBlank s then
-                if CheckValidity el then Blank s else Invalid s
-            else
-                let i = JS.Plus s
-                if JS.IsNaN i then Invalid s else Valid (i, s)
-            |> Some
-        CustomVar var
-            (fun el i ->
-                let i = i.Input
-                if el?value <> i then el?value <- i)
-            parseCheckedFloat
+        BindVar.FloatApplyChecked var Static (fun f -> DynamicCustom f var.View)
+        ||> Attr.Append
 
     let Checked (var: Var<bool>) =
-        let onSet (el: Dom.Element) (ev: Dom.Event) =
-            if var.Value <> el?``checked`` then
-                var.Value <- el?``checked``
-        Attr.Concat [
-            DynamicProp "checked" var.View
-            Handler "change" onSet
-        ]
+        BindVar.BoolCheckedApply var Static (fun f -> DynamicCustom f var.View)
+        ||> Attr.Append
 
     let ValidateForm () =
         OnAfterRender Resources.H5F.Setup

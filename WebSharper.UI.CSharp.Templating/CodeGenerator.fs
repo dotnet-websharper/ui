@@ -180,11 +180,11 @@ let varsClass (ctx: Ctx) =
                 match holeDef.Kind with
                 | HoleKind.Var AST.ValTy.Any
                 | HoleKind.Var AST.ValTy.String ->
-                    yield sprintf """[Inline] public Var<string> %s => (Var<string>)instance.Hole("%s");""" holeName holeName'
+                    yield sprintf """[Inline] public Var<string> %s => (Var<string>)TemplateHole.Value(instance.Hole("%s"));""" holeName holeName'
                 | HoleKind.Var AST.ValTy.Number ->
-                    yield sprintf """[Inline] public Var<float> %s => (Var<float>)instance.Hole("%s");""" holeName holeName'
+                    yield sprintf """[Inline] public Var<float> %s => (Var<float>)TemplateHole.Value(instance.Hole("%s"));""" holeName holeName'
                 | HoleKind.Var AST.ValTy.Bool ->
-                    yield sprintf """[Inline] public Var<bool> %s => (Var<bool>)instance.Hole("%s");""" holeName holeName'
+                    yield sprintf """[Inline] public Var<bool> %s => (Var<bool>)TemplateHole.Value(instance.Hole("%s"));""" holeName holeName'
                 | _ -> ()
         ]
         yield "}"

@@ -30,6 +30,17 @@
             <tr ws-template="Row"><td>Table row</td></tr>
         </tbody>
     </table>
+    <hr/>
+
+    The following inputs should NOT be bound together:
+    <hr/>
+    <div ws-replace="ServerVarForms" ws-template="ServerVarForm">
+        <input ws-var="ServerVar" />
+        <div style="color: ${ServerVar}">Hello, ${ServerVar}! (try typing a color name, this text should become this color)</div>
+        <button ws-onclick="ServerClick">Click me!</button>
+        <hr/>
+    </div>
+
     <div ws-replace="Client"></div>
     <div style="display:none">
         <div data-template="OldTemplate">

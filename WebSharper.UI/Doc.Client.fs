@@ -88,6 +88,10 @@ module Doc =
         As (Templates.RunFullDocTemplate fillWith)
 
     [<Inline>]
+    let RegisterGlobalTemplateHole (hole: TemplateHole) : unit =
+        Templates.GlobalHoles.[TemplateHole.Name hole] <- hole
+
+    [<Inline>]
     let Run parent (doc: Doc) =
         Templates.LoadLocalTemplates ""
         Doc'.Run parent (As doc)

@@ -311,13 +311,13 @@ module private Impl =
                 let holeName' = holeName.ToLowerInvariant()
                 match def.Kind with
                 | AST.HoleKind.Var AST.ValTy.Any | AST.HoleKind.Var AST.ValTy.String ->
-                    yield ProvidedProperty(holeName, typeof<Var<string>>, fun x -> <@@ ((%%x.[0] : obj) :?> TI).Hole holeName' @@>)
+                    yield ProvidedProperty(holeName, typeof<Var<string>>, fun x -> <@@ ((%%x.[0] : obj) :?> TI).Hole holeName' |> TemplateHole.Value @@>)
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
                 | AST.HoleKind.Var AST.ValTy.Number ->
-                    yield ProvidedProperty(holeName, typeof<Var<float>>, fun x -> <@@ ((%%x.[0] : obj) :?> TI).Hole holeName' @@>)
+                    yield ProvidedProperty(holeName, typeof<Var<float>>, fun x -> <@@ ((%%x.[0] : obj) :?> TI).Hole holeName' |> TemplateHole.Value @@>)
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
                 | AST.HoleKind.Var AST.ValTy.Bool ->
-                    yield ProvidedProperty(holeName, typeof<Var<bool>>, fun x -> <@@ ((%%x.[0] : obj) :?> TI).Hole holeName' @@>)
+                    yield ProvidedProperty(holeName, typeof<Var<bool>>, fun x -> <@@ ((%%x.[0] : obj) :?> TI).Hole(holeName') |> TemplateHole.Value @@>)
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
                 | _ -> ()
         ]

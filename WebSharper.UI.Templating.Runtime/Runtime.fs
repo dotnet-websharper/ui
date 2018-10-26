@@ -38,6 +38,7 @@ open System.Collections.Concurrent
 module M = WebSharper.Core.Metadata
 module J = WebSharper.Core.Json
 module P = FSharp.Quotations.Patterns
+module BindVar = WebSharper.UI.Client.BindVar
 type private Holes = Dictionary<HoleName, TemplateHole>
 type private DomElement = WebSharper.JavaScript.Dom.Element
 type private DomEvent = WebSharper.JavaScript.Dom.Event
@@ -50,21 +51,71 @@ type ValTy =
 [<JavaScript; Serializable>]
 type TemplateInitializer(id: string, vars: array<string * ValTy>) =
 
-    member this.Instance =
-        if JavaScript.JS.HasOwnProperty this "instance" then
-            JavaScript.JS.Get "instance" this : TemplateInstance
-        else
+    [<NonSerialized; OptionalField>]
+    let mutable instance = None
+
+    [<NonSerialized>]
+    let id = id
+
+    static let initialized = Dictionary<string, Dictionary<string, TemplateHole>>()
+
+    static let applyVarHole el tpl =
+        match tpl with
+        | TemplateHole.VarStr (_, v) ->
+            BindVar.StringApply v (fun f -> f el) (fun f -> View.Sink (f el) v.View) |> ignore
+        | TemplateHole.VarBool (_, v) ->
+            BindVar.BoolCheckedApply v (fun f -> f el) (fun f -> View.Sink (f el) v.View) |> ignore
+        | TemplateHole.VarInt (_, v) ->
+            BindVar.IntApplyChecked v (fun f -> f el) (fun f -> View.Sink (f el) v.View) |> ignore
+        | TemplateHole.VarIntUnchecked (_, v) ->
+            BindVar.IntApplyUnchecked v (fun f -> f el) (fun f -> View.Sink (f el) v.View) |> ignore
+        | TemplateHole.VarFloat (_, v) ->
+            BindVar.FloatApplyChecked v (fun f -> f el) (fun f -> View.Sink (f el) v.View) |> ignore
+        | TemplateHole.VarFloatUnchecked (_, v) ->
+            BindVar.FloatApplyUnchecked v (fun f -> f el) (fun f -> View.Sink (f el) v.View) |> ignore
+        | TemplateHole.Elt (n, _)
+        | TemplateHole.Text (n, _)
+        | TemplateHole.TextView (n, _)
+        | TemplateHole.UninitVar (n, _)
+        | TemplateHole.Event (n, _)
+        | TemplateHole.EventQ (n, _)
+        | TemplateHole.AfterRender (n, _)
+        | TemplateHole.AfterRenderQ (n, _)
+        | TemplateHole.Attribute (n, _) -> JavaScript.Console.Warn("Not a var hole: ", n)
+
+    static member Initialized = initialized
+
+    static member GetHolesFor(id) =
+        match initialized.TryGetValue(id) with
+        | true, d -> d
+        | false, _ ->
             let d = Dictionary()
-            for n, t in vars do
+            initialized.[id] <- d
+            d
+
+    static member GetOrAddHoleFor(id, holeName, initHole) =
+        let d = TemplateInitializer.GetHolesFor(id)
+        match d.TryGetValue(holeName) with
+        | true, h -> unbox h
+        | false, _ ->
+            let h = initHole()
+            d.[holeName] <- h
+            h
+
+    member this.Instance = instance.Value
+
+    member this.InitInstance(key) =
+        let d = TemplateInitializer.GetHolesFor(key)
+        for n, t in vars do
+            if not (d.ContainsKey n) then
                 d.[n] <-
                     match t with
-                    | ValTy.Bool -> box (Var.Create false)
-                    | ValTy.Number -> box (Var.Create 0.)
-                    | ValTy.String -> box (Var.Create "")
+                    | ValTy.Bool -> TemplateHole.VarBool (n, Var.Create false)
+                    | ValTy.Number -> TemplateHole.VarFloatUnchecked (n, Var.Create 0.)
+                    | ValTy.String -> TemplateHole.VarStr (n, Var.Create "")
                     | _ -> failwith "Invalid value type"
-            let i = TemplateInstance(CompletedHoles.Client(d), Doc.Empty)
-            JavaScript.JS.Set this "instance" i
-            i
+        let i = TemplateInstance(CompletedHoles.Client(d), Doc.Empty)
+        instance <- Some i
 
     // Members unused, but necessary to force `id` and `vars` to be fields
     // (and not just ctor arguments)
@@ -79,21 +130,41 @@ type TemplateInitializer(id: string, vars: array<string * ValTy>) =
         member this.Encode(meta, json) =
             [id, json.GetEncoder<TemplateInitializer>().Encode(this)]
 
+    interface IInitializer with
+
+        member this.PreInitialize(key) =
+            this.InitInstance(key)
+            let q = JavaScript.JS.Document.QuerySelectorAll("[ws-var^='" + key + "::']")
+            for i = 0 to q.Length - 1 do
+                let el = q.[i] :?> JavaScript.Dom.Element
+                let fullName = el.GetAttribute("ws-var")
+                let s = fullName.[key.Length+2..]
+                let hole = this.Instance.Hole(s)
+                Client.Doc.RegisterGlobalTemplateHole(TemplateHole.WithName fullName hole)
+                applyVarHole el hole
+            ()
+
+        member this.Initialize(_) = ()
+
+        member this.PostInitialize(key) =
+            // TODO: run Bind() if it wasn't run yet
+            ()
+
 and [<JavaScript>] TemplateInstances() =
     [<JavaScript>]
-    static member GetInstance key =
+    static member GetInstance key : TemplateInstance =
         let i = JavaScript.JS.Get key WebSharper.Activator.Instances : TemplateInitializer
         i.Instance
 
 and CompletedHoles =
-    | Client of Dictionary<string, obj>
+    | Client of Dictionary<string, TemplateHole>
     | Server of TemplateInitializer
 
 and TemplateInstance(c: CompletedHoles, doc: Doc) =
     
     member this.Doc = doc
 
-    member this.Hole(name: string): obj = failwith "Cannot access template vars from the server side"
+    member this.Hole(name: string): TemplateHole = failwith "Cannot access template vars from the server side"
 
 type TemplateEvent<'TI, 'E when 'E :> DomEvent> =
     {
@@ -107,11 +178,11 @@ type TemplateEvent<'TI, 'E when 'E :> DomEvent> =
 
 type Handler private () =
 
-    static member EventQ (holeName: string, isGenerated: bool, [<JavaScript>] f: Expr<DomElement -> DomEvent -> unit>) =
-        TemplateHole.EventQ(holeName, isGenerated, f)
+    static member EventQ (holeName: string, key: string, [<JavaScript>] f: Expr<DomElement -> DomEvent -> unit>) =
+        TemplateHole.EventQ(holeName, f)
 
     static member EventQ2<'E when 'E :> DomEvent> (key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, 'E> -> unit>) =
-        Handler.EventQ(holeName, true, <@ fun el ev ->
+        Handler.EventQ(holeName, key, <@ fun el ev ->
             let k = key
             (WebSharper.JavaScript.Pervasives.As<TemplateEvent<obj, 'E> -> unit> f)
                 {
@@ -133,11 +204,7 @@ type Handler private () =
             | TemplateHole.VarBool(n, _) ->
                 filledVars.Add n |> ignore
             | _ -> ()
-        let strHole s =
-            Handler.EventQ(s, true,
-                <@  (fun key s el ev ->
-                        (TemplateInstances.GetInstance(key).Hole(s) :?> Var<string>).Value <- JavaScript.JS.Get "value" el
-                    ) key s @>)
+        let strHole s = TemplateHole.UninitVar(s, key + "::" + s)
         let extraHoles =
             vars |> Array.choose (fun (name, ty) ->
                 if filledVars.Contains name then None else
@@ -301,7 +368,7 @@ type Runtime private () =
                 requireResources.Add(n, d :> IRequiresResources)
             | TemplateHole.Attribute (n, a) when not (obj.ReferenceEquals(a, null)) ->
                 requireResources.Add(n, a :> IRequiresResources)
-            | TemplateHole.EventQ (n, _, e) ->
+            | TemplateHole.EventQ (n, e) ->
                 requireResources.Add(n, Attr.HandlerImpl("", e) :> IRequiresResources)
             | TemplateHole.AfterRenderQ (n, e) ->
                 requireResources.Add(n, Attr.OnAfterRenderImpl(e) :> IRequiresResources)
@@ -328,6 +395,8 @@ type Runtime private () =
                         if plain then doPlain() else
                         match ctx.FillWith.TryGetValue holeName with
                         | true, TemplateHole.Text (_, t) -> w.WriteEncodedText(t)
+                        | true, TemplateHole.UninitVar (_, fullName) ->
+                                w.Write("${" + fullName + "}")
                         | true, _ -> failwithf "Invalid hole, expected text: %s" holeName
                         | false, _ -> if keepUnfilled then doPlain()
                 )
@@ -340,6 +409,8 @@ type Runtime private () =
                         if plain then doPlain() else
                         match ctx.FillWith.TryGetValue holeName with
                         | true, TemplateHole.Text (_, t) -> t
+                        | true, TemplateHole.UninitVar (_, fullName) ->
+                            "${" + fullName + "}"
                         | true, _ -> failwithf "Invalid hole, expected text: %s" holeName
                         | false, _ -> if keepUnfilled then doPlain() else ""
                 )
@@ -405,8 +476,8 @@ type Runtime private () =
                     if plain then doPlain() else
                     let wsVar, attrs =
                         match ctx.FillWith.TryGetValue holeName with
-                        | true, TemplateHole.EventQ (_, _, _) ->
-                            None, Array.append [|Attr.Event("input", holeName)|] attrs
+                        | true, TemplateHole.UninitVar (_, fullName) ->
+                            Some fullName, attrs
                         | _ ->
                             Some holeName, attrs
                     writeElement (Option.isNone parent) plain tag attrs wsVar children
