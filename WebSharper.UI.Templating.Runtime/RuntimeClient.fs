@@ -214,11 +214,11 @@ type private RuntimeProxy =
 type private HandlerProxy =
 
     [<Inline>]
-    static member EventQ (holeName: string, isGenerated: bool, f: Expr<Dom.Element -> Dom.Event -> unit>) =
-        TemplateHole.EventQ(holeName, isGenerated, f)
+    static member EventQ (holeName: string, key: string, f: Expr<Dom.Element -> Dom.Event -> unit>) =
+        TemplateHole.EventQ(holeName, f)
 
     static member EventQ2<'E when 'E :> DomEvent> (key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, 'E> -> unit>) =
-        TemplateHole.EventQ(holeName, true, <@ fun el ev ->
+        TemplateHole.EventQ(holeName, <@ fun el ev ->
             (%f) {
                     Vars = box (ti())
                     Target = el
@@ -227,36 +227,26 @@ type private HandlerProxy =
         @>)
 
     [<JavaScript>]
-    static member CompleteHoles(_: string, filledHoles: seq<TemplateHole>, vars: array<string * Server.ValTy>) : seq<TemplateHole> * Server.CompletedHoles =
-        let allVars = Dictionary<string, obj>()
+    static member CompleteHoles(key: string, filledHoles: seq<TemplateHole>, vars: array<string * Server.ValTy>) : seq<TemplateHole> * Server.CompletedHoles =
+        let allVars = Dictionary<string, TemplateHole>()
         let filledVars = HashSet()
         for h in filledHoles do
-            match h with
-            | TemplateHole.VarStr(n, Box r)
-            | TemplateHole.VarIntUnchecked(n, Box r)
-            | TemplateHole.VarInt(n, Box r)
-            | TemplateHole.VarFloatUnchecked(n, Box r)
-            | TemplateHole.VarFloat(n, Box r)
-            | TemplateHole.VarBool(n, Box r) ->
-                filledVars.Add n |> ignore
-                allVars.[n] <- r
-            | _ -> ()
+            let n = TemplateHole.Name h
+            filledVars.Add(n) |> ignore
+            allVars.[n] <- h
         let extraHoles =
             vars |> Array.choose (fun (name, ty) ->
                 if filledVars.Contains name then None else
-                let h, r =
+                let r =
                     match ty with
                     | Server.ValTy.String ->
-                        let r = Var.Create ""
-                        TemplateHole.VarStr (name, r), box r
+                        Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarStr (name, Var.Create ""))
                     | Server.ValTy.Number ->
-                        let r = Var.Create 0.
-                        TemplateHole.VarFloatUnchecked (name, r), box r
+                        Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarFloatUnchecked (name, Var.Create 0.))
                     | Server.ValTy.Bool ->
-                        let r = Var.Create false
-                        TemplateHole.VarBool (name, r), box r
+                        Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarBool (name, Var.Create false))
                     | _ -> failwith "Invalid value type"
                 allVars.[name] <- r
-                Some h
+                Some r
             )
         Seq.append filledHoles extraHoles, Server.CompletedHoles.Client(allVars)

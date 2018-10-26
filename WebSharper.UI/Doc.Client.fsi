@@ -80,8 +80,14 @@ module Doc =
     /// Construct a Doc using a given loaded template by name and template fillers.
     val GetOrLoadTemplate : string -> option<string> -> (unit -> Dom.Element) -> seq<TemplateHole> -> Doc
 
-    /// Run the full document as a template with the given fillers.
+    /// Run the full document as a template with the given fillers
+    /// in addition to those registered with RegisterGlobalHole.
+    /// If RunFullDocTemplate has alredy been run, this does nothing and re-returns the same Doc.
     val RunFullDocTemplate : seq<TemplateHole> -> Doc
+
+    /// Register a hole filler to make it available in RunFullDocTemplate.
+    /// Its id should be globally unique; behavior for duplicates is unspecified.
+    val RegisterGlobalTemplateHole : TemplateHole -> unit
 
   // Collections.
 

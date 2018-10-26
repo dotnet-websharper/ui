@@ -56,6 +56,14 @@ module Client =
             .ClientSide(div [] [text "[OK] Inserted using Bind()"])
             .Bind()
 
+let mkServerVarForm() =
+    MainTemplate.Main.ServerVarForm()
+        .ServerClick(fun t ->
+            JavaScript.JS.Alert("Hello, " + !t.Vars.ServerVar + "! The input should now clear itself.")
+            t.Vars.ServerVar := ""
+        )
+        .Doc()
+
 [<Website>]
 let Main = Application.SinglePage(fun ctx ->
     Content.Page(
@@ -105,6 +113,7 @@ let Main = Application.SinglePage(fun ctx ->
                         )
                     :> Doc
                 ])
+            .ServerVarForms([mkServerVarForm(); mkServerVarForm()])
             .AfterRender(fun () -> Client.OnStartup())
             .TBody([MainTemplate.Main.Row().Doc(); MainTemplate.Main.Row().Doc()])
             .Elt(keepUnfilled = true)

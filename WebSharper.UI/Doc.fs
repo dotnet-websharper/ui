@@ -374,7 +374,7 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
     | TextView of name: string * fillWith: View<string>
     | Attribute of name: string * fillWith: Attr
     | Event of name: string * fillWith: (Dom.Element -> Dom.Event -> unit)
-    | EventQ of name: string * isGenerated: bool * fillWith: Expr<Dom.Element -> Dom.Event -> unit>
+    | EventQ of name: string * fillWith: Expr<Dom.Element -> Dom.Event -> unit>
     | AfterRender of name: string * fillWith: (Dom.Element -> unit)
     | AfterRenderQ of name: string * fillWith: Expr<Dom.Element -> unit>
     | VarStr of name: string * fillWith: Var<string>
@@ -383,6 +383,7 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
     | VarIntUnchecked of name: string * fillWith: Var<int>
     | VarFloat of name: string * fillWith: Var<Client.CheckedInput<float>>
     | VarFloatUnchecked of name: string * fillWith: Var<float>
+    | UninitVar of name: string * key: string
 
     [<Inline>]
     static member NewActionEvent<'T when 'T :> Dom.Event>(name: string, f: Action<Dom.Element, 'T>) =
@@ -456,28 +457,50 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
         | TemplateHole.VarIntUnchecked (name, _)
         | TemplateHole.VarFloat (name, _)
         | TemplateHole.VarFloatUnchecked (name, _)
+        | TemplateHole.UninitVar (name, _)
         | TemplateHole.Event (name, _)
-        | TemplateHole.EventQ (name, _, _)
+        | TemplateHole.EventQ (name, _)
         | TemplateHole.AfterRender (name, _)
         | TemplateHole.AfterRenderQ (name, _)
         | TemplateHole.Attribute (name, _) -> name
 
-    member this.WithName name =
-        match this with
-        | TemplateHole.Elt (_, fillWith) -> TemplateHole.Elt (name, fillWith)
-        | TemplateHole.Text (_, fillWith) -> TemplateHole.Text (name, fillWith)
-        | TemplateHole.TextView (_, fillWith) -> TemplateHole.TextView (name, fillWith)
-        | TemplateHole.VarStr (_, fillWith) ->  TemplateHole.VarStr (name, fillWith)
-        | TemplateHole.VarBool (_, fillWith) -> TemplateHole.VarBool (name, fillWith)
-        | TemplateHole.VarInt (_, fillWith) -> TemplateHole.VarInt (name, fillWith)
-        | TemplateHole.VarIntUnchecked (_, fillWith) -> TemplateHole.VarIntUnchecked (name, fillWith)
-        | TemplateHole.VarFloat (_, fillWith) -> TemplateHole.VarFloat (name, fillWith)
-        | TemplateHole.VarFloatUnchecked (_, fillWith) -> TemplateHole.VarFloatUnchecked (name, fillWith)
-        | TemplateHole.Event (_, fillWith) -> TemplateHole.Event (name, fillWith) 
-        | TemplateHole.EventQ (_, isGenerated, fillWith) -> TemplateHole.EventQ (name, isGenerated, fillWith)
-        | TemplateHole.AfterRender (_, fillWith) -> TemplateHole.AfterRender (name, fillWith) 
-        | TemplateHole.AfterRenderQ (_, fillWith) -> TemplateHole.AfterRenderQ (name, fillWith) 
-        | TemplateHole.Attribute (_, fillWith) -> TemplateHole.Attribute (name, fillWith)
+    [<Inline "$x.$1">]
+    static member Value x =
+        match x with
+        | TemplateHole.Elt (_, v) -> box v
+        | TemplateHole.Text (name, v) -> box v
+        | TemplateHole.TextView (name, v) -> box v
+        | TemplateHole.VarStr (name, v) -> box v
+        | TemplateHole.VarBool (name, v) -> box v
+        | TemplateHole.VarInt (name, v) -> box v
+        | TemplateHole.VarIntUnchecked (name, v) -> box v
+        | TemplateHole.VarFloat (name, v) -> box v
+        | TemplateHole.VarFloatUnchecked (name, v) -> box v
+        | TemplateHole.UninitVar (name, v) -> box v
+        | TemplateHole.Event (name, v) -> box v
+        | TemplateHole.EventQ (name, v) -> box v
+        | TemplateHole.AfterRender (name, v) -> box v
+        | TemplateHole.AfterRenderQ (name, v) -> box v
+        | TemplateHole.Attribute (name, v) -> box v
+
+    [<Inline "{$: $x.$, $0: $n, $1: $x.$1}">]
+    static member WithName n x =
+        match x with
+        | TemplateHole.Elt (_, v) -> TemplateHole.Elt(n, v)
+        | TemplateHole.Text (_, v) -> TemplateHole.Text(n, v)
+        | TemplateHole.TextView (_, v) -> TemplateHole.TextView(n, v)
+        | TemplateHole.VarStr (_, v) -> TemplateHole.VarStr(n, v)
+        | TemplateHole.VarBool (_, v) -> TemplateHole.VarBool(n, v)
+        | TemplateHole.VarInt (_, v) -> TemplateHole.VarInt(n, v)
+        | TemplateHole.VarIntUnchecked (_, v) -> TemplateHole.VarIntUnchecked(n, v)
+        | TemplateHole.VarFloat (_, v) -> TemplateHole.VarFloat(n, v)
+        | TemplateHole.VarFloatUnchecked (_, v) -> TemplateHole.VarFloatUnchecked(n, v)
+        | TemplateHole.UninitVar (_, v) -> TemplateHole.UninitVar(n, v)
+        | TemplateHole.Event (_, v) -> TemplateHole.Event(n, v)
+        | TemplateHole.EventQ (_, v) -> TemplateHole.EventQ(n, v)
+        | TemplateHole.AfterRender (_, v) -> TemplateHole.AfterRender(n, v)
+        | TemplateHole.AfterRenderQ (_, v) -> TemplateHole.AfterRenderQ(n, v)
+        | TemplateHole.Attribute (_, v) -> TemplateHole.Attribute(n, v)
 
 type Doc with
 

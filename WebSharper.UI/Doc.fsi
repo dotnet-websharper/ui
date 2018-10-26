@@ -553,7 +553,7 @@ type TemplateHole =
     | TextView of name: string * fillWith: View<string>
     | Attribute of name: string * fillWith: Attr
     | Event of name: string * fillWith: (Dom.Element -> Dom.Event -> unit)
-    | EventQ of name: string * isGenerated: bool * fillWith: Expr<Dom.Element -> Dom.Event -> unit>
+    | EventQ of name: string * fillWith: Expr<Dom.Element -> Dom.Event -> unit>
     | AfterRender of name: string * fillWith: (Dom.Element -> unit)
     | AfterRenderQ of name: string * fillWith: Expr<Dom.Element -> unit>
     | VarStr of name: string * fillWith: Var<string>
@@ -562,8 +562,11 @@ type TemplateHole =
     | VarIntUnchecked of name: string * fillWith: Var<int>
     | VarFloat of name: string * fillWith: Var<Client.CheckedInput<float>>
     | VarFloatUnchecked of name: string * fillWith: Var<float>
+    | UninitVar of name: string * key: string
 
     static member Name : TemplateHole -> string
+    static member Value : TemplateHole -> obj
+    static member WithName : string -> TemplateHole -> TemplateHole
 
     static member NewActionEvent<'T when 'T :> Dom.Event> : name: string * f: Action<Dom.Element, 'T> -> TemplateHole
 
@@ -575,8 +578,6 @@ type TemplateHole =
     static member MakeVarLens : name: string * value: int -> TemplateHole
     static member MakeVarLens : name: string * value: Client.CheckedInput<float> -> TemplateHole
     static member MakeVarLens : name: string * value: float -> TemplateHole
-
-    member WithName : name: string -> TemplateHole
 
 type DynDoc =
     | AppendDoc of list<Doc>

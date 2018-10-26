@@ -38,6 +38,8 @@ module internal Templates =
             d
     let mutable LocalTemplatesLoaded = false
 
+    let mutable GlobalHoles = Dictionary<string, TemplateHole>()
+
     let TextHoleRE = """\${([^}]+)}"""
 
     let InlineTemplate (el: Dom.Element) (fillWith: seq<TemplateHole>) =
@@ -126,7 +128,7 @@ module internal Templates =
                 let a = x.Split([|':'|], StringSplitOptions.RemoveEmptyEntries)
                 match fw.TryGetValue(a.[1]) with
                 | true, TemplateHole.Event (_, handler) -> Some (Attr.Handler a.[0] handler)
-                | true, TemplateHole.EventQ (_, _, handler) -> Some (A.Handler a.[0] handler)
+                | true, TemplateHole.EventQ (_, handler) -> Some (A.Handler a.[0] handler)
                 | true, _ ->
                     Console.Warn("Event hole on" + a.[0] + " filled with non-event data", a.[1])
                     None
@@ -233,6 +235,7 @@ module internal Templates =
         docTreeNode, updates
 
     let ChildrenTemplate (el: Dom.Element) (fillWith: seq<TemplateHole>) =
+        let fillWith = Seq.append fillWith GlobalHoles.Values
         let docTreeNode, updates = InlineTemplate el fillWith
         match docTreeNode.Els with
         | [| Union1Of2 e |] when e.NodeType = Dom.NodeType.Element ->
@@ -574,11 +577,19 @@ module internal Templates =
             LoadNestedTemplates JS.Document.Body ""
         LoadedTemplates.[baseName] <- LoadedTemplateFile("")
 
+    let mutable RenderedFullDocTemplate = None
+
     let RunFullDocTemplate (fillWith: seq<TemplateHole>) =
-        LoadLocalTemplates ""
-        PrepareTemplateStrict "" None JS.Document.Body None
-        ChildrenTemplate JS.Document.Body fillWith
-        |>! Doc'.RunInPlace true JS.Document.Body
+        match RenderedFullDocTemplate with
+        | Some d -> d
+        | None ->
+            let d =
+                LoadLocalTemplates ""
+                PrepareTemplateStrict "" None JS.Document.Body None
+                ChildrenTemplate JS.Document.Body fillWith
+                |>! Doc'.RunInPlace true JS.Document.Body
+            RenderedFullDocTemplate <- Some d
+            d
 
     let NamedTemplate (baseName: string) (name: option<string>) (fillWith: seq<TemplateHole>) =
         match LoadedTemplateFile(baseName).TryGetValue(defaultArg name "") with

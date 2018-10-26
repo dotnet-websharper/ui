@@ -164,3 +164,29 @@ module internal Attrs =
 
     /// Get OnAfterRender callback, if any.
     val GetOnAfterRender : Dyn -> option<Dom.Element -> unit>
+
+module BindVar =
+    type Set<'a> = Dom.Element -> 'a -> unit
+    type Get<'a> = Dom.Element -> 'a option
+    type Apply<'a, 'o1, 'o2> = Var<'a> -> ((Dom.Element -> unit) -> 'o1) -> ((Dom.Element -> 'a -> unit) -> 'o2) -> 'o1 * 'o2
+    val StringSet : Set<string>
+    val StringGet : Get<string>
+    val StringApply<'o1, 'o2> : Apply<string, 'o1, 'o2>
+
+    val IntSetUnchecked : Set<int>
+    val IntGetUnchecked : Get<int>
+    val IntApplyUnchecked<'o1, 'o2> : Apply<int, 'o1, 'o2>
+
+    val IntSetChecked : Set<CheckedInput<int>>
+    val IntGetChecked : Get<CheckedInput<int>>
+    val IntApplyChecked<'o1, 'o2> : Apply<CheckedInput<int>, 'o1, 'o2>
+
+    val FloatSetUnchecked : Set<float>
+    val FloatGetUnchecked : Get<float>
+    val FloatApplyUnchecked<'o1, 'o2> : Apply<float, 'o1, 'o2>
+
+    val FloatSetChecked : Set<CheckedInput<float>>
+    val FloatGetChecked : Get<CheckedInput<float>>
+    val FloatApplyChecked<'o1, 'o2> : Apply<CheckedInput<float>, 'o1, 'o2>
+
+    val BoolCheckedApply<'o1, 'o2> : Apply<bool, 'o1, 'o2>
