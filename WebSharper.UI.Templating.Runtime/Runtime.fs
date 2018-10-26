@@ -177,11 +177,11 @@ type TemplateEvent<'TI, 'E when 'E :> DomEvent> =
 
 type Handler private () =
 
-    static member EventQ (holeName: string, key: string, [<JavaScript>] f: Expr<DomElement -> DomEvent -> unit>) =
+    static member EventQ (holeName: string, [<JavaScript>] f: Expr<DomElement -> DomEvent -> unit>) =
         TemplateHole.EventQ(holeName, f)
 
     static member EventQ2<'E when 'E :> DomEvent> (key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, 'E> -> unit>) =
-        Handler.EventQ(holeName, key, <@ fun el ev ->
+        Handler.EventQ(holeName, <@ fun el ev ->
             let k = key
             (WebSharper.JavaScript.Pervasives.As<TemplateEvent<obj, 'E> -> unit> f)
                 {
