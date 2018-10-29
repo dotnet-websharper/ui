@@ -75,6 +75,8 @@ module private Impl =
         module Member =
             let Hole n =
                 "Fill the hole \"" + n + "\" of the template."
+            let UntypedHole =
+                "Fill a hole of the template."
             let Doc =
                 "Get the Doc to insert this template instance into the page."
             let Var n =
@@ -94,140 +96,197 @@ module private Impl =
             let x = if x.IsGenericType then x.GetGenericTypeDefinition() else x
             x.FullName.StartsWith n
 
-    let BuildMethod'' (holeName: HoleName) (param: list<ProvidedParameter>) (resTy: Type)
-            line column (ctx: Ctx) (wrapArgs: Expr<Builder> -> list<Expr> -> Expr<TemplateHole>) =
-        let m =
-            ProvidedMethod(holeName, param, resTy, function
-                | this :: args ->
-                    let var = Var("this", typeof<Builder>)
-                    Expr.Let(var, <@ (%%this : obj) :?> Builder @>,
-                        let this : Expr<Builder> = Expr.Var(var) |> Expr.Cast
-                        <@@ box ((%this).WithHole(%wrapArgs this args)) @@>)
-                | _ -> failwith "Incorrect invoke")
-                .WithXmlDoc(XmlDoc.Member.Hole holeName)
-        match ctx.Path with
-        | Some p -> m.AddDefinitionLocation(line, column, p)
-        | None -> ()
-        m :> MemberInfo
+    let BuildMethod'' (hole: option<HoleName * HoleDefinition>) (param: list<ProvidedParameter>) (resTy: Type)
+            (ctx: Ctx) (wrapArgs: Expr<Builder> -> Expr<HoleName> -> list<Expr> -> Expr<TemplateHole>) =
+        match hole with
+        | Some (holeName, holeDef) ->
+            let m =
+                ProvidedMethod(holeName, param, resTy, function
+                    | this :: args ->
+                        let var = Var("this", typeof<Builder>)
+                        Expr.Let(var, <@ (%%this : obj) :?> Builder @>,
+                            let this : Expr<Builder> = Expr.Var(var) |> Expr.Cast
+                            let name : Expr<string> = holeName.ToLowerInvariant() |> Expr.Value |> Expr.Cast
+                            <@@ box ((%this).WithHole(%wrapArgs this name args)) @@>)
+                    | _ -> failwith "Incorrect invoke")
+                    .WithXmlDoc(XmlDoc.Member.Hole holeName)
+            match ctx.Path with
+            | Some p -> m.AddDefinitionLocation(holeDef.Line, holeDef.Column, p)
+            | None -> ()
+            m :> MemberInfo
+        | None ->
+            let m =
+                ProvidedMethod("With", ProvidedParameter("name", typeof<string>) :: param, resTy, function
+                    | this :: name :: args ->
+                        let var = Var("this", typeof<Builder>)
+                        Expr.Let(var, <@ (%%this: obj) :?> Builder @>,
+                            let this: Expr<Builder> = Expr.Var(var) |> Expr.Cast
+                            <@@ box ((%this).WithHole(%wrapArgs this (name |> Expr.Cast) args)) @@>)
+                    | _ -> failwith "Incorrect invoke")
+                    .WithXmlDoc(XmlDoc.Member.UntypedHole)
+            m :> MemberInfo
 
-    let BuildMethod' holeName argTy resTy line column ctx wrapArg =
+    let BuildMethod' hole argTy resTy ctx wrapArg =
         let isRefl = IsExprType argTy
-        let param = ProvidedParameter(holeName, argTy, IsReflectedDefinition = isRefl)
-        BuildMethod'' holeName [param] resTy line column ctx (fun st args -> wrapArg st (List.head args))
+        let paramName = match hole with Some (name, _) -> name | _ -> "value"
+        let param = ProvidedParameter(paramName, argTy, IsReflectedDefinition = isRefl)
+        BuildMethod'' hole [param] resTy ctx (fun st name args -> wrapArg st name (List.head args))
 
-    let BuildMethod<'T> (holeName: HoleName) (resTy: Type)
-            line column (ctx: Ctx) (wrapArg: Expr<Builder> -> Expr<'T> -> Expr<TemplateHole>) =
-        let wrapArg a b = wrapArg a (Expr.Cast b)
-        BuildMethod' holeName typeof<'T> resTy line column ctx wrapArg
+    let BuildMethod<'T> hole (resTy: Type) (ctx: Ctx) (wrapArg: Expr<Builder> -> Expr<string> -> Expr<'T> -> Expr<TemplateHole>) =
+        let wrapArg a b c = wrapArg a b (Expr.Cast c)
+        BuildMethod' hole typeof<'T> resTy ctx wrapArg
+
+    let BuildMethodParamArray hole resTy ctx (wrapArg: _ -> _ -> Expr<'T[]> -> _) =
+        let paramName = match hole with Some (name, _) -> name | _ -> "value"
+        let param = ProvidedParameter(paramName, typeof<'T>.MakeArrayType(), IsParamArray = true)
+        BuildMethod'' hole [param] resTy ctx (fun st name args ->
+            wrapArg st name (List.head args |> Expr.Cast))
+
+    let BuildMethodVar hole resTy ctx (wrapArg: Expr<Builder> -> Expr<string> -> Expr<Var<'T>> -> Expr<TemplateHole>) =
+        let mk wrapArg = BuildMethod hole resTy ctx wrapArg
+        let varMakeMeth =
+            let viewTy = typedefof<View<_>>.MakeGenericType(typeof<'T>)
+            let setterTy = typedefof<FSharpFunc<_,_>>.MakeGenericType(typeof<'T>, typeof<unit>)
+            let param = [ProvidedParameter("view", viewTy); ProvidedParameter("setter", setterTy)]
+            BuildMethod'' hole param resTy ctx <| fun st name args ->
+                match args with
+                | [view; setter] -> wrapArg st name <@ UINVar.Make %%view %%setter @>
+                | _ -> failwith "Incorrect invoke"
+        [mk wrapArg; varMakeMeth]
+
+    let AttrHoleMethods hole resTy ctx =
+        let mk wrapArg = BuildMethod hole resTy ctx wrapArg
+        let mkParamArray wrapArg = BuildMethodParamArray hole resTy ctx wrapArg
+        [
+            mk <| fun _ name (x: Expr<Attr>) ->
+                <@ TemplateHole.Attribute(%name, %x) @>
+            mk <| fun _ name (x: Expr<seq<Attr>>) ->
+                <@ TemplateHole.Attribute(%name, Attr.Concat %x) @>
+            mkParamArray <| fun _ name (x: Expr<Attr[]>) ->
+                <@ TemplateHole.Attribute(%name, Attr.Concat %x) @>
+        ]
+
+    let DocHoleMethods hole resTy ctx =
+        let mk wrapArg = BuildMethod hole resTy ctx wrapArg
+        let mkParamArray wrapArg = BuildMethodParamArray hole resTy ctx wrapArg
+        [
+            mk <| fun _ name (x: Expr<Doc>) ->
+                <@ TemplateHole.Elt(%name, %x) @>
+            mk <| fun _ name (x: Expr<seq<Doc>>) ->
+                <@ TemplateHole.Elt(%name, Doc.Concat %x) @>
+            mkParamArray <| fun _ name (x: Expr<Doc[]>) ->
+                <@ TemplateHole.Elt(%name, Doc.Concat %x) @>
+        ]
+
+    let ElemHandlerHoleMethods hole resTy ctx =
+        let mk wrapArg = BuildMethod (Some hole) resTy ctx wrapArg
+        [
+            mk <| fun _ name (x: Expr<Expr<DomElement -> unit>>) ->
+                <@ RTC.AfterRenderQ(%name, %x) @>
+            mk <| fun _ name (x: Expr<Expr<unit -> unit>>) ->
+                <@ RTC.AfterRenderQ2(%name, %x) @>
+        ]
+
+    let EventHandlerHoleMethods eventType hole resTy varsTy ctx =
+        let exprTy t = typedefof<Expr<_>>.MakeGenericType [| t |]
+        let (^->) t u = typedefof<FSharpFunc<_, _>>.MakeGenericType [| t; u |]
+        let evTy =
+            let a = typeof<WebSharper.JavaScript.Dom.Event>.Assembly
+            a.GetType("WebSharper.JavaScript.Dom." + eventType)
+        let templateEventTy t u = typedefof<RTS.TemplateEvent<_,_>>.MakeGenericType [| t; u |]
+        [
+            BuildMethod' (Some hole) (exprTy (templateEventTy varsTy evTy ^-> typeof<unit>)) resTy ctx (fun e name x ->
+                Expr.Call(typeof<RTS.Handler>.GetMethod("EventQ2").MakeGenericMethod(evTy),
+                    [
+                        <@ (%e).Key @>
+                        name
+                        <@ fun () -> (%e).Instance @>
+                        x
+                    ])
+                |> Expr.Cast
+            )
+        ]
+
+    let SimpleHoleMethods hole resTy ctx =
+        let mk wrapArg = BuildMethod hole resTy ctx wrapArg
+        [
+            mk <| fun _ name (x: Expr<string>) ->
+                <@ TemplateHole.MakeText(%name, %x) @>
+            mk <| fun _ name (x: Expr<View<string>>) ->
+                <@ TemplateHole.TextView(%name, %x) @>
+        ]
+
+    let VarStringHoleMethods hole resTy ctx =
+        let mk wrapArg = BuildMethod hole resTy ctx wrapArg
+        let mkVar wrapArg = BuildMethodVar hole resTy ctx wrapArg
+        [
+            yield! mkVar <| fun _ name (x: Expr<Var<string>>) ->
+                <@ TemplateHole.VarStr(%name, %x) @>
+            if hole.IsSome then // Don't make lensed .With(), it conflicts with normal string
+                yield mk <| fun _ name (x: Expr<string>) ->
+                    <@ TemplateHole.MakeVarLens(%name, %x) @>
+        ]
+
+    let VarNumberHoleMethods hole resTy ctx =
+        let mk wrapArg = BuildMethod hole resTy ctx wrapArg
+        let mkVar wrapArg = BuildMethodVar hole resTy ctx wrapArg
+        [
+            yield! mkVar <| fun _ name (x: Expr<Var<int>>) ->
+                <@ TemplateHole.VarIntUnchecked(%name, %x) @>
+            yield mk <| fun _ name (x: Expr<int>) ->
+                <@ TemplateHole.MakeVarLens(%name, %x) @>
+            yield! mkVar <| fun _ name (x: Expr<Var<CheckedInput<int>>>) ->
+                <@ TemplateHole.VarInt(%name, %x) @>
+            yield mk <| fun _ name (x: Expr<CheckedInput<int>>) ->
+                <@ TemplateHole.MakeVarLens(%name, %x) @>
+            yield! mkVar <| fun _ name (x: Expr<Var<float>>) ->
+                <@ TemplateHole.VarFloatUnchecked(%name, %x) @>
+            yield mk <| fun _ name (x: Expr<float>) ->
+                <@ TemplateHole.MakeVarLens(%name, %x) @>
+            yield! mkVar <| fun _ name (x: Expr<Var<CheckedInput<float>>>) ->
+                <@ TemplateHole.VarFloat(%name, %x) @>
+            yield mk <| fun _ name (x: Expr<CheckedInput<float>>) ->
+                <@ TemplateHole.MakeVarLens(%name, %x) @>
+        ]
+
+    let VarBoolHoleMethods hole resTy ctx =
+        let mk wrapArg = BuildMethod hole resTy ctx wrapArg
+        let mkVar wrapArg = BuildMethodVar hole resTy ctx wrapArg
+        [
+            yield! mkVar <| fun _ name (x: Expr<Var<bool>>) ->
+                <@ TemplateHole.VarBool(%name, %x) @>
+            yield mk <| fun _ name (x: Expr<bool>) ->
+                <@ TemplateHole.MakeVarLens(%name, %x) @>
+        ]
 
     let BuildHoleMethods (holeName: HoleName) (holeDef: HoleDefinition) (resTy: Type) (varsTy: Type) (ctx: Ctx) : list<MemberInfo> =
-        let mk wrapArg = BuildMethod holeName resTy holeDef.Line holeDef.Column ctx wrapArg
-        let mkVar (wrapArg: Expr<Builder> -> Expr<Var<'T>> -> Expr<TemplateHole>) =
-            let varMakeMeth =
-                let viewTy = typedefof<View<_>>.MakeGenericType(typeof<'T>)
-                let setterTy = typedefof<FSharpFunc<_,_>>.MakeGenericType(typeof<'T>, typeof<unit>)
-                let param = [ProvidedParameter("view", viewTy); ProvidedParameter("setter", setterTy)]
-                BuildMethod'' holeName param resTy holeDef.Line holeDef.Column ctx <| fun st args ->
-                    match args with
-                    | [view; setter] -> wrapArg st <@ UINVar.Make %%view %%setter @>
-                    | _ -> failwith "Incorrect invoke"
-            [mk wrapArg; varMakeMeth]
-        let mkParamArray (wrapArg: _ -> Expr<'T[]> -> _) =
-            let param = ProvidedParameter(holeName, typeof<'T>.MakeArrayType(), IsParamArray = true)
-            BuildMethod'' holeName [param] resTy holeDef.Line holeDef.Column ctx (fun st args -> wrapArg st (List.head args |> Expr.Cast))
-        let holeName' = holeName.ToLowerInvariant()
-        let rec build : _ -> list<MemberInfo> = function
-            | HoleKind.Attr ->
-                [
-                    mk <| fun _ (x: Expr<Attr>) ->
-                        <@ TemplateHole.Attribute(holeName', %x) @>
-                    mk <| fun _ (x: Expr<seq<Attr>>) ->
-                        <@ TemplateHole.Attribute(holeName', Attr.Concat %x) @>
-                    mkParamArray <| fun _ (x: Expr<Attr[]>) ->
-                        <@ TemplateHole.Attribute(holeName', Attr.Concat %x) @>
-                ]
+        let hole = (holeName, holeDef)
+        let rec build = function
+            | HoleKind.Attr -> AttrHoleMethods (Some hole) resTy ctx
             | HoleKind.Doc ->
-                [
-                    mk <| fun _ (x: Expr<Doc>) ->
-                        <@ TemplateHole.Elt(holeName', %x) @>
-                    mk <| fun _ (x: Expr<seq<Doc>>) ->
-                        <@ TemplateHole.Elt(holeName', Doc.Concat %x) @>
-                    mkParamArray <| fun _ (x: Expr<Doc[]>) ->
-                        <@ TemplateHole.Elt(holeName', Doc.Concat %x) @>
-                    mk <| fun _ (x: Expr<string>) ->
-                        <@ TemplateHole.MakeText(holeName', %x) @>
-                    mk <| fun _ (x: Expr<View<string>>) ->
-                        <@ TemplateHole.TextView(holeName', %x) @>
+                List.concat [
+                    DocHoleMethods (Some hole) resTy ctx
+                    SimpleHoleMethods (Some hole) resTy ctx
                 ]
-            | HoleKind.ElemHandler ->
-                [
-                    mk <| fun _ (x: Expr<Expr<DomElement -> unit>>) ->
-                        <@ RTC.AfterRenderQ(holeName', %x) @>
-                    mk <| fun _ (x: Expr<Expr<unit -> unit>>) ->
-                        <@ RTC.AfterRenderQ2(holeName', %x) @>
-                ]
-            | HoleKind.Event eventType ->
-                let exprTy t = typedefof<Expr<_>>.MakeGenericType [| t |]
-                let (^->) t u = typedefof<FSharpFunc<_, _>>.MakeGenericType [| t; u |]
-                let evTy =
-                    let a = typeof<WebSharper.JavaScript.Dom.Event>.Assembly
-                    a.GetType("WebSharper.JavaScript.Dom." + eventType)
-                let templateEventTy t u = typedefof<RTS.TemplateEvent<_,_>>.MakeGenericType [| t; u |]
-                [
-                    BuildMethod' holeName (exprTy (templateEventTy varsTy evTy ^-> typeof<unit>)) resTy holeDef.Line holeDef.Column ctx (fun e x ->
-                        Expr.Call(typeof<RTS.Handler>.GetMethod("EventQ2").MakeGenericMethod(evTy),
-                            [
-                                <@ (%e).Key @>
-                                <@ holeName' @>
-                                <@ fun () -> (%e).Instance @>
-                                x
-                            ])
-                        |> Expr.Cast
-                    )
-                ]
-            | HoleKind.Simple ->
-                [
-                    mk <| fun _ (x: Expr<string>) ->
-                        <@ TemplateHole.MakeText(holeName', %x) @>
-                    mk <| fun _ (x: Expr<View<string>>) ->
-                        <@ TemplateHole.TextView(holeName', %x) @>
-                ]
-            | HoleKind.Var (ValTy.Any | ValTy.String) ->
-                [
-                    yield! mkVar <| fun _ (x: Expr<Var<string>>) ->
-                        <@ TemplateHole.VarStr(holeName', %x) @>
-                    yield mk <| fun _ (x: Expr<string>) ->
-                        <@ TemplateHole.MakeVarLens(holeName', %x) @>
-                ]
-            | HoleKind.Var ValTy.Number ->
-                [
-                    yield! mkVar <| fun _ (x: Expr<Var<int>>) ->
-                        <@ TemplateHole.VarIntUnchecked(holeName', %x) @>
-                    yield mk <| fun _ (x: Expr<int>) ->
-                        <@ TemplateHole.MakeVarLens(holeName', %x) @>
-                    yield! mkVar <| fun _ (x: Expr<Var<CheckedInput<int>>>) ->
-                        <@ TemplateHole.VarInt(holeName', %x) @>
-                    yield mk <| fun _ (x: Expr<CheckedInput<int>>) ->
-                        <@ TemplateHole.MakeVarLens(holeName', %x) @>
-                    yield! mkVar <| fun _ (x: Expr<Var<float>>) ->
-                        <@ TemplateHole.VarFloatUnchecked(holeName', %x) @>
-                    yield mk <| fun _ (x: Expr<float>) ->
-                        <@ TemplateHole.MakeVarLens(holeName', %x) @>
-                    yield! mkVar <| fun _ (x: Expr<Var<CheckedInput<float>>>) ->
-                        <@ TemplateHole.VarFloat(holeName', %x) @>
-                    yield mk <| fun _ (x: Expr<CheckedInput<float>>) ->
-                        <@ TemplateHole.MakeVarLens(holeName', %x) @>
-                ]
-            | HoleKind.Var ValTy.Bool ->
-                [
-                    yield! mkVar <| fun _ (x: Expr<Var<bool>>) ->
-                        <@ TemplateHole.VarBool(holeName', %x) @>
-                    yield mk <| fun _ (x: Expr<bool>) ->
-                        <@ TemplateHole.MakeVarLens(holeName', %x) @>
-                ]
+            | HoleKind.ElemHandler -> ElemHandlerHoleMethods hole resTy ctx
+            | HoleKind.Event eventType -> EventHandlerHoleMethods eventType hole resTy varsTy ctx
+            | HoleKind.Simple -> SimpleHoleMethods (Some hole) resTy ctx
+            | HoleKind.Var (ValTy.Any | ValTy.String) -> VarStringHoleMethods (Some hole) resTy ctx
+            | HoleKind.Var ValTy.Number -> VarNumberHoleMethods (Some hole) resTy ctx
+            | HoleKind.Var ValTy.Bool -> VarBoolHoleMethods (Some hole) resTy ctx
             | HoleKind.Mapped (kind = k) -> build k
             | HoleKind.Unknown -> failwithf "Error: Unknown HoleKind: %s" holeName
         build holeDef.Kind
+
+    let BuildDynamicHoleMethods resTy ctx =
+        List.concat [
+            AttrHoleMethods None resTy ctx
+            DocHoleMethods None resTy ctx
+            SimpleHoleMethods None resTy ctx
+            VarStringHoleMethods None resTy ctx
+            VarNumberHoleMethods None resTy ctx
+            VarBoolHoleMethods None resTy ctx
+        ]
 
     let OptionValue (x: option<'T>) : Expr<option<'T>> =
         match x with
@@ -366,6 +425,7 @@ module private Impl =
             let instanceTy, varsTy = BuildInstanceType ty ctx
             for KeyValue (holeName, holeKind) in ctx.Template.Holes do
                 yield! BuildHoleMethods holeName holeKind ty varsTy ctx
+            yield! BuildDynamicHoleMethods ty ctx
             if isRoot then
                 yield ProvidedMethod("Bind", [], typeof<unit>, BindBody ctx)
                     .WithXmlDoc(XmlDoc.Member.Bind) :> _

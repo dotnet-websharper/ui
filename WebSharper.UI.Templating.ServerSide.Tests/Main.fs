@@ -116,6 +116,8 @@ let Main = Application.SinglePage(fun ctx ->
             .ServerVarForms([mkServerVarForm(); mkServerVarForm()])
             .AfterRender(fun () -> Client.OnStartup())
             .TBody([MainTemplate.Main.Row().Doc(); MainTemplate.Main.Row().Doc()])
+            .With("DynamicText", """[OK] Inserted using .With("name", "text")""")
+            .With("DynamicDoc", text """[OK] Inserted using .With("name", doc)""")
             .Elt(keepUnfilled = true)
             .OnAfterRender(fun (_: JavaScript.Dom.Element) ->
                 let s = "[OK] Inserted using .OnAfterRender() on main template"
