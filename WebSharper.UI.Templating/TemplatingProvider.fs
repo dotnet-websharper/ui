@@ -449,7 +449,7 @@ module private Impl =
             | _ -> None
         match parsed with
         | [| item |] ->
-            BuildOneFile item allTemplates containerTy (inlineFileId item) |> ignore
+            BuildOneFile item allTemplates containerTy (inlineFileId item) Map.empty
         | items ->
             let inits = 
                 items |> Seq.choose (fun item ->
