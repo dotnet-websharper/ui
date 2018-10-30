@@ -10,6 +10,7 @@
   <ItemGroup>
     <Compile Include="Runtime.fs" />
     <Compile Include="RuntimeClient.fs" />
+    <Compile Include="DynamicTemplate.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../WebSharper.UI\WebSharper.UI.fsproj" />

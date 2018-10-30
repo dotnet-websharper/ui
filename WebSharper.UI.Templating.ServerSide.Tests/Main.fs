@@ -114,7 +114,7 @@ let Main = Application.SinglePage(fun ctx ->
                             el.TextContent <- s
                         )
                     :> Doc
-                    Template("""
+                    DynamicTemplate("""
                              <div id="dynamic-1">[OK] Inserted using dynamic template</div>
                              <div id="dynamic-2">${TextHole}</div>
                              <div id="dynamic-3" ws-hole="DocHole"></div>

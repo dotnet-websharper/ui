@@ -29,11 +29,6 @@ open Microsoft.FSharp.Quotations
 open ProviderImplementation
 open ProviderImplementation.ProvidedTypes
 
-/// Create a template from the given HTML.
-/// Fill more holes with .With() and finish it with .Doc().
-type Template(html: string) =
-    inherit Runtime.Server.ProviderBuilder(html)
-
 [<AutoOpen>]
 module private Impl =
     open WebSharper.UI.Templating.AST
