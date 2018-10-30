@@ -10,6 +10,7 @@
 </head>
 <body ws-onafterrender="AfterRender">
     <div ws-replace="UnitTests"></div>
+    <div id="basic-1"></div>
     <div ws-replace="Main">
         <div ws-template="ClientTemplate" style="color:${Input};opacity:${Opacity}">
             This started as ${Before}, but let's make it
@@ -26,9 +27,9 @@
               </tbody>
             </table>
         </div>
-        <button ws-template="ServerTemplate" style="font-weight: bold;">Testing an Elt server template; click me!</button>
+        <button ws-template="ServerTemplate" id="elt-1" style="font-weight: bold;">Testing an Elt server template; click me!</button>
     </div>
-    <button ws-onclick="Click">Hello world 4!</button>
+    <button id="basic-5" ws-onclick="Click">Hello world 4!</button>
     <table>
         <tbody ws-hole="TBody">
             <tr ws-template="Row"><td>Table row</td></tr>
@@ -39,9 +40,9 @@
     The following inputs should NOT be bound together:
     <hr/>
     <div ws-replace="ServerVarForms" ws-template="ServerVarForm">
-        <input ws-var="ServerVar" />
+        <input id="${InputId}" ws-var="ServerVar" ws-onmouseenter="MouseEnter" />
         <div style="color: ${ServerVar}">Hello, ${ServerVar}! (try typing a color name, this text should become this color)</div>
-        <button ws-onclick="ServerClick">Click me!</button>
+        <button id="${InputId}-btn" ws-onclick="ServerClick">Click me!</button>
         <hr/>
     </div>
 
@@ -53,31 +54,36 @@
         </div>
     </div>
     <div ws-template="OAR"></div>
-    <div>${DynamicText}</div>
-    <div ws-hole="DynamicDoc"></div>
+    <div id="basic-6">${DynamicText}</div>
+    <div id="basic-7" ws-hole="DynamicDoc"></div>
     <div ws-hole="ClientSide"></div>
     <div class="container">
-        <div ws-template="Field">
+        <div ws-template="Field" id="${Id}">
             Hello, ${Name}!
         </div>
         <ws-Field>
+            <Id>inst-1</Id>
             <Name>World</Name>
         </ws-Field>
-        <ws-Field>World by default text hole</ws-Field>
+        <div ws-template="Field0" id="inst-2">
+            Hello, ${Name}!
+        </div>
+        <ws-Field0>World by default text hole</ws-Field0>
         <ws-templates.Field3>
             <Name>World from another file</Name>
         </ws-templates.Field3>
-        <div ws-template="Field2">
+        <div ws-template="Field2" id="${Id}">
             Hello, <div ws-replace="Name" /><span ws-attr="Attrs">!</span>
         </div>
         <ws-Field2>
+            <Id>inst-4</Id>
             <Name>
                 <i>Doc</i>
                 <ws-Field>
                     <Name>Recursion</Name>
                 </ws-Field>
             </Name>
-            <Attrs style="color:red" />
+            <Attrs id="inst-4-1" style="color:red; margin-right: 15px" />
         </ws-Field2>
         <ws-templates.Field5>
             <Hello>Hello</Hello>

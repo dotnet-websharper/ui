@@ -49,19 +49,18 @@ module Client =
         LegacyTemplate.OldTemplate.Doc(Input = Var.Create init)
 
     let OnClick (el: Dom.Element) (ev: Dom.Event) =
-        JS.Alert "clicked!"
+        el?wsuiDispatchedClick <- true
 
     let OnStartup() =
         MainTemplate.Main()
             .ClientSide(div [] [text "[OK] Inserted using Bind()"])
             .Bind()
 
-let mkServerVarForm() =
+let mkServerVarForm(id: string) =
     MainTemplate.Main.ServerVarForm()
-        .ServerClick(fun t ->
-            JavaScript.JS.Alert("Hello, " + !t.Vars.ServerVar + "! The input should now clear itself.")
-            t.Vars.ServerVar := ""
-        )
+        .InputId(id)
+        .MouseEnter(fun e -> JavaScript.JS.Set e.Target "wsuiVar" e.Vars.ServerVar)
+        .ServerClick(fun e -> e.Vars.ServerVar := "")
         .Doc()
 
 [<Website>]
@@ -71,19 +70,21 @@ let Main = Application.SinglePage(fun ctx ->
             .Main(
                 [
                 MainTemplate.template()
+                    .Id("basic-2")
                     .Who("world 1")
-                    .Click(fun _ -> JavaScript.JS.Alert "Clicked 1!")
+                    .Click(fun e -> JavaScript.JS.Set e.Target "wsuiDispatched2" true)
                     .Doc()
                 MainTemplate.template()
+                    .Id("basic-3")
                     .Who("world 2")
-                    .Click(fun _ -> JavaScript.JS.Alert "Clicked 2!")
+                    .Click(fun e -> JavaScript.JS.Set e.Target "wsuiDispatched3" true)
                     .Doc()
-                MainTemplate.template("""<a ws-onclick="Click" href="#">Greetings ${Who}!</button>""")
+                MainTemplate.template("""<a id="basic-4" ws-onclick="Click" href="#">Greetings ${Who}!</button>""")
                     .Who("world 3")
-                    .Click(fun _ -> JavaScript.JS.Alert "Clicked 3!")
+                    .Click(fun e -> JavaScript.JS.Set e.Target "wsuiDispatched4" true)
                     .Doc()
                 ])
-            .Click(fun _ -> JavaScript.JS.Alert "Clicked 4!")
+            .Click(fun e -> JavaScript.JS.Set e.Target "wsuiDispatched5" true)
             .Client(
                 [
                     client <@ Client.Main("green") @>
@@ -91,6 +92,7 @@ let Main = Application.SinglePage(fun ctx ->
                     client <@ Client.OldMain("old template") @>
                     MainTemplate.Main.ServerTemplate().Elt()
                         .OnClick(<@ Client.OnClick @>)
+                        .OnAfterRender(fun el -> JavaScript.JS.Set el "wsuiDispatchedOar" true)
                     :> Doc
                     button [
                         on.click(fun _ _ -> JavaScript.JS.Alert "hey!")
@@ -117,8 +119,10 @@ let Main = Application.SinglePage(fun ctx ->
                              <div id="dynamic-2">${TextHole}</div>
                              <div id="dynamic-3" ws-hole="DocHole"></div>
                              <div id="dynamic-4" class="hidden" ws-attr="AttrHole">[OK] Inserted using dynamic template attr hole</div>
-                             <div id="dynamic-5" ws-onafterrender="OarHole"></div>
-                             <div id="dynamic-6" ws-onmouseenter="EventHole" ws-onafterrender="OarHole2">
+                             <div id="dynamic-5" ws-onafterrender="OarHole">
+                                [FAIL] Inserted using dynamic afterrender hole
+                             </div>
+                             <div id="dynamic-6" ws-onmouseenter="EventHole">
                                 [FAIL] Inserted using dynamic mouse event hole
                              </div>
                              """)
@@ -129,11 +133,9 @@ let Main = Application.SinglePage(fun ctx ->
                             el.TextContent <- "[OK] Inserted using dynamic afterrender hole")
                         .With("EventHole", fun el ev ->
                             el.TextContent <- "[OK] Inserted using dynamic mouse event hole")
-                        .WithAfterRender("OarHole2", fun el ->
-                            el.DispatchEvent(JavaScript.Dom.Event("mouseenter", JavaScript.Pervasives.New [])) |> ignore)
                         .Doc()
                 ])
-            .ServerVarForms([mkServerVarForm(); mkServerVarForm()])
+            .ServerVarForms([mkServerVarForm("var-1"); mkServerVarForm("var-2")])
             .AfterRender(fun () -> Client.OnStartup())
             .TBody([MainTemplate.Main.Row().Doc(); MainTemplate.Main.Row().Doc()])
             .With("DynamicText", """[OK] Inserted using .With("name", "text")""")
