@@ -113,18 +113,18 @@ let Main = Application.SinglePage(fun ctx ->
                         )
                     :> Doc
                     Template("""
-                             <div>[OK] Inserted using dynamic template</div>
-                             <div>${TextHole}</div>
-                             <div ws-hole="DocHole"></div>
-                             <div class="hidden" ws-attr="AttrHole">[OK] Inserted using dynamic template attr hole</div>
-                             <div ws-onafterrender="OarHole"></div>
-                             <div ws-onmouseenter="EventHole" ws-onafterrender="OarHole2">
-                                <b>[KO] Inserted using dynamic mouse event hole</b>
+                             <div id="dynamic-1">[OK] Inserted using dynamic template</div>
+                             <div id="dynamic-2">${TextHole}</div>
+                             <div id="dynamic-3" ws-hole="DocHole"></div>
+                             <div id="dynamic-4" class="hidden" ws-attr="AttrHole">[OK] Inserted using dynamic template attr hole</div>
+                             <div id="dynamic-5" ws-onafterrender="OarHole"></div>
+                             <div id="dynamic-6" ws-onmouseenter="EventHole" ws-onafterrender="OarHole2">
+                                [FAIL] Inserted using dynamic mouse event hole
                              </div>
                              """)
                         .With("TextHole", "[OK] Inserted using dynamic template text hole")
                         .With("DocHole", div [] [text "[OK] Inserted using dynamic template doc hole"])
-                        .With("AttrHole", attr.style "display: block")
+                        .With("AttrHole", attr.style "display: block; margin-right: 10px;")
                         .WithAfterRender("OarHole", fun el ->
                             el.TextContent <- "[OK] Inserted using dynamic afterrender hole")
                         .With("EventHole", fun el ev ->
@@ -138,6 +138,7 @@ let Main = Application.SinglePage(fun ctx ->
             .TBody([MainTemplate.Main.Row().Doc(); MainTemplate.Main.Row().Doc()])
             .With("DynamicText", """[OK] Inserted using .With("name", "text")""")
             .With("DynamicDoc", text """[OK] Inserted using .With("name", doc)""")
+            .UnitTests(client <@ Unit.RunAllTests() @>)
             .Elt(keepUnfilled = true)
             .OnAfterRender(fun (_: JavaScript.Dom.Element) ->
                 let s = "[OK] Inserted using .OnAfterRender() on main template"

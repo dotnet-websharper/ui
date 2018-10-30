@@ -10,6 +10,7 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Unit.fs" />
     <Compile Include="Main.fs" />
     <Content Include="Main.html" />
     <Content Include="templates.html" />
