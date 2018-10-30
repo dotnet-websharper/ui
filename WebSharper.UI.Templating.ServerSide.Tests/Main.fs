@@ -112,6 +112,26 @@ let Main = Application.SinglePage(fun ctx ->
                             el.TextContent <- s
                         )
                     :> Doc
+                    Template("""
+                             <div>[OK] Inserted using dynamic template</div>
+                             <div>${TextHole}</div>
+                             <div ws-hole="DocHole"></div>
+                             <div class="hidden" ws-attr="AttrHole">[OK] Inserted using dynamic template attr hole</div>
+                             <div ws-onafterrender="OarHole"></div>
+                             <div ws-onmouseenter="EventHole" ws-onafterrender="OarHole2">
+                                <b>[KO] Inserted using dynamic mouse event hole</b>
+                             </div>
+                             """)
+                        .With("TextHole", "[OK] Inserted using dynamic template text hole")
+                        .With("DocHole", div [] [text "[OK] Inserted using dynamic template doc hole"])
+                        .With("AttrHole", attr.style "display: block")
+                        .WithAfterRender("OarHole", fun el ->
+                            el.TextContent <- "[OK] Inserted using dynamic afterrender hole")
+                        .With("EventHole", fun el ev ->
+                            el.TextContent <- "[OK] Inserted using dynamic mouse event hole")
+                        .WithAfterRender("OarHole2", fun el ->
+                            el.DispatchEvent(JavaScript.Dom.Event("mouseenter", JavaScript.Pervasives.New [])) |> ignore)
+                        .Doc()
                 ])
             .ServerVarForms([mkServerVarForm(); mkServerVarForm()])
             .AfterRender(fun () -> Client.OnStartup())

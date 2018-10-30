@@ -206,15 +206,11 @@ type private RuntimeProxy =
             ) : Doc =
         X<Doc>
 
-    [<Inline>]
-    static member RunTemplate (fillWith: seq<TemplateHole>): Doc =
-        WebSharper.UI.Client.Doc.RunFullDocTemplate fillWith
-
 [<Proxy(typeof<Server.Handler>)>]
 type private HandlerProxy =
 
     [<Inline>]
-    static member EventQ (holeName: string, key: string, f: Expr<Dom.Element -> Dom.Event -> unit>) =
+    static member EventQ (holeName: string, f: Expr<Dom.Element -> Dom.Event -> unit>) =
         TemplateHole.EventQ(holeName, f)
 
     static member EventQ2<'E when 'E :> DomEvent> (key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, 'E> -> unit>) =

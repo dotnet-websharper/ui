@@ -240,39 +240,175 @@ type private RenderContext =
         RequireResources: Dictionary<string, IRequiresResources>
     }
 
+// This is the public Template base type, so don't add public members unless they should be there too.
+// Members needed internally by the provider should be added to the ProviderBuilder module.
+// TODO: add xmldoc
 [<JavaScript>]
 type ProviderBuilder =
-    {
-        [<Name "i">] mutable Instance: TemplateInstance
-        [<Name "k">] Key: string
-        [<Name "h">] Holes: ResizeArray<TemplateHole>
-        [<OptionalField; Name "s">] Source: option<string>
-    }
+    [<Name "i">] val mutable internal Instance : TemplateInstance
+    [<Name "k">] val internal Key : string
+    [<Name "h">] val internal Holes : ResizeArray<TemplateHole>
+    [<Name "s"; OptionalField>] val internal Source : option<string>
 
-    member this.WithHole(h) =
-        this.Holes.Add(h)
-        this
-
-    [<Inline>]
-    member this.SetInstance(i) =
-        this.Instance <- i
-        i
-
-    static member Make() =
+    new() =
         {
-            Instance = Unchecked.defaultof<TemplateInstance>
+            Instance = Unchecked.defaultof<_>
             Key = Guid.NewGuid().ToString()
             Holes = ResizeArray()
             Source = None
         }
 
-    static member Make(src) =
+    new(src: string) =
         {
-            Instance = Unchecked.defaultof<TemplateInstance>
+            Instance = Unchecked.defaultof<_>
             Key = Guid.NewGuid().ToString()
             Holes = ResizeArray()
             Source = Some src
         }
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(h) =
+        this.Holes.Add(h)
+        this
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, value: string) =
+        this.With(TemplateHole.MakeText(hole, value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, value: View<string>) =
+        this.With(TemplateHole.TextView(hole, value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, value: Doc) =
+        this.With(TemplateHole.Elt(hole, value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, value: seq<Doc>) =
+        this.With(TemplateHole.Elt(hole, Doc.Concat value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, [<ParamArray>] value: Doc[]) =
+        this.With(TemplateHole.Elt(hole, Doc.Concat value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, value: UI.Attr) =
+        this.With(TemplateHole.Attribute(hole, value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, value: seq<UI.Attr>) =
+        this.With(TemplateHole.Attribute(hole, Attr.Concat value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, [<ParamArray>] value: UI.Attr[]) =
+        this.With(TemplateHole.Attribute(hole, Attr.Concat value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, [<ReflectedDefinition; JavaScript>] value: Expr<DomElement -> DomEvent -> unit>) =
+        this.With(TemplateHole.EventQ(hole, value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.WithAfterRender(hole: string, [<ReflectedDefinition; JavaScript>] value: Expr<DomElement -> unit>) =
+        this.With(TemplateHole.AfterRenderQ(hole, value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, value: Var<string>) =
+        this.With(TemplateHole.VarStr(hole, value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, value: Var<int>) =
+        this.With(TemplateHole.VarIntUnchecked(hole, value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, value: Var<Client.CheckedInput<int>>) =
+        this.With(TemplateHole.VarInt(hole, value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, value: int) =
+        this.With(TemplateHole.MakeVarLens(hole, value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, value: Client.CheckedInput<int>) =
+        this.With(TemplateHole.MakeVarLens(hole, value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, value: Var<float>) =
+        this.With(TemplateHole.VarFloatUnchecked(hole, value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, value: Var<Client.CheckedInput<float>>) =
+        this.With(TemplateHole.VarFloat(hole, value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, value: float) =
+        this.With(TemplateHole.MakeVarLens(hole, value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, value: Client.CheckedInput<float>) =
+        this.With(TemplateHole.MakeVarLens(hole, value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, value: Var<bool>) =
+        this.With(TemplateHole.VarBool(hole, value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, value: bool) =
+        this.With(TemplateHole.MakeVarLens(hole, value))
+
+module ProviderBuilder =
+    
+    [<Inline>]
+    let Key (b: ProviderBuilder) = b.Key
+
+    [<Inline>]
+    let Instance (b: ProviderBuilder) = b.Instance
+
+    [<Inline>]
+    let Source (b: ProviderBuilder) = b.Source
+
+    [<Inline>]
+    let RunTemplate (fillWith: seq<TemplateHole>): Doc =
+        if IsClient then
+            WebSharper.UI.Client.Doc.RunFullDocTemplate fillWith
+        else
+            failwith "Template.Bind() can only be called from the client side."
+
+    [<Inline>]
+    let CompleteHoles (builder: ProviderBuilder) (vars: (string * ValTy)[]) =
+        Handler.CompleteHoles(builder.Key, builder.Holes, vars)
+
+    [<Inline>]
+    let BindBody (builder: ProviderBuilder) (vars: (string * ValTy)[]) =
+        let holes, completed = CompleteHoles builder vars
+        let doc = RunTemplate holes
+        builder.Instance <- TemplateInstance(completed, doc)
+
+    [<Inline>]
+    let SetAndReturnInstance (builder: ProviderBuilder) (i: TemplateInstance) =
+        builder.Instance <- i
+        i
 
 type Runtime private () =
 
@@ -340,9 +476,6 @@ type Runtime private () =
         | Some "colgroup" -> "col"
         | Some "tr" -> "td"
         | _ -> "div"
-
-    static member RunTemplate (fillWith: seq<TemplateHole>): Doc =
-        failwith "Template.Bind() can only be called from the client side."
 
     static member GetOrLoadTemplate
             (
@@ -691,3 +824,22 @@ type Runtime private () =
             Server.Internal.TemplateElt(requireResourcesSeq, write) :> _
         else
             Server.Internal.TemplateDoc(requireResourcesSeq, write []) :> _
+
+type ProviderBuilder with
+
+    [<JavaScript false>]
+    member this.Create() =
+        let holes, completed = ProviderBuilder.CompleteHoles this [||]
+        let doc =
+            Runtime.GetOrLoadTemplate(
+                this.Key, None, None,
+                defaultArg this.Source "", this.Source,
+                holes, None, ServerLoad.Once, [||], completed, false, false, false
+            )
+        let i = TemplateInstance(completed, doc)
+        this.Instance <- i
+        i
+
+    [<JavaScript false>]
+    member this.Doc() =
+        this.Create().Doc
