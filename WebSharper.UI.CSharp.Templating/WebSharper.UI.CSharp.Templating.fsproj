@@ -5,7 +5,7 @@
     <WebSharperProject>Library</WebSharperProject>
     <WebSharperSourceMap>false</WebSharperSourceMap>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>3218</NoWarn>
+    <NoWarn>3218;3186</NoWarn>
     <Signed>False</Signed>
   </PropertyGroup>
   <ItemGroup>

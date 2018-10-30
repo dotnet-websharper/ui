@@ -6,7 +6,7 @@
     <WebSharperSourceMap>true</WebSharperSourceMap>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <WebSharperAnalyzeClosures>True</WebSharperAnalyzeClosures>
-    <NoWarn>3218</NoWarn>
+    <NoWarn>3218;3186</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Utility\Abbrev.fs" />

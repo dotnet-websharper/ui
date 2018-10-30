@@ -4,7 +4,7 @@
     <TargetFramework>net461</TargetFramework>
     <WebSharperProject>Site</WebSharperProject>
     <WebProjectOutputDir>$(MSBuildThisFileDirectory)</WebProjectOutputDir>
-    <NoWarn>3218</NoWarn>
+    <NoWarn>3218;3186</NoWarn>
     <Signed>false</Signed>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>

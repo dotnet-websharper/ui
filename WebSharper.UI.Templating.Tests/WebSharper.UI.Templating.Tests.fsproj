@@ -6,7 +6,7 @@
     <WebSharperBundleOutputDir>$(MSBuildThisFileDirectory)/Content</WebSharperBundleOutputDir>
     <WebSharperSourceMap>true</WebSharperSourceMap>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>3218</NoWarn>
+    <NoWarn>3218;3186</NoWarn>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>

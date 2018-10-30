@@ -5,7 +5,7 @@
     <WebSharperProject>Library</WebSharperProject>
     <WebSharperSourceMap>true</WebSharperSourceMap>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>3218</NoWarn>
+    <NoWarn>3218;3186</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Reactive.fsi" />

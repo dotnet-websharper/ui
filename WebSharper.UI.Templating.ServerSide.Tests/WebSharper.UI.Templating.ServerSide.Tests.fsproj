@@ -6,7 +6,7 @@
     <WebSharperSourceMap>true</WebSharperSourceMap>
     <WebProjectOutputDir Condition="$(TargetFramework.StartsWith('net4'))">$(MSBuildThisFileDirectory)</WebProjectOutputDir>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>3218</NoWarn>
+    <NoWarn>3218;3186</NoWarn>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
