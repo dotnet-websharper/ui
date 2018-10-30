@@ -78,7 +78,8 @@ type WebSharperUICSharpGeneratorTask() =
                     let code =
                         CodeGenerator.GetCode namespaceName (Path.GetDirectoryName fullPath) (Path.GetFileName fullPath) 
                             ServerLoad.WhenChanged ClientLoad.FromDocument 
-                    File.WriteAllText(outputFile, code)
+                    if not (File.Exists outputFile && File.ReadAllText outputFile = code) then
+                        File.WriteAllText(outputFile, code)
                 with e -> 
                     this.Log.LogError("Error during generating codebehind for {0}: {1}", Path.GetFileName fullPath, e.Message)
                     result <- false
