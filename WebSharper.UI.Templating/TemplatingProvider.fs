@@ -366,10 +366,14 @@ module private Impl =
         let references = References ctx
         let vars = InstanceVars ctx
         let inits = 
-            let fileIds = ctx.Template.References |> Seq.map fst |> Seq.distinct |> List.ofSeq
+            let fileIds =
+                ctx.Template.References
+                |> Seq.map fst
+                |> Seq.distinct
+                |> Seq.choose (fun f -> refInits |> Map.tryFind f)
+                |> List.ofSeq
             if List.isEmpty fileIds then <@@ () @@> else 
-                fileIds |> List.choose (fun f -> refInits |> Map.tryFind f)
-                |> List.reduce (fun a b -> Expr.Sequential(a, b))
+                fileIds |> List.reduce (fun a b -> Expr.Sequential(a, b))
         
         <@@ let builder = (%%args.[0] : obj) :?> Builder
             let holes, completed = Builder.CompleteHoles builder %%vars
