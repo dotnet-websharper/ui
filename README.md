@@ -6,8 +6,8 @@ WebSharper.UI is a UI library featuring a dataflow layer for expressing
 time-varying values. It integrates with DOM and makes it
 simple to construct animated UI in the browser.
 
-* [Examples](http://intellifactory.github.io/websharper.ui.next.samples/)
-* [Example Site Repository](http://github.com/intellifactory/websharper.ui.next.samples)
+* [Examples](https://websharper-samples.github.io/ui/)
+* [Example Site Repository](https://github.com/websharper-samples/ui)
 * [Tutorial and documentation](https://developers.websharper.com/docs/v4.x/fs/ui)
 * [Guide for contributing to this project](https://github.com/dotnet-websharper/ui/blob/master/CONTRIBUTING.md)
 
