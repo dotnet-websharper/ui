@@ -32,11 +32,11 @@ NUGET
       System.Xml.XmlDocument (>= 4.3) - restriction: || (&& (== net461) (< net40)) (&& (== net471) (< net40)) (== netstandard2.0)
       System.Xml.XPath (>= 4.3) - restriction: || (&& (== net461) (< net40)) (&& (== net461) (>= uap10.0)) (&& (== net471) (< net40)) (&& (== net471) (>= uap10.0)) (== netstandard2.0)
       System.Xml.XPath.XmlDocument (>= 4.3) - restriction: || (&& (== net461) (< net40)) (&& (== net461) (>= uap10.0)) (&& (== net471) (< net40)) (&& (== net471) (>= uap10.0)) (== netstandard2.0)
-    Microsoft.Build.Framework (15.8.166)
+    Microsoft.Build.Framework (15.9.20)
       System.Runtime.Serialization.Primitives (>= 4.1.1) - restriction: || (&& (== net461) (< net46) (>= netstandard2.0)) (&& (== net471) (< net46)) (== netstandard2.0)
       System.Threading.Thread (>= 4.0) - restriction: || (&& (== net461) (< net46) (>= netstandard2.0)) (&& (== net471) (< net46)) (== netstandard2.0)
-    Microsoft.Build.Utilities.Core (15.8.166)
-      Microsoft.Build.Framework (>= 15.8.166)
+    Microsoft.Build.Utilities.Core (15.9.20)
+      Microsoft.Build.Framework (>= 15.9.20)
       Microsoft.VisualStudio.Setup.Configuration.Interop (>= 1.16.30) - restriction: || (== net461) (== net471) (&& (== netstandard2.0) (>= net46))
       Microsoft.Win32.Registry (>= 4.3) - restriction: || (&& (== net461) (< net46) (>= netstandard2.0)) (&& (== net471) (< net46)) (== netstandard2.0)
       System.Collections.Immutable (>= 1.5)
@@ -661,17 +661,18 @@ NUGET
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
   remote: https://daily.websharper.com/nuget
-    WebSharper (4.5.5.319)
-    WebSharper.CSharp (4.5.5.319)
-      WebSharper (4.5.5.319)
-    WebSharper.FSharp (4.5.5.319)
-      WebSharper (4.5.5.319)
-    WebSharper.Testing (4.5.5.319)
-      WebSharper (4.5.5.319)
+    WebSharper (4.5.8.326)
+      FSharp.Core (>= 4.2.3)
+    WebSharper.CSharp (4.5.8.326)
+      WebSharper (4.5.8.326)
+    WebSharper.FSharp (4.5.8.326)
+      WebSharper (4.5.8.326)
+    WebSharper.Testing (4.5.8.326)
+      WebSharper (4.5.8.326)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (4a4eab29074e7c7db91d60f2abbd2ab4e9d8b499)
-    src/ProvidedTypes.fsi (4a4eab29074e7c7db91d60f2abbd2ab4e9d8b499)
+    src/ProvidedTypes.fs (a34e47921ae5ce694c37d9b8e946f1bb4d2df0f6)
+    src/ProvidedTypes.fsi (a34e47921ae5ce694c37d9b8e946f1bb4d2df0f6)
 GROUP build
 RESTRICTION: == net45
 NUGET
@@ -704,4 +705,4 @@ GROUP wsbuild
 
 GIT
   remote: https://github.com/dotnet-websharper/build-script
-     (b55fa7868cffa5dd74ac8bc13b053567f7991add)
+     (8f1de8b8171b563fd9647c7b58e03a3ddafb8014)
