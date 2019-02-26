@@ -407,7 +407,7 @@ module internal Templates =
                 Console.Warn("Filling non-existent text hole", templateName)
                 None
             | n ->
-                n.ParentNode.ReplaceChild(Dom.Text fillWith, n) |> ignore
+                n.ParentNode.ReplaceChild(JS.Document.CreateTextNode fillWith, n) |> ignore
                 Some <| n.GetAttribute("ws-replace")
 
         let rec fill (fillWith: Dom.Element) (p: Dom.Node) n =
