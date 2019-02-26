@@ -661,18 +661,18 @@ NUGET
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
   remote: https://daily.websharper.com/nuget
-    WebSharper (4.5.8.326)
+    WebSharper (4.5.9.330)
       FSharp.Core (>= 4.2.3)
-    WebSharper.CSharp (4.5.8.326)
-      WebSharper (4.5.8.326)
-    WebSharper.FSharp (4.5.8.326)
-      WebSharper (4.5.8.326)
-    WebSharper.Testing (4.5.8.326)
-      WebSharper (4.5.8.326)
+    WebSharper.CSharp (4.5.9.330)
+      WebSharper (4.5.9.330)
+    WebSharper.FSharp (4.5.9.330)
+      WebSharper (4.5.9.330)
+    WebSharper.Testing (4.5.9.330)
+      WebSharper (4.5.9.330)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (a34e47921ae5ce694c37d9b8e946f1bb4d2df0f6)
-    src/ProvidedTypes.fsi (a34e47921ae5ce694c37d9b8e946f1bb4d2df0f6)
+    src/ProvidedTypes.fs (18459e8b23b44b389dc8f2b8fe444fedf2b47a8c)
+    src/ProvidedTypes.fsi (18459e8b23b44b389dc8f2b8fe444fedf2b47a8c)
 GROUP build
 RESTRICTION: == net45
 NUGET
