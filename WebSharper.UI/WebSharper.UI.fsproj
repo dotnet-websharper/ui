@@ -57,6 +57,7 @@
     <Content Include="SVG.fs" />
     <Compile Include="Input.fsi" />
     <Compile Include="Input.fs" />
+    <EmbeddedResource Include="closest.js" />
     <EmbeddedResource Include="h5f.js" />
   </ItemGroup>
   <ItemGroup>

@@ -56,6 +56,15 @@
       <!-- Regression Test for #170: out-of-order use of nested subtemplate -->
       <input ws-template="FormInput" type="${Type}" ws-var="Var" />
     </div>
+    <div ws-preserve>
+      There should be an unfilled hole here: ${AHoleHere}
+      <div ws-replace="DoNotFillThisHole">
+        [OK] ws-replace inside ws-preserve is not removed
+      </div>
+      <div ws-hole="DoNotFillThisHole2">
+        [OK] ws-hole inside ws-preserve is not emptied
+      </div>
+    </div>
     <script type="text/javascript" src="Content/WebSharper.UI.Templating.Tests.js"></script>
   </body>
 </html>
