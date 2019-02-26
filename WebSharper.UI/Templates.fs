@@ -71,7 +71,7 @@ module internal Templates =
             | true, _ -> Console.Warn("Content hole filled with attribute data", name); None
             | false, _ -> None
 
-        DomUtility.IterSelector el "[ws-hole]" <| fun p ->
+        DomUtility.IterSelector el "[ws-hole]:not([ws-preserve] *)" <| fun p ->
             let name = p.GetAttribute("ws-hole")
             p.RemoveAttribute("ws-hole")
             while (p.HasChildNodes()) do
@@ -91,7 +91,7 @@ module internal Templates =
                 |> ignore
                 updates.JS.Push doc.Updates |> ignore
 
-        DomUtility.IterSelector el "[ws-replace]" <| fun e ->
+        DomUtility.IterSelector el "[ws-replace]:not([ws-preserve] *)" <| fun e ->
             let name = e.GetAttribute("ws-replace")
             match tryGetAsDoc name with
             | None -> ()
@@ -114,7 +114,7 @@ module internal Templates =
                 |> ignore
                 updates.JS.Push doc.Updates |> ignore
 
-        DomUtility.IterSelector el "[ws-attr]" <| fun e ->
+        DomUtility.IterSelector el "[ws-attr]:not([ws-preserve] *)" <| fun e ->
             let name = e.GetAttribute("ws-attr")
             e.RemoveAttribute("ws-attr")
             match fw.TryGetValue(name) with
@@ -122,7 +122,7 @@ module internal Templates =
             | true, _ -> Console.Warn("Attribute hole filled with non-attribute data", name)
             | false, _ -> ()
 
-        DomUtility.IterSelector el "[ws-on]" <| fun e ->
+        DomUtility.IterSelector el "[ws-on]:not([ws-preserve] *)" <| fun e ->
             e.GetAttribute("ws-on").Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
             |> Array.choose (fun x ->
                 let a = x.Split([|':'|], StringSplitOptions.RemoveEmptyEntries)
@@ -138,7 +138,7 @@ module internal Templates =
             |> addAttr e
             e.RemoveAttribute("ws-on")
 
-        DomUtility.IterSelector el "[ws-onafterrender]" <| fun e ->
+        DomUtility.IterSelector el "[ws-onafterrender]:not([ws-preserve] *)" <| fun e ->
             let name = e.GetAttribute("ws-onafterrender")
             match fw.TryGetValue(name) with
             | true, TemplateHole.AfterRender (_, handler) ->
@@ -150,7 +150,7 @@ module internal Templates =
             | true, _ -> Console.Warn("onafterrender hole filled with non-onafterrender data", name)
             | false, _ -> ()
 
-        DomUtility.IterSelector el "[ws-var]" <| fun e ->
+        DomUtility.IterSelector el "[ws-var]:not([ws-preserve] *)" <| fun e ->
             let name = e.GetAttribute("ws-var")
             e.RemoveAttribute("ws-var")
             match fw.TryGetValue(name) with
@@ -163,7 +163,7 @@ module internal Templates =
             | true, _ -> Console.Warn("Var hole filled with non-Var data", name)
             | false, _ -> ()
 
-        DomUtility.IterSelector el "[ws-attr-holes]" <| fun e ->
+        DomUtility.IterSelector el "[ws-attr-holes]:not([ws-preserve] *)" <| fun e ->
             let re = new RegExp(TextHoleRE, "g")
             let holeAttrs = e.GetAttribute("ws-attr-holes").Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
             e.RemoveAttribute("ws-attr-holes")
@@ -313,7 +313,7 @@ module internal Templates =
 
         let mapHoles (t: Dom.Element) (mappings: Dictionary<string, string>) =
             let run attrName =
-                DomUtility.IterSelector t ("[" + attrName + "]") <| fun e ->
+                DomUtility.IterSelector t ("[" + attrName + "]:not([ws-preserve] *)") <| fun e ->
                     match mappings.TryGetValue(e.GetAttribute(attrName).ToLower()) with
                     | true, m -> e.SetAttribute(attrName, m)
                     | false, _ -> ()
@@ -322,7 +322,7 @@ module internal Templates =
             run "ws-attr"
             run "ws-onafterrender"
             run "ws-var"
-            DomUtility.IterSelector t "[ws-on]" <| fun e ->
+            DomUtility.IterSelector t "[ws-on]:not([ws-preserve] *)" <| fun e ->
                 let a =
                     e.GetAttribute("ws-on").Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
                     |> Array.map (fun x ->
@@ -333,7 +333,7 @@ module internal Templates =
                     )
                     |> String.concat " "
                 e.SetAttribute("ws-on", a)
-            DomUtility.IterSelector t "[ws-attr-holes]" <| fun e ->
+            DomUtility.IterSelector t "[ws-attr-holes]:not([ws-preserve] *)" <| fun e ->
                 let holeAttrs = e.GetAttribute("ws-attr-holes").Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
                 for attrName in holeAttrs do
                     let s =
@@ -365,15 +365,15 @@ module internal Templates =
             run "ws-attr"
             run "ws-onafterrender"
             run "ws-var"
-            DomUtility.IterSelector instance "[ws-hole]" <| fun e ->
+            DomUtility.IterSelector instance "[ws-hole]:not([ws-preserve] *)" <| fun e ->
                 if not (dontRemove.Contains(e.GetAttribute "ws-hole")) then
                     e.RemoveAttribute("ws-hole")
                     while e.HasChildNodes() do
                         e.RemoveChild(e.LastChild) |> ignore
-            DomUtility.IterSelector instance "[ws-replace]" <| fun e ->
+            DomUtility.IterSelector instance "[ws-replace]:not([ws-preserve] *)" <| fun e ->
                 if not (dontRemove.Contains(e.GetAttribute "ws-replace")) then
                     e.ParentNode.RemoveChild(e) |> ignore
-            DomUtility.IterSelector instance "[ws-on]" <| fun e ->
+            DomUtility.IterSelector instance "[ws-on]:not([ws-preserve] *)" <| fun e ->
                 let a =
                     e.GetAttribute("ws-on").Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
                     |> Array.filter (fun x ->
@@ -382,7 +382,7 @@ module internal Templates =
                     )
                     |> String.concat " "
                 e.SetAttribute("ws-on", a)
-            DomUtility.IterSelector instance "[ws-attr-holes]" <| fun e ->
+            DomUtility.IterSelector instance "[ws-attr-holes]:not([ws-preserve] *)" <| fun e ->
                 let holeAttrs = e.GetAttribute("ws-attr-holes").Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
                 for attrName in holeAttrs do
                     let s =
@@ -421,7 +421,7 @@ module internal Templates =
                         fillWith.AppendChild(parsed.FirstChild) |> ignore
                 convertElement fillWith
                 Prepare.fill fillWith p n
-            DomUtility.IterSelector instance "[ws-attr-holes]" <| fun e ->
+            DomUtility.IterSelector instance "[ws-attr-holes]:not([ws-preserve] *)" <| fun e ->
                 let holeAttrs = e.GetAttribute("ws-attr-holes").Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
                 for attrName in holeAttrs do
                     e.SetAttribute(attrName,
@@ -442,11 +442,12 @@ module internal Templates =
                 fillHole e null
 
         and convertElement (el: Dom.Element) =
-            if el.NodeName.ToLower().StartsWith "ws-" then
-                convertInstantiation el
-            else
-                Prepare.convertAttrs el
-                convertNodeAndSiblings el.FirstChild
+            if not (el.HasAttribute "ws-preserve") then
+                if el.NodeName.ToLower().StartsWith "ws-" then
+                    convertInstantiation el
+                else
+                    Prepare.convertAttrs el
+                    convertNodeAndSiblings el.FirstChild
 
         and convertNodeAndSiblings (n: Dom.Node) =
             if n !==. null then

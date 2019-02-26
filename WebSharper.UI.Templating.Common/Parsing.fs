@@ -291,6 +291,7 @@ module Impl =
 
     let rec normalElement (n: HtmlNode) isSvg (children: Lazy<_>) (state: ParseState) =
         match n with
+        | Preserve isSvg n -> n
         | Instantiation state n -> n
         | n ->
         let attrs = parseAttributesOf n state.AddHole
@@ -304,6 +305,17 @@ module Impl =
                 HoleDefinition.Column = varAttr.LinePosition + varAttr.Name.Length
             }
             Node.Input (n.Name, varAttr.Value, attrs, children.Value)
+
+    and (|Preserve|_|) isSvg (n: HtmlNode) =
+        match n.GetAttributeValue("ws-preserve", null) with
+        | null -> None
+        | _ -> Some (preservedElement n isSvg)
+
+    and preservedElement (n: HtmlNode) isSvg =
+        let isSvg = isSvg || n.Name = "svg"
+        let attrs = [| for a in n.Attributes -> Attr.Simple(a.Name, a.Value) |]
+        let children = [| for c in n.ChildNodes -> preservedElement c isSvg |]
+        Node.Element(n.Name, isSvg, attrs, children)
 
     and (|Instantiation|_|) (state: ParseState) (node: HtmlNode) =
         if node.Name.StartsWith "ws-" then
