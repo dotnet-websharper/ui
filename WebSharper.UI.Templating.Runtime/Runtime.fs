@@ -157,7 +157,7 @@ and [<JavaScript>] TemplateInstances() =
 
 and CompletedHoles =
     | Client of Dictionary<string, TemplateHole>
-    | Server of TemplateInitializer
+    | Server of option<TemplateInitializer>
 
 and TemplateInstance(c: CompletedHoles, doc: Doc) =
     
@@ -193,16 +193,24 @@ type Handler private () =
 
     static member CompleteHoles(key: string, filledHoles: seq<TemplateHole>, vars: array<string * ValTy>) : seq<TemplateHole> * CompletedHoles =
         let filledVars = HashSet()
-        for h in filledHoles do
-            match h with
-            | TemplateHole.VarStr(n, _)
-            | TemplateHole.VarIntUnchecked(n, _)
-            | TemplateHole.VarInt(n, _)
-            | TemplateHole.VarFloatUnchecked(n, _)
-            | TemplateHole.VarFloat(n, _)
-            | TemplateHole.VarBool(n, _) ->
-                filledVars.Add n |> ignore
-            | _ -> ()
+        let hasEventHandler =
+            (false, filledHoles)
+            ||> Seq.fold (fun hasEventHandler h ->
+                match h with
+                | TemplateHole.VarStr(n, _)
+                | TemplateHole.VarIntUnchecked(n, _)
+                | TemplateHole.VarInt(n, _)
+                | TemplateHole.VarFloatUnchecked(n, _)
+                | TemplateHole.VarFloat(n, _)
+                | TemplateHole.VarBool(n, _) ->
+                    filledVars.Add n |> ignore
+                    hasEventHandler
+                | TemplateHole.AfterRender _
+                | TemplateHole.AfterRenderQ _
+                | TemplateHole.Event _
+                | TemplateHole.EventQ _ -> true
+                | _ -> hasEventHandler
+            )
         let strHole s = TemplateHole.UninitVar(s, key + "::" + s)
         let extraHoles =
             vars |> Array.choose (fun (name, ty) ->
@@ -227,7 +235,12 @@ type Handler private () =
             )
             |> Seq.append extraHoles
             |> Seq.cache
-        holes, Server (new TemplateInitializer(id = key, vars = vars))
+        // The initializer is only needed if there are vars or the server side has filled event handlers
+        let initializer =
+            if hasEventHandler || not (Array.isEmpty vars) then
+                Some (new TemplateInitializer(id = key, vars = vars))
+            else None
+        holes, Server initializer
 
 type private RenderContext =
     {
@@ -787,7 +800,8 @@ type Runtime private () =
                 Seq.empty
             else
                 match completed with
-                | CompletedHoles.Server i -> Seq.singleton (i :> IRequiresResources)
+                | CompletedHoles.Server None -> Seq.empty
+                | CompletedHoles.Server (Some i) -> Seq.singleton (i :> IRequiresResources)
                 | CompletedHoles.Client _ -> failwith "Shouldn't happen"
         let requireResourcesSeq = Seq.append tplInstance requireResources.Values
         let write extraAttrs ctx w r =
