@@ -444,8 +444,8 @@ type View =
         let rec loop () =
             let sn = observe ()
             Snap.WhenRun sn act (fun () ->
-                Async.Schedule loop)
-        Async.Schedule loop
+                Concurrency.Schedule loop)
+        Concurrency.Schedule loop
 
     static member RemovableSink act (V observe) =
         let cont = ref true
@@ -453,8 +453,8 @@ type View =
             let sn = observe ()
             Snap.WhenRun sn
                 (fun x -> if !cont then act x)
-                (fun () -> if !cont then Async.Schedule loop)
-        Async.Schedule loop
+                (fun () -> if !cont then Concurrency.Schedule loop)
+        Concurrency.Schedule loop
         fun () -> cont := false
 
     static member AsyncAwait filter view =

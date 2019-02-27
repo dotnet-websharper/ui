@@ -187,11 +187,6 @@ module internal Abbrev =
         let StartTo comp k =
             Async.StartWithContinuations (comp, k, OnError, ignore)
 
-        [<Inline "WebSharper.Concurrency.scheduler().Fork($f)">]
-        let Schedule f =
-            async { return f () }
-            |> Async.Start
-
     [<JavaScript>]
     module Mailbox =
 
