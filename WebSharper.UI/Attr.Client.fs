@@ -444,7 +444,7 @@ module Attr =
         let tupleView = View.Map2 (fun pred value -> (pred, value)) predView valView
         As<Attr> (Attrs.Dynamic tupleView viewFn)
 
-    [<Macro(typeof<Macros.AttrProp>)>]
+    [<JavaScript; Macro(typeof<Macros.AttrProp>)>]
     let Prop name value =
         As<Attr> (Attrs.Static (fun el -> el?(name) <- value))
 
