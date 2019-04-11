@@ -60,7 +60,7 @@ type WebSharperUICSharpGeneratorTask() =
         )
 
     override this.Execute() =
-        let namespaceName = CodeGenerator.normalizeIdent this.AssemblyName + ".Template"
+        let namespaceName = this.AssemblyName + ".Template"
         let mutable result = true
         let templateFiles = ResizeArray<ITaskItem>()
         let outputSourceFiles = ResizeArray<ITaskItem>()
