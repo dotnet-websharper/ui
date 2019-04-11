@@ -100,7 +100,7 @@ type WebSharperCSharpTemplatingAnalyzer () =
 
     override this.Initialize(initCtx) =
         initCtx.RegisterSemanticModelAction(fun ctx ->
-            namespaceName <- ctx.SemanticModel.Compilation.AssemblyName + ".Template"
+            namespaceName <- CodeGenerator.normalizeIdent ctx.SemanticModel.Compilation.AssemblyName + ".Template"
             report <- ctx.ReportDiagnostic
             ctx.Options.AdditionalFiles |> Seq.distinct |> Seq.choose (fun f ->
                 let p = f.Path
