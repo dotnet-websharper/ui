@@ -147,8 +147,8 @@ module private Impl =
     let BuildMethodVar hole resTy ctx (wrapArg: Expr<Builder> -> Expr<string> -> Expr<Var<'T>> -> Expr<Builder>) =
         let mk wrapArg = BuildMethod hole resTy ctx wrapArg
         let varMakeMeth =
-            let viewTy = typedefof<View<_>>.MakeGenericType(typeof<'T>)
-            let setterTy = typedefof<FSharpFunc<_,_>>.MakeGenericType(typeof<'T>, typeof<unit>)
+            let viewTy = ProvidedTypeBuilder.MakeGenericType(typedefof<View<_>>, [ typeof<'T> ])
+            let setterTy = ProvidedTypeBuilder.MakeGenericType(typedefof<FSharpFunc<_,_>>, [ typeof<'T>; typeof<unit> ])
             let param = [ProvidedParameter("view", viewTy); ProvidedParameter("setter", setterTy)]
             BuildMethod'' hole param resTy ctx <| fun st name args ->
                 match args with
@@ -190,16 +190,16 @@ module private Impl =
         ]
 
     let EventHandlerHoleMethods eventType hole resTy varsTy ctx =
-        let exprTy t = typedefof<Expr<_>>.MakeGenericType [| t |]
-        let (^->) t u = typedefof<FSharpFunc<_, _>>.MakeGenericType [| t; u |]
+        let exprTy t = ProvidedTypeBuilder.MakeGenericType(typedefof<Expr<_>>, [ t ])
+        let (^->) t u = ProvidedTypeBuilder.MakeGenericType(typedefof<FSharpFunc<_, _>>, [ t; u ])
         let evTy =
             let a = typeof<DomEvent>.Assembly
             a.GetType("WebSharper.JavaScript.Dom." + eventType)
-        let templateEventTy t u = typedefof<RTS.TemplateEvent<_,_>>.MakeGenericType [| t; u |]
+        let templateEventTy t u = ProvidedTypeBuilder.MakeGenericType(typedefof<RTS.TemplateEvent<_,_>>, [ t; u ])
         [
             BuildMethod' hole (exprTy (templateEventTy varsTy evTy ^-> typeof<unit>)) resTy ctx (fun b name x ->
                 let hole =
-                    Expr.Call(typeof<RTS.Handler>.GetMethod("EventQ2").MakeGenericMethod(evTy),
+                    Expr.Call(ProvidedTypeBuilder.MakeGenericMethod(typeof<RTS.Handler>.GetMethod("EventQ2"), [ evTy ]),
                         [
                             <@ Builder.Key %b @>
                             name
