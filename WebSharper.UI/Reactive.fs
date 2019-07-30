@@ -539,19 +539,14 @@ type View<'T> with
     [<JavaScript; Inline>]
     member v.Map f = View.Map f v
 
-    //[<JavaScript; Inline>]
-    //member v.Map (f: System.Func<_, 'B>) =
-    //    View.Map (FSharpConvert.Fun f) v
-
     [<JavaScript; Inline>]
     member v.MapAsync f = View.MapAsync f v
 
-    //member v.MapAsync (f: System.Func<_, System.Threading.Tasks.Task<'B>>) =
-    //    v |> View.MapAsync (fun a ->
-    //        async {
-    //            let! res = f.Invoke(a) |> Async.AwaitTask
-    //            return res
-    //        })
+    [<JavaScript; Inline>]
+    member v.MapAsyncLoading x f = View.MapAsync f v |> View.WithInit x
+
+    [<JavaScript; Inline>]
+    member v.MapAsyncOption f = View.MapAsync f v |> View.WithInitOption
 
     [<JavaScript; Inline>]
     member v.Bind f = View.Bind f v
@@ -559,15 +554,17 @@ type View<'T> with
     [<JavaScript; Inline>]
     member v.BindInner f = View.BindInner f v
 
-    //[<JavaScript; Inline>]
-    //member v.Bind (f: System.Func<_, View<'B>>) =
-    //    View.Bind (FSharpConvert.Fun f) v
-
     [<JavaScript; Inline>]
     member v.SnapshotOn init v' = View.SnapshotOn init v' v
 
     [<JavaScript; Inline>]
     member v.UpdateWhile init vPred = View.UpdateWhile init vPred v
+
+    [<JavaScript; Inline>]
+    member v.WithInit x = View.WithInit x v
+
+    [<JavaScript; Inline>]
+    member v.WithInitOption() = View.WithInitOption v
 
     [<JavaScript; Macro(typeof<Macros.VProp>)>]
     member v.V = failwith "View<'T>.V can only be called in an argument to a V-enabled function or if 'T = Doc." : 'T

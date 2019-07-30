@@ -36,6 +36,10 @@ type ViewExtensions =
         v |> View.MapAsync (fun a -> Async.AwaitTask <| f.Invoke a)
 
     [<Extension; Inline>]
+    static member MapAsync(v, x: 'B, f: Func<'A, Task<'B>>) =
+        v |> View.MapAsync (fun a -> Async.AwaitTask <| f.Invoke a) |> View.WithInit x
+
+    [<Extension; Inline>]
     static member Bind(v, f: Func<'A, View<'B>>) =
         View.Bind (FSharpConvert.Fun f) v
 
@@ -92,6 +96,10 @@ type ViewExtensions =
     [<Extension>]
     static member UpdateWhile(va, a, vb) =
         View.UpdateWhile a vb va
+
+    [<Extension>]
+    static member WithInit(v, a) =
+        View.WithInit a v
 
 [<Extension; JavaScript; Sealed>]
 type VarExtension =

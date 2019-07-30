@@ -34,15 +34,20 @@ type View<'A> =
 
     /// Lifting functions.
     member Map : ('A -> 'B) -> View<'B>
-    //member Map : (System.Func<'A, 'B>) -> View<'B>
 
-    /// Lifting async functions.
+    /// Lifting async functions. Result view is in waiting state while async computation is running.
     member MapAsync : ('A -> Async<'B>) -> View<'B>
-    //member MapAsync : (System.Func<'A, System.Threading.Tasks.Task<'B>>) -> View<'B>
+
+    /// Lifting async functions, with a given default value while async computation is running.
+    /// Equivalent to a MapAsync then a WithInit.
+    member MapAsyncLoading : 'B -> ('A -> Async<'B>) -> View<'B>
+
+    /// Lifting async functions, with a default value None while async computation is running.
+    /// Equivalent to a MapAsync then a WithInitOption.
+    member MapAsyncOption : ('A -> Async<'B>) -> View<option<'B>>
 
     /// Dynamic composition.
     member Bind : ('A -> View<'B>) -> View<'B>
-    //member Bind : (System.Func<'A, View<'B>>) -> View<'B>
 
     /// Dynamic composition. Obsoletes inner result on outer change.
     member BindInner : ('A -> View<'B>) -> View<'B>
@@ -55,6 +60,14 @@ type View<'A> =
 
     /// Bind this view's value inside a dynamic function such as V.
     member V : 'A
+
+    /// Returns a view equivalent to v, except that if v is currently awaiting with no current value,
+    /// then the returned view's initial value is x.
+    member WithInit : 'A -> View<'A>
+
+    /// Returns a view equivalent to (View.Map Some v), except that if v is currently awaiting with no current value,
+    /// then the returned view's initial value is None.
+    member WithInitOption : unit -> View<option<'A>>
 
 /// A time-varying variable than can be observed for changes
 /// by independent processes.
@@ -280,7 +293,7 @@ type View =
     static member ConvertSeq<'A, 'B when 'A : equality> :
         (View<'A> -> 'B) -> View<seq<'A>> -> View<seq<'B>>
 
-    /// An extended form of MapSeqCached where the conversion function accepts a
+    /// An extended form of MapSeqCachedBy where the conversion function accepts a
     /// reactive view.  At every step, changes to inputs identified as being
     /// the same object using equality are propagated via that view.
     /// Inputs are compared via their `key`.
