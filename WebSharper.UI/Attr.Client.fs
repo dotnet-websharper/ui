@@ -246,7 +246,6 @@ module Attrs =
         A3 attr
 
 
-[<JavaScript>]
 type AttrProxy with
 
     static member Create name value =
