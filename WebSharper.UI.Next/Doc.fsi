@@ -73,9 +73,9 @@ type Doc =
     /// Verbatim HTML.
     static member Verbatim : string -> Doc
 
-    abstract Write : Web.Context * System.Web.UI.HtmlTextWriter * res: option<Sitelets.Content.RenderedResources> -> unit
-    abstract Write : Web.Context * System.Web.UI.HtmlTextWriter * renderResources: bool -> unit
-    default Write : Web.Context * System.Web.UI.HtmlTextWriter * renderResources: bool -> unit
+    abstract Write : Web.Context * WebSharper.Core.Resources.HtmlTextWriter * res: option<Sitelets.Content.RenderedResources> -> unit
+    abstract Write : Web.Context * WebSharper.Core.Resources.HtmlTextWriter * renderResources: bool -> unit
+    default Write : Web.Context * WebSharper.Core.Resources.HtmlTextWriter * renderResources: bool -> unit
     abstract HasNonScriptSpecialTags : bool
     abstract Encode : Core.Metadata.Info * Core.Json.Provider -> list<string * Core.Json.Encoded>
     abstract Requires : Core.Metadata.Info -> seq<Core.Metadata.Node>
@@ -91,11 +91,11 @@ and [<Class>] Elt =
         * encode: (Core.Metadata.Info -> Core.Json.Provider -> list<string * Core.Json.Encoded>)
         * requires: (Core.Metadata.Info -> list<Attr> -> seq<Core.Metadata.Node>)
         * hasNonScriptSpecialTags: bool
-        * write: (list<Attr> -> Web.Context -> System.Web.UI.HtmlTextWriter -> option<Sitelets.Content.RenderedResources> -> unit)
-        * write': (option<list<Attr> -> Web.Context -> System.Web.UI.HtmlTextWriter -> bool -> unit>)
+        * write: (list<Attr> -> Web.Context -> WebSharper.Core.Resources.HtmlTextWriter -> option<Sitelets.Content.RenderedResources> -> unit)
+        * write': (option<list<Attr> -> Web.Context -> WebSharper.Core.Resources.HtmlTextWriter -> bool -> unit>)
         -> Elt
 
-    override Write : Web.Context * System.Web.UI.HtmlTextWriter * res: option<Sitelets.Content.RenderedResources> -> unit
+    override Write : Web.Context * WebSharper.Core.Resources.HtmlTextWriter * res: option<Sitelets.Content.RenderedResources> -> unit
     override HasNonScriptSpecialTags : bool
     override Encode : Core.Metadata.Info * Core.Json.Provider -> list<string * Core.Json.Encoded>
     override Requires : Core.Metadata.Info -> seq<Core.Metadata.Node>

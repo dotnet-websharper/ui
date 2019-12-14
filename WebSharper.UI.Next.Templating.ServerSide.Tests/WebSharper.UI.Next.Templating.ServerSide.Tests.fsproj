@@ -17,6 +17,7 @@
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <LastActiveSolutionConfig>Debug|Any CPU</LastActiveSolutionConfig>
   </PropertyGroup>
   <Import Project="..\msbuild\FSharp.targets" />
   <ProjectExtensions>

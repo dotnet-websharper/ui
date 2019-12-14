@@ -23,7 +23,6 @@ namespace WebSharper.UI.Next.Templating
 open System
 open System.IO
 open System.Collections.Generic
-open System.Web.UI
 open WebSharper
 open WebSharper.Web
 open WebSharper.UI.Next
@@ -33,7 +32,7 @@ open WebSharper.Sitelets
 open WebSharper.Sitelets.Content
 open System.Collections.Concurrent
 
-type private HTW = WebSharper.Core.Resources.HtmlTextWriter
+type private HtmlTextWriter = WebSharper.Core.Resources.HtmlTextWriter
 type private Holes = Dictionary<HoleName, TemplateHole>
 
 type private RenderContext =
@@ -155,7 +154,7 @@ type Runtime private () =
                 attrs |> Array.iter writeAttr
                 extraAttrs |> List.iter (fun a -> a.Write(ctx.Context.Metadata, ctx.Writer, true))
                 dataVar |> Option.iter (fun v -> ctx.Writer.WriteAttribute("ws-var", v))
-                if Array.isEmpty children && HTW.IsSelfClosingTag tag then
+                if Array.isEmpty children && HtmlTextWriter.IsSelfClosingTag tag then
                     ctx.Writer.Write(HtmlTextWriter.SelfClosingTagEnd)
                 else
                     ctx.Writer.Write(HtmlTextWriter.TagRightChar)

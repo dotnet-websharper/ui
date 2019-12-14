@@ -41,7 +41,7 @@ type Content =
                 Headers = [Http.Header.Custom "Content-Type" "text/html; charset=utf-8"],
                 WriteBody = fun s ->
                     use w = new System.IO.StreamWriter(s, Text.Encoding.UTF8)
-                    use w = new System.Web.UI.HtmlTextWriter(w)
+                    use w = new WebSharper.Core.Resources.HtmlTextWriter(w)
                     w.WriteLine("<!DOCTYPE html>")
                     doc.Write(ctx, w, true)
             )
@@ -60,7 +60,7 @@ module Internal =
     type TemplateDoc
         (
             requireResources: seq<IRequiresResources>,
-            write: Web.Context -> System.Web.UI.HtmlTextWriter -> bool -> unit
+            write: Web.Context -> WebSharper.Core.Resources.HtmlTextWriter -> bool -> unit
         ) =
         inherit Doc()
 

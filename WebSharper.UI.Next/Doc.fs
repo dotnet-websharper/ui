@@ -26,8 +26,7 @@ open WebSharper
 open WebSharper.Web
 open WebSharper.Sitelets
 open WebSharper.JavaScript
-type private HtmlTextWriter = System.Web.UI.HtmlTextWriter
-type private WS_HTW = WebSharper.Core.Resources.HtmlTextWriter
+type private HtmlTextWriter = WebSharper.Core.Resources.HtmlTextWriter
 
 [<AbstractClass>]
 type Doc() =
@@ -72,7 +71,7 @@ and ConcreteDoc(dd: DynDoc) =
         | EmptyDoc -> ()
         | TextDoc t -> w.WriteEncodedText(t)
         | VerbatimDoc t -> w.Write(t)
-        | INodeDoc d -> d.Write(ctx, new WS_HTW(w))
+        | INodeDoc d -> d.Write(ctx, new HtmlTextWriter(w))
 
     override this.HasNonScriptSpecialTags =
         match dd with
@@ -110,8 +109,8 @@ and Elt
     (
         attrs: list<Attr>,
         encode, requires, hasNonScriptSpecialTags,
-        write: list<Attr> -> Web.Context -> System.Web.UI.HtmlTextWriter -> option<Sitelets.Content.RenderedResources> -> unit,
-        write': option<list<Attr> -> Web.Context -> System.Web.UI.HtmlTextWriter -> bool -> unit>
+        write: list<Attr> -> Web.Context -> HtmlTextWriter -> option<Sitelets.Content.RenderedResources> -> unit,
+        write': option<list<Attr> -> Web.Context -> HtmlTextWriter -> bool -> unit>
     ) =
     inherit Doc()
 
@@ -160,7 +159,7 @@ and Elt
                 attrs |> List.iter (fun a ->
                     if not (obj.ReferenceEquals(a, null))
                     then a.Write(ctx.Metadata, w, false))
-                if List.isEmpty children && WS_HTW.IsSelfClosingTag tag then
+                if List.isEmpty children && HtmlTextWriter.IsSelfClosingTag tag then
                     w.Write(HtmlTextWriter.SelfClosingTagEnd)
                 else
                     w.Write(HtmlTextWriter.TagRightChar)

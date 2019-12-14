@@ -64,7 +64,7 @@ module Internal =
         inherit Doc
 
         new : seq<IRequiresResources>
-            * write: (Web.Context -> System.Web.UI.HtmlTextWriter -> bool -> unit)
+            * write: (Web.Context -> WebSharper.Core.Resources.HtmlTextWriter -> bool -> unit)
             -> TemplateDoc
 
     [<Class>]
@@ -72,5 +72,5 @@ module Internal =
         inherit Elt
 
         new : seq<IRequiresResources>
-            * write: (list<Attr> -> Web.Context -> System.Web.UI.HtmlTextWriter -> bool -> unit)
+            * write: (list<Attr> -> Web.Context -> WebSharper.Core.Resources.HtmlTextWriter -> bool -> unit)
             -> TemplateElt

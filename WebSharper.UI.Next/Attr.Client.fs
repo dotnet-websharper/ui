@@ -247,8 +247,6 @@ module Attrs =
     let internal Static attr =
         A3 attr
 
-
-[<JavaScript>]
 type AttrProxy with
 
     static member Create name value =
