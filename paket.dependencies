@@ -1,4 +1,4 @@
-version 5.180.0
+version 5.203.0
 
 source https://api.nuget.org/v3/index.json
 source https://daily.websharper.com/nuget
@@ -20,14 +20,22 @@ nuget Microsoft.Build.Utilities.Core
 nuget System.Xml.XDocument
 
 group build
-    framework: net45
+    framework: netstandard2.0
     source https://api.nuget.org/v3/index.json
+    storage: none
 
-    nuget FAKE ~> 4.0
-    nuget Paket.Core 5.180.0
+	nuget Fake.Core.CommandLineParsing
+    nuget Fake.Core.Target
+    nuget Fake.IO.FileSystem
+    nuget Fake.DotNet.AssemblyInfoFile
+    nuget Fake.DotNet.Cli
+    nuget Fake.DotNet.MSBuild
+    nuget Fake.DotNet.Paket
+    nuget Fake.Tools.Git
+    nuget Paket.Core 5.203.0
 
 group wsbuild
-    git https://github.com/dotnet-websharper/build-script
+    git https://github.com/dotnet-websharper/build-script fake5
 
 group includes
     references: strict
