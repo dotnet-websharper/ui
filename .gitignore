@@ -10,8 +10,5 @@ obj/
 *.g.cs
 paket-files/
 .fake/
-.paket/.store/
-.paket/*.exe
-.paket/fake
-.paket/paket
-.paket/paket.bootstrapper
+/.paket/fake.exe
+/.paket/.store/

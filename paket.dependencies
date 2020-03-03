@@ -1,4 +1,4 @@
-version 5.203.0
+version 5.242.2
 
 source https://api.nuget.org/v3/index.json
 source https://daily.websharper.com/nuget
@@ -32,7 +32,7 @@ group build
     nuget Fake.DotNet.MSBuild
     nuget Fake.DotNet.Paket
     nuget Fake.Tools.Git
-    nuget Paket.Core 5.203.0
+    nuget Paket.Core 5.242.2
 
 group wsbuild
     git https://github.com/dotnet-websharper/build-script fake5
@@ -40,7 +40,6 @@ group wsbuild
 group includes
     references: strict
     source https://api.nuget.org/v3/index.json
-    source https://nuget.intellifactory.com/nuget username: "%IF_USER%" password: "%IF_PASS%"
 
     nuget NETStandard.Library framework: netstandard2.0
     github dotnet-websharper/websharper src/htmllib/tags.csv
