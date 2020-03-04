@@ -23,18 +23,18 @@ NUGET
     System.Runtime.CompilerServices.Unsafe (4.7)
     System.ValueTuple (4.3)
   remote: https://daily.websharper.com/nuget
-    WebSharper (4.6.0.361)
+    WebSharper (4.6.1.381)
       FSharp.Core (>= 4.2.3)
-    WebSharper.CSharp (4.6.0.361)
-      WebSharper (4.6.0.361)
-    WebSharper.FSharp (4.6.0.361)
-      WebSharper (4.6.0.361)
-    WebSharper.Testing (4.6.0.361)
-      WebSharper (4.6.0.361)
+    WebSharper.CSharp (4.6.1.381)
+      WebSharper (4.6.1.381)
+    WebSharper.FSharp (4.6.1.381)
+      WebSharper (4.6.1.381)
+    WebSharper.Testing (4.6.1.381)
+      WebSharper (4.6.1.381)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (b8727a47dd83d3e88aed8f2100f6712478c64632)
-    src/ProvidedTypes.fsi (b8727a47dd83d3e88aed8f2100f6712478c64632)
+    src/ProvidedTypes.fs (e9d2c93bdbc5dcb2e514bf316b86ac15e89378fb)
+    src/ProvidedTypes.fsi (e9d2c93bdbc5dcb2e514bf316b86ac15e89378fb)
 GROUP build
 RESTRICTION: == net45
 NUGET
