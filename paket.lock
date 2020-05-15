@@ -662,14 +662,14 @@ NUGET
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
   remote: https://daily.websharper.com/nuget
-    WebSharper (4.6.2.383)
+    WebSharper (4.6.2.386)
       FSharp.Core (>= 4.2.3)
-    WebSharper.CSharp (4.6.2.383)
-      WebSharper (4.6.2.383)
-    WebSharper.FSharp (4.6.2.383)
-      WebSharper (4.6.2.383)
-    WebSharper.Testing (4.6.2.383)
-      WebSharper (4.6.2.383)
+    WebSharper.CSharp (4.6.2.386)
+      WebSharper (4.6.2.386)
+    WebSharper.FSharp (4.6.2.386)
+      WebSharper (4.6.2.386)
+    WebSharper.Testing (4.6.2.386)
+      WebSharper (4.6.2.386)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
     src/ProvidedTypes.fs (41b91efaaaebe2782472b283c0c716cbcb0bbe75)
