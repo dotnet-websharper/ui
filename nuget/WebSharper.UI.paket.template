@@ -35,7 +35,6 @@ files
     ../packages/includes/NETStandard.Library/build/netstandard2.0/ref/System.Runtime.dll ==> lib/netstandard2.0
 dependencies
     WebSharper ~> LOCKEDVERSION:[3]
-    System.Xml.XDocument >= LOCKEDVERSION
     HtmlAgilityPack >= LOCKEDVERSION
 references
     WebSharper.UI.dll
