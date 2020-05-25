@@ -17,7 +17,6 @@ nuget System.ValueTuple 4.3.0
 github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fsi
 github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fs
 nuget Microsoft.Build.Utilities.Core
-nuget System.Xml.XDocument
 
 group build
     framework: netstandard2.0

@@ -37,4 +37,3 @@ files
 dependencies
         WebSharper ~> LOCKEDVERSION:[3]
         WebSharper.UI CURRENTVERSION
-        System.Xml.XDocument ~> 4.3
