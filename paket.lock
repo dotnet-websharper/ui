@@ -23,14 +23,14 @@ NUGET
     System.Runtime.CompilerServices.Unsafe (4.7.1)
     System.ValueTuple (4.3)
   remote: https://daily.websharper.com/nuget
-    WebSharper (4.6.4.404)
+    WebSharper (4.6.5.406)
       FSharp.Core (>= 4.2.3)
-    WebSharper.CSharp (4.6.4.404)
-      WebSharper (4.6.4.404)
-    WebSharper.FSharp (4.6.4.404)
-      WebSharper (4.6.4.404)
-    WebSharper.Testing (4.6.4.404)
-      WebSharper (4.6.4.404)
+    WebSharper.CSharp (4.6.5.406)
+      WebSharper (4.6.5.406)
+    WebSharper.FSharp (4.6.5.406)
+      WebSharper (4.6.5.406)
+    WebSharper.Testing (4.6.5.406)
+      WebSharper (4.6.5.406)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
     src/ProvidedTypes.fs (b45779c1571b54a2bc6bafa12690a8d9763150d1)
