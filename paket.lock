@@ -32,10 +32,10 @@ NUGET
       System.Xml.XmlDocument (>= 4.3) - restriction: || (&& (== net461) (< net40)) (&& (== net471) (< net40)) (== netstandard2.0)
       System.Xml.XPath (>= 4.3) - restriction: || (&& (== net461) (< net40)) (&& (== net461) (>= uap10.0)) (&& (== net471) (< net40)) (&& (== net471) (>= uap10.0)) (== netstandard2.0)
       System.Xml.XPath.XmlDocument (>= 4.3) - restriction: || (&& (== net461) (< net40)) (&& (== net461) (>= uap10.0)) (&& (== net471) (< net40)) (&& (== net471) (>= uap10.0)) (== netstandard2.0)
-    Microsoft.Build.Framework (16.6) - restriction: || (&& (== net461) (>= netstandard2.0)) (== net471) (== netstandard2.0)
+    Microsoft.Build.Framework (16.8) - restriction: || (&& (== net461) (>= netstandard2.0)) (== net471) (== netstandard2.0)
       System.Security.Permissions (>= 4.7) - restriction: || (&& (== net461) (>= netstandard2.0)) (== net471) (== netstandard2.0)
-    Microsoft.Build.Utilities.Core (16.6)
-      Microsoft.Build.Framework (>= 16.6) - restriction: || (&& (== net461) (>= netstandard2.0)) (== net471) (== netstandard2.0)
+    Microsoft.Build.Utilities.Core (16.8)
+      Microsoft.Build.Framework (>= 16.8) - restriction: || (&& (== net461) (>= netstandard2.0)) (== net471) (== netstandard2.0)
       Microsoft.Win32.Registry (>= 4.3) - restriction: || (&& (== net461) (>= netstandard2.0)) (== net471) (== netstandard2.0)
       System.Collections.Immutable (>= 1.5) - restriction: || (&& (== net461) (>= netstandard2.0)) (== net471) (== netstandard2.0)
       System.Security.Permissions (>= 4.7) - restriction: || (&& (== net461) (>= netstandard2.0)) (== net471) (== netstandard2.0)
@@ -664,18 +664,18 @@ NUGET
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
   remote: https://daily.websharper.com/nuget
-    WebSharper (4.6.5.406)
+    WebSharper (4.7.0.423)
       FSharp.Core (>= 4.2.3)
-    WebSharper.CSharp (4.6.5.406)
-      WebSharper (4.6.5.406)
-    WebSharper.FSharp (4.6.5.406)
-      WebSharper (4.6.5.406)
-    WebSharper.Testing (4.6.5.406)
-      WebSharper (4.6.5.406)
+    WebSharper.CSharp (4.7.0.423)
+      WebSharper (4.7.0.423)
+    WebSharper.FSharp (4.7.0.423)
+      WebSharper (4.7.0.423)
+    WebSharper.Testing (4.7.0.423)
+      WebSharper (4.7.0.423)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (b45779c1571b54a2bc6bafa12690a8d9763150d1)
-    src/ProvidedTypes.fsi (b45779c1571b54a2bc6bafa12690a8d9763150d1)
+    src/ProvidedTypes.fs (a09c88b03fb79b5dd4cde68e260ffad42f55dbaa)
+    src/ProvidedTypes.fsi (a09c88b03fb79b5dd4cde68e260ffad42f55dbaa)
 GROUP build
 STORAGE: NONE
 RESTRICTION: == netstandard2.0
