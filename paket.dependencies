@@ -1,5 +1,3 @@
-version 5.242.2
-
 source https://api.nuget.org/v3/index.json
 source https://daily.websharper.com/nuget
 framework: net461, netstandard2.0, net471
@@ -34,7 +32,7 @@ group build
     nuget Paket.Core 5.242.2
 
 group wsbuild
-    git https://github.com/dotnet-websharper/build-script fake5
+    git https://github.com/dotnet-websharper/build-script dotnettool
 
 group includes
     references: strict

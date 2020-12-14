@@ -1,6 +1,8 @@
 @echo off
 setlocal
 
+dotnet tool restore
+dotnet paket restore
 dotnet restore
 if errorlevel 1 exit /b %errorlevel%
 
