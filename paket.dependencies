@@ -15,21 +15,6 @@ github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fsi
 github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fs
 nuget Microsoft.Build.Utilities.Core
 
-group build
-    framework: netstandard2.0
-    source https://api.nuget.org/v3/index.json
-    storage: none
-
-	nuget Fake.Core.CommandLineParsing
-    nuget Fake.Core.Target
-    nuget Fake.IO.FileSystem
-    nuget Fake.DotNet.AssemblyInfoFile
-    nuget Fake.DotNet.Cli
-    nuget Fake.DotNet.MSBuild
-    nuget Fake.DotNet.Paket
-    nuget Fake.Tools.Git
-    nuget Paket.Core 5.242.2
-
 group wsbuild
     git https://github.com/dotnet-websharper/build-script dotnettool
 
