@@ -1,0 +1,22 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/WebSharper.UI.Tests
+/WebSharper.UI.Templating.Tests
+/WebSharper.UI.Templating.ServerSide.Tests
+/WebSharper.UI.Templating.Runtime
+/WebSharper.UI.Templating.Common
+/WebSharper.UI.Templating
+/WebSharper.UI.Routing.Tests
+/WebSharper.UI.CSharp.Tests
+/WebSharper.UI.CSharp.Templating.Build
+/WebSharper.UI.CSharp.Templating.Analyzer
+/WebSharper.UI.CSharp.Templating
+/WebSharper.UI.CSharp
+/WebSharper.UI
+/paket-files
+/packages/includes
+/build
+/.vs
+/.fake/build.fsx

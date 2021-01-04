@@ -1,6 +1,6 @@
 <ivy-module version="2.0">
-  <info organisation="IntelliFactory" module="zafir.ui" revision="3.0" />
+  <info organisation="IntelliFactory" module="ws5.ui" revision="3.0" />
   <dependencies>
-    <dependency name="zafir" rev="latest.integration" />
+    <dependency name="ws5" rev="latest.integration" />
   </dependencies>
 </ivy-module>
