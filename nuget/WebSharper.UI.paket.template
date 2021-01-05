@@ -25,8 +25,9 @@ files
     ../packages/includes/NETStandard.Library/build/netstandard2.0/ref/System.Reflection.dll ==> lib/netstandard2.0
     ../packages/includes/NETStandard.Library/build/netstandard2.0/ref/System.Runtime.dll ==> lib/netstandard2.0
 dependencies
-    WebSharper ~> LOCKEDVERSION:[3]
-    HtmlAgilityPack >= LOCKEDVERSION
+    framework: netstandard2.0
+        WebSharper ~> LOCKEDVERSION:[3]
+        HtmlAgilityPack >= LOCKEDVERSION
 references
     WebSharper.UI.dll
     WebSharper.UI.Templating.Common.dll
