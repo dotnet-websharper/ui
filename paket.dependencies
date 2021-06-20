@@ -9,7 +9,7 @@ nuget WebSharper ~> 4.7
 nuget WebSharper.CSharp ~> 4.7
 nuget WebSharper.FSharp ~> 4.7
 nuget WebSharper.Testing ~> 4.7
-nuget HtmlAgilityPack 1.7.1
+nuget HtmlAgilityPack 1.11.0
 nuget Microsoft.CodeAnalysis.CSharp ~> 2.8.0
 nuget System.ValueTuple 4.3.0
 github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fsi
