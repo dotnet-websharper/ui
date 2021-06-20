@@ -41,11 +41,11 @@ type Content =
                 Status = Http.Status.Ok,
                 Headers = [Http.Header.Custom "Content-Type" "text/html; charset=utf-8"],
                 WriteBody = fun s ->
-                    use w = new System.IO.StreamWriter(s, Text.Encoding.UTF8, 1024, leaveOpen = true)
-                    w.AutoFlush <- AutoFlushPageWriter
-                    use w = new HtmlTextWriter(w)
+                    use sw = new System.IO.StreamWriter(s, Text.Encoding.UTF8, 1024, leaveOpen = true)
+                    use w = new HtmlTextWriter(sw)
                     w.WriteLine("<!DOCTYPE html>")
                     doc.Write(ctx, w, true)
+                    sw.Flush()
             )
 
     static member Doc (doc: Doc) : Async<Content<'Action>> =
