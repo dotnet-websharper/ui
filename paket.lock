@@ -677,15 +677,15 @@ NUGET
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
   remote: https://daily.websharper.com/nuget
-    WebSharper (4.7.2.443)
+    WebSharper (4.7.2.444)
       FSharp.Core (>= 4.2.3)
       System.Reflection.Emit.Lightweight (>= 4.3)
-    WebSharper.CSharp (4.7.2.443)
-      WebSharper (4.7.2.443)
-    WebSharper.FSharp (4.7.2.443)
-      WebSharper (4.7.2.443)
-    WebSharper.Testing (4.7.2.443)
-      WebSharper (4.7.2.443)
+    WebSharper.CSharp (4.7.2.444)
+      WebSharper (4.7.2.444)
+    WebSharper.FSharp (4.7.2.444)
+      WebSharper (4.7.2.444)
+    WebSharper.Testing (4.7.2.444)
+      WebSharper (4.7.2.444)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
     src/ProvidedTypes.fs (377d56321ad062985ed5aa19f205c1c4f04ef328)
@@ -699,7 +699,7 @@ NUGET
       Microsoft.NETCore.Platforms (>= 1.1) - restriction: || (&& (>= net45) (< netstandard1.3)) (&& (< net45) (>= netstandard1.1) (< netstandard1.2) (< win8)) (&& (< net45) (>= netstandard1.2) (< netstandard1.3) (< win8) (< wpa81)) (&& (< net45) (>= netstandard1.3) (< netstandard1.4) (< win8) (< wpa81)) (&& (< net45) (>= netstandard1.4) (< netstandard1.5) (< win8) (< wpa81)) (&& (< net45) (>= netstandard1.5) (< netstandard1.6) (< win8) (< wpa81)) (&& (< net45) (>= netstandard1.6) (< netstandard2.0) (< win8) (< wpa81)) (&& (< net45) (>= netstandard2.0)) (&& (>= net46) (< netstandard1.4)) (>= net461) (>= netcoreapp2.0) (&& (>= netstandard1.0) (< portable-net45+win8+wpa81)) (&& (< netstandard1.0) (>= portable-net45+win8) (< win8)) (&& (< netstandard1.0) (< portable-net45+win8) (>= portable-net45+win8+wpa81)) (&& (< netstandard1.0) (>= portable-net45+win8+wp8+wpa81) (< portable-net45+win8+wpa81)) (&& (< netstandard1.0) (>= win8)) (&& (< netstandard1.3) (< win8) (>= wpa81)) (&& (< netstandard1.5) (>= uap10.0)) (>= uap10.1) (>= wp8)
 GITHUB
   remote: dotnet-websharper/websharper
-    src/htmllib/tags.csv (435827be0aecb10e673c94391239415041653e28)
+    src/htmllib/tags.csv (fe970421d68f38f61549d5a35a81c40270b5dbeb)
 GROUP wsbuild
 
 GIT
