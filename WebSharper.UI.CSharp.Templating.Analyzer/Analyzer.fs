@@ -63,7 +63,7 @@ type WebSharperCSharpTemplatingAnalyzer () =
                 let msg = sprintf "Error during generating codebehind for %s: %s" (Path.GetFileName fullPath) e.Message
                 report (Diagnostic.Create(uinError, Location.Create(fullPath, TextSpan.FromBounds(0, 0), LinePositionSpan()), msg))
         
-    let watchFiles files =
+    let watchFiles (files: string seq) =
         for fullPath in files do
             watchers.GetOrAdd(fullPath, fun _ ->
                 let dir = Path.GetDirectoryName fullPath

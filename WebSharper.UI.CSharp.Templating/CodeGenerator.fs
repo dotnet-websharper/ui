@@ -338,7 +338,7 @@ let GetOutputFilePath (projectDirectory: string) (inputFilePath: string) =
 /// "<projectDir>" is guessed to be the closest ancestor directory that contains a *.csproj.
 let GuessOutputFilePath (inputFilePath: string) =
     let projectDirectory =
-        let rec tryFind path =
+        let rec tryFind (path: string) =
             let dir = Path.GetDirectoryName path
             if String.IsNullOrEmpty dir then
                 // we're at the root and didn't find a csproj; default to inputFilePath's directory
