@@ -1,6 +1,5 @@
 source https://api.nuget.org/v3/index.json
-source https://daily.websharper.com/nuget
-framework: net461, netstandard2.0, net471
+framework: net5.0
 strategy: min
 storage: none
 
@@ -9,7 +8,7 @@ nuget WebSharper prerelease
 nuget WebSharper.CSharp prerelease
 nuget WebSharper.FSharp prerelease
 nuget WebSharper.Testing prerelease
-nuget HtmlAgilityPack 1.7.1
+nuget HtmlAgilityPack 1.11.0
 nuget Microsoft.CodeAnalysis.CSharp ~> 3.8.0
 github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fsi
 github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fs
@@ -22,5 +21,4 @@ group includes
     references: strict
     source https://api.nuget.org/v3/index.json
 
-    nuget NETStandard.Library framework: netstandard2.0
     github dotnet-websharper/websharper src/htmllib/tags.csv

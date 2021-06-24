@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net461</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <WebSharperProject>Bundle</WebSharperProject>
     <WebSharperBundleOutputDir>$(MSBuildThisFileDirectory)/Content</WebSharperBundleOutputDir>
     <WebSharperSourceMap>true</WebSharperSourceMap>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <WebSharperUICSharpTaskAssembly Condition="'$(MSBuildRuntimeType)' == 'Core'">..\WebSharper.UI.CSharp.Templating.Build\bin\$(Configuration)\netstandard2.0\WebSharper.UI.CSharp.Templating.Build.dll</WebSharperUICSharpTaskAssembly>
-    <WebSharperUICSharpTaskAssembly Condition="'$(MSBuildRuntimeType)' != 'Core'">..\WebSharper.UI.CSharp.Templating.Build\bin\$(Configuration)\net461\WebSharper.UI.CSharp.Templating.Build.dll</WebSharperUICSharpTaskAssembly>
+    <WebSharperUICSharpTaskAssembly>..\WebSharper.UI.CSharp.Templating.Build\bin\$(Configuration)\net5.0\WebSharper.UI.CSharp.Templating.Build.dll</WebSharperUICSharpTaskAssembly>
     <NoWarn>3218;CS1591</NoWarn>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
@@ -17,10 +16,10 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Analyzer Include="..\WebSharper.UI.Templating.Common\bin\$(Configuration)\netstandard2.0\HtmlAgilityPack.dll" />
-    <Analyzer Include="..\WebSharper.UI.Templating.Common\bin\$(Configuration)\netstandard2.0\WebSharper.UI.Templating.Common.dll" />
-    <Analyzer Include="..\WebSharper.UI.CSharp.Templating\bin\$(Configuration)\netstandard2.0\WebSharper.UI.CSharp.Templating.dll" />
-    <Analyzer Include="..\WebSharper.UI.CSharp.Templating.Analyzer\bin\$(Configuration)\netstandard2.0\WebSharper.UI.CSharp.Templating.Analyzer.dll" />
+    <Analyzer Include="..\WebSharper.UI.Templating.Common\bin\$(Configuration)\net5.0\HtmlAgilityPack.dll" />
+    <Analyzer Include="..\WebSharper.UI.Templating.Common\bin\$(Configuration)\net5.0\WebSharper.UI.Templating.Common.dll" />
+    <Analyzer Include="..\WebSharper.UI.CSharp.Templating\bin\$(Configuration)\net5.0\WebSharper.UI.CSharp.Templating.dll" />
+    <Analyzer Include="..\WebSharper.UI.CSharp.Templating.Analyzer\bin\$(Configuration)\net5.0\WebSharper.UI.CSharp.Templating.Analyzer.dll" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../WebSharper.UI.Templating.Common\WebSharper.UI.Templating.Common.fsproj" />

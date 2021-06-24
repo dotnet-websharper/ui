@@ -13,3 +13,4 @@ paket-files/
 /.paket/fake.exe
 /.paket/.store/
 .ionide/
+*~

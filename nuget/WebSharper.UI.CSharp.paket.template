@@ -12,20 +12,19 @@ tags
     Web JavaScript C#
 files
     ../msbuild/WebSharper.UI.CSharp.targets ==> build
-    ../WebSharper.UI.CSharp/bin/Release/netstandard2.0/WebSharper.UI.CSharp.dll ==> lib/netstandard2.0
-    ../WebSharper.UI.CSharp/bin/Release/netstandard2.0/WebSharper.UI.CSharp.xml ==> lib/netstandard2.0
-    ../WebSharper.UI.CSharp.Templating.Build/bin/Release/netstandard2.0/FSharp.Core.dll ==> tools/netstandard2.0
-    ../WebSharper.UI.CSharp.Templating.Build/bin/Release/netstandard2.0/HtmlAgilityPack.dll ==> tools/netstandard2.0
-    ../WebSharper.UI.Templating.Common/bin/Release/netstandard2.0/WebSharper.UI.Templating.Common.dll ==> tools/netstandard2.0
-    ../WebSharper.UI.CSharp.Templating/bin/Release/netstandard2.0/WebSharper.UI.CSharp.Templating.dll ==> tools/netstandard2.0
-    ../WebSharper.UI.CSharp.Templating.Build/bin/Release/netstandard2.0/WebSharper.UI.CSharp.Templating.Build.dll ==> tools/netstandard2.0
-    ../WebSharper.UI.CSharp.Templating.Analyzer/uninstall.ps1 ==> tools/netstandard2.0
-    ../WebSharper.UI.CSharp.Templating.Analyzer/install.ps1 ==> tools/netstandard2.0
-    ../WebSharper.UI.Templating.Common/bin/Release/netstandard2.0/HtmlAgilityPack.dll ==> analyzers/dotnet/cs
-    ../WebSharper.UI.Templating.Common/bin/Release/netstandard2.0/WebSharper.UI.Templating.Common.dll ==> analyzers/dotnet/cs
-    ../WebSharper.UI.CSharp.Templating/bin/Release/netstandard2.0/WebSharper.UI.CSharp.Templating.dll ==> analyzers/dotnet/cs
-    ../WebSharper.UI.CSharp.Templating.Analyzer/bin/Release/netstandard2.0/WebSharper.UI.CSharp.Templating.Analyzer.dll ==> analyzers/dotnet/cs
+    ../WebSharper.UI.CSharp/bin/Release/net5.0/WebSharper.UI.CSharp.dll ==> lib/net5.0
+    ../WebSharper.UI.CSharp/bin/Release/net5.0/WebSharper.UI.CSharp.xml ==> lib/net5.0
+    ../WebSharper.UI.CSharp.Templating.Build/bin/Release/net5.0/FSharp.Core.dll ==> tools/net5.0
+    ../WebSharper.UI.CSharp.Templating.Build/bin/Release/net5.0/HtmlAgilityPack.dll ==> tools/net5.0
+    ../WebSharper.UI.Templating.Common/bin/Release/net5.0/WebSharper.UI.Templating.Common.dll ==> tools/net5.0
+    ../WebSharper.UI.CSharp.Templating/bin/Release/net5.0/WebSharper.UI.CSharp.Templating.dll ==> tools/net5.0
+    ../WebSharper.UI.CSharp.Templating.Build/bin/Release/net5.0/WebSharper.UI.CSharp.Templating.Build.dll ==> tools/net5.0
+    ../WebSharper.UI.CSharp.Templating.Analyzer/uninstall.ps1 ==> tools/net5.0
+    ../WebSharper.UI.CSharp.Templating.Analyzer/install.ps1 ==> tools/net5.0
+    ../WebSharper.UI.Templating.Common/bin/Release/net5.0/HtmlAgilityPack.dll ==> analyzers/dotnet/cs
+    ../WebSharper.UI.Templating.Common/bin/Release/net5.0/WebSharper.UI.Templating.Common.dll ==> analyzers/dotnet/cs
+    ../WebSharper.UI.CSharp.Templating/bin/Release/net5.0/WebSharper.UI.CSharp.Templating.dll ==> analyzers/dotnet/cs
+    ../WebSharper.UI.CSharp.Templating.Analyzer/bin/Release/net5.0/WebSharper.UI.CSharp.Templating.Analyzer.dll ==> analyzers/dotnet/cs
 dependencies
-    framework: netstandard2.0
-            WebSharper ~> LOCKEDVERSION:[3]
-            WebSharper.UI CURRENTVERSION
+        WebSharper ~> LOCKEDVERSION:[5]
+        WebSharper.UI CURRENTVERSION

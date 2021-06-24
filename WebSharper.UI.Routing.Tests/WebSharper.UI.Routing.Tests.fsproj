@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net461</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <WebSharperProject>Site</WebSharperProject>
     <WebProjectOutputDir>$(MSBuildThisFileDirectory)</WebProjectOutputDir>
     <NoWarn>3218;3186</NoWarn>
@@ -19,20 +19,11 @@
     <ProjectReference Include="..\WebSharper.UI.CSharp.Tests\WebSharper.UI.CSharp.Tests.csproj" />
     <ProjectReference Include="..\WebSharper.UI\WebSharper.UI.fsproj" />
   </ItemGroup>
-  <ItemGroup Condition="$(TargetFramework.StartsWith('net4'))">
-    <Reference Include="System.Web" />
-  </ItemGroup>
   <Target Name="IncludeContent" BeforeTargets="Compile">
     <ItemGroup>
       <Content Include="Content/**/*.*" />
       <Content Include="Scripts/**/*.*" />
     </ItemGroup>
-  </Target>
-  <Target Name="CopyBin" Condition="'$(TargetFramework)' == net461" AfterTargets="Build">
-    <ItemGroup>
-      <_BinFiles Include="bin/$(Configuration)/$(TargetFramework)/*.*" />
-    </ItemGroup>
-    <Copy SourceFiles="@(_BinFiles)" DestinationFolder="bin" />
   </Target>
   <Import Project="..\paket-files\wsbuild\github.com\dotnet-websharper\build-script\WebSharper.Fake.targets" Condition="Exists('..\paket-files\wsbuild\github.com\dotnet-websharper\build-script\WebSharper.Fake.targets')" />
   <Import Project="..\.paket\Paket.Restore.targets" />
