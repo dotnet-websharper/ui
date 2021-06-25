@@ -32,7 +32,7 @@ open WebSharper.AspNetCore
 type Startup() =
 
     member this.ConfigureServices(services: IServiceCollection) =
-        services.AddSitelet<Site.Main>()
+        services.AddSitelet(Site.Main)
         |> ignore
 
     member this.Configure(app: IApplicationBuilder, env: IWebHostEnvironment) =

@@ -14,7 +14,6 @@
     <Compile Include="Client.fs" />
     <Compile Include="Main.fs" />
     <Compile Include="Startup.fs" />
-    <Compile Include="Program.fs" />
     <Content Include="Main.html" />
   </ItemGroup>
   <ItemGroup>

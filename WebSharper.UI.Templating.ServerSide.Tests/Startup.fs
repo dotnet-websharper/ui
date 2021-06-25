@@ -17,7 +17,7 @@
 // permissions and limitations under the License.
 //
 // $end{copyright}
-namespace WebSharper.UI.ServerSide.Tests
+namespace WebSharper.UI.ServerSide.Startup
 
 open System
 open Microsoft.AspNetCore
@@ -32,7 +32,7 @@ open WebSharper.AspNetCore
 type Startup() =
 
     member this.ConfigureServices(services: IServiceCollection) =
-        services.AddSitelet<Main>()
+        services.AddSitelet(WebSharper.UI.ServerSide.Tests.Main)
         |> ignore
 
     member this.Configure(app: IApplicationBuilder, env: IWebHostEnvironment) =
