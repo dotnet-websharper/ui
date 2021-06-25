@@ -2,3 +2,4 @@ WebSharper
 WebSharper.CSharp
 HtmlAgilityPack
 FSharp.Core
+WebSharper.AspNetCore

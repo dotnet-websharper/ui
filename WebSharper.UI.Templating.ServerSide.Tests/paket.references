@@ -3,3 +3,4 @@ WebSharper.FSharp
 HtmlAgilityPack
 FSharp.Core
 WebSharper.Testing
+WebSharper.AspNetCore

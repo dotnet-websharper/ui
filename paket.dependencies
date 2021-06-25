@@ -8,6 +8,7 @@ nuget WebSharper prerelease
 nuget WebSharper.CSharp prerelease
 nuget WebSharper.FSharp prerelease
 nuget WebSharper.Testing prerelease
+nuget WebSharper.AspNetCore prerelease
 nuget HtmlAgilityPack 1.11.0
 nuget Microsoft.CodeAnalysis.CSharp ~> 3.8.0
 github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fsi
