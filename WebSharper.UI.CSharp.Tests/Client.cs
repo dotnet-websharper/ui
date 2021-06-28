@@ -180,7 +180,7 @@ namespace WebSharper.UI.CSharp.Tests
         }
 
         [SPAEntryPoint]
-        public static void Main()
+        public static void ClientMain()
         {
             // Don't run the entry point in Routing.Tests
             if (JS.Document.GetElementById("main") == null) return;

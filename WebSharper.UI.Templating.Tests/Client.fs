@@ -25,11 +25,11 @@ open WebSharper.JavaScript
 open WebSharper.UI
 open WebSharper.UI.Html
 open WebSharper.UI.Notation
+open WebSharper.UI.Client
 open WebSharper.UI.Templating
 
 [<JavaScript>]
 module Client =
-    open WebSharper.UI.Client
 
     type MyTemplate = Template<"index.html,template.html", clientLoad = ClientLoad.FromDocument, legacyMode = LegacyMode.New>
 

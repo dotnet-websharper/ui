@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <NoWarn>3218;3186</NoWarn>
-    <Signed Condition="!$(TargetFramework.StartsWith('net4'))">false</Signed>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <Signed>False</Signed>
   </PropertyGroup>

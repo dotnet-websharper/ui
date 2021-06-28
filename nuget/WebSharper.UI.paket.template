@@ -19,15 +19,9 @@ files
     ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.UI.Templating.Runtime.xml ==> lib/netstandard2.0
     ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.UI.Templating.dll ==> lib/netstandard2.0
     ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.UI.Templating.xml ==> lib/netstandard2.0
-    ../WebSharper.UI.Templating.Common/bin/Release/netstandard2.0/HtmlAgilityPack.dll ==> lib/netstandard2.0
-    ../packages/includes/NETStandard.Library/build/netstandard2.0/ref/netstandard.dll ==> lib/netstandard2.0
-    ../packages/includes/NETStandard.Library/build/netstandard2.0/ref/System.Globalization.dll ==> lib/netstandard2.0
-    ../packages/includes/NETStandard.Library/build/netstandard2.0/ref/System.Reflection.dll ==> lib/netstandard2.0
-    ../packages/includes/NETStandard.Library/build/netstandard2.0/ref/System.Runtime.dll ==> lib/netstandard2.0
 dependencies
-    framework: netstandard2.0
-        WebSharper ~> LOCKEDVERSION:[3]
-        HtmlAgilityPack >= LOCKEDVERSION
+    WebSharper ~> LOCKEDVERSION:[5]
+    HtmlAgilityPack >= LOCKEDVERSION
 references
     WebSharper.UI.dll
     WebSharper.UI.Templating.Common.dll

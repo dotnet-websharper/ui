@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net461</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <WebSharperProject>Bundle</WebSharperProject>
-    <WebSharperBundleOutputDir>$(MSBuildThisFileDirectory)/Content</WebSharperBundleOutputDir>
+    <WebSharperBundleOutputDir>Content</WebSharperBundleOutputDir>
     <WebSharperSourceMap>true</WebSharperSourceMap>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <WebSharperUICSharpTaskAssembly Condition="'$(MSBuildRuntimeType)' == 'Core'">..\WebSharper.UI.CSharp.Templating.Build\bin\$(Configuration)\netstandard2.0\WebSharper.UI.CSharp.Templating.Build.dll</WebSharperUICSharpTaskAssembly>
-    <WebSharperUICSharpTaskAssembly Condition="'$(MSBuildRuntimeType)' != 'Core'">..\WebSharper.UI.CSharp.Templating.Build\bin\$(Configuration)\net461\WebSharper.UI.CSharp.Templating.Build.dll</WebSharperUICSharpTaskAssembly>
+    <WebSharperUICSharpTaskAssembly>..\WebSharper.UI.CSharp.Templating.Build\bin\$(Configuration)\netstandard2.0\WebSharper.UI.CSharp.Templating.Build.dll</WebSharperUICSharpTaskAssembly>
     <NoWarn>3218;CS1591</NoWarn>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <StartAction>Program</StartAction>
+    <StartProgram>$([System.Environment]::GetEnvironmentVariable(`WinDir`))\explorer.exe</StartProgram>
+    <StartArguments>$(MSBuildThisFileDirectory)index.html</StartArguments>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="index.html" />
     <Content Include="template.html" />
-    <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\WebSharper.UI.Templating.Common\bin\$(Configuration)\netstandard2.0\HtmlAgilityPack.dll" />

@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <WebSharperProject>Website</WebSharperProject>
     <WebSharperSourceMap>true</WebSharperSourceMap>
-    <WebProjectOutputDir Condition="$(TargetFramework.StartsWith('net4'))">$(MSBuildThisFileDirectory)</WebProjectOutputDir>
+    <WebProjectOutputDir>wwwroot</WebProjectOutputDir>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>3218;3186</NoWarn>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="paket.references" />
     <Compile Include="Unit.fs" />
     <Compile Include="Main.fs" />
+    <Compile Include="Startup.fs" />
     <Content Include="Main.html" />
     <Content Include="templates.html" />
-    <Content Include="Web.config" />
     <Content Include="template.html" />
   </ItemGroup>
   <ItemGroup>
@@ -23,15 +24,6 @@
     <ProjectReference Include="../WebSharper.UI.Templating.Runtime\WebSharper.UI.Templating.Runtime.fsproj" />
     <ProjectReference Include="../WebSharper.UI.Templating\WebSharper.UI.Templating.fsproj" />
   </ItemGroup>
-  <ItemGroup Condition="$(TargetFramework.StartsWith('net4'))">
-    <Reference Include="System.Web" />
-  </ItemGroup>
-  <Target Name="CopyBin" Condition="'$(TargetFramework)' == net461" AfterTargets="Build">
-    <ItemGroup>
-      <_BinFiles Include="bin/$(Configuration)/$(TargetFramework)/*.*" />
-    </ItemGroup>
-    <Copy SourceFiles="@(_BinFiles)" DestinationFolder="bin" />
-  </Target>
   <Import Project="..\paket-files\wsbuild\github.com\dotnet-websharper\build-script\WebSharper.Fake.targets" Condition="Exists('..\paket-files\wsbuild\github.com\dotnet-websharper\build-script\WebSharper.Fake.targets')" />
   <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>
