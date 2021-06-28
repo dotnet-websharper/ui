@@ -23,7 +23,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <AdditionalFileItemNames>$(AdditionalFileItemNames);Content</AdditionalFileItemNames>
-    <WebSharperUICSharpTaskAssembly Condition=" '$(WebSharperUICSharpTaskAssembly)' == '' ">$(MSBuildThisFileDirectory)/../tools/net5.0/WebSharper.UI.CSharp.Templating.Build.dll</WebSharperUICSharpTaskAssembly>
+    <WebSharperUICSharpTaskAssembly Condition=" '$(WebSharperUICSharpTaskAssembly)' == '' ">$(MSBuildThisFileDirectory)/../tools/netstandard2.0/WebSharper.UI.CSharp.Templating.Build.dll</WebSharperUICSharpTaskAssembly>
   </PropertyGroup>
   <UsingTask AssemblyFile="$(WebSharperUICSharpTaskAssembly)"
              TaskName="WebSharper.UI.CSharp.Templating.Build.WebSharperUICSharpGeneratorTask"

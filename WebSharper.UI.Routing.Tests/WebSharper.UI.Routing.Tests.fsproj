@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <WebSharperProject>Site</WebSharperProject>
-    <WebProjectOutputDir>$(MSBuildThisFileDirectory)</WebProjectOutputDir>
+    <WebProjectOutputDir>wwwroot</WebProjectOutputDir>
     <NoWarn>3218;3186</NoWarn>
     <Signed>false</Signed>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
