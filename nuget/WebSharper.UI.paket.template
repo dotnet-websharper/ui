@@ -11,14 +11,14 @@ description
 tags
     Web JavaScript F# C#
 files
-    ../WebSharper.UI/bin/Release/net5.0/WebSharper.UI.dll ==> lib/net5.0
-    ../WebSharper.UI/bin/Release/net5.0/WebSharper.UI.xml ==> lib/net5.0
-    ../WebSharper.UI.Templating/bin/Release/net5.0/WebSharper.UI.Templating.Common.dll ==> lib/net5.0
-    ../WebSharper.UI.Templating/bin/Release/net5.0/WebSharper.UI.Templating.Common.xml ==> lib/net5.0
-    ../WebSharper.UI.Templating/bin/Release/net5.0/WebSharper.UI.Templating.Runtime.dll ==> lib/net5.0
-    ../WebSharper.UI.Templating/bin/Release/net5.0/WebSharper.UI.Templating.Runtime.xml ==> lib/net5.0
-    ../WebSharper.UI.Templating/bin/Release/net5.0/WebSharper.UI.Templating.dll ==> lib/net5.0
-    ../WebSharper.UI.Templating/bin/Release/net5.0/WebSharper.UI.Templating.xml ==> lib/net5.0
+    ../WebSharper.UI/bin/Release/netstandard2.0/WebSharper.UI.dll ==> lib/netstandard2.0
+    ../WebSharper.UI/bin/Release/netstandard2.0/WebSharper.UI.xml ==> lib/netstandard2.0
+    ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.UI.Templating.Common.dll ==> lib/netstandard2.0
+    ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.UI.Templating.Common.xml ==> lib/netstandard2.0
+    ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.UI.Templating.Runtime.dll ==> lib/netstandard2.0
+    ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.UI.Templating.Runtime.xml ==> lib/netstandard2.0
+    ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.UI.Templating.dll ==> lib/netstandard2.0
+    ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.UI.Templating.xml ==> lib/netstandard2.0
 dependencies
     WebSharper ~> LOCKEDVERSION:[5]
     HtmlAgilityPack >= LOCKEDVERSION
