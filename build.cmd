@@ -2,9 +2,10 @@
 setlocal
     
 dotnet tool restore
-dotnet paket restore
-dotnet restore
-if errorlevel 1 exit /b %errorlevel%
     
 call paket-files\wsbuild\github.com\dotnet-websharper\build-script\update.cmd
+
+dotnet paket restore
+dotnet restore
+
 call paket-files\wsbuild\github.com\dotnet-websharper\build-script\build.cmd %*
