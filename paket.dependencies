@@ -18,7 +18,7 @@ github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fs
 nuget Microsoft.Build.Utilities.Core
 
 group wsbuild
-    git https://github.com/dotnet-websharper/build-script dotnettool
+    git https://github.com/dotnet-websharper/build-script websharper50
 
 group includes
     references: strict
