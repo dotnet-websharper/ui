@@ -1,15 +1,19 @@
 type file
 id WebSharper.UI
-authors
-    IntelliFactory
-owners
-    IntelliFactory
-licenseUrl http://websharper.com/licensing
-projectUrl https://github.com/intellifactory/websharper.ui.next
+authors IntelliFactory
+projectUrl https://websharper.com/
+repositoryUrl https://github.com/dotnet-websharper/core
+licenseUrl https://github.com/dotnet-websharper/core/blob/master/LICENSE.md
+licenseExpression Apache-2.0
+iconUrl https://github.com/dotnet-websharper/core/raw/master/tools/WebSharper.png
 description
     User interface combinators for WebSharper
 tags
-    Web JavaScript F# C#
+    WebSharper Web JavaScript FSharp CSharp
+dependencies
+    framework: netstandard2.0
+        WebSharper ~> LOCKEDVERSION:[5]
+        HtmlAgilityPack >= LOCKEDVERSION
 files
     ../WebSharper.UI/bin/Release/netstandard2.0/WebSharper.UI.dll ==> lib/netstandard2.0
     ../WebSharper.UI/bin/Release/netstandard2.0/WebSharper.UI.xml ==> lib/netstandard2.0
@@ -19,10 +23,6 @@ files
     ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.UI.Templating.Runtime.xml ==> lib/netstandard2.0
     ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.UI.Templating.dll ==> lib/netstandard2.0
     ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.UI.Templating.xml ==> lib/netstandard2.0
-dependencies
-    framework: netstandard2.0
-        WebSharper ~> LOCKEDVERSION:[5]
-        HtmlAgilityPack >= LOCKEDVERSION
 references
     WebSharper.UI.dll
     WebSharper.UI.Templating.Common.dll

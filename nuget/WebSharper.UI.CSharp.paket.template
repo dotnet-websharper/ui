@@ -1,15 +1,19 @@
 type file
 id WebSharper.UI.CSharp
-authors
-    IntelliFactory
-owners
-    IntelliFactory
-licenseUrl http://websharper.com/licensing
-projectUrl https://github.com/intellifactory/websharper.ui.next
+authors IntelliFactory
+projectUrl https://websharper.com/
+repositoryUrl https://github.com/dotnet-websharper/core
+licenseUrl https://github.com/dotnet-websharper/core/blob/master/LICENSE.md
+licenseExpression Apache-2.0
+iconUrl https://github.com/dotnet-websharper/core/raw/master/tools/WebSharper.png
 description
     C# extensions for WebSharper.UI
 tags
-    Web JavaScript C#
+    WebSharper Web JavaScript CSharp
+dependencies
+    framework: netstandard2.0
+        WebSharper ~> LOCKEDVERSION:[5]
+        WebSharper.UI CURRENTVERSION
 files
     ../msbuild/WebSharper.UI.CSharp.targets ==> build
     ../WebSharper.UI.CSharp/bin/Release/netstandard2.0/WebSharper.UI.CSharp.dll ==> lib/netstandard2.0
@@ -25,7 +29,3 @@ files
     ../WebSharper.UI.Templating.Common/bin/Release/netstandard2.0/WebSharper.UI.Templating.Common.dll ==> analyzers/dotnet/cs
     ../WebSharper.UI.CSharp.Templating/bin/Release/netstandard2.0/WebSharper.UI.CSharp.Templating.dll ==> analyzers/dotnet/cs
     ../WebSharper.UI.CSharp.Templating.Analyzer/bin/Release/netstandard2.0/WebSharper.UI.CSharp.Templating.Analyzer.dll ==> analyzers/dotnet/cs
-dependencies
-    framework: netstandard2.0
-        WebSharper ~> LOCKEDVERSION:[5]
-        WebSharper.UI CURRENTVERSION
