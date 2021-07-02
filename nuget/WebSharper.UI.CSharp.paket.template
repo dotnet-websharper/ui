@@ -13,7 +13,7 @@ tags
     WebSharper Web JavaScript CSharp
 dependencies
     framework: netstandard2.0
-        WebSharper ~> LOCKEDVERSION:[5]
+        WebSharper ~> LOCKEDVERSION:[3]
         WebSharper.UI CURRENTVERSION
 files
     ../msbuild/WebSharper.UI.CSharp.targets ==> build

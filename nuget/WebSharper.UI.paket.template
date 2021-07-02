@@ -13,7 +13,7 @@ tags
     WebSharper Web JavaScript FSharp CSharp
 dependencies
     framework: netstandard2.0
-        WebSharper ~> LOCKEDVERSION:[5]
+        WebSharper ~> LOCKEDVERSION:[3]
         HtmlAgilityPack >= LOCKEDVERSION
 files
     ../WebSharper.UI/bin/Release/netstandard2.0/WebSharper.UI.dll ==> lib/netstandard2.0
