@@ -317,6 +317,14 @@ module Client =
                 welcome := sprintf "Welcome %s!" !username
             )
             .Welcome(welcome.View)
+            .CheckBooleanAttr(
+                let bvar = Var.Create true
+                let bview = bvar.View
+                [
+                    Doc.Button "Should be disabled" [attr.DisabledBool bview] (fun () -> ())
+                    p [] [text "Some text"]
+                ]
+            )
             .Bind()
 
         Console.Log("Running JavaScript Entry Point..")

@@ -1456,6 +1456,9 @@ module Html =
         /// Create an animated HTML attribute "disabled" whose value is computed from the given reactive view.
         [<Inline; CompiledName "disabled">]
         let DisabledAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "disabled" trans view convert.Invoke
+        /// Create an HTML attribute "disabled" with the given reactive view
+        [<JavaScript; Inline>]
+        let DisabledBool view = Client.Attr.DynamicBool "disabled" view
         /// Create an HTML attribute "download" with the given value.
         [<Inline; CompiledName "download"; Macro(typeof<Macros.AttrCreate>, "download")>]
         let Download value = Attr.Create "download" value

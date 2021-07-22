@@ -492,6 +492,9 @@ module HtmlExtensions =
         /// Create an animated HTML attribute "disabled" whose value is computed from the given reactive view.
         [<JavaScript; Inline>]
         static member disabledAnim view convert trans = Client.Attr.Animated "disabled" trans view convert
+        /// Create an HTML attribute "disabled" with the given reactive view
+        [<JavaScript; Inline>]
+        static member DisabledBool view = Client.Attr.DynamicBool "disabled" view
         /// Create an HTML attribute "download" with the given reactive value.
         [<JavaScript; Inline>]
         static member downloadDyn view = Client.Attr.Dynamic "download" view

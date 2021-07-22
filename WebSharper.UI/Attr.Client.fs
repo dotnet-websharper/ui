@@ -443,6 +443,15 @@ module Attr =
         let tupleView = View.Map2 (fun pred value -> (pred, value)) predView valView
         As<Attr> (Attrs.Dynamic tupleView viewFn)
 
+    let DynamicBool (name: string) (boolview: View<bool>) =
+        let viewBool el b =
+            if b then
+                DU.SetAttr el name ""
+            else
+                DU.RemoveAttr el name
+        As<Attr> (Attrs.Dynamic boolview viewBool)
+
+
     [<JavaScript; Macro(typeof<Macros.AttrProp>)>]
     let Prop name value =
         As<Attr> (Attrs.Static (fun el -> el?(name) <- value))
