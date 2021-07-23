@@ -928,6 +928,37 @@ module Html =
         /// Create an animated HTML attribute "alink" whose value is computed from the given reactive view.
         [<Inline; CompiledName "alink">]
         let AlinkAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "alink" trans view convert.Invoke
+        /// Create an HTML attribute "allowfullscreen" with the given value.
+        [<Inline; CompiledName "allowfullscreen"; Macro(typeof<Macros.AttrCreate>, "allowfullscreen")>]
+        let AllowFullScreen value = Attr.Create "allowfullscreen" value
+        /// Create an HTML attribute "allowfullscreen" with the given reactive value.
+        [<Inline; CompiledName "allowfullscreen">]
+        let AllowFullScreenDyn view = Client.Attr.Dynamic "allowfullscreen" view
+        /// `allowfullscreen v p` sets an HTML attribute "allowfullscreen" with reactive value v when p is true, and unsets it when p is false.
+        [<Inline; CompiledName "allowfullscreen">]
+        let AllowFullScreenDynPred view pred = Client.Attr.DynamicPred "allowfullscreen" pred view
+        /// Create an animated HTML attribute "allowfullscreen" whose value is computed from the given reactive view.
+        [<Inline; CompiledName "allowfullscreen">]
+        let AllowFullScreenAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "allowfullscreen" trans view convert.Invoke
+        /// Create an HTML attribute "allowfullscreen" with the given reactive view
+        [<Inline; CompiledName "allowfullscreen">]
+        let AllowFullScreenBool view = Client.Attr.DynamicBool "allowfullscreen" view
+        /// Create an HTML attribute "allowpaymentrequest" with the given value.
+        [<Inline; CompiledName "allowpaymentrequest"; Macro(typeof<Macros.AttrCreate>, "allowpaymentrequest")>]
+        let AllowPaymentRequest value = Attr.Create "allowpaymentrequest" value
+        /// Create an HTML attribute "allowpaymentrequest" with the given reactive value.
+        [<Inline; CompiledName "allowpaymentrequest">]
+        let AllowPaymentRequestDyn view = Client.Attr.Dynamic "allowpaymentrequest" view
+        /// `allowpaymentrequest v p` sets an HTML attribute "allowpaymentrequest" with reactive value v when p is true, and unsets it when p is false.
+        [<Inline; CompiledName "allowpaymentrequest">]
+        let AllowPaymentRequestDynPred view pred = Client.Attr.DynamicPred "allowpaymentrequest" pred view
+        /// Create an animated HTML attribute "allowpaymentrequest" whose value is computed from the given reactive view.
+        [<Inline; CompiledName "allowpaymentrequest">]
+        let AllowPaymentRequestAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "allowpaymentrequest" trans view convert.Invoke
+        /// Create an HTML attribute "allowpaymentrequest" with the given reactive view
+        [<Inline; CompiledName "allowpaymentrequest">]
+        let AllowPaymentRequestBool view = Client.Attr.DynamicBool "allowpaymentrequest" view
+        /// Create an HTML attribute "alt" with the given reactive value.
         /// Create an HTML attribute "alt" with the given value.
         [<Inline; CompiledName "alt"; Macro(typeof<Macros.AttrCreate>, "alt")>]
         let Alt value = Attr.Create "alt" value
@@ -976,6 +1007,9 @@ module Html =
         /// Create an animated HTML attribute "async" whose value is computed from the given reactive view.
         [<Inline; CompiledName "async">]
         let AsyncAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "async" trans view convert.Invoke
+        /// Create an HTML attribute "async" with the given reactive view
+        [<Inline; CompiledName "async">]
+        let AsyncBool view = Client.Attr.DynamicBool "async" view
         /// Create an HTML attribute "autocomplete" with the given value.
         [<Inline; CompiledName "autocomplete"; Macro(typeof<Macros.AttrCreate>, "autocomplete")>]
         let AutoComplete value = Attr.Create "autocomplete" value
@@ -1000,6 +1034,9 @@ module Html =
         /// Create an animated HTML attribute "autofocus" whose value is computed from the given reactive view.
         [<Inline; CompiledName "autofocus">]
         let AutoFocusAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "autofocus" trans view convert.Invoke
+        /// Create an HTML attribute "autofocus" with the given reactive view
+        [<Inline; CompiledName "autofocus">]
+        let AutoFocusBool view = Client.Attr.DynamicBool "autofocus" view
         /// Create an HTML attribute "autoplay" with the given value.
         [<Inline; CompiledName "autoplay"; Macro(typeof<Macros.AttrCreate>, "autoplay")>]
         let AutoPlay value = Attr.Create "autoplay" value
@@ -1012,6 +1049,9 @@ module Html =
         /// Create an animated HTML attribute "autoplay" whose value is computed from the given reactive view.
         [<Inline; CompiledName "autoplay">]
         let AutoPlayAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "autoplay" trans view convert.Invoke
+        /// Create an HTML attribute "autoplay" with the given reactive view
+        [<Inline; CompiledName "autoplay">]
+        let AutoPlayBool view = Client.Attr.DynamicBool "autoplay" view
         /// Create an HTML attribute "autosave" with the given value.
         [<Inline; CompiledName "autosave"; Macro(typeof<Macros.AttrCreate>, "autosave")>]
         let AutoSave value = Attr.Create "autosave" value
@@ -1180,6 +1220,9 @@ module Html =
         /// Create an animated HTML attribute "checked" whose value is computed from the given reactive view.
         [<Inline; CompiledName "checked">]
         let CheckedAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "checked" trans view convert.Invoke
+        /// Create an HTML attribute "checked" with the given reactive view
+        [<Inline; CompiledName "checked">]
+        let CheckedBool view = Client.Attr.DynamicBool "checked" view
         /// Create an HTML attribute "cite" with the given value.
         [<Inline; CompiledName "cite"; Macro(typeof<Macros.AttrCreate>, "cite")>]
         let Cite value = Attr.Create "cite" value
@@ -1360,6 +1403,9 @@ module Html =
         /// Create an animated HTML attribute "controls" whose value is computed from the given reactive view.
         [<Inline; CompiledName "controls">]
         let ControlsAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "controls" trans view convert.Invoke
+        /// Create an HTML attribute "controls" with the given reactive view
+        [<Inline; CompiledName "controls">]
+        let ControlsBool view = Client.Attr.DynamicBool "controls" view
         /// Create an HTML attribute "coords" with the given value.
         [<Inline; CompiledName "coords"; Macro(typeof<Macros.AttrCreate>, "coords")>]
         let Coords value = Attr.Create "coords" value
@@ -1420,6 +1466,9 @@ module Html =
         /// Create an animated HTML attribute "default" whose value is computed from the given reactive view.
         [<Inline; CompiledName "default">]
         let DefaultAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "default" trans view convert.Invoke
+        /// Create an HTML attribute "default" with the given reactive view
+        [<Inline; CompiledName "default">]
+        let DefaultBool view = Client.Attr.DynamicBool "default" view
         /// Create an HTML attribute "defer" with the given value.
         [<Inline; CompiledName "defer"; Macro(typeof<Macros.AttrCreate>, "defer")>]
         let Defer value = Attr.Create "defer" value
@@ -1457,7 +1506,7 @@ module Html =
         [<Inline; CompiledName "disabled">]
         let DisabledAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "disabled" trans view convert.Invoke
         /// Create an HTML attribute "disabled" with the given reactive view
-        [<JavaScript; Inline>]
+        [<Inline; CompiledName "disabled">]
         let DisabledBool view = Client.Attr.DynamicBool "disabled" view
         /// Create an HTML attribute "download" with the given value.
         [<Inline; CompiledName "download"; Macro(typeof<Macros.AttrCreate>, "download")>]
@@ -1591,6 +1640,9 @@ module Html =
         /// Create an animated HTML attribute "formnovalidate" whose value is computed from the given reactive view.
         [<Inline; CompiledName "formnovalidate">]
         let FormNoValidateAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "formnovalidate" trans view convert.Invoke
+        /// Create an HTML attribute "formnovalidate" with the given reactive view
+        [<Inline; CompiledName "formnovalidate">]
+        let FormNoValidateBool view = Client.Attr.DynamicBool "formnovalidate" view
         /// Create an HTML attribute "formtarget" with the given value.
         [<Inline; CompiledName "formtarget"; Macro(typeof<Macros.AttrCreate>, "formtarget")>]
         let FormTarget value = Attr.Create "formtarget" value
@@ -1663,6 +1715,9 @@ module Html =
         /// Create an animated HTML attribute "hidden" whose value is computed from the given reactive view.
         [<Inline; CompiledName "hidden">]
         let HiddenAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "hidden" trans view convert.Invoke
+        /// Create an HTML attribute "hidden" with the given reactive view
+        [<Inline; CompiledName "hidden">]
+        let HiddenBool view = Client.Attr.DynamicBool "hidden" view
         /// Create an HTML attribute "high" with the given value.
         [<Inline; CompiledName "high"; Macro(typeof<Macros.AttrCreate>, "high")>]
         let High value = Attr.Create "high" value
@@ -1759,6 +1814,9 @@ module Html =
         /// Create an animated HTML attribute "ismap" whose value is computed from the given reactive view.
         [<Inline; CompiledName "ismap">]
         let IsMapAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "ismap" trans view convert.Invoke
+        /// Create an HTML attribute "ismap" with the given reactive view
+        [<Inline; CompiledName "ismap">]
+        let IsMapBool view = Client.Attr.DynamicBool "ismap" view
         /// Create an HTML attribute "itemprop" with the given value.
         [<Inline; CompiledName "itemprop"; Macro(typeof<Macros.AttrCreate>, "itemprop")>]
         let ItemProp value = Attr.Create "itemprop" value
@@ -1771,6 +1829,21 @@ module Html =
         /// Create an animated HTML attribute "itemprop" whose value is computed from the given reactive view.
         [<Inline; CompiledName "itemprop">]
         let ItemPropAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "itemprop" trans view convert.Invoke
+        /// Create an HTML attribute "itemscope" with the given value.
+        [<Inline; CompiledName "itemscope"; Macro(typeof<Macros.AttrCreate>, "itemscope")>]
+        let ItemScope value = Attr.Create "itemscope" value
+        /// Create an HTML attribute "itemscope" with the given reactive value.
+        [<Inline; CompiledName "itemscope">]
+        let ItemScopeDyn view = Client.Attr.Dynamic "itemscope" view
+        /// `itemscope v p` sets an HTML attribute "itemscope" with reactive value v when p is true, and unsets it when p is false.
+        [<Inline; CompiledName "itemscope">]
+        let ItemScopeDynPred view pred = Client.Attr.DynamicPred "itemscope" pred view
+        /// Create an animated HTML attribute "itemscope" whose value is computed from the given reactive view.
+        [<Inline; CompiledName "itemscope">]
+        let ItemScopeAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "itemscope" trans view convert.Invoke
+        /// Create an HTML attribute "itemscope" with the given reactive view
+        [<Inline; CompiledName "itemscope">]
+        let ItemScopeBool view = Client.Attr.DynamicBool "itemscope" view
         /// Create an HTML attribute "keytype" with the given value.
         [<Inline; CompiledName "keytype"; Macro(typeof<Macros.AttrCreate>, "keytype")>]
         let KeyType value = Attr.Create "keytype" value
@@ -1879,6 +1952,9 @@ module Html =
         /// Create an animated HTML attribute "loop" whose value is computed from the given reactive view.
         [<Inline; CompiledName "loop">]
         let LoopAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "loop" trans view convert.Invoke
+        /// Create an HTML attribute "loop" with the given reactive view
+        [<Inline; CompiledName "loop">]
+        let LoopBool view = Client.Attr.DynamicBool "loop" view
         /// Create an HTML attribute "low" with the given value.
         [<Inline; CompiledName "low"; Macro(typeof<Macros.AttrCreate>, "low")>]
         let Low value = Attr.Create "low" value
@@ -1999,6 +2075,24 @@ module Html =
         /// Create an animated HTML attribute "multiple" whose value is computed from the given reactive view.
         [<Inline; CompiledName "multiple">]
         let MultipleAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "multiple" trans view convert.Invoke
+        /// Create an HTML attribute "multiple" with the given reactive view
+        [<Inline; CompiledName "multiple">]
+        let MultipleBool view = Client.Attr.DynamicBool "multiple" view
+        /// Create an HTML attribute "muted" with the given value.
+        [<Inline; CompiledName "muted"; Macro(typeof<Macros.AttrCreate>, "muted")>]
+        let Muted value = Attr.Create "muted" value
+        /// Create an HTML attribute "muted" with the given reactive value.
+        [<Inline; CompiledName "muted">]
+        let MutedDyn view = Client.Attr.Dynamic "muted" view
+        /// `muted v p` sets an HTML attribute "muted" with reactive value v when p is true, and unsets it when p is false.
+        [<Inline; CompiledName "muted">]
+        let MutedDynPred view pred = Client.Attr.DynamicPred "muted" pred view
+        /// Create an animated HTML attribute "muted" whose value is computed from the given reactive view.
+        [<Inline; CompiledName "muted">]
+        let MutedAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "muted" trans view convert.Invoke
+        /// Create an HTML attribute "muted" with the given reactive view
+        [<Inline; CompiledName "muted">]
+        let MutedBool view = Client.Attr.DynamicBool "muted" view
         /// Create an HTML attribute "name" with the given value.
         [<Inline; CompiledName "name"; Macro(typeof<Macros.AttrCreate>, "name")>]
         let Name value = Attr.Create "name" value
@@ -2023,6 +2117,21 @@ module Html =
         /// Create an animated HTML attribute "nohref" whose value is computed from the given reactive view.
         [<Inline; CompiledName "nohref">]
         let NoHRefAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "nohref" trans view convert.Invoke
+        /// Create an HTML attribute "nomodule" with the given value.
+        [<Inline; CompiledName "nomodule"; Macro(typeof<Macros.AttrCreate>, "nomodule")>]
+        let NoModule value = Attr.Create "nomodule" value
+        /// Create an HTML attribute "nomodule" with the given reactive value.
+        [<Inline; CompiledName "nomodule">]
+        let NoModuleDyn view = Client.Attr.Dynamic "nomodule" view
+        /// `nomodule v p` sets an HTML attribute "nomodule" with reactive value v when p is true, and unsets it when p is false.
+        [<Inline; CompiledName "nomodule">]
+        let NoModuleDynPred view pred = Client.Attr.DynamicPred "nomodule" pred view
+        /// Create an animated HTML attribute "nomodule" whose value is computed from the given reactive view.
+        [<Inline; CompiledName "nomodule">]
+        let NoModuleAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "nomodule" trans view convert.Invoke
+        /// Create an HTML attribute "nomodule" with the given reactive view
+        [<Inline; CompiledName "nomodule">]
+        let NoModuleBool view = Client.Attr.DynamicBool "nomodule" view
         /// Create an HTML attribute "noresize" with the given value.
         [<Inline; CompiledName "noresize"; Macro(typeof<Macros.AttrCreate>, "noresize")>]
         let NoResize value = Attr.Create "noresize" value
@@ -2059,6 +2168,9 @@ module Html =
         /// Create an animated HTML attribute "novalidate" whose value is computed from the given reactive view.
         [<Inline; CompiledName "novalidate">]
         let NoValidateAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "novalidate" trans view convert.Invoke
+        /// Create an HTML attribute "novalidate" with the given reactive view
+        [<Inline; CompiledName "novalidate">]
+        let NoValidateBool view = Client.Attr.DynamicBool "novalidate" view
         /// Create an HTML attribute "nowrap" with the given value.
         [<Inline; CompiledName "nowrap"; Macro(typeof<Macros.AttrCreate>, "nowrap")>]
         let NoWrap value = Attr.Create "nowrap" value
@@ -2095,6 +2207,9 @@ module Html =
         /// Create an animated HTML attribute "open" whose value is computed from the given reactive view.
         [<Inline; CompiledName "open">]
         let OpenAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "open" trans view convert.Invoke
+        /// Create an HTML attribute "open" with the given reactive view
+        [<Inline; CompiledName "open">]
+        let OpenBool view = Client.Attr.DynamicBool "open" view
         /// Create an HTML attribute "optimum" with the given value.
         [<Inline; CompiledName "optimum"; Macro(typeof<Macros.AttrCreate>, "optimum")>]
         let Optimum value = Attr.Create "optimum" value
@@ -2143,6 +2258,21 @@ module Html =
         /// Create an animated HTML attribute "placeholder" whose value is computed from the given reactive view.
         [<Inline; CompiledName "placeholder">]
         let PlaceHolderAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "placeholder" trans view convert.Invoke
+        /// Create an HTML attribute "playsinline" with the given value.
+        [<Inline; CompiledName "playsinline"; Macro(typeof<Macros.AttrCreate>, "playsinline")>]
+        let PlaysInline value = Attr.Create "playsinline" value
+        /// Create an HTML attribute "playsinline" with the given reactive value.
+        [<Inline; CompiledName "playsinline">]
+        let PlaysInlineDyn view = Client.Attr.Dynamic "playsinline" view
+        /// `playsinline v p` sets an HTML attribute "playsinline" with reactive value v when p is true, and unsets it when p is false.
+        [<Inline; CompiledName "playsinline">]
+        let PlaysInlineDynPred view pred = Client.Attr.DynamicPred "playsinline" pred view
+        /// Create an animated HTML attribute "playsinline" whose value is computed from the given reactive view.
+        [<Inline; CompiledName "playsinline">]
+        let PlaysInlineAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "playsinline" trans view convert.Invoke
+        /// Create an HTML attribute "playsinline" with the given reactive view
+        [<Inline; CompiledName "playsinline">]
+        let PlaysInlineBool view = Client.Attr.DynamicBool "playsinline" view
         /// Create an HTML attribute "poster" with the given value.
         [<Inline; CompiledName "poster"; Macro(typeof<Macros.AttrCreate>, "poster")>]
         let Poster value = Attr.Create "poster" value
@@ -2227,6 +2357,9 @@ module Html =
         /// Create an animated HTML attribute "readonly" whose value is computed from the given reactive view.
         [<Inline; CompiledName "readonly">]
         let ReadOnlyAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "readonly" trans view convert.Invoke
+        /// Create an HTML attribute "readonly" with the given reactive view
+        [<Inline; CompiledName "readonly">]
+        let ReadOnlyBool view = Client.Attr.DynamicBool "readonly" view
         /// Create an HTML attribute "rel" with the given value.
         [<Inline; CompiledName "rel"; Macro(typeof<Macros.AttrCreate>, "rel")>]
         let Rel value = Attr.Create "rel" value
@@ -2251,6 +2384,9 @@ module Html =
         /// Create an animated HTML attribute "required" whose value is computed from the given reactive view.
         [<Inline; CompiledName "required">]
         let RequiredAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "required" trans view convert.Invoke
+        /// Create an HTML attribute "required" with the given reactive view
+        [<Inline; CompiledName "required">]
+        let RequiredBool view = Client.Attr.DynamicBool "required" view
         /// Create an HTML attribute "rev" with the given value.
         [<Inline; CompiledName "rev"; Macro(typeof<Macros.AttrCreate>, "rev")>]
         let Rev value = Attr.Create "rev" value
@@ -2275,6 +2411,9 @@ module Html =
         /// Create an animated HTML attribute "reversed" whose value is computed from the given reactive view.
         [<Inline; CompiledName "reversed">]
         let ReversedAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "reversed" trans view convert.Invoke
+        /// Create an HTML attribute "reversed" with the given reactive view
+        [<Inline; CompiledName "reversed">]
+        let ReversedBool view = Client.Attr.DynamicBool "reversed" view
         /// Create an HTML attribute "rows" with the given value.
         [<Inline; CompiledName "rows"; Macro(typeof<Macros.AttrCreate>, "rows")>]
         let Rows value = Attr.Create "rows" value
@@ -2395,6 +2534,9 @@ module Html =
         /// Create an animated HTML attribute "selected" whose value is computed from the given reactive view.
         [<Inline; CompiledName "selected">]
         let SelectedAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "selected" trans view convert.Invoke
+        /// Create an HTML attribute "selected" with the given reactive view
+        [<Inline; CompiledName "selected">]
+        let SelectedBool view = Client.Attr.DynamicBool "selected" view
         /// Create an HTML attribute "shape" with the given value.
         [<Inline; CompiledName "shape"; Macro(typeof<Macros.AttrCreate>, "shape")>]
         let Shape value = Attr.Create "shape" value
@@ -2611,6 +2753,21 @@ module Html =
         /// Create an animated HTML attribute "title" whose value is computed from the given reactive view.
         [<Inline; CompiledName "title">]
         let TitleAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "title" trans view convert.Invoke
+        /// Create an HTML attribute "truespeed" with the given value.
+        [<Inline; CompiledName "truespeed"; Macro(typeof<Macros.AttrCreate>, "truespeed")>]
+        let TrueSpeed value = Attr.Create "truespeed" value
+        /// Create an HTML attribute "truespeed" with the given reactive value.
+        [<Inline; CompiledName "truespeed">]
+        let TrueSpeedDyn view = Client.Attr.Dynamic "truespeed" view
+        /// `truespeed v p` sets an HTML attribute "truespeed" with reactive value v when p is true, and unsets it when p is false.
+        [<Inline; CompiledName "truespeed">]
+        let TrueSpeedDynPred view pred = Client.Attr.DynamicPred "truespeed" pred view
+        /// Create an animated HTML attribute "truespeed" whose value is computed from the given reactive view.
+        [<Inline; CompiledName "truespeed">]
+        let TrueSpeedAnim view (convert: Converter<_,_>) trans = Client.Attr.Animated "truespeed" trans view convert.Invoke
+        /// Create an HTML attribute "truespeed" with the given reactive view
+        [<Inline; CompiledName "truespeed">]
+        let TrueSpeedBool view = Client.Attr.DynamicBool "truespeed" view
         /// Create an HTML attribute "type" with the given value.
         [<Inline; CompiledName "type"; Macro(typeof<Macros.AttrCreate>, "type")>]
         let Type value = Attr.Create "type" value
