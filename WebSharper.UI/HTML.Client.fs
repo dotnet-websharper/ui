@@ -96,6 +96,30 @@ module HtmlExtensions =
         /// Create an animated HTML attribute "alink" whose value is computed from the given reactive view.
         [<JavaScript; Inline>]
         static member alinkAnim view convert trans = Client.Attr.Animated "alink" trans view convert
+        /// Create an HTML attribute "allowfullscreen" with the given reactive value.
+        [<JavaScript; Inline>]
+        static member allowfullscreenDyn view = Client.Attr.Dynamic "allowfullscreen" view
+        /// `allowfullscreen v p` sets an HTML attribute "allowfullscreen" with reactive value v when p is true, and unsets it when p is false.
+        [<JavaScript; Inline>]
+        static member allowfullscreenDynPred view pred = Client.Attr.DynamicPred "allowfullscreen" pred view
+        /// Create an animated HTML attribute "allowfullscreen" whose value is computed from the given reactive view.
+        [<JavaScript; Inline>]
+        static member allowfullscreenAnim view convert trans = Client.Attr.Animated "allowfullscreen" trans view convert
+        /// Create an HTML attribute "allowfullscreen" with the given reactive view
+        [<JavaScript; Inline>]
+        static member allowfullscreenBool view = Client.Attr.DynamicBool "allowfullscreen" view
+        /// Create an HTML attribute "allowfullscreen" with the given reactive value.
+        [<JavaScript; Inline>]
+        static member allowpaymentrequestDyn view = Client.Attr.Dynamic "allowpaymentrequest" view
+        /// `allowpaymentrequest v p` sets an HTML attribute "allowpaymentrequest" with reactive value v when p is true, and unsets it when p is false.
+        [<JavaScript; Inline>]
+        static member allowpaymentrequestDynPred view pred = Client.Attr.DynamicPred "allowpaymentrequest" pred view
+        /// Create an animated HTML attribute "allowpaymentrequest" whose value is computed from the given reactive view.
+        [<JavaScript; Inline>]
+        static member allowpaymentrequestAnim view convert trans = Client.Attr.Animated "allowpaymentrequest" trans view convert
+        /// Create an HTML attribute "allowpaymentrequest" with the given reactive view
+        [<JavaScript; Inline>]
+        static member allowpaymentrequestBool view = Client.Attr.DynamicBool "allowpaymentrequest" view
         /// Create an HTML attribute "alt" with the given reactive value.
         [<JavaScript; Inline>]
         static member altDyn view = Client.Attr.Dynamic "alt" view
@@ -132,6 +156,9 @@ module HtmlExtensions =
         /// Create an animated HTML attribute "async" whose value is computed from the given reactive view.
         [<JavaScript; Inline>]
         static member asyncAnim view convert trans = Client.Attr.Animated "async" trans view convert
+        /// Create an HTML attribute "async" with the given reactive view
+        [<JavaScript; Inline>]
+        static member asyncBool view = Client.Attr.DynamicBool "async" view
         /// Create an HTML attribute "autocomplete" with the given reactive value.
         [<JavaScript; Inline>]
         static member autocompleteDyn view = Client.Attr.Dynamic "autocomplete" view
@@ -150,6 +177,9 @@ module HtmlExtensions =
         /// Create an animated HTML attribute "autofocus" whose value is computed from the given reactive view.
         [<JavaScript; Inline>]
         static member autofocusAnim view convert trans = Client.Attr.Animated "autofocus" trans view convert
+        /// Create an HTML attribute "autofocus" with the given reactive view
+        [<JavaScript; Inline>]
+        static member autofocusBool view = Client.Attr.DynamicBool "autofocus" view
         /// Create an HTML attribute "autoplay" with the given reactive value.
         [<JavaScript; Inline>]
         static member autoplayDyn view = Client.Attr.Dynamic "autoplay" view
@@ -159,6 +189,9 @@ module HtmlExtensions =
         /// Create an animated HTML attribute "autoplay" whose value is computed from the given reactive view.
         [<JavaScript; Inline>]
         static member autoplayAnim view convert trans = Client.Attr.Animated "autoplay" trans view convert
+        /// Create an HTML attribute "autoplay" with the given reactive view
+        [<JavaScript; Inline>]
+        static member autoplayBool view = Client.Attr.DynamicBool "autoplay" view
         /// Create an HTML attribute "autosave" with the given reactive value.
         [<JavaScript; Inline>]
         static member autosaveDyn view = Client.Attr.Dynamic "autosave" view
@@ -285,6 +318,9 @@ module HtmlExtensions =
         /// Create an animated HTML attribute "checked" whose value is computed from the given reactive view.
         [<JavaScript; Inline>]
         static member checkedAnim view convert trans = Client.Attr.Animated "checked" trans view convert
+        /// Create an HTML attribute "checked" with the given reactive view
+        [<JavaScript; Inline>]
+        static member checkedBool view = Client.Attr.DynamicBool "checked" view
         /// Create an HTML attribute "cite" with the given reactive value.
         [<JavaScript; Inline>]
         static member citeDyn view = Client.Attr.Dynamic "cite" view
@@ -420,6 +456,9 @@ module HtmlExtensions =
         /// Create an animated HTML attribute "controls" whose value is computed from the given reactive view.
         [<JavaScript; Inline>]
         static member controlsAnim view convert trans = Client.Attr.Animated "controls" trans view convert
+        /// Create an HTML attribute "controls" with the given reactive view
+        [<JavaScript; Inline>]
+        static member controlsBool view = Client.Attr.DynamicBool "controls" view
         /// Create an HTML attribute "coords" with the given reactive value.
         [<JavaScript; Inline>]
         static member coordsDyn view = Client.Attr.Dynamic "coords" view
@@ -465,6 +504,9 @@ module HtmlExtensions =
         /// Create an animated HTML attribute "default" whose value is computed from the given reactive view.
         [<JavaScript; Inline>]
         static member defaultAnim view convert trans = Client.Attr.Animated "default" trans view convert
+        /// Create an HTML attribute "default" with the given reactive view
+        [<JavaScript; Inline>]
+        static member defaultBool view = Client.Attr.DynamicBool "default" view
         /// Create an HTML attribute "defer" with the given reactive value.
         [<JavaScript; Inline>]
         static member deferDyn view = Client.Attr.Dynamic "defer" view
@@ -492,6 +534,9 @@ module HtmlExtensions =
         /// Create an animated HTML attribute "disabled" whose value is computed from the given reactive view.
         [<JavaScript; Inline>]
         static member disabledAnim view convert trans = Client.Attr.Animated "disabled" trans view convert
+        /// Create an HTML attribute "disabled" with the given reactive view
+        [<JavaScript; Inline>]
+        static member disabledBool view = Client.Attr.DynamicBool "disabled" view
         /// Create an HTML attribute "download" with the given reactive value.
         [<JavaScript; Inline>]
         static member downloadDyn view = Client.Attr.Dynamic "download" view
@@ -591,6 +636,9 @@ module HtmlExtensions =
         /// Create an animated HTML attribute "formnovalidate" whose value is computed from the given reactive view.
         [<JavaScript; Inline>]
         static member formnovalidateAnim view convert trans = Client.Attr.Animated "formnovalidate" trans view convert
+        /// Create an HTML attribute "formnovalidate" with the given reactive view
+        [<JavaScript; Inline>]
+        static member formnovalidateBool view = Client.Attr.DynamicBool "formnovalidate" view
         /// Create an HTML attribute "formtarget" with the given reactive value.
         [<JavaScript; Inline>]
         static member formtargetDyn view = Client.Attr.Dynamic "formtarget" view
@@ -645,6 +693,9 @@ module HtmlExtensions =
         /// Create an animated HTML attribute "hidden" whose value is computed from the given reactive view.
         [<JavaScript; Inline>]
         static member hiddenAnim view convert trans = Client.Attr.Animated "hidden" trans view convert
+        /// Create an HTML attribute "hidden" with the given reactive view
+        [<JavaScript; Inline>]
+        static member hiddenBool view = Client.Attr.DynamicBool "hidden" view
         /// Create an HTML attribute "high" with the given reactive value.
         [<JavaScript; Inline>]
         static member highDyn view = Client.Attr.Dynamic "high" view
@@ -717,12 +768,27 @@ module HtmlExtensions =
         /// Create an animated HTML attribute "ismap" whose value is computed from the given reactive view.
         [<JavaScript; Inline>]
         static member ismapAnim view convert trans = Client.Attr.Animated "ismap" trans view convert
+        /// Create an HTML attribute "ismap" with the given reactive view
+        [<JavaScript; Inline>]
+        static member ismapBool view = Client.Attr.DynamicBool "ismap" view
         /// Create an HTML attribute "itemprop" with the given reactive value.
         [<JavaScript; Inline>]
         static member itempropDyn view = Client.Attr.Dynamic "itemprop" view
         /// `itemprop v p` sets an HTML attribute "itemprop" with reactive value v when p is true, and unsets it when p is false.
         [<JavaScript; Inline>]
         static member itempropDynPred view pred = Client.Attr.DynamicPred "itemprop" pred view
+        /// Create an HTML attribute "itemscope" with the given reactive value.
+        [<JavaScript; Inline>]
+        static member itemscopeDyn view = Client.Attr.Dynamic "itemscope" view
+        /// `itemscope v p` sets an HTML attribute "itemscope" with reactive value v when p is true, and unsets it when p is false.
+        [<JavaScript; Inline>]
+        static member itemscopeDynPred view pred = Client.Attr.DynamicPred "itemscope" pred view
+        /// Create an animated HTML attribute "itemscope" whose value is computed from the given reactive view.
+        [<JavaScript; Inline>]
+        static member itemscopeAnim view convert trans = Client.Attr.Animated "itemscope" trans view convert
+        /// Create an HTML attribute "itemscope" with the given reactive view
+        [<JavaScript; Inline>]
+        static member itemscopeBool view = Client.Attr.DynamicBool "itemscope" view
         /// Create an animated HTML attribute "itemprop" whose value is computed from the given reactive view.
         [<JavaScript; Inline>]
         static member itempropAnim view convert trans = Client.Attr.Animated "itemprop" trans view convert
@@ -807,6 +873,9 @@ module HtmlExtensions =
         /// Create an animated HTML attribute "loop" whose value is computed from the given reactive view.
         [<JavaScript; Inline>]
         static member loopAnim view convert trans = Client.Attr.Animated "loop" trans view convert
+        /// Create an HTML attribute "loop" with the given reactive view
+        [<JavaScript; Inline>]
+        static member loopBool view = Client.Attr.DynamicBool "loop" view
         /// Create an HTML attribute "low" with the given reactive value.
         [<JavaScript; Inline>]
         static member lowDyn view = Client.Attr.Dynamic "low" view
@@ -897,6 +966,21 @@ module HtmlExtensions =
         /// Create an animated HTML attribute "multiple" whose value is computed from the given reactive view.
         [<JavaScript; Inline>]
         static member multipleAnim view convert trans = Client.Attr.Animated "multiple" trans view convert
+        /// Create an HTML attribute "multiple" with the given reactive view
+        [<JavaScript; Inline>]
+        static member multipleBool view = Client.Attr.DynamicBool "multiple" view
+        /// Create an HTML attribute "muted" with the given reactive value.
+        [<JavaScript; Inline>]
+        static member mutedDyn view = Client.Attr.Dynamic "muted" view
+        /// `muted v p` sets an HTML attribute "muted" with reactive value v when p is true, and unsets it when p is false.
+        [<JavaScript; Inline>]
+        static member mutedDynPred view pred = Client.Attr.DynamicPred "muted" pred view
+        /// Create an animated HTML attribute "muted" whose value is computed from the given reactive view.
+        [<JavaScript; Inline>]
+        static member mutedAnim view convert trans = Client.Attr.Animated "muted" trans view convert
+        /// Create an HTML attribute "muted" with the given reactive view
+        [<JavaScript; Inline>]
+        static member mutedBool view = Client.Attr.DynamicBool "muted" view
         /// Create an HTML attribute "name" with the given reactive value.
         [<JavaScript; Inline>]
         static member nameDyn view = Client.Attr.Dynamic "name" view
@@ -915,6 +999,18 @@ module HtmlExtensions =
         /// Create an animated HTML attribute "nohref" whose value is computed from the given reactive view.
         [<JavaScript; Inline>]
         static member nohrefAnim view convert trans = Client.Attr.Animated "nohref" trans view convert
+        /// Create an HTML attribute "nomodule" with the given reactive value.
+        [<JavaScript; Inline>]
+        static member nomoduleDyn view = Client.Attr.Dynamic "nomodule" view
+        /// `nomodule v p` sets an HTML attribute "nomodule" with reactive value v when p is true, and unsets it when p is false.
+        [<JavaScript; Inline>]
+        static member nomoduleDynPred view pred = Client.Attr.DynamicPred "nomodule" pred view
+        /// Create an animated HTML attribute "nomodule" whose value is computed from the given reactive view.
+        [<JavaScript; Inline>]
+        static member nomoduleAnim view convert trans = Client.Attr.Animated "nomodule" trans view convert
+        /// Create an HTML attribute "nomodule" with the given reactive view
+        [<JavaScript; Inline>]
+        static member nomoduleBool view = Client.Attr.DynamicBool "nomodule" view
         /// Create an HTML attribute "noresize" with the given reactive value.
         [<JavaScript; Inline>]
         static member noresizeDyn view = Client.Attr.Dynamic "noresize" view
@@ -942,6 +1038,9 @@ module HtmlExtensions =
         /// Create an animated HTML attribute "novalidate" whose value is computed from the given reactive view.
         [<JavaScript; Inline>]
         static member novalidateAnim view convert trans = Client.Attr.Animated "novalidate" trans view convert
+        /// Create an HTML attribute "novalidate" with the given reactive view
+        [<JavaScript; Inline>]
+        static member novalidateBool view = Client.Attr.DynamicBool "novalidate" view
         /// Create an HTML attribute "nowrap" with the given reactive value.
         [<JavaScript; Inline>]
         static member nowrapDyn view = Client.Attr.Dynamic "nowrap" view
@@ -969,6 +1068,9 @@ module HtmlExtensions =
         /// Create an animated HTML attribute "open" whose value is computed from the given reactive view.
         [<JavaScript; Inline>]
         static member openAnim view convert trans = Client.Attr.Animated "open" trans view convert
+        /// Create an HTML attribute "open" with the given reactive view
+        [<JavaScript; Inline>]
+        static member openBool view = Client.Attr.DynamicBool "open" view
         /// Create an HTML attribute "optimum" with the given reactive value.
         [<JavaScript; Inline>]
         static member optimumDyn view = Client.Attr.Dynamic "optimum" view
@@ -1005,6 +1107,18 @@ module HtmlExtensions =
         /// Create an animated HTML attribute "placeholder" whose value is computed from the given reactive view.
         [<JavaScript; Inline>]
         static member placeholderAnim view convert trans = Client.Attr.Animated "placeholder" trans view convert
+        /// Create an HTML attribute "playsinline" with the given reactive value.
+        [<JavaScript; Inline>]
+        static member playsinlineDyn view = Client.Attr.Dynamic "playsinline" view
+        /// `playsinline v p` sets an HTML attribute "playsinline" with reactive value v when p is true, and unsets it when p is false.
+        [<JavaScript; Inline>]
+        static member playsinlineDynPred view pred = Client.Attr.DynamicPred "playsinline" pred view
+        /// Create an animated HTML attribute "playsinline" whose value is computed from the given reactive view.
+        [<JavaScript; Inline>]
+        static member playsinlineAnim view convert trans = Client.Attr.Animated "playsinline" trans view convert
+        /// Create an HTML attribute "playsinline" with the given reactive view
+        [<JavaScript; Inline>]
+        static member playsinlineBool view = Client.Attr.DynamicBool "playsinline" view
         /// Create an HTML attribute "poster" with the given reactive value.
         [<JavaScript; Inline>]
         static member posterDyn view = Client.Attr.Dynamic "poster" view
@@ -1068,6 +1182,9 @@ module HtmlExtensions =
         /// Create an animated HTML attribute "readonly" whose value is computed from the given reactive view.
         [<JavaScript; Inline>]
         static member readonlyAnim view convert trans = Client.Attr.Animated "readonly" trans view convert
+        /// Create an HTML attribute "readonly" with the given reactive view
+        [<JavaScript; Inline>]
+        static member readonlyBool view = Client.Attr.DynamicBool "readonly" view
         /// Create an HTML attribute "rel" with the given reactive value.
         [<JavaScript; Inline>]
         static member relDyn view = Client.Attr.Dynamic "rel" view
@@ -1086,6 +1203,9 @@ module HtmlExtensions =
         /// Create an animated HTML attribute "required" whose value is computed from the given reactive view.
         [<JavaScript; Inline>]
         static member requiredAnim view convert trans = Client.Attr.Animated "required" trans view convert
+        /// Create an HTML attribute "required" with the given reactive view
+        [<JavaScript; Inline>]
+        static member requiredBool view = Client.Attr.DynamicBool "required" view
         /// Create an HTML attribute "rev" with the given reactive value.
         [<JavaScript; Inline>]
         static member revDyn view = Client.Attr.Dynamic "rev" view
@@ -1104,6 +1224,9 @@ module HtmlExtensions =
         /// Create an animated HTML attribute "reversed" whose value is computed from the given reactive view.
         [<JavaScript; Inline>]
         static member reversedAnim view convert trans = Client.Attr.Animated "reversed" trans view convert
+        /// Create an HTML attribute "reversed" with the given reactive view
+        [<JavaScript; Inline>]
+        static member reversedBool view = Client.Attr.DynamicBool "reversed" view
         /// Create an HTML attribute "rows" with the given reactive value.
         [<JavaScript; Inline>]
         static member rowsDyn view = Client.Attr.Dynamic "rows" view
@@ -1194,6 +1317,9 @@ module HtmlExtensions =
         /// Create an animated HTML attribute "selected" whose value is computed from the given reactive view.
         [<JavaScript; Inline>]
         static member selectedAnim view convert trans = Client.Attr.Animated "selected" trans view convert
+        /// Create an HTML attribute "selected" with the given reactive view
+        [<JavaScript; Inline>]
+        static member selectedBool view = Client.Attr.DynamicBool "selected" view
         /// Create an HTML attribute "shape" with the given reactive value.
         [<JavaScript; Inline>]
         static member shapeDyn view = Client.Attr.Dynamic "shape" view
@@ -1356,6 +1482,18 @@ module HtmlExtensions =
         /// Create an animated HTML attribute "title" whose value is computed from the given reactive view.
         [<JavaScript; Inline>]
         static member titleAnim view convert trans = Client.Attr.Animated "title" trans view convert
+        /// Create an HTML attribute "truespeed" with the given reactive value.
+        [<JavaScript; Inline>]
+        static member truespeedDyn view = Client.Attr.Dynamic "truespeed" view
+        /// `truespeed v p` sets an HTML attribute "truespeed" with reactive value v when p is true, and unsets it when p is false.
+        [<JavaScript; Inline>]
+        static member truespeedDynPred view pred = Client.Attr.DynamicPred "truespeed" pred view
+        /// Create an animated HTML attribute "truespeed" whose value is computed from the given reactive view.
+        [<JavaScript; Inline>]
+        static member truespeedAnim view convert trans = Client.Attr.Animated "truespeed" trans view convert
+        /// Create an HTML attribute "truespeed" with the given reactive view
+        [<JavaScript; Inline>]
+        static member truespeedBool view = Client.Attr.DynamicBool "truespeed" view
         /// Create an HTML attribute "type" with the given reactive value.
         [<JavaScript; Inline>]
         static member typeDyn view = Client.Attr.Dynamic "type" view
