@@ -91,6 +91,9 @@ module Attr =
     /// Sets an attribute when a view satisfies a predicate.
     val DynamicPred : name: string -> predView: View<bool> -> valView: View<string> -> Attr
 
+    /// Sets a boolean attribute when the view is true
+    val DynamicBool : name: string -> boolview: View<bool> -> Attr
+
     /// Gets and sets the value of the element according to a Var.
     val CustomValue : Var<'a> -> ('a -> string) -> (string -> 'a option) -> Attr when 'a : equality
 

@@ -317,6 +317,39 @@ module Client =
                 welcome := sprintf "Welcome %s!" !username
             )
             .Welcome(welcome.View)
+            .CheckBooleanAttr(
+                let disabledVar = Var.Create true
+                let disabledView = disabledVar.View
+
+                let autoplayVar = Var.Create true
+                let autoplayView = autoplayVar.View
+
+                let mutedVar = Var.Create true
+                let mutedView = mutedVar.View
+
+                let loopVar = Var.Create true
+                let loopView = loopVar.View
+
+                [
+                    h3 [] [text "Boolean attribute test"]
+                    Doc.Button "Should be disabled" [attr.disabledBool disabledView] (fun () -> ())
+                    div [] [
+                        video [
+                            attr.autoplayBool autoplayView
+                            attr.mutedBool mutedView
+                            attr.loopBool loopView
+                            attr.width "320"
+                            attr.height "320"
+                        ] [
+                            source [
+                                attr.``type`` "video/mp4"
+                                attr.src "https://www.w3schools.com/html/mov_bbb.mp4"
+                            ] []
+                        ]
+                        Doc.Button "Disable/Enable loop" [] (fun () -> Var.Update loopVar not)
+                    ]
+                ]
+            )
             .Bind()
 
         Console.Log("Running JavaScript Entry Point..")
