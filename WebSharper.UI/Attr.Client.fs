@@ -292,40 +292,45 @@ module BindVar =
     [<JavaScript; Inline "$e.checkValidity?$e.checkValidity():true">]
     let CheckValidity (e: Dom.Element) = X<bool>
 
+    type Init = Dom.Element -> unit
     type Set<'a> = Dom.Element -> 'a -> unit
     type Get<'a> = Dom.Element -> 'a option
-    type Apply<'a, 'o1, 'o2> = Var<'a> -> ((Dom.Element -> unit) -> 'o1) -> ((Dom.Element -> 'a -> unit) -> 'o2) -> 'o1 * 'o2
+    type Apply<'a> = Var<'a> -> (Init * Set<'a option> * View<'a option>)
 
-    let ApplyValue get set : Apply<'a, 'o1, 'o2> = fun var el cb ->
-        el (fun el ->
+    let ApplyValue (get: Get<'a>) (set: Set<'a>) : Apply<'a> = fun (var: Var<'a>) ->
+        let mutable expectedValue = None
+        let init (el: Dom.Element) =
             let onChange () =
                 var.UpdateMaybe(fun v ->
-                    match get el with
+                    expectedValue <- get el
+                    match expectedValue with
                     | Some x as o when x <> v -> o
                     | _ -> None)
             el.AddEventListener("change", onChange)
             el.AddEventListener("input", onChange)
-            el.AddEventListener("keypress", onChange)),
-        cb (fun el v ->
-            match get el with
-            | Some x when x = v -> ()
-            | _ -> set el v)
+            el.AddEventListener("keypress", onChange)
+        let map v =
+            match expectedValue with
+            | Some x when x = v -> None
+            | _ -> Some v
+        init, Option.iter << set, var.View.Map map
 
-    let BoolCheckedApply<'o1, 'o2> : Apply<bool, 'o1, 'o2> =
-        ()
-        fun var el cb ->
-            el (fun el ->
-                el.AddEventListener("change", fun () ->
-                    if var.Value <> el?``checked`` then
-                        var.Value <- el?``checked``)),
-            cb (fun el v ->
-                el?``checked`` <- v)
+    let BoolCheckedApply : Apply<bool> = fun var ->
+        let init (el: Dom.Element) =
+            el.AddEventListener("change", fun () ->
+                if var.Value <> el?``checked`` then
+                    var.Value <- el?``checked``)
+        let set (el: Dom.Element) (v: bool option) =
+            match v with
+            | None -> ()
+            | Some v -> el?``checked`` <- v
+        init, set, var.View.Map Some
 
     let StringSet : Set<string> = fun el s ->
         el?value <- s
     let StringGet : Get<string> = fun el ->
         Some el?value
-    let StringApply<'o1, 'o2> : Apply<string, 'o1, 'o2> =
+    let StringApply : Apply<string> =
         ApplyValue StringGet StringSet
 
     let IntSetUnchecked : Set<int> = fun el i ->
@@ -335,7 +340,7 @@ module BindVar =
         if String.isBlank s then Some 0 else
         let pd : int = JS.Plus s
         if pd !==. (pd >>. 0) then None else Some pd
-    let IntApplyUnchecked<'o1, 'o2> : Apply<int, 'o1, 'o2> =
+    let IntApplyUnchecked : Apply<int> =
         ApplyValue IntGetUnchecked IntSetUnchecked
 
     let IntSetChecked : Set<CheckedInput<int>> = fun el i ->
@@ -350,7 +355,7 @@ module BindVar =
             | true, i -> Valid (i, s)
             | false, _ -> Invalid s
         |> Some
-    let IntApplyChecked<'o1, 'o2> : Apply<CheckedInput<int>, 'o1, 'o2> =
+    let IntApplyChecked : Apply<CheckedInput<int>> =
         ApplyValue IntGetChecked IntSetChecked
 
     let FloatSetUnchecked : Set<float> = fun el i ->
@@ -360,7 +365,7 @@ module BindVar =
         if String.isBlank s then Some 0. else
         let pd : float = JS.Plus s
         if JS.IsNaN pd then None else Some pd
-    let FloatApplyUnchecked<'o1, 'o2> : Apply<float, 'o1, 'o2> =
+    let FloatApplyUnchecked : Apply<float> =
         ApplyValue FloatGetUnchecked FloatSetUnchecked
 
     let FloatSetChecked : Set<CheckedInput<float>> = fun el i ->
@@ -374,7 +379,7 @@ module BindVar =
                 let i = JS.Plus s
                 if JS.IsNaN i then Invalid s else Valid (i, s)
             |> Some
-    let FloatApplyChecked<'o1, 'o2> : Apply<CheckedInput<float>, 'o1, 'o2> =
+    let FloatApplyChecked : Apply<CheckedInput<float>> =
         ApplyValue FloatGetChecked FloatSetChecked
 
 [<JavaScript; Name "WebSharper.UI.AttrModule">]
@@ -460,9 +465,12 @@ module Attr =
         As<Attr> (Attrs.Dynamic view (fun el v ->
             el?(name) <- v))
 
+    let private ValueWith (bind: BindVar.Apply<'a>) (var: Var<'a>) =
+        let init, set, view = bind var
+        Attr.Append (Static init) (DynamicCustom set view)
+
     let CustomVar (var: Var<'a>) (set: Dom.Element -> 'a -> unit) (get: Dom.Element -> 'a option) =
-        BindVar.ApplyValue get set var Static (fun f -> DynamicCustom f var.View)
-        ||> Attr.Append
+        ValueWith (BindVar.ApplyValue get set) var
 
     let CustomValue (var: Var<'a>) (toString : 'a -> string) (fromString : string -> 'a option) =
         CustomVar var (fun e v -> e?value <- toString v) (fun e -> fromString e?value)
@@ -476,28 +484,22 @@ module Attr =
         |> Attr.Append (Attr.Create "contenteditable" "true")
 
     let Value (var: Var<string>) =
-        BindVar.StringApply var Static (fun f -> DynamicCustom f var.View)
-        ||> Attr.Append
+        ValueWith BindVar.StringApply var
 
     let IntValueUnchecked (var: Var<int>) =
-        BindVar.IntApplyUnchecked var Static (fun f -> DynamicCustom f var.View)
-        ||> Attr.Append
+        ValueWith BindVar.IntApplyUnchecked var
 
     let IntValue (var: Var<CheckedInput<int>>) =
-        BindVar.IntApplyChecked var Static (fun f -> DynamicCustom f var.View)
-        ||> Attr.Append
+        ValueWith BindVar.IntApplyChecked var
 
     let FloatValueUnchecked (var: Var<float>) =
-        BindVar.FloatApplyUnchecked var Static (fun f -> DynamicCustom f var.View)
-        ||> Attr.Append
+        ValueWith BindVar.FloatApplyUnchecked var
 
     let FloatValue (var: Var<CheckedInput<float>>) =
-        BindVar.FloatApplyChecked var Static (fun f -> DynamicCustom f var.View)
-        ||> Attr.Append
+        ValueWith BindVar.FloatApplyChecked var
 
     let Checked (var: Var<bool>) =
-        BindVar.BoolCheckedApply var Static (fun f -> DynamicCustom f var.View)
-        ||> Attr.Append
+        ValueWith BindVar.BoolCheckedApply var
 
     let ValidateForm () =
         OnAfterRender Resources.H5F.Setup
