@@ -59,20 +59,25 @@ type TemplateInitializer(id: string, vars: array<string * ValTy>) =
 
     static let initialized = Dictionary<string, Dictionary<string, TemplateHole>>()
 
+    static let applyTypedVarHole (bind: BindVar.Apply<'a>) (v: Var<'a>) el =
+        let init, set, view = bind v
+        init el
+        View.Sink (set el) view
+
     static let applyVarHole el tpl =
         match tpl with
         | TemplateHole.VarStr (_, v) ->
-            BindVar.StringApply v (fun f -> f el) (fun f -> View.Sink (f el) v.View) |> ignore
+            applyTypedVarHole BindVar.StringApply v el
         | TemplateHole.VarBool (_, v) ->
-            BindVar.BoolCheckedApply v (fun f -> f el) (fun f -> View.Sink (f el) v.View) |> ignore
+            applyTypedVarHole BindVar.BoolCheckedApply v el
         | TemplateHole.VarInt (_, v) ->
-            BindVar.IntApplyChecked v (fun f -> f el) (fun f -> View.Sink (f el) v.View) |> ignore
+            applyTypedVarHole BindVar.IntApplyChecked v el
         | TemplateHole.VarIntUnchecked (_, v) ->
-            BindVar.IntApplyUnchecked v (fun f -> f el) (fun f -> View.Sink (f el) v.View) |> ignore
+            applyTypedVarHole BindVar.IntApplyUnchecked v el
         | TemplateHole.VarFloat (_, v) ->
-            BindVar.FloatApplyChecked v (fun f -> f el) (fun f -> View.Sink (f el) v.View) |> ignore
+            applyTypedVarHole BindVar.FloatApplyChecked v el
         | TemplateHole.VarFloatUnchecked (_, v) ->
-            BindVar.FloatApplyUnchecked v (fun f -> f el) (fun f -> View.Sink (f el) v.View) |> ignore
+            applyTypedVarHole BindVar.FloatApplyUnchecked v el
         | TemplateHole.Elt (n, _)
         | TemplateHole.Text (n, _)
         | TemplateHole.TextView (n, _)
