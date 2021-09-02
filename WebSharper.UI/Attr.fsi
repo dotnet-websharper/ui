@@ -31,11 +31,11 @@ type Attr =
     internal
     | AppendAttr of list<Attr>
     | SingleAttr of string * string
-    | DepAttr of string * (M.Info -> string) * (M.Info -> seq<M.Node>) * (M.Info -> J.Provider -> list<string * J.Encoded>)
+    | DepAttr of string * (M.Info -> J.Provider -> string) * (M.Info -> seq<M.Node>) * (M.Info -> J.Provider -> list<string * J.Encoded>)
 
     interface WebSharper.IRequiresResources
 
-    member Write : M.Info * HtmlTextWriter * bool -> unit
+    member Write : M.Info * J.Provider * HtmlTextWriter * bool -> unit
 
     member WithName : string -> Attr
 
@@ -53,7 +53,7 @@ type Attr =
     /// Empty attribute list.
     static member Empty : Attr
 
-    static member WithDependencies : string * (M.Info -> string) * (M.Info -> seq<M.Node>) -> Attr
+    static member WithDependencies : string * (M.Info -> J.Provider -> string) * (M.Info -> seq<M.Node>) -> Attr
 
     /// Sets an event handler, for a given event such as `click`.
     /// When called on the server side, the handler must be a top-level function or a static member.

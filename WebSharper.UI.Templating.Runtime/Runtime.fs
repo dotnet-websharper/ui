@@ -584,7 +584,7 @@ type Runtime private () =
                     if plain then doPlain() else
                     match ctx.RequireResources.TryGetValue holeName with
                     | true, (:? UI.Attr as a) ->
-                        a.Write(ctx.Context.Metadata, ctx.Writer, true)
+                        a.Write(ctx.Context.Metadata, ctx.Context.Json, ctx.Writer, true)
                     | _ ->
                         if ctx.FillWith.ContainsKey holeName then
                             failwithf "Invalid hole, expected attribute: %s" holeName
@@ -598,7 +598,7 @@ type Runtime private () =
                     if plain then doPlain() else
                     match ctx.RequireResources.TryGetValue holeName with
                     | true, (:? UI.Attr as a) ->
-                        a.WithName("on" + event).Write(ctx.Context.Metadata, ctx.Writer, true)
+                        a.WithName("on" + event).Write(ctx.Context.Metadata, ctx.Context.Json, ctx.Writer, true)
                     | _ ->
                         if ctx.FillWith.ContainsKey holeName then
                             failwithf "Invalid hole, expected quoted event: %s" holeName
@@ -608,7 +608,7 @@ type Runtime private () =
                     if plain then doPlain() else
                     match ctx.RequireResources.TryGetValue holeName with
                     | true, (:? UI.Attr as a) ->
-                        a.Write(ctx.Context.Metadata, ctx.Writer, true)
+                        a.Write(ctx.Context.Metadata, ctx.Context.Json, ctx.Writer, true)
                     | _ ->
                         if ctx.FillWith.ContainsKey holeName then
                             failwithf "Invalid hole, expected onafterrender: %s" holeName
@@ -617,7 +617,7 @@ type Runtime private () =
                 ctx.Writer.WriteBeginTag(tag)
                 attrs |> Array.iter (writeAttr plain)
                 if isRoot then
-                    extraAttrs |> List.iter (fun a -> a.Write(ctx.Context.Metadata, ctx.Writer, true))
+                    extraAttrs |> List.iter (fun a -> a.Write(ctx.Context.Metadata, ctx.Context.Json, ctx.Writer, true))
                 wsVar |> Option.iter (fun v -> ctx.Writer.WriteAttribute("ws-var", v))
                 if Array.isEmpty children && HtmlTextWriter.IsSelfClosingTag tag then
                     ctx.Writer.Write(HtmlTextWriter.SelfClosingTagEnd)

@@ -51,9 +51,9 @@ module private Internal =
             } 
         )
 
-    let compile (meta: M.Info) (json: J.Provider) (q: Expr) (doCall: string -> string) =
+    let compile (meta: M.Info) (q: Expr) =
         let reqs = ResizeArray<M.Node>()
-        let rec compile' (q: Expr) =
+        let rec compile' (q: Expr) : option<J.Provider -> string> =
             match getLocation q with
             | Some p ->
                 match meta.Quotations.TryGetValue(p) with
@@ -64,12 +64,12 @@ module private Internal =
                     | false, _ -> failwithf "Error in Handler: Couldn't find JavaScript address for method %s.%s" declType.Value.FullName meth.Value.MethodName
                     | true, c ->
                         let argIndices = Map (argNames |> List.mapi (fun i x -> x, i))
-                        let args = Array.create argNames.Length null
+                        let args = Array.zeroCreate<J.Provider -> string> argNames.Length
                         reqs.Add(M.MethodNode (declType, meth))
                         reqs.Add(M.TypeNode declType)
                         let setArg (name: string) (value: obj) =
                             let i = argIndices.[name]
-                            if isNull args.[i] then
+                            if obj.ReferenceEquals(args.[i], null) then
                                 args.[i] <-
                                     match value with
                                     | :? Expr as q ->
@@ -77,25 +77,28 @@ module private Internal =
                                     | value ->
                                         let typ = value.GetType()
                                         reqs.Add(M.TypeNode (WebSharper.Core.AST.Reflection.ReadTypeDefinition typ))
-                                        let packed = json.GetEncoder(typ).Encode(value) |> json.Pack
-                                        let s = WebSharper.Core.Json.Stringify(packed)
-                                        match packed with
-                                        | WebSharper.Core.Json.Object ((("$TYPES" | "$DATA"), _) :: _) ->
-                                            "WebSharper.Json.Activate(" + s + ")"
-                                        | _ -> s
+                                        fun (json: J.Provider) ->
+                                            let packed = json.GetEncoder(typ).Encode(value) |> json.Pack
+                                            let s = WebSharper.Core.Json.Stringify(packed)
+                                            match packed with
+                                            | WebSharper.Core.Json.Object ((("$TYPES" | "$DATA"), _) :: _) ->
+                                                "WebSharper.Json.Activate(" + s + ")"
+                                            | _ -> s
                         findArgs Set.empty setArg q
                         let addr =
                             match c.Methods.TryGetValue meth with
                             | true, (M.CompiledMember.Static x, _, _) -> x.Value
                             | _ -> failwithf "Error in Handler: Couldn't find JavaScript address for method %s.%s" declType.Value.FullName meth.Value.MethodName
                         let funcall = String.concat "." (List.rev addr)
-                        let args = String.concat "," args
-                        Some (sprintf "%s(%s)" funcall args)
+                        let write (json: J.Provider) =
+                            let args = String.concat "," (args |> Seq.map (fun a -> a json))
+                            sprintf "%s(%s)" funcall args
+                        Some write
             | None -> None
         compile' q
         |> Option.map (fun s ->
             reqs.Add(activateNode)
-            doCall s, reqs :> seq<_>
+            s, reqs :> seq<_>
         )
 
 type private OnAfterRenderControl private () =
@@ -120,19 +123,19 @@ type private OnAfterRenderControl private () =
 type Attr =
     | AppendAttr of list<Attr>
     | SingleAttr of string * string
-    | DepAttr of string * (M.Info -> string) * (M.Info -> seq<M.Node>) * (M.Info -> J.Provider -> list<string * J.Encoded>)
+    | DepAttr of string * (M.Info -> J.Provider -> string) * (M.Info -> seq<M.Node>) * (M.Info -> J.Provider -> list<string * J.Encoded>)
 
-    member this.Write(meta, w: HtmlTextWriter, removeWsHole) =
+    member this.Write(meta, json, w: HtmlTextWriter, removeWsHole) =
         match this with
         | AppendAttr attrs ->
             attrs |> List.iter (fun a ->
                 if not (obj.ReferenceEquals(a, null))
-                then a.Write(meta, w, removeWsHole))
+                then a.Write(meta, json, w, removeWsHole))
         | SingleAttr (n, v) ->
             if not (removeWsHole && n = "ws-hole") then
                 w.WriteAttribute(n, v)
         | DepAttr (n, v, _, _) ->
-            w.WriteAttribute(n, v meta)
+            w.WriteAttribute(n, v meta json)
 
     interface IRequiresResources with
 
@@ -178,13 +181,12 @@ type Attr =
         DepAttr (name, getValue, deps, fun _ _ -> [])
 
     static member OnAfterRenderImpl(q: Expr<Dom.Element -> unit>) =
-        let json = WebSharper.Web.Shared.Json // TODO: fix?
         let value = ref None
         let init meta =
             if Option.isNone !value then
                 value :=
                     let oarReqs = OnAfterRenderControl.Instance.Requires meta
-                    match Internal.compile meta json q id with
+                    match Internal.compile meta q with
                     | Some (v, m) -> Some (v, Seq.append oarReqs m)
                     | _ ->
                         let m =
@@ -194,11 +196,11 @@ type Attr =
                         let loc = WebSharper.Web.ClientSideInternals.getLocation' q
                         let func, reqs = Attr.HandlerFallback(m, loc, id)
                         Some (func meta, Seq.append oarReqs reqs)
-        let getValue (meta: M.Info) =
+        let getValue (meta: M.Info) (json: J.Provider) =
             init meta
-            fst (Option.get !value)
+            (fst (Option.get !value)) json
         let getReqs (meta: M.Info) =
-            init meta
+            init meta 
             snd (Option.get !value)
         let enc (meta: M.Info) (json: J.Provider) =
             init meta
@@ -206,12 +208,11 @@ type Attr =
         DepAttr("ws-runafterrender", getValue, getReqs, enc)
 
     static member HandlerImpl(event: string, q: Expr<Dom.Element -> #Dom.Event -> unit>) =
-        let json = WebSharper.Web.Shared.Json // TODO: fix?
         let value = ref None
         let init meta =
             if Option.isNone !value then
                 value :=
-                    match Internal.compile meta json q (fun s -> s + "(this)(event)") with
+                    match Internal.compile meta q with
                     | Some _ as v -> v
                     | _ ->
                         let m =
@@ -221,9 +222,9 @@ type Attr =
                         let loc = WebSharper.Web.ClientSideInternals.getLocation' q
                         let func, reqs = Attr.HandlerFallback(m, loc, fun s -> s + "(this, event)")
                         Some (func meta, reqs)
-        let getValue (meta: M.Info) =
+        let getValue (meta: M.Info) (json: J.Provider) =
             init meta
-            fst (Option.get !value)
+            (fst (Option.get !value)) json + "(this)(event)"
         let getReqs (meta: M.Info) =
             init meta
             snd (Option.get !value)
@@ -240,7 +241,7 @@ type Attr =
         let fail() =
             failwithf "Error in Handler%s: Couldn't find JavaScript address for method %s.%s"
                 location declType.Value.FullName meth.Value.MethodName
-        let func (meta: M.Info) =
+        let func (meta: M.Info) (json: J.Provider) =
             match !value with
             | None ->
                 match meta.Classes.TryGetValue declType with

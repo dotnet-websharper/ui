@@ -175,7 +175,7 @@ and Elt
             | Some (HoleName.Replace, name, res) -> w.Write(res.[name])
             | Some (HoleName.Hole, name, res) ->
                 w.WriteBeginTag(tag)
-                attrs |> List.iter (fun a -> a.Write(ctx.Metadata, w, true))
+                attrs |> List.iter (fun a -> a.Write(ctx.Metadata, ctx.Json, w, true))
                 w.Write(HtmlTextWriter.TagRightChar)
                 w.Write(res.[name])
                 w.WriteEndTag(tag)
@@ -183,7 +183,7 @@ and Elt
                 w.WriteBeginTag(tag)
                 attrs |> List.iter (fun a ->
                     if not (obj.ReferenceEquals(a, null))
-                    then a.Write(ctx.Metadata, w, false))
+                    then a.Write(ctx.Metadata, ctx.Json, w, false))
                 if List.isEmpty children && HtmlTextWriter.IsSelfClosingTag tag then
                     w.Write(HtmlTextWriter.SelfClosingTagEnd)
                 else
