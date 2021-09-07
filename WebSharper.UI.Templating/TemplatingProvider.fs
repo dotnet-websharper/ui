@@ -655,22 +655,48 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
         let name = AssemblyName(args.Name).Name.ToLowerInvariant()
         
         let asmsProp = typeof<AssemblyLoadContext>.GetProperty("Assemblies", [||])
+        let assemblies = asmsProp.GetMethod.Invoke(AssemblyLoadContext.Default, [||]) :?> seq<Assembly>
+        
         let fromALC =
-            asmsProp.GetMethod.Invoke(AssemblyLoadContext.Default, [||]) :?> seq<Assembly>
+            assemblies
             |> Seq.tryFind (fun a -> a.GetName().Name.ToLowerInvariant() = name)   
             
         match fromALC with
         | Some asm -> asm
         | None ->
-            let an =
-                cfg.ReferencedAssemblies
-                |> Seq.tryFind (fun an ->
-                    Path.GetFileNameWithoutExtension(an).ToLowerInvariant() = name)
-            match an with
-            | Some f -> Assembly.LoadFrom f
+            let fromRuntimeAsm =
+                let sysRuntimePath =
+                    let sysRuntimeAsm =
+                        assemblies
+                        |> Seq.find (fun a -> a.GetName().Name = "System.Runtime")    
+                    sysRuntimeAsm.Location
+                let sysRuntimeDir = DirectoryInfo(Path.GetDirectoryName(sysRuntimePath))
+                let runtimeVersion = sysRuntimeDir.Name
+                sysRuntimeDir.Parent.Parent.GetDirectories()
+                |> Seq.choose (fun fwdir ->
+                    fwdir.GetDirectories() |> Seq.tryFind (fun vdir -> vdir.Name = runtimeVersion)
+                )
+                |> Seq.tryPick (fun vdir ->
+                    vdir.EnumerateFiles("*.dll") |> Seq.tryPick (fun fi ->
+                        if Path.GetFileNameWithoutExtension(fi.Name).ToLowerInvariant() = name then
+                            Some (Assembly.LoadFrom fi.FullName)
+                        else
+                            None
+                    )
+                )
+            
+            match fromRuntimeAsm with
+            | Some asm -> asm
             | None ->
-                //eprintfn "Type provider didn't find assembly: %s" args.Name
-                null
+                let an =
+                    cfg.ReferencedAssemblies
+                    |> Seq.tryFind (fun an ->
+                        Path.GetFileNameWithoutExtension(an).ToLowerInvariant() = name)
+                match an with
+                | Some f -> Assembly.LoadFrom f
+                | None ->
+                    //eprintfn "Type provider didn't find assembly: %s" args.Name
+                    null
 
 [<assembly:TypeProviderAssembly>]
 do ()
