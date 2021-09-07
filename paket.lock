@@ -269,6 +269,10 @@ NUGET
       System.Reflection.Primitives (>= 4.3)
       System.Runtime (>= 4.3)
       System.Runtime.Handles (>= 4.3)
+    System.Runtime.Loader (4.3)
+      System.IO (>= 4.3)
+      System.Reflection (>= 4.3)
+      System.Runtime (>= 4.3)
     System.Runtime.Numerics (4.3)
       System.Globalization (>= 4.3)
       System.Resources.ResourceManager (>= 4.3)
@@ -464,22 +468,22 @@ NUGET
       System.Xml.ReaderWriter (>= 4.3)
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
-  remote: https://nuget.pkg.github.com/dotnet-websharper/index.json
-    WebSharper (5.0.0.93-preview1)
+  remote: ../localnuget
+    WebSharper (5.0.0.95-preview1)
       FSharp.Core (>= 5.0)
       Microsoft.AspNetCore.Mvc.Abstractions (>= 2.0)
       System.Configuration.ConfigurationManager (>= 5.0)
       System.Reflection.Emit.Lightweight (>= 4.7)
-    WebSharper.AspNetCore (5.0.0.93-preview1)
+    WebSharper.AspNetCore (5.0.0.95-preview1)
       Microsoft.AspNetCore.Authentication.Abstractions (>= 2.0)
       Microsoft.AspNetCore.Hosting.Abstractions (>= 2.0)
-      WebSharper (5.0.0.93-preview1)
-    WebSharper.CSharp (5.0.0.93-preview1)
-      WebSharper (5.0.0.93-preview1)
-    WebSharper.FSharp (5.0.0.93-preview1)
-      WebSharper (5.0.0.93-preview1)
-    WebSharper.Testing (5.0.0.93-preview1)
-      WebSharper (5.0.0.93-preview1)
+      WebSharper (5.0.0.95-preview1)
+    WebSharper.CSharp (5.0.0.95-preview1)
+      WebSharper (5.0.0.95-preview1)
+    WebSharper.FSharp (5.0.0.95-preview1)
+      WebSharper (5.0.0.95-preview1)
+    WebSharper.Testing (5.0.0.95-preview1)
+      WebSharper (5.0.0.95-preview1)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
     src/ProvidedTypes.fs (f4aca36af04aa84b16ec04df6f6bf55ac2f17a73)
@@ -488,7 +492,7 @@ GROUP includes
 REFERENCES: STRICT
 GITHUB
   remote: dotnet-websharper/websharper
-    src/htmllib/tags.csv (c849fca7abbd6614b3ac4542400c4f9b9cff1b6e)
+    src/htmllib/tags.csv (821edf4f5a9b5047e0e2826a8978f336c197c90e)
 GROUP wsbuild
 
 GIT

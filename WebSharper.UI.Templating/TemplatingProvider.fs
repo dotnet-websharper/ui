@@ -24,6 +24,7 @@ open System
 open System.Collections.Generic
 open System.IO
 open System.Reflection
+open System.Runtime.Loader
 open Microsoft.FSharp.Core.CompilerServices
 open Microsoft.FSharp.Quotations
 open ProviderImplementation
@@ -650,16 +651,26 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
 
     override this.ResolveAssembly(args) =
         //eprintfn "Type provider looking for assembly: %s" args.Name
+        
         let name = AssemblyName(args.Name).Name.ToLowerInvariant()
-        let an =
-            cfg.ReferencedAssemblies
-            |> Seq.tryFind (fun an ->
-                Path.GetFileNameWithoutExtension(an).ToLowerInvariant() = name)
-        match an with
-        | Some f -> Assembly.LoadFrom f
+        
+        let asmsProp = typeof<AssemblyLoadContext>.GetProperty("Assemblies", [||])
+        let fromALC =
+            asmsProp.GetMethod.Invoke(AssemblyLoadContext.Default, [||]) :?> seq<Assembly>
+            |> Seq.tryFind (fun a -> a.GetName().Name.ToLowerInvariant() = name)   
+            
+        match fromALC with
+        | Some asm -> asm
         | None ->
-            //eprintfn "Type provider didn't find assembly: %s" args.Name
-            null
+            let an =
+                cfg.ReferencedAssemblies
+                |> Seq.tryFind (fun an ->
+                    Path.GetFileNameWithoutExtension(an).ToLowerInvariant() = name)
+            match an with
+            | Some f -> Assembly.LoadFrom f
+            | None ->
+                //eprintfn "Type provider didn't find assembly: %s" args.Name
+                null
 
 [<assembly:TypeProviderAssembly>]
 do ()
