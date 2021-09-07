@@ -649,7 +649,17 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
     do setupTP()
 
     override this.ResolveAssembly(args) =
-        WebSharper.Core.Reflection.LoadAssembly args.Name
+        //eprintfn "Type provider looking for assembly: %s" args.Name
+        let name = AssemblyName(args.Name).Name.ToLowerInvariant()
+        let an =
+            cfg.ReferencedAssemblies
+            |> Seq.tryFind (fun an ->
+                Path.GetFileNameWithoutExtension(an).ToLowerInvariant() = name)
+        match an with
+        | Some f -> Assembly.LoadFrom f
+        | None ->
+            //eprintfn "Type provider didn't find assembly: %s" args.Name
+            null
 
 [<assembly:TypeProviderAssembly>]
 do ()
