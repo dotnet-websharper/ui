@@ -486,6 +486,7 @@ NUGET
       WebSharper (5.0.0.98-preview1)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
+    src/ProvidedTypes.fs (f4aca36af04aa84b16ec04df6f6bf55ac2f17a73)
     src/ProvidedTypes.fsi (f4aca36af04aa84b16ec04df6f6bf55ac2f17a73)
 GROUP includes
 REFERENCES: STRICT
