@@ -196,6 +196,20 @@ type Handler private () =
                 }
         @>)
 
+    static member AfterRenderQ (holeName: string, [<JavaScript>] f: Expr<DomElement -> unit>) =
+        TemplateHole.AfterRenderQ(holeName, f)
+
+    static member AfterRenderQ2(key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, DomEvent> -> unit>) =
+        Handler.AfterRenderQ(holeName, <@ fun el ->
+            let k = key
+            (WebSharper.JavaScript.Pervasives.As<TemplateEvent<obj, DomEvent> -> unit> f)
+                {
+                    Vars = box (TemplateInstances.GetInstance k)
+                    Target = el
+                    Event = null
+                }
+        @>)
+
     static member CompleteHoles(key: string, filledHoles: seq<TemplateHole>, vars: array<string * ValTy>) : seq<TemplateHole> * CompletedHoles =
         let filledVars = HashSet()
         let hasEventHandler =

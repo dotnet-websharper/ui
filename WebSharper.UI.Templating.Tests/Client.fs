@@ -284,8 +284,9 @@ module Client =
             .MouseEnter(fun e -> DomUtility.AddClass e.Target "ok")
             .Attr(Attr.Class "ok")
             .MultiAttr(Attr.Class "ok1", Attr.Class "ok2")
-            .AfterRender(fun (el: Dom.Element) ->
-                el.TextContent <- "[OK] This replaces text with ws-onafterrender.")
+            .AfterRender(fun (e: Runtime.Server.TemplateEvent<MyTemplate.index.Vars, _>) ->
+                Console.Log("OnAfterRender TemplateEvent overload on client-side should render.")
+                e.Target.TextContent <- "[OK] This replaces text with ws-onafterrender.")
             .InputMouseEnter(fun e ->
                 e.Vars.Input := "[OK]"
             )

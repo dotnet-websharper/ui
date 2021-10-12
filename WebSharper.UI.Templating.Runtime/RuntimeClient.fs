@@ -222,6 +222,19 @@ type private HandlerProxy =
                 }
         @>)
 
+    [<Inline>]
+    static member AfterRenderQ (holeName: string, f: Expr<Dom.Element -> unit>) =
+        TemplateHole.AfterRenderQ(holeName, f)
+
+    static member AfterRenderQ2(key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, Dom.Event> -> unit>) =
+        TemplateHole.AfterRenderQ(holeName, <@ fun el ->
+            (%f) {
+                    Vars = box (ti())
+                    Target = el
+                    Event = null
+                }
+        @>)
+
     [<JavaScript>]
     static member CompleteHoles(key: string, filledHoles: seq<TemplateHole>, vars: array<string * Server.ValTy>) : seq<TemplateHole> * Server.CompletedHoles =
         let allVars = Dictionary<string, TemplateHole>()

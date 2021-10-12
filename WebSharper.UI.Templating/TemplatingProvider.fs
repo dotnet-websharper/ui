@@ -180,6 +180,33 @@ module private Impl =
                 <@ (%b).With(%name, %x) @>
         ]
 
+    let ElemHandlerHoleMethods' hole resTy varsTy ctx =
+        let mk wrapArg = BuildMethod hole resTy ctx wrapArg
+        let exprTy t = ProvidedTypeBuilder.MakeGenericType(typedefof<Expr<_>>, [ t ])
+        let (^->) t u = ProvidedTypeBuilder.MakeGenericType(typedefof<FSharpFunc<_, _>>, [ t; u ])
+        let evTy =
+            let a = typeof<DomEvent>.Assembly
+            a.GetType("WebSharper.JavaScript.Dom.Event")
+        let templateEventTy t u = ProvidedTypeBuilder.MakeGenericType(typedefof<RTS.TemplateEvent<_,_>>, [ t; u ])
+        [
+            BuildMethod' hole (exprTy (templateEventTy varsTy evTy ^-> typeof<unit>)) resTy ctx (fun b name x ->
+                let hole =
+                    Expr.Call(ProvidedTypeBuilder.MakeGenericMethod(typeof<RTS.Handler>.GetMethod("AfterRenderQ2"), [ ]),
+                        [
+                            <@ Builder.Key %b @>
+                            name
+                            <@ fun () -> Builder.Instance %b @>
+                            x
+                        ])
+                    |> Expr.Cast
+                <@ (%b).With(%hole) @>
+            )
+            mk <| fun b name (x: Expr<Expr<DomElement -> unit>>) ->
+                <@ (%b).With(RTC.AfterRenderQ(%name, %x)) @>
+            mk <| fun b name (x: Expr<Expr<unit -> unit>>) ->
+                <@ (%b).With(RTC.AfterRenderQ2(%name, %x)) @>
+        ]
+
     let ElemHandlerHoleMethods hole resTy ctx =
         let mk wrapArg = BuildMethod hole resTy ctx wrapArg
         [
@@ -281,7 +308,7 @@ module private Impl =
                     DocHoleMethods (Choice1Of2 hole) resTy ctx
                     SimpleHoleMethods (Choice1Of2 hole) resTy ctx
                 ]
-            | HoleKind.ElemHandler -> ElemHandlerHoleMethods (Choice1Of2 hole) resTy ctx
+            | HoleKind.ElemHandler -> ElemHandlerHoleMethods' (Choice1Of2 hole) resTy varsTy ctx
             | HoleKind.Event eventType -> EventHandlerHoleMethods eventType (Choice1Of2 hole) resTy varsTy ctx
             | HoleKind.Simple -> SimpleHoleMethods (Choice1Of2 hole) resTy ctx
             | HoleKind.Var (ValTy.Any | ValTy.String) -> VarStringHoleMethods (Choice1Of2 hole) resTy ctx

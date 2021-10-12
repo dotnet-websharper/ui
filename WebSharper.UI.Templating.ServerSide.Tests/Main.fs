@@ -136,7 +136,10 @@ let Main = Application.SinglePage(fun ctx ->
                         .Doc()
                 ])
             .ServerVarForms([mkServerVarForm("var-1"); mkServerVarForm("var-2")])
-            .AfterRender(fun () -> Client.OnStartup())
+            .AfterRender(fun (e: Runtime.Server.TemplateEvent<MainTemplate.Main.Vars,JavaScript.Dom.Event>) ->
+                Var.Set e.Vars.ServerVarOnMainTemplate "This should be initialized"
+                Client.OnStartup()
+            )
             .TBody([MainTemplate.Main.Row().Doc(); MainTemplate.Main.Row().Doc()])
             .With("DynamicText", """[OK] Inserted using .With("name", "text")""")
             .With("DynamicDoc", text """[OK] Inserted using .With("name", doc)""")
