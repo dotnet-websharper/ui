@@ -90,9 +90,13 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
                 s "View<string>" "TextView" "x"
             |]
         | HoleKind.ElemHandler ->
+            let eventType = "WebSharper.JavaScript.Dom.Event"
+            let argType = "WebSharper.UI.Templating.Runtime.Server.TemplateEvent<Vars, "+eventType+">"
             [|
                 s "Action<DomElement>" "AfterRender" "FSharpConvert.Fun<DomElement>(x)"
                 s "Action" "AfterRender" "FSharpConvert.Fun<DomElement>((a) => x())"
+                s ("Action<"+argType+">") "Event"
+                    ("FSharpConvert.Fun<DomElement, DomEvent>((a,b) => x(new "+argType+"(new Vars(instance), a, ("+eventType+")b)))")
             |]
         | HoleKind.Event eventType ->
             let eventType = "WebSharper.JavaScript.Dom." + eventType
