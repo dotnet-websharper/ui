@@ -74,6 +74,12 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
     let s arg holeType value =
         sprintf "public %s %s(%s x) { holes.Add(TemplateHole.New%s(%s, %s)); return this; }"
             typeName holeName arg holeType holeName' value
+    let serverS arg holeType value =
+        [
+            sprintf "[JavaScript(false)]"
+            sprintf "public %s %sFromServer(%s x) { holes.Add(TemplateHole.New%s(%s, %s)); return this; }"
+                typeName holeName arg holeType holeName' value
+        ]
     let rec build = function
         | HoleKind.Attr ->
             [|
@@ -95,8 +101,15 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
             [|
                 s "Action<DomElement>" "AfterRender" "FSharpConvert.Fun<DomElement>(x)"
                 s "Action" "AfterRender" "FSharpConvert.Fun<DomElement>((a) => x())"
-                s ("Action<"+argType+">") "Event"
-                    ("FSharpConvert.Fun<DomElement, DomEvent>((a,b) => x(new "+argType+"(new Vars(instance), a, ("+eventType+")b)))")
+                s ("Action<"+argType+">") "AfterRender"
+                    ("FSharpConvert.Fun<DomElement>((a) => x(new "+argType+"(new Vars(instance), a, null)))")
+                yield!
+                    serverS ("Expression<Action<DomElement>>") "AfterRenderE" "x"
+                yield!
+                    serverS ("Expression<Action>") "AfterRenderE" "(Expression<Action<DomElement>>)(el => x.Compile().Invoke())"
+                yield! 
+                    serverS ("Expression<Action<"+argType+">>") "AfterRenderE"
+                        ("(Expression<Action<DomElement>>) (el => x.Compile().Invoke(new "+argType+"(new Vars(instance), el, null)))")
             |]
         | HoleKind.Event eventType ->
             let eventType = "WebSharper.JavaScript.Dom." + eventType
@@ -106,6 +119,14 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
                 s "Action" "Event" ("FSharpConvert.Fun<DomElement, DomEvent>((a,b) => x())")
                 s ("Action<"+argType+">") "Event"
                     ("FSharpConvert.Fun<DomElement, DomEvent>((a,b) => x(new "+argType+"(new Vars(instance), a, ("+eventType+")b)))")
+                // serverSide
+                yield! 
+                    serverS ("Expression<Action<DomElement, "+eventType+">>") "EventExpr" "x"
+                yield!
+                    serverS ("Expression<Action>") "EventE" "(Expression<Action<DomElement, DomEvent>>)((el, ev) => x.Compile().Invoke())"
+                yield!
+                    serverS ("Expression<Action<"+argType+">>") "EventExpr"
+                        ("(Expression<Action<DomElement,"+eventType+">>) ((el, ev) => x.Compile().Invoke(new "+argType+"(new Vars(instance), el, ev)))")
             |]
         | HoleKind.Simple ->
             [|
@@ -256,6 +277,7 @@ let getCodeInternal namespaceName templateName (item: ParseItem) =
         yield "using System;"
         yield "using System.Collections.Generic;"
         yield "using System.Linq;"
+        yield "using System.Linq.Expressions;"
         yield "using Microsoft.FSharp.Core;"
         yield "using WebSharper;"
         yield "using WebSharper.UI;"

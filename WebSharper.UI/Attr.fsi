@@ -66,3 +66,5 @@ type Attr =
     static member HandlerImpl : event: string * callback: (Expr<Dom.Element -> #Dom.Event -> unit>) -> Attr
 
     static member OnAfterRenderImpl : callback: Expr<Dom.Element -> unit> -> Attr
+
+    static member OnAfterRenderLinq : callback: System.Linq.Expressions.Expression<System.Action<Dom.Element>> -> Attr

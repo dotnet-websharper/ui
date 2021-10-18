@@ -267,3 +267,16 @@ type Attr =
             | :? MethodCallExpression as e -> e.Method
             | _ -> failwithf "Invalid handler function: %A" q
         Attr.HandlerLinqImpl(event, meth, "")
+
+    static member OnAfterRenderLinqImpl(m, location, enc) =
+        let func, reqs = Attr.HandlerFallback(m, location, id)
+        DepAttr ("ws-runafterrender", func, (fun _ -> reqs), enc)
+
+    static member OnAfterRenderLinq (q: Expression<Action<Dom.Element>>) =
+        let meth =
+            match q.Body with
+            | :? MethodCallExpression as e -> e.Method
+            | _ -> failwithf "Invalid handler function: %A" q
+        let enc (meta: M.Info) (json: J.Provider) =
+            OnAfterRenderControl.Instance.Encode(meta, json)
+        Attr.OnAfterRenderLinqImpl(meth, "", enc)

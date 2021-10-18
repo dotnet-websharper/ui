@@ -1,0 +1,23 @@
+<!-- ClientLoad = FromDocument
+     ServerLoad = WhenChanged -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>WebSharper.UI.CSharp.Tests</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+        [ws-template], [ws-children-template] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="main">
+        <h1 ws-template="tasksTitle" ws-hole="TestHole"></h1>
+    </div>
+    <div ws-replace="DocToReplace"></div>
+    <div id="tasksTitle" ws-onafterrender="AfterRenderFromServer" ws-onclick="ClickMe">Hello</div>
+    <script ws-replace="scripts"></script>
+</body>
+</html>

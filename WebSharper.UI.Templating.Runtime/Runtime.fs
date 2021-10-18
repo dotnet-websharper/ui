@@ -84,11 +84,16 @@ type TemplateInitializer(id: string, vars: array<string * ValTy>) =
         | TemplateHole.UninitVar (n, _)
         | TemplateHole.Event (n, _)
         | TemplateHole.EventQ (n, _)
+        | TemplateHole.EventE (n, _)
         | TemplateHole.AfterRender (n, _)
         | TemplateHole.AfterRenderQ (n, _)
+        | TemplateHole.AfterRenderE (n, _)
         | TemplateHole.Attribute (n, _) -> JavaScript.Console.Warn("Not a var hole: ", n)
 
     static member Initialized = initialized
+
+    [<Inline "$global.UIVarDict[$name]">]
+    static member GetServerVarInitValue (name: string) = WebSharper.JavaScript.Interop.X<string>
 
     static member GetHolesFor(id) =
         match initialized.TryGetValue(id) with
@@ -542,6 +547,10 @@ type Runtime private () =
                 dict.Add(n, Attr.HandlerImpl("", e) :> IRequiresResources)
             | TemplateHole.AfterRenderQ (n, e) ->
                 dict.Add(n, Attr.OnAfterRenderImpl(e) :> IRequiresResources)
+            | TemplateHole.EventE (n, e) ->
+                dict.Add(n, (Attr.HandlerLinq "" e) :> IRequiresResources)
+            | TemplateHole.AfterRenderE (n, e) ->
+                dict.Add(n, Attr.OnAfterRenderLinq(e) :> IRequiresResources)
             | _ -> ()
         
         fillWith |> Seq.iter (addTemplateHole requireResources)
