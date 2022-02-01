@@ -718,7 +718,7 @@ type internal Doc' [<JavaScript>] (docNode, updates) =
             el?selectedIndex <- i
         let getSelectedItem el =
             let i = getIndex el
-            options.Value.[i]
+            options.Value[i]
         let itemIndex x =
             List.findIndex ((=) x) options.Value
         let setSelectedItem (el: Dom.Element) item =
@@ -926,7 +926,7 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Elt">]
             |> Array.map (snd >> Attrs.Updates)
             |> Array.TreeReduce (View.Const ()) View.Map2Unit
         let updates = View.Map2Unit attrUpdates rvUpdates.View
-        new Elt'(TreeDoc tree, updates, tree.Els.[0].Value1 :?> _, rvUpdates)
+        new Elt'(TreeDoc tree, updates, tree.Els[0].Value1 :?> _, rvUpdates)
 
     [<Inline "$0.elt">]
     member this.Element = elt

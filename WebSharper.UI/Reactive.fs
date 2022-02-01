@@ -318,9 +318,9 @@ type View =
                     let k = key x
                     let res =
                         if prevState.ContainsKey k
-                            then prevState.[k]
+                            then prevState[k]
                             else conv x
-                    newState.[k] <- res
+                    newState[k] <- res
                     res)
                 :> seq<_>
             state.Value <- newState
@@ -352,12 +352,12 @@ type View =
                     let k = key x
                     let node =
                         if prevState.ContainsKey k then
-                            let n = prevState.[k]
+                            let n = prevState[k]
                             Var.Set n.NVar x
                             n
                         else
                             View.ConvertSeqNode (fun v -> conv k v) x
-                    newState.[k] <- node
+                    newState[k] <- node
                     node.NValue)
                 :> seq<_>
             state.Value <- newState

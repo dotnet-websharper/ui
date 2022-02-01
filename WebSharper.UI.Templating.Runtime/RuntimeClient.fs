@@ -46,7 +46,7 @@ type private TemplateInstanceProxy(c: Server.CompletedHoles, doc: Doc) =
     
     member this.Doc = doc
 
-    member this.Hole(name) = allVars.[name]
+    member this.Hole(name) = allVars[name]
 
 [<Inline>]
 let AfterRenderQ(name: string, [<JavaScript>] f: Expr<Dom.Element -> unit>) =
@@ -242,7 +242,7 @@ type private HandlerProxy =
         for h in filledHoles do
             let n = TemplateHole.Name h
             filledVars.Add(n) |> ignore
-            allVars.[n] <- h
+            allVars[n] <- h
         let extraHoles =
             vars |> Array.choose (fun (name, ty) ->
                 if filledVars.Contains name then None else
@@ -255,7 +255,7 @@ type private HandlerProxy =
                     | Server.ValTy.Bool ->
                         Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarBool (name, Var.Create false))
                     | _ -> failwith "Invalid value type"
-                allVars.[name] <- r
+                allVars[name] <- r
                 Some r
             )
         Seq.append filledHoles extraHoles, Server.CompletedHoles.Client(allVars)

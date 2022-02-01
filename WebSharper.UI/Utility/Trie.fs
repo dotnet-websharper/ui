@@ -85,7 +85,7 @@ module Trie =
         let ts = Array.ofSeqNonCopying ts
         match ts.Length with
         | 0 -> Some TrieEmpty
-        | 1 -> Some ts.[0]
+        | 1 -> Some ts[0]
         | _ ->
             // leaves do not merge
             if Array.exists IsLeaf ts then None else

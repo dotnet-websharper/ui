@@ -487,12 +487,12 @@ module Main =
                     )
                 do
                     for i = 1 to n - 1 do
-                        sheet.[0, i] := sheet.[0, i - 1].View |> View.Join
-                        sheet.[i, 0] := sheet.[i - 1, 0].View |> View.Join
+                        sheet[0, i] := sheet[0, i - 1].View |> View.Join
+                        sheet[i, 0] := sheet[i - 1, 0].View |> View.Join
                         for j = 1 to n - 1 do
                             let set f =
-                                sheet.[i, j] := 
-                                    (sheet.[i - 1, j].View |> View.Join, sheet.[i, j - 1].View |> View.Join) 
+                                sheet[i, j] := 
+                                    (sheet[i - 1, j].View |> View.Join, sheet[i, j - 1].View |> View.Join) 
                                     ||> View.Map2 f
                             if i = 100 && j = 100 then
                                 set <| fun a b ->
@@ -504,9 +504,9 @@ module Main =
                                     (a + b) % 1000000
                             else
                                 set <| fun a b -> (a + b) % 1000000
-                equalAsync (sheet.[n - 1, n - 1].View |> View.Join |> View.GetAsync) 0
-                sheet.[0, 0] := View.Const 1
-                equalAsync (sheet.[n - 1, n - 1].View |> View.Join |> View.GetAsync) 272000
+                equalAsync (sheet[n - 1, n - 1].View |> View.Join |> View.GetAsync) 0
+                sheet[0, 0] := View.Const 1
+                equalAsync (sheet[n - 1, n - 1].View |> View.Join |> View.GetAsync) 272000
                 JS.Global?stressTest <- sheet
             }
 

@@ -68,9 +68,9 @@ module private Internal =
                         reqs.Add(M.MethodNode (declType, meth))
                         reqs.Add(M.TypeNode declType)
                         let setArg (name: string) (value: obj) =
-                            let i = argIndices.[name]
-                            if obj.ReferenceEquals(args.[i], null) then
-                                args.[i] <-
+                            let i = argIndices[name]
+                            if obj.ReferenceEquals(args[i], null) then
+                                args[i] <-
                                     match value with
                                     | :? Expr as q ->
                                         compile' q |> Option.get
@@ -110,7 +110,7 @@ type private OnAfterRenderControl private () =
     override this.Body =
         let l = JS.Document.QuerySelectorAll("[ws-runafterrender]")
         for i = 0 to l.Length - 1 do
-            let x = l.[i] :?> Dom.Element
+            let x = l[i] :?> Dom.Element
             let f = JS.Eval(x.GetAttribute("ws-runafterrender")) :?> (Dom.Element -> unit)
             x.RemoveAttribute("ws-runafterrender")
             f x

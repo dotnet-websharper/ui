@@ -78,24 +78,24 @@ module Macros =
     let V0 = viewOf T0
     let V1 = viewOf T1
     let V2 = viewOf T2
-    let viewProp =       gen[]        (meth "get_View"     []                         (viewOf T0))
-    let constFnOf t =    gen[t]       (meth "Const"        [T0]                       V0)
-    let createFnOf t =   gen[t]       (meth "Create"       [T0]                       (varOf T0))
-    let mapFnOf t u =    gen[t; u]    (meth "Map"          [T0 ^-> T1; V0]            V1)
-    let map2FnOf t u v = gen[t; u; v] (meth "Map2"         [T0 ^-> T1 ^-> T2; V0; V1] V2)
-    let applyFnOf t u =  gen[t; u]    (meth "Apply"        [viewOf (T0 ^-> T1); V0]   V1)
-    let textViewFn =     gen[]        (meth "TextView"     [viewOf stringT]           docT)
-    let attrDynFn =      gen[]        (meth "Dynamic"      [stringT; viewOf stringT]  attrT)
-    let attrDynStyleFn = gen[]        (meth "DynamicStyle" [stringT; viewOf stringT]  attrT)
-    let attrDynClassFn = gen[]    (meth "DynamicClassPred" [stringT; viewOf boolT]    attrT)
-    let attrDynPropFn t =gen[t]       (meth "DynamicProp"  [stringT; viewOf T0]       attrT)
-    let docEmbedFn t =   gen[t]       (meth "EmbedView"    [viewOf T0]                docT)
-    let lensFn t u =     gen[t; u]    (meth "Lens"         [varOf T0; T0 ^-> T1; T0 ^-> T1 ^-> T0] (varOf T1))
-    let inputFn n t o =  gen[]        (meth n              [seqOf attrT; varOf t]     o)
-    let elemMixedFn =    gen[]        (meth "ElementMixed" [stringT; seqOf objT]      eltT)
-    let concatMixedFn =  gen[]        (meth "ConcatMixed"  [ArrayType(objT, 1)]       docT)
-    let tplHoleTextView =gen[]        (meth "MakeTextView" [stringT; viewOf stringT]  tplHoleT)
-    let tplHoleVar t =   gen[]        (meth "MakeVar"      [stringT; varOf t]         tplHoleT)
+    let viewProp =        gen []        (meth "get_View"     []                         (viewOf T0))
+    let constFnOf t =     gen [t]       (meth "Const"        [T0]                       V0)
+    let createFnOf t =    gen [t]       (meth "Create"       [T0]                       (varOf T0))
+    let mapFnOf t u =     gen [t; u]    (meth "Map"          [T0 ^-> T1; V0]            V1)
+    let map2FnOf t u v =  gen [t; u; v] (meth "Map2"         [T0 ^-> T1 ^-> T2; V0; V1] V2)
+    let applyFnOf t u =   gen [t; u]    (meth "Apply"        [viewOf (T0 ^-> T1); V0]   V1)
+    let textViewFn =      gen []        (meth "TextView"     [viewOf stringT]           docT)
+    let attrDynFn =       gen []        (meth "Dynamic"      [stringT; viewOf stringT]  attrT)
+    let attrDynStyleFn =  gen []        (meth "DynamicStyle" [stringT; viewOf stringT]  attrT)
+    let attrDynClassFn =  gen []    (meth "DynamicClassPred" [stringT; viewOf boolT]    attrT)
+    let attrDynPropFn t = gen [t]       (meth "DynamicProp"  [stringT; viewOf T0]       attrT)
+    let docEmbedFn t =    gen [t]       (meth "EmbedView"    [viewOf T0]                docT)
+    let lensFn t u =      gen [t; u]    (meth "Lens"         [varOf T0; T0 ^-> T1; T0 ^-> T1 ^-> T0] (varOf T1))
+    let inputFn n t o =   gen []        (meth n              [seqOf attrT; varOf t]     o)
+    let elemMixedFn =     gen []        (meth "ElementMixed" [stringT; seqOf objT]      eltT)
+    let concatMixedFn =   gen []        (meth "ConcatMixed"  [ArrayType(objT, 1)]       docT)
+    let tplHoleTextView = gen []        (meth "MakeTextView" [stringT; viewOf stringT]  tplHoleT)
+    let tplHoleVar t =    gen []        (meth "MakeVar"      [stringT; varOf t]         tplHoleT)
 
     module Lens =
 
@@ -155,7 +155,7 @@ module Macros =
                     | IgnoreSourcePos.Var x' when x = x' ->
                         let getter = Lambda([x], e)
                         let setter = Lambda([x], Lambda([y], valueArg))
-                        Some (Call(None, varModule, lensFn t.Generics.[0] tOutput, [this; getter; setter]))
+                        Some (Call(None, varModule, lensFn t.Generics[0] tOutput, [this; getter; setter]))
                     | _ -> None
                 makeSetter comp terminate e (Var y)
             with e -> MacroError e.Message
@@ -178,7 +178,7 @@ module Macros =
                             | Some (id, _) -> Var id
                             | None ->
                                 let id = Id.New()
-                                env.[k] <- (id, ty.Generics.[0])
+                                env[k] <- (id, ty.Generics[0])
                                 Var id
                         if isViewT ty.Entity && isV m.Entity then
                             addItem this.Value
@@ -216,8 +216,8 @@ module Macros =
         inherit Macro()
 
         override this.TranslateCall(call) =
-            let t = call.Method.Generics.[0]
-            match V.Visit t call.Arguments.[0] with
+            let t = call.Method.Generics[0]
+            match V.Visit t call.Arguments[0] with
             | V.Kind.Const body -> Call(None, viewModule, constFnOf t, [body])
             | V.Kind.View e -> e
             |> MacroOk
@@ -226,7 +226,7 @@ module Macros =
         inherit Macro()
 
         override this.TranslateCall(call) =
-            match call.DefiningType.Generics.[0] with
+            match call.DefiningType.Generics[0] with
             | ConcreteType td as t when isDocOrEltT td.Entity ->
                 let arg =
                     if isViewT call.DefiningType.Entity then
@@ -243,7 +243,7 @@ module Macros =
         inherit Macro()
 
         override this.TranslateCall(call) =
-            match V.Visit stringT call.Arguments.[0] with
+            match V.Visit stringT call.Arguments[0] with
             | V.Kind.Const _ -> MacroFallback
             | V.Kind.View e -> MacroOk (Call (None, clientDocModule, textViewFn, [e]))
 
@@ -251,11 +251,11 @@ module Macros =
         inherit Macro()
 
         override this.TranslateCall(call) =
-            let id, e = getBound call call.Arguments.[1]
+            let id, e = getBound call call.Arguments[1]
             match V.Visit stringT e with
             | V.Kind.Const _ -> MacroFallback
             | V.Kind.View e ->
-                let res = MacroOk (Call (None, tplHoleModule, tplHoleTextView, [call.Arguments.[0]; e]))
+                let res = MacroOk (Call (None, tplHoleModule, tplHoleTextView, [call.Arguments[0]; e]))
                 match id with
                 | Some id -> MacroUsedBoundVar(id, res)
                 | None -> res
@@ -264,7 +264,7 @@ module Macros =
         inherit Macro()
 
         override this.TranslateCall(call) =
-            match V.Visit stringT call.Arguments.[0] with
+            match V.Visit stringT call.Arguments[0] with
             | V.Kind.Const _ -> MacroFallback
             | V.Kind.View e ->
                 let name = call.Parameter.Value :?> string
@@ -274,7 +274,7 @@ module Macros =
         inherit Macro()
 
         override this.TranslateCall(call) =
-            match call.Arguments.[0] with
+            match call.Arguments[0] with
             | NewArray items ->
                 let itemsV = items |> List.map (V.Visit objT)
                 if itemsV |> List.forall (function V.Kind.Const _ -> true | _ -> false) then
@@ -293,7 +293,7 @@ module Macros =
         inherit Macro()
 
         override this.TranslateCall(call) =
-            match call.Arguments.[0] with
+            match call.Arguments[0] with
             | NewArray items ->
                 let itemsV = items |> List.map (V.Visit objT)
                 if itemsV |> List.forall (function V.Kind.Const _ -> true | _ -> false) then
@@ -311,26 +311,26 @@ module Macros =
         inherit Macro()
 
         override this.TranslateCall(call) =
-            match V.Visit stringT call.Arguments.[1] with
+            match V.Visit stringT call.Arguments[1] with
             | V.Kind.Const _ -> MacroFallback
-            | V.Kind.View e -> MacroOk (Call (None, clientAttrModule, attrDynStyleFn, [call.Arguments.[0]; e]))
+            | V.Kind.View e -> MacroOk (Call (None, clientAttrModule, attrDynStyleFn, [call.Arguments[0]; e]))
 
     type AttrClass() =
         inherit Macro()
 
         override this.TranslateCall(call) =
-            match V.Visit stringT call.Arguments.[1] with
+            match V.Visit stringT call.Arguments[1] with
             | V.Kind.Const _ -> MacroFallback
-            | V.Kind.View e -> MacroOk (Call (None, clientAttrModule, attrDynClassFn, [call.Arguments.[0]; e]))
+            | V.Kind.View e -> MacroOk (Call (None, clientAttrModule, attrDynClassFn, [call.Arguments[0]; e]))
 
     type AttrProp() =
         inherit Macro()
 
         override this.TranslateCall(call) =
-            let targ = call.Method.Generics.[0]
-            match V.Visit stringT call.Arguments.[1] with
+            let targ = call.Method.Generics[0]
+            match V.Visit stringT call.Arguments[1] with
             | V.Kind.Const _ -> MacroFallback
-            | V.Kind.View e -> MacroOk (Call (None, clientAttrModule, attrDynPropFn targ, [call.Arguments.[0]; e]))
+            | V.Kind.View e -> MacroOk (Call (None, clientAttrModule, attrDynPropFn targ, [call.Arguments[0]; e]))
 
     type LensMethod() =
         inherit Macro()
@@ -338,7 +338,7 @@ module Macros =
         override this.TranslateCall(call) =
             match call.Method.Generics with
             | [t; u] ->
-                match Lens.MakeSetter call.Compilation call.Arguments.[1] with
+                match Lens.MakeSetter call.Compilation call.Arguments[1] with
                 | MacroOk setter ->
                     MacroOk (Call (None, varModule, lensFn t u, call.Arguments @ [setter]))
                 | err -> err
@@ -348,28 +348,28 @@ module Macros =
         inherit Macro()
 
         override this.TranslateCall(call) =
-            Lens.VMakeLens call.Compilation call.Method.Generics.[0] call.Arguments.[0]
+            Lens.VMakeLens call.Compilation call.Method.Generics[0] call.Arguments[0]
 
     type InputV() =
         inherit Macro()
 
         override this.TranslateCall(call) =
-            let t = call.Method.Entity.Value.Parameters.[1]
-            match Lens.VMakeLens call.Compilation t call.Arguments.[1] with
+            let t = call.Method.Entity.Value.Parameters[1]
+            match Lens.VMakeLens call.Compilation t call.Arguments[1] with
             | MacroOk lens ->
                 let o = call.Method.Entity.Value.ReturnType
-                MacroOk (Call (None, clientDocModule, inputFn (downcast call.Parameter.Value) t o, [call.Arguments.[0]; lens]))
+                MacroOk (Call (None, clientDocModule, inputFn (downcast call.Parameter.Value) t o, [call.Arguments[0]; lens]))
             | err -> err
 
     type TemplateVar() =
         inherit Macro()
 
         override this.TranslateCall(call) =
-            let t = call.Method.Entity.Value.Parameters.[1]
-            let id, e = getBound call call.Arguments.[1]
+            let t = call.Method.Entity.Value.Parameters[1]
+            let id, e = getBound call call.Arguments[1]
             match Lens.VMakeLens call.Compilation t e with
             | MacroOk lens ->
-                let res = MacroOk (Call (None, tplHoleModule, tplHoleVar t, [call.Arguments.[0]; lens]))
+                let res = MacroOk (Call (None, tplHoleModule, tplHoleVar t, [call.Arguments[0]; lens]))
                 match id with
                 | Some id -> MacroUsedBoundVar(id, res)
                 | None -> res

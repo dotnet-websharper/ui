@@ -41,7 +41,7 @@ module Router =
     let private trimFragment (url: string) =
         match url.IndexOf('#') with
         | -1 -> url
-        | i -> url.[..i-1]
+        | i -> url[..i-1]
 
     /// Transform the url from an <a href="XYZ"> tag into an absolute path+query,
     /// if it is indeed a URL that Install wants to handle.
@@ -61,7 +61,7 @@ module Router =
         else
             // Relative URL, combine it with the current path
             let s = JS.Window.Location.Pathname
-            Some (s.[..s.LastIndexOf('/')] + href |> trimFragment)
+            Some (s[..s.LastIndexOf('/')] + href |> trimFragment)
 
     let rec private findLinkHref (n: Dom.Element) =
         if n.TagName = "A" then

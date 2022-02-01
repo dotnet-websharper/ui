@@ -88,7 +88,7 @@ type Snap<'T> =
             sn.State <- Obsolete
             let qa = Queue.ToArray q
             for i = 0 to qa.Length - 1 do 
-                obs qa.[i] (fun sn -> sn.Obsolete())
+                obs qa[i] (fun sn -> sn.Obsolete())
 
     interface ISnap with
         member this.Obsolete() =
@@ -158,7 +158,7 @@ module Snap =
             sn.State <- Forever v
             let qa = Queue.ToArray q
             for i = 0 to qa.Length - 1 do 
-                qa.[i] v
+                qa[i] v
         | _ -> ()
 
     [<Inline>]
@@ -171,7 +171,7 @@ module Snap =
             sn.State <- Ready (v, q2)
             let qa = Queue.ToArray q1
             for i = 0 to qa.Length - 1 do 
-                qa.[i] v
+                qa[i] v
         | _ -> ()
 
     let MarkDone res sn v =
@@ -186,7 +186,7 @@ module Snap =
             let qcopy = q.ToArray()
             q.Clear()
             for i = 0 to qcopy.Length - 1 do
-                clean qcopy.[i]
+                clean qcopy[i]
                     (fun sn -> if sn.IsNotObsolete() then q.Enqueue (Union1Of2 sn))
                     (fun f -> q.Enqueue (Union2Of2 f)) 
 

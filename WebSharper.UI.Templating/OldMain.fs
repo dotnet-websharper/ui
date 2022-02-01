@@ -315,7 +315,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                             let holes =
                                 textHoleRegex.Matches t |> Seq.cast<Match>
                                 |> Seq.map (fun m ->
-                                    m.Groups.[1].Value <> "", m.Groups.[2].Value, m.Index)
+                                    m.Groups[1].Value <> "", m.Groups[2].Value, m.Index)
                                 |> List.ofSeq
                             if List.isEmpty holes then
                                 [ TextPart t ]
@@ -324,12 +324,12 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                     let l = ref 0
                                     for isView, name, i in holes do
                                         if i > l.Value then
-                                            let s = t.[l.Value .. i - 1]
+                                            let s = t[l.Value .. i - 1]
                                             yield TextPart s
                                         yield (if isView then TextViewHole else TextHole) name
                                         l.Value <- i + name.Length + if isView then 4 else 3
                                     if t.Length > l.Value then
-                                        let s = t.[l.Value ..]
+                                        let s = t[l.Value ..]
                                         yield TextPart s
                                 ]   
 
@@ -351,7 +351,7 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                     |> Seq.map (fun a -> 
                                         let n = a.Name.LocalName
                                         if n.StartsWith dataEvent then
-                                            let eventName = n.[dataEvent.Length..]
+                                            let eventName = n[dataEvent.Length..]
                                             if eventName = afterRenderEvent then
                                                 <@ Attr.OnAfterRender %(getElemHandlerHole a.Value) @>
                                             else

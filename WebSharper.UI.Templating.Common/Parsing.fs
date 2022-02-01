@@ -103,7 +103,7 @@ type ParseItem =
     static member GetNameFromPath(p: string) =
         let s = Path.GetFileNameWithoutExtension(p)
         if s.ToLowerInvariant().EndsWith(".ui.next") then
-            s.[..s.Length - ".ui.next".Length - 1]
+            s[..s.Length - ".ui.next".Length - 1]
         else s
 
     static member GetIdFromPath(p: string) =
@@ -161,7 +161,7 @@ module Impl =
         let holes =
             TextHoleRegex.Matches t
             |> Seq.cast<Match>
-            |> Seq.map (fun m -> m.Groups.[1].Value, m.Index)
+            |> Seq.map (fun m -> m.Groups[1].Value, m.Index)
             |> Array.ofSeq
         if Array.isEmpty holes then
             [| StringPart.Text t |]
@@ -170,12 +170,12 @@ module Impl =
                 let l = ref 0
                 for name, i in holes do
                     if i > l.Value then
-                        yield StringPart.Text t.[l.Value .. i - 1]
+                        yield StringPart.Text t[l.Value .. i - 1]
                     addHole name HoleKind.Simple
                     yield StringPart.Hole name
                     l.Value <- i + name.Length + 3 // 3 = "${}".Length
                 if t.Length > l.Value then
-                    yield StringPart.Text t.[l.Value ..]
+                    yield StringPart.Text t[l.Value ..]
             |]
 
     let parseAttributesOf (node: HtmlNode) (addHole: HoleName -> HoleDefinition -> unit) =
@@ -197,7 +197,7 @@ module Impl =
                 | VarAttr | HoleAttr | ReplaceAttr | TemplateAttr | ChildrenTemplateAttr ->
                     () // These are handled separately in parseNode* and detach*Node
                 | s when s.StartsWith EventAttrPrefix ->
-                    let eventName = s.[EventAttrPrefix.Length..]
+                    let eventName = s[EventAttrPrefix.Length..]
                     let eventType = getEventType eventName
                     addHole attr.Value (holeDef (HoleKind.Event eventType))
                     yield Attr.Event (eventName, attr.Value)
@@ -236,7 +236,7 @@ module Impl =
         let fail() =
             failwithf "Hole name reused with incompatible types: %s" name
         match holes.TryGetValue name with
-        | false, _ -> holes.[name] <- def
+        | false, _ -> holes[name] <- def
         | true, def' ->
             match def'.Kind, def.Kind with
             // An Attr can only be used once.
@@ -252,12 +252,12 @@ module Impl =
             // If the types are different, then use the general Dom.Event type.
             | HoleKind.Event e1, HoleKind.Event e2 ->
                 if e1 <> e2 then
-                    holes.[name] <- { def with Kind = HoleKind.Event "Event" }
+                    holes[name] <- { def with Kind = HoleKind.Event "Event" }
             | HoleKind.Event _, _ -> fail()
             // A Var can be used several times if the types are compatible.
             | HoleKind.Var ty', HoleKind.Var ty ->
                 match mergeValTy ty ty' with
-                | Some ty -> holes.[name] <- def
+                | Some ty -> holes[name] <- def
                 | None -> fail()
             // A Var can be viewed by a Simple hole.
             | HoleKind.Var _, HoleKind.Simple -> ()
@@ -266,7 +266,7 @@ module Impl =
             | HoleKind.Simple, HoleKind.Simple -> ()
             // A Var can be viewed by a Simple hole.
             | HoleKind.Simple, HoleKind.Var ty ->
-                holes.[name] <- def
+                holes[name] <- def
             | HoleKind.Simple _, _ -> fail()
             | HoleKind.Unknown, _ -> failwith "Unknown hole kind; should not happen."
 
@@ -295,7 +295,7 @@ module Impl =
         | Instantiation state n -> n
         | n ->
         let attrs = parseAttributesOf n state.AddHole
-        match n.Attributes.[VarAttr] with
+        match n.Attributes[VarAttr] with
         | null ->
             Node.Element (n.Name, isSvg, attrs, children.Value)
         | varAttr ->
@@ -319,14 +319,14 @@ module Impl =
 
     and (|Instantiation|_|) (state: ParseState) (node: HtmlNode) =
         if node.Name.StartsWith "ws-" then
-            let rawTemplateName = node.Name.[3..]
+            let rawTemplateName = node.Name[3..]
             let fileName, templateName =
                 match rawTemplateName.IndexOf '.' with
                 | -1 -> None, Some rawTemplateName
                 | i ->
-                    let fileName = Some rawTemplateName.[..i-1]
+                    let fileName = Some rawTemplateName[..i-1]
                     let templateName =
-                        if i = rawTemplateName.Length - 1 then None else Some rawTemplateName.[i+1..]
+                        if i = rawTemplateName.Length - 1 then None else Some rawTemplateName[i+1..]
                     fileName, templateName
             let holeMaps = Dictionary(System.StringComparer.InvariantCultureIgnoreCase)
             let attrs = Dictionary(System.StringComparer.InvariantCultureIgnoreCase)
@@ -339,7 +339,7 @@ module Impl =
                     HoleDefinition.Line = a.Line
                     HoleDefinition.Column = a.LinePosition
                 }
-                holeMaps.[a.OriginalName] <- holeName
+                holeMaps[a.OriginalName] <- holeName
             state.AddRef (fileName, templateName)
             let textHole =
                 if node.ChildNodes.Count = 1 && node.FirstChild.NodeType = HtmlNodeType.Text then
@@ -348,9 +348,9 @@ module Impl =
                     for c in node.ChildNodes do
                         if not (c :? HtmlTextNode || c :? HtmlCommentNode) then
                             if c.HasAttributes then
-                                attrs.[c.Name] <- parseAttributesOf c state.AddHole
+                                attrs[c.Name] <- parseAttributesOf c state.AddHole
                             else
-                                contentHoles.[c.Name] <- parseNodeAndSiblings false state c.FirstChild
+                                contentHoles[c.Name] <- parseNodeAndSiblings false state c.FirstChild
                     None
             Some (Node.Instantiate(fileName, templateName, holeMaps, attrs, contentHoles, textHole))
         else None
@@ -373,11 +373,11 @@ module Impl =
                 Some ([||], (isSvg, node.NextSibling))
             | node ->
                 let thisIsSvg = isSvg || node.Name = "svg"
-                match node.Attributes.[ReplaceAttr] with
+                match node.Attributes[ReplaceAttr] with
                 | null ->
                     let children =
                         lazy
-                        match node.Attributes.[HoleAttr] with
+                        match node.Attributes[HoleAttr] with
                         | null ->
                             parseNodeAndSiblings thisIsSvg state node.FirstChild
                         | holeAttr ->
@@ -421,7 +421,7 @@ module Impl =
     /// Return it wrapped in a dummy parent.
     let detachTemplateNode (n: HtmlNode) =
         let doc = n.OwnerDocument
-        match n.Attributes.[ReplaceAttr] with
+        match n.Attributes[ReplaceAttr] with
         | null ->
             n.Remove()
         | a ->
@@ -464,7 +464,7 @@ module Impl =
             wsTemplates.Add(w, detachChildrenTemplateNode n)
 
     let parseNodeAsTemplate fileId (n: HtmlNode) =
-        match n.Attributes.[HoleAttr] with
+        match n.Attributes[HoleAttr] with
         | null ->
             let instState = ParseState(fileId)
             match n with
@@ -525,7 +525,7 @@ let ParseOptions (html: HtmlDocument) =
     | None -> None, None
     | Some c ->
         let s = c.Comment
-        let s = s.["<!--".Length .. s.Length - "-->".Length - 1]
+        let s = s["<!--".Length .. s.Length - "-->".Length - 1]
         let error() = failwith "Invalid options syntax"
         let clientLoad = ref None
         let serverLoad = ref None
@@ -607,7 +607,7 @@ let transitiveClosure err (direct: Map<'A, Set<'A>>) : Map<'A, Set<'A>> =
             ||> Seq.fold (fun (closure, knownClosures) k' ->
                 if List.exists ((=) k') pathToHere' then err k
                 let knownClosures = closureOf pathToHere' k' (defaultArg (direct.TryFind k') Set.empty) knownClosures
-                let l' = knownClosures.[k']
+                let l' = knownClosures[k']
                 Set.union l' closure, knownClosures
             )
             ||> Map.add k
@@ -697,7 +697,7 @@ let private checkMappedHoles (items: ParseItem[]) =
                         | HoleKind.Mapped (fileName, templateName, holeName, HoleKind.Unknown) -> Some (fileName, templateName, holeName)
                         | _ -> None
                     ()
-                    match f t.Holes.[k].Kind with
+                    match f t.Holes[k].Kind with
                     | Some (fileName, templateName, holeName) ->
                         doContinue.Value <- true
                         let templates =
@@ -712,8 +712,8 @@ let private checkMappedHoles (items: ParseItem[]) =
                         | Some t' ->
                             match t'.Holes.TryGetValue holeName with
                             | true, h ->
-                                t.Holes.[k] <-
-                                    { t.Holes.[k] with Kind = HoleKind.Mapped(fileName, templateName, holeName, h.Kind) }
+                                t.Holes[k] <-
+                                    { t.Holes[k] with Kind = HoleKind.Mapped(fileName, templateName, holeName, h.Kind) }
                             | false, _ ->
                                 failwithf "Cannot map hole %s from template %O" holeName wtemplateName
                         | None -> failwithf "Trying to instantiate a template that doesn't exist: %O" wtemplateName
@@ -726,7 +726,7 @@ let private checkMappedHoles (items: ParseItem[]) =
         { item with
             Templates =
                 item.Templates |> Map.map (fun tid t ->
-                    { t with References = closedReferences.[(fileId, tid.IdAsOption)] }
+                    { t with References = closedReferences[(fileId, tid.IdAsOption)] }
                 )
          }
     )

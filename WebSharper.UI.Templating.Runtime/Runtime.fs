@@ -95,7 +95,7 @@ type TemplateInitializer(id: string, vars: array<string * ValTy>) =
         | true, d -> d
         | false, _ ->
             let d = Dictionary()
-            initialized.[id] <- d
+            initialized[id] <- d
             d
 
     static member GetOrAddHoleFor(id, holeName, initHole) =
@@ -104,7 +104,7 @@ type TemplateInitializer(id: string, vars: array<string * ValTy>) =
         | true, h -> unbox h
         | false, _ ->
             let h = initHole()
-            d.[holeName] <- h
+            d[holeName] <- h
             h
 
     member this.Instance = instance.Value
@@ -113,7 +113,7 @@ type TemplateInitializer(id: string, vars: array<string * ValTy>) =
         let d = TemplateInitializer.GetHolesFor(key)
         for n, t in vars do
             if not (d.ContainsKey n) then
-                d.[n] <-
+                d[n] <-
                     match t with
                     | ValTy.Bool -> TemplateHole.VarBool (n, Var.Create false)
                     | ValTy.Number -> TemplateHole.VarFloatUnchecked (n, Var.Create 0.)
@@ -141,9 +141,9 @@ type TemplateInitializer(id: string, vars: array<string * ValTy>) =
             this.InitInstance(key)
             let q = JavaScript.JS.Document.QuerySelectorAll("[ws-var^='" + key + "::']")
             for i = 0 to q.Length - 1 do
-                let el = q.[i] :?> JavaScript.Dom.Element
+                let el = q[i] :?> JavaScript.Dom.Element
                 let fullName = el.GetAttribute("ws-var")
-                let s = fullName.[key.Length+2..]
+                let s = fullName[key.Length+2..]
                 let hole = this.Instance.Hole(s)
                 Client.Doc.RegisterGlobalTemplateHole(TemplateHole.WithName fullName hole)
                 applyVarHole el hole
@@ -477,7 +477,7 @@ type Runtime private () =
         let d : Holes = Dictionary(StringComparer.InvariantCultureIgnoreCase)
         for f in fillWith do
             let name = TemplateHole.Name f
-            if holes.ContainsKey name then d.[name] <- f
+            if holes.ContainsKey name then d[name] <- f
         d
 
     /// Different nodes need to be wrapped in different container to be handled properly.
@@ -670,7 +670,7 @@ type Runtime private () =
                     if plain then doPlain() else
                     match holeName with
                     | "scripts" | "styles" | "meta" when Option.isSome ctx.Resources ->
-                        ctx.Writer.Write(ctx.Resources.Value.[holeName])
+                        ctx.Writer.Write(ctx.Resources.Value[holeName])
                     | _ ->
                         match ctx.RequireResources.TryGetValue holeName with
                         | true, (:? UI.Doc as doc) ->

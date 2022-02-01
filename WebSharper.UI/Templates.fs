@@ -34,7 +34,7 @@ module internal Templates =
         | true, d -> d
         | false, _ ->
             let d = Dictionary()
-            LoadedTemplates.[name] <- d
+            LoadedTemplates[name] <- d
             d
     let mutable LocalTemplatesLoaded = false
 
@@ -57,7 +57,7 @@ module internal Templates =
         let attrs : (Dom.Element * Attrs.Dyn)[] = [||]
         let afterRender : (Dom.Element -> unit)[] = [||]
         let fw = Dictionary()
-        for x in fillWith do fw.[TemplateHole.Name x] <- x
+        for x in fillWith do fw[TemplateHole.Name x] <- x
         let els = As<Union<Dom.Node, DocNode>[]> (DomUtility.ChildrenArray el)
         let addAttr (el: Dom.Element) (attr: Attr) =
             let attr = Attrs.Insert el attr
@@ -111,7 +111,7 @@ module internal Templates =
                 let before = Docs.InsertBeforeDelim after doc.DocNode
                 els
                 |> Array.tryFindIndex ((===.) e)
-                |> Option.iter (fun i -> els.[i] <- Union2Of2 doc.DocNode)
+                |> Option.iter (fun i -> els[i] <- Union2Of2 doc.DocNode)
                 holes.JS.Push {
                     Attr = Attrs.Empty p
                     Children = doc.DocNode
@@ -135,11 +135,11 @@ module internal Templates =
             e.GetAttribute("ws-on").Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
             |> Array.choose (fun x ->
                 let a = x.Split([|':'|], StringSplitOptions.RemoveEmptyEntries)
-                match fw.TryGetValue(a.[1]) with
-                | true, TemplateHole.Event (_, handler) -> Some (Attr.Handler a.[0] handler)
-                | true, TemplateHole.EventQ (_, handler) -> Some (A.Handler a.[0] handler)
+                match fw.TryGetValue(a[1]) with
+                | true, TemplateHole.Event (_, handler) -> Some (Attr.Handler a[0] handler)
+                | true, TemplateHole.EventQ (_, handler) -> Some (A.Handler a[0] handler)
                 | true, _ ->
-                    Console.Warn("Event hole on" + a.[0] + " filled with non-event data", a.[1])
+                    Console.Warn("Event hole on" + a[0] + " filled with non-event data", a[1])
                     None
                 | false, _ -> None
             )
@@ -182,11 +182,11 @@ module internal Templates =
                 let mutable lastIndex = 0
                 let res : (string * string)[] = [||]
                 while (m <- re.Exec s; m !==. null) do
-                    let textBefore = s.[lastIndex .. re.LastIndex-m.[0].Length-1]
+                    let textBefore = s[lastIndex .. re.LastIndex-m[0].Length-1]
                     lastIndex <- re.LastIndex
-                    let holeName = m.[1]
+                    let holeName = m[1]
                     res.JS.Push((textBefore, holeName)) |> ignore
-                let finalText = s.[lastIndex..]
+                let finalText = s[lastIndex..]
                 re.LastIndex <- 0
                 let value =
                     Array.foldBack (fun (textBefore, holeName: string) (textAfter, views) ->
@@ -281,10 +281,10 @@ module internal Templates =
             let events = [||]
             let holedAttrs = [||]
             for i = 0 to attrs.Length - 1 do
-                let a = attrs.[i]
+                let a = attrs[i]
                 if a.NodeName.StartsWith "ws-on" && a.NodeName <> "ws-onafterrender" && a.NodeName <> "ws-on" then
                     toRemove.JS.Push(a.NodeName) |> ignore
-                    events.JS.Push(a.NodeName.["ws-on".Length..] + ":" + a.NodeValue.ToLower()) |> ignore
+                    events.JS.Push(a.NodeName["ws-on".Length..] + ":" + a.NodeValue.ToLower()) |> ignore
                 elif not (a.NodeName.StartsWith "ws-") && RegExp(TextHoleRE).Test(a.NodeValue) then
                     a.NodeValue <-
                         RegExp(TextHoleRE, "g")
@@ -312,13 +312,13 @@ module internal Templates =
             let s = n.TextContent
             let strRE = RegExp(TextHoleRE, "g")
             while (m <- strRE.Exec s; m !==. null) do
-                n.ParentNode.InsertBefore(JS.Document.CreateTextNode(s.[li..strRE.LastIndex-m.[0].Length-1]), n) |> ignore
+                n.ParentNode.InsertBefore(JS.Document.CreateTextNode(s[li..strRE.LastIndex-m[0].Length-1]), n) |> ignore
                 li <- strRE.LastIndex
                 let hole = JS.Document.CreateElement("span")
-                hole.SetAttribute("ws-replace", m.[1].ToLower())
+                hole.SetAttribute("ws-replace", m[1].ToLower())
                 n.ParentNode.InsertBefore(hole, n) |> ignore
             strRE.LastIndex <- 0
-            n.TextContent <- s.[li..]
+            n.TextContent <- s[li..]
 
         let mapHoles (t: Dom.Element) (mappings: Dictionary<string, string>) =
             let run attrName =
@@ -336,8 +336,8 @@ module internal Templates =
                     e.GetAttribute("ws-on").Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
                     |> Array.map (fun x ->
                         let a = x.Split([|':'|], StringSplitOptions.RemoveEmptyEntries)
-                        match mappings.TryGetValue(a.[1]) with
-                        | true, x -> a.[0] + ":" + x
+                        match mappings.TryGetValue(a[1]) with
+                        | true, x -> a[0] + ":" + x
                         | false, _ -> x
                     )
                     |> String.concat " "
@@ -360,7 +360,7 @@ module internal Templates =
             | e ->
                 e.RemoveAttribute("ws-attr")
                 for i = 0 to fillWith.Attributes.Length - 1 do
-                    let a = fillWith.Attributes.[i]
+                    let a = fillWith.Attributes[i]
                     if a.Name = "class" && e.HasAttribute("class") then
                         e.SetAttribute("class", e.GetAttribute("class") + " " + a.NodeValue)
                     else
@@ -387,7 +387,7 @@ module internal Templates =
                     e.GetAttribute("ws-on").Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
                     |> Array.filter (fun x ->
                         let a = x.Split([|':'|], StringSplitOptions.RemoveEmptyEntries)
-                        dontRemove.Contains a.[1]
+                        dontRemove.Contains a[1]
                     )
                     |> String.concat " "
                 e.SetAttribute("ws-on", a)
@@ -468,32 +468,32 @@ module internal Templates =
                 convertNodeAndSiblings next
 
         and convertInstantiation (el: Dom.Element) =
-            let name = el.NodeName.[3..].ToLower()
+            let name = el.NodeName[3..].ToLower()
             let instBaseName, instName =
                 match name.IndexOf('.') with
                 | -1 -> baseName, name
-                | n -> name.[..n-1], name.[n+1..]
+                | n -> name[..n-1], name[n+1..]
             if instBaseName <> "" && not (LoadedTemplates.ContainsKey instBaseName) then
                 Prepare.failNotLoaded instName
             else
             if instBaseName = "" && prepareLocalTemplate.IsSome then
                 prepareLocalTemplate.Value instName
-            let d = LoadedTemplates.[instBaseName]
+            let d = LoadedTemplates[instBaseName]
             if not (d.ContainsKey instName) then Prepare.failNotLoaded instName else
-            let t = d.[instName]
+            let t = d[instName]
             let instance = t.CloneNode(true) :?> Dom.Element
             let usedHoles = HashSet()
             let mappings = Dictionary()
             // 1. gather mapped and filled holes.
             let attrs = el.Attributes
             for i = 0 to attrs.Length - 1 do
-                let name = attrs.[i].Name.ToLower()
-                let mappedName = match attrs.[i].NodeValue with "" -> name | s -> s.ToLower()
-                mappings.[name] <- mappedName
+                let name = attrs[i].Name.ToLower()
+                let mappedName = match attrs[i].NodeValue with "" -> name | s -> s.ToLower()
+                mappings[name] <- mappedName
                 if not (usedHoles.Add(name)) then
                     Console.Warn("Hole mapped twice", name)
             for i = 0 to el.ChildNodes.Length - 1 do
-                let n = el.ChildNodes.[i]
+                let n = el.ChildNodes[i]
                 if n.NodeType = Dom.NodeType.Element then
                     let n = n :?> Dom.Element
                     if not (usedHoles.Add(n.NodeName.ToLower())) then
@@ -508,7 +508,7 @@ module internal Templates =
             // 4. apply mappings/fillings.
             if not singleTextFill then
                 for i = 0 to el.ChildNodes.Length - 1 do
-                    let n = el.ChildNodes.[i]
+                    let n = el.ChildNodes[i]
                     if n.NodeType = Dom.NodeType.Element then
                         let n = n :?> Dom.Element
                         if n.HasAttributes() then
@@ -536,7 +536,7 @@ module internal Templates =
                 convertNestedTemplates el
 
         let name = (defaultArg name "").ToLower()
-        LoadedTemplateFile(baseName).[name] <- fakeroot
+        LoadedTemplateFile(baseName)[name] <- fakeroot
         if fakeroot.HasChildNodes() then
             convertNestedTemplates fakeroot
             convertNodeAndSiblings fakeroot.FirstChild
@@ -555,16 +555,16 @@ module internal Templates =
         let rawTpls = Dictionary()
         let wsTemplates = root.QuerySelectorAll "[ws-template]"
         for i = 0 to wsTemplates.Length - 1 do
-            let node = wsTemplates.[i] :?> Dom.Element
+            let node = wsTemplates[i] :?> Dom.Element
             let name = node.GetAttribute("ws-template").ToLower()
             node.RemoveAttribute("ws-template")
-            rawTpls.[name] <- FakeRootSingle node
+            rawTpls[name] <- FakeRootSingle node
         let wsChildrenTemplates = root.QuerySelectorAll "[ws-children-template]"
         for i = 0 to wsChildrenTemplates.Length - 1 do
-            let node = wsChildrenTemplates.[i] :?> Dom.Element
+            let node = wsChildrenTemplates[i] :?> Dom.Element
             let name = node.GetAttribute("ws-children-template").ToLower()
             node.RemoveAttribute("ws-children-template")
-            rawTpls.[name] <- FakeRoot node
+            rawTpls[name] <- FakeRoot node
         let instantiated = HashSet()
         let rec prepareTemplate name =
             if not (loadedTpls.ContainsKey name) then
@@ -585,7 +585,7 @@ module internal Templates =
         if not LocalTemplatesLoaded then
             LocalTemplatesLoaded <- true
             LoadNestedTemplates JS.Document.Body ""
-        LoadedTemplates.[baseName] <- LoadedTemplateFile("")
+        LoadedTemplates[baseName] <- LoadedTemplateFile("")
 
     let mutable RenderedFullDocTemplate = None
 
