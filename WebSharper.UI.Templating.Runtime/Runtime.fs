@@ -629,7 +629,7 @@ type Runtime private () =
                         elif keepUnfilled then doPlain()
             let rec writeElement isRoot plain tag attrs wsVar children =
                 ctx.Writer.WriteBeginTag(tag)
-                attrs |> Array.iter (writeAttr plain)
+                attrs |> Array.iter (fun a -> writeAttr plain a)
                 if isRoot then
                     extraAttrs |> List.iter (fun a -> a.Write(ctx.Context.Metadata, ctx.Context.Json, ctx.Writer, true))
                 wsVar |> Option.iter (fun v -> ctx.Writer.WriteAttribute("ws-var", v))
@@ -637,7 +637,7 @@ type Runtime private () =
                     ctx.Writer.Write(HtmlTextWriter.SelfClosingTagEnd)
                 else
                     ctx.Writer.Write(HtmlTextWriter.TagRightChar)
-                    Array.iter (writeNode (Some tag) plain) children
+                    Array.iter (fun child -> writeNode (Some tag) plain child) children
                     if tag = "body" && Option.isNone name && Option.isSome inlineBaseName then
                         ctx.Templates |> Seq.iter (fun (KeyValue(k, v)) ->
                             match k.NameAsOption with
@@ -735,7 +735,7 @@ type Runtime private () =
                         holes.Add(k, TemplateHole.Text(k, unencodedStringParts text))
                     | _ ->
                         let writeContent ctx w r =
-                            v |> Array.iter (writeNode parent false)
+                            v |> Array.iter (fun v -> writeNode parent false v)
                         let doc = TemplateHole.Elt(k, Server.Internal.TemplateDoc([], writeContent))
                         holes.Add(k, doc)
                         doc |> addTemplateHole reqRes
@@ -776,7 +776,7 @@ type Runtime private () =
                     writeElement false true k [||] None v
                 textHole |> Option.iter ctx.Writer.WriteEncodedText
                 ctx.Writer.WriteEndTag(tagName)
-            Array.iter (writeNode None plain) template.Value
+            Array.iter (fun t -> writeNode None plain t) template.Value
         let templates = ref None
         let getTemplates (ctx: Web.Context) =
             let t =

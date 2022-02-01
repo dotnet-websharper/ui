@@ -614,7 +614,7 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
 
     let setupWatcher = function
         | Parsing.ParseKind.Inline -> ()
-        | Parsing.ParseKind.Files paths -> Array.iter fileWatcher.WatchPath paths
+        | Parsing.ParseKind.Files paths -> Array.iter (fun p -> fileWatcher.WatchPath p) paths
 
     let setupTP () =
         templateTy.DefineStaticParameters(

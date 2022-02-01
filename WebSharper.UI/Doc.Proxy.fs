@@ -259,7 +259,7 @@ module internal Docs =
                 d.Text.NodeValue <- d.Value
                 d.Dirty <- false
         | TreeDoc t ->
-            Array.iter (SyncElemNode false) t.Holes
+            Array.iter (fun h -> SyncElemNode false h) t.Holes
             Array.iter (fun (e, a) -> Attrs.Sync e a) t.Attrs
             AfterRender (As t)
 
@@ -923,7 +923,7 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Elt">]
         let rvUpdates = Updates.Create updates
         let attrUpdates =
             tree.Attrs
-            |> Array.map (snd >> Attrs.Updates)
+            |> Array.map (fun (_, a) -> Attrs.Updates a)
             |> Array.TreeReduce (View.Const ()) View.Map2Unit
         let updates = View.Map2Unit attrUpdates rvUpdates.View
         new Elt'(TreeDoc tree, updates, tree.Els[0].Value1 :?> _, rvUpdates)

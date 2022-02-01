@@ -304,7 +304,7 @@ module internal Templates =
             lowercaseAttr "ws-attr"
             lowercaseAttr "ws-onafterrender"
             lowercaseAttr "ws-var"
-            Array.iter el.RemoveAttribute toRemove
+            Array.iter (fun a -> el.RemoveAttribute a) toRemove
 
         let convertTextNode (n: Dom.Node) =
             let mutable m = null

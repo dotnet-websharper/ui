@@ -119,7 +119,7 @@ module Storage =
     type private LocalStorageBackend<'T>(id : string, serializer : Serializer<'T>) =
         let storage = JS.Window.LocalStorage
         let set (arr : 'T[]) = 
-            storage.SetItem(id, arr |> Array.map serializer.Encode |> Json.Stringify)
+            storage.SetItem(id, arr |> Array.map (fun a -> serializer.Encode a) |> Json.Stringify)
             arr
         let clear () = storage.RemoveItem(id)
 
@@ -135,7 +135,7 @@ module Storage =
                 else 
                     try
                         let arr = As<obj []> <| Json.Parse(item)
-                        arr |> Array.map serializer.Decode
+                        arr |> Array.map (fun a -> serializer.Decode a)
                     with _ -> [||]
 
             member x.RemoveIf pred arr = set <| Array.filter (fun i -> not (pred i)) arr
