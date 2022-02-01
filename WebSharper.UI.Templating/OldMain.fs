@@ -323,13 +323,13 @@ type TemplateProvider(cfg: TypeProviderConfig) as this =
                                 [
                                     let l = ref 0
                                     for isView, name, i in holes do
-                                        if i > !l then
-                                            let s = t.[!l .. i - 1]
+                                        if i > l.Value then
+                                            let s = t.[l.Value .. i - 1]
                                             yield TextPart s
                                         yield (if isView then TextViewHole else TextHole) name
-                                        l := i + name.Length + if isView then 4 else 3
-                                    if t.Length > !l then
-                                        let s = t.[!l ..]
+                                        l.Value <- i + name.Length + if isView then 4 else 3
+                                    if t.Length > l.Value then
+                                        let s = t.[l.Value ..]
                                         yield TextPart s
                                 ]   
 

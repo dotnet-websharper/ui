@@ -454,7 +454,7 @@ type ListModel =
         let init =
             underlying.Var.Value |> Array.map (fun u ->
                 let t = createItem u
-                (!state).[underlying.Key u] <- t
+                state.Value.[underlying.Key u] <- t
                 t)
         let var : Var<'T[]> =
             underlying.Var.Lens
@@ -464,14 +464,14 @@ type ListModel =
                         us |> Array.map (fun u ->
                             let k = underlying.Key u
                             let t =
-                                if (!state).ContainsKey(k) then
-                                    updateItem (!state).[k] u
+                                if state.Value.ContainsKey(k) then
+                                    updateItem state.Value.[k] u
                                 else
                                     createItem u
                             newState.[k] <- t
                             t
                         )
-                    state := newState
+                    state.Value <- newState
                     ts
                 <| fun us ts ->
                     let newState = Dictionary<'Key, 'T>()
@@ -480,7 +480,7 @@ type ListModel =
                             let u = extract t
                             newState.[underlying.Key u] <- t
                             u)
-                    state := newState
+                    state.Value <- newState
                     us
         ListModel<'Key, 'T>(Func<_,_>(extract >> underlying.Key), var, Storage.InMemory init)
 

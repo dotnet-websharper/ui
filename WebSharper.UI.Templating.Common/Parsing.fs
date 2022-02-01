@@ -169,13 +169,13 @@ module Impl =
             [|
                 let l = ref 0
                 for name, i in holes do
-                    if i > !l then
-                        yield StringPart.Text t.[!l .. i - 1]
+                    if i > l.Value then
+                        yield StringPart.Text t.[l.Value .. i - 1]
                     addHole name HoleKind.Simple
                     yield StringPart.Hole name
-                    l := i + name.Length + 3 // 3 = "${}".Length
-                if t.Length > !l then
-                    yield StringPart.Text t.[!l ..]
+                    l.Value <- i + name.Length + 3 // 3 = "${}".Length
+                if t.Length > l.Value then
+                    yield StringPart.Text t.[l.Value ..]
             |]
 
     let parseAttributesOf (node: HtmlNode) (addHole: HoleName -> HoleDefinition -> unit) =
@@ -273,7 +273,7 @@ module Impl =
     let mkRefs thisFileId =
         let refs = ref Set.empty
         let lower = Option.map (fun (s: string) -> s.ToLowerInvariant())
-        let addRef (x, y) = refs := Set.add (defaultArg (lower x) thisFileId, lower y) !refs
+        let addRef (x, y) = refs.Value <- Set.add (defaultArg (lower x) thisFileId, lower y) refs.Value
         refs, addRef
 
     type ParseState(fileId: string, ?holes: Dictionary<HoleName, HoleDefinition>, ?specialHoles: SpecialHole) =
@@ -282,7 +282,7 @@ module Impl =
         let holes = match holes with Some h -> h | None -> Dictionary(System.StringComparer.InvariantCultureIgnoreCase)
 
         member this.Holes = holes
-        member this.References = !refs
+        member this.References = refs.Value
         member this.SpecialHoles = specialHoles
 
         member this.AddHole name def = addHole holes name def
@@ -537,16 +537,16 @@ let ParseOptions (html: HtmlDocument) =
                 match k.Trim().ToLowerInvariant() with
                 | "clientload" ->
                     match Enum.TryParse<ClientLoad>(v.Trim(), true) with
-                    | true, v -> clientLoad := Some v
+                    | true, v -> clientLoad.Value <- Some v
                     | _ -> error()
                 | "serverload" ->
                     match Enum.TryParse<ServerLoad>(v.Trim(), true) with
-                    | true, v -> serverLoad := Some v
+                    | true, v -> serverLoad.Value <- Some v
                     | _ -> error()
                 | _ -> ()
             | _ -> ()
         )
-        !clientLoad, !serverLoad
+        clientLoad.Value, serverLoad.Value
 
 let TryGetAsSingleElement (doc: HtmlNode) =
     // Find the first Element among n and its next siblings,
@@ -685,8 +685,8 @@ let private checkMappedHoles (items: ParseItem[]) =
         |> transitiveClosure (fun (path, tpl) ->
             failwithf "Template references itself: %s/%s" path (defaultArg tpl ""))
     let doContinue = ref true
-    while !doContinue do
-        doContinue := false
+    while doContinue.Value do
+        doContinue.Value <- false
         for item in items do
             item.Templates |> Seq.iter (fun (KeyValue(tname, t)) ->
                 t.Holes.Keys
@@ -699,7 +699,7 @@ let private checkMappedHoles (items: ParseItem[]) =
                     ()
                     match f t.Holes.[k].Kind with
                     | Some (fileName, templateName, holeName) ->
-                        doContinue := true
+                        doContinue.Value <- true
                         let templates =
                             match fileName with
                             | None -> item.Templates

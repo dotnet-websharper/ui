@@ -780,7 +780,7 @@ type Runtime private () =
         let templates = ref None
         let getTemplates (ctx: Web.Context) =
             let t =
-                match dynSrc, !templates with
+                match dynSrc, templates.Value with
                 | Some dynSrc, _ -> getSrc dynSrc
                 | None, Some t -> t
                 | None, None ->
@@ -811,7 +811,7 @@ type Runtime private () =
                             watcher)
                         getOrLoadPath fullPath
                     | Some _, _ -> failwith "Invalid ServerLoad"
-                templates := Some t
+                templates.Value <- Some t
                 t
             getTemplate baseName (Parsing.WrappedTemplateName.OfOption name) t, t
         let tplInstance =

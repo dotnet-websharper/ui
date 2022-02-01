@@ -484,29 +484,29 @@ and [<JavaScript>] private RouteItemParsers =
                         match queryItem with
                         | QueryItem.NotQuery ->
                             let l, m = link value?(name)
-                            map := Map.foldBack Map.add m !map
+                            map.Value <- Map.foldBack Map.add m map.Value
                             l
                         | QueryItem.Option ->
                             match value?(name) with
                             | None -> ()
                             | Some x ->
                                 let x = link x |> fst |> List.head
-                                map := Map.add name x !map
+                                map.Value <- Map.add name x map.Value
                             []
                         | QueryItem.Nullable ->
                             let v = As<Nullable<_>> (value?(name))
                             if v.HasValue then
                                 let x = link v.Value |> fst |> List.head
-                                map := Map.add name x !map
+                                map.Value <- Map.add name x map.Value
                             []
                         | QueryItem.Mandatory ->
                             let x = link value?(name) |> fst |> List.head
-                            map := Map.add name x !map
+                            map.Value <- Map.add name x map.Value
                             []
                         | _ -> failwith "invalid QueryItem enum value"
                     )
                     |> List.ofSeq)
-                l, !map
+                l, map.Value
             | Sequence (_, _, linkItem) ->
                 let s = value :?> seq<obj>
                 string (Seq.length s) ::

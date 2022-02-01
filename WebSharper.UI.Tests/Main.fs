@@ -54,7 +54,7 @@ module Main =
                     n = n
                     d = n - w.n
                 }
-            JS.RequestAnimationFrame (fun x -> incr m; f x) |> ignore
+            JS.RequestAnimationFrame (fun x -> m.Value <- m.Value + 1; f x) |> ignore
 
         let unchanging = Var.Create "unchanging"
 
@@ -97,10 +97,10 @@ module Main =
                 let rv = Var.CreateWaiting<string>()
                 equalMsg rv.Value null "initial"
                 let count = ref 0
-                let m = rv.View |> View.Map (fun x -> incr count; if x = null then "wrong" else x + "!")
+                let m = rv.View |> View.Map (fun x -> count.Value <- count.Value + 1; if x = null then "wrong" else x + "!")
                 rv.Value <- "hi"
                 equalMsgAsync (m |> View.GetAsync) "hi!" "value set"
-                equalMsg !count 1 "function call count"
+                equalMsg count.Value 1 "function call count"
             }
 
             Test "Value" {
@@ -162,35 +162,35 @@ module Main =
             Test "Map" {
                 let count = ref 0
                 let rv = Var.Create 7
-                let v = View.Map (fun x -> incr count; x + 15) rv.View |> View.GetAsync
+                let v = View.Map (fun x -> count.Value <- count.Value + 1; x + 15) rv.View |> View.GetAsync
                 equalMsgAsync v (7 + 15) "initial"
                 rv.Value <- 23
                 equalMsgAsync v (23 + 15) "after set"
-                equalMsg !count 2 "function call count"
+                equalMsg count.Value 2 "function call count"
             }
 
             Test "MapCached" {
                 let count = ref 0
                 let rv = Var.Create 9
-                let v = View.MapCached (fun x -> incr count; x + 21) rv.View |> View.GetAsync
+                let v = View.MapCached (fun x -> count.Value <- count.Value + 1; x + 21) rv.View |> View.GetAsync
                 equalMsgAsync v (9 + 21) "initial"
                 rv.Value <- 66
                 equalMsgAsync v (66 + 21) "after set"
                 rv.Value <- 66
                 equalMsgAsync v (66 + 21) "after set to the same value"
-                equalMsg !count 2 "function call count"
+                equalMsg count.Value 2 "function call count"
             }
 
             Test "MapCachedBy" {
                 let count = ref 0
                 let rv = Var.Create 9
-                let v = View.MapCachedBy (fun x y -> x % 10 = y % 10) (fun x -> incr count; x + 21) rv.View |> View.GetAsync
+                let v = View.MapCachedBy (fun x y -> x % 10 = y % 10) (fun x -> count.Value <- count.Value + 1; x + 21) rv.View |> View.GetAsync
                 equalMsgAsync v (9 + 21) "initial"
                 rv.Value <- 66
                 equalMsgAsync v (66 + 21) "after set"
                 rv.Value <- 56
                 equalMsgAsync v (66 + 21) "after set to the same value"
-                equalMsg !count 2 "function call count"
+                equalMsg count.Value 2 "function call count"
             }
 
             Test "MapAsync" {
@@ -198,26 +198,26 @@ module Main =
                 let rv = Var.Create 11
                 let v =
                     View.MapAsync
-                        (fun x -> async { incr count; return x * 43 })
+                        (fun x -> async { count.Value <- count.Value + 1; return x * 43 })
                         rv.View
                     |> View.GetAsync
                 equalMsgAsync v (11 * 43) "initial"
                 rv.Value <- 45
                 equalMsgAsync v (45 * 43) "after set"
-                equalMsg !count 2 "function call count"
+                equalMsg count.Value 2 "function call count"
             }
 
             Test "Map2" {
                 let count = ref 0
                 let rv1 = Var.Create 29
                 let rv2 = Var.Create 8
-                let v = View.Map2 (fun x y -> incr count; x * y) rv1.View rv2.View |> View.GetAsync
+                let v = View.Map2 (fun x y -> count.Value <- count.Value + 1; x * y) rv1.View rv2.View |> View.GetAsync
                 equalMsgAsync v (29*8) "initial"
                 rv1.Value <- 78
                 equalMsgAsync v (78*8) "after set v1"
                 rv2.Value <- 30
                 equalMsgAsync v (78*30) "after set v2"
-                equalMsg !count 3 "function call count"
+                equalMsg count.Value 3 "function call count"
             }
 
             Test "MapAsync2" {
@@ -226,7 +226,7 @@ module Main =
                 let rv2 = Var.Create 22
                 let v =
                     View.MapAsync2
-                        (fun x y -> async { incr count; return x - y })
+                        (fun x y -> async { count.Value <- count.Value + 1; return x - y })
                         rv1.View rv2.View
                     |> View.GetAsync
                 equalMsgAsync v (36-22) "initial"
@@ -234,33 +234,33 @@ module Main =
                 equalMsgAsync v (82-22) "after set v1"
                 rv2.Value <- 13
                 equalMsgAsync v (82-13) "after set v2"
-                equalMsg !count 3 "function call count"
+                equalMsg count.Value 3 "function call count"
             }
 
             Test "Apply" {
                 let count = ref 0
-                let rv1 = Var.Create (fun x -> incr count; x + 5)
+                let rv1 = Var.Create (fun x -> count.Value <- count.Value + 1; x + 5)
                 let rv2 = Var.Create 57
                 let v = View.Apply rv1.View rv2.View |> View.GetAsync
                 equalMsgAsync v (57 + 5) "initial"
-                rv1.Value <- fun x -> incr count; x * 4
+                rv1.Value <- fun x -> count.Value <- count.Value + 1; x * 4
                 equalMsgAsync v (57 * 4) "after set v1"
                 rv2.Value <- 33
                 equalMsgAsync v (33 * 4) "after set v2"
-                equalMsg !count 3 "function call count"
+                equalMsg count.Value 3 "function call count"
             }
 
             Test "Join" {
                 let count = ref 0
                 let rv1 = Var.Create 76
                 let rv2 = Var.Create rv1.View
-                let v = View.Join (rv2.View |> View.Map (fun x -> incr count; x)) |> View.GetAsync
+                let v = View.Join (rv2.View |> View.Map (fun x -> count.Value <- count.Value + 1; x)) |> View.GetAsync
                 equalMsgAsync v 76 "initial"
                 rv1.Value <- 44
                 equalMsgAsync v 44 "after set inner"
-                rv2.Value <- View.Const 39 |> View.Map (fun x -> incr count; x)
+                rv2.Value <- View.Const 39 |> View.Map (fun x -> count.Value <- count.Value + 1; x)
                 equalMsgAsync v 39 "after set outer"
-                equalMsg !count 3 "function call count"
+                equalMsg count.Value 3 "function call count"
             }
 
             Test "Bind" {
@@ -271,8 +271,8 @@ module Main =
                 let v =
                     View.BindInner
                         (fun x ->
-                            incr outerCount
-                            View.Map (fun y -> incr innerCount; x + y) rv1.View)
+                            outerCount.Value <- outerCount.Value + 1
+                            View.Map (fun y -> innerCount.Value <- innerCount.Value + 1; x + y) rv1.View)
                         rv2.View
                     |> View.GetAsync
                 equalMsgAsync v (93 + 27) "initial"
@@ -290,11 +290,11 @@ module Main =
                 let o = Var.Create true
                 let i1 = Var.Create 1
                 let i2 = Var.Create 2
-                let m1 =  i1.View |> View.Map (fun x -> incr innerCount1; x * x)
-                let m2 =  i2.View |> View.Map (fun x -> incr innerCount2; x * x)
+                let m1 =  i1.View |> View.Map (fun x -> innerCount1.Value <- innerCount1.Value + 1; x * x)
+                let m2 =  i2.View |> View.Map (fun x -> innerCount2.Value <- innerCount2.Value + 1; x * x)
                 let v =
                     o.View |> View.Bind (fun x ->
-                        incr outerCount
+                        outerCount.Value <- outerCount.Value + 1
                         if x then m1 else m2
                     )
                     |> View.GetAsync
@@ -315,11 +315,11 @@ module Main =
                 let o = Var.Create true
                 let i1 = Var.Create 1
                 let i2 = Var.Create 2
-                let m1 =  i1.View |> View.Map (fun x -> incr innerCount1; x * x)
-                let m2 =  i2.View |> View.Map (fun x -> incr innerCount2; x * x)
+                let m1 =  i1.View |> View.Map (fun x -> innerCount1.Value <- innerCount1.Value + 1; x * x)
+                let m2 =  i2.View |> View.Map (fun x -> innerCount2.Value <- innerCount2.Value + 1; x * x)
                 let v =
                     o.View |> View.BindInner (fun x ->
-                        incr outerCount
+                        outerCount.Value <- outerCount.Value + 1
                         if x then m1 else m2
                     )
                     |> View.GetAsync
@@ -337,9 +337,9 @@ module Main =
                 let outerCount = ref 0
                 let innerCount = ref 0
                 let rv1 = Var.Create false
-                let v1 = rv1.View |> View.Map (fun x -> incr outerCount; x)
+                let v1 = rv1.View |> View.Map (fun x -> outerCount.Value <- outerCount.Value + 1; x)
                 let rv2 = Var.Create 0
-                let v2 = rv2.View |> View.Map (fun x -> incr innerCount; x)
+                let v2 = rv2.View |> View.Map (fun x -> innerCount.Value <- innerCount.Value + 1; x)
                 let v =
                     View.UpdateWhile 1 v1 v2
                     |> View.GetAsync
@@ -361,9 +361,9 @@ module Main =
                 let outerCount = ref 0
                 let innerCount = ref 0
                 let rv1 = Var.Create ()
-                let v1 = rv1.View |> View.Map (fun x -> incr outerCount; x)
+                let v1 = rv1.View |> View.Map (fun x -> outerCount.Value <- outerCount.Value + 1; x)
                 let rv2 = Var.Create 0
-                let v2 = rv2.View |> View.Map (fun x -> incr innerCount; x)
+                let v2 = rv2.View |> View.Map (fun x -> innerCount.Value <- innerCount.Value + 1; x)
                 let v =
                     View.SnapshotOn 1 v1 v2
                     |> View.GetAsync
@@ -384,12 +384,12 @@ module Main =
                 let innerCount = ref 0
                 let rv1 = Var.Create 93
                 let rv2 = Var.Create 27                 
-                let v2 = rv2.View |> View.Map (fun x -> incr innerCount; x)
+                let v2 = rv2.View |> View.Map (fun x -> innerCount.Value <- innerCount.Value + 1; x)
                 let rvs = 
                     seq {
-                        incr seqCount
+                        seqCount.Value <- seqCount.Value + 1
                         yield rv1.View
-                        if !seqCount = 2 then
+                        if seqCount.Value = 2 then
                             yield v2
                     }
                 let v = 

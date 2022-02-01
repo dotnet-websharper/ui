@@ -100,13 +100,13 @@ module internal List =
     [<JavaScript>]
     let replaceFirst (k: 'A -> bool) (f: 'A -> 'A) (l: list<'A>) =
         let didIt = ref false
-        l |> List.map (fun x -> if not !didIt && k x then f x else x)
+        l |> List.map (fun x -> if not didIt.Value && k x then f x else x)
 
     // TODO: better impl only going to n?
     [<JavaScript>]
     let maybeReplaceFirst (k: 'A -> bool) (f: 'A -> option<'A>) (l: list<'A>) =
         let didIt = ref false
-        l |> List.map (fun x -> if not !didIt && k x then defaultArg (f x) x else x)
+        l |> List.map (fun x -> if not didIt.Value && k x then defaultArg (f x) x else x)
 
 /// Abbreviations and small utilities for this assembly.
 [<AutoOpen>]
@@ -201,20 +201,20 @@ module internal Abbrev =
             let rec work() =
                 async {
                     do! procAsync
-                    match !st with
+                    match st.Value with
                     | MailboxState.Working -> 
-                        st := MailboxState.Idle
+                        st.Value <- MailboxState.Idle
                     | MailboxState.WorkingMore ->
-                        st := MailboxState.Working
+                        st.Value <- MailboxState.Working
                         return! work() 
                     | _ -> ()
                 }
             let post() =
-                match !st with
+                match st.Value with
                 | MailboxState.Idle ->
-                    st := MailboxState.Working
+                    st.Value <- MailboxState.Working
                     Async.Start (work()) 
                 | MailboxState.Working -> 
-                    st := MailboxState.WorkingMore
+                    st.Value <- MailboxState.WorkingMore
                 | _ -> ()
             post

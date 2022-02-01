@@ -718,9 +718,9 @@ type internal Doc' [<JavaScript>] (docNode, updates) =
             el?selectedIndex <- i
         let getSelectedItem el =
             let i = getIndex el
-            (!options).[i]
+            options.Value.[i]
         let itemIndex x =
-            List.findIndex ((=) x) !options
+            List.findIndex ((=) x) options.Value
         let setSelectedItem (el: Dom.Element) item =
             setIndex el (itemIndex item)
         let el = DU.CreateElement "select"
@@ -742,10 +742,10 @@ type internal Doc' [<JavaScript>] (docNode, updates) =
 
     [<JavaScript>]
     static member SelectDyn attrs (show: 'T -> string) (vOptions: View<list<'T>>) (current: Var<'T>) =
-        let optionElements options =
+        let optionElements (options: 'T list ref) =
             vOptions
             |> View.Map (fun l ->
-                options := l
+                options.Value <- l
                 l |> Seq.mapi (fun i x -> i, x)
             )
             |> Doc'.Convert (fun (i, o) ->
@@ -758,8 +758,8 @@ type internal Doc' [<JavaScript>] (docNode, updates) =
 
     [<JavaScript>]
     static member Select attrs show options current =
-        let optionElements rOptions =
-            rOptions := options
+        let optionElements (rOptions: 'T list ref) =
+            rOptions.Value <- options
             options
             |> List.mapi (fun i o ->
                 Doc'.Element "option" [

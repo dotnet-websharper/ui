@@ -272,7 +272,7 @@ module Snap =
             let res = Create () : Snap<seq<'T>>
             let w = ref (snaps.Length - 1)
             let cont _ =
-                if !w = 0 then
+                if w.Value = 0 then
                     // all source snaps should have a value
                     let vs = 
                         snaps |> Array.map (fun s -> 
@@ -284,7 +284,7 @@ module Snap =
                     else
                         MarkReady res (vs :> seq<_>)
                 else
-                    decr w
+                    w.Value <- w.Value - 1
             snaps
             |> Array.iter (fun s -> When s cont res)
             res
@@ -336,13 +336,13 @@ module Snap =
             When sn (MarkDone res sn) res
             res
 
-    let MapCachedBy eq prev fn sn =
+    let MapCachedBy eq (prev: ('a * 'c) option ref) fn sn =
         let fn x =
-            match !prev with
+            match prev.Value with
             | Some (x', y) when eq x x' -> y
             | _ ->
                 let y = fn x
-                prev := Some (x, y)
+                prev.Value <- Some (x, y)
                 y
         Map fn sn
 
