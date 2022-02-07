@@ -551,7 +551,7 @@ and [<JavaScript>] private RouteItemParsers =
         match x with
         | [] -> None
         | x :: rest ->
-            match RegExp(@"^[0-9](?:\[0-9]*)?$").Exec(x) with
+            match RegExp(@"^[0-9](?:\.[0-9]*)?$").Exec(x) with
             | null -> None
             | a -> Some (JS.ParseFloat a[0], rest)
 
