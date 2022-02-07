@@ -89,7 +89,7 @@ module Doc =
 
     [<Inline>]
     let RegisterGlobalTemplateHole (hole: TemplateHole) : unit =
-        Templates.GlobalHoles.[TemplateHole.Name hole] <- hole
+        Templates.GlobalHoles[TemplateHole.Name hole] <- hole
 
     [<Inline>]
     let Run parent (doc: Doc) =

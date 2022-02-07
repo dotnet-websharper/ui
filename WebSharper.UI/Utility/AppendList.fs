@@ -62,5 +62,5 @@ module AppendList =
     let FromArray xs =
         match Array.length xs with
         | 0 -> AL0
-        | 1 -> AL1 xs.[0]
+        | 1 -> AL1 xs[0]
         | _ -> AL3 (Array.copy xs)

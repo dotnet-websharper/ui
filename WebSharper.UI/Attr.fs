@@ -68,9 +68,9 @@ module private Internal =
                         reqs.Add(M.MethodNode (declType, meth))
                         reqs.Add(M.TypeNode declType)
                         let setArg (name: string) (value: obj) =
-                            let i = argIndices.[name]
-                            if obj.ReferenceEquals(args.[i], null) then
-                                args.[i] <-
+                            let i = argIndices[name]
+                            if obj.ReferenceEquals(args[i], null) then
+                                args[i] <-
                                     match value with
                                     | :? Expr as q ->
                                         compile' q |> Option.get
@@ -110,7 +110,7 @@ type private OnAfterRenderControl private () =
     override this.Body =
         let l = JS.Document.QuerySelectorAll("[ws-runafterrender]")
         for i = 0 to l.Length - 1 do
-            let x = l.[i] :?> Dom.Element
+            let x = l[i] :?> Dom.Element
             let f = JS.Eval(x.GetAttribute("ws-runafterrender")) :?> (Dom.Element -> unit)
             x.RemoveAttribute("ws-runafterrender")
             f x
@@ -183,8 +183,8 @@ type Attr =
     static member OnAfterRenderImpl(q: Expr<Dom.Element -> unit>) =
         let value = ref None
         let init meta =
-            if Option.isNone !value then
-                value :=
+            if Option.isNone value.Value then
+                value.Value <-
                     let oarReqs = OnAfterRenderControl.Instance.Requires meta
                     match Internal.compile meta q with
                     | Some (v, m) -> Some (v, Seq.append oarReqs m)
@@ -198,10 +198,10 @@ type Attr =
                         Some (func meta, Seq.append oarReqs reqs)
         let getValue (meta: M.Info) (json: J.Provider) =
             init meta
-            (fst (Option.get !value)) json
+            (fst (Option.get value.Value)) json
         let getReqs (meta: M.Info) =
             init meta 
-            snd (Option.get !value)
+            snd (Option.get value.Value)
         let enc (meta: M.Info) (json: J.Provider) =
             init meta
             OnAfterRenderControl.Instance.Encode(meta, json)
@@ -210,8 +210,8 @@ type Attr =
     static member HandlerImpl(event: string, q: Expr<Dom.Element -> #Dom.Event -> unit>) =
         let value = ref None
         let init meta =
-            if Option.isNone !value then
-                value :=
+            if Option.isNone value.Value then
+                value.Value <-
                     match Internal.compile meta q with
                     | Some _ as v -> v
                     | _ ->
@@ -224,10 +224,10 @@ type Attr =
                         Some (func meta, reqs)
         let getValue (meta: M.Info) (json: J.Provider) =
             init meta
-            (fst (Option.get !value)) json + "(this)(event)"
+            (fst (Option.get value.Value)) json + "(this)(event)"
         let getReqs (meta: M.Info) =
             init meta
-            snd (Option.get !value)
+            snd (Option.get value.Value)
         Attr.WithDependencies("on" + event, getValue, getReqs)
 
     static member Handler (event: string) ([<JavaScript>] q: Expr<Dom.Element -> #Dom.Event -> unit>) =
@@ -242,7 +242,7 @@ type Attr =
             failwithf "Error in Handler%s: Couldn't find JavaScript address for method %s.%s"
                 location declType.Value.FullName meth.Value.MethodName
         let func (meta: M.Info) (json: J.Provider) =
-            match !value with
+            match value.Value with
             | None ->
                 match meta.Classes.TryGetValue declType with
                 | true, c ->
@@ -251,7 +251,7 @@ type Attr =
                         | true, (M.CompiledMember.Static x, _, _) -> x.Value
                         | _ -> fail()
                     let s = String.concat "." (List.rev addr) |> doCall
-                    value := Some s
+                    value.Value <- Some s
                     s
                 | _ -> fail()
             | Some v -> v

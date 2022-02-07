@@ -130,13 +130,13 @@ module DomUtility =
     let ChildrenArray (element: Dom.Element) : Dom.Node[] =
         let a = [||]
         for i = 0 to element.ChildNodes.Length - 1 do
-            a.JS.Push(element.ChildNodes.[i]) |> ignore
+            a.JS.Push(element.ChildNodes[i]) |> ignore
         a
 
     /// Iterate through a NodeList assuming it's all Elements.
     let IterSelector (el: Dom.Element) (selector: string) (f: Dom.Element -> unit) =
         let l = el.QuerySelectorAll(selector)
-        for i = 0 to l.Length - 1 do f (l.[i] :?> Dom.Element)
+        for i = 0 to l.Length - 1 do f (l[i] :?> Dom.Element)
 
     let private rxhtmlTag = RegExp("""<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>""", "gi")
     let private rtagName = RegExp("""<([\w:]+)""")
@@ -168,9 +168,9 @@ module DomUtility =
             let tag =
                 match rtagName.Exec(elem) with
                 | null -> ""
-                | res -> res.[1].JS.ToLowerCase()
+                | res -> res[1].JS.ToLowerCase()
             let nesting, start, finish =
-                let w = wrapMap.[tag]
+                let w = wrapMap[tag]
                 if As w then w else defaultWrap
             root.InnerHTML <- start + rxhtmlTag.Replace(elem, "<$1></$2>") + finish
             let rec unwrap (elt: Dom.Node) = function

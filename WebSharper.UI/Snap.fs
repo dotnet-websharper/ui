@@ -88,7 +88,7 @@ type Snap<'T> =
             sn.State <- Obsolete
             let qa = Queue.ToArray q
             for i = 0 to qa.Length - 1 do 
-                obs qa.[i] (fun sn -> sn.Obsolete())
+                obs qa[i] (fun sn -> sn.Obsolete())
 
     interface ISnap with
         member this.Obsolete() =
@@ -158,7 +158,7 @@ module Snap =
             sn.State <- Forever v
             let qa = Queue.ToArray q
             for i = 0 to qa.Length - 1 do 
-                qa.[i] v
+                qa[i] v
         | _ -> ()
 
     [<Inline>]
@@ -171,7 +171,7 @@ module Snap =
             sn.State <- Ready (v, q2)
             let qa = Queue.ToArray q1
             for i = 0 to qa.Length - 1 do 
-                qa.[i] v
+                qa[i] v
         | _ -> ()
 
     let MarkDone res sn v =
@@ -186,7 +186,7 @@ module Snap =
             let qcopy = q.ToArray()
             q.Clear()
             for i = 0 to qcopy.Length - 1 do
-                clean qcopy.[i]
+                clean qcopy[i]
                     (fun sn -> if sn.IsNotObsolete() then q.Enqueue (Union1Of2 sn))
                     (fun f -> q.Enqueue (Union2Of2 f)) 
 
@@ -272,7 +272,7 @@ module Snap =
             let res = Create () : Snap<seq<'T>>
             let w = ref (snaps.Length - 1)
             let cont _ =
-                if !w = 0 then
+                if w.Value = 0 then
                     // all source snaps should have a value
                     let vs = 
                         snaps |> Array.map (fun s -> 
@@ -284,7 +284,7 @@ module Snap =
                     else
                         MarkReady res (vs :> seq<_>)
                 else
-                    decr w
+                    w.Value <- w.Value - 1
             snaps
             |> Array.iter (fun s -> When s cont res)
             res
@@ -336,13 +336,13 @@ module Snap =
             When sn (MarkDone res sn) res
             res
 
-    let MapCachedBy eq prev fn sn =
+    let MapCachedBy eq (prev: ('a * 'c) option ref) fn sn =
         let fn x =
-            match !prev with
+            match prev.Value with
             | Some (x', y) when eq x x' -> y
             | _ ->
                 let y = fn x
-                prev := Some (x, y)
+                prev.Value <- Some (x, y)
                 y
         Map fn sn
 

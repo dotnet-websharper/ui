@@ -273,10 +273,10 @@ type View =
         let rec obs () =
             Snap.WhenRun (observe ())
                 (fun v ->
-                    if not !ok then
-                        ok := true
+                    if not ok.Value then
+                        ok.Value <- true
                         f v)
-                (fun () -> if not !ok then obs ())
+                (fun () -> if not ok.Value then obs ())
         obs ()
 
     static member WithInit (x: 'T) (V observe) =
@@ -310,7 +310,7 @@ type View =
         let state = ref (Dictionary())
         view
         |> View.Map (fun xs ->
-            let prevState = !state
+            let prevState = state.Value
             let newState = Dictionary()
             let result =
                 Seq.toArray xs
@@ -318,12 +318,12 @@ type View =
                     let k = key x
                     let res =
                         if prevState.ContainsKey k
-                            then prevState.[k]
+                            then prevState[k]
                             else conv x
-                    newState.[k] <- res
+                    newState[k] <- res
                     res)
                 :> seq<_>
-            state := newState
+            state.Value <- newState
             result)
 
     static member MapSeqCached conv view =
@@ -344,7 +344,7 @@ type View =
         let state = ref (Dictionary())
         view
         |> View.Map (fun xs ->
-            let prevState = !state
+            let prevState = state.Value
             let newState = Dictionary()
             let result =
                 Seq.toArray xs
@@ -352,15 +352,15 @@ type View =
                     let k = key x
                     let node =
                         if prevState.ContainsKey k then
-                            let n = prevState.[k]
+                            let n = prevState[k]
                             Var.Set n.NVar x
                             n
                         else
                             View.ConvertSeqNode (fun v -> conv k v) x
-                    newState.[k] <- node
+                    newState[k] <- node
                     node.NValue)
                 :> seq<_>
-            state := newState
+            state.Value <- newState
             result)
 
     static member MapSeqCachedView conv view =
@@ -403,10 +403,10 @@ type View =
         View.BindInner (fun pred ->
             if pred then
                 View.Map (fun v ->
-                    value := v
+                    value.Value <- v
                     v
                 ) v2   
-            else View.Const (!value) 
+            else View.Const value.Value
         ) v1
 
     static member Sequence views =
@@ -452,10 +452,10 @@ type View =
         let rec loop () =
             let sn = observe ()
             Snap.WhenRun sn
-                (fun x -> if !cont then act x)
-                (fun () -> if !cont then Concurrency.Schedule loop)
+                (fun x -> if cont.Value then act x)
+                (fun () -> if cont.Value then Concurrency.Schedule loop)
         Concurrency.Schedule loop
-        fun () -> cont := false
+        fun () -> cont.Value <- false
 
     static member AsyncAwait filter view =
         Async.FromContinuations <| fun (ok, _, _) ->

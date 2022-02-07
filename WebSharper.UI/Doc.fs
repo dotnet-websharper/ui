@@ -172,12 +172,12 @@ and Elt
                     List.tryPick findHole attrs
                 )
             match hole with
-            | Some (HoleName.Replace, name, res) -> w.Write(res.[name])
+            | Some (HoleName.Replace, name, res) -> w.Write(res[name])
             | Some (HoleName.Hole, name, res) ->
                 w.WriteBeginTag(tag)
                 attrs |> List.iter (fun a -> a.Write(ctx.Metadata, ctx.Json, w, true))
                 w.Write(HtmlTextWriter.TagRightChar)
-                w.Write(res.[name])
+                w.Write(res[name])
                 w.WriteEndTag(tag)
             | None ->
                 w.WriteBeginTag(tag)

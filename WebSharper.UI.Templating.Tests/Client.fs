@@ -247,7 +247,7 @@ module Client =
                 .RemoveUpdater(fun _ -> removeUpdater())
                 .ReAddUpdater(fun _ -> reAddUpdater())
                 .RemoveAllUpdaters(fun _ -> removeAllUpdaters())
-                .IncrEltUpdaterTest(fun _ -> testCounter := !testCounter + 1)
+                .IncrEltUpdaterTest(fun _ -> testCounter := testCounter.Value + 1)
                 .EltUpdaterTest(eltUpdater)
                 .SvgCircleHole(
                     let el =

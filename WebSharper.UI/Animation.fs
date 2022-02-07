@@ -120,10 +120,10 @@ module Anims =
         let xs = Array.ofSeqNonCopying xs
         match xs.Length with
         | 0 -> Const ()
-        | 1 -> xs.[0]
+        | 1 -> xs[0]
         | _ ->
             let dur = xs |> Seq.map (fun anim -> anim.Duration) |> Seq.max
-            let xs = Array.map (Prolong dur) xs
+            let xs = Array.map (fun x -> Prolong dur x) xs
             Def dur (fun t -> Array.iter (fun anim -> anim.Compute t) xs)
 
     let Actions (Anim all) =

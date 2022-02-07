@@ -108,6 +108,7 @@ type ListModelExtensions =
     /// Creates a new ListModel of 'V that is two-way bound to the underlying ListModel of 'T
     /// but wraps each item with some extra data.
     /// </summary>
+    /// <param name="model">The underlying ListModel used for the Wrap function</param>
     /// <param name="extract">Extract the underlying item from a wrapped item</param>
     /// <param name="wrap">Construct a wrapped item from an underlying item</param>
     /// <param name="update">Update a wrapped item's underlying data</param>

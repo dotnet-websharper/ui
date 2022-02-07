@@ -37,7 +37,7 @@ module Array =
             match len with
             | n when n <= 0 -> defaultValue
             | 1 when off >= 0 && off < l ->
-                array.[off]
+                array[off]
             | n ->
                 let l2 = len / 2
                 let a = loop off l2
@@ -55,7 +55,7 @@ module Array =
             match len with
             | n when n <= 0 -> defaultValue
             | 1 when off >= 0 && off < l ->
-                mapping array.[off]
+                mapping array[off]
             | n ->
                 let l2 = len / 2
                 let a = loop off l2
@@ -84,7 +84,7 @@ module Array =
     let mapInPlace (f: 'T1 -> 'T2) (arr: 'T1 []) =
         if IsClient then
             for i = 0 to Array.length arr - 1 do
-                arr.JS.[i] <- As (f arr.JS.[i])
+                arr.JS[i] <- As (f arr.JS[i])
             As<'T2[]> arr
         else Array.map f arr
 
@@ -100,13 +100,13 @@ module internal List =
     [<JavaScript>]
     let replaceFirst (k: 'A -> bool) (f: 'A -> 'A) (l: list<'A>) =
         let didIt = ref false
-        l |> List.map (fun x -> if not !didIt && k x then f x else x)
+        l |> List.map (fun x -> if not didIt.Value && k x then f x else x)
 
     // TODO: better impl only going to n?
     [<JavaScript>]
     let maybeReplaceFirst (k: 'A -> bool) (f: 'A -> option<'A>) (l: list<'A>) =
         let didIt = ref false
-        l |> List.map (fun x -> if not !didIt && k x then defaultArg (f x) x else x)
+        l |> List.map (fun x -> if not didIt.Value && k x then defaultArg (f x) x else x)
 
 /// Abbreviations and small utilities for this assembly.
 [<AutoOpen>]
@@ -151,12 +151,12 @@ module internal Abbrev =
 
         let ToKeyArray (d: Dictionary<_,_>) =
             let arr = Array.create d.Count JS.Undefined
-            d |> Seq.iteri (fun i kv -> arr.[i] <- kv.Key)
+            d |> Seq.iteri (fun i kv -> arr[i] <- kv.Key)
             arr
 
         let ToValueArray (d: Dictionary<_,_>) =
             let arr = Array.create d.Count JS.Undefined
-            d |> Seq.iteri (fun i kv -> arr.[i] <- kv.Value)
+            d |> Seq.iteri (fun i kv -> arr[i] <- kv.Value)
             arr
 
     module Queue =
@@ -201,20 +201,20 @@ module internal Abbrev =
             let rec work() =
                 async {
                     do! procAsync
-                    match !st with
+                    match st.Value with
                     | MailboxState.Working -> 
-                        st := MailboxState.Idle
+                        st.Value <- MailboxState.Idle
                     | MailboxState.WorkingMore ->
-                        st := MailboxState.Working
+                        st.Value <- MailboxState.Working
                         return! work() 
                     | _ -> ()
                 }
             let post() =
-                match !st with
+                match st.Value with
                 | MailboxState.Idle ->
-                    st := MailboxState.Working
+                    st.Value <- MailboxState.Working
                     Async.Start (work()) 
                 | MailboxState.Working -> 
-                    st := MailboxState.WorkingMore
+                    st.Value <- MailboxState.WorkingMore
                 | _ -> ()
             post

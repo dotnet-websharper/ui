@@ -95,7 +95,7 @@ type TemplateInitializer(id: string, vars: array<string * ValTy>) =
         | true, d -> d
         | false, _ ->
             let d = Dictionary()
-            initialized.[id] <- d
+            initialized[id] <- d
             d
 
     static member GetOrAddHoleFor(id, holeName, initHole) =
@@ -104,7 +104,7 @@ type TemplateInitializer(id: string, vars: array<string * ValTy>) =
         | true, h -> unbox h
         | false, _ ->
             let h = initHole()
-            d.[holeName] <- h
+            d[holeName] <- h
             h
 
     member this.Instance = instance.Value
@@ -113,7 +113,7 @@ type TemplateInitializer(id: string, vars: array<string * ValTy>) =
         let d = TemplateInitializer.GetHolesFor(key)
         for n, t in vars do
             if not (d.ContainsKey n) then
-                d.[n] <-
+                d[n] <-
                     match t with
                     | ValTy.Bool -> TemplateHole.VarBool (n, Var.Create false)
                     | ValTy.Number -> TemplateHole.VarFloatUnchecked (n, Var.Create 0.)
@@ -141,9 +141,9 @@ type TemplateInitializer(id: string, vars: array<string * ValTy>) =
             this.InitInstance(key)
             let q = JavaScript.JS.Document.QuerySelectorAll("[ws-var^='" + key + "::']")
             for i = 0 to q.Length - 1 do
-                let el = q.[i] :?> JavaScript.Dom.Element
+                let el = q[i] :?> JavaScript.Dom.Element
                 let fullName = el.GetAttribute("ws-var")
-                let s = fullName.[key.Length+2..]
+                let s = fullName[key.Length+2..]
                 let hole = this.Instance.Hole(s)
                 Client.Doc.RegisterGlobalTemplateHole(TemplateHole.WithName fullName hole)
                 applyVarHole el hole
@@ -477,7 +477,7 @@ type Runtime private () =
         let d : Holes = Dictionary(StringComparer.InvariantCultureIgnoreCase)
         for f in fillWith do
             let name = TemplateHole.Name f
-            if holes.ContainsKey name then d.[name] <- f
+            if holes.ContainsKey name then d[name] <- f
         d
 
     /// Different nodes need to be wrapped in different container to be handled properly.
@@ -629,7 +629,7 @@ type Runtime private () =
                         elif keepUnfilled then doPlain()
             let rec writeElement isRoot plain tag attrs wsVar children =
                 ctx.Writer.WriteBeginTag(tag)
-                attrs |> Array.iter (writeAttr plain)
+                attrs |> Array.iter (fun a -> writeAttr plain a)
                 if isRoot then
                     extraAttrs |> List.iter (fun a -> a.Write(ctx.Context.Metadata, ctx.Context.Json, ctx.Writer, true))
                 wsVar |> Option.iter (fun v -> ctx.Writer.WriteAttribute("ws-var", v))
@@ -637,7 +637,7 @@ type Runtime private () =
                     ctx.Writer.Write(HtmlTextWriter.SelfClosingTagEnd)
                 else
                     ctx.Writer.Write(HtmlTextWriter.TagRightChar)
-                    Array.iter (writeNode (Some tag) plain) children
+                    Array.iter (fun child -> writeNode (Some tag) plain child) children
                     if tag = "body" && Option.isNone name && Option.isSome inlineBaseName then
                         ctx.Templates |> Seq.iter (fun (KeyValue(k, v)) ->
                             match k.NameAsOption with
@@ -670,7 +670,7 @@ type Runtime private () =
                     if plain then doPlain() else
                     match holeName with
                     | "scripts" | "styles" | "meta" when Option.isSome ctx.Resources ->
-                        ctx.Writer.Write(ctx.Resources.Value.[holeName])
+                        ctx.Writer.Write(ctx.Resources.Value[holeName])
                     | _ ->
                         match ctx.RequireResources.TryGetValue holeName with
                         | true, (:? UI.Doc as doc) ->
@@ -735,7 +735,7 @@ type Runtime private () =
                         holes.Add(k, TemplateHole.Text(k, unencodedStringParts text))
                     | _ ->
                         let writeContent ctx w r =
-                            v |> Array.iter (writeNode parent false)
+                            v |> Array.iter (fun v -> writeNode parent false v)
                         let doc = TemplateHole.Elt(k, Server.Internal.TemplateDoc([], writeContent))
                         holes.Add(k, doc)
                         doc |> addTemplateHole reqRes
@@ -776,11 +776,11 @@ type Runtime private () =
                     writeElement false true k [||] None v
                 textHole |> Option.iter ctx.Writer.WriteEncodedText
                 ctx.Writer.WriteEndTag(tagName)
-            Array.iter (writeNode None plain) template.Value
+            Array.iter (fun t -> writeNode None plain t) template.Value
         let templates = ref None
         let getTemplates (ctx: Web.Context) =
             let t =
-                match dynSrc, !templates with
+                match dynSrc, templates.Value with
                 | Some dynSrc, _ -> getSrc dynSrc
                 | None, Some t -> t
                 | None, None ->
@@ -811,7 +811,7 @@ type Runtime private () =
                             watcher)
                         getOrLoadPath fullPath
                     | Some _, _ -> failwith "Invalid ServerLoad"
-                templates := Some t
+                templates.Value <- Some t
                 t
             getTemplate baseName (Parsing.WrappedTemplateName.OfOption name) t, t
         let tplInstance =

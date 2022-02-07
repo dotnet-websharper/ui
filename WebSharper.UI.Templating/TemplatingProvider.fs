@@ -402,7 +402,7 @@ module private Impl =
             if List.isEmpty fileIds then <@@ () @@> else 
                 fileIds |> List.reduce (fun a b -> Expr.Sequential(a, b))
         
-        <@@ let builder = (%%args.[0] : obj) :?> Builder
+        <@@ let builder = (%%args[0] : obj) :?> Builder
             let holes, completed = Builder.CompleteHoles builder %%vars
             %%inits
             let doc =
@@ -438,25 +438,25 @@ module private Impl =
                 match def.Kind with
                 | AST.HoleKind.Var AST.ValTy.Any | AST.HoleKind.Var AST.ValTy.String ->
                     yield ProvidedProperty(holeName, typeof<Var<string>>, fun x ->
-                        <@@ ((%%x.[0] : obj) :?> TI).Hole holeName' |> TemplateHole.Value @@>)
+                        <@@ ((%%x[0] : obj) :?> TI).Hole holeName' |> TemplateHole.Value @@>)
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
                 | AST.HoleKind.Var AST.ValTy.Number ->
                     yield ProvidedProperty(holeName, typeof<Var<float>>, fun x ->
-                        <@@ ((%%x.[0] : obj) :?> TI).Hole holeName' |> TemplateHole.Value @@>)
+                        <@@ ((%%x[0] : obj) :?> TI).Hole holeName' |> TemplateHole.Value @@>)
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
                 | AST.HoleKind.Var AST.ValTy.Bool ->
                     yield ProvidedProperty(holeName, typeof<Var<bool>>, fun x ->
-                        <@@ ((%%x.[0] : obj) :?> TI).Hole(holeName') |> TemplateHole.Value @@>)
+                        <@@ ((%%x[0] : obj) :?> TI).Hole(holeName') |> TemplateHole.Value @@>)
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
                 | _ -> ()
         ]
         res.AddMembers [
-            yield ProvidedProperty("Doc", typeof<Doc>, fun x -> <@@ (%%x.[0] : TI).Doc @@>)
+            yield ProvidedProperty("Doc", typeof<Doc>, fun x -> <@@ (%%x[0] : TI).Doc @@>)
                 .WithXmlDoc(XmlDoc.Member.Doc)
             if ctx.Template.IsElt then
-                yield ProvidedProperty("Elt", typeof<Elt>, fun x -> <@@ (%%x.[0] : TI).Doc :?> Elt @@>)
+                yield ProvidedProperty("Elt", typeof<Elt>, fun x -> <@@ (%%x[0] : TI).Doc :?> Elt @@>)
                     .WithXmlDoc(XmlDoc.Member.Doc)
-            yield ProvidedProperty("Vars", vars, fun x -> <@@ (%%x.[0] : TI) :> obj @@>)
+            yield ProvidedProperty("Vars", vars, fun x -> <@@ (%%x[0] : TI) :> obj @@>)
                 .WithXmlDoc(XmlDoc.Type.Vars)
         ]
         res, vars
@@ -469,7 +469,7 @@ module private Impl =
             yield! BuildDynamicHoleMethods ty ctx
             if isRoot then
                 yield ProvidedMethod("Bind", [], typeof<unit>, fun args ->
-                    <@@ Builder.BindBody ((%%args.[0] : obj) :?> Builder) (%%InstanceVars ctx) @@>)
+                    <@@ Builder.BindBody ((%%args[0] : obj) :?> Builder) (%%InstanceVars ctx) @@>)
                     .WithXmlDoc(XmlDoc.Member.Bind) :> _
             else
                 yield ProvidedMethod("Create", [], instanceTy, InstanceBody ctx refInits)
@@ -488,7 +488,7 @@ module private Impl =
             let ctors = [
                 ProvidedConstructor([], fun _ -> <@@ box (Builder()) @@>)
                 ProvidedConstructor([ProvidedParameter("content", typeof<string>)],
-                                    fun args -> <@@ box (Builder(%%args.[0]:string)) @@>)
+                                    fun args -> <@@ box (Builder(%%args[0]:string)) @@>)
             ]
             match ctx.Path with
             | Some path ->
@@ -547,7 +547,7 @@ module private Impl =
             Map [for p in parsed -> p.Id, Map [for KeyValue(tid, t) in p.Templates -> tid.IdAsOption, t]]
         let inlineFileId (item: Parsing.ParseItem) =
             match item.ClientLoad with
-            | ClientLoad.FromDocument -> Some parsed.[0].Id
+            | ClientLoad.FromDocument -> Some parsed[0].Id
             | _ -> None
         match parsed with
         | [| item |] ->
@@ -614,7 +614,7 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
 
     let setupWatcher = function
         | Parsing.ParseKind.Inline -> ()
-        | Parsing.ParseKind.Files paths -> Array.iter fileWatcher.WatchPath paths
+        | Parsing.ParseKind.Files paths -> Array.iter (fun p -> fileWatcher.WatchPath p) paths
 
     let setupTP () =
         templateTy.DefineStaticParameters(

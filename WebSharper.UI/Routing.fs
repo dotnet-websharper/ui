@@ -56,7 +56,7 @@ module Route =
         let path, query =
             match hash.IndexOf '?' with
             | -1 -> hash, ""
-            | i -> hash.[..i-1], hash.[i+1..]
+            | i -> hash[..i-1], hash[i+1..]
         let path =
             if path = "" then [||] 
             else path.Split('/') |> Array.map Decode
@@ -66,7 +66,7 @@ module Route =
             |> Array.map (fun s ->
                 match s.IndexOf '=' with
                 | -1 -> Decode s, ""
-                | i -> Decode (s.[..i-1]), Decode (s.[i+1..]))
+                | i -> Decode (s[..i-1]), Decode (s[i+1..]))
             |> Map.ofArray
         Route (path, query)
 

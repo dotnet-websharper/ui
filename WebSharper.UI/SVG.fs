@@ -47,11 +47,11 @@ module Svg =
         let docs = Array.ofSeqNonCopying docs
         match docs.Length with
         | 0 -> Doc.Empty
-        | 1 -> docs.[0]
+        | 1 -> docs[0]
         | n ->
             let frac = 1. / double n
             Doc.Concat [|
                 for i in 0 .. n - 1 ->
                     let tr = Combine (Translate 0. (double i * frac)) (Scale 1. frac)
-                    Apply tr [docs.[i]]
+                    Apply tr [docs[i]]
             |]

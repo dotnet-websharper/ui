@@ -259,7 +259,7 @@ module internal Docs =
                 d.Text.NodeValue <- d.Value
                 d.Dirty <- false
         | TreeDoc t ->
-            Array.iter (SyncElemNode false) t.Holes
+            Array.iter (fun h -> SyncElemNode false h) t.Holes
             Array.iter (fun (e, a) -> Attrs.Sync e a) t.Attrs
             AfterRender (As t)
 
@@ -718,9 +718,9 @@ type internal Doc' [<JavaScript>] (docNode, updates) =
             el?selectedIndex <- i
         let getSelectedItem el =
             let i = getIndex el
-            (!options).[i]
+            options.Value[i]
         let itemIndex x =
-            List.findIndex ((=) x) !options
+            List.findIndex ((=) x) options.Value
         let setSelectedItem (el: Dom.Element) item =
             setIndex el (itemIndex item)
         let el = DU.CreateElement "select"
@@ -742,10 +742,10 @@ type internal Doc' [<JavaScript>] (docNode, updates) =
 
     [<JavaScript>]
     static member SelectDyn attrs (show: 'T -> string) (vOptions: View<list<'T>>) (current: Var<'T>) =
-        let optionElements options =
+        let optionElements (options: 'T list ref) =
             vOptions
             |> View.Map (fun l ->
-                options := l
+                options.Value <- l
                 l |> Seq.mapi (fun i x -> i, x)
             )
             |> Doc'.Convert (fun (i, o) ->
@@ -758,8 +758,8 @@ type internal Doc' [<JavaScript>] (docNode, updates) =
 
     [<JavaScript>]
     static member Select attrs show options current =
-        let optionElements rOptions =
-            rOptions := options
+        let optionElements (rOptions: 'T list ref) =
+            rOptions.Value <- options
             options
             |> List.mapi (fun i o ->
                 Doc'.Element "option" [
@@ -923,10 +923,10 @@ and [<JavaScript; Proxy(typeof<Elt>); Name "WebSharper.UI.Elt">]
         let rvUpdates = Updates.Create updates
         let attrUpdates =
             tree.Attrs
-            |> Array.map (snd >> Attrs.Updates)
+            |> Array.map (fun (_, a) -> Attrs.Updates a)
             |> Array.TreeReduce (View.Const ()) View.Map2Unit
         let updates = View.Map2Unit attrUpdates rvUpdates.View
-        new Elt'(TreeDoc tree, updates, tree.Els.[0].Value1 :?> _, rvUpdates)
+        new Elt'(TreeDoc tree, updates, tree.Els[0].Value1 :?> _, rvUpdates)
 
     [<Inline "$0.elt">]
     member this.Element = elt

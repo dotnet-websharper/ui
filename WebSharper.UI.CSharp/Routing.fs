@@ -38,7 +38,7 @@ module private Internals =
             (^T : (member GetCustomAttributesData : unit -> IList<Reflection.CustomAttributeData>)(x))
             |> Seq.tryPick (fun cad ->
                 if cad.Constructor.DeclaringType = typeof<NameAttribute> then
-                    Some (cad.ConstructorArguments.[0].Value :?> string)
+                    Some (cad.ConstructorArguments[0].Value :?> string)
                 else None
             )
         defaultArg o (^T : (member Name : string)(x))
@@ -199,7 +199,7 @@ and private RouteMapBuilderMacro() =
         match t with
         | ConcreteType td ->
             if td.Entity = listT then
-                let itemT = td.Generics.[0]
+                let itemT = td.Generics[0]
                 let fromArray =
                     Hashed {
                         MethodName = "ToList"
@@ -270,20 +270,20 @@ and private RouteMapBuilderMacro() =
                         ) 
                         |> List.ofSeq
                     let isHole (n: string) = n.StartsWith "{" && n.EndsWith "}"
-                    match endpoint.[endpoint.IndexOf('/') + 1 ..].Split([|'/'|], StringSplitOptions.RemoveEmptyEntries) with
+                    match endpoint[endpoint.IndexOf('/') + 1 ..].Split([|'/'|], StringSplitOptions.RemoveEmptyEntries) with
                     | [||] -> MetaObject (ctor, None, fields)
                     | [| name |] when not (isHole name) -> MetaObject (ctor, Some name, fields)
                     | a ->
                         let name, a =
-                            if isHole a.[0] then
+                            if isHole a[0] then
                                 None, a
                             else
-                                Some a.[0], a.[1..]
+                                Some a[0], a[1..]
                         let args =
-                            a.[1..]
+                            a[1..]
                             |> Array.map (fun n ->
                                 if isHole n then
-                                    let name = n.[1..n.Length-2]
+                                    let name = n[1..n.Length-2]
                                     match fields |> List.tryFind (fun (n, _, _) -> name = n) with
                                     | Some f -> f
                                     | None -> failwithf "Path argument doesn't correspond to a field: %s" n
@@ -353,7 +353,7 @@ and private RouteMapBuilderMacro() =
 
     override __.TranslateCall(c) =
         comp <- c.Compilation
-        let targ = c.Method.Generics.[0] 
+        let targ = c.Method.Generics[0] 
         if targ.IsParameter then MacroNeedsResolvedTypeArg targ else
         try
             match c.Method.Entity.Value.MethodName with
@@ -375,7 +375,7 @@ and private RouteMapBuilderMacro() =
             | "Render" ->
                 let go = Id.New()
                 let action = Id.New()
-                let render = c.Arguments.[0]
+                let render = c.Arguments[0]
                 Lambda([go; action],
                     Conditional (TypeCheck (Var action, targ),
                         some targ (Application (render, [Var go; Var action], Pure, Some 2)),
@@ -451,7 +451,7 @@ and [<JavaScript>] private RouteItemParsers =
                             match parseItem (rest, query) with
                             | None -> None
                             | Some (item, rest) ->
-                                arr.[i] <- item
+                                arr[i] <- item
                                 set (i + 1) rest
                     set 0 rest
                 )
@@ -484,29 +484,29 @@ and [<JavaScript>] private RouteItemParsers =
                         match queryItem with
                         | QueryItem.NotQuery ->
                             let l, m = link value?(name)
-                            map := Map.foldBack Map.add m !map
+                            map.Value <- Map.foldBack Map.add m map.Value
                             l
                         | QueryItem.Option ->
                             match value?(name) with
                             | None -> ()
                             | Some x ->
                                 let x = link x |> fst |> List.head
-                                map := Map.add name x !map
+                                map.Value <- Map.add name x map.Value
                             []
                         | QueryItem.Nullable ->
                             let v = As<Nullable<_>> (value?(name))
                             if v.HasValue then
                                 let x = link v.Value |> fst |> List.head
-                                map := Map.add name x !map
+                                map.Value <- Map.add name x map.Value
                             []
                         | QueryItem.Mandatory ->
                             let x = link value?(name) |> fst |> List.head
-                            map := Map.add name x !map
+                            map.Value <- Map.add name x map.Value
                             []
                         | _ -> failwith "invalid QueryItem enum value"
                     )
                     |> List.ofSeq)
-                l, !map
+                l, map.Value
             | Sequence (_, _, linkItem) ->
                 let s = value :?> seq<obj>
                 string (Seq.length s) ::
@@ -530,7 +530,7 @@ and [<JavaScript>] private RouteItemParsers =
         | x :: rest ->
             match RegExp("^[0-9]+$").Exec(x) with
             | null -> None
-            | a -> Some (JS.ParseInt a.[0], rest)
+            | a -> Some (JS.ParseInt a[0], rest)
 
     [<Inline>]
     static member ``System.SByte``(xq: list<string> * Map<string, string>) = As<option<System.SByte * list<string>>>(RouteItemParsers.``System.Int32``(xq))
@@ -553,7 +553,7 @@ and [<JavaScript>] private RouteItemParsers =
         | x :: rest ->
             match RegExp(@"^[0-9](?:\.[0-9]*)?$").Exec(x) with
             | null -> None
-            | a -> Some (JS.ParseFloat a.[0], rest)
+            | a -> Some (JS.ParseFloat a[0], rest)
 
     [<Inline>]
     static member ``System.Single``(xq: list<string> * Map<string, string>) = As<option<System.Single * list<string>>>(RouteItemParsers.``System.Double``(xq))

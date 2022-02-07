@@ -113,13 +113,13 @@ module Storage =
             member x.PrependMany is arr = arr.JS.Unshift (Array.ofSeqNonCopying is) |> ignore; arr
             member x.Init () = init
             member x.RemoveIf pred arr = Array.filter (fun i -> not (pred i)) arr
-            member x.SetAt idx elem arr = arr.[idx] <- elem; arr
+            member x.SetAt idx elem arr = arr[idx] <- elem; arr
             member x.Set coll = Seq.toArray coll
 
     type private LocalStorageBackend<'T>(id : string, serializer : Serializer<'T>) =
         let storage = JS.Window.LocalStorage
         let set (arr : 'T[]) = 
-            storage.SetItem(id, arr |> Array.map serializer.Encode |> Json.Stringify)
+            storage.SetItem(id, arr |> Array.map (fun a -> serializer.Encode a) |> Json.Stringify)
             arr
         let clear () = storage.RemoveItem(id)
 
@@ -135,11 +135,11 @@ module Storage =
                 else 
                     try
                         let arr = As<obj []> <| Json.Parse(item)
-                        arr |> Array.map serializer.Decode
+                        arr |> Array.map (fun a -> serializer.Decode a)
                     with _ -> [||]
 
             member x.RemoveIf pred arr = set <| Array.filter (fun i -> not (pred i)) arr
-            member x.SetAt idx elem arr = arr.[idx] <- elem; set arr
+            member x.SetAt idx elem arr = arr[idx] <- elem; set arr
             member x.Set coll = set <| Seq.toArray coll
 
     let InMemory init =
@@ -154,7 +154,7 @@ type ListModelState<'T> =
         JavaScript.Pervasives.As<'T[]>(this).Length
     [<Inline>]
     member this.Item
-        with get i = JavaScript.Pervasives.As<'T[]>(this).[i]
+        with get i = JavaScript.Pervasives.As<'T[]>(this)[i]
     [<Inline>]
     member this.ToArray() =                             
         Array.copy (JavaScript.Pervasives.As<'T[]>(this))
@@ -348,7 +348,7 @@ type ListModel<'Key,'T when 'Key : equality> with
     member m.UpdateAll fn =
         m.Var.Update <| fun a ->
             a |> Array.iteri (fun i x ->
-                fn x |> Option.iter (fun y -> a.[i] <- y))
+                fn x |> Option.iter (fun y -> a[i] <- y))
             m.Storage.Set a
         m.ObsoleteAll()
 
@@ -357,7 +357,7 @@ type ListModel<'Key,'T when 'Key : equality> with
         match Array.tryFindIndex (fun it -> m.key it = key) v with
         | None -> ()
         | Some index ->
-            match fn v.[index] with
+            match fn v[index] with
             | None -> ()
             | Some value ->
                 m.Var.Value <- m.Storage.SetAt index value v
@@ -454,7 +454,7 @@ type ListModel =
         let init =
             underlying.Var.Value |> Array.map (fun u ->
                 let t = createItem u
-                (!state).[underlying.Key u] <- t
+                state.Value[underlying.Key u] <- t
                 t)
         let var : Var<'T[]> =
             underlying.Var.Lens
@@ -464,23 +464,23 @@ type ListModel =
                         us |> Array.map (fun u ->
                             let k = underlying.Key u
                             let t =
-                                if (!state).ContainsKey(k) then
-                                    updateItem (!state).[k] u
+                                if state.Value.ContainsKey(k) then
+                                    updateItem state.Value[k] u
                                 else
                                     createItem u
-                            newState.[k] <- t
+                            newState[k] <- t
                             t
                         )
-                    state := newState
+                    state.Value <- newState
                     ts
                 <| fun us ts ->
                     let newState = Dictionary<'Key, 'T>()
                     let us =
                         ts |> Array.map (fun t ->
                             let u = extract t
-                            newState.[underlying.Key u] <- t
+                            newState[underlying.Key u] <- t
                             u)
-                    state := newState
+                    state.Value <- newState
                     us
         ListModel<'Key, 'T>(Func<_,_>(extract >> underlying.Key), var, Storage.InMemory init)
 
