@@ -106,10 +106,7 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
                 yield!
                     serverS ("Expression<Action<DomElement>>") "AfterRenderE" "x"
                 yield!
-                    serverS ("Expression<Action>") "AfterRenderE" "(Expression<Action<DomElement>>)(el => x.Compile().Invoke())"
-                yield! 
-                    serverS ("Expression<Action<"+argType+">>") "AfterRenderE"
-                        ("(Expression<Action<DomElement>>) (el => x.Compile().Invoke(new "+argType+"(new Vars(instance), el, null)))")
+                    serverS ("Expression<Action>") "AfterRenderExprAction" "x"
             |]
         | HoleKind.Event eventType ->
             let eventType = "WebSharper.JavaScript.Dom." + eventType
@@ -123,10 +120,7 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
                 yield! 
                     serverS ("Expression<Action<DomElement, "+eventType+">>") "EventExpr" "x"
                 yield!
-                    serverS ("Expression<Action>") "EventE" "(Expression<Action<DomElement, DomEvent>>)((el, ev) => x.Compile().Invoke())"
-                yield!
-                    serverS ("Expression<Action<"+argType+">>") "EventExpr"
-                        ("(Expression<Action<DomElement,"+eventType+">>) ((el, ev) => x.Compile().Invoke(new "+argType+"(new Vars(instance), el, ev)))")
+                    serverS ("Expression<Action>") "EventExprAction" "x"
             |]
         | HoleKind.Simple ->
             [|

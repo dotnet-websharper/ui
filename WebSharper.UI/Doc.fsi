@@ -573,6 +573,8 @@ type TemplateHole =
 
     static member NewActionEvent<'T when 'T :> Dom.Event> : name: string * f: Action<Dom.Element, 'T> -> TemplateHole
     static member NewEventExpr<'T when 'T :> Dom.Event> : name: string * f: Expression<Action<Dom.Element, 'T>> -> TemplateHole
+    static member NewEventExprAction : name: string * f: Expression<Action> -> TemplateHole
+    static member NewAfterRenderExprAction : name: string * f: Expression<Action> -> TemplateHole
 
     static member MakeText : name: string * text: string -> TemplateHole
 

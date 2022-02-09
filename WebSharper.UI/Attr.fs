@@ -257,26 +257,80 @@ type Attr =
             | Some v -> v
         func, reqs :> seq<_>
 
-    static member HandlerLinqImpl(event, m, location) =
-        let func, reqs = Attr.HandlerFallback(m, location, fun s -> s + "(this, event)")
-        DepAttr ("on" + event, func, (fun _ -> reqs), (fun _ _ -> []))
+    static member HandlerLinqImpl(event, m, q: Expression<Action<Dom.Element, #Dom.Event>>) =
+        let value = ref None
+        let init meta =
+            if Option.isNone value.Value then
+                value.Value <-
+                    match q.Body with
+                    | :? MethodCallExpression as b when b.Arguments.Count = 0 ->
+                        let func, reqs = Attr.HandlerFallback(b.Method, "no location", id)
+                        Some (func meta, reqs)
+                    | :? MethodCallExpression as b when b.Arguments.Count = 1 ->
+                        match b.Arguments[0] with
+                        | :? ParameterExpression as p when p.Type = q.Parameters[0].Type || p.Type = q.Parameters[1].Type ->
+                            let func, reqs =
+                                Attr.HandlerFallback(b.Method, "no location",
+                                    fun s -> if p.Type = typeof<Dom.Event> then s + "(event)" else s + "(this)")
+                            Some (func meta, reqs)
+                        | _ -> failwithf "Invalid handler function: %A" q
+                    | :? MethodCallExpression as b when b.Arguments.Count = 2 ->
+                        match b.Arguments[0], b.Arguments[1] with
+                        | :? ParameterExpression, :? ParameterExpression as (p1, p2) when p1.Type = q.Parameters[0].Type && q.Parameters[1].Type.IsAssignableFrom(p2.Type) ->
+                            let func, reqs =
+                                Attr.HandlerFallback(b.Method, "no location", fun s -> s + "(this, event)")
+                            Some (func meta, reqs)
+                        | :? ParameterExpression, :? ParameterExpression as (p1, p2) when p2.Type = q.Parameters[0].Type && q.Parameters[1].Type.IsAssignableFrom(p1.Type) ->
+                            let func, reqs =
+                                Attr.HandlerFallback(b.Method, "no location", fun s -> s + "(event, this)")
+                            Some (func meta, reqs)
+                        | _ -> failwithf "Invalid handler function: %A" q
+                    | _ -> failwithf "Invalid handler function: %A" q
+        let getValue (meta: M.Info) (json: J.Provider) =
+            init meta
+            (fst (Option.get value.Value)) json
+        let getReqs (meta: M.Info) =
+            init meta
+            snd (Option.get value.Value)
+        DepAttr ("on" + event, getValue, getReqs, (fun _ _ -> []))
 
     static member HandlerLinq (event: string) (q: Expression<Action<Dom.Element, #Dom.Event>>) =
         let meth =
             match q.Body with
             | :? MethodCallExpression as e -> e.Method
             | _ -> failwithf "Invalid handler function: %A" q
-        Attr.HandlerLinqImpl(event, meth, "")
+        Attr.HandlerLinqImpl(event, meth, q)
 
-    static member OnAfterRenderLinqImpl(m, location, enc) =
-        let func, reqs = Attr.HandlerFallback(m, location, id)
-        DepAttr ("ws-runafterrender", func, (fun _ -> reqs), enc)
+    static member OnAfterRenderLinqImpl(m, location, q: Expression<Action<Dom.Element>>) =
+        let value = ref None
+        let init meta =
+            if Option.isNone value.Value then
+                value.Value <-
+                    let oarReqs = OnAfterRenderControl.Instance.Requires meta
+                    let m =
+                        match q.Body with
+                        | :? MethodCallExpression as b when b.Arguments.Count = 0 -> b.Method
+                        | :? MethodCallExpression as b when b.Arguments.Count = 1 ->
+                            match b.Arguments[0] with
+                            | :? ParameterExpression as p when p.Type = q.Parameters[0].Type -> b.Method
+                            | _ -> failwithf "Invalid handler function: %A" q
+                        | _ -> failwithf "Invalid handler function: %A" q
+                    let func, reqs = Attr.HandlerFallback(m, "no location", id)
+                    Some (func meta, Seq.append oarReqs reqs)
+        let enc (meta: M.Info) (json: J.Provider) =
+            init meta
+            OnAfterRenderControl.Instance.Encode(meta, json)
+        let getValue (meta: M.Info) (json: J.Provider) =
+            init meta
+            (fst (Option.get value.Value)) json
+        let getReqs (meta: M.Info) =
+            init meta 
+            snd (Option.get value.Value)
+        DepAttr ("ws-runafterrender", getValue, getReqs, enc)
 
     static member OnAfterRenderLinq (q: Expression<Action<Dom.Element>>) =
         let meth =
             match q.Body with
             | :? MethodCallExpression as e -> e.Method
             | _ -> failwithf "Invalid handler function: %A" q
-        let enc (meta: M.Info) (json: J.Provider) =
-            OnAfterRenderControl.Instance.Encode(meta, json)
-        Attr.OnAfterRenderLinqImpl(meth, "", enc)
+        Attr.OnAfterRenderLinqImpl(meth, "", q)

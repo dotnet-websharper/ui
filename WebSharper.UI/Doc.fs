@@ -395,8 +395,24 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
         Event(name, fun el ev -> f.Invoke(el, downcast ev))
 
     static member NewEventExpr<'T when 'T :> Dom.Event>(name: string, f: Expression<Action<Dom.Element, 'T>>) =
-        let x = Expression.Convert(f.Body, typeof<Action<Dom.Element, Dom.Event>>)
-        EventE(name, Expression.Lambda<Action<Dom.Element, Dom.Event>>(x, f.Parameters))
+        let parameters =
+            f.Parameters.Select(fun p -> 
+                if p.Type = typeof<'T> then
+                    Expression.Parameter(typeof<Dom.Event>, p.Name)
+                else
+                    p
+            )
+        EventE(name, Expression.Lambda<Action<Dom.Element, Dom.Event>>(f.Body, parameters))
+
+    static member NewEventExprAction(name: string, f: Expression<Action>) =
+        let elP = Expression.Parameter(typeof<Dom.Element>)
+        let evP = Expression.Parameter(typeof<Dom.Event>)
+        EventE(name, Expression.Lambda<Action<Dom.Element, Dom.Event>>(f.Body, seq {elP; evP}))
+
+    static member NewAfterRenderExprAction(name: string, f: Expression<Action>) =
+        let elP = Expression.Parameter(typeof<Dom.Element>)
+        AfterRenderE(name, Expression.Lambda<Action<Dom.Element>>(f.Body, seq {elP}))
+    
 
     [<Macro(typeof<Macros.TemplateText>); Inline>]
     static member MakeText(name: string, text: string) =
