@@ -555,10 +555,10 @@ type TemplateHole =
     | Attribute of name: string * fillWith: Attr
     | Event of name: string * fillWith: (Dom.Element -> Dom.Event -> unit)
     | EventQ of name: string * fillWith: Expr<Dom.Element -> Dom.Event -> unit>
-    | EventE of name: string * fillWith: Expression<Action<Dom.Element, Dom.Event>>
+    | EventE of name: string * key: string * dep: IRequiresResources option * fillWith: Expression<Action<Dom.Element, Dom.Event>>
     | AfterRender of name: string * fillWith: (Dom.Element -> unit)
     | AfterRenderQ of name: string * fillWith: Expr<Dom.Element -> unit>
-    | AfterRenderE of name: string * fillWith: Expression<Action<Dom.Element>>
+    | AfterRenderE of name: string * key: string * dep: IRequiresResources option * fillWith: Expression<Action<Dom.Element>>
     | VarStr of name: string * fillWith: Var<string>
     | VarBool of name: string * fillWith: Var<bool>
     | VarInt of name: string * fillWith: Var<Client.CheckedInput<int>>
@@ -572,7 +572,7 @@ type TemplateHole =
     static member WithName : string -> TemplateHole -> TemplateHole
 
     static member NewActionEvent<'T when 'T :> Dom.Event> : name: string * f: Action<Dom.Element, 'T> -> TemplateHole
-    static member NewEventExpr<'T when 'T :> Dom.Event> : name: string * f: Expression<Action<Dom.Element, 'T>> -> TemplateHole
+    static member NewEventExpr<'T when 'T :> Dom.Event> : name: string * key: string * dep: IRequiresResources option * f: Expression<Action<Dom.Element, 'T>> -> TemplateHole
     static member NewEventExprAction : name: string * f: Expression<Action> -> TemplateHole
     static member NewAfterRenderExprAction : name: string * f: Expression<Action> -> TemplateHole
 

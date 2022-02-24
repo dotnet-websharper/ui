@@ -63,8 +63,10 @@ type Attr =
     /// When called on the server side, the handler must be a top-level function or a static member.
     static member HandlerLinq : event: string -> callback: (System.Linq.Expressions.Expression<System.Action<Dom.Element, #Dom.Event>>) -> Attr
 
+    static member HandlerLinqWithKey : event: string -> key: string -> dep: WebSharper.IRequiresResources option-> callback: (System.Linq.Expressions.Expression<System.Action<Dom.Element, #Dom.Event>>) -> Attr
+
     static member HandlerImpl : event: string * callback: (Expr<Dom.Element -> #Dom.Event -> unit>) -> Attr
 
     static member OnAfterRenderImpl : callback: Expr<Dom.Element -> unit> -> Attr
 
-    static member OnAfterRenderLinq : callback: System.Linq.Expressions.Expression<System.Action<Dom.Element>> -> Attr
+    static member OnAfterRenderLinq : key: string -> dep: WebSharper.IRequiresResources option -> callback: System.Linq.Expressions.Expression<System.Action<Dom.Element>> -> Attr

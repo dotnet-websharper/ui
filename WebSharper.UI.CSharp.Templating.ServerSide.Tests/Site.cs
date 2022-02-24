@@ -38,6 +38,14 @@ namespace WebSharper.UI.CSharp.Templating.ServerSide.Tests
         public static void AfterRenderOverload(JavaScript.Dom.Element el) => JavaScript.Console.Log("Element", el);
 
         [JavaScript]
+        public static void AfterRenderOverloadTempl(UI.Templating.Runtime.Server.TemplateEvent<Vars, JavaScript.Dom.Event> m) =>
+            m.Vars.MyVar.Set("I'm initialized");
+
+        [JavaScript]
+        public static void ClickMeTempl(UI.Templating.Runtime.Server.TemplateEvent<Vars, JavaScript.Dom.MouseEvent> m) =>
+            m.Vars.MyVar.Set("I'm initialized from click");
+
+        [JavaScript]
         public static void ClickMe(JavaScript.Dom.Element el, JavaScript.Dom.MouseEvent ev) => JavaScript.Console.Log("Click", el);
 
         [JavaScript]
@@ -46,14 +54,16 @@ namespace WebSharper.UI.CSharp.Templating.ServerSide.Tests
         [JavaScript]
         public static void ClickMeAction() => JavaScript.Console.Log("ClickAction");
 
-        public static Task<Content> Page() =>
-            Content.Page(
+        public static Task<Content> Page()
+        {
+            return Content.Page(
                 new Template.Index()
                     //.DocToReplace(client(() => Client.ClientMain()))
-                    .AfterRenderFromServerFromServer((m) => AfterRenderOverload(m))
-                    .ClickMeFromServer((el, ev) => ClickMeRev(ev, el))
+                    .AfterRenderFromServerFromServer((m) => AfterRenderOverloadTempl(m))
+                    .ClickMeFromServer((m) => ClickMeTempl(m))
                     .Doc()
             );
+        }
 
         [Website]
         public static Sitelet<object> Main =>

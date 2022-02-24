@@ -51,6 +51,43 @@ module private Internal =
             } 
         )
 
+    let afterRenderNode =
+        M.MethodNode(
+            AST.TypeDefinition {
+                Assembly = "WebSharper.UI.Templating.Runtime"
+                FullName = "WebSharper.UI.Templating.Runtime.Client.ClientTemplateInstanceHandlers"
+            },
+            AST.Method {
+                MethodName = "AfterRenderQ2Client"
+                Parameters = [
+                    R.ReadType typeof<System.String>
+                    R.ReadType typeof<Dom.Element>
+                    R.ReadType typeof<obj -> unit>
+                ]
+                ReturnType = AST.VoidType
+                Generics = 0
+            } 
+        )
+
+    let eventNode =
+        M.MethodNode(
+            AST.TypeDefinition {
+                Assembly = "WebSharper.UI.Templating.Runtime"
+                FullName = "WebSharper.UI.Templating.Runtime.Client.ClientTemplateInstanceHandlers"
+            },
+            AST.Method {
+                MethodName = "EventQ2Client"
+                Parameters = [
+                    R.ReadType typeof<System.String>
+                    R.ReadType typeof<Dom.Element>
+                    R.ReadType typeof<Dom.Event>
+                    R.ReadType typeof<obj -> unit>
+                ]
+                ReturnType = AST.VoidType
+                Generics = 0
+            } 
+        )
+
     let compile (meta: M.Info) (q: Expr) =
         let reqs = ResizeArray<M.Node>()
         let rec compile' (q: Expr) : option<J.Provider -> string> =
@@ -111,9 +148,14 @@ type private OnAfterRenderControl private () =
         let l = JS.Document.QuerySelectorAll("[ws-runafterrender]")
         for i = 0 to l.Length - 1 do
             let x = l[i] :?> Dom.Element
-            let f = JS.Eval(x.GetAttribute("ws-runafterrender")) :?> (Dom.Element -> unit)
-            x.RemoveAttribute("ws-runafterrender")
-            f x
+            let attr = x.GetAttribute("ws-runafterrender")
+            if attr.Contains("AfterRenderQ2Client") then
+                x.RemoveAttribute("ws-runafterrender")
+                JS.Eval(attr) |> ignore
+            else
+                let f = JS.Eval(attr) :?> (Dom.Element -> unit)
+                x.RemoveAttribute("ws-runafterrender")
+                f x
         { new IControlBody with member this.ReplaceInDom(_) = () }
 
 // We would have wanted to use UseNullAsTrueValue so that EmptyAttr = null,
@@ -257,7 +299,7 @@ type Attr =
             | Some v -> v
         func, reqs :> seq<_>
 
-    static member HandlerLinqImpl(event, m, q: Expression<Action<Dom.Element, #Dom.Event>>) =
+    static member HandlerLinqImpl(event, m, key: string, dep: IRequiresResources option, q: Expression<Action<Dom.Element, #Dom.Event>>) =
         let value = ref None
         let init meta =
             if Option.isNone value.Value then
@@ -272,6 +314,11 @@ type Attr =
                             let func, reqs =
                                 Attr.HandlerFallback(b.Method, "no location",
                                     fun s -> if p.Type = typeof<Dom.Event> then s + "(event)" else s + "(this)")
+                            Some (func meta, reqs)
+                        | :? ParameterExpression as p when p.Type.AssemblyQualifiedName.StartsWith "WebSharper.UI.Templating.Runtime.Server+TemplateEvent`2" ->
+                            let func, reqs =
+                                Attr.HandlerFallback(b.Method, "no location",
+                                    fun s -> "WebSharper.UI.Templating.Runtime.Client.ClientTemplateInstanceHandlers.EventQ2Client(\"" + key + "\", this, event, " + s + ")")
                             Some (func meta, reqs)
                         | _ -> failwithf "Invalid handler function: %A" q
                     | :? MethodCallExpression as b when b.Arguments.Count = 2 ->
@@ -291,46 +338,67 @@ type Attr =
             (fst (Option.get value.Value)) json
         let getReqs (meta: M.Info) =
             init meta
-            snd (Option.get value.Value)
-        DepAttr ("on" + event, getValue, getReqs, (fun _ _ -> []))
+            let reqs = snd (Option.get value.Value)
+            reqs |> Seq.append (seq { Internal.eventNode })
+        DepAttr ("on" + event, getValue, getReqs, (fun meta json -> match dep with None -> [] | Some dep -> dep.Encode(meta, json)))
 
     static member HandlerLinq (event: string) (q: Expression<Action<Dom.Element, #Dom.Event>>) =
         let meth =
             match q.Body with
             | :? MethodCallExpression as e -> e.Method
             | _ -> failwithf "Invalid handler function: %A" q
-        Attr.HandlerLinqImpl(event, meth, q)
+        Attr.HandlerLinqImpl(event, meth, "", None, q)
 
-    static member OnAfterRenderLinqImpl(m, location, q: Expression<Action<Dom.Element>>) =
+    static member HandlerLinqWithKey (event: string) (key: string) (dep: IRequiresResources option) (q: Expression<Action<Dom.Element, #Dom.Event>>) =
+        let meth =
+            match q.Body with
+            | :? MethodCallExpression as e -> e.Method
+            | _ -> failwithf "Invalid handler function: %A" q
+        Attr.HandlerLinqImpl(event, meth, key, dep, q)
+
+    static member OnAfterRenderLinqImpl(m, location, key: string, dep: IRequiresResources option, q: Expression<Action<Dom.Element>>) =
         let value = ref None
         let init meta =
             if Option.isNone value.Value then
                 value.Value <-
                     let oarReqs = OnAfterRenderControl.Instance.Requires meta
-                    let m =
-                        match q.Body with
-                        | :? MethodCallExpression as b when b.Arguments.Count = 0 -> b.Method
-                        | :? MethodCallExpression as b when b.Arguments.Count = 1 ->
-                            match b.Arguments[0] with
-                            | :? ParameterExpression as p when p.Type = q.Parameters[0].Type -> b.Method
-                            | _ -> failwithf "Invalid handler function: %A" q
+                    match q.Body with
+                    | :? MethodCallExpression as b when b.Arguments.Count = 0 ->
+                        let func, reqs = Attr.HandlerFallback(b.Method, "no location", id)
+                        Some (func meta, Seq.append oarReqs reqs)
+                    | :? MethodCallExpression as b when b.Arguments.Count = 1 ->
+                        match b.Arguments[0] with
+                        | :? ParameterExpression as p when p.Type = q.Parameters[0].Type ->
+                            let func, reqs = Attr.HandlerFallback(b.Method, "no location", id)
+                            Some (func meta, Seq.append oarReqs reqs)
+                        | :? ParameterExpression as p when p.Type.AssemblyQualifiedName.StartsWith "WebSharper.UI.Templating.Runtime.Server+TemplateEvent`2" ->
+                            let func, reqs =
+                                Attr.HandlerFallback(b.Method, "no location",
+                                    fun s -> "WebSharper.UI.Templating.Runtime.Client.ClientTemplateInstanceHandlers.AfterRenderQ2Client(\"" + key + "\", this, " + s + ")")
+                            Some (func meta, Seq.append oarReqs reqs)
                         | _ -> failwithf "Invalid handler function: %A" q
-                    let func, reqs = Attr.HandlerFallback(m, "no location", id)
-                    Some (func meta, Seq.append oarReqs reqs)
+                    | _ -> failwithf "Invalid handler function: %A" q
+                    
         let enc (meta: M.Info) (json: J.Provider) =
             init meta
+            let enc2 =
+                match dep with
+                | None -> []
+                | Some dep -> dep.Encode(meta, json)
             OnAfterRenderControl.Instance.Encode(meta, json)
+            |> List.append enc2 
         let getValue (meta: M.Info) (json: J.Provider) =
             init meta
             (fst (Option.get value.Value)) json
         let getReqs (meta: M.Info) =
             init meta 
-            snd (Option.get value.Value)
+            let reqs = snd (Option.get value.Value)
+            reqs |> Seq.append (seq { Internal.afterRenderNode })
         DepAttr ("ws-runafterrender", getValue, getReqs, enc)
 
-    static member OnAfterRenderLinq (q: Expression<Action<Dom.Element>>) =
+    static member OnAfterRenderLinq (key: string) (dep: IRequiresResources option) (q: Expression<Action<Dom.Element>>) =
         let meth =
             match q.Body with
             | :? MethodCallExpression as e -> e.Method
             | _ -> failwithf "Invalid handler function: %A" q
-        Attr.OnAfterRenderLinqImpl(meth, "", q)
+        Attr.OnAfterRenderLinqImpl(meth, "", key, dep, q)
