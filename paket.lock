@@ -3,7 +3,7 @@ STRATEGY: MIN
 RESTRICTION: || (== net6.0) (== netstandard2.0)
 NUGET
   remote: https://api.nuget.org/v3/index.json
-    FSharp.Core (6.0.1)
+    FSharp.Core (6.0.3)
     HtmlAgilityPack (1.11)
       System.Net.Http (>= 4.3.2)
       System.Xml.XmlDocument (>= 4.3)
@@ -34,10 +34,11 @@ NUGET
       Microsoft.Net.Http.Headers (>= 2.0)
     Microsoft.AspNetCore.Routing.Abstractions (2.0)
       Microsoft.AspNetCore.Http.Abstractions (>= 2.0)
-    Microsoft.Build.Framework (17.0)
+    Microsoft.Build.Framework (17.1)
+      Microsoft.Win32.Registry (>= 4.3)
       System.Security.Permissions (>= 4.7)
-    Microsoft.Build.Utilities.Core (17.0)
-      Microsoft.Build.Framework (>= 17.0)
+    Microsoft.Build.Utilities.Core (17.1)
+      Microsoft.Build.Framework (>= 17.1)
       Microsoft.NET.StringTools (>= 1.0)
       Microsoft.Win32.Registry (>= 4.3)
       System.Collections.Immutable (>= 5.0)
@@ -466,25 +467,25 @@ NUGET
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
   remote: https://nuget.pkg.github.com/dotnet-websharper/index.json
-    WebSharper (6.0.0.143)
-      FSharp.Core (>= 6.0.1)
+    WebSharper (6.0.0.159)
+      FSharp.Core (>= 6.0.3)
       Microsoft.AspNetCore.Mvc.Abstractions (>= 2.0)
       System.Configuration.ConfigurationManager (>= 4.7)
       System.Reflection.Emit.Lightweight (>= 4.7)
-    WebSharper.AspNetCore (6.0.0.143)
+    WebSharper.AspNetCore (6.0.0.159)
       Microsoft.AspNetCore.Authentication.Abstractions (>= 2.0)
       Microsoft.AspNetCore.Hosting.Abstractions (>= 2.0)
-      WebSharper (6.0.0.143)
-    WebSharper.CSharp (6.0.0.143)
-      WebSharper (6.0.0.143)
-    WebSharper.FSharp (6.0.0.143)
-      WebSharper (6.0.0.143)
-    WebSharper.Testing (6.0.0.143)
-      WebSharper (6.0.0.143)
+      WebSharper (6.0.0.159)
+    WebSharper.CSharp (6.0.0.159)
+      WebSharper (6.0.0.159)
+    WebSharper.FSharp (6.0.0.159)
+      WebSharper (6.0.0.159)
+    WebSharper.Testing (6.0.0.159)
+      WebSharper (6.0.0.159)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (605be1f21a9f173e20b826b862eea0705212ecfe)
-    src/ProvidedTypes.fsi (605be1f21a9f173e20b826b862eea0705212ecfe)
+    src/ProvidedTypes.fs (a35115bd94a4e989b6a978a9c2634f7725301a1f)
+    src/ProvidedTypes.fsi (a35115bd94a4e989b6a978a9c2634f7725301a1f)
 GROUP includes
 REFERENCES: STRICT
 GITHUB
@@ -494,4 +495,4 @@ GROUP wsbuild
 
 GIT
   remote: https://github.com/dotnet-websharper/build-script
-     (3f1320b6f18c663fd395803eb79409ad102231ac)
+     (f028af07cf019553ae078fef9afc3706aa16c98c)
