@@ -45,17 +45,17 @@ NUGET
       System.Configuration.ConfigurationManager (>= 4.7)
       System.Security.Permissions (>= 4.7)
       System.Text.Encoding.CodePages (>= 4.0.1)
-    Microsoft.CodeAnalysis.Analyzers (3.0)
-    Microsoft.CodeAnalysis.Common (3.9)
-      Microsoft.CodeAnalysis.Analyzers (>= 3.0)
+    Microsoft.CodeAnalysis.Analyzers (3.3.2)
+    Microsoft.CodeAnalysis.Common (4.0.1)
+      Microsoft.CodeAnalysis.Analyzers (>= 3.3.2)
       System.Collections.Immutable (>= 5.0)
       System.Memory (>= 4.5.4)
       System.Reflection.Metadata (>= 5.0)
       System.Runtime.CompilerServices.Unsafe (>= 5.0)
       System.Text.Encoding.CodePages (>= 4.5.1)
       System.Threading.Tasks.Extensions (>= 4.5.4)
-    Microsoft.CodeAnalysis.CSharp (3.9)
-      Microsoft.CodeAnalysis.Common (3.9)
+    Microsoft.CodeAnalysis.CSharp (4.0.1)
+      Microsoft.CodeAnalysis.Common (4.0.1)
     Microsoft.Extensions.Configuration.Abstractions (2.0)
       Microsoft.Extensions.Primitives (>= 2.0)
     Microsoft.Extensions.DependencyInjection.Abstractions (2.0)
@@ -467,21 +467,21 @@ NUGET
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
   remote: https://nuget.pkg.github.com/dotnet-websharper/index.json
-    WebSharper (6.0.0.159)
+    WebSharper (6.0.0.166)
       FSharp.Core (>= 6.0.3)
-      Microsoft.AspNetCore.Mvc.Abstractions (>= 2.0)
-      System.Configuration.ConfigurationManager (>= 4.7)
       System.Reflection.Emit.Lightweight (>= 4.7)
-    WebSharper.AspNetCore (6.0.0.159)
+    WebSharper.AspNetCore (6.0.0.166)
       Microsoft.AspNetCore.Authentication.Abstractions (>= 2.0)
       Microsoft.AspNetCore.Hosting.Abstractions (>= 2.0)
-      WebSharper (6.0.0.159)
-    WebSharper.CSharp (6.0.0.159)
-      WebSharper (6.0.0.159)
-    WebSharper.FSharp (6.0.0.159)
-      WebSharper (6.0.0.159)
-    WebSharper.Testing (6.0.0.159)
-      WebSharper (6.0.0.159)
+      Microsoft.AspNetCore.Mvc.Abstractions (>= 2.0)
+      System.Configuration.ConfigurationManager (>= 4.7)
+      WebSharper (6.0.0.166)
+    WebSharper.CSharp (6.0.0.166)
+      WebSharper (6.0.0.166)
+    WebSharper.FSharp (6.0.0.166)
+      WebSharper (6.0.0.166)
+    WebSharper.Testing (6.0.0.166)
+      WebSharper (6.0.0.166)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
     src/ProvidedTypes.fs (a35115bd94a4e989b6a978a9c2634f7725301a1f)
@@ -490,9 +490,9 @@ GROUP includes
 REFERENCES: STRICT
 GITHUB
   remote: dotnet-websharper/websharper
-    src/htmllib/tags.csv (a4e4f9ae6f494defc029847578d4d937c65024ff)
+    src/htmllib/tags.csv (db2d834f0151ae409f6cc90bf8cc8928e67236b0)
 GROUP wsbuild
 
 GIT
   remote: https://github.com/dotnet-websharper/build-script
-     (f028af07cf019553ae078fef9afc3706aa16c98c)
+     (727cf341e559695debe9821be6044e8f29d8d64c)
