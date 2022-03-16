@@ -101,12 +101,17 @@ type Snap<'T> =
 
 [<Proxy(typeof<ISnap>)>]
 type internal ISnapProxy =
+
+    [<Name "o">]
+    abstract Obsolete : unit -> unit
     [<Inline>]
-    member this.Obsolete() =
+    default this.Obsolete() =
         Snap.Obsolete(As<Snap<obj>> this)
 
+    [<Name "n">]
+    abstract IsNotObsolete : unit -> bool
     [<Inline "$this.s">]
-    member this.IsNotObsolete() = X<bool>
+    default this.IsNotObsolete() = X<bool>
 
 [<JavaScript>]
 module Snap =
