@@ -13,20 +13,6 @@ namespace WebSharper.UI.CSharp.Templating.ServerSide.Tests
 {
     public class Site
     {
-        [JavaScript]
-        public static class Client
-        {
-            static public IControlBody ClientMain()
-            {
-                var vReversed = Var.Create("");
-                return new Template.Index.tasksTitle()
-                    .TestHole(
-                        UI.Client.Doc.Input(new List<Attr>(), vReversed)
-                    )
-                    .Doc();
-            }
-        }
-
         [EndPoint("/")]
         public class Home
         {
@@ -35,32 +21,38 @@ namespace WebSharper.UI.CSharp.Templating.ServerSide.Tests
         }
 
         [JavaScript]
-        public static void AfterRenderOverload(JavaScript.Dom.Element el) => JavaScript.Console.Log("Element", el);
+        public static void AfterRender(JavaScript.Dom.Element el) => JavaScript.Console.Log("After render initialized");
+
+        [JavaScript]
+        public static void AfterRenderAction() => JavaScript.Console.Log("After render action initialized");
 
         [JavaScript]
         public static void AfterRenderOverloadTempl(UI.Templating.Runtime.Server.TemplateEvent<Vars, JavaScript.Dom.Event> m) =>
-            m.Vars.MyVar.Set("I'm initialized");
+            m.Vars.Logger.Set("I'm initialized from after render");
 
         [JavaScript]
-        public static void ClickMeTempl(UI.Templating.Runtime.Server.TemplateEvent<Vars, JavaScript.Dom.MouseEvent> m) =>
-            m.Vars.MyVar.Set("I'm initialized from click");
+        public static void ClickMeTempl(UI.Templating.Runtime.Server.TemplateEvent<Vars, JavaScript.Dom.MouseEvent> m) => m.Vars.Logger.Set(m.Vars.Logger.Value + "\nI'm initialized from click");
 
         [JavaScript]
-        public static void ClickMe(JavaScript.Dom.Element el, JavaScript.Dom.MouseEvent ev) => JavaScript.Console.Log("Click", el);
+        public static void ClickMe(JavaScript.Dom.Element el, JavaScript.Dom.MouseEvent ev) => JavaScript.Console.Log("Click sent", el);
 
         [JavaScript]
         public static void ClickMeRev(JavaScript.Dom.MouseEvent ev, JavaScript.Dom.Element el) => JavaScript.Console.Log("Click", el);
 
         [JavaScript]
-        public static void ClickMeAction() => JavaScript.Console.Log("ClickAction");
+        public static void ClickMeAction() => JavaScript.Console.Log("Click action sent");
 
         public static Task<Content> Page()
         {
             return Content.Page(
                 new Template.Index()
                     //.DocToReplace(client(() => Client.ClientMain()))
-                    .AfterRenderFromServerFromServer((m) => AfterRenderOverloadTempl(m))
-                    .ClickMeFromServer((m) => ClickMeTempl(m))
+                    .AfterRenderTempl_Server((m) => AfterRenderOverloadTempl(m))
+                    .ClickMeTempl_Server((m) => ClickMeTempl(m))
+                    .AfterRenderUnit_Server(() => AfterRenderAction())
+                    .ClickMeUnit_Server(() => ClickMeAction())
+                    .AfterRender_Server((el) => AfterRender(el))
+                    .ClickMe_Server((el, ev) => ClickMe(el, ev))
                     .Doc()
             );
         }

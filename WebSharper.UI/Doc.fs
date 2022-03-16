@@ -392,7 +392,10 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
 
     [<Inline>]
     static member NewActionEvent<'T when 'T :> Dom.Event>(name: string, f: Action<Dom.Element, 'T>) =
-        Event(name, fun el ev -> f.Invoke(el, downcast ev))
+        if IsClient then
+            Event(name, fun el ev -> f.Invoke(el, downcast ev))
+        else
+            failwith <| sprintf "%s overload is intended for client-side use only. Please use %sFromServer instead" name name
 
     static member NewEventExpr<'T when 'T :> Dom.Event>(name: string, k: string, dep: IRequiresResources option, f: Expression<Action<Dom.Element, 'T>>) =
         let parameters =

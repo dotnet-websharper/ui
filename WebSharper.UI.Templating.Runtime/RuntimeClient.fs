@@ -210,6 +210,14 @@ type private RuntimeProxy =
 type private HandlerProxy =
 
     [<Inline>]
+    static member AfterRenderClient (holeName: string, [<JavaScript>] f : Dom.Element -> unit) : TemplateHole =
+        TemplateHole.AfterRender (holeName, f)
+
+    [<Inline>]
+    static member EventClient (holeName: string, [<JavaScript>] f : Dom.Element -> Dom.Event -> unit) : TemplateHole =
+        TemplateHole.Event (holeName, f)
+
+    [<Inline>]
     static member EventQ (holeName: string, f: Expr<Dom.Element -> Dom.Event -> unit>) =
         TemplateHole.EventQ(holeName, f)
 

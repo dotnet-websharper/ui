@@ -306,7 +306,7 @@ type Attr =
                 value.Value <-
                     match q.Body with
                     | :? MethodCallExpression as b when b.Arguments.Count = 0 ->
-                        let func, reqs = Attr.HandlerFallback(b.Method, "no location", id)
+                        let func, reqs = Attr.HandlerFallback(b.Method, "no location", fun s -> s + "()")
                         Some (func meta, reqs)
                     | :? MethodCallExpression as b when b.Arguments.Count = 1 ->
                         match b.Arguments[0] with

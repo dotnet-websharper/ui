@@ -14,11 +14,11 @@
 </head>
 <body>
     <div id="main">
-        <h1 ws-template="tasksTitle" ws-hole="TestHole"></h1>
-        <input ws-var="MyVar" />
+        <textarea ws-var="Logger"></textarea>
     </div>
-    <div ws-replace="DocToReplace"></div>
-    <div id="tasksTitle" ws-onafterrender="AfterRenderFromServer" ws-onclick="ClickMe">Hello</div>
+    <div ws-onafterrender="AfterRender" ws-onclick="ClickMe">Click this to change 1st input</div>
+    <div ws-onafterrender="AfterRenderTempl" ws-onclick="ClickMeTempl">Click this to change 2nd input</div>
+    <div ws-onafterrender="AfterRenderUnit" ws-onclick="ClickMeUnit">Click this to change 3rd input</div>
     <script ws-replace="scripts"></script>
 </body>
 </html>

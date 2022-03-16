@@ -34,6 +34,7 @@ open WebSharper.UI.Templating.AST
 open WebSharper.Sitelets
 open WebSharper.Sitelets.Content
 open System.Collections.Concurrent
+open WebSharper.Core
 
 module M = WebSharper.Core.Metadata
 module J = WebSharper.Core.Json
@@ -186,6 +187,12 @@ type TemplateEvent<'TI, 'E when 'E :> DomEvent> =
     }
 
 type Handler private () =
+
+    static member AfterRenderClient (holeName: string, [<JavaScript>] f : DomElement -> unit) : TemplateHole =
+        failwithf "%s overload is intended for client-side use only. Please use %sFromServer instead" holeName holeName
+
+    static member EventClient (holeName: string, [<JavaScript>] f : DomElement -> DomEvent -> unit) : TemplateHole =
+        failwithf "%s overload is intended for client-side use only. Please use %sFromServer instead" holeName holeName
 
     static member EventQ (holeName: string, [<JavaScript>] f: Expr<DomElement -> DomEvent -> unit>) =
         TemplateHole.EventQ(holeName, f)
