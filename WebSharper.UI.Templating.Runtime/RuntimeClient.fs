@@ -210,6 +210,14 @@ type private RuntimeProxy =
 type private HandlerProxy =
 
     [<Inline>]
+    static member AfterRenderClient (holeName: string, [<JavaScript>] f : Dom.Element -> unit) : TemplateHole =
+        TemplateHole.AfterRender (holeName, f)
+
+    [<Inline>]
+    static member EventClient (holeName: string, [<JavaScript>] f : Dom.Element -> Dom.Event -> unit) : TemplateHole =
+        TemplateHole.Event (holeName, f)
+
+    [<Inline>]
     static member EventQ (holeName: string, f: Expr<Dom.Element -> Dom.Event -> unit>) =
         TemplateHole.EventQ(holeName, f)
 
@@ -259,3 +267,24 @@ type private HandlerProxy =
                 Some r
             )
         Seq.append filledHoles extraHoles, Server.CompletedHoles.Client(allVars)
+        
+[<JavaScript>]
+type ClientTemplateInstanceHandlers =
+
+    [<JavaScriptExport>]
+    static member EventQ2Client (key: string, el: Dom.Element, ev: Dom.Event, f: obj -> unit) =
+        f
+            ({
+                Vars = box (Server.TemplateInstances.GetInstance key)
+                Target = el
+                Event = ev
+            } : TemplateEvent<_, _>)
+
+    [<JavaScriptExport>]
+    static member AfterRenderQ2Client (key: string, el: Dom.Element, f: obj -> unit) =
+        f
+            ({
+                Vars = box (Server.TemplateInstances.GetInstance key)
+                Target = el
+                Event = null
+            } : TemplateEvent<_, _>)

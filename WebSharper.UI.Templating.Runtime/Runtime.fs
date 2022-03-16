@@ -34,6 +34,7 @@ open WebSharper.UI.Templating.AST
 open WebSharper.Sitelets
 open WebSharper.Sitelets.Content
 open System.Collections.Concurrent
+open WebSharper.Core
 
 module M = WebSharper.Core.Metadata
 module J = WebSharper.Core.Json
@@ -84,11 +85,16 @@ type TemplateInitializer(id: string, vars: array<string * ValTy>) =
         | TemplateHole.UninitVar (n, _)
         | TemplateHole.Event (n, _)
         | TemplateHole.EventQ (n, _)
+        | TemplateHole.EventE (n, _, _, _)
         | TemplateHole.AfterRender (n, _)
         | TemplateHole.AfterRenderQ (n, _)
+        | TemplateHole.AfterRenderE (n, _, _, _)
         | TemplateHole.Attribute (n, _) -> JavaScript.Console.Warn("Not a var hole: ", n)
 
     static member Initialized = initialized
+
+    [<Inline "$global.UIVarDict[$name]">]
+    static member GetServerVarInitValue (name: string) = WebSharper.JavaScript.Interop.X<string>
 
     static member GetHolesFor(id) =
         match initialized.TryGetValue(id) with
@@ -181,6 +187,12 @@ type TemplateEvent<'TI, 'E when 'E :> DomEvent> =
     }
 
 type Handler private () =
+
+    static member AfterRenderClient (holeName: string, [<JavaScript>] f : DomElement -> unit) : TemplateHole =
+        failwithf "%s overload is intended for client-side use only. Please use %sFromServer instead" holeName holeName
+
+    static member EventClient (holeName: string, [<JavaScript>] f : DomElement -> DomEvent -> unit) : TemplateHole =
+        failwithf "%s overload is intended for client-side use only. Please use %sFromServer instead" holeName holeName
 
     static member EventQ (holeName: string, [<JavaScript>] f: Expr<DomElement -> DomEvent -> unit>) =
         TemplateHole.EventQ(holeName, f)
@@ -542,6 +554,10 @@ type Runtime private () =
                 dict.Add(n, Attr.HandlerImpl("", e) :> IRequiresResources)
             | TemplateHole.AfterRenderQ (n, e) ->
                 dict.Add(n, Attr.OnAfterRenderImpl(e) :> IRequiresResources)
+            | TemplateHole.EventE (n, k, dep, e) ->
+                dict.Add(n, (Attr.HandlerLinqWithKey "" k dep e) :> IRequiresResources)
+            | TemplateHole.AfterRenderE (n, k, dep, e) ->
+                dict.Add(n, Attr.OnAfterRenderLinq k dep e :> IRequiresResources)
             | _ -> ()
         
         fillWith |> Seq.iter (addTemplateHole requireResources)

@@ -20,10 +20,13 @@
 
 namespace WebSharper.UI
 
+
 #nowarn "44" // HTML deprecated
 
 open System
 open Microsoft.FSharp.Quotations
+open System.Linq
+open System.Linq.Expressions
 open WebSharper
 open WebSharper.Web
 open WebSharper.Sitelets
@@ -375,8 +378,10 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
     | Attribute of name: string * fillWith: Attr
     | Event of name: string * fillWith: (Dom.Element -> Dom.Event -> unit)
     | EventQ of name: string * fillWith: Expr<Dom.Element -> Dom.Event -> unit>
+    | EventE of name: string * key: string * dep: IRequiresResources option * fillWith: Expression<Action<Dom.Element, Dom.Event>>
     | AfterRender of name: string * fillWith: (Dom.Element -> unit)
     | AfterRenderQ of name: string * fillWith: Expr<Dom.Element -> unit>
+    | AfterRenderE of name: string * key: string * dep: IRequiresResources option * fillWith: Expression<Action<Dom.Element>>
     | VarStr of name: string * fillWith: Var<string>
     | VarBool of name: string * fillWith: Var<bool>
     | VarInt of name: string * fillWith: Var<Client.CheckedInput<int>>
@@ -387,7 +392,30 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
 
     [<Inline>]
     static member NewActionEvent<'T when 'T :> Dom.Event>(name: string, f: Action<Dom.Element, 'T>) =
-        Event(name, fun el ev -> f.Invoke(el, downcast ev))
+        if IsClient then
+            Event(name, fun el ev -> f.Invoke(el, downcast ev))
+        else
+            failwith <| sprintf "%s overload is intended for client-side use only. Please use %sFromServer instead" name name
+
+    static member NewEventExpr<'T when 'T :> Dom.Event>(name: string, k: string, dep: IRequiresResources option, f: Expression<Action<Dom.Element, 'T>>) =
+        let parameters =
+            f.Parameters.Select(fun p -> 
+                if p.Type = typeof<'T> then
+                    Expression.Parameter(typeof<Dom.Event>, p.Name)
+                else
+                    p
+            )
+        EventE(name, k, dep, Expression.Lambda<Action<Dom.Element, Dom.Event>>(f.Body, parameters))
+
+    static member NewEventExprAction(name: string, f: Expression<Action>) =
+        let elP = Expression.Parameter(typeof<Dom.Element>)
+        let evP = Expression.Parameter(typeof<Dom.Event>)
+        EventE(name, "", None, Expression.Lambda<Action<Dom.Element, Dom.Event>>(f.Body, seq {elP; evP}))
+
+    static member NewAfterRenderExprAction(name: string, f: Expression<Action>) =
+        let elP = Expression.Parameter(typeof<Dom.Element>)
+        AfterRenderE(name, "", None, Expression.Lambda<Action<Dom.Element>>(f.Body, seq {elP}))
+    
 
     [<Macro(typeof<Macros.TemplateText>); Inline>]
     static member MakeText(name: string, text: string) =
@@ -460,8 +488,10 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
         | TemplateHole.UninitVar (name, _)
         | TemplateHole.Event (name, _)
         | TemplateHole.EventQ (name, _)
+        | TemplateHole.EventE (name, _, _, _)
         | TemplateHole.AfterRender (name, _)
         | TemplateHole.AfterRenderQ (name, _)
+        | TemplateHole.AfterRenderE (name, _, _, _)
         | TemplateHole.Attribute (name, _) -> name
 
     [<Inline "$x.$1">]
@@ -479,8 +509,10 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
         | TemplateHole.UninitVar (name, v) -> box v
         | TemplateHole.Event (name, v) -> box v
         | TemplateHole.EventQ (name, v) -> box v
+        | TemplateHole.EventE (name, _, _, v) -> box v
         | TemplateHole.AfterRender (name, v) -> box v
         | TemplateHole.AfterRenderQ (name, v) -> box v
+        | TemplateHole.AfterRenderE (name, _, _, v) -> box v
         | TemplateHole.Attribute (name, v) -> box v
 
     [<Inline "{$: $x.$, $0: $n, $1: $x.$1}">]
@@ -498,8 +530,10 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
         | TemplateHole.UninitVar (_, v) -> TemplateHole.UninitVar(n, v)
         | TemplateHole.Event (_, v) -> TemplateHole.Event(n, v)
         | TemplateHole.EventQ (_, v) -> TemplateHole.EventQ(n, v)
+        | TemplateHole.EventE (_, k, d, v) -> TemplateHole.EventE(n, k, d, v)
         | TemplateHole.AfterRender (_, v) -> TemplateHole.AfterRender(n, v)
         | TemplateHole.AfterRenderQ (_, v) -> TemplateHole.AfterRenderQ(n, v)
+        | TemplateHole.AfterRenderE (_, k, d, v) -> TemplateHole.AfterRenderE(n, k, d, v)
         | TemplateHole.Attribute (_, v) -> TemplateHole.Attribute(n, v)
 
 type Doc with

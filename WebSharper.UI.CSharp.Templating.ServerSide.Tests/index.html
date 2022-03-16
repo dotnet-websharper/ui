@@ -1,0 +1,24 @@
+<!-- ClientLoad = FromDocument
+     ServerLoad = WhenChanged -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>WebSharper.UI.CSharp.Tests</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+        [ws-template], [ws-children-template] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="main">
+        <textarea ws-var="Logger"></textarea>
+    </div>
+    <div ws-onafterrender="AfterRender" ws-onclick="ClickMe">Click this to change 1st input</div>
+    <div ws-onafterrender="AfterRenderTempl" ws-onclick="ClickMeTempl">Click this to change 2nd input</div>
+    <div ws-onafterrender="AfterRenderUnit" ws-onclick="ClickMeUnit">Click this to change 3rd input</div>
+    <script ws-replace="scripts"></script>
+</body>
+</html>

@@ -36,7 +36,7 @@
         <h1>My TODO! list</h1>
         <div id="tasks"></div>
         <div style="display: none" ws-children-template="Main">
-            <ul class="list-unstyled" ws-hole="ListContainer">
+            <ul class="list-unstyled" ws-onafterrender="MyRenderer2" ws-hole="ListContainer">
                 <li ws-template="ListItem">
                     <div class="checkbox">
                         <label ws-attr="ShowDone">
