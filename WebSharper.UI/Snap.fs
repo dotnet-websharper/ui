@@ -101,14 +101,11 @@ type Snap<'T> =
 
 [<Proxy(typeof<ISnap>)>]
 type internal ISnapProxy =
-
-    [<Name "o">]
     abstract Obsolete : unit -> unit
     [<Inline>]
     default this.Obsolete() =
         Snap.Obsolete(As<Snap<obj>> this)
 
-    [<Name "n">]
     abstract IsNotObsolete : unit -> bool
     [<Inline "$this.s">]
     default this.IsNotObsolete() = X<bool>
