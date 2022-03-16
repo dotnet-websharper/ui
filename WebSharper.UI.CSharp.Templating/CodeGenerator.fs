@@ -114,7 +114,7 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
             |]
         | HoleKind.ElemHandler ->
             let eventType = "WebSharper.JavaScript.Dom.Event"
-            let argType = "WebSharper.UI.Templating.Runtime.Server.TemplateEvent<Vars, "+eventType+">"
+            let argType = "TemplateEvent<Vars, "+eventType+">"
             [|
                 s2 "Action<DomElement>" "AfterRenderClient" "FSharpConvert.Fun<DomElement>(x)"
                 s2 "Action" "AfterRenderClient" "FSharpConvert.Fun<DomElement>((a) => x())"
@@ -129,7 +129,7 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
             |]
         | HoleKind.Event eventType ->
             let eventType = "WebSharper.JavaScript.Dom." + eventType
-            let argType = "WebSharper.UI.Templating.Runtime.Server.TemplateEvent<Vars, "+eventType+">"
+            let argType = "TemplateEvent<Vars, "+eventType+">"
             [|
                 s ("Action<DomElement, "+eventType+">") "ActionEvent" "x"
                 s2 "Action" "EventClient" ("FSharpConvert.Fun<DomElement, DomEvent>((a,b) => x())")
@@ -192,16 +192,16 @@ let finalMethodBody (ctx: Ctx) =
             let holeName' = holeName.ToLowerInvariant()
             match holeDef.Kind with
             | HoleKind.Var AST.ValTy.Any
-            | HoleKind.Var AST.ValTy.String -> yield sprintf """Tuple.Create("%s", WebSharper.UI.Templating.Runtime.Server.ValTy.String)""" holeName'
-            | HoleKind.Var AST.ValTy.Number -> yield sprintf """Tuple.Create("%s", WebSharper.UI.Templating.Runtime.Server.ValTy.Number)""" holeName'
-            | HoleKind.Var AST.ValTy.Bool -> yield sprintf """Tuple.Create("%s", WebSharper.UI.Templating.Runtime.Server.ValTy.Bool)""" holeName'
+            | HoleKind.Var AST.ValTy.String -> yield sprintf """Tuple.Create("%s", ValTy.String)""" holeName'
+            | HoleKind.Var AST.ValTy.Number -> yield sprintf """Tuple.Create("%s", ValTy.Number)""" holeName'
+            | HoleKind.Var AST.ValTy.Bool -> yield sprintf """Tuple.Create("%s", ValTy.Bool)""" holeName'
             | _ -> ()
         ]
         |> String.concat ", "
-        |> sprintf "new Tuple<string, WebSharper.UI.Templating.Runtime.Server.ValTy>[] { %s }"
+        |> sprintf "new Tuple<string, ValTy>[] { %s }"
     [
-        sprintf "var completed = WebSharper.UI.Templating.Runtime.Server.Handler.CompleteHoles(key, holes, %s);" vars
-        sprintf "var doc = WebSharper.UI.Templating.Runtime.Server.Runtime.GetOrLoadTemplate(%s, %s, %s, %s, null, completed.Item1, %s, ServerLoad.%s, %s, null, %b, false, false);"
+        sprintf "var completed = Handler.CompleteHoles(key, holes, %s);" vars
+        sprintf "var doc = Runtime.GetOrLoadTemplate(%s, %s, %s, %s, null, completed.Item1, %s, ServerLoad.%s, %s, null, %b, false, false);"
             (formatString ctx.FileId)
             (optionValue formatString "string" name)
             (optionValue formatString "string" ctx.Path)
@@ -224,11 +224,11 @@ let varsClass (ctx: Ctx) =
                 match holeDef.Kind with
                 | HoleKind.Var AST.ValTy.Any
                 | HoleKind.Var AST.ValTy.String ->
-                    yield sprintf """[Inline] public Var<string> %s => (Var<string>)TemplateHole.Value((JavaScript.Pervasives.As<Instance>(this)).Hole("%s"));""" holeName holeName'
+                    yield sprintf """[Inline] public Var<string> %s => (Var<string>)TemplateHole.Value((As<Instance>(this)).Hole("%s"));""" holeName holeName'
                 | HoleKind.Var AST.ValTy.Number ->
-                    yield sprintf """[Inline] public Var<float> %s => (Var<float>)TemplateHole.Value((JavaScript.Pervasives.As<Instance>(this)).Hole("%s"));""" holeName holeName'
+                    yield sprintf """[Inline] public Var<float> %s => (Var<float>)TemplateHole.Value((As<Instance>(this)).Hole("%s"));""" holeName holeName'
                 | HoleKind.Var AST.ValTy.Bool ->
-                    yield sprintf """[Inline] public Var<bool> %s => (Var<bool>)TemplateHole.Value((JavaScript.Pervasives.As<Instance>(this)).Hole("%s"));""" holeName holeName'
+                    yield sprintf """[Inline] public Var<bool> %s => (Var<bool>)TemplateHole.Value((As<Instance>(this)).Hole("%s"));""" holeName holeName'
                 | _ -> ()
         ]
         yield "}"
@@ -236,11 +236,11 @@ let varsClass (ctx: Ctx) =
 
 let instanceClass (ctx: Ctx) =
     [
-        yield "public class Instance : WebSharper.UI.Templating.Runtime.Server.TemplateInstance"
+        yield "public class Instance : TemplateInstance"
         yield "{"
         yield! indent [
-            yield """public Instance(WebSharper.UI.Templating.Runtime.Server.CompletedHoles v, Doc d) : base(v, d) { }"""
-            yield """public Vars Vars => JavaScript.Pervasives.As<Vars>(this);"""
+            yield """public Instance(CompletedHoles v, Doc d) : base(v, d) { }"""
+            yield """public Vars Vars => As<Vars>(this);"""
         ]
         yield "}"
     ]
@@ -263,13 +263,13 @@ let build typeName (ctx: Ctx) =
             let holeName' = holeName.ToLowerInvariant()
             match holeDef.Kind with
             | HoleKind.Var AST.ValTy.Any
-            | HoleKind.Var AST.ValTy.String -> yield sprintf """Tuple.Create("%s", WebSharper.UI.Templating.Runtime.Server.ValTy.String)""" holeName'
-            | HoleKind.Var AST.ValTy.Number -> yield sprintf """Tuple.Create("%s", WebSharper.UI.Templating.Runtime.Server.ValTy.Number)""" holeName'
-            | HoleKind.Var AST.ValTy.Bool -> yield sprintf """Tuple.Create("%s", WebSharper.UI.Templating.Runtime.Server.ValTy.Bool)""" holeName'
+            | HoleKind.Var AST.ValTy.String -> yield sprintf """Tuple.Create("%s", ValTy.String)""" holeName'
+            | HoleKind.Var AST.ValTy.Number -> yield sprintf """Tuple.Create("%s", ValTy.Number)""" holeName'
+            | HoleKind.Var AST.ValTy.Bool -> yield sprintf """Tuple.Create("%s", ValTy.Bool)""" holeName'
             | _ -> ()
         ]
         |> String.concat ", "
-        |> sprintf "new Tuple<string, WebSharper.UI.Templating.Runtime.Server.ValTy>[] { %s }"
+        |> sprintf "new Tuple<string, ValTy>[] { %s }"
     [|
         yield "string key = System.Guid.NewGuid().ToString();"
         yield "List<TemplateHole> holes = new List<TemplateHole>();"
@@ -277,7 +277,7 @@ let build typeName (ctx: Ctx) =
         yield "FSharpOption<IRequiresResources> templateInitialzier = FSharpOption<IRequiresResources>.None;"
         yield sprintf "public %s()" typeName
         yield "{"
-        yield sprintf "    var completed = WebSharper.UI.Templating.Runtime.Server.Handler.CompleteHoles(key, holes, %s);" vars
+        yield sprintf "    var completed = Handler.CompleteHoles(key, holes, %s);" vars
         yield "    if (WebSharper.Pervasives.IsClient) { }"
         yield "    else"
         yield "    {"
@@ -327,6 +327,7 @@ let getCodeInternal namespaceName templateName (item: ParseItem) =
         yield "using DomElement = WebSharper.JavaScript.Dom.Element;"
         yield "using DomEvent = WebSharper.JavaScript.Dom.Event;"
         yield "using static WebSharper.UI.Templating.Runtime.Server;"
+        yield "using static WebSharper.JavaScript.Pervasives;"
         yield "namespace " + namespaceName
         yield "{"
         yield! indent [
