@@ -103,6 +103,8 @@ namespace WebSharper.UI.CSharp.Tests
                 new Trans<double>(linearAnim, x => cubicAnim(x - 100, x), x => cubicAnim(x, x + 100));
 
             var rvLeftPos = Var.Create<double>(0);
+            // Testing update function from C# to avoid overload ambiguity issue
+            rvLeftPos.Update(d => d * 1);
             var animatedDoc =
                 div(
                     style("position", "relative"),
