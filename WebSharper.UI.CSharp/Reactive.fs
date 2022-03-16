@@ -111,13 +111,6 @@ type VarExtension =
     static member Lens(ref: Var<'A>, get: Func<'A, 'B>, set: Func<'A, 'B, 'A>) =
         Var.Lens ref (FSharpConvert.Fun get) (FSharpConvert.Fun set)
 
-[<Extension; JavaScript; Sealed>]
-type VarExtensions =
-    
-    [<Extension; Inline>]
-    static member Update(var, f: Func<'A, 'A>) =
-        Var.Update var (FSharpConvert.Fun f)
-
 [<Extension; Sealed; JavaScript>]
 type DocExtension =
     [<Extension; Inline>]

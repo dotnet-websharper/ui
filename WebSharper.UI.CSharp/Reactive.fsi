@@ -127,13 +127,6 @@ type VarExtension =
     static member Lens : Var<'A> * Func<'A, 'B> * Func<'A, 'B, 'A> -> Var<'B>
 
 [<Extension; Sealed>]
-type VarExtensions =
-    
-    /// Updates the current value.
-    [<Extension>]
-    static member Update : Var<'A> * Func<'A, 'A> -> unit
-
-[<Extension; Sealed>]
 type DocExtension =
     /// Embeds time-varying fragments.
     /// Equivalent to Doc.BindView.
