@@ -354,15 +354,15 @@ module private Impl =
         )
 
     let InstanceVars (ctx: Ctx) =
-        Expr.NewArray(typeof<string * RTS.ValTy>,
+        Expr.NewArray(typeof<string * RTS.ValTy * obj option>,
             [
                 for KeyValue(holeName, holeDef) in ctx.Template.Holes do
                     let holeName' = holeName.ToLowerInvariant()
                     match holeDef.Kind with
                     | HoleKind.Var AST.ValTy.Any
-                    | HoleKind.Var AST.ValTy.String -> yield <@@ (holeName', RTS.ValTy.String) @@>
-                    | HoleKind.Var AST.ValTy.Number -> yield <@@ (holeName', RTS.ValTy.Number) @@>
-                    | HoleKind.Var AST.ValTy.Bool -> yield <@@ (holeName', RTS.ValTy.Bool) @@>
+                    | HoleKind.Var AST.ValTy.String -> yield <@@ (holeName', RTS.ValTy.String, Option.None) @@>
+                    | HoleKind.Var AST.ValTy.Number -> yield <@@ (holeName', RTS.ValTy.Number, Option.None) @@>
+                    | HoleKind.Var AST.ValTy.Bool -> yield <@@ (holeName', RTS.ValTy.Bool, Option.None) @@>
                     | _ -> ()
             ]
         )

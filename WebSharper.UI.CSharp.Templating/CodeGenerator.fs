@@ -77,6 +77,9 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
     let s2 arg holeType value =
         sprintf "public %s %s(%s x) { holes.Add(Handler.%s(%s, %s)); return this; }"
             typeName holeName arg holeType holeName' value
+    let sv arg holeType value =
+        sprintf "public %s %s(%s x) { holes.Add(TemplateHole.New%s(WebSharper.Pervasives.IsClient ? %s : key + \"::\" + %s, %s)); return this; }"
+            typeName holeName arg holeType holeName' holeName' value  
     let serverS arg holeType value =
         [
             sprintf "[JavaScript(false)]"
@@ -150,18 +153,18 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
             |]
         | HoleKind.Var (ValTy.Any | ValTy.String) ->
             [|
-                s "Var<string>" "VarStr" "x"
+                sv "Var<string>" "VarStr" "x"
             |]
         | HoleKind.Var ValTy.Number ->
             [|
-                s "Var<int>" "VarIntUnchecked" "x"
+                sv "Var<int>" "VarIntUnchecked" "x"
                 s "Var<WebSharper.UI.Client.CheckedInput<int>>" "VarInt" "x"
-                s "Var<double>" "VarFloatUnchecked" "x"
+                sv "Var<double>" "VarFloatUnchecked" "x"
                 s "Var<WebSharper.UI.Client.CheckedInput<double>>" "VarFloat" "x"
             |]
         | HoleKind.Var ValTy.Bool ->
             [|
-                s "Var<bool>" "VarBool" "x"
+                sv "Var<bool>" "VarBool" "x"
             |]
         | HoleKind.Mapped (kind = k) -> build k
         | HoleKind.Unknown -> failwithf "Error: Unknown HoleKind: %s" holeName
@@ -192,13 +195,13 @@ let finalMethodBody (ctx: Ctx) =
             let holeName' = holeName.ToLowerInvariant()
             match holeDef.Kind with
             | HoleKind.Var AST.ValTy.Any
-            | HoleKind.Var AST.ValTy.String -> yield sprintf """Tuple.Create("%s", ValTy.String)""" holeName'
-            | HoleKind.Var AST.ValTy.Number -> yield sprintf """Tuple.Create("%s", ValTy.Number)""" holeName'
-            | HoleKind.Var AST.ValTy.Bool -> yield sprintf """Tuple.Create("%s", ValTy.Bool)""" holeName'
+            | HoleKind.Var AST.ValTy.String -> yield sprintf """Tuple.Create("%s", ValTy.String, FSharpOption<object>.None)""" holeName'
+            | HoleKind.Var AST.ValTy.Number -> yield sprintf """Tuple.Create("%s", ValTy.Number, FSharpOption<object>.None)""" holeName'
+            | HoleKind.Var AST.ValTy.Bool -> yield sprintf """Tuple.Create("%s", ValTy.Bool, FSharpOption<object>.None)""" holeName'
             | _ -> ()
         ]
         |> String.concat ", "
-        |> sprintf "new Tuple<string, ValTy>[] { %s }"
+        |> sprintf "new Tuple<string, ValTy, FSharpOption<object>>[] { %s }"
     [
         sprintf "var completed = Handler.CompleteHoles(key, holes, %s);" vars
         sprintf "var doc = Runtime.GetOrLoadTemplate(%s, %s, %s, %s, null, completed.Item1, %s, ServerLoad.%s, %s, null, %b, false, false);"
@@ -263,13 +266,13 @@ let build typeName (ctx: Ctx) =
             let holeName' = holeName.ToLowerInvariant()
             match holeDef.Kind with
             | HoleKind.Var AST.ValTy.Any
-            | HoleKind.Var AST.ValTy.String -> yield sprintf """Tuple.Create("%s", ValTy.String)""" holeName'
-            | HoleKind.Var AST.ValTy.Number -> yield sprintf """Tuple.Create("%s", ValTy.Number)""" holeName'
-            | HoleKind.Var AST.ValTy.Bool -> yield sprintf """Tuple.Create("%s", ValTy.Bool)""" holeName'
+            | HoleKind.Var AST.ValTy.String -> yield sprintf """Tuple.Create("%s", ValTy.String, FSharpOption<object>.None)""" holeName'
+            | HoleKind.Var AST.ValTy.Number -> yield sprintf """Tuple.Create("%s", ValTy.Number, FSharpOption<object>.None)""" holeName'
+            | HoleKind.Var AST.ValTy.Bool -> yield sprintf """Tuple.Create("%s", ValTy.Bool, FSharpOption<object>.None)""" holeName'
             | _ -> ()
         ]
         |> String.concat ", "
-        |> sprintf "new Tuple<string, ValTy>[] { %s }"
+        |> sprintf "new Tuple<string, ValTy, FSharpOption<object>>[] { %s }"
     [|
         yield "string key = System.Guid.NewGuid().ToString();"
         yield "List<TemplateHole> holes = new List<TemplateHole>();"

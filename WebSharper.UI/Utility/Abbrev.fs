@@ -63,8 +63,8 @@ module Array =
                 reduction a b
         loop 0 l
 
-    [<JavaScript>]
     /// Same as Array.ofSeq, but if argument is an array, it does not copy it.
+    [<JavaScript>]
     let ofSeqNonCopying (xs: seq<'T>) : 'T [] =
         if xs :? System.Array then
             xs :?> 'T[]
@@ -79,8 +79,8 @@ module Array =
                 q.JS.Push(o.Current) |> ignore
             q
 
-    [<JavaScript>]
     /// Unsafe operation, modifies each element of an array by a mapping function.
+    [<JavaScript>]
     let mapInPlace (f: 'T1 -> 'T2) (arr: 'T1 []) =
         if IsClient then
             for i = 0 to Array.length arr - 1 do

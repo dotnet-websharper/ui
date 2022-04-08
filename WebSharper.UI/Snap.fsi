@@ -90,7 +90,7 @@ module internal Snap =
     /// Snapshots when the first value changes
     val SnapshotOn : Snap<'A> -> Snap<'B> -> Snap<'B>
 
-    /// Updates the second value while the first view is true
+    // Updates the second value while the first view is true
  //   val UpdateWhile : Snap<bool> -> Snap<'A> -> Snap<'A>
 
     /// Returns a view equivalent to s, except that if s is Waiting,
