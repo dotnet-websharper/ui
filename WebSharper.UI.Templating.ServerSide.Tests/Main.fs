@@ -67,6 +67,7 @@ let mkServerVarForm(id: string) =
 let Main = Application.SinglePage(fun ctx ->
     Content.Page(
         MainTemplate.Main()
+            .ServerInitVar("Initialized as a string on the server")
             .Main(
                 [
                 MainTemplate.template()

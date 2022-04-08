@@ -46,6 +46,7 @@ namespace WebSharper.UI.CSharp.Templating.ServerSide.Tests
         {
             return Content.Page(
                 new Template.Index()
+                    .TestServerVarInitialization(Var.Create("Init me on the server side"))
                     //.DocToReplace(client(() => Client.ClientMain()))
                     .AfterRenderTempl_Server((m) => AfterRenderOverloadTempl(m))
                     .ClickMeTempl_Server((m) => ClickMeTempl(m))

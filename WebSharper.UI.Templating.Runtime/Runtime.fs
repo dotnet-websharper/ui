@@ -50,7 +50,7 @@ type ValTy =
     | Bool = 2
 
 [<JavaScript; Serializable>]
-type TemplateInitializer(id: string, vars: array<string * ValTy>) =
+type TemplateInitializer(id: string, vars: array<string * ValTy * obj option>) =
 
     [<NonSerialized; OptionalField>]
     let mutable instance = None
@@ -93,9 +93,6 @@ type TemplateInitializer(id: string, vars: array<string * ValTy>) =
 
     static member Initialized = initialized
 
-    [<Inline "$global.UIVarDict[$name]">]
-    static member GetServerVarInitValue (name: string) = WebSharper.JavaScript.Interop.X<string>
-
     static member GetHolesFor(id) =
         match initialized.TryGetValue(id) with
         | true, d -> d
@@ -117,13 +114,13 @@ type TemplateInitializer(id: string, vars: array<string * ValTy>) =
 
     member this.InitInstance(key) =
         let d = TemplateInitializer.GetHolesFor(key)
-        for n, t in vars do
+        for n, t, ov in vars do
             if not (d.ContainsKey n) then
                 d[n] <-
                     match t with
-                    | ValTy.Bool -> TemplateHole.VarBool (n, Var.Create false)
-                    | ValTy.Number -> TemplateHole.VarFloatUnchecked (n, Var.Create 0.)
-                    | ValTy.String -> TemplateHole.VarStr (n, Var.Create "")
+                    | ValTy.Bool -> TemplateHole.VarBool (n, Var.Create (ov |> Option.map (fun x -> x :?> bool) |> Option.defaultValue false))
+                    | ValTy.Number -> TemplateHole.VarFloatUnchecked (n, Var.Create (ov |> Option.map (fun x -> x :?> float) |> Option.defaultValue 0.))
+                    | ValTy.String -> TemplateHole.VarStr (n, Var.Create (ov |> Option.map (fun x -> x :?> string) |> Option.defaultValue ""))
                     | _ -> failwith "Invalid value type"
         let i = TemplateInstance(CompletedHoles.Client(d), Doc.Empty)
         instance <- Some i
@@ -222,7 +219,7 @@ type Handler private () =
                 }
         @>)
 
-    static member CompleteHoles(key: string, filledHoles: seq<TemplateHole>, vars: array<string * ValTy>) : seq<TemplateHole> * CompletedHoles =
+    static member CompleteHoles(key: string, filledHoles: seq<TemplateHole>, vars: array<string * ValTy * obj option>) : seq<TemplateHole> * CompletedHoles =
         let filledVars = HashSet()
         let hasEventHandler =
             (false, filledHoles)
@@ -242,9 +239,10 @@ type Handler private () =
                 | TemplateHole.EventQ _ -> true
                 | _ -> hasEventHandler
             )
+
         let strHole s = TemplateHole.UninitVar(s, key + "::" + s)
         let extraHoles =
-            vars |> Array.choose (fun (name, ty) ->
+            vars |> Array.choose (fun (name, ty, _) ->
                 if filledVars.Contains name then None else
                 let h =
                     match ty with
@@ -261,15 +259,39 @@ type Handler private () =
         let holes =
             filledHoles
             |> Seq.map (function
-                | TemplateHole.VarStr(s, _) -> strHole s
+                //| TemplateHole.VarStr(s, _) -> strHole s
                 | x -> x
             )
             |> Seq.append extraHoles
             |> Seq.cache
+
+        let varsWithInitializedValues =
+            vars
+            |> Array.map (fun (n,t,ov) ->
+                if filledVars.Contains n || filledVars.Contains (key + "::" + n) then
+                    filledHoles
+                    |> Seq.tryFind (fun th ->
+                        let thn = TemplateHole.Name th
+                        thn = n || key + "::" + n = thn
+                    )
+                    |> function
+                        | Some (TemplateHole.VarStr(n, v)) ->
+                            (n, t, Option.Some (box v.Value))
+                        | Some (TemplateHole.VarInt(n, v)) ->
+                            (n, t, Option.Some (box v.Value))
+                        | Some (TemplateHole.VarFloat(n, v)) ->
+                            (n, t, Option.Some (box v.Value))
+                        | Some (TemplateHole.VarBool(n, v)) ->
+                            (n, t, Option.Some (box v.Value))
+                        | _ ->
+                            failwith "Invalid hole type"
+                else
+                    (n, t, ov)
+            )
         // The initializer is only needed if there are vars or the server side has filled event handlers
         let initializer =
-            if hasEventHandler || not (Array.isEmpty vars) then
-                Some (new TemplateInitializer(id = key, vars = vars))
+            if hasEventHandler || not (Array.isEmpty varsWithInitializedValues) then
+                Some (new TemplateInitializer(id = key, vars = varsWithInitializedValues))
             else None
         holes, Server initializer
 
@@ -440,11 +462,11 @@ module ProviderBuilder =
             failwith "Template.Bind() can only be called from the client side."
 
     [<Inline>]
-    let CompleteHoles (builder: ProviderBuilder) (vars: (string * ValTy)[]) =
+    let CompleteHoles (builder: ProviderBuilder) (vars: (string * ValTy * obj option)[]) =
         Handler.CompleteHoles(builder.Key, builder.Holes, vars)
 
     [<Inline>]
-    let BindBody (builder: ProviderBuilder) (vars: (string * ValTy)[]) =
+    let BindBody (builder: ProviderBuilder) (vars: (string * ValTy * obj option)[]) =
         let holes, completed = CompleteHoles builder vars
         let doc = RunTemplate holes
         builder.Instance <- TemplateInstance(completed, doc)
@@ -562,6 +584,18 @@ type Runtime private () =
         
         fillWith |> Seq.iter (addTemplateHole requireResources)
 
+        let tplId =
+            if obj.ReferenceEquals(completed, null) then
+                ""
+            else
+                match completed with
+                | CompletedHoles.Server None ->   
+                    ""
+                | CompletedHoles.Server (Some i) ->
+                    i.Id
+                | CompletedHoles.Client _ ->
+                    ""
+
         let rec writeWrappedTemplate templateName (template: Template) ctx =
             let tagName = template.Value |> Array.tryPick (function
                 | Node.Element (name, _, _, _)
@@ -570,10 +604,10 @@ type Runtime private () =
             )
             let before, after = defaultArg (Map.tryFind tagName templateWrappers) defaultTemplateWrappers
             ctx.Writer.Write(before, ChildrenTemplateAttr, templateName)
-            writeTemplate template true [] ctx
+            writeTemplate template true [] ctx tplId
             ctx.Writer.Write(after)
 
-        and writeTemplate (template: Template) (plain: bool) (extraAttrs: list<UI.Attr>) (ctx: RenderContext) =
+        and writeTemplate (template: Template) (plain: bool) (extraAttrs: list<UI.Attr>) (ctx: RenderContext) (id: string) =
             let writeStringParts text (w: HtmlTextWriter) =
                 text |> Array.iter (function
                     | StringPart.Text t -> w.Write(t)
@@ -671,6 +705,10 @@ type Runtime private () =
                         match ctx.FillWith.TryGetValue holeName with
                         | true, TemplateHole.UninitVar (_, fullName) ->
                             Some fullName, attrs
+                        | true, TemplateHole.VarStr (n, _)
+                        | true, TemplateHole.VarBool (n, _)
+                        | true, TemplateHole.VarFloat (n, _) ->
+                            Some (if String.IsNullOrEmpty id then n else id + "::" + n), attrs
                         | _ ->
                             Some holeName, attrs
                     writeElement (Option.isNone parent) plain tag attrs wsVar children
@@ -770,7 +808,7 @@ type Runtime private () =
                             RequireResources = reqRes
                             FillWith = holes
                             FillWithText = textHole
-                        }
+                        } ""
                 | None ->
                     let fullName = 
                         Option.toList fileName @ Option.toList templateName |> String.concat "." 
@@ -863,7 +901,7 @@ type Runtime private () =
                 FillWith = fillWith
                 FillWithText = None
                 RequireResources = requireResources
-            }
+            } tplId
         if not (loaded.ContainsKey baseName) then
             toInitialize.Enqueue(fun ctx ->
                 if not (loaded.ContainsKey baseName) then

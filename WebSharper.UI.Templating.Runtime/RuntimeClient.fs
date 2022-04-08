@@ -244,7 +244,7 @@ type private HandlerProxy =
         @>)
 
     [<JavaScript>]
-    static member CompleteHoles(key: string, filledHoles: seq<TemplateHole>, vars: array<string * Server.ValTy>) : seq<TemplateHole> * Server.CompletedHoles =
+    static member CompleteHoles(key: string, filledHoles: seq<TemplateHole>, vars: array<string * Server.ValTy * obj option>) : seq<TemplateHole> * Server.CompletedHoles =
         let allVars = Dictionary<string, TemplateHole>()
         let filledVars = HashSet()
         for h in filledHoles do
@@ -252,7 +252,7 @@ type private HandlerProxy =
             filledVars.Add(n) |> ignore
             allVars[n] <- h
         let extraHoles =
-            vars |> Array.choose (fun (name, ty) ->
+            vars |> Array.choose (fun (name, ty, _) ->
                 if filledVars.Contains name then None else
                 let r =
                     match ty with
