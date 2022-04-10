@@ -85,10 +85,10 @@ type TemplateInitializer(id: string, vars: array<string * ValTy * obj option>) =
         | TemplateHole.UninitVar (n, _)
         | TemplateHole.Event (n, _)
         | TemplateHole.EventQ (n, _)
-        | TemplateHole.EventE (n, _, _, _)
+        | TemplateHole.EventE (n, _, _)
         | TemplateHole.AfterRender (n, _)
         | TemplateHole.AfterRenderQ (n, _)
-        | TemplateHole.AfterRenderE (n, _, _, _)
+        | TemplateHole.AfterRenderE (n, _, _)
         | TemplateHole.Attribute (n, _) -> JavaScript.Console.Warn("Not a var hole: ", n)
 
     static member Initialized = initialized
@@ -136,7 +136,8 @@ type TemplateInitializer(id: string, vars: array<string * ValTy * obj option>) =
             [| M.TypeNode(Core.AST.Reflection.ReadTypeDefinition(typeof<TemplateInitializer>)) |] :> _
         [<JavaScript false>]
         member this.Encode(meta, json) =
-            [id, json.GetEncoder<TemplateInitializer>().Encode(this)]
+            let enc = json.GetEncoder<TemplateInitializer>().Encode(this)
+            [id, enc]
 
     interface IInitializer with
 
@@ -576,10 +577,10 @@ type Runtime private () =
                 dict.Add(n, Attr.HandlerImpl("", e) :> IRequiresResources)
             | TemplateHole.AfterRenderQ (n, e) ->
                 dict.Add(n, Attr.OnAfterRenderImpl(e) :> IRequiresResources)
-            | TemplateHole.EventE (n, k, dep, e) ->
-                dict.Add(n, (Attr.HandlerLinqWithKey "" k dep e) :> IRequiresResources)
-            | TemplateHole.AfterRenderE (n, k, dep, e) ->
-                dict.Add(n, Attr.OnAfterRenderLinq k dep e :> IRequiresResources)
+            | TemplateHole.EventE (n, k, e) ->
+                dict.Add(n, (Attr.HandlerLinqWithKey "" k e) :> IRequiresResources)
+            | TemplateHole.AfterRenderE (n, k, e) ->
+                dict.Add(n, Attr.OnAfterRenderLinq k e :> IRequiresResources)
             | _ -> ()
         
         fillWith |> Seq.iter (addTemplateHole requireResources)

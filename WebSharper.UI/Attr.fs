@@ -299,7 +299,7 @@ type Attr =
             | Some v -> v
         func, reqs :> seq<_>
 
-    static member HandlerLinqImpl(event, m, key: string, dep: IRequiresResources option, q: Expression<Action<Dom.Element, #Dom.Event>>) =
+    static member HandlerLinqImpl(event, m, key: string, q: Expression<Action<Dom.Element, #Dom.Event>>) =
         let value = ref None
         let init meta =
             if Option.isNone value.Value then
@@ -340,23 +340,23 @@ type Attr =
             init meta
             let reqs = snd (Option.get value.Value)
             reqs |> Seq.append (seq { Internal.eventNode })
-        DepAttr ("on" + event, getValue, getReqs, (fun meta json -> match dep with None -> [] | Some dep -> dep.Encode(meta, json)))
+        Attr.WithDependencies("on" + event, getValue, getReqs)
 
     static member HandlerLinq (event: string) (q: Expression<Action<Dom.Element, #Dom.Event>>) =
         let meth =
             match q.Body with
             | :? MethodCallExpression as e -> e.Method
             | _ -> failwithf "Invalid handler function: %A" q
-        Attr.HandlerLinqImpl(event, meth, "", None, q)
+        Attr.HandlerLinqImpl(event, meth, "", q)
 
-    static member HandlerLinqWithKey (event: string) (key: string) (dep: IRequiresResources option) (q: Expression<Action<Dom.Element, #Dom.Event>>) =
+    static member HandlerLinqWithKey (event: string) (key: string) (q: Expression<Action<Dom.Element, #Dom.Event>>) =
         let meth =
             match q.Body with
             | :? MethodCallExpression as e -> e.Method
             | _ -> failwithf "Invalid handler function: %A" q
-        Attr.HandlerLinqImpl(event, meth, key, dep, q)
+        Attr.HandlerLinqImpl(event, meth, key, q)
 
-    static member OnAfterRenderLinqImpl(m, location, key: string, dep: IRequiresResources option, q: Expression<Action<Dom.Element>>) =
+    static member OnAfterRenderLinqImpl(m, location, key: string, q: Expression<Action<Dom.Element>>) =
         let value = ref None
         let init meta =
             if Option.isNone value.Value then
@@ -379,14 +379,6 @@ type Attr =
                         | _ -> failwithf "Invalid handler function: %A" q
                     | _ -> failwithf "Invalid handler function: %A" q
                     
-        let enc (meta: M.Info) (json: J.Provider) =
-            init meta
-            let enc2 =
-                match dep with
-                | None -> []
-                | Some dep -> dep.Encode(meta, json)
-            OnAfterRenderControl.Instance.Encode(meta, json)
-            |> List.append enc2 
         let getValue (meta: M.Info) (json: J.Provider) =
             init meta
             (fst (Option.get value.Value)) json
@@ -394,11 +386,14 @@ type Attr =
             init meta 
             let reqs = snd (Option.get value.Value)
             reqs |> Seq.append (seq { Internal.afterRenderNode })
-        DepAttr ("ws-runafterrender", getValue, getReqs, enc)
+        let enc (meta: M.Info) (json: J.Provider) =
+            init meta
+            OnAfterRenderControl.Instance.Encode(meta, json)
+        DepAttr("ws-runafterrender", getValue, getReqs, enc)
 
-    static member OnAfterRenderLinq (key: string) (dep: IRequiresResources option) (q: Expression<Action<Dom.Element>>) =
+    static member OnAfterRenderLinq (key: string) (q: Expression<Action<Dom.Element>>) =
         let meth =
             match q.Body with
             | :? MethodCallExpression as e -> e.Method
             | _ -> failwithf "Invalid handler function: %A" q
-        Attr.OnAfterRenderLinqImpl(meth, "", key, dep, q)
+        Attr.OnAfterRenderLinqImpl(meth, "", key, q)

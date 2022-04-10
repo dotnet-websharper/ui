@@ -78,8 +78,8 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
         sprintf "public %s %s(%s x) { holes.Add(Handler.%s(%s, %s)); return this; }"
             typeName holeName arg holeType holeName' value
     let sv arg holeType value =
-        sprintf "public %s %s(%s x) { holes.Add(TemplateHole.New%s(WebSharper.Pervasives.IsClient ? %s : key + \"::\" + %s, %s)); return this; }"
-            typeName holeName arg holeType holeName' holeName' value  
+        sprintf "public %s %s(%s x) { holes.Add(TemplateHole.New%s(%s, %s)); return this; }"
+            typeName holeName arg holeType holeName' value  
     let serverS arg holeType value =
         [
             sprintf "[JavaScript(false)]"
@@ -89,14 +89,14 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
     let serverSE arg holeType value =
         [
             sprintf "[JavaScript(false)]"
-            sprintf "public %s %s_Server(%s y) { holes.Add(TemplateHole.New%s(%s, \"\", templateInitialzier, %s)); return this; }"
+            sprintf "public %s %s_Server(%s y) { holes.Add(TemplateHole.New%s(%s, \"\", %s)); return this; }"
                 typeName holeName arg holeType holeName' value
         ]
 
     let serverSTE arg holeType value =
         [
             sprintf "[JavaScript(false)]"
-            sprintf "public %s %s_Server(%s y) { holes.Add(TemplateHole.New%s(%s, key, templateInitialzier, %s)); return this; }"
+            sprintf "public %s %s_Server(%s y) { holes.Add(TemplateHole.New%s(%s, key, %s)); return this; }"
                 typeName holeName arg holeType holeName' value
         ]
 
@@ -203,8 +203,8 @@ let finalMethodBody (ctx: Ctx) =
         |> String.concat ", "
         |> sprintf "new Tuple<string, ValTy, FSharpOption<object>>[] { %s }"
     [
-        sprintf "var completed = Handler.CompleteHoles(key, holes, %s);" vars
-        sprintf "var doc = Runtime.GetOrLoadTemplate(%s, %s, %s, %s, null, completed.Item1, %s, ServerLoad.%s, %s, null, %b, false, false);"
+        sprintf "var (completed, initializer) = Handler.CompleteHoles(key, holes, %s);" vars
+        sprintf "var doc = Runtime.GetOrLoadTemplate(%s, %s, %s, %s, null, completed, %s, ServerLoad.%s, %s, initializer, %b, false, false);"
             (formatString ctx.FileId)
             (optionValue formatString "string" name)
             (optionValue formatString "string" ctx.Path)
@@ -213,7 +213,7 @@ let finalMethodBody (ctx: Ctx) =
             (string ctx.ServerLoad)
             references
             ctx.Template.IsElt
-        sprintf "instance = new Instance(completed.Item2, doc);"
+        sprintf "instance = new Instance(initializer, doc);"
         sprintf "return instance;"
     ]
 
@@ -277,22 +277,6 @@ let build typeName (ctx: Ctx) =
         yield "string key = System.Guid.NewGuid().ToString();"
         yield "List<TemplateHole> holes = new List<TemplateHole>();"
         yield "Instance instance;"
-        yield "FSharpOption<IRequiresResources> templateInitialzier = FSharpOption<IRequiresResources>.None;"
-        yield sprintf "public %s()" typeName
-        yield "{"
-        yield sprintf "    var completed = Handler.CompleteHoles(key, holes, %s);" vars
-        yield "    if (WebSharper.Pervasives.IsClient) { }"
-        yield "    else"
-        yield "    {"
-        yield "        if (completed.Item2 is CompletedHoles.Server s)"
-        yield "        {"
-        yield "            if (s.Item is FSharpOption<TemplateInitializer> v)"
-        yield "            {"
-        yield "                templateInitialzier = v.Value;"
-        yield "            }"
-        yield "        }"
-        yield "    }"
-        yield "}"
         for KeyValue(holeName, holeDef) in ctx.Template.Holes do
             yield! buildHoleMethods typeName holeName holeDef
         yield! buildFinalMethods ctx
