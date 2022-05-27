@@ -84,6 +84,9 @@ type Doc =
     /// Client-side control.
     static member ClientSideLinq : System.Linq.Expressions.Expression<System.Func<IControlBody>> -> Doc
 
+    /// Client-side control with a server-side placeholder.
+    static member Hydrate : [<ReflectedDefinition(true); JavaScript>] expr: Expr<Doc> -> Doc
+
     /// Verbatim HTML.
     static member Verbatim : string -> Doc
 

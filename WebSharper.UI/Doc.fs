@@ -536,6 +536,22 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
         | TemplateHole.AfterRenderE (_, k, v) -> TemplateHole.AfterRenderE(n, k, v)
         | TemplateHole.Attribute (_, v) -> TemplateHole.Attribute(n, v)
 
+type InlineControlWithPlaceHolder(docExpr: Expr<Doc>, doc: Doc) =
+    inherit InlineControl<Doc>(docExpr)
+
+    [<System.NonSerialized>]
+    let doc = doc
+
+    // this is needed because WebSharper.Web.Control.GetBodyNode looks at Body property on current type
+    [<JavaScript>]
+    override this.Body = base.Body
+
+    interface INode with
+        member this.Write (ctx, w) =
+            w.Write("""<div id="{0}">""", this.ID)
+            doc.Write(ctx, w, None)
+            w.Write("</div>")
+
 type Doc with
 
     static member ListOfSeq (s: seq<'T>) =
@@ -586,6 +602,14 @@ type Doc with
     static member ClientSide([<JavaScript>] expr: Expr<#IControlBody>) =
         Doc.ClientSideImpl expr
 
+    static member Hydrate ([<ReflectedDefinition(true); JavaScript>] expr: Expr<Doc>) =
+        match expr with
+        | Patterns.WithValue(doc, _, docExpr) ->
+            ConcreteDoc(INodeDoc (new InlineControlWithPlaceHolder (Expr.Cast<Doc> docExpr, doc :?> Doc))) :> Doc
+        | _ ->
+            // value missing, nothing to render on server
+            Doc.ClientSideImpl expr
+            
     static member ClientSideLinq (expr: System.Linq.Expressions.Expression<System.Func<IControlBody>>) =
         ConcreteDoc(INodeDoc (new Web.CSharpInlineControl(expr))) :> Doc
 

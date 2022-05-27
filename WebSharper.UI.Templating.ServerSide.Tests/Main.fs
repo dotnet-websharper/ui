@@ -45,6 +45,16 @@ module Client =
             .Opacity(Var.Create (float init.Length / 10.))
             .Doc()
 
+    let MainHydrated (init: string) =
+        if IsClient then
+            MainTemplate.Main.ClientTemplate()
+                .Before(init)
+                .Input(Var.Create init)
+                .Opacity(Var.Create (float init.Length / 10.))
+                .Doc()
+        else
+            div [] [text "Testing Doc.Hydrate"]
+
     let OldMain (init) =
         LegacyTemplate.OldTemplate.Doc(Input = Var.Create init)
 
@@ -88,8 +98,9 @@ let Main = Application.SinglePage(fun ctx ->
             .Click(fun e -> JavaScript.JS.Set e.Target "wsuiDispatched5" true)
             .Client(
                 [
-                    client <@ Client.Main("green") @>
+                    Doc.ClientSide <@ Client.Main("green") @>
                     client <@ Client.Main("blue") @>
+                    Doc.Hydrate (Client.MainHydrated("red"))
                     client <@ Client.OldMain("old template") @>
                     MainTemplate.Main.ServerTemplate().Elt()
                         .OnClick(<@ Client.OnClick @>)
