@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2020
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32602.215
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WebSharper.UI", "WebSharper.UI\WebSharper.UI.fsproj", "{085A6F78-50A7-46CF-B040-9853EC580BE5}"
 EndProject
@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WebSharper.UI.Templating", "WebSharper.UI.Templating\WebSharper.UI.Templating.fsproj", "{F2F67741-6877-412E-A4B6-2EBD8DFED8A6}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebSharper.UI.Templating.Tests", "WebSharper.UI.Templating.Tests\WebSharper.UI.Templating.Tests.fsproj", "{608521D3-89CF-452B-AD62-5FA7EB246E6F}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WebSharper.UI.Templating.Tests", "WebSharper.UI.Templating.Tests\WebSharper.UI.Templating.Tests.fsproj", "{608521D3-89CF-452B-AD62-5FA7EB246E6F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{2A2EF6F0-10CA-47BC-B490-FC9174DE28D2}"
 	ProjectSection(SolutionItems) = preProject
@@ -23,12 +23,12 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WebSharper.UI.CSharp", "Web
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebSharper.UI.CSharp.Tests", "WebSharper.UI.CSharp.Tests\WebSharper.UI.CSharp.Tests.csproj", "{88079FA1-E1C8-4868-A1D0-3815BF4DABE2}"
 	ProjectSection(ProjectDependencies) = postProject
-		{AE103526-34B2-4556-914C-3E45BB1CFB17} = {AE103526-34B2-4556-914C-3E45BB1CFB17}
-		{AC8E0153-76B5-4035-991D-F7CC05439B9D} = {AC8E0153-76B5-4035-991D-F7CC05439B9D}
-		{B84D3163-0E80-488E-B47C-D0750859C024} = {B84D3163-0E80-488E-B47C-D0750859C024}
 		{085A6F78-50A7-46CF-B040-9853EC580BE5} = {085A6F78-50A7-46CF-B040-9853EC580BE5}
 		{13FBA482-7285-4C83-A201-2D60FF89E586} = {13FBA482-7285-4C83-A201-2D60FF89E586}
 		{3B1280C3-1F2B-4231-9B6C-2640CA9F7A6D} = {3B1280C3-1F2B-4231-9B6C-2640CA9F7A6D}
+		{AC8E0153-76B5-4035-991D-F7CC05439B9D} = {AC8E0153-76B5-4035-991D-F7CC05439B9D}
+		{AE103526-34B2-4556-914C-3E45BB1CFB17} = {AE103526-34B2-4556-914C-3E45BB1CFB17}
+		{B84D3163-0E80-488E-B47C-D0750859C024} = {B84D3163-0E80-488E-B47C-D0750859C024}
 	EndProjectSection
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WebSharper.UI.Tests", "WebSharper.UI.Tests\WebSharper.UI.Tests.fsproj", "{559573F7-4EA1-462C-A94D-1C2DB8102419}"
@@ -48,6 +48,11 @@ EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WebSharper.UI.Routing.Tests", "WebSharper.UI.Routing.Tests\WebSharper.UI.Routing.Tests.fsproj", "{A0D7C6E3-E644-422C-825A-123EEBE96B03}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebSharper.UI.CSharp.Templating.ServerSide.Tests", "WebSharper.UI.CSharp.Templating.ServerSide.Tests\WebSharper.UI.CSharp.Templating.ServerSide.Tests.csproj", "{A9756638-4FBC-424F-956E-46D7EBBEA2DD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3B1280C3-1F2B-4231-9B6C-2640CA9F7A6D} = {3B1280C3-1F2B-4231-9B6C-2640CA9F7A6D}
+		{AC8E0153-76B5-4035-991D-F7CC05439B9D} = {AC8E0153-76B5-4035-991D-F7CC05439B9D}
+		{B84D3163-0E80-488E-B47C-D0750859C024} = {B84D3163-0E80-488E-B47C-D0750859C024}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
