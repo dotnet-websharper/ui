@@ -603,6 +603,11 @@ type FileWatcher (invalidate: unit -> unit, disposing: IEvent<EventHandler, Even
             watchers.Add(rootedPath, watcher)
 
 [<TypeProvider>]
+/// Creates a template from HTML with special templating syntax.
+/// `pathOrHtml`: Path to an HTML file or an inline HTML string.
+/// `clientLoad`: Decide how the HTML is loaded when the template is used on the client side, default is Inline.
+/// `serverLoad`: Decide how the HTML is loaded when the template is used on the server side, default is WhenChanged.
+/// `legacyMode`: Use WebSharper 3 or WebSharper 4+ templating engine or both, default is Both.
 type TemplatingProvider (cfg: TypeProviderConfig) as this =
     inherit TypeProviderForNamespaces(cfg)
 
@@ -620,13 +625,13 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
         templateTy.DefineStaticParameters(
             [
                 ProvidedStaticParameter("pathOrHtml", typeof<string>)
-                    .WithXmlDoc("Inline HTML or a path to an HTML file")
+                    .WithXmlDoc("Path to an HTML file or an inline HTML string")
                 ProvidedStaticParameter("clientLoad", typeof<ClientLoad>, ClientLoad.Inline)
-                    .WithXmlDoc("Decide how the HTML is loaded when the template is used on the client side")
+                    .WithXmlDoc("Decide how the HTML is loaded when the template is used on the client side, default is Inline")
                 ProvidedStaticParameter("serverLoad", typeof<ServerLoad>, ServerLoad.WhenChanged)
-                    .WithXmlDoc("Decide how the HTML is loaded when the template is used on the server side")
+                    .WithXmlDoc("Decide how the HTML is loaded when the template is used on the server side, default is WhenChanged")
                 ProvidedStaticParameter("legacyMode", typeof<LegacyMode>, LegacyMode.Both)
-                    .WithXmlDoc("Use WebSharper 3 or Zafir templating engine or both")
+                    .WithXmlDoc("Use WebSharper 3 or WebSharper 4+ templating engine or both, default is Both")
             ],
             fun typename pars ->
             try

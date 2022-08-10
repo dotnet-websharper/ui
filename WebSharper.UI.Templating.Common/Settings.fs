@@ -32,7 +32,7 @@ type ClientLoad =
 //    | Download = 3
 
 /// Decide how the HTML is loaded when the template is used on the server side.
-/// This only has an effect when passing a path to the provider, not inline HTML. (default: Once)
+/// This only has an effect when passing a path to the provider, not inline HTML. (default: WhenChanged)
 type ServerLoad =
     /// The HTML is loaded from the file system on first use.
     | Once = 1
@@ -46,5 +46,5 @@ type LegacyMode =
     | Both = 1
     /// Use the templating syntax inherited from WebSharper 3
     | Old = 2
-    /// Use Zafir templating engine (experimental)
+    /// Use WebSharper 4+ templating engine
     | New = 3
