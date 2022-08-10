@@ -456,7 +456,6 @@ NUGET
       System.Xml.ReaderWriter (>= 4.3)
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
-  remote: https://nuget.pkg.github.com/dotnet-websharper/index.json
     WebSharper (6.0.0.228)
       FSharp.Core (>= 6.0.5)
       System.Reflection.Emit.Lightweight (>= 4.7)
@@ -474,8 +473,8 @@ NUGET
       WebSharper (6.0.0.228)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (a35115bd94a4e989b6a978a9c2634f7725301a1f)
-    src/ProvidedTypes.fsi (a35115bd94a4e989b6a978a9c2634f7725301a1f)
+    src/ProvidedTypes.fs (6a9f05e53e334a7d9c55f3be59535323b8ddfaf9)
+    src/ProvidedTypes.fsi (6a9f05e53e334a7d9c55f3be59535323b8ddfaf9)
 GROUP includes
 REFERENCES: STRICT
 GITHUB
