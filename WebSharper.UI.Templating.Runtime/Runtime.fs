@@ -546,7 +546,7 @@ type Runtime private () =
 
     // if runtime running as part of offline sitelets generation in compiler service, do not use caching
     static let isCompilerHosted = 
-        System.Reflection.Assembly.GetEntryAssembly().FullName = "wsfscservice"
+        System.Reflection.Assembly.GetEntryAssembly().GetName().Name = "wsfscservice"
 
     static member GetOrLoadTemplate
             (
