@@ -544,6 +544,10 @@ type Runtime private () =
         | Some "tr" -> "td"
         | _ -> "div"
 
+    // if runtime running as part of offline sitelets generation in compiler service, do not use caching
+    static let isCompilerHosted = 
+        System.Reflection.Assembly.GetEntryAssembly().FullName = "wsfscservice"
+
     static member GetOrLoadTemplate
             (
                 baseName: string,
@@ -840,14 +844,17 @@ type Runtime private () =
                 | None, Some t -> t
                 | None, None ->
                 let t =
-                    match path, serverLoad with
-                    | None, _
-                    | Some _, ServerLoad.Once ->
+                    match path, serverLoad, isCompilerHosted with
+                    | None, _, false
+                    | Some _, ServerLoad.Once, false ->
                         getOrLoadSrc origSrc
-                    | Some path, ServerLoad.PerRequest ->
+                    | None, _, true ->
+                        getSrc origSrc
+                    | Some path, ServerLoad.PerRequest, _ 
+                    | Some path, _, true ->
                         let fullPath = Path.Combine(ctx.RootFolder, path)
                         getSrc (File.ReadAllText fullPath)
-                    | Some path, ServerLoad.WhenChanged ->
+                    | Some path, ServerLoad.WhenChanged, false ->
                         let fullPath = Path.Combine(ctx.RootFolder, path)
                         let watcher = watchers.GetOrAdd(baseName, fun _ ->
                             let dir = Path.GetDirectoryName fullPath
@@ -865,7 +872,7 @@ type Runtime private () =
                             watcher.Renamed.Add handler
                             watcher)
                         getOrLoadPath fullPath
-                    | Some _, _ -> failwith "Invalid ServerLoad"
+                    | Some _, _, false -> failwith "Invalid ServerLoad"
                 templates.Value <- Some t
                 t
             getTemplate baseName (Parsing.WrappedTemplateName.OfOption name) t, t
