@@ -563,7 +563,7 @@ type Doc with
         match o with
         | :? Doc as d -> d
         | :? INode as n -> Doc.OfINode n
-        | :? Expr<#IControlBody> as e -> Doc.ClientSide e
+        | :? Expr<#IControlBody> as e -> Doc.ClientSide %e
         | :? string as t -> Doc.TextNode t
         | null -> Doc.Empty
         | o -> Doc.TextNode (string o)
@@ -599,7 +599,7 @@ type Doc with
     static member ClientSideImpl(expr: Expr<#IControlBody>) =
         ConcreteDoc(INodeDoc (new Web.InlineControl<_>(expr))) :> Doc
 
-    static member ClientSide([<JavaScript>] expr: Expr<#IControlBody>) =
+    static member ClientSide([<ReflectedDefinition; JavaScript>] expr: Expr<#IControlBody>) =
         Doc.ClientSideImpl expr
 
     static member Hydrate ([<ReflectedDefinition(true); JavaScript>] expr: Expr<Doc>) =

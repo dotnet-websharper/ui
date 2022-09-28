@@ -43,7 +43,7 @@ module Html =
 
     /// Insert a client-side Doc.
     [<JavaScript; Inline>]
-    let client ([<ReflectedDefinition; JavaScript>] q) = Doc.ClientSide q
+    let client ([<ReflectedDefinition; JavaScript>] q) = Doc.ClientSide %q
 
     module Elt =
 

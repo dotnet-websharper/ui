@@ -79,7 +79,7 @@ type Doc =
     static member internal ClientSideImpl : Expr<#IControlBody> -> Doc
 
     /// Client-side control.
-    static member ClientSide : Expr<#IControlBody> -> Doc
+    static member ClientSide : [<ReflectedDefinition; JavaScript>] expr: Expr<#IControlBody> -> Doc
 
     /// Client-side control.
     static member ClientSideLinq : System.Linq.Expressions.Expression<System.Func<IControlBody>> -> Doc
