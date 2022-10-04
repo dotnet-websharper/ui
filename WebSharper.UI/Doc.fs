@@ -616,3 +616,20 @@ type Doc with
     static member Verbatim t = ConcreteDoc(VerbatimDoc t) :> Doc
 
     static member OfINode n = ConcreteDoc(INodeDoc n) :> Doc
+
+[<AbstractClass; Sealed>]
+type ClientServer =
+
+    static member client ([<ReflectedDefinition; JavaScript>] expr: Expr<#IControlBody>) =
+        Doc.ClientSideImpl expr
+
+    static member hydrate ([<ReflectedDefinition(true); JavaScript>] expr: Expr<Doc>) =
+        match expr with
+        | Patterns.WithValue(doc, _, docExpr) ->
+            ConcreteDoc(INodeDoc (new InlineControlWithPlaceHolder (Expr.Cast<Doc> docExpr, doc :?> Doc))) :> Doc
+        | _ ->
+            // value missing, nothing to render on server
+            Doc.ClientSideImpl expr
+
+    static member clientLinq (expr: System.Linq.Expressions.Expression<System.Func<IControlBody>>) =
+        ConcreteDoc(INodeDoc (new Web.CSharpInlineControl(expr))) :> Doc

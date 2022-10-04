@@ -79,12 +79,15 @@ type Doc =
     static member internal ClientSideImpl : Expr<#IControlBody> -> Doc
 
     /// Client-side control.
+    [<Obsolete "Use ClientServer.client instead (or open the type WebSharper.UI.ClientServer) without <@ ... @>.">]
     static member ClientSide : [<ReflectedDefinition; JavaScript>] expr: Expr<#IControlBody> -> Doc
 
     /// Client-side control.
+    [<Obsolete "Use ClientServer.clientLinq instead (or open the type WebSharper.UI.ClientServer).">]
     static member ClientSideLinq : System.Linq.Expressions.Expression<System.Func<IControlBody>> -> Doc
 
     /// Client-side control with a server-side placeholder.
+    [<Obsolete "Use ClientServer.hydrate instead (or open the type WebSharper.UI.ClientServer) without <@ ... @>.">]
     static member Hydrate : [<ReflectedDefinition(true); JavaScript>] expr: Expr<Doc> -> Doc
 
     /// Verbatim HTML.
@@ -599,3 +602,11 @@ type DynDoc =
 type ConcreteDoc =
     inherit Doc
     new : DynDoc -> ConcreteDoc
+
+type [<AbstractClass; Sealed>] ClientServer =
+
+    static member client : [<ReflectedDefinition; JavaScript>] expr: Expr<#IControlBody> -> Doc
+
+    static member hydrate : [<ReflectedDefinition(true); JavaScript>] expr: Expr<Doc> -> Doc
+
+    static member clientLinq : System.Linq.Expressions.Expression<System.Func<IControlBody>> -> Doc

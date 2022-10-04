@@ -27,8 +27,10 @@ open WebSharper.UI.Server
 open WebSharper.UI.Routing
 open Actions
 
+
 module Site =
     open WebSharper.UI.Html
+    open type WebSharper.UI.ClientServer
     open WebSharper.Web
 
     let page (content: seq<INode>) =

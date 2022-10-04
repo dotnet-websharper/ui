@@ -43,7 +43,7 @@ module Html =
 
     /// Insert a client-side Doc.
     [<JavaScript; Inline>]
-    [<System.Obsolete "This is an alias of Doc.ClientSide. Use Doc.ClientSide directly for auto-quotation support.">]
+    [<System.Obsolete "This is an alias of ClientServer.client. Use ClientServer.client instead (or open the type WebSharper.UI.ClientServer) without <@ ... @>.">]
     let client ([<ReflectedDefinition; JavaScript>] q) = Doc.ClientSide %q
 
     module Elt =
