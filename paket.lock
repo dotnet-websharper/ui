@@ -453,7 +453,6 @@ NUGET
       System.Xml.ReaderWriter (>= 4.3)
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
-  remote: https://nuget.pkg.github.com/dotnet-websharper/index.json
     WebSharper (6.0.3.237)
       FSharp.Core (>= 6.0.5)
       System.Reflection.Emit.Lightweight (>= 4.7)
