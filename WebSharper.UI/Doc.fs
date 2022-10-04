@@ -537,7 +537,7 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
         | TemplateHole.Attribute (_, v) -> TemplateHole.Attribute(n, v)
 
 type InlineControlWithPlaceHolder(docExpr: Expr<Doc>, doc: Doc) =
-    inherit InlineControl<Doc>(docExpr)
+    inherit InlineControl<Doc>(%docExpr)
 
     [<System.NonSerialized>]
     let doc = doc
@@ -597,7 +597,7 @@ type Doc with
     static member TextNode t = ConcreteDoc(TextDoc t) :> Doc
 
     static member ClientSideImpl(expr: Expr<#IControlBody>) =
-        ConcreteDoc(INodeDoc (new Web.InlineControl<_>(expr))) :> Doc
+        ConcreteDoc(INodeDoc (new Web.InlineControl<_>(%expr))) :> Doc
 
     static member ClientSide([<ReflectedDefinition; JavaScript>] expr: Expr<#IControlBody>) =
         Doc.ClientSideImpl expr
