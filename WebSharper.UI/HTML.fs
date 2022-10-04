@@ -43,6 +43,7 @@ module Html =
 
     /// Insert a client-side Doc.
     [<JavaScript; Inline>]
+    [<System.Obsolete "This is an alias of Doc.ClientSide. Use Doc.ClientSide directly for auto-quotation support.">]
     let client ([<ReflectedDefinition; JavaScript>] q) = Doc.ClientSide %q
 
     module Elt =
