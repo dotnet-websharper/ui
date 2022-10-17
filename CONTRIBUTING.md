@@ -77,6 +77,19 @@ We recommend that you use one of the following development environments:
   * `ionide-fsharp` for F# support
   * `ms-vscode.csharp` for C# support
 
+<a name="githubfeed"></a>
+### Configure GitHub packages feed
+
+To get non-public builds of WebSharper, you need to access GitHub packages which requires a Personal Access Token (PAT).
+Create a PAT on GitHub [like this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
+
+Then to configure Paket source authentication, run:
+* `dotnet tool restore`
+* `dotnet paket config add-credentials https://nuget.pkg.github.com/dotnet-websharper/index.json --username <ghUser> --password <PAT>` (use your GitHub user name and PAT)
+
+To add WebSharper GitHub packages as a nuget source to browse from Visual Studio, run:
+* `dotnet nuget add source https://nuget.pkg.github.com/dotnet-websharper/index.json --name dotnet-websharper-GitHub --username <ghUser> --password <PAT>`
+
 <a name="localws"></a>
 ### Use locally built WebSharper packages
 
