@@ -31,10 +31,7 @@ It is possible to work on WebSharper on Windows, Linux and OSX.
 
 To compile this project, you need the following installed:
 
-* The .NET Core SDK 2.1.300 or newer. You can download it [here](https://www.microsoft.com/net/download).
-* The .NET Framework 4.6.1.
-  * For Windows, it is preinstalled, or you can download it [here](https://www.microsoft.com/en-us/download/details.aspx?id=49981).
-  * For Linux and OSX, this is provided by Mono. You can follow the install instructions [here](https://www.mono-project.com/download/stable/). For Linux, you should also follow the instructions to install `xsp` in order to run the test project.
+* The .NET SDK 6.0.10 or newer. You can download it [here](https://www.microsoft.com/net/download).
 
 <a name="build-cli"></a>
 ### Building from the command line
@@ -60,6 +57,10 @@ Simply running `build` compiles the UI libraries and tests in debug mode. The fo
 
     Deletes temporary and output directories.
 
+* `build ci-release`
+
+    Full build as is used for releases. Update non-fixed dependencies, build everything, run unit tests, package.
+
 The following options are available:
 
 * `build [TARGET] -ef verbose`
@@ -71,10 +72,17 @@ The following options are available:
 
 We recommend that you use one of the following development environments:
 
-* On Windows: [Visual Studio 2017](https://visualstudio.microsoft.com/vs/).
+* On Windows: [Visual Studio 2022](https://visualstudio.microsoft.com/vs/).
 * On all platforms: [Visual Studio Code](https://code.visualstudio.com/) with the following extensions:
   * `ionide-fsharp` for F# support
   * `ms-vscode.csharp` for C# support
+
+<a name="localws"></a>
+### Use locally built WebSharper packages
+
+* Clone `core` and `ui` repos under the same root, also create a third sub-directory called `localnuget`.
+* Build WebSharper with `build ws-package` then copy all `build/*.nupkg` files to `localnuget`.
+* Run `build ws-update` in the `ui` folder. Now it is using your local WebSharper build.
 
 <a name="tests"></a>
 ### Running the tests
@@ -85,7 +93,7 @@ WebSharper defines and uses its own test framework, WebSharper.Testing. It runs 
 
 This repository contains several test projects, detailed in the [project structure](#structure). They are ASP.NET applications hosting WebSharper applications; some of them are Client-Server applications, others are SPAs. Here is how to run them:
 
-* If you are using Visual Studio, you can simply open `WebSharper.sln`, set the test project you want as the startup project, and Run.
+* If you are using Visual Studio, you can simply open `WebSharper.UI.sln`, set the test project you want as the startup project, and Run.
 
 * On Linux or OSX, you can browse into the project's folder and simply run `xsp`.
 
