@@ -20,11 +20,11 @@
             ${Count}
             <p>Testing client-side HTML instantiation from sitelet: (this should show a 3-row table)</p>
             <table>
-              <tbody>
-                <ws-Row></ws-Row>
-                <ws-Row></ws-Row>
-                <ws-Row></ws-Row>
-              </tbody>
+                <tbody>
+                    <ws-Row></ws-Row>
+                    <ws-Row></ws-Row>
+                    <ws-Row></ws-Row>
+                </tbody>
             </table>
         </div>
         <button ws-template="ServerTemplate" id="elt-1" style="font-weight: bold;">Testing an Elt server template; click me!</button>
@@ -35,15 +35,15 @@
             <tr ws-template="Row"><td>Table row</td></tr>
         </tbody>
     </table>
-    <hr/>
+    <hr />
 
     The following inputs should NOT be bound together:
-    <hr/>
+    <hr />
     <div ws-replace="ServerVarForms" ws-template="ServerVarForm">
         <input id="${InputId}" ws-var="ServerVar" ws-onmouseenter="MouseEnter" />
         <div style="color: ${ServerVar}">Hello, ${ServerVar}! (try typing a color name, this text should become this color)</div>
         <button id="${InputId}-btn" ws-onclick="ServerClick">Click me!</button>
-        <hr/>
+        <hr />
     </div>
     <input ws-var="ServerInitVar" />
     <div ws-replace="Client"></div>
@@ -92,6 +92,16 @@
         <ws-templates.Field6 />
     </div>
     <input ws-var="ServerVarOnMainTemplate" type="text" />
+    <div ws-preserve="">
+        <!-- Testing comment -->
+        There should be an unfilled hole here: ${AHoleHere}
+        <div ws-replace="DoNotFillThisHole">
+            [OK] ws-replace inside ws-preserve is not removed
+        </div>
+        <div ws-hole="DoNotFillThisHole2">
+            [OK] ws-hole inside ws-preserve is not emptied
+        </div>
+    </div>
     <script ws-replace="scripts"></script>
 </body>
 </html>

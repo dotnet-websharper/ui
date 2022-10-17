@@ -312,10 +312,16 @@ module Impl =
         | _ -> Some (preservedElement n isSvg)
 
     and preservedElement (n: HtmlNode) isSvg =
-        let isSvg = isSvg || n.Name = "svg"
-        let attrs = [| for a in n.Attributes -> Attr.Simple(a.Name, a.Value) |]
-        let children = [| for c in n.ChildNodes -> preservedElement c isSvg |]
-        Node.Element(n.Name, isSvg, attrs, children)
+        match n with
+        | :? HtmlTextNode as t -> 
+            Node.Text [| StringPart.Text t.Text |]
+        | :? HtmlCommentNode as c ->
+            Node.Text [| StringPart.Text c.Comment |]
+        | _ ->
+            let isSvg = isSvg || n.Name = "svg"
+            let attrs = [| for a in n.Attributes -> Attr.Simple(a.Name, a.Value) |]
+            let children = [| for c in n.ChildNodes -> preservedElement c isSvg |]
+            Node.Element(n.Name, isSvg, attrs, children)
 
     and (|Instantiation|_|) (state: ParseState) (node: HtmlNode) =
         if node.Name.StartsWith "ws-" then
