@@ -605,8 +605,17 @@ type ConcreteDoc =
 
 type [<AbstractClass; Sealed>] ClientServer =
 
+    /// Embeds the given client-side control body in a server-side UI.Doc.
+    /// The client-side control body must be an implicit or explicit quotation expression.
+    /// It can capture local variables, of the same types which are serializable by WebSharper as RPC results.
     static member client : [<ReflectedDefinition; JavaScript>] expr: Expr<#IControlBody> -> Doc
 
+    /// Embeds the given client-side control body in a server-side UI.Doc with a placeholder.
+    /// The client-side control body must be an implicit or explicit quotation expression.
+    /// It can capture local variables, of the same types which are serializable by WebSharper as RPC results.
     static member hydrate : [<ReflectedDefinition(true); JavaScript>] expr: Expr<Doc> -> Doc
 
+    /// Embeds the given client-side control body in a server-side UI.Doc.
+    /// The client-side control body must have the type of System.Linq.Expressions.Expression.
+    /// It can capture local variables, of the same types which are serializable by WebSharper as RPC results.
     static member clientLinq : System.Linq.Expressions.Expression<System.Func<IControlBody>> -> Doc
