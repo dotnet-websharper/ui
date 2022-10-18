@@ -605,17 +605,20 @@ type ConcreteDoc =
 
 type [<AbstractClass; Sealed>] ClientServer =
 
-    /// Embeds the given client-side control body in a server-side UI.Doc.
-    /// The client-side control body must be an implicit or explicit quotation expression.
+    /// Embeds the given client-side control body (for example UI.Doc) in a server-side UI.Doc.
+    /// The `expr` argument supports auto-quoting in F#, you don't need to use `<@ ... @>`.
+    /// The expression won't be evaluated on the server.
     /// It can capture local variables, of the same types which are serializable by WebSharper as RPC results.
     static member client : [<ReflectedDefinition; JavaScript>] expr: Expr<#IControlBody> -> Doc
 
-    /// Embeds the given client-side control body in a server-side UI.Doc with a placeholder.
-    /// The client-side control body must be an implicit or explicit quotation expression.
+    /// Embeds the given client-side UI.Doc in a server-side UI.Doc with a placeholder.
+    /// The `expr` argument supports auto-quoting in F#, you don't need to use `<@ ... @>`.
+    /// The expression will also be evaluated on the server and the result used as a placeholder in html result for SEO purposes.
     /// It can capture local variables, of the same types which are serializable by WebSharper as RPC results.
     static member hydrate : [<ReflectedDefinition(true); JavaScript>] expr: Expr<Doc> -> Doc
 
-    /// Embeds the given client-side control body in a server-side UI.Doc.
-    /// The client-side control body must have the type of System.Linq.Expressions.Expression.
+    /// Embeds the given client-side control body (for example UI.Doc) in a server-side UI.Doc.
+    /// The `expr` argument is auto-converted to a System.Linq.Expressions.Expression.
+    /// The expression won't be evaluated on the server.
     /// It can capture local variables, of the same types which are serializable by WebSharper as RPC results.
     static member clientLinq : System.Linq.Expressions.Expression<System.Func<IControlBody>> -> Doc
