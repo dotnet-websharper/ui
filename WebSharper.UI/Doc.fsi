@@ -603,7 +603,7 @@ type ConcreteDoc =
     inherit Doc
     new : DynDoc -> ConcreteDoc
 
-// Functions for embedding client-side content in server-side markup.
+/// Functions for embedding client-side content in server-side markup.
 type [<AbstractClass; Sealed>] ClientServer =
 
     /// Renders the given expression on the client when the containing page initializes.
