@@ -262,6 +262,10 @@ type private HandlerProxy =
                         Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarFloatUnchecked (name, Var.Create 0.))
                     | Server.ValTy.Bool ->
                         Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarBool (name, Var.Create false))
+                    | Server.ValTy.DateTime ->
+                        Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarDateTime (name, Var.Create DateTime.MinValue))
+                    | Server.ValTy.File ->
+                        Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarFile (name, Var.Create [||]))
                     | _ -> failwith "Invalid value type"
                 allVars[name] <- r
                 Some r

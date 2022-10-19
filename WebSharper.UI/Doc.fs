@@ -384,6 +384,8 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
     | AfterRenderE of name: string * key: string * fillWith: Expression<Action<Dom.Element>>
     | VarStr of name: string * fillWith: Var<string>
     | VarBool of name: string * fillWith: Var<bool>
+    | VarDateTime of name: string * fillWith: Var<System.DateTime>
+    | VarFile of name: string * fillWith: Var<File array>
     | VarInt of name: string * fillWith: Var<Client.CheckedInput<int>>
     | VarIntUnchecked of name: string * fillWith: Var<int>
     | VarFloat of name: string * fillWith: Var<Client.CheckedInput<float>>
@@ -442,6 +444,22 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
         VarBool(name, var)
 
     [<Macro(typeof<Macros.TemplateVar>); Inline>]
+    static member MakeVarLens(name: string, v: DateTime) =
+        VarDateTime(name, Var.Create v)
+
+    [<Inline>]
+    static member MakeVar(name: string, var: Var<DateTime>) =
+        VarDateTime(name, var)
+
+    [<Macro(typeof<Macros.TemplateVar>); Inline>]
+    static member MakeVarLens(name: string, v: File array) =
+        VarFile(name, Var.Create v)
+
+    [<Inline>]
+    static member MakeVar(name: string, var: Var<File array>) =
+        VarFile(name, var)
+
+    [<Macro(typeof<Macros.TemplateVar>); Inline>]
     static member MakeVarLens(name: string, v: Client.CheckedInput<int>) =
         VarInt(name, Var.Create v)
 
@@ -481,6 +499,8 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
         | TemplateHole.TextView (name, _)
         | TemplateHole.VarStr (name, _)
         | TemplateHole.VarBool (name, _)
+        | TemplateHole.VarDateTime (name, _)
+        | TemplateHole.VarFile (name, _)
         | TemplateHole.VarInt (name, _)
         | TemplateHole.VarIntUnchecked (name, _)
         | TemplateHole.VarFloat (name, _)
@@ -502,6 +522,8 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
         | TemplateHole.TextView (name, v) -> box v
         | TemplateHole.VarStr (name, v) -> box v
         | TemplateHole.VarBool (name, v) -> box v
+        | TemplateHole.VarDateTime (name, v) -> box v
+        | TemplateHole.VarFile (name, v) -> box v
         | TemplateHole.VarInt (name, v) -> box v
         | TemplateHole.VarIntUnchecked (name, v) -> box v
         | TemplateHole.VarFloat (name, v) -> box v
@@ -523,6 +545,8 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
         | TemplateHole.TextView (_, v) -> TemplateHole.TextView(n, v)
         | TemplateHole.VarStr (_, v) -> TemplateHole.VarStr(n, v)
         | TemplateHole.VarBool (_, v) -> TemplateHole.VarBool(n, v)
+        | TemplateHole.VarDateTime (_, v) -> TemplateHole.VarDateTime(n, v)
+        | TemplateHole.VarFile (_, v) -> TemplateHole.VarFile(n, v)
         | TemplateHole.VarInt (_, v) -> TemplateHole.VarInt(n, v)
         | TemplateHole.VarIntUnchecked (_, v) -> TemplateHole.VarIntUnchecked(n, v)
         | TemplateHole.VarFloat (_, v) -> TemplateHole.VarFloat(n, v)

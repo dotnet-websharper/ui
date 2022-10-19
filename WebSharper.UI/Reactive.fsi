@@ -18,11 +18,11 @@
 //
 // $end{copyright}
 
-/// Reactive.fs: provides an abstract reactive or time-varying
-/// computation layer with Vars and Views.
-///
-/// Note: at this point there are no exception semantics, so
-/// please provide only pure (non-throwing) functions to this API.
+// Reactive.fs: provides an abstract reactive or time-varying
+// computation layer with Vars and Views.
+//
+// Note: at this point there are no exception semantics, so
+// please provide only pure (non-throwing) functions to this API.
 namespace WebSharper.UI
 
 open System

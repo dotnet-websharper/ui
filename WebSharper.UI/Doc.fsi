@@ -567,6 +567,8 @@ type TemplateHole =
     | AfterRenderE of name: string * key: string * fillWith: Expression<Action<Dom.Element>>
     | VarStr of name: string * fillWith: Var<string>
     | VarBool of name: string * fillWith: Var<bool>
+    | VarDateTime of name: string * fillWith: Var<System.DateTime>
+    | VarFile of name: string * fillWith: Var<File array>
     | VarInt of name: string * fillWith: Var<Client.CheckedInput<int>>
     | VarIntUnchecked of name: string * fillWith: Var<int>
     | VarFloat of name: string * fillWith: Var<Client.CheckedInput<float>>
@@ -586,6 +588,8 @@ type TemplateHole =
 
     static member MakeVarLens : name: string * value: string -> TemplateHole
     static member MakeVarLens : name: string * value: bool -> TemplateHole
+    static member MakeVarLens : name: string * value: DateTime -> TemplateHole
+    static member MakeVarLens : name: string * value: File array -> TemplateHole
     static member MakeVarLens : name: string * value: Client.CheckedInput<int> -> TemplateHole
     static member MakeVarLens : name: string * value: int -> TemplateHole
     static member MakeVarLens : name: string * value: Client.CheckedInput<float> -> TemplateHole

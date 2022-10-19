@@ -110,6 +110,12 @@ module Attr =
     val Value : Var<string> -> Attr
 
     /// Gets and sets the value of the element according to a Var.
+    val DateTimeValue : Var<System.DateTime> -> Attr
+
+    /// Gets and sets the value of the element according to a Var.
+    val FileValue : Var<File array> -> Attr
+
+    /// Gets and sets the value of the element according to a Var.
     val IntValueUnchecked : Var<int> -> Attr
 
     /// Gets and sets the value of the element according to a Var.
@@ -181,6 +187,14 @@ module BindVar =
     val IntSetUnchecked : Set<int>
     val IntGetUnchecked : Get<int>
     val IntApplyUnchecked : Apply<int>
+
+    val DateTimeSetUnchecked : Set<System.DateTime>
+    val DateTimeGetUnchecked : Get<System.DateTime>
+    val DateTimeApplyUnchecked : Apply<System.DateTime>
+
+    val FileSetUnchecked : Set<File array>
+    val FileGetUnchecked : Get<File array>
+    val FileApplyUnchecked : Apply<File array>
 
     val IntSetChecked : Set<CheckedInput<int>>
     val IntGetChecked : Get<CheckedInput<int>>

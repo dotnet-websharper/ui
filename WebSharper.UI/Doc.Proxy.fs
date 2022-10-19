@@ -705,6 +705,102 @@ type internal Doc' [<JavaScript>] (docNode, updates) =
             |])
 
     [<JavaScript>]
+    static member ColorInput attr (var: Var<string>) =
+        Doc'.InputInternal "input" (fun el ->
+            Seq.append attr [|
+                Attr.Value var
+                Attr.Create "type" "color"
+            |])
+
+    [<JavaScript>]
+    static member DateInput attr (var: Var<string>) =
+        Doc'.InputInternal "input" (fun el ->
+            Seq.append attr [|
+                Attr.Value var
+                Attr.Create "type" "datetime"
+            |])
+
+    [<JavaScript>]
+    static member DateTimeLocalInput attr (var: Var<DateTime>) =
+        Doc'.InputInternal "input" (fun el ->
+            Seq.append attr [|
+                Attr.DateTimeValue var
+                Attr.Create "type" "datetime-local"
+            |])
+
+    [<JavaScript>]
+    static member EmailInput attr (var: Var<string>) =
+        Doc'.InputInternal "input" (fun el ->
+            Seq.append attr [|
+                Attr.Value var
+                Attr.Create "type" "email"
+            |])
+
+    [<JavaScript>]
+    static member FileInput attr (var: Var<File array>) =
+        Doc'.InputInternal "input" (fun el ->
+            Seq.append attr [|
+                Attr.FileValue var
+                Attr.Create "type" "file"
+            |])
+
+    [<JavaScript>]
+    static member MonthInput attr (var: Var<string>) =
+        Doc'.InputInternal "input" (fun el ->
+            Seq.append attr [|
+                Attr.Value var
+                Attr.Create "type" "month"
+            |])
+
+    [<JavaScript>]
+    static member SearchInput attr (var: Var<string>) =
+        Doc'.InputInternal "input" (fun el ->
+            Seq.append attr [|
+                Attr.Value var
+                Attr.Create "type" "search"
+            |])
+
+    [<JavaScript>]
+    static member TelInput attr (var: Var<string>) =
+        Doc'.InputInternal "input" (fun el ->
+            Seq.append attr [|
+                Attr.Value var
+                Attr.Create "type" "tel"
+            |])
+
+    [<JavaScript>]
+    static member TimeInput attr (var: Var<string>) =
+        Doc'.InputInternal "input" (fun el ->
+            Seq.append attr [|
+                Attr.Value var
+                Attr.Create "type" "time"
+            |])
+
+    [<JavaScript>]
+    static member UrlInput attr (var: Var<string>) =
+        Doc'.InputInternal "input" (fun el ->
+            Seq.append attr [|
+                Attr.Value var
+                Attr.Create "type" "url"
+            |])
+
+    [<JavaScript>]
+    static member WeekInput attr (var: Var<string>) =
+        Doc'.InputInternal "input" (fun el ->
+            Seq.append attr [|
+                Attr.Value var
+                Attr.Create "type" "week"
+            |])
+
+    [<JavaScript>]
+    static member RangeInput attr (var: Var<int>) =
+        Doc'.InputInternal "input" (fun el ->
+            Seq.append attr [|
+                Attr.IntValueUnchecked var
+                Attr.Create "type" "range"
+            |])
+
+    [<JavaScript>]
     static member InputArea attr (var: Var<string>) =
         Doc'.InputInternal "textarea" (fun _ ->
             Seq.append attr [| Attr.Value var |])
