@@ -83,16 +83,25 @@ let Main = Application.SinglePage(fun ctx ->
                 MainTemplate.template()
                     .Id("basic-2")
                     .Who("world 1")
-                    .Click(fun e -> JavaScript.JS.Set e.Target "wsuiDispatched2" true)
-                    .Doc()
+                    .Click(fun e -> 
+                        JavaScript.JS.Set e.Target "wsuiDispatched2" true
+                        JavaScript.Console.Log("Anchored span for button 1:", e.Anchors.SpanAnchor)
+                    )
+                    .Doc()                    
                 MainTemplate.template()
                     .Id("basic-3")
                     .Who("world 2")
-                    .Click(fun e -> JavaScript.JS.Set e.Target "wsuiDispatched3" true)
+                    .Click(fun e -> 
+                        JavaScript.JS.Set e.Target "wsuiDispatched3" true
+                        JavaScript.Console.Log("Anchored span for button 2:", e.Anchors.SpanAnchor)
+                    )
                     .Doc()
-                MainTemplate.template("""<a id="basic-4" ws-onclick="Click" href="#">Greetings ${Who}!</button>""")
+                MainTemplate.template("""<a id="basic-4" ws-onclick="Click" href="#">Greetings <span ws-anchor="SpanAnchor">${Who}!</span></button>""")
                     .Who("world 3")
-                    .Click(fun e -> JavaScript.JS.Set e.Target "wsuiDispatched4" true)
+                    .Click(fun e -> 
+                        JavaScript.JS.Set e.Target "wsuiDispatched4" true
+                        JavaScript.Console.Log("Anchored span for button 3:", e.Anchors.SpanAnchor)
+                    )
                     .Doc()
                 ])
             .Click(fun e -> JavaScript.JS.Set e.Target "wsuiDispatched5" true)
@@ -148,8 +157,9 @@ let Main = Application.SinglePage(fun ctx ->
                         .Doc()
                 ])
             .ServerVarForms([mkServerVarForm("var-1"); mkServerVarForm("var-2")])
-            .AfterRender(fun (e: Runtime.Server.TemplateEvent<MainTemplate.Main.Vars,JavaScript.Dom.Event>) ->
+            .AfterRender(fun (e: Runtime.Server.TemplateEvent<MainTemplate.Main.Vars, MainTemplate.Main.Anchors, JavaScript.Dom.Event>) ->
                 Var.Set e.Vars.ServerVarOnMainTemplate "This should be initialized"
+                e.Anchors.ServerAnchorOnMainTemplate.TextContent <- "Server anchor ok"
                 Client.OnStartup()
             )
             .TBody([MainTemplate.Main.Row().Doc(); MainTemplate.Main.Row().Doc()])

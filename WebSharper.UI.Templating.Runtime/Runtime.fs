@@ -52,7 +52,7 @@ type ValTy =
     | File = 4
 
 [<JavaScript; Serializable>]
-type TemplateInitializer(id: string, vars: array<string * ValTy * obj option>) =
+type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
 
     [<NonSerialized; OptionalField>]
     let mutable instance = None
@@ -182,10 +182,16 @@ and TemplateInstance(c: CompletedHoles, doc: Doc) =
 
     member this.Hole(name: string): TemplateHole = failwith "Cannot access template vars from the server side"
 
-type TemplateEvent<'TI, 'E when 'E :> DomEvent> =
+    member this.Anchor(name: string): DomElement = failwith "Cannot access template anchors from the server side"
+
+    member internal this.SetAnchorRoot(el : DomElement): unit = failwith "Cannot access template SetAnchorRoot from the server side"
+
+type TemplateEvent<'TV, 'TA, 'E when 'E :> DomEvent> =
     {
         /// The reactive variables of this template instance.
-        Vars : 'TI
+        Vars : 'TV
+        /// The anchor elements defined in this template.
+        Anchors : 'TA
         /// The DOM element targeted by this event.
         Target : DomElement
         /// The DOM event data.
@@ -203,12 +209,14 @@ type Handler private () =
     static member EventQ (holeName: string, [<JavaScript>] f: Expr<DomElement -> DomEvent -> unit>) =
         TemplateHole.EventQ(holeName, f)
 
-    static member EventQ2<'E when 'E :> DomEvent> (key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, 'E> -> unit>) =
+    static member EventQ2<'E when 'E :> DomEvent> (key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, obj, 'E> -> unit>) =
         Handler.EventQ(holeName, <@ fun el ev ->
-            let k = key
-            (WebSharper.JavaScript.Pervasives.As<TemplateEvent<obj, 'E> -> unit> f)
+            let i = TemplateInstances.GetInstance key
+            i.SetAnchorRoot(el)
+            (WebSharper.JavaScript.Pervasives.As<TemplateEvent<obj, obj, 'E> -> unit> f)
                 {
-                    Vars = box (TemplateInstances.GetInstance k)
+                    Vars = i
+                    Anchors = i
                     Target = el
                     Event = ev :?> 'E
                 }
@@ -217,18 +225,20 @@ type Handler private () =
     static member AfterRenderQ (holeName: string, [<JavaScript>] f: Expr<DomElement -> unit>) =
         TemplateHole.AfterRenderQ(holeName, f)
 
-    static member AfterRenderQ2(key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, DomEvent> -> unit>) =
+    static member AfterRenderQ2(key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, obj, DomEvent> -> unit>) =
         Handler.AfterRenderQ(holeName, <@ fun el ->
-            let k = key
-            (WebSharper.JavaScript.Pervasives.As<TemplateEvent<obj, DomEvent> -> unit> f)
+            let i = TemplateInstances.GetInstance key
+            i.SetAnchorRoot(el)
+            (WebSharper.JavaScript.Pervasives.As<TemplateEvent<obj, obj, DomEvent> -> unit> f)
                 {
-                    Vars = box (TemplateInstances.GetInstance k)
+                    Vars = i
+                    Anchors = i
                     Target = el
                     Event = null
                 }
         @>)
 
-    static member CompleteHoles(key: string, filledHoles: seq<TemplateHole>, vars: array<string * ValTy * obj option>) : seq<TemplateHole> * CompletedHoles =
+    static member CompleteHoles(key: string, filledHoles: seq<TemplateHole>, vars: (string * ValTy * obj option)[]) : seq<TemplateHole> * CompletedHoles =
         let filledVars = HashSet()
         let hasEventHandler =
             (false, filledHoles)

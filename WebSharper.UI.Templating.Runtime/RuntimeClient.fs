@@ -35,7 +35,8 @@ module M = WebSharper.Core.Metadata
 module I = WebSharper.Core.AST.IgnoreSourcePos
 type TemplateInstance = Server.TemplateInstance
 type DomEvent = WebSharper.JavaScript.Dom.Event
-type TemplateEvent<'T, 'E when 'E :> DomEvent> = Server.TemplateEvent<'T, 'E>
+type DomElement = WebSharper.JavaScript.Dom.Element
+type TemplateEvent<'TV, 'TA, 'E when 'E :> DomEvent> = Server.TemplateEvent<'TV, 'TA, 'E>
 
 [<JavaScript>]
 let private (|Box|) x = box x
@@ -43,10 +44,31 @@ let private (|Box|) x = box x
 [<JavaScript; Proxy(typeof<TemplateInstance>)>]
 type private TemplateInstanceProxy(c: Server.CompletedHoles, doc: Doc) =
     let allVars = match c with Server.CompletedHoles.Client v -> v | _ -> failwith "Should not happen"
-    
+    let mutable anchorRoot = null : DomElement
+
     member this.Doc = doc
 
     member this.Hole(name) = allVars[name]
+
+    member this.SetAnchorRoot(el: DomElement) =
+        anchorRoot <- el
+
+    member this.Anchor(name: string): DomElement = 
+        let rec findUnder (el: DomElement) =
+            let e = el.QuerySelector($"[ws-anchor=\"{name}\"]")
+            if isNull e then
+                if el.TagName = "body" then
+                    null
+                else
+                    findUnder el.ParentElement
+            else 
+                e
+        let anchorRoot =
+            if isNull anchorRoot then
+                JS.Document.Body
+            else
+                anchorRoot
+        findUnder anchorRoot
 
 [<Inline>]
 let AfterRenderQ(name: string, [<JavaScript>] f: Expr<Dom.Element -> unit>) =
@@ -221,10 +243,13 @@ type private HandlerProxy =
     static member EventQ (holeName: string, f: Expr<Dom.Element -> Dom.Event -> unit>) =
         TemplateHole.EventQ(holeName, f)
 
-    static member EventQ2<'E when 'E :> DomEvent> (key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, 'E> -> unit>) =
+    static member EventQ2<'E when 'E :> DomEvent> (key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, obj, 'E> -> unit>) =
         TemplateHole.EventQ(holeName, <@ fun el ev ->
+            let i = ti() 
+            i.SetAnchorRoot(el)
             (%f) {
-                    Vars = box (ti())
+                    Vars = i  
+                    Anchors = i
                     Target = el
                     Event = downcast ev
                 }
@@ -234,10 +259,13 @@ type private HandlerProxy =
     static member AfterRenderQ (holeName: string, f: Expr<Dom.Element -> unit>) =
         TemplateHole.AfterRenderQ(holeName, f)
 
-    static member AfterRenderQ2(key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, Dom.Event> -> unit>) =
+    static member AfterRenderQ2(key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, obj, Dom.Event> -> unit>) =
         TemplateHole.AfterRenderQ(holeName, <@ fun el ->
+            let i = ti() 
+            i.SetAnchorRoot(el)
             (%f) {
-                    Vars = box (ti())
+                    Vars = i  
+                    Anchors = i
                     Target = el
                     Event = null
                 }
@@ -277,18 +305,24 @@ type ClientTemplateInstanceHandlers =
 
     [<JavaScriptExport>]
     static member EventQ2Client (key: string, el: Dom.Element, ev: Dom.Event, f: obj -> unit) =
+        let i = Server.TemplateInstances.GetInstance key
+        i.SetAnchorRoot(el)
         f
             ({
-                Vars = box (Server.TemplateInstances.GetInstance key)
+                Vars = i
+                Anchors = i
                 Target = el
                 Event = ev
-            } : TemplateEvent<_, _>)
+            } : TemplateEvent<_, _, _>)
 
     [<JavaScriptExport>]
     static member AfterRenderQ2Client (key: string, el: Dom.Element, f: obj -> unit) =
+        let i = Server.TemplateInstances.GetInstance key
+        i.SetAnchorRoot(el)
         f
             ({
-                Vars = box (Server.TemplateInstances.GetInstance key)
+                Vars = i
+                Anchors = i
                 Target = el
                 Event = null
-            } : TemplateEvent<_, _>)
+            } : TemplateEvent<_, _, _>)

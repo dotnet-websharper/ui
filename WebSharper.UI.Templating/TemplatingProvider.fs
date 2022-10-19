@@ -74,6 +74,8 @@ module private Impl =
                 "An instance of the template; use .Doc to insert into the document."
             let Vars =
                 "The reactive variables defined in this template."
+            let Anchors =
+                "The anchor elements defined in this template."
         module Member =
             let Hole n =
                 "Fill the hole \"" + n + "\" of the template."
@@ -83,6 +85,8 @@ module private Impl =
                 "Get the Doc to insert this template instance into the page."
             let Var n =
                 "Get the reactive variable \"" + n + "\" for this template instance."
+            let Anchor n =
+                "Get the element marked with ws-anchor=\"" + n + "\" for this template instance."
             let Instance =
                 "Create an instance of this template."
             let Doc_withUnfilled =
@@ -180,16 +184,16 @@ module private Impl =
                 <@ (%b).With(%name, %x) @>
         ]
 
-    let ElemHandlerHoleMethods' hole resTy varsTy ctx =
+    let ElemHandlerHoleMethods' hole resTy varsTy anchorsTy ctx =
         let mk wrapArg = BuildMethod hole resTy ctx wrapArg
         let exprTy t = ProvidedTypeBuilder.MakeGenericType(typedefof<Expr<_>>, [ t ])
         let (^->) t u = ProvidedTypeBuilder.MakeGenericType(typedefof<FSharpFunc<_, _>>, [ t; u ])
         let evTy =
             let a = typeof<DomEvent>.Assembly
             a.GetType("WebSharper.JavaScript.Dom.Event")
-        let templateEventTy t u = ProvidedTypeBuilder.MakeGenericType(typedefof<RTS.TemplateEvent<_,_>>, [ t; u ])
+        let templateEventTy v a u = ProvidedTypeBuilder.MakeGenericType(typedefof<RTS.TemplateEvent<_,_,_>>, [ v; a; u ])
         [
-            BuildMethod' hole (exprTy (templateEventTy varsTy evTy ^-> typeof<unit>)) resTy ctx (fun b name x ->
+            BuildMethod' hole (exprTy (templateEventTy varsTy anchorsTy evTy ^-> typeof<unit>)) resTy ctx (fun b name x ->
                 let hole =
                     Expr.Call(ProvidedTypeBuilder.MakeGenericMethod(typeof<RTS.Handler>.GetMethod("AfterRenderQ2"), [ ]),
                         [
@@ -216,15 +220,15 @@ module private Impl =
                 <@ (%b).With(RTC.AfterRenderQ2(%name, %x)) @>
         ]
 
-    let EventHandlerHoleMethods eventType hole resTy varsTy ctx =
+    let EventHandlerHoleMethods eventType hole resTy varsTy anchorsTy ctx =
         let exprTy t = ProvidedTypeBuilder.MakeGenericType(typedefof<Expr<_>>, [ t ])
         let (^->) t u = ProvidedTypeBuilder.MakeGenericType(typedefof<FSharpFunc<_, _>>, [ t; u ])
         let evTy =
             let a = typeof<DomEvent>.Assembly
             a.GetType("WebSharper.JavaScript.Dom." + eventType)
-        let templateEventTy t u = ProvidedTypeBuilder.MakeGenericType(typedefof<RTS.TemplateEvent<_,_>>, [ t; u ])
+        let templateEventTy v a u = ProvidedTypeBuilder.MakeGenericType(typedefof<RTS.TemplateEvent<_,_,_>>, [ v; a; u ])
         [
-            BuildMethod' hole (exprTy (templateEventTy varsTy evTy ^-> typeof<unit>)) resTy ctx (fun b name x ->
+            BuildMethod' hole (exprTy (templateEventTy varsTy anchorsTy evTy ^-> typeof<unit>)) resTy ctx (fun b name x ->
                 let hole =
                     Expr.Call(ProvidedTypeBuilder.MakeGenericMethod(typeof<RTS.Handler>.GetMethod("EventQ2"), [ evTy ]),
                         [
@@ -319,7 +323,7 @@ module private Impl =
                 <@ (%b).With(TemplateHole.MakeVarLens(%name, %x)) @>
         ]
 
-    let BuildHoleMethods (holeName: HoleName) (holeDef: HoleDefinition) (resTy: Type) (varsTy: Type) (ctx: Ctx) : list<MemberInfo> =
+    let BuildHoleMethods (holeName: HoleName) (holeDef: HoleDefinition) (resTy: Type) (varsTy: Type) (anchorsTy: Type) (ctx: Ctx) : list<MemberInfo> =
         let hole = (holeName, holeDef)
         let rec build = function
             | HoleKind.Attr -> AttrHoleMethods (Choice1Of2 hole) resTy ctx
@@ -328,8 +332,8 @@ module private Impl =
                     DocHoleMethods (Choice1Of2 hole) resTy ctx
                     SimpleHoleMethods (Choice1Of2 hole) resTy ctx
                 ]
-            | HoleKind.ElemHandler -> ElemHandlerHoleMethods' (Choice1Of2 hole) resTy varsTy ctx
-            | HoleKind.Event eventType -> EventHandlerHoleMethods eventType (Choice1Of2 hole) resTy varsTy ctx
+            | HoleKind.ElemHandler -> ElemHandlerHoleMethods' (Choice1Of2 hole) resTy varsTy anchorsTy ctx
+            | HoleKind.Event eventType -> EventHandlerHoleMethods eventType (Choice1Of2 hole) resTy varsTy anchorsTy ctx
             | HoleKind.Simple -> SimpleHoleMethods (Choice1Of2 hole) resTy ctx
             | HoleKind.Var (ValTy.Any | ValTy.String) -> VarStringHoleMethods (Choice1Of2 hole) resTy ctx
             | HoleKind.Var ValTy.Number -> VarNumberHoleMethods (Choice1Of2 hole) resTy ctx
@@ -458,6 +462,10 @@ module private Impl =
             ProvidedTypeDefinition("Vars", Some typeof<obj>)
                 .WithXmlDoc(XmlDoc.Type.Vars)
                 .AddTo(ty)
+        let anchors =
+            ProvidedTypeDefinition("Anchors", Some typeof<obj>)
+                .WithXmlDoc(XmlDoc.Type.Anchors)
+                .AddTo(ty)
         vars.AddMembers [
             for KeyValue(holeName, def) in ctx.Template.Holes do
                 let holeName' = holeName.ToLowerInvariant()
@@ -484,6 +492,12 @@ module private Impl =
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
                 | _ -> ()
         ]
+        anchors.AddMembers [
+            for anchorName in ctx.Template.Anchors do
+                yield ProvidedProperty(anchorName, typeof<DomElement>, fun x ->
+                    <@@ ((%%x[0] : obj) :?> TI).Anchor anchorName @@>)
+                    .WithXmlDoc(XmlDoc.Member.Anchor anchorName)
+        ]
         res.AddMembers [
             yield ProvidedProperty("Doc", typeof<Doc>, fun x -> <@@ (%%x[0] : TI).Doc @@>)
                 .WithXmlDoc(XmlDoc.Member.Doc)
@@ -493,13 +507,13 @@ module private Impl =
             yield ProvidedProperty("Vars", vars, fun x -> <@@ (%%x[0] : TI) :> obj @@>)
                 .WithXmlDoc(XmlDoc.Type.Vars)
         ]
-        res, vars
+        res, vars, anchors
 
     let BuildOneTemplate (ty: PT.Type) (isRoot: bool) (ctx: Ctx) (refInits: Map<string, Expr>) =
         ty.AddMembers [
-            let instanceTy, varsTy = BuildInstanceType ty ctx
+            let instanceTy, varsTy, anchorsTy = BuildInstanceType ty ctx
             for KeyValue (holeName, holeKind) in ctx.Template.Holes do
-                yield! BuildHoleMethods holeName holeKind ty varsTy ctx
+                yield! BuildHoleMethods holeName holeKind ty varsTy anchorsTy ctx
             yield! BuildDynamicHoleMethods ty ctx
             if isRoot then
                 yield ProvidedMethod("Bind", [], typeof<unit>, fun args ->

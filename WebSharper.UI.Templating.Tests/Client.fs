@@ -141,9 +141,13 @@ module Client =
                             .Key(string item.V.id)
                             .Name(item.V.name)
                             .Description(item.V.description)
+                            .Hole("d")
                             .FontStyle("italic")
                             .FontWeight("bold")
-                            .Remove(fun _ -> myItems.RemoveByKey key)
+                            .Remove(fun e -> 
+                                Console.Log("Remove clicked", e.Anchors.NameSpan)
+                                myItems.RemoveByKey key
+                            )
                             .Elt()
                             .OnClickView(item.View, fun _ _ x -> JS.Alert x.name)
                             .OnAfterRender(fun e -> Console.Log e)
@@ -284,8 +288,9 @@ module Client =
             .MouseEnter(fun e -> DomUtility.AddClass e.Target "ok")
             .Attr(Attr.Class "ok")
             .MultiAttr(Attr.Class "ok1", Attr.Class "ok2")
-            .AfterRender(fun (e: Runtime.Server.TemplateEvent<MyTemplate.index.Vars, _>) ->
+            .AfterRender(fun (e: Runtime.Server.TemplateEvent<MyTemplate.index.Vars, MyTemplate.index.Anchors, _>) ->
                 Console.Log("OnAfterRender TemplateEvent overload on client-side should render.")
+                Console.Log("Header restrieved via ws-anchor", e.Anchors.Header)
                 e.Target.TextContent <- "[OK] This replaces text with ws-onafterrender.")
             .InputMouseEnter(fun e ->
                 e.Vars.Input := "[OK]"

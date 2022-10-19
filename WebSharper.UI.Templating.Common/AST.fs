@@ -92,6 +92,7 @@ module SpecialHole =
 type Template =
     {
         Holes : Dictionary<HoleName, HoleDefinition>
+        Anchors : HashSet<string>
         Value : Node[]
         Src : string
         SpecialHoles : SpecialHole
@@ -113,6 +114,7 @@ let [<Literal>] AttrAttr                = "ws-attr"
 let [<Literal>] AfterRenderAttr         = "ws-onafterrender"
 let [<Literal>] EventAttrPrefix         = "ws-on"
 let [<Literal>] VarAttr                 = "ws-var"
+let [<Literal>] AnchorAttr              = "ws-anchor"
 let TextHoleRegex = Regex(@"\$\{([a-zA-Z_][-a-zA-Z0-9_]*)\}", RegexOptions.Compiled)
 let HoleNameRegex = Regex(@"^[a-zA-Z_][-a-zA-Z0-9_]*$", RegexOptions.Compiled)
 

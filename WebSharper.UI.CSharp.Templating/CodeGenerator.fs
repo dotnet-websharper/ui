@@ -117,12 +117,12 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
             |]
         | HoleKind.ElemHandler ->
             let eventType = "WebSharper.JavaScript.Dom.Event"
-            let argType = "TemplateEvent<Vars, "+eventType+">"
+            let argType = "TemplateEvent<Vars, Anchors, "+eventType+">"
             [|
                 s2 "Action<DomElement>" "AfterRenderClient" "FSharpConvert.Fun<DomElement>(x)"
                 s2 "Action" "AfterRenderClient" "FSharpConvert.Fun<DomElement>((a) => x())"
                 s2 ("Action<"+argType+">") "AfterRenderClient"
-                    ("FSharpConvert.Fun<DomElement>((a) => x(new "+argType+"(instance.Vars, a, null)))")
+                    ("FSharpConvert.Fun<DomElement>((a) => x(new "+argType+"(instance.Vars, instance.Anchors, a, null)))")
                 yield!
                     serverSE ("Expression<Action<DomElement>>") "AfterRenderE" "y"
                 yield!
@@ -132,12 +132,12 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
             |]
         | HoleKind.Event eventType ->
             let eventType = "WebSharper.JavaScript.Dom." + eventType
-            let argType = "TemplateEvent<Vars, "+eventType+">"
+            let argType = "TemplateEvent<Vars, Anchors, "+eventType+">"
             [|
                 s ("Action<DomElement, "+eventType+">") "ActionEvent" "x"
                 s2 "Action" "EventClient" ("FSharpConvert.Fun<DomElement, DomEvent>((a,b) => x())")
                 s2 ("Action<"+argType+">") "EventClient"
-                    ("FSharpConvert.Fun<DomElement, DomEvent>((a,b) => x(new "+argType+"(instance.Vars, a, ("+eventType+")b)))")
+                    ("FSharpConvert.Fun<DomElement, DomEvent>((a,b) => x(new "+argType+"(instance.Vars, instance.Anchors, a, ("+eventType+")b)))")
                 // serverSide
                 yield! 
                     serverSE ("Expression<Action<DomElement, "+eventType+">>") "EventExpr" "y"
@@ -251,6 +251,18 @@ let varsClass (ctx: Ctx) =
         yield "}"
     ]
 
+let anchorsClass (ctx: Ctx) =
+    [
+        yield "public struct Anchors"
+        yield "{"
+        yield! indent [
+            for anchorName in ctx.Template.Anchors do
+                let anchorName' = anchorName.ToLowerInvariant()
+                yield sprintf """[Inline] public DomElement %s => (DomElement)TemplateHole.Value((As<Instance>(this)).Anchor("%s"));""" anchorName anchorName'
+        ]
+        yield "}"
+    ]
+
 let instanceClass (ctx: Ctx) =
     [
         yield "public class Instance : TemplateInstance"
@@ -258,6 +270,7 @@ let instanceClass (ctx: Ctx) =
         yield! indent [
             yield """public Instance(CompletedHoles v, Doc d) : base(v, d) { }"""
             yield """public Vars Vars => As<Vars>(this);"""
+            yield """public Anchors Anchors => As<Anchors>(this);"""
         ]
         yield "}"
     ]
@@ -265,6 +278,7 @@ let instanceClass (ctx: Ctx) =
 let buildFinalMethods (ctx: Ctx) =
     [|
         yield! varsClass ctx
+        yield! anchorsClass ctx
         yield! instanceClass ctx
         yield "public Instance Create() {"
         yield! indent (finalMethodBody ctx)
