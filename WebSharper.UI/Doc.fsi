@@ -603,10 +603,18 @@ type ConcreteDoc =
     inherit Doc
     new : DynDoc -> ConcreteDoc
 
+/// Functions for embedding client-side content in server-side markup.
 type [<AbstractClass; Sealed>] ClientServer =
 
+    /// Renders the given expression on the client when the containing page initializes.
+    /// Values of captured variables in "expr" are sent to the client initializer automatically.
     static member client : [<ReflectedDefinition; JavaScript>] expr: Expr<#IControlBody> -> Doc
 
+    /// Renders the given expression on the server, and hydrates it on the client when the containing page initializes.
+    /// The expression must not contain bits intended for client-only use, such as UI reactivity.
+    /// Values of captured variables in "expr" are sent to the client initializer automatically.
     static member hydrate : [<ReflectedDefinition(true); JavaScript>] expr: Expr<Doc> -> Doc
 
+    /// Renders the given LINQ expression on the client when the containing page initializes.
+    /// Values of captured variables in "expr" are sent to the client initializer automatically.
     static member clientLinq : System.Linq.Expressions.Expression<System.Func<IControlBody>> -> Doc
