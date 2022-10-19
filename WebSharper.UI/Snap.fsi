@@ -18,7 +18,7 @@
 //
 // $end{copyright}
 
-/// Snap.fs: provide the core abstraction for dataflow and change-propagation.
+// Snap.fs: provide the core abstraction for dataflow and change-propagation.
 namespace WebSharper.UI
 
 type internal ISnap =

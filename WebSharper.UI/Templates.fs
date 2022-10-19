@@ -73,6 +73,8 @@ module internal Templates =
             | true, TemplateHole.TextView (_, tv) -> Some (Doc'.TextView tv)
             | true, TemplateHole.VarStr (_, v) -> Some (Doc'.TextView v.View)
             | true, TemplateHole.VarBool (_, v) -> Some (Doc'.TextView (v.View.Map string))
+            | true, TemplateHole.VarDateTime (_, v) -> Some (Doc'.TextView (v.View.Map string))
+            | true, TemplateHole.VarFile (_, v) -> Some (Doc'.TextView (v.View.Map string)) //?????????
             | true, TemplateHole.VarInt (_, v) -> Some (Doc'.TextView (v.View.Map (fun i -> i.Input)))
             | true, TemplateHole.VarIntUnchecked (_, v) -> Some (Doc'.TextView (v.View.Map string))
             | true, TemplateHole.VarFloat (_, v) -> Some (Doc'.TextView (v.View.Map (fun i -> i.Input)))
@@ -165,6 +167,8 @@ module internal Templates =
             match fw.TryGetValue(name) with
             | true, TemplateHole.VarStr (_, var) -> addAttr e (Attr.Value var)
             | true, TemplateHole.VarBool (_, var) -> addAttr e (Attr.Checked var)
+            | true, TemplateHole.VarDateTime (_, var) -> addAttr e (Attr.DateTimeValue var)
+            | true, TemplateHole.VarFile (_, var) -> addAttr e (Attr.FileValue var)
             | true, TemplateHole.VarInt (_, var) -> addAttr e (Attr.IntValue var)
             | true, TemplateHole.VarIntUnchecked (_, var) -> addAttr e (Attr.IntValueUnchecked var)
             | true, TemplateHole.VarFloat (_, var) -> addAttr e (Attr.FloatValue var)
@@ -196,6 +200,8 @@ module internal Templates =
                             | true, TemplateHole.TextView (_, v) -> Choice2Of2 v
                             | true, TemplateHole.VarStr (_, v) -> Choice2Of2 v.View
                             | true, TemplateHole.VarBool (_, v) -> Choice2Of2 (v.View.Map string)
+                            | true, TemplateHole.VarDateTime (_, v) -> Choice2Of2 (v.View.Map string)
+                            | true, TemplateHole.VarFile (_, v) -> Choice2Of2 (v.View.Map string)
                             | true, TemplateHole.VarInt (_, v) -> Choice2Of2 (v.View.Map (fun i -> i.Input))
                             | true, TemplateHole.VarIntUnchecked (_, v) -> Choice2Of2 (v.View.Map string)
                             | true, TemplateHole.VarFloat (_, v) -> Choice2Of2 (v.View.Map (fun i -> i.Input))

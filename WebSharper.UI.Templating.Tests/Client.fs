@@ -220,25 +220,25 @@ module Client =
                             textView clk.View
                         ]
                         p [] [
-                            Doc.CheckBox [] chk 
+                            Doc.InputType.CheckBox [] chk 
                             text (if chk.V then "Uncheck this" else "Check this")
                         ]
                         p [] [
                             for i in 1 .. 5 ->
-                                Doc.CheckBoxGroup [] i chkl
+                                Doc.InputType.CheckBoxGroup [] i chkl
                             yield textView (chkl.View.Map(fun l -> "Checked indices:" + (l |> List.map string |> String.concat ", ")))
                         ]
                         p [] [
-                            Doc.Input [] inp 
+                            Doc.InputType.Text [] inp 
                             textView (inp.View.Map(fun s -> "You said: " + s))
                         ]
                         p [] [
-                            Doc.IntInput [] iinp 
+                            Doc.InputType.Int [] iinp 
                             textView (iinp.View.Map(function Valid (i, _) -> "It's an int: " + string i | Invalid _ -> "Can't parse" | Blank _ -> "Empty" ))
                         ]
                         p [] [
                             for i in 1 .. 5 ->
-                                Doc.Radio [] i ri
+                                Doc.InputType.Radio [] i ri
                             yield textView (ri.View.Map(fun i -> "Checked index:" + string i))
                         ]
                     ]

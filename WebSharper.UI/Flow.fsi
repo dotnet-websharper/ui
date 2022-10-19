@@ -18,7 +18,7 @@
 //
 // $end{copyright}
 
-/// Flow.fs: experiment in flowlet-style combinators.
+// Flow.fs: experiment in flowlet-style combinators.
 namespace WebSharper.UI
 
 open System

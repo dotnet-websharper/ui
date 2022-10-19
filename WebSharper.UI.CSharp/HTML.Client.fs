@@ -73,14 +73,14 @@ module Html =
     /// Input box.
     [<Inline; CompiledName "input">]
     let StringInput(var, [<ParamArray>] attrs: Attr[]) =
-        Client.Doc.Input attrs var
+        Client.Doc.InputType.Text attrs var
 
     /// Input box with type="number".
     /// For validation to work properly in Internet Explorer 9 and older,
     /// needs to be inside a <form> with Attr.ValidateForm.
     [<Inline; CompiledName "input">]
     let IntInput(var, [<ParamArray>] attrs: Attr[]) =
-        Client.Doc.IntInputUnchecked attrs var
+        Client.Doc.InputType.IntUnchecked attrs var
 
     // TODO checked int input
 
@@ -90,17 +90,17 @@ module Html =
     /// It is advised to use FloatInput instead for better user experience.
     [<Inline; CompiledName "input">]
     let FloatInput(var, [<ParamArray>] attrs: Attr[]) =
-        Client.Doc.FloatInputUnchecked attrs var
+        Client.Doc.InputType.FloatUnchecked attrs var
 
     /// Input text area.
     [<Inline; CompiledName "textarea">]
     let TextAreaInput(var, [<ParamArray>] attrs: Attr[]) =
-        Client.Doc.InputArea attrs var
+        Client.Doc.InputType.TextArea attrs var
 
     /// Password box.
     [<Inline; CompiledName "passwordBox">]
     let PasswordBox(var, [<ParamArray>] attrs: Attr[]) =
-        Client.Doc.PasswordBox attrs var
+        Client.Doc.InputType.Password attrs var
 
     /// Submit button. Calls the callback function when the button is pressed.
     [<Inline; CompiledName "button">]
@@ -127,37 +127,37 @@ module Html =
     /// Check Box.
     [<Inline; CompiledName "checkbox">]
     let CheckBox(var, [<ParamArray>] attrs: Attr[]) =
-        Client.Doc.CheckBox attrs var
+        Client.Doc.InputType.CheckBox attrs var
 
     /// Check Box which is part of a Group.
     [<Inline; CompiledName "checkbox">]
     let CheckBoxGroup(vl, l: Var<seq<'T>>, [<ParamArray>] attrs: Attr[]) =
-        Client.Doc.CheckBoxGroup attrs vl (seqRefToListRef l) 
+        Client.Doc.InputType.CheckBoxGroup attrs vl (seqRefToListRef l) 
 
     /// Select box.
     [<Inline; CompiledName "select">]
     let SelectInput(var: Var<'T>, options: seq<'T>, text: Func<'T, string>, [<ParamArray>] attrs: Attr[]) =
-        Client.Doc.Select attrs (FSharpConvert.Fun text) (Seq.toList options) var
+        Client.Doc.InputType.Select attrs (FSharpConvert.Fun text) (Seq.toList options) var
 
     /// Select box with time-varying option list.
     [<Inline; CompiledName "select">]
     let SelectInputDyn(var: Var<'T>, options: View<seq<'T>>, text: Func<'T, string>, [<ParamArray>] attrs: Attr[]) =
-        Client.Doc.SelectDyn attrs (FSharpConvert.Fun text) (View.Map Seq.toList options) var
+        Client.Doc.InputType.SelectDyn attrs (FSharpConvert.Fun text) (View.Map Seq.toList options) var
 
     /// Select box where the first option returns None.
     [<Inline; CompiledName "select">]
     let SelectInputOptional(var, options, noneText, text: Func<'T, string>, [<ParamArray>] attrs: Attr[]) =
-        Client.Doc.SelectOptional attrs noneText (FSharpConvert.Fun text) (Seq.toList options) var
+        Client.Doc.InputType.SelectOptional attrs noneText (FSharpConvert.Fun text) (Seq.toList options) var
 
     /// Select box with time-varying option list where the first option returns None.
     [<Inline; CompiledName "select">]
     let SelectInputDynOptional(var, options: View<seq<'T>>, noneText, text: Func<'T, string>, [<ParamArray>] attrs: Attr[]) =
-        Client.Doc.SelectDynOptional attrs noneText (FSharpConvert.Fun text) (View.Map Seq.toList options) var
+        Client.Doc.InputType.SelectDynOptional attrs noneText (FSharpConvert.Fun text) (View.Map Seq.toList options) var
 
     /// Radio button.
     [<Inline; CompiledName "radio">]
     let Radio(var, vl, [<ParamArray>] attrs: Attr[]) =
-        Client.Doc.Radio attrs vl var
+        Client.Doc.InputType.Radio attrs vl var
 
     /// Sets a basic DOM attribute, such as `id` to a text value.
     [<Inline; CompiledName "attrib">]
