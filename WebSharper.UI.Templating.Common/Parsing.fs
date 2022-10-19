@@ -178,7 +178,7 @@ module Impl =
                     yield StringPart.Text t[l.Value ..]
             |]
 
-    let parseAttributesOf (node: HtmlNode) (addHole: HoleName -> HoleDefinition -> unit) =
+    let parseAttributesOf (node: HtmlNode) (addHole: HoleName -> HoleDefinition -> unit) (addAnchor: string -> unit) =
         [|
             for attr in node.Attributes do
                 let holeDef kind : HoleDefinition =
@@ -194,6 +194,9 @@ module Impl =
                 | AfterRenderAttr ->
                     addHole attr.Value (holeDef HoleKind.ElemHandler)
                     yield Attr.OnAfterRender attr.Value
+                | AnchorAttr ->
+                    addAnchor attr.Value
+                    yield Attr.Simple(AnchorAttr, attr.Value)
                 | VarAttr | HoleAttr | ReplaceAttr | TemplateAttr | ChildrenTemplateAttr ->
                     () // These are handled separately in parseNode* and detach*Node
                 | s when s.StartsWith EventAttrPrefix ->
@@ -276,16 +279,21 @@ module Impl =
         let addRef (x, y) = refs.Value <- Set.add (defaultArg (lower x) thisFileId, lower y) refs.Value
         refs, addRef
 
-    type ParseState(fileId: string, ?holes: Dictionary<HoleName, HoleDefinition>, ?specialHoles: SpecialHole) =
+    type ParseState(fileId: string, ?holes: Dictionary<HoleName, HoleDefinition>, ?specialHoles: SpecialHole, ?anchors: HashSet<string>) =
         let refs, addRef = mkRefs fileId
         let mutable specialHoles = defaultArg specialHoles SpecialHole.None
         let holes = match holes with Some h -> h | None -> Dictionary(System.StringComparer.InvariantCultureIgnoreCase)
+        let anchors = match anchors with Some h -> h | None -> HashSet(System.StringComparer.InvariantCultureIgnoreCase)
 
         member this.Holes = holes
+        member this.Anchors = anchors
         member this.References = refs.Value
         member this.SpecialHoles = specialHoles
 
         member this.AddHole name def = addHole holes name def
+        member this.AddAnchor name = 
+            if anchors.Add(name) |> not then
+                failwithf "Duplicate ws-anchor found: %s" name
         member this.AddRef ref = addRef ref
         member this.AddSpecialHole(h) = specialHoles <- specialHoles ||| h
 
@@ -294,7 +302,7 @@ module Impl =
         | Preserve isSvg n -> n
         | Instantiation state n -> n
         | n ->
-        let attrs = parseAttributesOf n state.AddHole
+        let attrs = parseAttributesOf n state.AddHole state.AddAnchor
         match n.Attributes[VarAttr] with
         | null ->
             Node.Element (n.Name, isSvg, attrs, children.Value)
@@ -354,7 +362,7 @@ module Impl =
                     for c in node.ChildNodes do
                         if not (c :? HtmlTextNode || c :? HtmlCommentNode) then
                             if c.HasAttributes then
-                                attrs[c.Name] <- parseAttributesOf c state.AddHole
+                                attrs[c.Name] <- parseAttributesOf c state.AddHole state.AddAnchor
                             else
                                 contentHoles[c.Name] <- parseNodeAndSiblings false state c.FirstChild
                     None
@@ -409,7 +417,7 @@ module Impl =
             l parentNode.FirstChild
         let line, col = parentNode.Line, parentNode.LinePosition
         let value = parseNodeAndSiblings false state parentNode.FirstChild
-        { Holes = state.Holes; Value = value; Src = src; References = state.References
+        { Holes = state.Holes; Anchors = state.Anchors; Value = value; Src = src; References = state.References
           SpecialHoles = state.SpecialHoles
           Line = line; Column = col }
 
@@ -478,6 +486,7 @@ module Impl =
                 {
                     Value = [| el |]
                     Holes = instState.Holes
+                    Anchors = instState.Anchors
                     Src = n.WriteTo()
                     SpecialHoles = instState.SpecialHoles
                     Line = n.Line
@@ -499,6 +508,7 @@ module Impl =
                 References = Set.union templateForChildren.References state.References
                 SpecialHoles = state.SpecialHoles
                 Holes = templateForChildren.Holes
+                Anchors = templateForChildren.Anchors
             }
         | hole ->
             let holeName = hole.Value
@@ -513,6 +523,7 @@ module Impl =
             {
                 Value = [| el |]
                 Holes = state.Holes
+                Anchors = state.Anchors
                 References = state.References
                 Src = n.WriteTo()
                 SpecialHoles = state.SpecialHoles

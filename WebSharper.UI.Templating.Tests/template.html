@@ -2,7 +2,7 @@
 <ul ws-hole="ListContainer">
     <li ws-template="ListItem" ws-attr="Attr">
         <span ws-attr="KeyAttr" class="class1">(${Key}) </span>
-        <span style="font-style: ${FontStyle}; font-weight: ${FontWeight}">${Name}</span>:
+        <span ws-anchor="NameSpan" style="font-style: ${FontStyle}; font-weight: ${FontWeight}">${Name}</span>:
         <input ws-var="Description" />
         <button ws-onclick="Remove" ws-attr="RemoveAttr">Remove</button>
         <span ws-replace="Title"></span>

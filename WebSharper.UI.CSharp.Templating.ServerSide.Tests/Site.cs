@@ -27,11 +27,11 @@ namespace WebSharper.UI.CSharp.Templating.ServerSide.Tests
         public static void AfterRenderAction() => JavaScript.Console.Log("After render action initialized");
 
         [JavaScript]
-        public static void AfterRenderOverloadTempl(UI.Templating.Runtime.Server.TemplateEvent<Vars, JavaScript.Dom.Event> m) =>
+        public static void AfterRenderOverloadTempl(UI.Templating.Runtime.Server.TemplateEvent<Vars, Anchors, JavaScript.Dom.Event> m) =>
             m.Vars.Logger.Set("I'm initialized from after render");
 
         [JavaScript]
-        public static void ClickMeTempl(UI.Templating.Runtime.Server.TemplateEvent<Vars, JavaScript.Dom.MouseEvent> m) => m.Vars.Logger.Set(m.Vars.Logger.Value + "\nI'm initialized from click");
+        public static void ClickMeTempl(UI.Templating.Runtime.Server.TemplateEvent<Vars, Anchors, JavaScript.Dom.MouseEvent> m) => m.Vars.Logger.Set(m.Vars.Logger.Value + "\nI'm initialized from click");
 
         [JavaScript]
         public static void ClickMe(JavaScript.Dom.Element el, JavaScript.Dom.MouseEvent ev) => JavaScript.Console.Log("Click sent", el);
