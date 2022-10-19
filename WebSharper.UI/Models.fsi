@@ -18,7 +18,7 @@
 //
 // $end{copyright}
 
-/// Models.fs: support for changing models beyond a simple Var.
+// Models.fs: support for changing models beyond a simple Var.
 namespace WebSharper.UI
 
 open System

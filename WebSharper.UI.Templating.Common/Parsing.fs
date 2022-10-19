@@ -216,6 +216,8 @@ module Impl =
         | ValTy.String, ValTy.String -> Some ValTy.String
         | ValTy.Number, ValTy.Number -> Some ValTy.Number
         | ValTy.Bool, ValTy.Bool -> Some ValTy.Bool
+        | ValTy.DateTime, ValTy.DateTime -> Some ValTy.DateTime
+        | ValTy.File, ValTy.File -> Some ValTy.File
         | _ -> None
 
     let varTypeOf (node: HtmlNode) =
@@ -224,8 +226,10 @@ module Impl =
         | "select" -> ValTy.Any
         | "input" ->
             match node.GetAttributeValue("type", null) with
-            | "number" -> ValTy.Number
+            | ("number" | "range") -> ValTy.Number
             | "checkbox" -> ValTy.Bool
+            | "datetime-local" -> ValTy.DateTime
+            | "file" -> ValTy.File
             | ("button" | "submit") as t ->
                 failwithf "Using %s on a <input type=\"%s\"> node" VarAttr t
             | "radio" ->

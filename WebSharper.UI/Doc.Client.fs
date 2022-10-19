@@ -22,6 +22,7 @@ namespace WebSharper.UI.Client
 open WebSharper
 open WebSharper.JavaScript
 open WebSharper.UI
+open System
 
 [<AutoOpen; JavaScript>]
 module EltExtensions =
@@ -294,6 +295,170 @@ module Doc =
     let Radio attrs value var : Doc =
         As (Doc'.Radio attrs value var)
 
+    [<JavaScript>]
+    module InputType =
+        
+        [<Inline>]
+        let Text attr var : Doc =
+            As (Doc'.Input attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "Text")>]
+        let TextV (attr: seq<Attr>) (var: string) = X<Doc>
+        
+        [<Inline>]
+        let Password attr var : Doc =
+            As (Doc'.PasswordBox attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "Password")>]
+        let PasswordV (attr: seq<Attr>) (var: string) = X<Doc>
+        
+        [<Inline>]
+        let Color attr var : Doc =
+            As (Doc'.ColorInput attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "Color")>]
+        let ColorV (attr: seq<Attr>) (var: string) = X<Doc>
+        
+        [<Inline>]
+        let Date attr var : Doc =
+            As (Doc'.DateInput attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "Date")>]
+        let DateV (attr: seq<Attr>) (var: string) = X<Doc>
+        
+        [<Inline>]
+        let DateTimeLocal attr var : Doc =
+            As (Doc'.DateTimeLocalInput attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "DateTimeLocal")>]
+        let DateTimeLocalV (attr: seq<Attr>) (var: DateTime) = X<Doc>
+        
+        [<Inline>]
+        let Email attr var : Doc =
+            As (Doc'.EmailInput attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "Email")>]
+        let EmailV (attr: seq<Attr>) (var: string) = X<Doc>
+        
+        [<Inline>]
+        let File attr var : Doc =
+            As (Doc'.FileInput attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "File")>]
+        let FileV (attr: seq<Attr>) (var: File array) = X<Doc>
+        
+        [<Inline>]
+        let Month attr var : Doc =
+            As (Doc'.MonthInput attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "Month")>]
+        let MonthV (attr: seq<Attr>) (var: string) = X<Doc>
+        
+        [<Inline>]
+        let Range attr var : Doc =
+            As (Doc'.RangeInput attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "Range")>]
+        let RangeV (attr: seq<Attr>) (var: int) = X<Doc>
+        
+        [<Inline>]
+        let Search attr var : Doc =
+            As (Doc'.SearchInput attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "Search")>]
+        let SearchV (attr: seq<Attr>) (var: string) = X<Doc>
+        
+        [<Inline>]
+        let Tel attr var : Doc =
+            As (Doc'.TelInput attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "Tel")>]
+        let TelV (attr: seq<Attr>) (var: string) = X<Doc>
+        
+        [<Inline>]
+        let Time attr var : Doc =
+            As (Doc'.TimeInput attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "Time")>]
+        let TimeV (attr: seq<Attr>) (var: string) = X<Doc>
+        
+        [<Inline>]
+        let Url attr var : Doc =
+            As (Doc'.UrlInput attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "Url")>]
+        let UrlV (attr: seq<Attr>) (var: string) = X<Doc>
+        
+        [<Inline>]
+        let Week attr var : Doc =
+            As (Doc'.WeekInput attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "Week")>]
+        let WeekV (attr: seq<Attr>) (var: string) = X<Doc>
+        
+        [<Inline>]
+        let Int attr var : Doc =
+            As (Doc'.IntInput attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "Int")>]
+        let IntV (attr: seq<Attr>) (var: CheckedInput<int>) = X<Doc>
+        
+        [<Inline>]
+        let IntUnchecked attr var : Doc =
+            As (Doc'.IntInputUnchecked attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "IntUnchecked")>]
+        let IntUncheckedV (attr: seq<Attr>) (var: int) = X<Doc>
+        
+        [<Inline>]
+        let Float attr var : Doc =
+            As (Doc'.FloatInput attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "Float")>]
+        let FloatV (attr: seq<Attr>) (var: CheckedInput<float>) = X<Doc>
+        
+        [<Inline>]
+        let FloatUnchecked attr var : Doc =
+            As (Doc'.FloatInputUnchecked attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "FloatUnchecked")>]
+        let FloatUncheckedV (attr: seq<Attr>) (var: float) = X<Doc>
+        
+        [<Inline>]
+        let TextArea attr var : Doc =
+            As (Doc'.InputArea attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "TextArea")>]
+        let TextAreaV (attr: seq<Attr>) (var: string) = X<Doc>
+        
+        [<Inline>]
+        let Select attrs show options current : Doc =
+            As (Doc'.Select attrs show options current)
+        
+        [<Inline>]
+        let SelectDyn attrs show options current : Doc =
+            As (Doc'.SelectDyn attrs show options current)
+        
+        [<Inline>]
+        let SelectOptional attrs noneText show options current : Doc =
+            As (Doc'.SelectOptional attrs noneText show options current)
+        
+        [<Inline>]
+        let SelectDynOptional attrs noneText show options current : Doc =
+            As (Doc'.SelectDynOptional attrs noneText show options current)
+        
+        [<Inline>]
+        let CheckBox attrs chk : Doc =
+            As (Doc'.CheckBox attrs chk)
+        
+        [<Inline>]
+        let CheckBoxGroup attrs item chk : Doc =
+            As (Doc'.CheckBoxGroup attrs item chk)
+        
+        [<Inline>]
+        let Radio attrs value var : Doc =
+            As (Doc'.Radio attrs value var)
+
 module Elt =
 
     [<Inline>]
@@ -391,3 +556,167 @@ module Elt =
 
     [<Inline>]
     let ToUpdater (e: Elt) = As<EltUpdater>((As<Elt'> e).ToUpdater() )
+
+    [<JavaScript>]
+    module InputType =
+        
+        [<Inline>]
+        let Text attr var : Elt =
+            As (Doc'.Input attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "Text")>]
+        let TextV (attr: seq<Attr>) (var: string) = X<Elt>
+        
+        [<Inline>]
+        let Password attr var : Elt =
+            As (Doc'.PasswordBox attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "Password")>]
+        let PasswordV (attr: seq<Attr>) (var: string) = X<Elt>
+        
+        [<Inline>]
+        let Color attr var : Elt =
+            As (Doc'.ColorInput attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "Color")>]
+        let ColorV (attr: seq<Attr>) (var: string) = X<Elt>
+        
+        [<Inline>]
+        let Date attr var : Elt =
+            As (Doc'.DateInput attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "Date")>]
+        let DateV (attr: seq<Attr>) (var: string) = X<Elt>
+        
+        [<Inline>]
+        let DateTimeLocal attr var : Elt =
+            As (Doc'.DateTimeLocalInput attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "DateTimeLocal")>]
+        let DateTimeLocalV (attr: seq<Attr>) (var: DateTime) = X<Elt>
+        
+        [<Inline>]
+        let Email attr var : Elt =
+            As (Doc'.EmailInput attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "Email")>]
+        let EmailV (attr: seq<Attr>) (var: string) = X<Elt>
+        
+        [<Inline>]
+        let File attr var : Elt =
+            As (Doc'.FileInput attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "File")>]
+        let FileV (attr: seq<Attr>) (var: File array) = X<Elt>
+        
+        [<Inline>]
+        let Month attr var : Elt =
+            As (Doc'.MonthInput attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "Month")>]
+        let MonthV (attr: seq<Attr>) (var: string) = X<Elt>
+        
+        [<Inline>]
+        let Range attr var : Elt =
+            As (Doc'.RangeInput attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "Range")>]
+        let RangeV (attr: seq<Attr>) (var: int) = X<Elt>
+        
+        [<Inline>]
+        let Search attr var : Elt =
+            As (Doc'.SearchInput attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "Search")>]
+        let SearchV (attr: seq<Attr>) (var: string) = X<Elt>
+        
+        [<Inline>]
+        let Tel attr var : Elt =
+            As (Doc'.TelInput attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "Tel")>]
+        let TelV (attr: seq<Attr>) (var: string) = X<Elt>
+        
+        [<Inline>]
+        let Time attr var : Elt =
+            As (Doc'.TimeInput attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "Time")>]
+        let TimeV (attr: seq<Attr>) (var: string) = X<Elt>
+        
+        [<Inline>]
+        let Url attr var : Elt =
+            As (Doc'.UrlInput attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "Url")>]
+        let UrlV (attr: seq<Attr>) (var: string) = X<Elt>
+        
+        [<Inline>]
+        let Week attr var : Elt =
+            As (Doc'.WeekInput attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "Week")>]
+        let WeekV (attr: seq<Attr>) (var: string) = X<Elt>
+        
+        [<Inline>]
+        let Int attr var : Elt =
+            As (Doc'.IntInput attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "Int")>]
+        let IntV (attr: seq<Attr>) (var: CheckedInput<int>) = X<Elt>
+        
+        [<Inline>]
+        let IntUnchecked attr var : Elt =
+            As (Doc'.IntInputUnchecked attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "IntUnchecked")>]
+        let IntUncheckedV (attr: seq<Attr>) (var: int) = X<Elt>
+        
+        [<Inline>]
+        let Float attr var : Elt =
+            As (Doc'.FloatInput attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "Float")>]
+        let FloatV (attr: seq<Attr>) (var: CheckedInput<float>) = X<Elt>
+        
+        [<Inline>]
+        let FloatUnchecked attr var : Elt =
+            As (Doc'.FloatInputUnchecked attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "FloatUnchecked")>]
+        let FloatUncheckedV (attr: seq<Attr>) (var: float) = X<Elt>
+        
+        [<Inline>]
+        let TextArea attr var : Elt =
+            As (Doc'.InputArea attr var)
+        
+        [<Macro(typeof<Macros.InputV2>, "TextArea")>]
+        let TextAreaV (attr: seq<Attr>) (var: string) = X<Elt>
+        
+        [<Inline>]
+        let Select attrs show options current : Elt =
+            As (Doc'.Select attrs show options current)
+        
+        [<Inline>]
+        let SelectDyn attrs show options current : Elt =
+            As (Doc'.SelectDyn attrs show options current)
+        
+        [<Inline>]
+        let SelectOptional attrs noneText show options current : Elt =
+            As (Doc'.SelectOptional attrs noneText show options current)
+        
+        [<Inline>]
+        let SelectDynOptional attrs noneText show options current : Elt =
+            As (Doc'.SelectDynOptional attrs noneText show options current)
+        
+        [<Inline>]
+        let CheckBox attrs chk : Elt =
+            As (Doc'.CheckBox attrs chk)
+        
+        [<Inline>]
+        let CheckBoxGroup attrs item chk : Elt =
+            As (Doc'.CheckBoxGroup attrs item chk)
+        
+        [<Inline>]
+        let Radio attrs value var : Elt =
+            As (Doc'.Radio attrs value var)

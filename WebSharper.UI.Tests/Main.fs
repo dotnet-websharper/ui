@@ -622,7 +622,7 @@ module Main =
         Doc.LoadLocalTemplates "local"
         let var = Var.Create "init"
         Doc.NamedTemplate "local" (Some "TestTemplate") [
-            TemplateHole.Elt ("Input", Doc.Input [] var)
+            TemplateHole.Elt ("Input", Doc.InputType.Text [] var)
             TemplateHole.Elt ("Value", textView var.View)
             TemplateHole.Elt ("Item",
                 Doc.NamedTemplate "local" (Some "Item") [
@@ -633,13 +633,16 @@ module Main =
         |> Doc.RunAppend JS.Document.Body
         let rv = Var.Create { x = "red"; y = { z = "green"; t = "test" } }
         let rd = Var.Create (p [] [text "[OK] var.V"])
+        let rdt = Var.Create System.DateTime.Now
+        let rf = Var.Create [||]
+        let rr = Var.Create 0
         let rvDisabled = Var.Create false
         div [
             Attr.Style "color" rv.V.y.z
         ] [
             p [] [
                 text "Test text x.V: enter a color: "
-                Doc.Input [
+                Doc.InputType.Text [
                     attr.style ("background: " + rv.V.y.z)
                     Attr.Prop "disabled" rvDisabled.V
                     on.click (fun el ev ->
@@ -651,11 +654,26 @@ module Main =
                         ()
                     )
                 ] (rv.LensAuto(fun v -> v.y.z))
-                Doc.PasswordBoxV [attr.style ("background: " + rv.V.y.z)] rv.V.y.z
+                Doc.InputType.PasswordV [attr.style ("background: " + rv.V.y.z)] rv.V.y.z
                 label [] [
-                    Doc.CheckBox [] rvDisabled
+                    Doc.InputType.CheckBox [] rvDisabled
                     text "Disable input"
                 ]
+                Doc.InputType.DateTimeLocal [
+                    on.changeView rdt.View (fun _ _ dt -> 
+                        Console.Log <| sprintf "Number of files: %s" (dt.ToString())
+                    )
+                ] rdt
+                Doc.InputType.File [
+                    on.changeView rf.View (fun _ _ files -> 
+                        Console.Log <| sprintf "Number of files: %d" files.Length
+                    )
+                ] rf
+                Doc.InputType.Range [
+                    on.changeView rr.View (fun _ _ range -> 
+                        Console.Log <| sprintf "Range: %d" range
+                    )
+                ] rr
             ]
             p [] [text (" You typed: " + rv.V.y.z)]
             V(ul [] (rv.V.y.z |> Seq.map (fun c -> li [] [text (string c)]))).V

@@ -48,6 +48,8 @@ type ValTy =
     | String = 0
     | Number = 1
     | Bool = 2
+    | DateTime = 3
+    | File = 4
 
 [<JavaScript; Serializable>]
 type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
@@ -71,6 +73,10 @@ type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
             applyTypedVarHole BindVar.StringApply v el
         | TemplateHole.VarBool (_, v) ->
             applyTypedVarHole BindVar.BoolCheckedApply v el
+        | TemplateHole.VarDateTime (_, v) ->
+            applyTypedVarHole BindVar.DateTimeApplyUnchecked v el
+        | TemplateHole.VarFile (_, v) ->
+            applyTypedVarHole BindVar.FileApplyUnchecked v el
         | TemplateHole.VarInt (_, v) ->
             applyTypedVarHole BindVar.IntApplyChecked v el
         | TemplateHole.VarIntUnchecked (_, v) ->
@@ -119,6 +125,8 @@ type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
                 d[n] <-
                     match t with
                     | ValTy.Bool -> TemplateHole.VarBool (n, Var.Create (ov |> Option.map (fun x -> x :?> bool) |> Option.defaultValue false))
+                    | ValTy.File -> TemplateHole.VarFile (n, Var.Create (ov |> Option.map (fun x -> x :?> JavaScript.File array) |> Option.defaultValue [||]))
+                    | ValTy.DateTime -> TemplateHole.VarDateTime (n, Var.Create (ov |> Option.map (fun x -> x :?> DateTime) |> Option.defaultValue DateTime.MinValue))
                     | ValTy.Number -> TemplateHole.VarFloatUnchecked (n, Var.Create (ov |> Option.map (fun x -> x :?> float) |> Option.defaultValue 0.))
                     | ValTy.String -> TemplateHole.VarStr (n, Var.Create (ov |> Option.map (fun x -> x :?> string) |> Option.defaultValue ""))
                     | _ -> failwith "Invalid value type"
@@ -241,7 +249,9 @@ type Handler private () =
                 | TemplateHole.VarInt(n, _)
                 | TemplateHole.VarFloatUnchecked(n, _)
                 | TemplateHole.VarFloat(n, _)
-                | TemplateHole.VarBool(n, _) ->
+                | TemplateHole.VarBool(n, _)
+                | TemplateHole.VarDateTime(n, _)
+                | TemplateHole.VarFile(n, _) ->
                     filledVars.Add n |> ignore
                     hasEventHandler
                 | TemplateHole.AfterRender _
@@ -293,6 +303,10 @@ type Handler private () =
                         | Some (TemplateHole.VarFloat(n, v)) ->
                             (n, t, Option.Some (box v.Value))
                         | Some (TemplateHole.VarBool(n, v)) ->
+                            (n, t, Option.Some (box v.Value))
+                        | Some (TemplateHole.VarDateTime(n, v)) ->
+                            (n, t, Option.Some (box v.Value))
+                        | Some (TemplateHole.VarFile(n, v)) ->
                             (n, t, Option.Some (box v.Value))
                         | _ ->
                             failwith "Invalid hole type"
@@ -452,6 +466,26 @@ type ProviderBuilder =
     /// Fill a hole of the template.
     [<Inline>]
     member this.With(hole: string, value: bool) =
+        this.With(TemplateHole.MakeVarLens(hole, value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, value: Var<DateTime>) =
+        this.With(TemplateHole.VarDateTime(hole, value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, value: DateTime) =
+        this.With(TemplateHole.MakeVarLens(hole, value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, value: Var<JavaScript.File array>) =
+        this.With(TemplateHole.VarFile(hole, value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, value: JavaScript.File array) =
         this.With(TemplateHole.MakeVarLens(hole, value))
 
 module ProviderBuilder =
@@ -722,6 +756,8 @@ type Runtime private () =
                             Some fullName, attrs
                         | true, TemplateHole.VarStr (n, _)
                         | true, TemplateHole.VarBool (n, _)
+                        | true, TemplateHole.VarDateTime (n, _)
+                        | true, TemplateHole.VarFile (n, _)
                         | true, TemplateHole.VarFloat (n, _) ->
                             Some (if String.IsNullOrEmpty id then n else id + "::" + n), attrs
                         | _ ->

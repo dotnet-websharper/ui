@@ -32,6 +32,8 @@ type ValTy =
     | String
     | Number
     | Bool
+    | DateTime
+    | File
 
 [<RequireQualifiedAccess>]
 type HoleKind =

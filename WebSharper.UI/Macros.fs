@@ -72,6 +72,7 @@ module Macros =
     let attrT = NonGenericType (ty "Attr")
     let docModule = NonGeneric (ty "Doc")
     let clientDocModule = NonGeneric (ty "Client.Doc")
+    let clientDocInputModule = NonGeneric (ty "Client.Doc+InputType")
     let clientAttrModule = NonGeneric (ty "Client.Attr")
     let tplHoleModule = NonGeneric (ty "TemplateHole")
     let tplHoleT = NonGenericType (ty "TemplateHole")
@@ -359,6 +360,17 @@ module Macros =
             | MacroOk lens ->
                 let o = call.Method.Entity.Value.ReturnType
                 MacroOk (Call (None, clientDocModule, inputFn (downcast call.Parameter.Value) t o, [call.Arguments[0]; lens]))
+            | err -> err
+
+    type InputV2() =
+        inherit Macro()
+
+        override this.TranslateCall(call) =
+            let t = call.Method.Entity.Value.Parameters[1]
+            match Lens.VMakeLens call.Compilation t call.Arguments[1] with
+            | MacroOk lens ->
+                let o = call.Method.Entity.Value.ReturnType
+                MacroOk (Call (None, clientDocInputModule, inputFn (downcast call.Parameter.Value) t o, [call.Arguments[0]; lens]))
             | err -> err
 
     type TemplateVar() =

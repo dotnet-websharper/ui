@@ -333,6 +333,25 @@ module BindVar =
     let StringApply : Apply<string> =
         ApplyValue StringGet StringSet
 
+    let DateTimeSetUnchecked : Set<System.DateTime> = fun el i ->
+        el?value <- string i
+    let DateTimeGetUnchecked : Get<System.DateTime> = fun el ->
+        let s = el?value
+        if String.isBlank s then Some System.DateTime.MinValue else
+        match System.DateTime.TryParse(s) with
+        | false, _ -> None
+        | true, v -> Some v
+    let DateTimeApplyUnchecked : Apply<System.DateTime> =
+        ApplyValue DateTimeGetUnchecked DateTimeSetUnchecked
+
+    let FileSetUnchecked : Set<File array> = fun el i ->
+        () // This should do nothing, as we should not override the values from the input
+    let FileGetUnchecked : Get<File array> = fun el ->
+        let files : FileList = el?files
+        [| for i in 1..files.Length do yield files.Item(i) |] |> Some
+    let FileApplyUnchecked : Apply<File array> =
+        ApplyValue FileGetUnchecked FileSetUnchecked
+
     let IntSetUnchecked : Set<int> = fun el i ->
         el?value <- string i
     let IntGetUnchecked : Get<int> = fun el ->
@@ -485,6 +504,12 @@ module Attr =
 
     let Value (var: Var<string>) =
         ValueWith BindVar.StringApply var
+
+    let DateTimeValue (var: Var<System.DateTime>) =
+        ValueWith BindVar.DateTimeApplyUnchecked var
+
+    let FileValue (var: Var<File array>) =
+        ValueWith BindVar.FileApplyUnchecked var
 
     let IntValueUnchecked (var: Var<int>) =
         ValueWith BindVar.IntApplyUnchecked var

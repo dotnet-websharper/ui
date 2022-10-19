@@ -303,6 +303,26 @@ module private Impl =
                 <@ (%b).With(TemplateHole.MakeVarLens(%name, %x)) @>
         ]
 
+    let VarDateTimeHoleMethods hole resTy ctx =
+        let mk wrapArg = BuildMethod hole resTy ctx wrapArg
+        let mkVar wrapArg = BuildMethodVar hole resTy ctx wrapArg
+        [
+            yield! mkVar <| fun b name (x: Expr<Var<DateTime>>) ->
+                <@ (%b).With(%name, %x) @>
+            yield mk <| fun b name (x: Expr<DateTime>) ->
+                <@ (%b).With(TemplateHole.MakeVarLens(%name, %x)) @>
+        ]
+
+    let VarFileHoleMethods hole resTy ctx =
+        let mk wrapArg = BuildMethod hole resTy ctx wrapArg
+        let mkVar wrapArg = BuildMethodVar hole resTy ctx wrapArg
+        [
+            yield! mkVar <| fun b name (x: Expr<Var<WebSharper.JavaScript.File array>>) ->
+                <@ (%b).With(%name, %x) @>
+            yield mk <| fun b name (x: Expr<WebSharper.JavaScript.File array>) ->
+                <@ (%b).With(TemplateHole.MakeVarLens(%name, %x)) @>
+        ]
+
     let BuildHoleMethods (holeName: HoleName) (holeDef: HoleDefinition) (resTy: Type) (varsTy: Type) (anchorsTy: Type) (ctx: Ctx) : list<MemberInfo> =
         let hole = (holeName, holeDef)
         let rec build = function
@@ -318,6 +338,8 @@ module private Impl =
             | HoleKind.Var (ValTy.Any | ValTy.String) -> VarStringHoleMethods (Choice1Of2 hole) resTy ctx
             | HoleKind.Var ValTy.Number -> VarNumberHoleMethods (Choice1Of2 hole) resTy ctx
             | HoleKind.Var ValTy.Bool -> VarBoolHoleMethods (Choice1Of2 hole) resTy ctx
+            | HoleKind.Var ValTy.DateTime -> VarDateTimeHoleMethods (Choice1Of2 hole) resTy ctx
+            | HoleKind.Var ValTy.File -> VarFileHoleMethods (Choice1Of2 hole) resTy ctx
             | HoleKind.Mapped (kind = k) -> build k
             | HoleKind.Unknown -> failwithf "Error: Unknown HoleKind: %s" holeName
         build holeDef.Kind
@@ -332,6 +354,8 @@ module private Impl =
             VarStringHoleMethods (Choice2Of2 "With") resTy ctx
             VarNumberHoleMethods (Choice2Of2 "With") resTy ctx
             VarBoolHoleMethods (Choice2Of2 "With") resTy ctx
+            VarDateTimeHoleMethods (Choice2Of2 "With") resTy ctx
+            VarFileHoleMethods (Choice2Of2 "With") resTy ctx
         ]
 
     let OptionValue (x: option<'T>) : Expr<option<'T>> =
@@ -367,6 +391,8 @@ module private Impl =
                     | HoleKind.Var AST.ValTy.String -> yield <@@ (holeName', RTS.ValTy.String, Option.None) @@>
                     | HoleKind.Var AST.ValTy.Number -> yield <@@ (holeName', RTS.ValTy.Number, Option.None) @@>
                     | HoleKind.Var AST.ValTy.Bool -> yield <@@ (holeName', RTS.ValTy.Bool, Option.None) @@>
+                    | HoleKind.Var AST.ValTy.DateTime -> yield <@@ (holeName', RTS.ValTy.DateTime, Option.None) @@>
+                    | HoleKind.Var AST.ValTy.File -> yield <@@ (holeName', RTS.ValTy.File, Option.None) @@>
                     | _ -> ()
             ]
         )
@@ -454,6 +480,14 @@ module private Impl =
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
                 | AST.HoleKind.Var AST.ValTy.Bool ->
                     yield ProvidedProperty(holeName, typeof<Var<bool>>, fun x ->
+                        <@@ ((%%x[0] : obj) :?> TI).Hole(holeName') |> TemplateHole.Value @@>)
+                        .WithXmlDoc(XmlDoc.Member.Var holeName)
+                | AST.HoleKind.Var AST.ValTy.DateTime ->
+                    yield ProvidedProperty(holeName, typeof<Var<DateTime>>, fun x ->
+                        <@@ ((%%x[0] : obj) :?> TI).Hole(holeName') |> TemplateHole.Value @@>)
+                        .WithXmlDoc(XmlDoc.Member.Var holeName)
+                | AST.HoleKind.Var AST.ValTy.File ->
+                    yield ProvidedProperty(holeName, typeof<Var<WebSharper.JavaScript.File array>>, fun x ->
                         <@@ ((%%x[0] : obj) :?> TI).Hole(holeName') |> TemplateHole.Value @@>)
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
                 | _ -> ()

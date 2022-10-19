@@ -183,27 +183,32 @@ module Doc =
   // Form helpers
 
     /// Input box.
+    [<Obsolete "Use Doc.Input.Text instead">]
     val Input : seq<Attr> -> Var<string> -> Doc
 
     /// Input box.
     /// The var must be passed using the .V property.
+    [<Obsolete "Use Doc.Input.TextV instead">]
     val InputV : seq<Attr> -> var: string -> Doc
 
     /// Input box with type="number".
     /// For validation to work properly in Internet Explorer 9 and older,
     /// needs to be inside a <form> with Attr.ValidateForm.
+    [<Obsolete "Use Doc.Input.Int instead">]
     val IntInput : seq<Attr> -> Var<CheckedInput<int>> -> Doc
 
     /// Input box with type="number".
     /// For validation to work properly in Internet Explorer 9 and older,
     /// needs to be inside a <form> with Attr.ValidateForm.
     /// The var must be passed using the .V property.
+    [<Obsolete "Use Doc.Input.IntV instead">]
     val IntInputV : seq<Attr> -> CheckedInput<int> -> Doc
 
     /// Input box with type="number".
     /// If the input box is blank, the value is set to 0.
     /// If the input is not parseable as an int, the value is unchanged from its last valid value.
     /// It is advised to use IntInput instead for better user experience.
+    [<Obsolete "Use Doc.Input.IntUnchecked instead">]
     val IntInputUnchecked : seq<Attr> -> Var<int> -> Doc
 
     /// Input box with type="number".
@@ -211,23 +216,27 @@ module Doc =
     /// If the input is not parseable as an int, the value is unchanged from its last valid value.
     /// It is advised to use IntInput instead for better user experience.
     /// The var must be passed using the .V property.
+    [<Obsolete "Use Doc.Input.IntUncheckedV instead">]
     val IntInputUncheckedV : seq<Attr> -> int -> Doc
 
     /// Input box with type="number".
     /// For validation to work properly in Internet Explorer 9 and older,
     /// needs to be inside a <form> with Attr.ValidateForm.
+    [<Obsolete "Use Doc.Input.Float instead">]
     val FloatInput : seq<Attr> -> Var<CheckedInput<float>> -> Doc
 
     /// Input box with type="number".
     /// For validation to work properly in Internet Explorer 9 and older,
     /// needs to be inside a <form> with Attr.ValidateForm.
     /// The var must be passed using the .V property.
+    [<Obsolete "Use Doc.Input.FloatV instead">]
     val FloatInputV : seq<Attr> -> CheckedInput<float> -> Doc
 
     /// Input box with type="number".
     /// If the input box is blank, the value is set to 0.
     /// If the input is not parseable as a float, the value is unchanged from its last valid value.
     /// It is advised to use FloatInput instead for better user experience.
+    [<Obsolete "Use Doc.Input.FloatUnchecked instead">]
     val FloatInputUnchecked : seq<Attr> -> Var<float> -> Doc
 
     /// Input box with type="number".
@@ -235,20 +244,25 @@ module Doc =
     /// If the input is not parseable as a float, the value is unchanged from its last valid value.
     /// It is advised to use FloatInput instead for better user experience.
     /// The var must be passed using the .V property.
+    [<Obsolete "Use Doc.Input.FloatUncheckedV instead">]
     val FloatInputUncheckedV : seq<Attr> -> float -> Doc
 
     /// Input text area.
+    [<Obsolete "Use Doc.Input.TextAreaV instead">]
     val InputArea : seq<Attr> -> Var<string> -> Doc
 
     /// Input text area.
     /// The var must be passed using the .V property.
+    [<Obsolete "Use Doc.Input.TextAreaV instead">]
     val InputAreaV : seq<Attr> -> string -> Doc
 
     /// Password box.
+    [<Obsolete "Use Doc.Input.Password instead">]
     val PasswordBox : seq<Attr> -> Var<string> -> Doc
 
     /// Password box.
     /// The var must be passed using the .V property.
+    [<Obsolete "Use Doc.Input.PasswordV instead">]
     val PasswordBoxV : seq<Attr> -> string -> Doc
 
     /// Submit button. Calls the callback function when the button is pressed.
@@ -266,56 +280,250 @@ module Doc =
     val LinkView : caption: string -> seq<Attr> -> View<'T> -> ('T -> unit) -> Doc
 
     /// Check Box.
+    [<Obsolete "Use Doc.Input.CheckBox instead">]
     val CheckBox : seq<Attr> -> Var<bool> -> Doc
 
     /// Check Box Group.
+    [<Obsolete "Use Doc.Input.CheckBoxGroup instead">]
     val CheckBoxGroup : seq<Attr> -> 'T -> Var<list<'T>> -> Doc
         when 'T : equality
 
     /// Select box.
+    [<Obsolete "Use Doc.Input.Select instead">]
     val Select : seq<Attr> -> optionText: ('T -> string) -> options: list<'T> -> Var<'T> -> Doc
         when 'T : equality
 
     /// Select box with time-varying option list.
+    [<Obsolete "Use Doc.Input.SelectDyn instead">]
     val SelectDyn : seq<Attr> -> optionText: ('T -> string) -> options: View<list<'T>> -> Var<'T> -> Doc
         when 'T : equality
 
     /// Select box where the first option returns None.
+    [<Obsolete "Use Doc.Input.SelectOptional instead">]
     val SelectOptional : seq<Attr> -> noneText: string -> optionText: ('T -> string) -> options: list<'T> -> Var<option<'T>> -> Doc
         when 'T : equality
 
     /// Select box with time-varying option list where the first option returns None.
+    [<Obsolete "Use Doc.Input.SelectDynOptional instead">]
     val SelectDynOptional : seq<Attr> -> noneText: string -> optionText: ('T -> string) -> options: View<list<'T>> -> Var<option<'T>> -> Doc
         when 'T : equality
 
     /// Radio button.
+    [<Obsolete "Use Doc.Input.Radio instead">]
     val Radio : seq<Attr> -> 'T -> Var<'T> -> Doc
         when 'T : equality
+
+    module InputType =
+        
+        /// Input box.
+        val Text : seq<Attr> -> Var<string> -> Doc
+        
+        /// Input box.
+        /// The var must be passed using the .V property.
+        val TextV : seq<Attr> -> var: string -> Doc
+        
+        /// Input box with type="number".
+        /// For validation to work properly in Internet Explorer 9 and older,
+        /// needs to be inside a <form> with Attr.ValidateForm.
+        val Int : seq<Attr> -> Var<CheckedInput<int>> -> Doc
+        
+        /// Input box with type="number".
+        /// For validation to work properly in Internet Explorer 9 and older,
+        /// needs to be inside a <form> with Attr.ValidateForm.
+        /// The var must be passed using the .V property.
+        val IntV : seq<Attr> -> CheckedInput<int> -> Doc
+        
+        /// Input box with type="number".
+        /// If the input box is blank, the value is set to 0.
+        /// If the input is not parseable as an int, the value is unchanged from its last valid value.
+        /// It is advised to use IntInput instead for better user experience.
+        val IntUnchecked : seq<Attr> -> Var<int> -> Doc
+        
+        /// Input box with type="number".
+        /// If the input box is blank, the value is set to 0.
+        /// If the input is not parseable as an int, the value is unchanged from its last valid value.
+        /// It is advised to use Int instead for better user experience.
+        /// The var must be passed using the .V property.
+        val IntUncheckedV : seq<Attr> -> int -> Doc
+        
+        /// Input box with type="number".
+        /// For validation to work properly in Internet Explorer 9 and older,
+        /// needs to be inside a <form> with Attr.ValidateForm.
+        val Float : seq<Attr> -> Var<CheckedInput<float>> -> Doc
+        
+        /// Input box with type="number".
+        /// For validation to work properly in Internet Explorer 9 and older,
+        /// needs to be inside a <form> with Attr.ValidateForm.
+        /// The var must be passed using the .V property.
+        val FloatV : seq<Attr> -> CheckedInput<float> -> Doc
+        
+        /// Input box with type="number".
+        /// If the input box is blank, the value is set to 0.
+        /// If the input is not parseable as a float, the value is unchanged from its last valid value.
+        /// It is advised to use Float instead for better user experience.
+        val FloatUnchecked : seq<Attr> -> Var<float> -> Doc
+        
+        /// Input box with type="number".
+        /// If the input box is blank, the value is set to 0.
+        /// If the input is not parseable as a float, the value is unchanged from its last valid value.
+        /// It is advised to use Float instead for better user experience.
+        /// The var must be passed using the .V property.
+        val FloatUncheckedV : seq<Attr> -> float -> Doc
+        
+        /// Input text area.
+        val TextArea : seq<Attr> -> Var<string> -> Doc
+        
+        /// Input text area.
+        /// The var must be passed using the .V property.
+        val TextAreaV : seq<Attr> -> string -> Doc
+        
+        /// Input box with type="password".
+        val Password : seq<Attr> -> Var<string> -> Doc
+        
+        /// Input box with type="password".
+        /// The var must be passed using the .V property.
+        val PasswordV : seq<Attr> -> string -> Doc
+        
+        /// Check Box.
+        val CheckBox : seq<Attr> -> Var<bool> -> Doc
+        
+        /// Check Box Group.
+        val CheckBoxGroup : seq<Attr> -> 'T -> Var<list<'T>> -> Doc
+            when 'T : equality
+        
+        /// Select box.
+        val Select : seq<Attr> -> optionText: ('T -> string) -> options: list<'T> -> Var<'T> -> Doc
+            when 'T : equality
+        
+        /// Select box with time-varying option list.
+        val SelectDyn : seq<Attr> -> optionText: ('T -> string) -> options: View<list<'T>> -> Var<'T> -> Doc
+            when 'T : equality
+        
+        /// Select box where the first option returns None.
+        val SelectOptional : seq<Attr> -> noneText: string -> optionText: ('T -> string) -> options: list<'T> -> Var<option<'T>> -> Doc
+            when 'T : equality
+        
+        /// Select box with time-varying option list where the first option returns None.
+        val SelectDynOptional : seq<Attr> -> noneText: string -> optionText: ('T -> string) -> options: View<list<'T>> -> Var<option<'T>> -> Doc
+            when 'T : equality
+        
+        /// Radio button.
+        val Radio : seq<Attr> -> 'T -> Var<'T> -> Doc
+            when 'T : equality
+        
+        /// Input box with type="color".
+        val Color : seq<Attr> -> Var<string> -> Doc
+        
+        /// Input box with type="color".
+        /// The var must be passed using the .V property.
+        val ColorV : seq<Attr> -> string -> Doc
+        
+        /// Input box with type="date".
+        val Date : seq<Attr> -> Var<string> -> Doc
+        
+        /// Input box with type="date".
+        /// The var must be passed using the .V property.
+        val DateV : seq<Attr> -> string -> Doc
+        
+        /// Input box with type="datetime-local".
+        val DateTimeLocal : seq<Attr> -> Var<DateTime> -> Doc
+        
+        /// Input box with type="datetime-local".
+        /// The var must be passed using the .V property.
+        val DateTimeLocalV : seq<Attr> -> DateTime -> Doc
+        
+        /// Input box with type="email".
+        val Email : seq<Attr> -> Var<string> -> Doc
+        
+        /// Input box with type="email".
+        /// The var must be passed using the .V property.
+        val EmailV : seq<Attr> -> string -> Doc
+        
+        /// Input box with type="file".
+        val File : seq<Attr> -> Var<File array> -> Doc
+        
+        /// Input box with type="file".
+        /// The var must be passed using the .V property.
+        val FileV : seq<Attr> -> File array -> Doc
+        
+        /// Input box with type="month".
+        val Month : seq<Attr> -> Var<string> -> Doc
+        
+        /// Input box with type="month".
+        /// The var must be passed using the .V property.
+        val MonthV : seq<Attr> -> string -> Doc
+        
+        /// Input box with type="range".
+        val Range : seq<Attr> -> Var<int> -> Doc
+        
+        /// Input box with type="range".
+        /// The var must be passed using the .V property.
+        val RangeV : seq<Attr> -> int -> Doc
+        
+        /// Input box with type="search".
+        val Search : seq<Attr> -> Var<string> -> Doc
+        
+        /// Input box with type="search".
+        /// The var must be passed using the .V property.
+        val SearchV : seq<Attr> -> string -> Doc
+        
+        /// Input box with type="tel".
+        val Tel : seq<Attr> -> Var<string> -> Doc
+        
+        /// Input box with type="tel".
+        /// The var must be passed using the .V property.
+        val TelV : seq<Attr> -> string -> Doc
+        
+        /// Input box with type="time".
+        val Time : seq<Attr> -> Var<string> -> Doc
+        
+        /// Input box with type="time".
+        /// The var must be passed using the .V property.
+        val TimeV : seq<Attr> -> string -> Doc
+        
+        /// Input box with type="url".
+        val Url : seq<Attr> -> Var<string> -> Doc
+        
+        /// Input box with type="url".
+        /// The var must be passed using the .V property.
+        val UrlV : seq<Attr> -> string -> Doc
+        
+        /// Input box with type="week".
+        val Week : seq<Attr> -> Var<string> -> Doc
+        
+        /// Input box with type="week".
+        /// The var must be passed using the .V property.
+        val WeekV : seq<Attr> -> string -> Doc
 
 module Elt =
 
     /// Input box.
+    [<Obsolete "Use Elt.Input.Text instead">]
     val Input : seq<Attr> -> Var<string> -> Elt
 
     /// Input box.
     /// The var must be passed using the .V property.
+    [<Obsolete "Use Elt.Input.TextV instead">]
     val InputV : seq<Attr> -> var: string -> Elt
 
     /// Input box with type="number".
     /// For validation to work properly in Internet Explorer 9 and older,
     /// needs to be inside a <form> with Attr.ValidateForm.
+    [<Obsolete "Use Elt.Input.Int instead">]
     val IntInput : seq<Attr> -> Var<CheckedInput<int>> -> Elt
 
     /// Input box with type="number".
     /// For validation to work properly in Internet Explorer 9 and older,
     /// needs to be inside a <form> with Attr.ValidateForm.
     /// The var must be passed using the .V property.
+    [<Obsolete "Use Elt.Input.IntV instead">]
     val IntInputV : seq<Attr> -> CheckedInput<int> -> Elt
 
     /// Input box with type="number".
     /// If the input box is blank, the value is set to 0.
     /// If the input is not parseable as an int, the value is unchanged from its last valid value.
     /// It is advised to use IntInput instead for better user experience.
+    [<Obsolete "Use Elt.Input.IntUnchecked instead">]
     val IntInputUnchecked : seq<Attr> -> Var<int> -> Elt
 
     /// Input box with type="number".
@@ -323,23 +531,27 @@ module Elt =
     /// If the input is not parseable as an int, the value is unchanged from its last valid value.
     /// It is advised to use IntInput instead for better user experience.
     /// The var must be passed using the .V property.
+    [<Obsolete "Use Elt.Input.IntUncheckedV instead">]
     val IntInputUncheckedV : seq<Attr> -> int -> Elt
 
     /// Input box with type="number".
     /// For validation to work properly in Internet Explorer 9 and older,
     /// needs to be inside a <form> with Attr.ValidateForm.
+    [<Obsolete "Use Elt.Input.Float instead">]
     val FloatInput : seq<Attr> -> Var<CheckedInput<float>> -> Elt
 
     /// Input box with type="number".
     /// For validation to work properly in Internet Explorer 9 and older,
     /// needs to be inside a <form> with Attr.ValidateForm.
     /// The var must be passed using the .V property.
+    [<Obsolete "Use Elt.Input.FloatV instead">]
     val FloatInputV : seq<Attr> -> CheckedInput<float> -> Elt
 
     /// Input box with type="number".
     /// If the input box is blank, the value is set to 0.
     /// If the input is not parseable as a float, the value is unchanged from its last valid value.
     /// It is advised to use FloatInput instead for better user experience.
+    [<Obsolete "Use Elt.Input.FloatUnchecked instead">]
     val FloatInputUnchecked : seq<Attr> -> Var<float> -> Elt
 
     /// Input box with type="number".
@@ -347,20 +559,25 @@ module Elt =
     /// If the input is not parseable as a float, the value is unchanged from its last valid value.
     /// It is advised to use FloatInput instead for better user experience.
     /// The var must be passed using the .V property.
+    [<Obsolete "Use Elt.Input.FloatUncheckedV instead">]
     val FloatInputUncheckedV : seq<Attr> -> float -> Elt
 
     /// Input text area.
+    [<Obsolete "Use Elt.Input.TextArea instead">]
     val InputArea : seq<Attr> -> Var<string> -> Elt
 
     /// Input text area.
     /// The var must be passed using the .V property.
+    [<Obsolete "Use Elt.Input.TextAreaV instead">]
     val InputAreaV : seq<Attr> -> string -> Elt
 
     /// Password box.
+    [<Obsolete "Use Elt.Input.Password instead">]
     val PasswordBox : seq<Attr> -> Var<string> -> Elt
 
     /// Password box.
     /// The var must be passed using the .V property.
+    [<Obsolete "Use Elt.Input.PasswordV instead">]
     val PasswordBoxV : seq<Attr> -> string -> Elt
 
     /// Submit button. Calls the callback function when the button is pressed.
@@ -378,32 +595,221 @@ module Elt =
     val LinkView : caption: string -> seq<Attr> -> View<'T> -> ('T -> unit) -> Elt
 
     /// Check Box.
+    [<Obsolete "Use Elt.Input.CheckBox instead">]
     val CheckBox : seq<Attr> -> Var<bool> -> Elt
 
     /// Check Box Group.
+    [<Obsolete "Use Elt.Input.CheckBoxGroup instead">]
     val CheckBoxGroup : seq<Attr> -> 'T -> Var<list<'T>> -> Elt
         when 'T : equality
 
     /// Select box.
+    [<Obsolete "Use Elt.Input.Select instead">]
     val Select : seq<Attr> -> optionText: ('T -> string) -> options: list<'T> -> Var<'T> -> Elt
         when 'T : equality
 
     /// Select box with time-varying option list.
+    [<Obsolete "Use Elt.Input.SelectDyn instead">]
     val SelectDyn : seq<Attr> -> optionText: ('T -> string) -> options: View<list<'T>> -> Var<'T> -> Elt
         when 'T : equality
 
     /// Select box where the first option returns None.
+    [<Obsolete "Use Elt.Input.SelectOptional instead">]
     val SelectOptional : seq<Attr> -> noneText: string -> optionText: ('T -> string) -> options: list<'T> -> Var<option<'T>> -> Elt
         when 'T : equality
 
     /// Select box with time-varying option list where the first option returns None.
+    [<Obsolete "Use Elt.Input.SelectDynOptional instead">]
     val SelectDynOptional : seq<Attr> -> noneText: string -> optionText: ('T -> string) -> options: View<list<'T>> -> Var<option<'T>> -> Elt
         when 'T : equality
 
     /// Radio button.
+    [<Obsolete "Use Elt.Input.Radio instead">]
     val Radio : seq<Attr> -> 'T -> Var<'T> -> Elt
         when 'T : equality
 
     /// Creates a wrapper that allows subscribing elements for DOM syncronization inserted through other means than UI combinators.
     /// Removes automatic DOM synchronization of children elements, but not attributes.
     val ToUpdater : Elt -> EltUpdater
+
+    module InputType =
+
+        /// Input box.
+        val Text : seq<Attr> -> Var<string> -> Elt
+
+        /// Input box.
+        /// The var must be passed using the .V property.
+        val TextV : seq<Attr> -> var: string -> Elt
+
+        /// Input box with type="number".
+        /// For validation to work properly in Internet Explorer 9 and older,
+        /// needs to be inside a <form> with Attr.ValidateForm.
+        val Int : seq<Attr> -> Var<CheckedInput<int>> -> Elt
+
+        /// Input box with type="number".
+        /// For validation to work properly in Internet Explorer 9 and older,
+        /// needs to be inside a <form> with Attr.ValidateForm.
+        /// The var must be passed using the .V property.
+        val IntV : seq<Attr> -> CheckedInput<int> -> Elt
+
+        /// Input box with type="number".
+        /// If the input box is blank, the value is set to 0.
+        /// If the input is not parseable as an int, the value is unchanged from its last valid value.
+        /// It is advised to use IntInput instead for better user experience.
+        val IntUnchecked : seq<Attr> -> Var<int> -> Elt
+
+        /// Input box with type="number".
+        /// If the input box is blank, the value is set to 0.
+        /// If the input is not parseable as an int, the value is unchanged from its last valid value.
+        /// It is advised to use Int instead for better user experience.
+        /// The var must be passed using the .V property.
+        val IntUncheckedV : seq<Attr> -> int -> Elt
+
+        /// Input box with type="number".
+        /// For validation to work properly in Internet Explorer 9 and older,
+        /// needs to be inside a <form> with Attr.ValidateForm.
+        val Float : seq<Attr> -> Var<CheckedInput<float>> -> Elt
+
+        /// Input box with type="number".
+        /// For validation to work properly in Internet Explorer 9 and older,
+        /// needs to be inside a <form> with Attr.ValidateForm.
+        /// The var must be passed using the .V property.
+        val FloatV : seq<Attr> -> CheckedInput<float> -> Elt
+
+        /// Input box with type="number".
+        /// If the input box is blank, the value is set to 0.
+        /// If the input is not parseable as a float, the value is unchanged from its last valid value.
+        /// It is advised to use Float instead for better user experience.
+        val FloatUnchecked : seq<Attr> -> Var<float> -> Elt
+
+        /// Input box with type="number".
+        /// If the input box is blank, the value is set to 0.
+        /// If the input is not parseable as a float, the value is unchanged from its last valid value.
+        /// It is advised to use Float instead for better user experience.
+        /// The var must be passed using the .V property.
+        val FloatUncheckedV : seq<Attr> -> float -> Elt
+
+        /// Input text area.
+        val TextArea : seq<Attr> -> Var<string> -> Elt
+
+        /// Input text area.
+        /// The var must be passed using the .V property.
+        val TextAreaV : seq<Attr> -> string -> Elt
+
+        /// Input box with type="password".
+        val Password : seq<Attr> -> Var<string> -> Elt
+
+        /// Input box with type="password".
+        /// The var must be passed using the .V property.
+        val PasswordV : seq<Attr> -> string -> Elt
+
+        /// Check Box.
+        val CheckBox : seq<Attr> -> Var<bool> -> Elt
+
+        /// Check Box Group.
+        val CheckBoxGroup : seq<Attr> -> 'T -> Var<list<'T>> -> Elt
+            when 'T : equality
+
+        /// Select box.
+        val Select : seq<Attr> -> optionText: ('T -> string) -> options: list<'T> -> Var<'T> -> Elt
+            when 'T : equality
+
+        /// Select box with time-varying option list.
+        val SelectDyn : seq<Attr> -> optionText: ('T -> string) -> options: View<list<'T>> -> Var<'T> -> Elt
+            when 'T : equality
+
+        /// Select box where the first option returns None.
+        val SelectOptional : seq<Attr> -> noneText: string -> optionText: ('T -> string) -> options: list<'T> -> Var<option<'T>> -> Elt
+            when 'T : equality
+
+        /// Select box with time-varying option list where the first option returns None.
+        val SelectDynOptional : seq<Attr> -> noneText: string -> optionText: ('T -> string) -> options: View<list<'T>> -> Var<option<'T>> -> Elt
+            when 'T : equality
+
+        /// Radio button.
+        val Radio : seq<Attr> -> 'T -> Var<'T> -> Elt
+            when 'T : equality
+
+        /// Input box with type="color".
+        val Color : seq<Attr> -> Var<string> -> Elt
+
+        /// Input box with type="color".
+        /// The var must be passed using the .V property.
+        val ColorV : seq<Attr> -> string -> Elt
+
+        /// Input box with type="date".
+        val Date : seq<Attr> -> Var<string> -> Elt
+
+        /// Input box with type="date".
+        /// The var must be passed using the .V property.
+        val DateV : seq<Attr> -> string -> Elt
+
+        /// Input box with type="datetime-local".
+        val DateTimeLocal : seq<Attr> -> Var<DateTime> -> Elt
+
+        /// Input box with type="datetime-local".
+        /// The var must be passed using the .V property.
+        val DateTimeLocalV : seq<Attr> -> DateTime -> Elt
+
+        /// Input box with type="email".
+        val Email : seq<Attr> -> Var<string> -> Elt
+
+        /// Input box with type="email".
+        /// The var must be passed using the .V property.
+        val EmailV : seq<Attr> -> string -> Elt
+
+        /// Input box with type="file".
+        val File : seq<Attr> -> Var<File array> -> Elt
+
+        /// Input box with type="file".
+        /// The var must be passed using the .V property.
+        val FileV : seq<Attr> -> File array -> Elt
+
+        /// Input box with type="month".
+        val Month : seq<Attr> -> Var<string> -> Elt
+
+        /// Input box with type="month".
+        /// The var must be passed using the .V property.
+        val MonthV : seq<Attr> -> string -> Elt
+
+        /// Input box with type="range".
+        val Range : seq<Attr> -> Var<int> -> Elt
+
+        /// Input box with type="range".
+        /// The var must be passed using the .V property.
+        val RangeV : seq<Attr> -> int -> Elt
+
+        /// Input box with type="search".
+        val Search : seq<Attr> -> Var<string> -> Elt
+
+        /// Input box with type="search".
+        /// The var must be passed using the .V property.
+        val SearchV : seq<Attr> -> string -> Elt
+
+        /// Input box with type="tel".
+        val Tel : seq<Attr> -> Var<string> -> Elt
+
+        /// Input box with type="tel".
+        /// The var must be passed using the .V property.
+        val TelV : seq<Attr> -> string -> Elt
+
+        /// Input box with type="time".
+        val Time : seq<Attr> -> Var<string> -> Elt
+
+        /// Input box with type="time".
+        /// The var must be passed using the .V property.
+        val TimeV : seq<Attr> -> string -> Elt
+
+        /// Input box with type="url".
+        val Url : seq<Attr> -> Var<string> -> Elt
+
+        /// Input box with type="url".
+        /// The var must be passed using the .V property.
+        val UrlV : seq<Attr> -> string -> Elt
+
+        /// Input box with type="week".
+        val Week : seq<Attr> -> Var<string> -> Elt
+
+        /// Input box with type="week".
+        /// The var must be passed using the .V property.
+        val WeekV : seq<Attr> -> string -> Elt

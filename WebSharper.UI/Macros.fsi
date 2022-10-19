@@ -76,6 +76,10 @@ module Macros =
         inherit Macro
         new : unit -> InputV
     [<Class>]
+    type InputV2 =
+        inherit Macro
+        new : unit -> InputV2
+    [<Class>]
     type TemplateVar =
         inherit Macro
         new : unit -> TemplateVar
