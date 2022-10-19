@@ -603,22 +603,18 @@ type ConcreteDoc =
     inherit Doc
     new : DynDoc -> ConcreteDoc
 
+// Functions for embedding client-side content in server-side markup.
 type [<AbstractClass; Sealed>] ClientServer =
 
-    /// Embeds the given client-side control body (for example UI.Doc) in a server-side UI.Doc.
-    /// The `expr` argument supports auto-quoting in F#, you don't need to use `<@ ... @>`.
-    /// The expression won't be evaluated on the server.
-    /// It can capture local variables, of the same types which are serializable by WebSharper as RPC results.
+    /// Renders the given expression on the client when the containing page initializes.
+    /// Values of captured variables in "expr" are sent to the client initializer automatically.
     static member client : [<ReflectedDefinition; JavaScript>] expr: Expr<#IControlBody> -> Doc
 
-    /// Embeds the given client-side UI.Doc in a server-side UI.Doc with a placeholder.
-    /// The `expr` argument supports auto-quoting in F#, you don't need to use `<@ ... @>`.
-    /// The expression will also be evaluated on the server and the result used as a placeholder in html result for SEO purposes.
-    /// It can capture local variables, of the same types which are serializable by WebSharper as RPC results.
+    /// Renders the given expression on the server, and hydrates it on the client when the containing page initializes.
+    /// The expression must not contain bits intended for client-only use, such as UI reactivity.
+    /// Values of captured variables in "expr" are sent to the client initializer automatically.
     static member hydrate : [<ReflectedDefinition(true); JavaScript>] expr: Expr<Doc> -> Doc
 
-    /// Embeds the given client-side control body (for example UI.Doc) in a server-side UI.Doc.
-    /// The `expr` argument is auto-converted to a System.Linq.Expressions.Expression.
-    /// The expression won't be evaluated on the server.
-    /// It can capture local variables, of the same types which are serializable by WebSharper as RPC results.
+    /// Renders the given LINQ expression on the client when the containing page initializes.
+    /// Values of captured variables in "expr" are sent to the client initializer automatically.
     static member clientLinq : System.Linq.Expressions.Expression<System.Func<IControlBody>> -> Doc
