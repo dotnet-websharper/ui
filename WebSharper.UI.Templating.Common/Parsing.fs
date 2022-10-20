@@ -634,9 +634,20 @@ let transitiveClosure err (direct: Map<'A, Set<'A>>) : Map<'A, Set<'A>> =
             ||> Map.add k
     Map.foldBack (closureOf []) direct Map.empty
 
+let private warnOnHoleNames = 
+    HashSet [| 
+        "html"
+        "base"
+        "head"
+        "link"
+        "meta"
+        "style"
+        "body"
+    |]
+
 let private checkInstantiations (items: ParseItem[]) =
     for item in items do
-        item.Templates |> Seq.iter (fun (KeyValue(_, t)) ->
+        item.Templates |> Seq.iter (fun (KeyValue(tn, t)) ->
             let rec checkNode = function
                 | Node.DocHole _
                 | Node.Text _ -> ()
@@ -649,7 +660,10 @@ let private checkInstantiations (items: ParseItem[]) =
                     |> Option.bind (fun it -> it.Templates.TryFind (WrappedTemplateName.OfOption templateName))
                     |> Option.iter (fun t' ->
                         let fail holeId fmt = failwithf fmt (defaultArg fileName "") (defaultArg templateName "") holeId
-                        let findAndTest test holeId =
+                        let findAndTest test (holeId: string) =
+                            if warnOnHoleNames.Contains(holeId.ToLowerInvariant()) then
+                                eprintfn "WebSharper.UI warning WS9002: Special html tag name '%s' should not be used as hole name%s" holeId 
+                                    (match tn.NameAsOption with Some n -> " in template " + n | _ -> "")
                             match t'.Holes.TryGetValue holeId with
                             | false, _ -> fail holeId "Instantiation of %s/%s fills hole that doesn't exist: %s."
                             | true, { Kind = kind } -> test kind
