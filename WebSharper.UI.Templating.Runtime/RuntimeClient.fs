@@ -56,18 +56,10 @@ type private TemplateInstanceProxy(c: Server.CompletedHoles, doc: Doc) =
     member this.Anchor(name: string): DomElement = 
         let rec findUnder (el: DomElement) =
             let e = el.QuerySelector($"[ws-anchor=\"{name}\"]")
-            if isNull e then
-                if el.TagName = "body" then
-                    null
-                else
+            if isNull e && not (isNull el.ParentElement) then
                     findUnder el.ParentElement
             else 
                 e
-        let anchorRoot =
-            if isNull anchorRoot then
-                JS.Document.Body
-            else
-                anchorRoot
         findUnder anchorRoot
 
 [<Inline>]
