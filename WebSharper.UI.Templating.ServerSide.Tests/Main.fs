@@ -104,6 +104,7 @@ let Main = Application.SinglePage(fun ctx ->
                     )
                     .Doc()
                 ])
+            .C
             .Click(fun e -> JavaScript.JS.Set e.Target "wsuiDispatched5" true)
             .Client(
                 [
@@ -157,7 +158,7 @@ let Main = Application.SinglePage(fun ctx ->
                         .Doc()
                 ])
             .ServerVarForms([mkServerVarForm("var-1"); mkServerVarForm("var-2")])
-            .AfterRender(fun (e: Runtime.Server.TemplateEvent<MainTemplate.Main.Vars, MainTemplate.Main.Anchors, JavaScript.Dom.Event>) ->
+            .AfterRender_WithModel(fun e ->
                 Var.Set e.Vars.ServerVarOnMainTemplate "This should be initialized"
                 e.Anchors.ServerAnchorOnMainTemplate.TextContent <- "Server anchor ok"
                 Client.OnStartup()

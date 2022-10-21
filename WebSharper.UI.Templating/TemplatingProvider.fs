@@ -102,12 +102,12 @@ module private Impl =
             let x = if x.IsGenericType then x.GetGenericTypeDefinition() else x
             x.FullName.StartsWith n
 
-    let BuildMethod'' (hole: Choice<HoleName * HoleDefinition, string>) (param: list<ProvidedParameter>) (resTy: Type)
+    let BuildMethod'' (hole: Choice<HoleName * HoleDefinition, string>) postfix (param: list<ProvidedParameter>) (resTy: Type)
             (ctx: Ctx) (wrapArgs: Expr<Builder> -> Expr<HoleName> -> list<Expr> -> Expr<Builder>) =
         match hole with
         | Choice1Of2 (holeName, holeDef) ->
             let m =
-                ProvidedMethod(holeName, param, resTy, function
+                ProvidedMethod(holeName + postfix, param, resTy, function
                     | this :: args ->
                         let var = Var("this", typeof<Builder>)
                         Expr.Let(var, <@ (%%this : obj) :?> Builder @>,
@@ -132,20 +132,20 @@ module private Impl =
                     .WithXmlDoc(XmlDoc.Member.UntypedHole)
             m :> MemberInfo
 
-    let BuildMethod' hole argTy resTy ctx wrapArg =
+    let BuildMethod' hole postfix argTy resTy ctx wrapArg =
         let isRefl = IsExprType argTy
         let paramName = match hole with Choice1Of2 (name, _) -> name | _ -> "value"
         let param = ProvidedParameter(paramName, argTy, IsReflectedDefinition = isRefl)
-        BuildMethod'' hole [param] resTy ctx (fun st name args -> wrapArg st name (List.head args))
+        BuildMethod'' hole postfix [param] resTy ctx (fun st name args -> wrapArg st name (List.head args))
 
     let BuildMethod<'T> hole (resTy: Type) (ctx: Ctx) (wrapArg: Expr<Builder> -> Expr<string> -> Expr<'T> -> Expr<Builder>) =
         let wrapArg a b c = wrapArg a b (Expr.Cast c)
-        BuildMethod' hole typeof<'T> resTy ctx wrapArg
+        BuildMethod' hole "" typeof<'T> resTy ctx wrapArg
 
     let BuildMethodParamArray hole resTy ctx (wrapArg: _ -> _ -> Expr<'T[]> -> _) =
         let paramName = match hole with Choice1Of2 (name, _) -> name | _ -> "value"
         let param = ProvidedParameter(paramName, typeof<'T>.MakeArrayType(), IsParamArray = true)
-        BuildMethod'' hole [param] resTy ctx (fun st name args ->
+        BuildMethod'' hole "" [param] resTy ctx (fun st name args ->
             wrapArg st name (List.head args |> Expr.Cast))
 
     let BuildMethodVar hole resTy ctx (wrapArg: Expr<Builder> -> Expr<string> -> Expr<Var<'T>> -> Expr<Builder>) =
@@ -154,7 +154,7 @@ module private Impl =
             let viewTy = ProvidedTypeBuilder.MakeGenericType(typedefof<View<_>>, [ typeof<'T> ])
             let setterTy = ProvidedTypeBuilder.MakeGenericType(typedefof<FSharpFunc<_,_>>, [ typeof<'T>; typeof<unit> ])
             let param = [ProvidedParameter("view", viewTy); ProvidedParameter("setter", setterTy)]
-            BuildMethod'' hole param resTy ctx <| fun st name args ->
+            BuildMethod'' hole "" param resTy ctx <| fun st name args ->
                 match args with
                 | [view; setter] -> wrapArg st name <@ UINVar.Make %%view %%setter @>
                 | _ -> failwith "Incorrect invoke"
@@ -185,15 +185,15 @@ module private Impl =
         ]
 
     let ElemHandlerHoleMethods' hole resTy varsTy anchorsTy ctx =
-        let mk wrapArg = BuildMethod hole resTy ctx wrapArg
+        let mk wrapArg = BuildMethod (Choice1Of2 hole) resTy ctx wrapArg
         let exprTy t = ProvidedTypeBuilder.MakeGenericType(typedefof<Expr<_>>, [ t ])
         let (^->) t u = ProvidedTypeBuilder.MakeGenericType(typedefof<FSharpFunc<_, _>>, [ t; u ])
         let evTy =
             let a = typeof<DomEvent>.Assembly
             a.GetType("WebSharper.JavaScript.Dom.Event")
         let templateEventTy v a u = ProvidedTypeBuilder.MakeGenericType(typedefof<RTS.TemplateEvent<_,_,_>>, [ v; a; u ])
-        [
-            BuildMethod' hole (exprTy (templateEventTy varsTy anchorsTy evTy ^-> typeof<unit>)) resTy ctx (fun b name x ->
+        let mkWithModel postfix =
+            BuildMethod' (Choice1Of2 hole) postfix (exprTy (templateEventTy varsTy anchorsTy evTy ^-> typeof<unit>)) resTy ctx (fun b name x ->
                 let hole =
                     Expr.Call(ProvidedTypeBuilder.MakeGenericMethod(typeof<RTS.Handler>.GetMethod("AfterRenderQ2"), [ ]),
                         [
@@ -205,6 +205,10 @@ module private Impl =
                     |> Expr.Cast
                 <@ (%b).With(%hole) @>
             )
+
+        [
+            mkWithModel ""
+            mkWithModel "_WithModel"
             mk <| fun b name (x: Expr<Expr<DomElement -> unit>>) ->
                 <@ (%b).With(RTC.AfterRenderQ(%name, %x)) @>
             mk <| fun b name (x: Expr<Expr<unit -> unit>>) ->
@@ -228,7 +232,7 @@ module private Impl =
             a.GetType("WebSharper.JavaScript.Dom." + eventType)
         let templateEventTy v a u = ProvidedTypeBuilder.MakeGenericType(typedefof<RTS.TemplateEvent<_,_,_>>, [ v; a; u ])
         [
-            BuildMethod' hole (exprTy (templateEventTy varsTy anchorsTy evTy ^-> typeof<unit>)) resTy ctx (fun b name x ->
+            BuildMethod' hole "" (exprTy (templateEventTy varsTy anchorsTy evTy ^-> typeof<unit>)) resTy ctx (fun b name x ->
                 let hole =
                     Expr.Call(ProvidedTypeBuilder.MakeGenericMethod(typeof<RTS.Handler>.GetMethod("EventQ2"), [ evTy ]),
                         [
@@ -332,7 +336,7 @@ module private Impl =
                     DocHoleMethods (Choice1Of2 hole) resTy ctx
                     SimpleHoleMethods (Choice1Of2 hole) resTy ctx
                 ]
-            | HoleKind.ElemHandler -> ElemHandlerHoleMethods' (Choice1Of2 hole) resTy varsTy anchorsTy ctx
+            | HoleKind.ElemHandler -> ElemHandlerHoleMethods' hole resTy varsTy anchorsTy ctx
             | HoleKind.Event eventType -> EventHandlerHoleMethods eventType (Choice1Of2 hole) resTy varsTy anchorsTy ctx
             | HoleKind.Simple -> SimpleHoleMethods (Choice1Of2 hole) resTy ctx
             | HoleKind.Var (ValTy.Any | ValTy.String) -> VarStringHoleMethods (Choice1Of2 hole) resTy ctx
