@@ -183,32 +183,32 @@ module Doc =
   // Form helpers
 
     /// Input box.
-    [<Obsolete "Use Doc.Input.Text instead">]
+    [<Obsolete "Use Doc.InputType.Text instead">]
     val Input : seq<Attr> -> Var<string> -> Doc
 
     /// Input box.
     /// The var must be passed using the .V property.
-    [<Obsolete "Use Doc.Input.TextV instead">]
+    [<Obsolete "Use Doc.InputType.TextV instead">]
     val InputV : seq<Attr> -> var: string -> Doc
 
     /// Input box with type="number".
     /// For validation to work properly in Internet Explorer 9 and older,
     /// needs to be inside a <form> with Attr.ValidateForm.
-    [<Obsolete "Use Doc.Input.Int instead">]
+    [<Obsolete "Use Doc.InputType.Int instead">]
     val IntInput : seq<Attr> -> Var<CheckedInput<int>> -> Doc
 
     /// Input box with type="number".
     /// For validation to work properly in Internet Explorer 9 and older,
     /// needs to be inside a <form> with Attr.ValidateForm.
     /// The var must be passed using the .V property.
-    [<Obsolete "Use Doc.Input.IntV instead">]
+    [<Obsolete "Use Doc.InputType.IntV instead">]
     val IntInputV : seq<Attr> -> CheckedInput<int> -> Doc
 
     /// Input box with type="number".
     /// If the input box is blank, the value is set to 0.
     /// If the input is not parseable as an int, the value is unchanged from its last valid value.
     /// It is advised to use IntInput instead for better user experience.
-    [<Obsolete "Use Doc.Input.IntUnchecked instead">]
+    [<Obsolete "Use Doc.InputType.IntUnchecked instead">]
     val IntInputUnchecked : seq<Attr> -> Var<int> -> Doc
 
     /// Input box with type="number".
@@ -216,27 +216,27 @@ module Doc =
     /// If the input is not parseable as an int, the value is unchanged from its last valid value.
     /// It is advised to use IntInput instead for better user experience.
     /// The var must be passed using the .V property.
-    [<Obsolete "Use Doc.Input.IntUncheckedV instead">]
+    [<Obsolete "Use Doc.InputType.IntUncheckedV instead">]
     val IntInputUncheckedV : seq<Attr> -> int -> Doc
 
     /// Input box with type="number".
     /// For validation to work properly in Internet Explorer 9 and older,
     /// needs to be inside a <form> with Attr.ValidateForm.
-    [<Obsolete "Use Doc.Input.Float instead">]
+    [<Obsolete "Use Doc.InputType.Float instead">]
     val FloatInput : seq<Attr> -> Var<CheckedInput<float>> -> Doc
 
     /// Input box with type="number".
     /// For validation to work properly in Internet Explorer 9 and older,
     /// needs to be inside a <form> with Attr.ValidateForm.
     /// The var must be passed using the .V property.
-    [<Obsolete "Use Doc.Input.FloatV instead">]
+    [<Obsolete "Use Doc.InputType.FloatV instead">]
     val FloatInputV : seq<Attr> -> CheckedInput<float> -> Doc
 
     /// Input box with type="number".
     /// If the input box is blank, the value is set to 0.
     /// If the input is not parseable as a float, the value is unchanged from its last valid value.
     /// It is advised to use FloatInput instead for better user experience.
-    [<Obsolete "Use Doc.Input.FloatUnchecked instead">]
+    [<Obsolete "Use Doc.InputType.FloatUnchecked instead">]
     val FloatInputUnchecked : seq<Attr> -> Var<float> -> Doc
 
     /// Input box with type="number".
@@ -244,25 +244,25 @@ module Doc =
     /// If the input is not parseable as a float, the value is unchanged from its last valid value.
     /// It is advised to use FloatInput instead for better user experience.
     /// The var must be passed using the .V property.
-    [<Obsolete "Use Doc.Input.FloatUncheckedV instead">]
+    [<Obsolete "Use Doc.InputType.FloatUncheckedV instead">]
     val FloatInputUncheckedV : seq<Attr> -> float -> Doc
 
     /// Input text area.
-    [<Obsolete "Use Doc.Input.TextAreaV instead">]
+    [<Obsolete "Use Doc.InputType.TextAreaV instead">]
     val InputArea : seq<Attr> -> Var<string> -> Doc
 
     /// Input text area.
     /// The var must be passed using the .V property.
-    [<Obsolete "Use Doc.Input.TextAreaV instead">]
+    [<Obsolete "Use Doc.InputType.TextAreaV instead">]
     val InputAreaV : seq<Attr> -> string -> Doc
 
     /// Password box.
-    [<Obsolete "Use Doc.Input.Password instead">]
+    [<Obsolete "Use Doc.InputType.Password instead">]
     val PasswordBox : seq<Attr> -> Var<string> -> Doc
 
     /// Password box.
     /// The var must be passed using the .V property.
-    [<Obsolete "Use Doc.Input.PasswordV instead">]
+    [<Obsolete "Use Doc.InputType.PasswordV instead">]
     val PasswordBoxV : seq<Attr> -> string -> Doc
 
     /// Submit button. Calls the callback function when the button is pressed.
@@ -280,36 +280,36 @@ module Doc =
     val LinkView : caption: string -> seq<Attr> -> View<'T> -> ('T -> unit) -> Doc
 
     /// Check Box.
-    [<Obsolete "Use Doc.Input.CheckBox instead">]
+    [<Obsolete "Use Doc.InputType.CheckBox instead">]
     val CheckBox : seq<Attr> -> Var<bool> -> Doc
 
     /// Check Box Group.
-    [<Obsolete "Use Doc.Input.CheckBoxGroup instead">]
+    [<Obsolete "Use Doc.InputType.CheckBoxGroup instead">]
     val CheckBoxGroup : seq<Attr> -> 'T -> Var<list<'T>> -> Doc
         when 'T : equality
 
     /// Select box.
-    [<Obsolete "Use Doc.Input.Select instead">]
+    [<Obsolete "Use Doc.InputType.Select instead">]
     val Select : seq<Attr> -> optionText: ('T -> string) -> options: list<'T> -> Var<'T> -> Doc
         when 'T : equality
 
     /// Select box with time-varying option list.
-    [<Obsolete "Use Doc.Input.SelectDyn instead">]
+    [<Obsolete "Use Doc.InputType.SelectDyn instead">]
     val SelectDyn : seq<Attr> -> optionText: ('T -> string) -> options: View<list<'T>> -> Var<'T> -> Doc
         when 'T : equality
 
     /// Select box where the first option returns None.
-    [<Obsolete "Use Doc.Input.SelectOptional instead">]
+    [<Obsolete "Use Doc.InputType.SelectOptional instead">]
     val SelectOptional : seq<Attr> -> noneText: string -> optionText: ('T -> string) -> options: list<'T> -> Var<option<'T>> -> Doc
         when 'T : equality
 
     /// Select box with time-varying option list where the first option returns None.
-    [<Obsolete "Use Doc.Input.SelectDynOptional instead">]
+    [<Obsolete "Use Doc.InputType.SelectDynOptional instead">]
     val SelectDynOptional : seq<Attr> -> noneText: string -> optionText: ('T -> string) -> options: View<list<'T>> -> Var<option<'T>> -> Doc
         when 'T : equality
 
     /// Radio button.
-    [<Obsolete "Use Doc.Input.Radio instead">]
+    [<Obsolete "Use Doc.InputType.Radio instead">]
     val Radio : seq<Attr> -> 'T -> Var<'T> -> Doc
         when 'T : equality
 
@@ -498,32 +498,32 @@ module Doc =
 module Elt =
 
     /// Input box.
-    [<Obsolete "Use Elt.Input.Text instead">]
+    [<Obsolete "Use Elt.InputType.Text instead">]
     val Input : seq<Attr> -> Var<string> -> Elt
 
     /// Input box.
     /// The var must be passed using the .V property.
-    [<Obsolete "Use Elt.Input.TextV instead">]
+    [<Obsolete "Use Elt.InputType.TextV instead">]
     val InputV : seq<Attr> -> var: string -> Elt
 
     /// Input box with type="number".
     /// For validation to work properly in Internet Explorer 9 and older,
     /// needs to be inside a <form> with Attr.ValidateForm.
-    [<Obsolete "Use Elt.Input.Int instead">]
+    [<Obsolete "Use Elt.InputType.Int instead">]
     val IntInput : seq<Attr> -> Var<CheckedInput<int>> -> Elt
 
     /// Input box with type="number".
     /// For validation to work properly in Internet Explorer 9 and older,
     /// needs to be inside a <form> with Attr.ValidateForm.
     /// The var must be passed using the .V property.
-    [<Obsolete "Use Elt.Input.IntV instead">]
+    [<Obsolete "Use Elt.InputType.IntV instead">]
     val IntInputV : seq<Attr> -> CheckedInput<int> -> Elt
 
     /// Input box with type="number".
     /// If the input box is blank, the value is set to 0.
     /// If the input is not parseable as an int, the value is unchanged from its last valid value.
     /// It is advised to use IntInput instead for better user experience.
-    [<Obsolete "Use Elt.Input.IntUnchecked instead">]
+    [<Obsolete "Use Elt.InputType.IntUnchecked instead">]
     val IntInputUnchecked : seq<Attr> -> Var<int> -> Elt
 
     /// Input box with type="number".
@@ -531,27 +531,27 @@ module Elt =
     /// If the input is not parseable as an int, the value is unchanged from its last valid value.
     /// It is advised to use IntInput instead for better user experience.
     /// The var must be passed using the .V property.
-    [<Obsolete "Use Elt.Input.IntUncheckedV instead">]
+    [<Obsolete "Use Elt.InputType.IntUncheckedV instead">]
     val IntInputUncheckedV : seq<Attr> -> int -> Elt
 
     /// Input box with type="number".
     /// For validation to work properly in Internet Explorer 9 and older,
     /// needs to be inside a <form> with Attr.ValidateForm.
-    [<Obsolete "Use Elt.Input.Float instead">]
+    [<Obsolete "Use Elt.InputType.Float instead">]
     val FloatInput : seq<Attr> -> Var<CheckedInput<float>> -> Elt
 
     /// Input box with type="number".
     /// For validation to work properly in Internet Explorer 9 and older,
     /// needs to be inside a <form> with Attr.ValidateForm.
     /// The var must be passed using the .V property.
-    [<Obsolete "Use Elt.Input.FloatV instead">]
+    [<Obsolete "Use Elt.InputType.FloatV instead">]
     val FloatInputV : seq<Attr> -> CheckedInput<float> -> Elt
 
     /// Input box with type="number".
     /// If the input box is blank, the value is set to 0.
     /// If the input is not parseable as a float, the value is unchanged from its last valid value.
     /// It is advised to use FloatInput instead for better user experience.
-    [<Obsolete "Use Elt.Input.FloatUnchecked instead">]
+    [<Obsolete "Use Elt.InputType.FloatUnchecked instead">]
     val FloatInputUnchecked : seq<Attr> -> Var<float> -> Elt
 
     /// Input box with type="number".
@@ -559,25 +559,25 @@ module Elt =
     /// If the input is not parseable as a float, the value is unchanged from its last valid value.
     /// It is advised to use FloatInput instead for better user experience.
     /// The var must be passed using the .V property.
-    [<Obsolete "Use Elt.Input.FloatUncheckedV instead">]
+    [<Obsolete "Use Elt.InputType.FloatUncheckedV instead">]
     val FloatInputUncheckedV : seq<Attr> -> float -> Elt
 
     /// Input text area.
-    [<Obsolete "Use Elt.Input.TextArea instead">]
+    [<Obsolete "Use Elt.InputType.TextArea instead">]
     val InputArea : seq<Attr> -> Var<string> -> Elt
 
     /// Input text area.
     /// The var must be passed using the .V property.
-    [<Obsolete "Use Elt.Input.TextAreaV instead">]
+    [<Obsolete "Use Elt.InputType.TextAreaV instead">]
     val InputAreaV : seq<Attr> -> string -> Elt
 
     /// Password box.
-    [<Obsolete "Use Elt.Input.Password instead">]
+    [<Obsolete "Use Elt.InputType.Password instead">]
     val PasswordBox : seq<Attr> -> Var<string> -> Elt
 
     /// Password box.
     /// The var must be passed using the .V property.
-    [<Obsolete "Use Elt.Input.PasswordV instead">]
+    [<Obsolete "Use Elt.InputType.PasswordV instead">]
     val PasswordBoxV : seq<Attr> -> string -> Elt
 
     /// Submit button. Calls the callback function when the button is pressed.
@@ -595,36 +595,36 @@ module Elt =
     val LinkView : caption: string -> seq<Attr> -> View<'T> -> ('T -> unit) -> Elt
 
     /// Check Box.
-    [<Obsolete "Use Elt.Input.CheckBox instead">]
+    [<Obsolete "Use Elt.InputType.CheckBox instead">]
     val CheckBox : seq<Attr> -> Var<bool> -> Elt
 
     /// Check Box Group.
-    [<Obsolete "Use Elt.Input.CheckBoxGroup instead">]
+    [<Obsolete "Use Elt.InputType.CheckBoxGroup instead">]
     val CheckBoxGroup : seq<Attr> -> 'T -> Var<list<'T>> -> Elt
         when 'T : equality
 
     /// Select box.
-    [<Obsolete "Use Elt.Input.Select instead">]
+    [<Obsolete "Use Elt.InputType.Select instead">]
     val Select : seq<Attr> -> optionText: ('T -> string) -> options: list<'T> -> Var<'T> -> Elt
         when 'T : equality
 
     /// Select box with time-varying option list.
-    [<Obsolete "Use Elt.Input.SelectDyn instead">]
+    [<Obsolete "Use Elt.InputType.SelectDyn instead">]
     val SelectDyn : seq<Attr> -> optionText: ('T -> string) -> options: View<list<'T>> -> Var<'T> -> Elt
         when 'T : equality
 
     /// Select box where the first option returns None.
-    [<Obsolete "Use Elt.Input.SelectOptional instead">]
+    [<Obsolete "Use Elt.InputType.SelectOptional instead">]
     val SelectOptional : seq<Attr> -> noneText: string -> optionText: ('T -> string) -> options: list<'T> -> Var<option<'T>> -> Elt
         when 'T : equality
 
     /// Select box with time-varying option list where the first option returns None.
-    [<Obsolete "Use Elt.Input.SelectDynOptional instead">]
+    [<Obsolete "Use Elt.InputType.SelectDynOptional instead">]
     val SelectDynOptional : seq<Attr> -> noneText: string -> optionText: ('T -> string) -> options: View<list<'T>> -> Var<option<'T>> -> Elt
         when 'T : equality
 
     /// Radio button.
-    [<Obsolete "Use Elt.Input.Radio instead">]
+    [<Obsolete "Use Elt.InputType.Radio instead">]
     val Radio : seq<Attr> -> 'T -> Var<'T> -> Elt
         when 'T : equality
 
