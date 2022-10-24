@@ -104,7 +104,6 @@ let Main = Application.SinglePage(fun ctx ->
                     )
                     .Doc()
                 ])
-            .C
             .Click(fun e -> JavaScript.JS.Set e.Target "wsuiDispatched5" true)
             .Client(
                 [
