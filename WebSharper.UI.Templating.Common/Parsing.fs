@@ -381,12 +381,12 @@ module Impl =
                             if c.HasAttributes then
                                 attrs[c.Name] <- parseAttributesOf c state.AddHole state.AddAnchor
                             else
-                                contentHoles[c.Name] <- parseNodeAndSiblings false state c.FirstChild
+                                contentHoles[c.Name] <- parseNodeAndSiblings false false state c.FirstChild
                     None
             Some (Node.Instantiate(fileName, templateName, holeMaps, attrs, contentHoles, textHole))
         else None
 
-    and parseNodeAndSiblings isSvg (state: ParseState) (node: HtmlNode) =
+    and parseNodeAndSiblings isSvg isInsideDomAttr (state: ParseState) (node: HtmlNode) =
         (isSvg, node)
         |> Seq.unfold (fun (isSvg, node) ->
             let addHole' name k =
@@ -404,6 +404,9 @@ module Impl =
                 Some ([||], (isSvg, node.NextSibling))
             | node ->
                 let thisIsSvg = isSvg || node.Name = "svg"
+                if isInsideDomAttr && node.Attributes |> Seq.exists (fun a -> a.Name.StartsWith "ws-") then
+                    eprintfn "WebSharper.UI warning WS9002: A ws-dom attribute can affect the functionality of this template artifact"
+                let isDomAttr = node.Attributes[DomAttr] <> null
                 match node.Attributes[ReplaceAttr] with
                 | null ->
                     let children =
@@ -419,7 +422,7 @@ module Impl =
                                 else
                                     let holeName = if docHole = "" then "Default" else docHole
                                     if state.DefaultSlotUsed && holeName = "" then
-                                        parseNodeAndSiblings thisIsSvg state node.FirstChild
+                                        parseNodeAndSiblings thisIsSvg isDomAttr state node.FirstChild
                                     else
                                         state.AddSpecialHole(SpecialHole.FromName holeName)
                                         if holeName = "Default" then
@@ -427,7 +430,7 @@ module Impl =
                                         addHole' holeName HoleKind.Doc
                                         [| Node.DocHole holeName |]
                             else
-                                parseNodeAndSiblings thisIsSvg state node.FirstChild
+                                parseNodeAndSiblings thisIsSvg isDomAttr state node.FirstChild
                         | holeAttr ->
                             state.AddSpecialHole(SpecialHole.FromName holeAttr.Value)
                             addHole' holeAttr.Value HoleKind.Doc
@@ -450,7 +453,7 @@ module Impl =
                 | (n : HtmlNode) -> n.WriteTo s; l n.NextSibling
             l parentNode.FirstChild
         let line, col = parentNode.Line, parentNode.LinePosition
-        let value = parseNodeAndSiblings false state parentNode.FirstChild
+        let value = parseNodeAndSiblings false false state parentNode.FirstChild
         { Holes = state.Holes; Anchors = state.Anchors; Value = value; Src = src; References = state.References
           SpecialHoles = state.SpecialHoles
           Line = line; Column = col; IsHtml5Template = parentNode.Name.ToLower() = "template"; }
