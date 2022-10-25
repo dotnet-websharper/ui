@@ -286,6 +286,8 @@ type private HandlerProxy =
                         Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarDateTime (name, Var.Create DateTime.MinValue))
                     | Server.ValTy.File ->
                         Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarFile (name, Var.Create [||]))
+                    | Server.ValTy.DomElement ->
+                        Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarDomElement (name, Var.Create (JavaScript.JS.Document.QuerySelector("[ws-dom=" + name + "]"))))
                     | _ -> failwith "Invalid value type"
                 allVars[name] <- r
                 Some r

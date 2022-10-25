@@ -76,6 +76,10 @@
         <slot></slot>
     </template>
     <div ws-replace="imAHtml5-Template"></div>
+    <div class="test-dom">
+        <button ws-onclick="ReplaceOnClick">Replace with an input</button>
+    </div>
+    <div style="background: red; width: 80px; height: 80px" ws-dom="ReplaceMe"></div>
     <div ws-replace="CheckBooleanAttr"></div>
     <script type="text/javascript" src="Content/WebSharper.UI.Templating.Tests.js"></script>
   </body>

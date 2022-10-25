@@ -34,6 +34,7 @@ type ValTy =
     | Bool
     | DateTime
     | File
+    | DomElement
 
 [<RequireQualifiedAccess>]
 type HoleKind =
@@ -115,6 +116,7 @@ let [<Literal>] AttrAttr                = "ws-attr"
 let [<Literal>] AfterRenderAttr         = "ws-onafterrender"
 let [<Literal>] EventAttrPrefix         = "ws-on"
 let [<Literal>] VarAttr                 = "ws-var"
+let [<Literal>] DomAttr                 = "ws-dom"
 let [<Literal>] AnchorAttr              = "ws-anchor"
 let TextHoleRegex = Regex(@"\$\{([a-zA-Z_][-a-zA-Z0-9_]*)\}", RegexOptions.Compiled)
 let HoleNameRegex = Regex(@"^[a-zA-Z_][-a-zA-Z0-9_]*$", RegexOptions.Compiled)

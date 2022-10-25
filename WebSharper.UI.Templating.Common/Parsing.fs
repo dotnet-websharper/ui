@@ -197,7 +197,7 @@ module Impl =
                 | AnchorAttr ->
                     addAnchor attr.Value
                     yield Attr.Simple(AnchorAttr, attr.Value)
-                | VarAttr | HoleAttr | ReplaceAttr | TemplateAttr | ChildrenTemplateAttr ->
+                | VarAttr | HoleAttr | ReplaceAttr | TemplateAttr | ChildrenTemplateAttr | DomAttr  ->
                     () // These are handled separately in parseNode* and detach*Node
                 | s when s.StartsWith EventAttrPrefix ->
                     let eventName = s[EventAttrPrefix.Length..]
@@ -312,7 +312,17 @@ module Impl =
         let attrs = parseAttributesOf n state.AddHole state.AddAnchor
         match n.Attributes[VarAttr] with
         | null ->
-            Node.Element (n.Name, isSvg, attrs, children.Value)
+            match n.Attributes[DomAttr] with
+            | null ->
+                Node.Element (n.Name, isSvg, attrs, children.Value)
+            | domattr ->
+                state.AddHole domattr.Value
+                    {
+                        HoleDefinition.Kind = HoleKind.Var (ValTy.DomElement)
+                        HoleDefinition.Line = domattr.Line
+                        HoleDefinition.Column = domattr.LinePosition + domattr.Name.Length
+                    }
+                Node.Element (n.Name, isSvg, attrs, children.Value)
         | varAttr ->
             state.AddHole varAttr.Value {
                 HoleDefinition.Kind = HoleKind.Var (varTypeOf n)

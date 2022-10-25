@@ -375,6 +375,11 @@ module Client =
                     .Default(text "An html5 template")
                     .Doc()
             )
+            .ReplaceOnClick(fun (e: Runtime.Server.TemplateEvent<MyTemplate.index.Vars, MyTemplate.index.Anchors, _>) ->
+                let inp = Html.Elt.input [] []
+                e.Vars.RangeVar.Set 50
+                e.Anchors.replaceme.Set inp.Dom
+            )
             .Bind()
 
         Console.Log("Running JavaScript Entry Point..")

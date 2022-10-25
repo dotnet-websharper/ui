@@ -202,6 +202,18 @@ module internal Templates =
             | true, _ -> Console.Warn("Var hole filled with non-Var data", name)
             | false, _ -> ()
 
+        foreachNotPreserved el "[ws-dom]" <| fun e ->
+            let name = e.GetAttribute("ws-dom")
+            e.RemoveAttribute("ws-dom")
+            match fw.TryGetValue(name.ToLower()) with
+            | true, TemplateHole.VarDomElement(_, var) ->
+                var.Set e
+                var.View
+                |> View.Sink (fun v ->
+                    e.ReplaceWith(v)
+                )
+            | _ -> ()
+
         foreachNotPreserved el "[ws-attr-holes]" <| fun e ->
             let re = new RegExp(TextHoleRE, "g")
             let holeAttrs = e.GetAttribute("ws-attr-holes").Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
