@@ -522,9 +522,9 @@ module private Impl =
                 let holeName' = holeName.ToLowerInvariant()
                 match def.Kind with
                 | HoleKind.Var ValTy.DomElement ->
-                    yield ProvidedProperty(holeName', typeof<Var<DomElement>>, fun x ->
+                    yield ProvidedProperty(holeName, typeof<Var<DomElement>>, fun x ->
                         <@@ ((%%x[0] : obj) :?> TI).Hole holeName' |> TemplateHole.Value @@>)
-                        .WithXmlDoc(XmlDoc.Member.Anchor holeName')
+                        .WithXmlDoc(XmlDoc.Member.Anchor holeName)
                 | _ -> ()
         ]
         res.AddMembers [
