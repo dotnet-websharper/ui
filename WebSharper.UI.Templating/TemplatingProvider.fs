@@ -60,7 +60,9 @@ module private Impl =
             Path : option<string>
             InlineFileId : option<TemplateName>
             ServerLoad : ServerLoad
+            IsHtml5Template: bool
             AllTemplates : Map<string, Map<option<string>, Template>>
+            Name : option<string>
         }
 
     module XmlDoc =
@@ -78,22 +80,27 @@ module private Impl =
                 "The anchor elements defined in this template."
         module Member =
             let Hole n =
-                "Fill the hole \"" + n + "\" of the template."
+                "Fills the hole \"" + n + "\" of the template."
             let UntypedHole =
-                "Fill a hole of the template."
+                "Fills a hole of the template."
             let Doc =
-                "Get the Doc to insert this template instance into the page."
+                "Gets the Doc to insert this template instance into the page."
             let Var n =
-                "Get the reactive variable \"" + n + "\" for this template instance."
+                "Gets the reactive variable \"" + n + "\" for this template instance."
             let Anchor n =
-                "Get the element marked with ws-anchor=\"" + n + "\" for this template instance."
+                "Gets the element marked with ws-anchor=\"" + n + "\" for this template instance."
             let Instance =
-                "Create an instance of this template."
+                "Creates an instance of this template."
             let Doc_withUnfilled =
-                """<summary>Get the Doc to insert this template instance into the page.</summary>
+                """<summary>Gets the Doc to insert this template instance into the page.</summary>
                     <param name="keepUnfilled">Server-side only: set to true to keep all unfilled holes, to be filled by the client with Bind.</param>"""
             let Bind =
-                "Bind the template instance to the document."
+                "Binds the template instance to the document."
+            let Content =
+                "Client-side only: Returns a HTML5 based template's content property"
+            let Text =
+                "Returns the template's content as a string"
+
 
     let IsExprType =
         let n = typeof<Expr>.FullName
@@ -513,6 +520,19 @@ module private Impl =
         ]
         res, vars, anchors
 
+    let GetTemplateString (ctx: Ctx) =
+        Expr.Value <| ctx.Template.Src.Trim()
+
+    let GetContent (ctx: Ctx) =
+        let id = ctx.Name |> Option.defaultValue "" |> Expr.Value
+        <@@ 
+            let tryFindById = (WebSharper.JavaScript.JS.Document.GetElementById(%%id))   
+            if tryFindById = null then
+                (tryFindById :?> WebSharper.JavaScript.HTMLTemplateElement).Content
+            else
+                (WebSharper.JavaScript.JS.Document.QuerySelector(sprintf "template[name=\"%s\"]" %%id) :?> WebSharper.JavaScript.HTMLTemplateElement).Content
+        @@>
+
     let BuildOneTemplate (ty: PT.Type) (isRoot: bool) (ctx: Ctx) (refInits: Map<string, Expr>) =
         ty.AddMembers [
             let instanceTy, varsTy, anchorsTy = BuildInstanceType ty ctx
@@ -530,6 +550,12 @@ module private Impl =
                 if isRoot then
                     [ProvidedParameter("keepUnfilled", typeof<bool>, optionalValue = box false)], XmlDoc.Member.Doc_withUnfilled
                 else [], XmlDoc.Member.Doc
+            if ctx.IsHtml5Template then
+                yield ProvidedMethod("Content", docParams, typeof<WebSharper.JavaScript.Dom.DocumentFragment>, fun args -> 
+                    <@@ (%%GetContent ctx : WebSharper.JavaScript.Dom.DocumentFragment) @@>)
+                    .WithXmlDoc(XmlDoc.Member.Content) :> _
+                yield ProvidedMethod("Text", docParams, typeof<string>, fun args -> GetTemplateString ctx)
+                    .WithXmlDoc(XmlDoc.Member.Text) :> _
             yield ProvidedMethod("Doc", docParams, typeof<Doc>, fun args ->
                 <@@ (%%InstanceBody ctx refInits args : TI).Doc @@>)
                 .WithXmlDoc(docXmldoc) :> _
@@ -564,7 +590,7 @@ module private Impl =
                 Template = t
                 FileId = baseId; Id = tn.IdAsOption; Path = item.Path
                 InlineFileId = inlineFileId; ServerLoad = item.ServerLoad
-                AllTemplates = allTemplates
+                AllTemplates = allTemplates; IsHtml5Template = t.IsHtml5Template; Name = tn.NameAsOption
             }
             match tn.NameAsOption with
             | None ->
@@ -589,7 +615,7 @@ module private Impl =
                 Template = t
                 FileId = baseId; Id = tn.IdAsOption; Path = item.Path
                 InlineFileId = None; ServerLoad = item.ServerLoad
-                AllTemplates = allTemplates
+                AllTemplates = allTemplates; IsHtml5Template = t.IsHtml5Template; Name = tn.NameAsOption
             }
             Some (baseId, ServerOnlyInitBody ctx)
         | None -> None

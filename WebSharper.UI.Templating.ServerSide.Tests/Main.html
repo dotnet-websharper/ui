@@ -54,6 +54,12 @@
         </div>
     </div>
     <div ws-template="OAR"></div>
+    <div ws-replace="HtmlTemplateFromClient"></div>
+    <div ws-replace="HtmlTemplateFromServer"></div>
+    <template id="HTML5Template">
+        <slot name="A"></slot>
+        <slot></slot>
+    </template>
     <div id="basic-6">${DynamicText}</div>
     <div id="basic-7" ws-hole="DynamicDoc"></div>
     <div ws-hole="ClientSide"></div>

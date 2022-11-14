@@ -15,6 +15,10 @@
 <body>
     <div id="main">
         <h1 ws-template="tasksTitle">Tasks</h1>
+        <template id="HTML5Template">
+            <slot name="ThisIsOk"></slot>
+            <slot></slot>
+        </template>
     </div>
     <div id="tasksTitle"></div>
     <div id="tasks"></div>

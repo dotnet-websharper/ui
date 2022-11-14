@@ -288,11 +288,13 @@ module Impl =
         let mutable specialHoles = defaultArg specialHoles SpecialHole.None
         let holes = match holes with Some h -> h | None -> Dictionary(System.StringComparer.InvariantCultureIgnoreCase)
         let anchors = match anchors with Some h -> h | None -> HashSet(System.StringComparer.InvariantCultureIgnoreCase)
+        let mutable defaultSlotUsed = false
 
         member this.Holes = holes
         member this.Anchors = anchors
         member this.References = refs.Value
         member this.SpecialHoles = specialHoles
+        member this.DefaultSlotUsed with get () = defaultSlotUsed and set (v) = defaultSlotUsed <- v
 
         member this.AddHole name def = addHole holes name def
         member this.AddAnchor name = 
@@ -397,7 +399,22 @@ module Impl =
                         lazy
                         match node.Attributes[HoleAttr] with
                         | null ->
-                            parseNodeAndSiblings thisIsSvg state node.FirstChild
+                            if node.Name = "slot" then
+                                let docHole = node.GetAttributeValue("name", "")
+                                if docHole.ToLower() = "default" then
+                                    failwith "Default is a specialized name for not named slot elements"
+                                else
+                                    let holeName = if docHole = "" then "Default" else docHole
+                                    if state.DefaultSlotUsed && holeName = "" then
+                                        parseNodeAndSiblings thisIsSvg state node.FirstChild
+                                    else
+                                        state.AddSpecialHole(SpecialHole.FromName holeName)
+                                        if holeName = "Default" then
+                                            state.DefaultSlotUsed <- true
+                                        addHole' holeName HoleKind.Doc
+                                        [| Node.DocHole holeName |]
+                            else
+                                parseNodeAndSiblings thisIsSvg state node.FirstChild
                         | holeAttr ->
                             state.AddSpecialHole(SpecialHole.FromName holeAttr.Value)
                             addHole' holeAttr.Value HoleKind.Doc
@@ -423,7 +440,7 @@ module Impl =
         let value = parseNodeAndSiblings false state parentNode.FirstChild
         { Holes = state.Holes; Anchors = state.Anchors; Value = value; Src = src; References = state.References
           SpecialHoles = state.SpecialHoles
-          Line = line; Column = col }
+          Line = line; Column = col; IsHtml5Template = parentNode.Name.ToLower() = "template"; }
 
     let withoutAttr (n: HtmlNode) attrName f =
         match n.GetAttributeValue(attrName, null) with
@@ -475,11 +492,19 @@ module Impl =
     /// Find all the ws-children-template nodes, detach them and populate wsTemplates.
     let detachAllChildrenTemplateNodes (nodes: HtmlNode[]) (wsTemplates: Dictionary<WrappedTemplateName, HtmlNode>) =
         for n in nodes do
-            let templateName = n.GetAttributeValue(ChildrenTemplateAttr, "")
-            let w = WrappedTemplateName(templateName)
-            if wsTemplates.ContainsKey w then
-                failwithf "Template defined multiple times: %s" templateName
-            wsTemplates.Add(w, detachChildrenTemplateNode n)
+            if n.Name = "template" then
+                let templateName = n.GetAttributeValue("id", "")
+                let templateName = if templateName = "" then n.GetAttributeValue("name", "") else templateName
+                let w = WrappedTemplateName(templateName)
+                if wsTemplates.ContainsKey w then
+                    failwithf "Template defined multiple times: %s" templateName
+                wsTemplates.Add(w, n)
+            else
+                let templateName = n.GetAttributeValue(ChildrenTemplateAttr, "")
+                let w = WrappedTemplateName(templateName)
+                if wsTemplates.ContainsKey w then
+                    failwithf "Template defined multiple times: %s" templateName
+                wsTemplates.Add(w, detachChildrenTemplateNode n)
 
     let parseNodeAsTemplate fileId (n: HtmlNode) =
         match n.Attributes[HoleAttr] with
@@ -496,6 +521,7 @@ module Impl =
                     Line = n.Line
                     Column = n.LinePosition
                     References = instState.References
+                    IsHtml5Template = false
                 }
             | _ ->
             let templateForChildren = parseNodeChildrenAsTemplate fileId n
@@ -513,6 +539,7 @@ module Impl =
                 SpecialHoles = state.SpecialHoles
                 Holes = templateForChildren.Holes
                 Anchors = templateForChildren.Anchors
+                IsHtml5Template = false
             }
         | hole ->
             let holeName = hole.Value
@@ -533,6 +560,7 @@ module Impl =
                 SpecialHoles = state.SpecialHoles
                 Line = n.Line
                 Column = n.LinePosition
+                IsHtml5Template = false
             }
 
 let ParseOptions (html: HtmlDocument) =
@@ -602,6 +630,11 @@ let ParseSource fileId (src: string) =
         match html.DocumentNode.SelectNodes("//*[@"+ChildrenTemplateAttr+"]") with
         | null -> [||]
         | x -> Array.ofSeq x
+    let html5TemplateNodes =
+        match html.DocumentNode.SelectNodes("//template[@id or @name]") with 
+        | null -> [||]
+        | x -> Array.ofSeq x
+    let childrenTemplateNodes = Array.append childrenTemplateNodes html5TemplateNodes
     let templateNodes =
         match html.DocumentNode.SelectNodes("//*[@"+TemplateAttr+"]") with
         | null -> [||]

@@ -488,6 +488,7 @@ type ProviderBuilder =
     member this.With(hole: string, value: JavaScript.File array) =
         this.With(TemplateHole.MakeVarLens(hole, value))
 
+
 module ProviderBuilder =
     
     [<Inline>]
