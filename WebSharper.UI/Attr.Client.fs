@@ -348,7 +348,7 @@ module BindVar =
         () // This should do nothing, as we should not override the values from the input
     let FileGetUnchecked : Get<File array> = fun el ->
         let files : FileList = el?files
-        [| for i in 1..files.Length do yield files.Item(i) |] |> Some
+        [| for i in 0..files.Length-1 do yield files.Item(i) |] |> Some
     let FileApplyUnchecked : Apply<File array> =
         ApplyValue FileGetUnchecked FileSetUnchecked
 
