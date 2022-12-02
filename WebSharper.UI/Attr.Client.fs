@@ -315,6 +315,22 @@ module BindVar =
             | _ -> Some v
         init, Option.iter << set, var.View.Map map
 
+    let FileApplyValue (get: Get<'a>) (set: Set<'a>) : Apply<'a> = fun (var: Var<'a>) ->
+        let mutable expectedValue = None
+        let init (el: Dom.Element) =
+            let onChange () =
+                var.UpdateMaybe(fun v ->
+                    expectedValue <- get el
+                    match expectedValue with
+                    | Some x as o when x !==. v -> o
+                    | _ -> None)
+            el.AddEventListener("change", onChange)
+        let map v =
+            match expectedValue with
+            | Some x when x = v -> None
+            | _ -> Some v
+        init, Option.iter << set, var.View.Map map
+
     let BoolCheckedApply : Apply<bool> = fun var ->
         let init (el: Dom.Element) =
             el.AddEventListener("change", fun () ->
@@ -350,7 +366,7 @@ module BindVar =
         let files : FileList = el?files
         [| for i in 0..files.Length-1 do yield files.Item(i) |] |> Some
     let FileApplyUnchecked : Apply<File array> =
-        ApplyValue FileGetUnchecked FileSetUnchecked
+        FileApplyValue FileGetUnchecked FileSetUnchecked
 
     let IntSetUnchecked : Set<int> = fun el i ->
         el?value <- string i
