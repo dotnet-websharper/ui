@@ -294,6 +294,7 @@ module Impl =
         member this.Anchors = anchors
         member this.References = refs.Value
         member this.SpecialHoles = specialHoles
+        // Used for tracking whether the Default slot is already consumed or not
         member this.DefaultSlotUsed with get () = defaultSlotUsed and set (v) = defaultSlotUsed <- v
 
         member this.AddHole name def = addHole holes name def
@@ -399,6 +400,8 @@ module Impl =
                         lazy
                         match node.Attributes[HoleAttr] with
                         | null ->
+                            // Parsing each slot element within an HTML5 template
+                            // The first slot named as default (or a not named one) is parsed, the rest is ignored in the templating process
                             if node.Name = "slot" then
                                 let docHole = node.GetAttributeValue("name", "")
                                 if docHole.ToLower() = "default" then
@@ -489,10 +492,12 @@ module Impl =
                 failwithf "Template defined multiple times: %s" templateName
             wsTemplates.Add(w, detachTemplateNode n)
 
-    /// Find all the ws-children-template nodes, detach them and populate wsTemplates.
+    /// Find all the ws-children-template and template nodes, detach them and populate wsTemplates.
     let detachAllChildrenTemplateNodes (nodes: HtmlNode[]) (wsTemplates: Dictionary<WrappedTemplateName, HtmlNode>) =
         for n in nodes do
             if n.Name = "template" then
+                // This section handles templates based on HTML5 template element
+                // <template id="X"> or <template name="X">
                 let templateName = n.GetAttributeValue("id", "")
                 let templateName = if templateName = "" then n.GetAttributeValue("name", "") else templateName
                 let w = WrappedTemplateName(templateName)

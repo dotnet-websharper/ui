@@ -292,21 +292,19 @@ module Client =
             .AfterRender(fun (e: Runtime.Server.TemplateEvent<MyTemplate.index.Vars, MyTemplate.index.Anchors, _>) ->
                 Console.Log("OnAfterRender TemplateEvent overload on client-side should render.")
                 Console.Log("Header restrieved via ws-anchor", e.Anchors.Header)
-                //let x =
-                //    MyTemplate.index.``html5-Template``()
-                //        .Default("Hello")
-                //        .ThisIsOk("asdasd")
-                //        .Text()
-
-                //Console.Log x
-                //let y =
-                //    MyTemplate.index.``html5-Template``()
-                //        .Default("Hello")
-                //        .ThisIsOk("asdasd")
-                //        .Content()
-                //Console.Log y
+                let x =
+                    MyTemplate.index.HTML5Template()
+                        .Default("Hello")
+                        .ThisIsOk("This is ok")
+                        .Text()
+                Console.Log("HTML5 template text", x)
+                let y =
+                    MyTemplate.index.HTML5Template()
+                        .Default("Hello")
+                        .ThisIsOk("This is ok")
+                        .Content()
+                Console.Log("HTML5 template content", y)
                 e.Target.TextContent <- "[OK] This replaces text with ws-onafterrender.")
-                //MyTemplate.index.Anchors
             .InputMouseEnter(fun e ->
                 e.Vars.Input := "[OK]"
             )

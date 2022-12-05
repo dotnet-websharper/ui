@@ -125,6 +125,7 @@ module internal Templates =
                 |> ignore
                 updates.JS.Push doc.Updates |> ignore
 
+        // Initializing slot elements on template instantiation
         let mutable isDefaultSlotProcessed = false
         foreachNotPreserved el "slot" <| fun p ->
             let name = p.GetAttribute("name")
