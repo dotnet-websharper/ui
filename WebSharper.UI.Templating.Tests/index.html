@@ -68,9 +68,14 @@
     </div>
     <div class="new-inputs">
         <input type="datetime-local" ws-var="DateTimeVar" />
-        <input type="file" ws-var="FileVar" />
+        <input type="file" ws-var="fileVar" />
         <input type="range" ws-var="RangeVar" />
     </div>
+    <template name="HTML5Template">
+        <slot name="ThisIsOk"></slot>
+        <slot></slot>
+    </template>
+    <div ws-replace="imAHtml5-Template"></div>
     <div ws-replace="CheckBooleanAttr"></div>
     <script type="text/javascript" src="Content/WebSharper.UI.Templating.Tests.js"></script>
   </body>

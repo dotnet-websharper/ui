@@ -99,6 +99,7 @@ type Template =
         Line : int
         Column : int
         References : Set<string * option<string>>
+        IsHtml5Template: bool
     }
 
     member this.IsElt =

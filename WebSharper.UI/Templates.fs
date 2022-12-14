@@ -125,6 +125,32 @@ module internal Templates =
                 |> ignore
                 updates.JS.Push doc.Updates |> ignore
 
+        // Initializing slot elements on template instantiation
+        let mutable isDefaultSlotProcessed = false
+        foreachNotPreserved el "slot" <| fun p ->
+            let name = p.GetAttribute("name")
+            let name = if name = "" || name = null then "default" else name.ToLower()
+            if isDefaultSlotProcessed && name = "default" || el.ParentElement <> null then
+                ()
+            else
+                while (p.HasChildNodes()) do
+                    p.RemoveChild(p.LastChild) |> ignore
+                if name = "default" then isDefaultSlotProcessed <- true
+                match tryGetAsDoc name with
+                | None -> ()
+                | Some doc ->
+                   Docs.LinkElement p doc.DocNode
+                   holes.JS.Push {
+                       Attr = Attrs.Empty p
+                       Children = doc.DocNode
+                       Delimiters = None
+                       El = p
+                       ElKey = Fresh.Int()
+                       Render = None
+                   }
+                   |> ignore
+                   updates.JS.Push doc.Updates |> ignore
+
         foreachNotPreserved el "[ws-attr]" <| fun e ->
             let name = e.GetAttribute("ws-attr")
             e.RemoveAttribute("ws-attr")
@@ -261,6 +287,13 @@ module internal Templates =
     let FakeRoot (parent: Dom.Element) =
         let fakeroot = JS.Document.CreateElement("div")
         while parent.HasChildNodes() do fakeroot.AppendChild parent.FirstChild |> ignore
+        fakeroot
+
+    let FakeRootFromHTMLTemplate (parent: HTMLTemplateElement) =
+        let fakeroot = JS.Document.CreateElement("div")
+        let content = parent.Content
+        for i in 0..content.ChildNodes.Length-1 do
+            fakeroot.AppendChild (content.ChildNodes.Item(i).CloneNode(true)) |> ignore
         fakeroot
 
     let FakeRootSingle (el: Dom.Element) =
@@ -424,6 +457,7 @@ module internal Templates =
             Console.Warn("Instantiating non-loaded template", name)
 
     let rec PrepareTemplateStrict (baseName: string) (name: option<string>) (fakeroot: Dom.Element) (prepareLocalTemplate: option<string -> unit>) =
+        let processedHTML5Templates = HashSet<Dom.Node>()
         let rec fillDocHole (instance: Dom.Element) (fillWith: Dom.Element) =
             let name = fillWith.NodeName.ToLower()
             let fillHole (p: Dom.Node) (n: Dom.Node) =
@@ -446,7 +480,12 @@ module internal Templates =
             match instance.QuerySelector("[ws-hole=" + name + "]") with
             | null ->
                 match instance.QuerySelector("[ws-replace=" + name + "]") with
-                | null -> ()
+                | null ->
+                    match instance.QuerySelector("slot[name=" + name + "]") with
+                    | e when instance.TagName.ToLower() = "template" ->
+                        fillHole e.ParentNode e
+                        e.ParentNode.RemoveChild(e) |> ignore
+                    | _ -> ()
                 | e ->
                     fillHole e.ParentNode e
                     e.ParentNode.RemoveChild(e) |> ignore
@@ -530,7 +569,26 @@ module internal Templates =
             match el.QuerySelector "[ws-template]" with
             | null ->
                 match el.QuerySelector "[ws-children-template]" with
-                | null -> ()
+                | null ->
+                    let idTemplates = el.QuerySelectorAll "template[id]"
+                    for i in 1..idTemplates.Length-1 do
+                        let n = idTemplates.[i] :?> Dom.Element
+                        if processedHTML5Templates.Contains(n) then
+                            ()
+                        else
+                            let name = n.GetAttribute "id"
+                            PrepareTemplateStrict baseName (Some name) n None
+                            processedHTML5Templates.Add n |> ignore
+                    let nameTemplates = el.QuerySelectorAll "template[name]"
+                    for i in 1..nameTemplates.Length-1 do
+                        let n = nameTemplates.[i] :?> Dom.Element
+                        if processedHTML5Templates.Contains(n) then
+                            ()
+                        else
+                            let name = n.GetAttribute "name"
+                            PrepareTemplateStrict baseName (Some name) n None
+                            processedHTML5Templates.Add n |> ignore
+                    ()
                 | n ->
                     let name = n.GetAttribute "ws-children-template"
                     n.RemoveAttribute "ws-children-template"
@@ -571,6 +629,16 @@ module internal Templates =
             let name = node.GetAttribute("ws-children-template").ToLower()
             node.RemoveAttribute("ws-children-template")
             rawTpls[name] <- FakeRoot node
+        let html5TemplateBasedTemplates = root.QuerySelectorAll "template[id]"
+        for i = 0 to html5TemplateBasedTemplates.Length - 1 do
+            let node = html5TemplateBasedTemplates[i] :?> HTMLTemplateElement
+            let name = node.GetAttribute("id").ToLower()
+            rawTpls[name] <- FakeRootFromHTMLTemplate node
+        let html5TemplateBasedTemplates = root.QuerySelectorAll "template[name]"
+        for i = 0 to html5TemplateBasedTemplates.Length - 1 do
+            let node = html5TemplateBasedTemplates[i] :?> HTMLTemplateElement
+            let name = node.GetAttribute("name").ToLower()
+            rawTpls[name] <- FakeRootFromHTMLTemplate node
         let instantiated = HashSet()
         let rec prepareTemplate name =
             if not (loadedTpls.ContainsKey name) then
