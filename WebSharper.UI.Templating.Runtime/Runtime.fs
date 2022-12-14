@@ -87,15 +87,6 @@ type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
         | TemplateHole.VarFloatUnchecked (_, v) ->
             applyTypedVarHole BindVar.FloatApplyUnchecked v el
         | TemplateHole.VarDomElement (_, v) ->
-            //v.View
-            //|> View.Sink (fun nel ->
-            //    el.ReplaceWith nel
-            //    //let mo = WebSharper.JavaScript.Dom.MutationObserver(fun r t ->
-            //    //    WebSharper.JavaScript.Console.Log r
-            //    //)
-            //    //let p = if el.ParentElement <> null then el.ParentElement else nel.ParentElement
-            //    //mo.Observe(p, WebSharper.JavaScript.Dom.MutationObserverInit(ChildList = true))
-            //)
             ()
         | TemplateHole.Elt (n, _)
         | TemplateHole.Text (n, _)
