@@ -334,6 +334,13 @@ module private Impl =
                 <@ (%b).With(TemplateHole.MakeVarLens(%name, %x)) @>
         ]
 
+    let VarDomElementHoleMethods hole resTy ctx =
+        let mkVar wrapArg = BuildMethodVar hole resTy ctx wrapArg
+        [
+            yield! mkVar <| fun b name (x: Expr<Var<WebSharper.JavaScript.Dom.Element option>>) ->
+                <@ (%b).With(%name, %x) @>
+        ]
+
     let BuildHoleMethods (holeName: HoleName) (holeDef: HoleDefinition) (resTy: Type) (varsTy: Type) (anchorsTy: Type) (ctx: Ctx) : list<MemberInfo> =
         let hole = (holeName, holeDef)
         let rec build = function
@@ -351,6 +358,7 @@ module private Impl =
             | HoleKind.Var ValTy.Bool -> VarBoolHoleMethods (Choice1Of2 hole) resTy ctx
             | HoleKind.Var ValTy.DateTime -> VarDateTimeHoleMethods (Choice1Of2 hole) resTy ctx
             | HoleKind.Var ValTy.File -> VarFileHoleMethods (Choice1Of2 hole) resTy ctx
+            | HoleKind.Var ValTy.DomElement -> VarDomElementHoleMethods (Choice1Of2 hole) resTy ctx
             | HoleKind.Mapped (kind = k) -> build k
             | HoleKind.Unknown -> failwithf "Error: Unknown HoleKind: %s" holeName
         build holeDef.Kind
@@ -367,6 +375,7 @@ module private Impl =
             VarBoolHoleMethods (Choice2Of2 "With") resTy ctx
             VarDateTimeHoleMethods (Choice2Of2 "With") resTy ctx
             VarFileHoleMethods (Choice2Of2 "With") resTy ctx
+            VarDomElementHoleMethods (Choice2Of2 "With") resTy ctx
         ]
 
     let OptionValue (x: option<'T>) : Expr<option<'T>> =
@@ -404,6 +413,7 @@ module private Impl =
                     | HoleKind.Var AST.ValTy.Bool -> yield <@@ (holeName', RTS.ValTy.Bool, Option.None) @@>
                     | HoleKind.Var AST.ValTy.DateTime -> yield <@@ (holeName', RTS.ValTy.DateTime, Option.None) @@>
                     | HoleKind.Var AST.ValTy.File -> yield <@@ (holeName', RTS.ValTy.File, Option.None) @@>
+                    | HoleKind.Var AST.ValTy.DomElement -> yield <@@ (holeName', RTS.ValTy.DomElement, Option.None) @@>
                     | _ -> ()
             ]
         )
@@ -508,6 +518,14 @@ module private Impl =
                 yield ProvidedProperty(anchorName, typeof<DomElement>, fun x ->
                     <@@ ((%%x[0] : obj) :?> TI).Anchor anchorName @@>)
                     .WithXmlDoc(XmlDoc.Member.Anchor anchorName)
+            for KeyValue(holeName, def) in ctx.Template.Holes do
+                let holeName' = holeName.ToLowerInvariant()
+                match def.Kind with
+                | HoleKind.Var ValTy.DomElement ->
+                    yield ProvidedProperty(holeName, typeof<Var<DomElement option>>, fun x ->
+                        <@@ ((%%x[0] : obj) :?> TI).Hole holeName' |> TemplateHole.Value @@>)
+                        .WithXmlDoc(XmlDoc.Member.Anchor holeName)
+                | _ -> ()
         ]
         res.AddMembers [
             yield ProvidedProperty("Doc", typeof<Doc>, fun x -> <@@ (%%x[0] : TI).Doc @@>)
@@ -527,7 +545,7 @@ module private Impl =
         let id = ctx.Name |> Option.defaultValue "" |> Expr.Value
         <@@ 
             let tryFindById = (WebSharper.JavaScript.JS.Document.GetElementById(%%id))   
-            if tryFindById = null then
+            if tryFindById <> null then
                 (tryFindById :?> WebSharper.JavaScript.HTMLTemplateElement).Content
             else
                 (WebSharper.JavaScript.JS.Document.QuerySelector(sprintf "template[name=\"%s\"]" %%id) :?> WebSharper.JavaScript.HTMLTemplateElement).Content

@@ -277,7 +277,11 @@ module Client =
             Regression67.Doc
         ]
         |> Doc.RunById "main"
-
+        let template =
+            MyTemplate.index.HTML5Template()
+                .ThisIsOk(text "From the client side: ")
+                .Default(text "An html5 template")
+                .Doc()
         let welcome = Var.Create ""
         // TODO #162: this var shouldn't be necessary, it should be created in .Vars
         let username = Var.Create ""
@@ -370,9 +374,30 @@ module Client =
                 ]
             )
             .``imAHtml5-Template``(
-                MyTemplate.index.HTML5Template()
-                    .ThisIsOk(text "From the client side: ")
-                    .Default(text "An html5 template")
+               template :> Doc
+            )
+            .ReplaceOnClick(fun (e: Runtime.Server.TemplateEvent<MyTemplate.index.Vars, MyTemplate.index.Anchors, _>) ->
+                let inp = Elt.span [] []
+                e.Vars.RangeVar.Set 50
+                e.Anchors.ReplaceMe.Set (Some inp.Dom)
+                e.Anchors.asd.Set (Some inp.Dom)
+            )
+            .TestWSDom(
+                MyTemplate.index.FileUploader()
+                    .OnSubmit(fun (e: Runtime.Server.TemplateEvent<MyTemplate.index.FileUploader.Vars, MyTemplate.index.FileUploader.Anchors, _>) ->
+                        e.Event.PreventDefault()
+                        e.Anchors.MyNode := Some (Elt.span [] []).Dom
+                        ()
+                    )
+                    .Doc()
+            )
+            .TestWSDom2(
+                MyTemplate.index.WSDOMINSIDETEMPLATE()
+                    .ClickHandler(fun (e: Runtime.Server.TemplateEvent<MyTemplate.index.WSDOMINSIDETEMPLATE.Vars, MyTemplate.index.WSDOMINSIDETEMPLATE.Anchors, _>) ->
+                        e.Event.PreventDefault()
+                        e.Anchors.DomNode := Some (Elt.span [] []).Dom
+                        ()
+                    )
                     .Doc()
             )
             .Bind()

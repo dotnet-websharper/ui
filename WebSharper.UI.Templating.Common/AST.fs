@@ -34,6 +34,7 @@ type ValTy =
     | Bool
     | DateTime
     | File
+    | DomElement
 
 [<RequireQualifiedAccess>]
 type HoleKind =
@@ -69,8 +70,8 @@ type Attr =
 [<RequireQualifiedAccess>]
 type Node =
     | Text of StringPart[]
-    | Element of nodeName: string * isSvg: bool * attrs: Attr[] * children: Node[]
-    | Input of nodeName: string * var: HoleName * attrs: Attr[] * children: Node[]
+    | Element of nodeName: string * isSvg: bool * attrs: Attr[] * dom: HoleName option * children: Node[]
+    | Input of nodeName: string * var: HoleName * attrs: Attr[] * dom: HoleName option * children: Node[]
     | DocHole of HoleName
     | Instantiate of fileName: option<string> * templateName: option<string> * holeMaps: Dictionary<string, string> * attrHoles: Dictionary<string, Attr[]> * contentHoles: Dictionary<string, Node[]> * textHole: option<string>
 
@@ -115,6 +116,7 @@ let [<Literal>] AttrAttr                = "ws-attr"
 let [<Literal>] AfterRenderAttr         = "ws-onafterrender"
 let [<Literal>] EventAttrPrefix         = "ws-on"
 let [<Literal>] VarAttr                 = "ws-var"
+let [<Literal>] DomAttr                 = "ws-dom"
 let [<Literal>] AnchorAttr              = "ws-anchor"
 let TextHoleRegex = Regex(@"\$\{([a-zA-Z_][-a-zA-Z0-9_]*)\}", RegexOptions.Compiled)
 let HoleNameRegex = Regex(@"^[a-zA-Z_][-a-zA-Z0-9_]*$", RegexOptions.Compiled)

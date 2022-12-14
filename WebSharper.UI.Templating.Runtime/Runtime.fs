@@ -50,6 +50,7 @@ type ValTy =
     | Bool = 2
     | DateTime = 3
     | File = 4
+    | DomElement = 5
 
 [<JavaScript; Serializable>]
 type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
@@ -67,7 +68,7 @@ type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
         init el
         View.Sink (set el) view
 
-    static let applyVarHole el tpl =
+    static let applyVarHole (el: JavaScript.Dom.Element) tpl =
         match tpl with
         | TemplateHole.VarStr (_, v) ->
             applyTypedVarHole BindVar.StringApply v el
@@ -85,6 +86,8 @@ type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
             applyTypedVarHole BindVar.FloatApplyChecked v el
         | TemplateHole.VarFloatUnchecked (_, v) ->
             applyTypedVarHole BindVar.FloatApplyUnchecked v el
+        | TemplateHole.VarDomElement (_, v) ->
+            ()
         | TemplateHole.Elt (n, _)
         | TemplateHole.Text (n, _)
         | TemplateHole.TextView (n, _)
@@ -129,6 +132,7 @@ type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
                     | ValTy.DateTime -> TemplateHole.VarDateTime (n, Var.Create (ov |> Option.map (fun x -> x :?> DateTime) |> Option.defaultValue DateTime.MinValue))
                     | ValTy.Number -> TemplateHole.VarFloatUnchecked (n, Var.Create (ov |> Option.map (fun x -> x :?> float) |> Option.defaultValue 0.))
                     | ValTy.String -> TemplateHole.VarStr (n, Var.Create (ov |> Option.map (fun x -> x :?> string) |> Option.defaultValue ""))
+                    | ValTy.DomElement -> TemplateHole.VarDomElement (n, Var.Create (ov |> Option.map (fun x -> x :?> JavaScript.Dom.Element) |> Option.defaultValue (JavaScript.JS.Document.QuerySelector("[ws-dom=" + n + "]")) |> Some))
                     | _ -> failwith "Invalid value type"
         let i = TemplateInstance(CompletedHoles.Client(d), Doc.Empty)
         instance <- Some i
@@ -251,6 +255,7 @@ type Handler private () =
                 | TemplateHole.VarFloat(n, _)
                 | TemplateHole.VarBool(n, _)
                 | TemplateHole.VarDateTime(n, _)
+                | TemplateHole.VarDomElement(n, _)
                 | TemplateHole.VarFile(n, _) ->
                     filledVars.Add n |> ignore
                     hasEventHandler
@@ -305,6 +310,8 @@ type Handler private () =
                         | Some (TemplateHole.VarBool(n, v)) ->
                             (n, t, Option.Some (box v.Value))
                         | Some (TemplateHole.VarDateTime(n, v)) ->
+                            (n, t, Option.Some (box v.Value))
+                        | Some (TemplateHole.VarDomElement(n, v)) ->
                             (n, t, Option.Some (box v.Value))
                         | Some (TemplateHole.VarFile(n, v)) ->
                             (n, t, Option.Some (box v.Value))
@@ -472,6 +479,11 @@ type ProviderBuilder =
     [<Inline>]
     member this.With(hole: string, value: Var<DateTime>) =
         this.With(TemplateHole.VarDateTime(hole, value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, value: Var<DomElement option>) =
+        this.With(TemplateHole.VarDomElement(hole, value))
 
     /// Fill a hole of the template.
     [<Inline>]
@@ -648,8 +660,8 @@ type Runtime private () =
 
         let rec writeWrappedTemplate templateName (template: Template) ctx =
             let tagName = template.Value |> Array.tryPick (function
-                | Node.Element (name, _, _, _)
-                | Node.Input (name, _, _, _) -> Some name
+                | Node.Element (name, _, _,_, _)
+                | Node.Input (name, _, _, _, _) -> Some name
                 | Node.Text _ | Node.DocHole _ | Node.Instantiate _ -> None
             )
             let before, after = defaultArg (Map.tryFind tagName templateWrappers) defaultTemplateWrappers
@@ -727,12 +739,13 @@ type Runtime private () =
                         if ctx.FillWith.ContainsKey holeName then
                             failwithf "Invalid hole, expected onafterrender: %s" holeName
                         elif keepUnfilled then doPlain()
-            let rec writeElement isRoot plain tag attrs wsVar children =
+            let rec writeElement isRoot plain tag attrs wsVar children wsDom =
                 ctx.Writer.WriteBeginTag(tag)
                 attrs |> Array.iter (fun a -> writeAttr plain a)
                 if isRoot then
                     extraAttrs |> List.iter (fun a -> a.Write(ctx.Context.Metadata, ctx.Context.Json, ctx.Writer, true))
                 wsVar |> Option.iter (fun v -> ctx.Writer.WriteAttribute("ws-var", v))
+                wsDom |> Option.iter (fun v -> ctx.Writer.WriteAttribute("ws-dom", v))
                 if Array.isEmpty children && HtmlTextWriter.IsSelfClosingTag tag then
                     ctx.Writer.Write(HtmlTextWriter.SelfClosingTagEnd)
                 else
@@ -746,10 +759,10 @@ type Runtime private () =
                         )
                     ctx.Writer.WriteEndTag(tag)
             and writeNode parent plain = function
-                | Node.Element (tag, _, attrs, children) ->
-                    writeElement (Option.isNone parent) plain tag attrs None children
-                | Node.Input (tag, holeName, attrs, children) ->
-                    let doPlain() = writeElement (Option.isNone parent) plain tag attrs (Some holeName) children
+                | Node.Element (tag, _, attrs, domAttr, children) ->
+                    writeElement (Option.isNone parent) plain tag attrs None children domAttr
+                | Node.Input (tag, holeName, attrs, domAttr, children) ->
+                    let doPlain() = writeElement (Option.isNone parent) plain tag attrs (Some holeName) children domAttr
                     if plain then doPlain() else
                     let wsVar, attrs =
                         match ctx.FillWith.TryGetValue holeName with
@@ -763,7 +776,7 @@ type Runtime private () =
                             Some (if String.IsNullOrEmpty id then n else id + "::" + n), attrs
                         | _ ->
                             Some holeName, attrs
-                    writeElement (Option.isNone parent) plain tag attrs wsVar children
+                    writeElement (Option.isNone parent) plain tag attrs wsVar children domAttr
                 | Node.Text text ->
                     writeStringParts text ctx.Writer
                 | Node.DocHole holeName ->

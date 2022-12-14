@@ -51,6 +51,12 @@ module internal Templates =
             if isNull (p.Closest("[ws-preserve]")) then
                 f p
 
+    [<Require(typeof<Resources.Closest>)>]
+    let foreachNotPreservedwsDOM (selector: string) (f: Dom.Element -> unit) =
+        DomUtility.IterSelectorDoc selector <| fun p ->
+            if isNull (p.Closest("[ws-preserve]")) then
+                f p
+
     let InlineTemplate (el: Dom.Element) (fillWith: seq<TemplateHole>) =
         let holes : DocElemNode[] = [||]
         let updates : View<unit>[] = [||]
@@ -202,6 +208,44 @@ module internal Templates =
             | true, _ -> Console.Warn("Var hole filled with non-Var data", name)
             | false, _ -> ()
 
+        let wsdomHandling () =
+            foreachNotPreservedwsDOM "[ws-dom]" <| fun e ->
+                let name = e.GetAttribute("ws-dom")
+                match fw.TryGetValue(name.ToLower()) with
+                | true, TemplateHole.VarDomElement(_, var) ->
+                    e.RemoveAttribute("ws-dom")
+                    let mutable toWatch = e
+                    let mo =
+                        JavaScript.Dom.MutationObserver(
+                            (fun (mrs, mo) ->
+                                mrs
+                                |> Array.iter (fun mr ->
+                                    mr.RemovedNodes.ForEach((fun (x, _, _, _) ->
+                                        if x ===. toWatch && mr.AddedNodes.Length <> 1 then
+                                            var.SetFinal None
+                                            mo.Disconnect()
+                                    ), null)
+                                )
+                            )
+                        )
+                    if e.ParentElement !==. null then
+                        mo.Observe(e.ParentElement, Dom.MutationObserverInit(ChildList = true))
+                    var.Set (Some e)
+                    var.View
+                    |> View.Sink (fun nel ->
+                        match nel with
+                        | None ->
+                            toWatch.Remove()
+                            mo.Disconnect()
+                        | Some nel ->
+                            if toWatch ===. nel then
+                                ()
+                            else
+                                toWatch.ReplaceWith nel
+                                toWatch <- nel
+                    )
+                | _ -> ()
+
         foreachNotPreserved el "[ws-attr-holes]" <| fun e ->
             let re = new RegExp(TextHoleRE, "g")
             let holeAttrs = e.GetAttribute("ws-attr-holes").Split([|' '|], StringSplitOptions.RemoveEmptyEntries)
@@ -263,8 +307,10 @@ module internal Templates =
                 Attrs = attrs
                 Render =
                     if Array.isEmpty afterRender
-                    then None
-                    else Some (fun el -> Array.iter (fun f -> f el) afterRender)
+                    then Some (fun el ->
+                        wsdomHandling ()
+                    )
+                    else Some (fun el -> wsdomHandling (); Array.iter (fun f -> f el) afterRender)
                 Dirty = true
                 El =
                     match els with

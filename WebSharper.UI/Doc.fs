@@ -386,6 +386,7 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
     | VarBool of name: string * fillWith: Var<bool>
     | VarDateTime of name: string * fillWith: Var<System.DateTime>
     | VarFile of name: string * fillWith: Var<File array>
+    | VarDomElement of name: string * fillWith: Var<Dom.Element option>
     | VarInt of name: string * fillWith: Var<Client.CheckedInput<int>>
     | VarIntUnchecked of name: string * fillWith: Var<int>
     | VarFloat of name: string * fillWith: Var<Client.CheckedInput<float>>
@@ -505,6 +506,7 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
         | TemplateHole.VarIntUnchecked (name, _)
         | TemplateHole.VarFloat (name, _)
         | TemplateHole.VarFloatUnchecked (name, _)
+        | TemplateHole.VarDomElement (name, _)
         | TemplateHole.UninitVar (name, _)
         | TemplateHole.Event (name, _)
         | TemplateHole.EventQ (name, _)
@@ -528,6 +530,7 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
         | TemplateHole.VarIntUnchecked (name, v) -> box v
         | TemplateHole.VarFloat (name, v) -> box v
         | TemplateHole.VarFloatUnchecked (name, v) -> box v
+        | TemplateHole.VarDomElement (name, v) -> box v
         | TemplateHole.UninitVar (name, v) -> box v
         | TemplateHole.Event (name, v) -> box v
         | TemplateHole.EventQ (name, v) -> box v
@@ -551,6 +554,7 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
         | TemplateHole.VarIntUnchecked (_, v) -> TemplateHole.VarIntUnchecked(n, v)
         | TemplateHole.VarFloat (_, v) -> TemplateHole.VarFloat(n, v)
         | TemplateHole.VarFloatUnchecked (_, v) -> TemplateHole.VarFloatUnchecked(n, v)
+        | TemplateHole.VarDomElement (_, v) -> TemplateHole.VarDomElement(n, v)
         | TemplateHole.UninitVar (_, v) -> TemplateHole.UninitVar(n, v)
         | TemplateHole.Event (_, v) -> TemplateHole.Event(n, v)
         | TemplateHole.EventQ (_, v) -> TemplateHole.EventQ(n, v)

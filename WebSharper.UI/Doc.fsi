@@ -569,6 +569,7 @@ type TemplateHole =
     | VarBool of name: string * fillWith: Var<bool>
     | VarDateTime of name: string * fillWith: Var<System.DateTime>
     | VarFile of name: string * fillWith: Var<File array>
+    | VarDomElement of name: string * fillWith: Var<Dom.Element option>
     | VarInt of name: string * fillWith: Var<Client.CheckedInput<int>>
     | VarIntUnchecked of name: string * fillWith: Var<int>
     | VarFloat of name: string * fillWith: Var<Client.CheckedInput<float>>
