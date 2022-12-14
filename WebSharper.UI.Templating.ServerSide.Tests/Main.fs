@@ -45,6 +45,12 @@ module Client =
             .Opacity(Var.Create (float init.Length / 10.))
             .Doc()
 
+    let HtmlTemplate () =
+        MainTemplate.Main.HTML5Template()
+            .A("This is populated from: ")
+            .Default("HTML5 based template")
+            .Doc()
+
     let MainHydrated (init: string) =
         if IsClient then
             MainTemplate.Main.ClientTemplate()
@@ -105,6 +111,13 @@ let Main = Application.SinglePage(fun ctx ->
                     .Doc()
                 ])
             .Click(fun e -> JavaScript.JS.Set e.Target "wsuiDispatched5" true)
+            .HtmlTemplateFromClient(client <@ Client.HtmlTemplate() @>)
+            .HtmlTemplateFromServer(
+                MainTemplate.Main.HTML5Template()
+                    .A("HTML5 template from the Server ")
+                    .Default("With a default hole populated")
+                    .Doc()
+            )
             .Client(
                 [
                     Doc.ClientSide <@ Client.Main("green") @>

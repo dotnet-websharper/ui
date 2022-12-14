@@ -27,6 +27,7 @@ open WebSharper.UI.Html
 open WebSharper.UI.Notation
 open WebSharper.UI.Client
 open WebSharper.UI.Templating
+open WebSharper.UI.Client
 
 [<JavaScript>]
 module Client =
@@ -291,6 +292,18 @@ module Client =
             .AfterRender(fun (e: Runtime.Server.TemplateEvent<MyTemplate.index.Vars, MyTemplate.index.Anchors, _>) ->
                 Console.Log("OnAfterRender TemplateEvent overload on client-side should render.")
                 Console.Log("Header restrieved via ws-anchor", e.Anchors.Header)
+                let x =
+                    MyTemplate.index.HTML5Template()
+                        .Default("Hello")
+                        .ThisIsOk("This is ok")
+                        .Text()
+                Console.Log("HTML5 template text", x)
+                let y =
+                    MyTemplate.index.HTML5Template()
+                        .Default("Hello")
+                        .ThisIsOk("This is ok")
+                        .Content()
+                Console.Log("HTML5 template content", y)
                 e.Target.TextContent <- "[OK] This replaces text with ws-onafterrender.")
             .InputMouseEnter(fun e ->
                 e.Vars.Input := "[OK]"
@@ -355,6 +368,12 @@ module Client =
                         Doc.Button "Disable/Enable loop" [] (fun () -> Var.Update loopVar not)
                     ]
                 ]
+            )
+            .``imAHtml5-Template``(
+                MyTemplate.index.HTML5Template()
+                    .ThisIsOk(text "From the client side: ")
+                    .Default(text "An html5 template")
+                    .Doc()
             )
             .Bind()
 
