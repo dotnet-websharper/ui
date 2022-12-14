@@ -314,7 +314,7 @@ module Impl =
         | null ->
             match n.Attributes[DomAttr] with
             | null ->
-                Node.Element (n.Name, isSvg, attrs, children.Value)
+                Node.Element (n.Name, isSvg, attrs, None, children.Value)
             | domattr ->
                 state.AddHole domattr.Value
                     {
@@ -322,14 +322,17 @@ module Impl =
                         HoleDefinition.Line = domattr.Line
                         HoleDefinition.Column = domattr.LinePosition + domattr.Name.Length
                     }
-                Node.Element (n.Name, isSvg, attrs, children.Value)
+                Node.Element (n.Name, isSvg, attrs, Some domattr.Value, children.Value)
         | varAttr ->
+            let domAttr = n.Attributes[DomAttr]
+            let isDomAttr = domAttr <> null
+            let domAttrO = if isDomAttr then Some domAttr.Value else None
             state.AddHole varAttr.Value {
                 HoleDefinition.Kind = HoleKind.Var (varTypeOf n)
                 HoleDefinition.Line = varAttr.Line
                 HoleDefinition.Column = varAttr.LinePosition + varAttr.Name.Length
             }
-            Node.Input (n.Name, varAttr.Value, attrs, children.Value)
+            Node.Input (n.Name, varAttr.Value, attrs, domAttrO, children.Value)
 
     and (|Preserve|_|) isSvg (n: HtmlNode) =
         match n.GetAttributeValue("ws-preserve", null) with
@@ -346,7 +349,7 @@ module Impl =
             let isSvg = isSvg || n.Name = "svg"
             let attrs = [| for a in n.Attributes -> Attr.Simple(a.Name, a.Value) |]
             let children = [| for c in n.ChildNodes -> preservedElement c isSvg |]
-            Node.Element(n.Name, isSvg, attrs, children)
+            Node.Element(n.Name, isSvg, attrs, None, children)
 
     and (|Instantiation|_|) (state: ParseState) (node: HtmlNode) =
         if node.Name.StartsWith "ws-" then
@@ -406,7 +409,9 @@ module Impl =
                 let thisIsSvg = isSvg || node.Name = "svg"
                 if isInsideDomAttr && node.Attributes |> Seq.exists (fun a -> a.Name.StartsWith "ws-") then
                     eprintfn "WebSharper.UI warning WS9002: A ws-dom attribute can affect the functionality of this template artifact"
-                let isDomAttr = node.Attributes[DomAttr] <> null
+                let domAttr = node.Attributes[DomAttr]
+                let isDomAttr = domAttr <> null
+                let domAttrO = if isDomAttr then Some domAttr.Value else None
                 match node.Attributes[ReplaceAttr] with
                 | null ->
                     let children =
@@ -434,13 +439,13 @@ module Impl =
                         | holeAttr ->
                             state.AddSpecialHole(SpecialHole.FromName holeAttr.Value)
                             addHole' holeAttr.Value HoleKind.Doc
-                            [| Node.DocHole holeAttr.Value |]
+                            [| Node.DocHole (holeAttr.Value) |]
                     let doc = normalElement node thisIsSvg children state
                     Some ([| doc |], (isSvg, node.NextSibling))
                 | replaceAttr ->
                     state.AddSpecialHole(SpecialHole.FromName replaceAttr.Value)
                     addHole' replaceAttr.Value HoleKind.Doc
-                    Some ([| Node.DocHole replaceAttr.Value |], (isSvg, node.NextSibling))
+                    Some ([| Node.DocHole (replaceAttr.Value) |], (isSvg, node.NextSibling))
         )
         |> Array.concat
 
@@ -560,6 +565,9 @@ module Impl =
                 IsHtml5Template = false
             }
         | hole ->
+            let domAttr = n.Attributes[DomAttr]
+            let isDomAttr = domAttr <> null
+            let domAttrO = if isDomAttr then Some domAttr.Value else None
             let holeName = hole.Value
             let state = ParseState(fileId)
             state.AddHole holeName {

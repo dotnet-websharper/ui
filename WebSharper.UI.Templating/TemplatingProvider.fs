@@ -337,7 +337,7 @@ module private Impl =
     let VarDomElementHoleMethods hole resTy ctx =
         let mkVar wrapArg = BuildMethodVar hole resTy ctx wrapArg
         [
-            yield! mkVar <| fun b name (x: Expr<Var<WebSharper.JavaScript.Dom.Element>>) ->
+            yield! mkVar <| fun b name (x: Expr<Var<WebSharper.JavaScript.Dom.Element option>>) ->
                 <@ (%b).With(%name, %x) @>
         ]
 
@@ -522,7 +522,7 @@ module private Impl =
                 let holeName' = holeName.ToLowerInvariant()
                 match def.Kind with
                 | HoleKind.Var ValTy.DomElement ->
-                    yield ProvidedProperty(holeName, typeof<Var<DomElement>>, fun x ->
+                    yield ProvidedProperty(holeName, typeof<Var<DomElement option>>, fun x ->
                         <@@ ((%%x[0] : obj) :?> TI).Hole holeName' |> TemplateHole.Value @@>)
                         .WithXmlDoc(XmlDoc.Member.Anchor holeName)
                 | _ -> ()
@@ -545,7 +545,7 @@ module private Impl =
         let id = ctx.Name |> Option.defaultValue "" |> Expr.Value
         <@@ 
             let tryFindById = (WebSharper.JavaScript.JS.Document.GetElementById(%%id))   
-            if tryFindById = null then
+            if tryFindById <> null then
                 (tryFindById :?> WebSharper.JavaScript.HTMLTemplateElement).Content
             else
                 (WebSharper.JavaScript.JS.Document.QuerySelector(sprintf "template[name=\"%s\"]" %%id) :?> WebSharper.JavaScript.HTMLTemplateElement).Content

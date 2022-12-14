@@ -176,7 +176,7 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
             |]
         | HoleKind.Var ValTy.DomElement ->
             [|
-                sv "Var<JavaScript.Dom.Element>" "VarDomElement" "x"
+                sv "Var<FSharpOption<JavaScript.Dom.Element>>" "VarDomElement" "x"
             |]
         | HoleKind.Mapped (kind = k) -> build k
         | HoleKind.Unknown -> failwithf "Error: Unknown HoleKind: %s" holeName
@@ -268,7 +268,7 @@ let anchorsClass (ctx: Ctx) =
                 let holeName' = holeName.ToLowerInvariant()
                 match holeDef.Kind with
                 | HoleKind.Var AST.ValTy.DomElement ->
-                    yield sprintf """[Inline] public Var<JavaScript.Dom.Element> %s => (Var<JavaScript.Dom.Element>)TemplateHole.Value((As<Instance>(this)).Hole("%s"));""" holeName holeName'
+                    yield sprintf """[Inline] public Var<FSharpOption<JavaScript.Dom.Element>> %s => (Var<FSharpOption<JavaScript.Dom.Element>>)TemplateHole.Value((As<Instance>(this)).Hole("%s"));""" holeName holeName'
                 | _ -> ()
         ]
         yield "}"

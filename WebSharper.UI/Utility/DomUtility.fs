@@ -138,6 +138,10 @@ module DomUtility =
         let l = el.QuerySelectorAll(selector)
         for i = 0 to l.Length - 1 do f (l[i] :?> Dom.Element)
 
+    let IterSelectorDoc (selector: string) (f: Dom.Element -> unit) =
+        let l = JS.Document.QuerySelectorAll(selector)
+        for i = 0 to l.Length - 1 do f (l[i] :?> Dom.Element)
+
     let private rxhtmlTag = RegExp("""<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>""", "gi")
     let private rtagName = RegExp("""<([\w:]+)""")
     let private rhtml = RegExp("""<|&#?\w+;""")
