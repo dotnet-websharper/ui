@@ -122,14 +122,15 @@ module private Internal =
                                                 "WebSharper.Json.Activate(" + s + ")"
                                             | _ -> s
                         findArgs Set.empty setArg q
-                        let addr =
-                            match c.Methods.TryGetValue meth with
-                            | true, (M.CompiledMember.Static x, _, _) -> x.Value
-                            | _ -> failwithf "Error in Handler: Couldn't find JavaScript address for method %s.%s" declType.Value.FullName meth.Value.MethodName
-                        let funcall = String.concat "." (List.rev addr)
+                        //let addr =
+                        //    match c.Methods.TryGetValue meth with
+                        //    | true, (M.CompiledMember.Static x, _, _, _) -> x.Value
+                        //    | _ -> failwithf "Error in Handler: Couldn't find JavaScript address for method %s.%s" declType.Value.FullName meth.Value.MethodName
+                        //let funcall = String.concat "." (List.rev addr)
                         let write (json: J.Provider) =
                             let args = String.concat "," (args |> Seq.map (fun a -> a json))
-                            sprintf "%s(%s)" funcall args
+                            //sprintf "%s(%s)" funcall args
+                            "TODO()"
                         Some write
             | None -> None
         compile' q
@@ -287,14 +288,30 @@ type Attr =
             match value.Value with
             | None ->
                 match meta.Classes.TryGetValue declType with
-                | true, c ->
-                    let addr =
-                        match c.Methods.TryGetValue meth with
-                        | true, (M.CompiledMember.Static x, _, _) -> x.Value
-                        | _ -> fail()
-                    let s = String.concat "." (List.rev addr) |> doCall
-                    value.Value <- Some s
-                    s
+                | true, (clAddr, _, Some c) ->
+                    //let addr =
+                    //    match c.Methods.TryGetValue meth with
+                    //    | true, (info, _, _, _) ->
+                    //        match info with
+                    //        | M.CompiledMember.Static (name, Core.AST.MemberKind.Simple) ->
+                    //            clAddr.Sub(name)
+                    //        | M.CompiledMember.GlobalFunc addr ->
+                    //            addr
+                    //        | M.CompiledMember.Func name ->
+                    //            { clAddr with Address = Core.AST.PlainAddress [ name ] }
+                    //        | _ -> fail()
+                    //    | _ -> fail()
+                    //let s = 
+                    //    match addr.Module with
+                    //    | Core.AST.Module.JavaScriptFile _
+                    //    | Core.AST.Module.StandardLibrary ->
+                    //        String.concat "." (List.rev addr.Address.Value) |> doCall
+                    //    | Core.AST.Module.JavaScriptModule m ->
+                    //        // ((...args) => import('./file1.js').then(m => m.Show(...args)))
+                    //    | _ -> fail()
+                    //value.Value <- Some s
+                    //s
+                    "TODO()"
                 | _ -> fail()
             | Some v -> v
         func, reqs :> seq<_>
