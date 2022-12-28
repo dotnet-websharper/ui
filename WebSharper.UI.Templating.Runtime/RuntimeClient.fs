@@ -121,14 +121,13 @@ type GetOrLoadTemplateMacro() =
 
     override this.TranslateCall(call) =
         let comp = call.Compilation
-        let top = comp.AssemblyName.Replace(".","$") + "_Templates"
         let keyOf src =
             match src with
             | I.Value (String s) -> 
                 M.StringEntry s
             | _ -> failwith "Expecting a string value for src argument"
         let rec loadRef inlineBaseName = function
-            | I.NewArray [I.Value (String baseName); name; src] ->
+            | I.NewTuple ([I.Value (String baseName); name; src], _) ->
                 let td, m = getOrAddFunc baseName name src (NewArray []) inlineBaseName
                 Call(None, NonGeneric td, NonGeneric m, [])
             | _ -> failwith "Expecting an array of 3-tuple literals for refs argument"
@@ -139,13 +138,13 @@ type GetOrLoadTemplateMacro() =
             | _ ->
                 let loadRefs =
                     match refs with
-                    | I.NewArray ls -> List.map (loadRef inlineBaseName) ls
+                    | I.NewTuple (ls, _) -> List.map (loadRef inlineBaseName) ls
                     | x -> failwithf "Expecting an array literal for refs argument, got %A" x
                 let n =
                     match ExtractOption name with
                     | Some (I.Value (String n)) -> n
                     | _ -> "t"
-                let td, m, _ = comp.NewGenerated [ top; n ]
+                let td, m, _ = comp.NewGenerated n
                 let holesId = Id.New "h"
                 let nameId = Id.New "n"
                 let expr =
@@ -175,7 +174,7 @@ type GetOrLoadTemplateMacro() =
                                 )
                             )]
                     )
-                comp.AddGeneratedCode(m, Lambda([ holesId ], Let(nameId, name, expr)))
+                comp.AddGeneratedCode(m, Lambda([ holesId ], None, Let(nameId, name, expr)))
                 comp.AddMetadataEntry(meKey, M.CompositeEntry [ M.TypeDefinitionEntry td; M.MethodEntry m ])
                 td, m
         match call.Arguments with

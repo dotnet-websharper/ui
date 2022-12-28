@@ -149,7 +149,7 @@ and private RouteMapBuilderMacro() =
             | None -> failwithf "Endpoint type must have JavaScript translation: %s" t.AssemblyQualifiedName
             | Some cls ->
                 if cls.Constructors.ContainsKey defaultCtor 
-                then Lambda([], Ctor (ct, defaultCtor, [])), ct.Entity, info.Value
+                then Lambda([], None, Ctor (ct, defaultCtor, [])), ct.Entity, info.Value
                 else failwithf "Endpoint type must have a default constructor: %s" t.AssemblyQualifiedName
         // TODO: handle TupleType etc
         | _ -> failwithf "Generic endpoint type not supported for routing: %s" t.AssemblyQualifiedName
@@ -209,7 +209,7 @@ and private RouteMapBuilderMacro() =
                     }
                 let x = Id.New()
                 MetaSequence (
-                    Lambda([x], Call (None, arrayModule, Generic fromArray [itemT], [Var x])),
+                    Lambda([x], None, Call (None, arrayModule, Generic fromArray [itemT], [Var x])),
                     itemT
                 )
             else
@@ -292,7 +292,7 @@ and private RouteMapBuilderMacro() =
                             |> List.ofArray
                         MetaObject (ctor, name, args)
         | ArrayType (t, 1) ->
-            MetaSequence((let x = Id.New() in Lambda([x], Var x)), t)
+            MetaSequence((let x = Id.New() in Lambda([x], None, Var x)), t)
         | TupleType (ts, _) ->
             MetaTuple ts
         | t -> failwithf "Type not supported by RouteMap: %s" t.AssemblyQualifiedName
@@ -304,7 +304,7 @@ and private RouteMapBuilderMacro() =
                 [
                     (let x = Id.New()
                      let y = Id.New()
-                     Lambda ([x; y],
+                     Lambda ([x; y], None, 
                         Call (None, NonGeneric parsersT, NonGeneric parse, [Var x; Var y])))
                 ]
             )
@@ -362,9 +362,9 @@ and private RouteMapBuilderMacro() =
                 let action = Id.New()
                 let routeShape = getRouteShape targ |> convertRouteShape
                 Let (mk, Call (None, routeItemParsersT, makeLinkM, [routeShape]),
-                    Lambda ([action],
+                    Lambda ([action], None,
                         Conditional (TypeCheck (Var action, targ),
-                            some (listOf stringT) (Application (Var mk, [Var action], Pure, Some 1)),
+                            some (listOf stringT) (Appl (Var mk, [Var action], Pure, Some 1)),
                             none (listOf stringT)
                         )
                     )
@@ -376,9 +376,9 @@ and private RouteMapBuilderMacro() =
                 let go = Id.New()
                 let action = Id.New()
                 let render = c.Arguments[0]
-                Lambda([go; action],
+                Lambda([go; action], None,
                     Conditional (TypeCheck (Var action, targ),
-                        some targ (Application (render, [Var go; Var action], Pure, Some 2)),
+                        some targ (Appl (render, [Var go; Var action], Pure, Some 2)),
                         none targ
                     )
                 )
