@@ -63,6 +63,12 @@
   <ItemGroup>
     <ProjectReference Include="../WebSharper.UI.Templating.Common\WebSharper.UI.Templating.Common.fsproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="WebSharper.MathJS" Version="6.1.1.252" />
+    <PackageReference Update="WebSharper">
+      <Version>6.1.1.252</Version>
+    </PackageReference>
+  </ItemGroup>
   <Import Project="..\paket-files\wsbuild\github.com\dotnet-websharper\build-script\WebSharper.Fake.targets" Condition="Exists('..\paket-files\wsbuild\github.com\dotnet-websharper\build-script\WebSharper.Fake.targets')" />
   <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

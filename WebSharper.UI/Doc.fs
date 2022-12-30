@@ -391,6 +391,8 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
     | VarIntUnchecked of name: string * fillWith: Var<int>
     | VarFloat of name: string * fillWith: Var<Client.CheckedInput<float>>
     | VarFloatUnchecked of name: string * fillWith: Var<float>
+    | VarDecimal of name: string * fillWith: Var<Client.CheckedInput<decimal>>
+    | VarDecimalUnchecked of name: string * fillWith: Var<decimal>
     | UninitVar of name: string * key: string
 
     [<Inline>]
@@ -492,6 +494,22 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
     static member MakeVar(name: string, var: Var<float>) =
         VarFloatUnchecked(name, var)
 
+    [<Macro(typeof<Macros.TemplateVar>); Inline>]
+    static member MakeVarLens(name: string, v: Client.CheckedInput<decimal>) =
+        VarDecimal(name, Var.Create v)
+
+    [<Inline>]
+    static member MakeVar(name: string, var: Var<Client.CheckedInput<decimal>>) =
+        VarDecimal(name, var)
+        
+    [<Macro(typeof<Macros.TemplateVar>); Inline>]
+    static member MakeVarLens(name: string, v: decimal) =
+        VarDecimalUnchecked(name, Var.Create v)
+
+    [<Inline>]
+    static member MakeVar(name: string, var: Var<decimal>) =
+        VarDecimalUnchecked(name, var)
+
     [<Inline "$x.$0">]
     static member Name x =
         match x with
@@ -506,6 +524,8 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
         | TemplateHole.VarIntUnchecked (name, _)
         | TemplateHole.VarFloat (name, _)
         | TemplateHole.VarFloatUnchecked (name, _)
+        | TemplateHole.VarDecimal (name, _)
+        | TemplateHole.VarDecimalUnchecked (name, _)
         | TemplateHole.VarDomElement (name, _)
         | TemplateHole.UninitVar (name, _)
         | TemplateHole.Event (name, _)
@@ -530,6 +550,8 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
         | TemplateHole.VarIntUnchecked (name, v) -> box v
         | TemplateHole.VarFloat (name, v) -> box v
         | TemplateHole.VarFloatUnchecked (name, v) -> box v
+        | TemplateHole.VarDecimal (name, v) -> box v
+        | TemplateHole.VarDecimalUnchecked (name, v) -> box v
         | TemplateHole.VarDomElement (name, v) -> box v
         | TemplateHole.UninitVar (name, v) -> box v
         | TemplateHole.Event (name, v) -> box v
@@ -554,6 +576,8 @@ and [<RequireQualifiedAccess; JavaScript false>] TemplateHole =
         | TemplateHole.VarIntUnchecked (_, v) -> TemplateHole.VarIntUnchecked(n, v)
         | TemplateHole.VarFloat (_, v) -> TemplateHole.VarFloat(n, v)
         | TemplateHole.VarFloatUnchecked (_, v) -> TemplateHole.VarFloatUnchecked(n, v)
+        | TemplateHole.VarDecimal (_, v) -> TemplateHole.VarDecimal(n, v)
+        | TemplateHole.VarDecimalUnchecked (_, v) -> TemplateHole.VarDecimalUnchecked(n, v)
         | TemplateHole.VarDomElement (_, v) -> TemplateHole.VarDomElement(n, v)
         | TemplateHole.UninitVar (_, v) -> TemplateHole.UninitVar(n, v)
         | TemplateHole.Event (_, v) -> TemplateHole.Event(n, v)

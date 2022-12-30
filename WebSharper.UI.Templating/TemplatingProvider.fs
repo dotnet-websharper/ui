@@ -302,6 +302,14 @@ module private Impl =
                 <@ (%b).With(%name, %x) @>
             yield mk <| fun b name (x: Expr<CheckedInput<float>>) ->
                 <@ (%b).With(TemplateHole.MakeVarLens(%name, %x)) @>
+            yield! mkVar <| fun b name (x: Expr<Var<decimal>>) ->
+                <@ (%b).With(%name, %x) @>
+            yield mk <| fun b name (x: Expr<decimal>) ->
+                <@ (%b).With(TemplateHole.MakeVarLens(%name, %x)) @>
+            yield! mkVar <| fun b name (x: Expr<Var<CheckedInput<decimal>>>) ->
+                <@ (%b).With(%name, %x) @>
+            yield mk <| fun b name (x: Expr<CheckedInput<decimal>>) ->
+                <@ (%b).With(TemplateHole.MakeVarLens(%name, %x)) @>
         ]
 
     let VarBoolHoleMethods hole resTy ctx =
