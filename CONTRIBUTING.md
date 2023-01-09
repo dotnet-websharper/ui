@@ -33,6 +33,44 @@ To compile this project, you need the following installed:
 
 * The .NET SDK 6.0.10 or newer. You can download it [here](https://www.microsoft.com/net/download).
 
+<a name="devenv"></a>
+### Setting up your development environment
+
+We recommend that you use one of the following development environments:
+
+* On Windows: [Visual Studio 2022](https://visualstudio.microsoft.com/vs/).
+* On all platforms: [Visual Studio Code](https://code.visualstudio.com/) with the following extensions:
+  * `ionide-fsharp` for F# support
+  * `ms-vscode.csharp` for C# support
+
+<a name="websharper-packages"></a>
+### Configure WebSharper packages
+There are two options:
+* WebSharper GitHub packages feed
+* Locally built WebSharper packages
+
+<a name="githubfeed"></a>
+### Configure GitHub packages feed
+To get non-public builds of WebSharper, you need to access GitHub packages which requires a Personal Access Token (PAT).
+
+Create a new token ensuring it has the read:packages scope [like this](https://docs.github.com/pt/packages/learn-github-packages/introduction-to-github-packages#authenticating-to-github-packages).
+
+You can test your PAT by accessing https://nuget.pkg.github.com/dotnet-websharper/index.json and providing your github user name and the PAT as the password.
+
+Then to configure Paket source authentication, run:
+* `dotnet tool restore`
+* `dotnet paket config add-credentials https://nuget.pkg.github.com/dotnet-websharper/index.json --username <ghUser> --password <PAT>` (use your GitHub user name and PAT)
+
+To add WebSharper GitHub packages as a nuget source to browse from Visual Studio, run:
+* `dotnet nuget add source https://nuget.pkg.github.com/dotnet-websharper/index.json --name dotnet-websharper-GitHub --username <ghUser> --password <PAT>`
+
+<a name="localws"></a>
+### Use locally built WebSharper packages
+
+* Clone `core` and `ui` repos under the same root, also create a third sub-directory called `localnuget`.
+* Build WebSharper with `build ws-package` then copy all `build/*.nupkg` files to `localnuget`.
+* Run `build ws-update` in the `ui` folder. Now it is using your local WebSharper build.
+
 <a name="build-cli"></a>
 ### Building from the command line
 
@@ -66,36 +104,6 @@ The following options are available:
 * `build [TARGET] -ef verbose`
 
     Makes compilation more verbose. Equivalently, set the `verbose` environment variable to `true`.
-
-<a name="devenv"></a>
-### Setting up your development environment
-
-We recommend that you use one of the following development environments:
-
-* On Windows: [Visual Studio 2022](https://visualstudio.microsoft.com/vs/).
-* On all platforms: [Visual Studio Code](https://code.visualstudio.com/) with the following extensions:
-  * `ionide-fsharp` for F# support
-  * `ms-vscode.csharp` for C# support
-
-<a name="githubfeed"></a>
-### Configure GitHub packages feed
-
-To get non-public builds of WebSharper, you need to access GitHub packages which requires a Personal Access Token (PAT).
-Create a PAT on GitHub [like this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
-
-Then to configure Paket source authentication, run:
-* `dotnet tool restore`
-* `dotnet paket config add-credentials https://nuget.pkg.github.com/dotnet-websharper/index.json --username <ghUser> --password <PAT>` (use your GitHub user name and PAT)
-
-To add WebSharper GitHub packages as a nuget source to browse from Visual Studio, run:
-* `dotnet nuget add source https://nuget.pkg.github.com/dotnet-websharper/index.json --name dotnet-websharper-GitHub --username <ghUser> --password <PAT>`
-
-<a name="localws"></a>
-### Use locally built WebSharper packages
-
-* Clone `core` and `ui` repos under the same root, also create a third sub-directory called `localnuget`.
-* Build WebSharper with `build ws-package` then copy all `build/*.nupkg` files to `localnuget`.
-* Run `build ws-update` in the `ui` folder. Now it is using your local WebSharper build.
 
 <a name="tests"></a>
 ### Running the tests
