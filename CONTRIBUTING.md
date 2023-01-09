@@ -53,7 +53,7 @@ There are two options:
 ### Configure GitHub packages feed
 To get non-public builds of WebSharper, you need to access GitHub packages which requires a Personal Access Token (PAT).
 
-Create a new token ensuring it has the read:packages and write:packages scope [like this](https://docs.github.com/pt/packages/learn-github-packages/introduction-to-github-packages#authenticating-to-github-packages).
+Create a new token ensuring it has the read:packages scope [like this](https://docs.github.com/pt/packages/learn-github-packages/introduction-to-github-packages#authenticating-to-github-packages).
 
 You can test your PAT by accessing https://nuget.pkg.github.com/dotnet-websharper/index.json and providing your github user name and the PAT as the password.
 
