@@ -21,11 +21,6 @@
 	  <PrivateAssets>all</PrivateAssets>
 	</ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Update="WebSharper">
-      <Version>6.1.1.252</Version>
-    </PackageReference>
-  </ItemGroup>
   <Import Project="..\paket-files\wsbuild\github.com\dotnet-websharper\build-script\WebSharper.Fake.targets" Condition="Exists('..\paket-files\wsbuild\github.com\dotnet-websharper\build-script\WebSharper.Fake.targets')" />
   <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

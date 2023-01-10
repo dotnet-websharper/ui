@@ -29,11 +29,6 @@
     <ProjectReference Include="../WebSharper.UI.CSharp\WebSharper.UI.CSharp.fsproj" />
     <ProjectReference Include="../WebSharper.UI.Templating.Runtime\WebSharper.UI.Templating.Runtime.fsproj" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Update="WebSharper">
-      <Version>6.1.1.252</Version>
-    </PackageReference>
-  </ItemGroup>
   <Import Project="..\msbuild\WebSharper.UI.CSharp.targets" />
   <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

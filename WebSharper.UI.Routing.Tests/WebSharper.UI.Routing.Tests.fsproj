@@ -20,11 +20,6 @@
     <ProjectReference Include="..\WebSharper.UI.CSharp.Tests\WebSharper.UI.CSharp.Tests.csproj" />
     <ProjectReference Include="..\WebSharper.UI\WebSharper.UI.fsproj" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Update="WebSharper">
-      <Version>6.1.1.252</Version>
-    </PackageReference>
-  </ItemGroup>
   <Target Name="IncludeContent" BeforeTargets="Compile">
     <ItemGroup>
       <Content Include="Content/**/*.*" />
