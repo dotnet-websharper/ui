@@ -11,6 +11,7 @@ nuget WebSharper.CSharp ~> 6.0
 nuget WebSharper.FSharp ~> 6.0
 nuget WebSharper.Testing ~> 6.0
 nuget WebSharper.AspNetCore ~> 6.0
+nuget WebSharper.MathJS ~> 6.0
 nuget HtmlAgilityPack 1.11.0
 nuget Microsoft.CodeAnalysis.CSharp ~> 4.0.1
 github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fsi

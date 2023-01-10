@@ -474,6 +474,8 @@ NUGET
       WebSharper (6.1.2.257)
     WebSharper.FSharp (6.1.2.257)
       WebSharper (6.1.2.257)
+    WebSharper.MathJS (6.1.2.257)
+      WebSharper (6.1.2.257)
     WebSharper.Testing (6.1.2.257)
       WebSharper (6.1.2.257)
 GITHUB
@@ -484,7 +486,7 @@ GROUP includes
 REFERENCES: STRICT
 GITHUB
   remote: dotnet-websharper/websharper
-    src/htmllib/tags.csv (db2d834f0151ae409f6cc90bf8cc8928e67236b0)
+    src/htmllib/tags.csv (09eec1ed993f8e1a5f23b140782d96f1f894fec4)
 GROUP wsbuild
 
 GIT
