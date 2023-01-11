@@ -890,9 +890,9 @@ type Runtime private () =
                     ctx.Writer.WriteAttribute(k, v)
                 ctx.Writer.Write(HtmlTextWriter.TagRightChar)
                 for KeyValue(k, v) in attrHoles do
-                    writeElement false true k v None [||]
+                    writeElement false true k v None [||] None
                 for KeyValue(k, v) in contentHoles do
-                    writeElement false true k [||] None v
+                    writeElement false true k [||] None v None
                 textHole |> Option.iter ctx.Writer.WriteEncodedText
                 ctx.Writer.WriteEndTag(tagName)
             Array.iter (fun t -> writeNode None plain t) template.Value

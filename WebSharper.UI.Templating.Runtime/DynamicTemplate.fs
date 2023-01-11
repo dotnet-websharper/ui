@@ -23,3 +23,9 @@ namespace WebSharper.UI.Templating
 /// Fill more holes with .With() and finish it with .Doc().
 type DynamicTemplate(html: string) =
     inherit Runtime.Server.ProviderBuilder(html)
+
+#if !IS_DESIGNTIME
+// Put the TypeProviderAssemblyAttribute in the runtime DLL, pointing to the design-time DLL
+[<assembly:CompilerServices.TypeProviderAssembly("WebSharper.UI.Templating.DesignTime.dll")>]
+do ()
+#endif
