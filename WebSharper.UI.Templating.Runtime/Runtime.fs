@@ -86,6 +86,10 @@ type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
             applyTypedVarHole BindVar.FloatApplyChecked v el
         | TemplateHole.VarFloatUnchecked (_, v) ->
             applyTypedVarHole BindVar.FloatApplyUnchecked v el
+        | TemplateHole.VarDecimal (_, v) ->
+            applyTypedVarHole BindVar.DecimalApplyChecked v el
+        | TemplateHole.VarDecimalUnchecked (_, v) ->
+            applyTypedVarHole BindVar.DecimalApplyUnchecked v el
         | TemplateHole.VarDomElement (_, v) ->
             ()
         | TemplateHole.Elt (n, _)
@@ -253,6 +257,8 @@ type Handler private () =
                 | TemplateHole.VarInt(n, _)
                 | TemplateHole.VarFloatUnchecked(n, _)
                 | TemplateHole.VarFloat(n, _)
+                | TemplateHole.VarDecimalUnchecked(n, _)
+                | TemplateHole.VarDecimal(n, _)
                 | TemplateHole.VarBool(n, _)
                 | TemplateHole.VarDateTime(n, _)
                 | TemplateHole.VarDomElement(n, _)
@@ -306,6 +312,8 @@ type Handler private () =
                         | Some (TemplateHole.VarInt(n, v)) ->
                             (n, t, Option.Some (box v.Value))
                         | Some (TemplateHole.VarFloat(n, v)) ->
+                            (n, t, Option.Some (box v.Value))
+                        | Some (TemplateHole.VarDecimal(n, v)) ->
                             (n, t, Option.Some (box v.Value))
                         | Some (TemplateHole.VarBool(n, v)) ->
                             (n, t, Option.Some (box v.Value))
@@ -463,6 +471,26 @@ type ProviderBuilder =
     /// Fill a hole of the template.
     [<Inline>]
     member this.With(hole: string, value: Client.CheckedInput<float>) =
+        this.With(TemplateHole.MakeVarLens(hole, value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, value: Var<decimal>) =
+        this.With(TemplateHole.VarDecimalUnchecked(hole, value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, value: Var<Client.CheckedInput<decimal>>) =
+        this.With(TemplateHole.VarDecimal(hole, value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, value: decimal) =
+        this.With(TemplateHole.MakeVarLens(hole, value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, value: Client.CheckedInput<decimal>) =
         this.With(TemplateHole.MakeVarLens(hole, value))
 
     /// Fill a hole of the template.

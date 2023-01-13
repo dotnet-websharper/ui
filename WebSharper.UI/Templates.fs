@@ -85,6 +85,8 @@ module internal Templates =
             | true, TemplateHole.VarIntUnchecked (_, v) -> Some (Doc'.TextView (v.View.Map string))
             | true, TemplateHole.VarFloat (_, v) -> Some (Doc'.TextView (v.View.Map (fun i -> i.Input)))
             | true, TemplateHole.VarFloatUnchecked (_, v) -> Some (Doc'.TextView (v.View.Map string))
+            | true, TemplateHole.VarDecimal (_, v) -> Some (Doc'.TextView (v.View.Map (fun i -> i.Input)))
+            | true, TemplateHole.VarDecimalUnchecked (_, v) -> Some (Doc'.TextView (v.View.Map string))
             | true, _ -> Console.Warn("Content hole filled with attribute data", name); None
             | false, _ -> None
 
@@ -205,6 +207,8 @@ module internal Templates =
             | true, TemplateHole.VarIntUnchecked (_, var) -> addAttr e (Attr.IntValueUnchecked var)
             | true, TemplateHole.VarFloat (_, var) -> addAttr e (Attr.FloatValue var)
             | true, TemplateHole.VarFloatUnchecked (_, var) -> addAttr e (Attr.FloatValueUnchecked var)
+            | true, TemplateHole.VarDecimal (_, var) -> addAttr e (Attr.DecimalValue var)
+            | true, TemplateHole.VarDecimalUnchecked (_, var) -> addAttr e (Attr.DecimalValueUnchecked var)
             | true, _ -> Console.Warn("Var hole filled with non-Var data", name)
             | false, _ -> ()
 
@@ -276,6 +280,8 @@ module internal Templates =
                             | true, TemplateHole.VarIntUnchecked (_, v) -> Choice2Of2 (v.View.Map string)
                             | true, TemplateHole.VarFloat (_, v) -> Choice2Of2 (v.View.Map (fun i -> i.Input))
                             | true, TemplateHole.VarFloatUnchecked (_, v) -> Choice2Of2 (v.View.Map string)
+                            | true, TemplateHole.VarDecimal (_, v) -> Choice2Of2 (v.View.Map (fun i -> i.Input))
+                            | true, TemplateHole.VarDecimalUnchecked (_, v) -> Choice2Of2 (v.View.Map string)
                             | true, _ ->
                                 Console.Warn("Attribute value hole filled with non-text data", holeName)
                                 Choice1Of2 ""

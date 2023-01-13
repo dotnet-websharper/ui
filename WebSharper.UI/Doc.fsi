@@ -574,6 +574,8 @@ type TemplateHole =
     | VarIntUnchecked of name: string * fillWith: Var<int>
     | VarFloat of name: string * fillWith: Var<Client.CheckedInput<float>>
     | VarFloatUnchecked of name: string * fillWith: Var<float>
+    | VarDecimal of name: string * fillWith: Var<Client.CheckedInput<decimal>>
+    | VarDecimalUnchecked of name: string * fillWith: Var<decimal>
     | UninitVar of name: string * key: string
 
     static member Name : TemplateHole -> string
@@ -595,6 +597,8 @@ type TemplateHole =
     static member MakeVarLens : name: string * value: int -> TemplateHole
     static member MakeVarLens : name: string * value: Client.CheckedInput<float> -> TemplateHole
     static member MakeVarLens : name: string * value: float -> TemplateHole
+    static member MakeVarLens : name: string * value: Client.CheckedInput<decimal> -> TemplateHole
+    static member MakeVarLens : name: string * value: decimal -> TemplateHole
 
 type DynDoc =
     | AppendDoc of list<Doc>

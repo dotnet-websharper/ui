@@ -126,12 +126,18 @@ module Attr =
 
     /// Gets and sets the value of the element according to a Var.
     val FloatValue : Var<CheckedInput<float>> -> Attr
+    
+    /// Gets and sets the value of the element according to a Var.
+    val DecimalValueUnchecked : Var<decimal> -> Attr
+
+    /// Gets and sets the value of the element according to a Var.
+    val DecimalValue : Var<CheckedInput<decimal>> -> Attr
 
     /// Gets and sets the checked status of the element according to a Var.
     val Checked : Var<bool> -> Attr
 
     /// Add this attribute to any <form> element that contains validation
-    /// (including Doc.IntInput and Doc.FloatInput) for compatibility in Internet Explorer 9 and older.
+    /// (including Doc.IntInput, Doc.FloatInput, and Doc.DecimalInput) for compatibility in Internet Explorer 9 and older.
     val ValidateForm : unit -> Attr
 
 /// Internals used in Doc.
@@ -207,5 +213,13 @@ module BindVar =
     val FloatSetChecked : Set<CheckedInput<float>>
     val FloatGetChecked : Get<CheckedInput<float>>
     val FloatApplyChecked : Apply<CheckedInput<float>>
+    
+    val DecimalSetUnchecked : Set<decimal>
+    val DecimalGetUnchecked : Get<decimal>
+    val DecimalApplyUnchecked : Apply<decimal>
+
+    val DecimalSetChecked : Set<CheckedInput<decimal>>
+    val DecimalGetChecked : Get<CheckedInput<decimal>>
+    val DecimalApplyChecked : Apply<CheckedInput<decimal>>
 
     val BoolCheckedApply : Apply<bool>

@@ -245,6 +245,20 @@ module Doc =
     let FloatInputUncheckedV (attr: seq<Attr>) (var: float) = X<Doc>
 
     [<Inline>]
+    let DecimalInput attr var step: Doc =
+        As (Doc'.DecimalInput attr var step)
+
+    [<Macro(typeof<Macros.InputV>, "DecimalInput")>]
+    let DecimalInputV (attr: seq<Attr>) (var: CheckedInput<decimal>) (step: decimal)= X<Doc>
+
+    [<Inline>]
+    let DecimalInputUnchecked attr var step : Doc =
+        As (Doc'.DecimalInputUnchecked attr var step)
+
+    [<Macro(typeof<Macros.InputV>, "DecimalInputUnchecked")>]
+    let DecimalInputUncheckedV (attr: seq<Attr>) (var: decimal) (step: decimal)= X<Doc>
+    
+    [<Inline>]
     let InputArea attr var : Doc =
         As (Doc'.InputArea attr var)
 
@@ -425,6 +439,20 @@ module Doc =
         let FloatUncheckedV (attr: seq<Attr>) (var: float) = X<Doc>
         
         [<Inline>]
+        let Decimal attr var step : Doc =
+            As (Doc'.DecimalInput attr var step)
+        
+        [<Macro(typeof<Macros.InputV2>, "Decimal")>]
+        let DecimalV (attr: seq<Attr>) (var: CheckedInput<decimal>) (step: decimal) = X<Doc>
+        
+        [<Inline>]
+        let DecimalUnchecked attr var step : Doc =
+            As (Doc'.DecimalInputUnchecked attr var step)
+        
+        [<Macro(typeof<Macros.InputV2>, "DecimalUnchecked")>]
+        let DecimalUncheckedV (attr: seq<Attr>) (var: decimal) (step: decimal) = X<Doc>
+        
+        [<Inline>]
         let TextArea attr var : Doc =
             As (Doc'.InputArea attr var)
         
@@ -502,6 +530,20 @@ module Elt =
 
     [<Macro(typeof<Macros.InputV>, "FloatInputUnchecked")>]
     let FloatInputUncheckedV (attr: seq<Attr>) (var: float) = X<Elt>
+
+    [<Inline>]
+    let DecimalInput attr var step : Elt =
+        As (Doc'.DecimalInput attr var step)
+
+    [<Macro(typeof<Macros.InputV>, "DecimalInput")>]
+    let DecimalInputV (attr: seq<Attr>) (var: CheckedInput<decimal>) (step: decimal) = X<Elt>
+    
+    [<Inline>]
+    let DecimalInputUnchecked attr var step : Elt =
+        As (Doc'.DecimalInputUnchecked attr var step)
+
+    [<Macro(typeof<Macros.InputV>, "DecimalInputUnchecked")>]
+    let DecimalInputUncheckedV (attr: seq<Attr>) (var: decimal) (step: decimal) = X<Elt>
 
     [<Inline>]
     let InputArea attr var : Elt =
@@ -685,6 +727,20 @@ module Elt =
         
         [<Macro(typeof<Macros.InputV2>, "FloatUnchecked")>]
         let FloatUncheckedV (attr: seq<Attr>) (var: float) = X<Elt>
+        
+        [<Inline>]
+        let Decimal attr var step : Elt =
+            As (Doc'.DecimalInput attr var step)
+        
+        [<Macro(typeof<Macros.InputV2>, "Decimal")>]
+        let DecimalV (attr: seq<Attr>) (var: CheckedInput<decimal>) (step: decimal) = X<Elt>
+        
+        [<Inline>]
+        let DecimalUnchecked attr var step : Elt =
+            As (Doc'.DecimalInputUnchecked attr var step)
+        
+        [<Macro(typeof<Macros.InputV2>, "DecimalUnchecked")>]
+        let DecimalUncheckedV (attr: seq<Attr>) (var: decimal) (step: decimal) = X<Elt>
         
         [<Inline>]
         let TextArea attr var : Elt =
