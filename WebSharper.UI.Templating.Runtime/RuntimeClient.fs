@@ -268,7 +268,7 @@ type private HandlerProxy =
         let allVars = Dictionary<string, TemplateHole>()
         let filledVars = HashSet()
         for h in filledHoles do
-            let n = TemplateHole.Name h
+            let n = h.Name
             filledVars.Add(n) |> ignore
             allVars[n] <- h
         let extraHoles =
@@ -277,7 +277,7 @@ type private HandlerProxy =
                 let r =
                     match ty with
                     | Server.ValTy.String ->
-                        Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarStr (name, Var.Create ""))
+                        Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarStr (name, Var.Create "") :> TemplateHole)
                     | Server.ValTy.Number ->
                         Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarFloatUnchecked (name, Var.Create 0.))
                     | Server.ValTy.Bool ->
