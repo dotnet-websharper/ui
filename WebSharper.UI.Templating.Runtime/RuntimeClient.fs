@@ -64,7 +64,7 @@ type private TemplateInstanceProxy(c: Server.CompletedHoles, doc: Doc) =
 
 [<Inline>]
 let AfterRenderQ(name: string, [<JavaScript>] f: Expr<Dom.Element -> unit>) =
-    TemplateHole.AfterRenderQ(name, f)
+    TemplateHole.AfterRenderQ(name, f) :> TemplateHole
 
 [<Inline>]
 let AfterRenderQ2(name: string, [<JavaScript>] f: Expr<unit -> unit>) =
@@ -225,15 +225,15 @@ type private HandlerProxy =
 
     [<Inline>]
     static member AfterRenderClient (holeName: string, [<JavaScript>] f : Dom.Element -> unit) : TemplateHole =
-        TemplateHole.AfterRender (holeName, f)
+        TemplateHole.AfterRender (holeName, f) :> TemplateHole
 
     [<Inline>]
     static member EventClient (holeName: string, [<JavaScript>] f : Dom.Element -> Dom.Event -> unit) : TemplateHole =
-        TemplateHole.Event (holeName, f)
+        TemplateHole.Event (holeName, f) :> TemplateHole
 
     [<Inline>]
     static member EventQ (holeName: string, f: Expr<Dom.Element -> Dom.Event -> unit>) =
-        TemplateHole.EventQ(holeName, f)
+        TemplateHole.EventQ(holeName, f) :> TemplateHole
 
     static member EventQ2<'E when 'E :> DomEvent> (key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, obj, 'E> -> unit>) =
         TemplateHole.EventQ(holeName, <@ fun el ev ->
@@ -245,11 +245,11 @@ type private HandlerProxy =
                     Target = el
                     Event = downcast ev
                 }
-        @>)
+        @>) :> TemplateHole
 
     [<Inline>]
     static member AfterRenderQ (holeName: string, f: Expr<Dom.Element -> unit>) =
-        TemplateHole.AfterRenderQ(holeName, f)
+        TemplateHole.AfterRenderQ(holeName, f) :> TemplateHole
 
     static member AfterRenderQ2(key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, obj, Dom.Event> -> unit>) =
         TemplateHole.AfterRenderQ(holeName, <@ fun el ->
@@ -261,14 +261,14 @@ type private HandlerProxy =
                     Target = el
                     Event = null
                 }
-        @>)
+        @>) :> TemplateHole
 
     [<JavaScript>]
     static member CompleteHoles(key: string, filledHoles: seq<TemplateHole>, vars: array<string * Server.ValTy * obj option>) : seq<TemplateHole> * Server.CompletedHoles =
         let allVars = Dictionary<string, TemplateHole>()
         let filledVars = HashSet()
         for h in filledHoles do
-            let n = TemplateHole.Name h
+            let n = h.Name
             filledVars.Add(n) |> ignore
             allVars[n] <- h
         let extraHoles =
@@ -277,7 +277,7 @@ type private HandlerProxy =
                 let r =
                     match ty with
                     | Server.ValTy.String ->
-                        Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarStr (name, Var.Create ""))
+                        Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarStr (name, Var.Create "") :> TemplateHole)
                     | Server.ValTy.Number ->
                         Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarFloatUnchecked (name, Var.Create 0.))
                     | Server.ValTy.Bool ->

@@ -68,41 +68,8 @@ type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
         init el
         View.Sink (set el) view
 
-    static let applyVarHole (el: JavaScript.Dom.Element) tpl =
-        match tpl with
-        | TemplateHole.VarStr (_, v) ->
-            applyTypedVarHole BindVar.StringApply v el
-        | TemplateHole.VarBool (_, v) ->
-            applyTypedVarHole BindVar.BoolCheckedApply v el
-        | TemplateHole.VarDateTime (_, v) ->
-            applyTypedVarHole BindVar.DateTimeApplyUnchecked v el
-        | TemplateHole.VarFile (_, v) ->
-            applyTypedVarHole BindVar.FileApplyUnchecked v el
-        | TemplateHole.VarInt (_, v) ->
-            applyTypedVarHole BindVar.IntApplyChecked v el
-        | TemplateHole.VarIntUnchecked (_, v) ->
-            applyTypedVarHole BindVar.IntApplyUnchecked v el
-        | TemplateHole.VarFloat (_, v) ->
-            applyTypedVarHole BindVar.FloatApplyChecked v el
-        | TemplateHole.VarFloatUnchecked (_, v) ->
-            applyTypedVarHole BindVar.FloatApplyUnchecked v el
-        | TemplateHole.VarDecimal (_, v) ->
-            applyTypedVarHole BindVar.DecimalApplyChecked v el
-        | TemplateHole.VarDecimalUnchecked (_, v) ->
-            applyTypedVarHole BindVar.DecimalApplyUnchecked v el
-        | TemplateHole.VarDomElement (_, v) ->
-            ()
-        | TemplateHole.Elt (n, _)
-        | TemplateHole.Text (n, _)
-        | TemplateHole.TextView (n, _)
-        | TemplateHole.UninitVar (n, _)
-        | TemplateHole.Event (n, _)
-        | TemplateHole.EventQ (n, _)
-        | TemplateHole.EventE (n, _, _)
-        | TemplateHole.AfterRender (n, _)
-        | TemplateHole.AfterRenderQ (n, _)
-        | TemplateHole.AfterRenderE (n, _, _)
-        | TemplateHole.Attribute (n, _) -> JavaScript.Console.Warn("Not a var hole: ", n)
+    static let applyVarHole (el: JavaScript.Dom.Element) (tpl: TemplateHole) =
+        tpl.ApplyVarHole el
 
     static member Initialized = initialized
 
@@ -131,12 +98,12 @@ type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
             if not (d.ContainsKey n) then
                 d[n] <-
                     match t with
-                    | ValTy.Bool -> TemplateHole.VarBool (n, Var.Create (ov |> Option.map (fun x -> x :?> bool) |> Option.defaultValue false))
-                    | ValTy.File -> TemplateHole.VarFile (n, Var.Create (ov |> Option.map (fun x -> x :?> JavaScript.File array) |> Option.defaultValue [||]))
-                    | ValTy.DateTime -> TemplateHole.VarDateTime (n, Var.Create (ov |> Option.map (fun x -> x :?> DateTime) |> Option.defaultValue DateTime.MinValue))
-                    | ValTy.Number -> TemplateHole.VarFloatUnchecked (n, Var.Create (ov |> Option.map (fun x -> x :?> float) |> Option.defaultValue 0.))
-                    | ValTy.String -> TemplateHole.VarStr (n, Var.Create (ov |> Option.map (fun x -> x :?> string) |> Option.defaultValue ""))
-                    | ValTy.DomElement -> TemplateHole.VarDomElement (n, Var.Create (ov |> Option.map (fun x -> x :?> JavaScript.Dom.Element) |> Option.defaultValue (JavaScript.JS.Document.QuerySelector("[ws-dom=" + n + "]")) |> Some))
+                    | ValTy.Bool -> TemplateHole.VarBool (n, Var.Create (ov |> Option.map (fun x -> x :?> bool) |> Option.defaultValue false)) :> TemplateHole
+                    | ValTy.File -> TemplateHole.VarFile (n, Var.Create (ov |> Option.map (fun x -> x :?> JavaScript.File array) |> Option.defaultValue [||])) :> _
+                    | ValTy.DateTime -> TemplateHole.VarDateTime (n, Var.Create (ov |> Option.map (fun x -> x :?> DateTime) |> Option.defaultValue DateTime.MinValue)) :> _ 
+                    | ValTy.Number -> TemplateHole.VarFloatUnchecked (n, Var.Create (ov |> Option.map (fun x -> x :?> float) |> Option.defaultValue 0.)) :> _
+                    | ValTy.String -> TemplateHole.VarStr (n, Var.Create (ov |> Option.map (fun x -> x :?> string) |> Option.defaultValue "")) :> _
+                    | ValTy.DomElement -> TemplateHole.VarDomElement (n, Var.Create (ov |> Option.map (fun x -> x :?> JavaScript.Dom.Element) |> Option.defaultValue (JavaScript.JS.Document.QuerySelector("[ws-dom=" + n + "]")) |> Some)) :> _
                     | _ -> failwith "Invalid value type"
         let i = TemplateInstance(CompletedHoles.Client(d), Doc.Empty)
         instance <- Some i
@@ -165,7 +132,7 @@ type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
                 let fullName = el.GetAttribute("ws-var")
                 let s = fullName[key.Length+2..]
                 let hole = this.Instance.Hole(s)
-                Client.Doc.RegisterGlobalTemplateHole(TemplateHole.WithName fullName hole)
+                Client.Doc.RegisterGlobalTemplateHole(hole.WithName fullName)
                 applyVarHole el hole
             ()
 
@@ -215,7 +182,7 @@ type Handler private () =
         failwithf "%s overload is intended for client-side use only. Please use %sFromServer instead" holeName holeName
 
     static member EventQ (holeName: string, [<JavaScript>] f: Expr<DomElement -> DomEvent -> unit>) =
-        TemplateHole.EventQ(holeName, f)
+        TemplateHole.EventQ(holeName, f) :> TemplateHole
 
     static member EventQ2<'E when 'E :> DomEvent> (key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, obj, 'E> -> unit>) =
         Handler.EventQ(holeName, <@ fun el ev ->
@@ -231,7 +198,7 @@ type Handler private () =
         @>)
 
     static member AfterRenderQ (holeName: string, [<JavaScript>] f: Expr<DomElement -> unit>) =
-        TemplateHole.AfterRenderQ(holeName, f)
+        TemplateHole.AfterRenderQ(holeName, f) :> TemplateHole
 
     static member AfterRenderQ2(key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, obj, DomEvent> -> unit>) =
         Handler.AfterRenderQ(holeName, <@ fun el ->
@@ -252,27 +219,27 @@ type Handler private () =
             (false, filledHoles)
             ||> Seq.fold (fun hasEventHandler h ->
                 match h with
-                | TemplateHole.VarStr(n, _)
-                | TemplateHole.VarIntUnchecked(n, _)
-                | TemplateHole.VarInt(n, _)
-                | TemplateHole.VarFloatUnchecked(n, _)
-                | TemplateHole.VarFloat(n, _)
-                | TemplateHole.VarDecimalUnchecked(n, _)
-                | TemplateHole.VarDecimal(n, _)
-                | TemplateHole.VarBool(n, _)
-                | TemplateHole.VarDateTime(n, _)
-                | TemplateHole.VarDomElement(n, _)
-                | TemplateHole.VarFile(n, _) ->
-                    filledVars.Add n |> ignore
+                | :? TemplateHole.VarStr
+                | :? TemplateHole.VarIntUnchecked
+                | :? TemplateHole.VarInt
+                | :? TemplateHole.VarFloatUnchecked
+                | :? TemplateHole.VarFloat
+                | :? TemplateHole.VarDecimalUnchecked
+                | :? TemplateHole.VarDecimal
+                | :? TemplateHole.VarBool
+                | :? TemplateHole.VarDateTime
+                | :? TemplateHole.VarDomElement
+                | :? TemplateHole.VarFile ->
+                    filledVars.Add h.Name |> ignore
                     hasEventHandler
-                | TemplateHole.AfterRender _
-                | TemplateHole.AfterRenderQ _
-                | TemplateHole.Event _
-                | TemplateHole.EventQ _ -> true
+                | :? TemplateHole.AfterRender
+                | :? TemplateHole.AfterRenderQ
+                | :? TemplateHole.Event
+                | :? TemplateHole.EventQ -> true
                 | _ -> hasEventHandler
             )
 
-        let strHole s = TemplateHole.UninitVar(s, key + "::" + s)
+        let strHole s = TemplateHole.UninitVar(s, key + "::" + s) :> TemplateHole
         let extraHoles =
             vars |> Array.choose (fun (name, ty, _) ->
                 if filledVars.Contains name then None else
@@ -303,26 +270,30 @@ type Handler private () =
                 if filledVars.Contains n || filledVars.Contains (key + "::" + n) then
                     filledHoles
                     |> Seq.tryFind (fun th ->
-                        let thn = TemplateHole.Name th
+                        let thn = th.Name
                         thn = n || key + "::" + n = thn
                     )
                     |> function
-                        | Some (TemplateHole.VarStr(n, v)) ->
-                            (n, t, Option.Some (box v.Value))
-                        | Some (TemplateHole.VarInt(n, v)) ->
-                            (n, t, Option.Some (box v.Value))
-                        | Some (TemplateHole.VarFloat(n, v)) ->
-                            (n, t, Option.Some (box v.Value))
-                        | Some (TemplateHole.VarDecimal(n, v)) ->
-                            (n, t, Option.Some (box v.Value))
-                        | Some (TemplateHole.VarBool(n, v)) ->
-                            (n, t, Option.Some (box v.Value))
-                        | Some (TemplateHole.VarDateTime(n, v)) ->
-                            (n, t, Option.Some (box v.Value))
-                        | Some (TemplateHole.VarDomElement(n, v)) ->
-                            (n, t, Option.Some (box v.Value))
-                        | Some (TemplateHole.VarFile(n, v)) ->
-                            (n, t, Option.Some (box v.Value))
+                        | Some th ->
+                            match th with
+                            | :? TemplateHole.VarStr as v ->
+                                (n, t, Option.Some (box v.Value.Value))
+                            | :? TemplateHole.VarInt as v ->
+                                (n, t, Option.Some (box v.Value.Value))
+                            | :? TemplateHole.VarFloat as v ->
+                                (n, t, Option.Some (box v.Value.Value))
+                            | :? TemplateHole.VarDecimal as v ->
+                                (n, t, Option.Some (box v.Value.Value))
+                            | :? TemplateHole.VarBool as v ->
+                                (n, t, Option.Some (box v.Value.Value))
+                            | :? TemplateHole.VarDateTime as v ->
+                                (n, t, Option.Some (box v.Value.Value))
+                            | :? TemplateHole.VarDomElement as v ->
+                                (n, t, Option.Some (box v.Value.Value))
+                            | :? TemplateHole.VarFile as v ->
+                                (n, t, Option.Some (box v.Value.Value))
+                            | _ ->
+                                failwith "Invalid hole type"
                         | _ ->
                             failwith "Invalid hole type"
                 else
@@ -375,7 +346,7 @@ type ProviderBuilder =
     /// Fill a hole of the template.
     [<Inline>]
     member this.With(h) =
-        this.Holes.Add(h)
+        this.Holes.Add(h :> TemplateHole)
         this
 
     /// Fill a hole of the template.
@@ -593,10 +564,10 @@ type Runtime private () =
         | false, _ -> failwithf "Template not defined: %s/%A" baseName name
         | true, template -> template
 
-    static let buildFillDict fillWith (holes: IDictionary<HoleName, HoleDefinition>) =
+    static let buildFillDict (fillWith: TemplateHole seq) (holes: IDictionary<HoleName, HoleDefinition>) =
         let d : Holes = Dictionary(StringComparer.InvariantCultureIgnoreCase)
         for f in fillWith do
-            let name = TemplateHole.Name f
+            let name = f.Name
             if holes.ContainsKey name then d[name] <- f
         d
 
@@ -656,20 +627,20 @@ type Runtime private () =
         let getOrLoadPath fullPath =
             loaded.GetOrAdd(baseName, fun _ -> let t, _, _ = Parsing.ParseSource baseName (File.ReadAllText fullPath) in t)
         let requireResources = Dictionary(StringComparer.InvariantCultureIgnoreCase)
-        let addTemplateHole (dict: Dictionary<_,_>) x =
+        let addTemplateHole (dict: Dictionary<_,_>) (x: TemplateHole) =
             match x with
-            | TemplateHole.Elt (n, d) when not (obj.ReferenceEquals(d, null)) ->
-                dict.Add(n, d :> IRequiresResources)
-            | TemplateHole.Attribute (n, a) when not (obj.ReferenceEquals(a, null)) ->
-                dict.Add(n, a :> IRequiresResources)
-            | TemplateHole.EventQ (n, e) ->
-                dict.Add(n, Attr.HandlerImpl("", e) :> IRequiresResources)
-            | TemplateHole.AfterRenderQ (n, e) ->
-                dict.Add(n, Attr.OnAfterRenderImpl(e) :> IRequiresResources)
-            | TemplateHole.EventE (n, k, e) ->
-                dict.Add(n, (Attr.HandlerLinqWithKey "" k e) :> IRequiresResources)
-            | TemplateHole.AfterRenderE (n, k, e) ->
-                dict.Add(n, Attr.OnAfterRenderLinq k e :> IRequiresResources)
+            | :? TemplateHole.Elt as th when not (obj.ReferenceEquals(th.Value, null)) ->
+                dict.Add(th.Name, th.Value :> IRequiresResources)
+            | :? TemplateHole.Attribute as th when not (obj.ReferenceEquals(th.Value, null)) ->
+                dict.Add(th.Name, th.Value :> IRequiresResources)
+            | :? TemplateHole.EventQ as th ->
+                dict.Add(th.Name, Attr.HandlerImpl("", th.Value) :> IRequiresResources)
+            | :? TemplateHole.AfterRenderQ as th ->
+                dict.Add(th.Name, Attr.OnAfterRenderImpl(th.Value) :> IRequiresResources)
+            | :? TemplateHole.EventE as th ->
+                dict.Add(th.Name, (Attr.HandlerLinqWithKey "" (th.Key()) th.Value) :> IRequiresResources)
+            | :? TemplateHole.AfterRenderE as th ->
+                dict.Add(th.Name, Attr.OnAfterRenderLinq (th.Key()) th.Value :> IRequiresResources)
             | _ -> ()
         
         fillWith |> Seq.iter (addTemplateHole requireResources)
@@ -705,10 +676,12 @@ type Runtime private () =
                         let doPlain() = w.Write("${" + holeName + "}")
                         if plain then doPlain() else
                         match ctx.FillWith.TryGetValue holeName with
-                        | true, TemplateHole.Text (_, t) -> w.WriteEncodedText(t)
-                        | true, TemplateHole.UninitVar (_, fullName) ->
-                                w.Write("${" + fullName + "}")
-                        | true, _ -> failwithf "Invalid hole, expected text: %s" holeName
+                        | true, th ->
+                            match th with
+                            | :? TemplateHole.Text as th -> w.WriteEncodedText(th.Value)
+                            | :? TemplateHole.UninitVar as th ->
+                                    w.Write("${" + th.Value + "}")
+                            | _ -> failwithf "Invalid hole, expected text: %s" holeName
                         | false, _ -> 
                             match ctx.FillWithText with
                             | Some t -> w.WriteEncodedText(t)
@@ -722,10 +695,12 @@ type Runtime private () =
                         let doPlain() = "${" + holeName + "}"
                         if plain then doPlain() else
                         match ctx.FillWith.TryGetValue holeName with
-                        | true, TemplateHole.Text (_, t) -> t
-                        | true, TemplateHole.UninitVar (_, fullName) ->
-                            "${" + fullName + "}"
-                        | true, _ -> failwithf "Invalid hole, expected text: %s" holeName
+                        | true, th ->
+                            match th with
+                            | :? TemplateHole.Text as th -> th.Value
+                            | :? TemplateHole.UninitVar as th ->
+                                "${" + th.Value + "}"
+                            | _ -> failwithf "Invalid hole, expected text: %s" holeName
                         | false, _ ->
                             match ctx.FillWithText with
                             | Some t -> t
@@ -794,14 +769,18 @@ type Runtime private () =
                     if plain then doPlain() else
                     let wsVar, attrs =
                         match ctx.FillWith.TryGetValue holeName with
-                        | true, TemplateHole.UninitVar (_, fullName) ->
-                            Some fullName, attrs
-                        | true, TemplateHole.VarStr (n, _)
-                        | true, TemplateHole.VarBool (n, _)
-                        | true, TemplateHole.VarDateTime (n, _)
-                        | true, TemplateHole.VarFile (n, _)
-                        | true, TemplateHole.VarFloat (n, _) ->
-                            Some (if String.IsNullOrEmpty id then n else id + "::" + n), attrs
+                        | true, th ->
+                            match th with
+                            | :? TemplateHole.UninitVar as th ->
+                                Some th.Value, attrs
+                            | :? TemplateHole.VarStr
+                            | :? TemplateHole.VarBool
+                            | :? TemplateHole.VarDateTime
+                            | :? TemplateHole.VarFile
+                            | :? TemplateHole.VarFloat ->
+                                Some (if String.IsNullOrEmpty id then th.Name else id + "::" + th.Name), attrs
+                            | _ ->
+                                Some holeName, attrs
                         | _ ->
                             Some holeName, attrs
                     writeElement (Option.isNone parent) plain tag attrs wsVar children domAttr
@@ -824,8 +803,10 @@ type Runtime private () =
                             doc.Write(ctx.Context, ctx.Writer, ctx.Resources)
                         | _ ->
                             match ctx.FillWith.TryGetValue holeName with
-                            | true, TemplateHole.Text (_, txt) -> ctx.Writer.WriteEncodedText(txt)
-                            | true, _ -> failwithf "Invalid hole, expected Doc: %s" holeName
+                            | true, th ->
+                                match th with
+                                | :? TemplateHole.Text as th -> ctx.Writer.WriteEncodedText(th.Value)
+                                | _ -> failwithf "Invalid hole, expected Doc: %s" holeName
                             | false, _ ->
                                 match ctx.FillWithText with
                                 | Some t -> ctx.Writer.WriteEncodedText(t)
@@ -840,8 +821,10 @@ type Runtime private () =
                     match a with
                     | Attr.Attr holeName -> 
                         match ctx.FillWith.TryGetValue holeName with
-                        | true, TemplateHole.Attribute (_, a) -> a
-                        | true, _ -> failwithf "Invalid hole, expected Attr: %s" holeName
+                        | true, th ->
+                            match th with
+                            | :? TemplateHole.Attribute as th -> th.Value
+                            | _ -> failwithf "Invalid hole, expected Attr: %s" holeName
                         | false, _ -> Attr.Empty
                     | Attr.Simple(name, value) ->
                         Attr.Create name value
@@ -868,12 +851,12 @@ type Runtime private () =
                 for KeyValue(k, v) in holeMaps do
                     match ctx.FillWith.TryGetValue v with
                     | true, h -> 
-                        let mapped = TemplateHole.WithName k h
+                        let mapped = h.WithName k
                         holes.Add(k, mapped)
                         mapped |> addTemplateHole reqRes
                     | _ -> ()
                 for KeyValue(k, v) in attrHoles do
-                    let attr = TemplateHole.Attribute(k, Attr.Concat (v |> Seq.map attrFromInstantiation))
+                    let attr = TemplateHole.Attribute(k, Attr.Concat (v |> Seq.map attrFromInstantiation)) :> TemplateHole
                     holes.Add(k, attr)
                     attr |> addTemplateHole reqRes
                 for KeyValue(k, v) in contentHoles do

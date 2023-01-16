@@ -214,12 +214,12 @@ module BindVar =
     val FloatGetChecked : Get<CheckedInput<float>>
     val FloatApplyChecked : Apply<CheckedInput<float>>
     
-    val DecimalSetUnchecked : Set<decimal>
-    val DecimalGetUnchecked : Get<decimal>
-    val DecimalApplyUnchecked : Apply<decimal>
+    val DecimalSetUnchecked : Dom.Element -> decimal -> unit
+    val DecimalGetUnchecked : Dom.Element -> decimal option
+    val DecimalApplyUnchecked : Var<decimal> -> Init * Set<decimal option> * View<decimal option>
 
-    val DecimalSetChecked : Set<CheckedInput<decimal>>
-    val DecimalGetChecked : Get<CheckedInput<decimal>>
-    val DecimalApplyChecked : Apply<CheckedInput<decimal>>
+    val DecimalSetChecked : Dom.Element -> CheckedInput<decimal> -> unit
+    val DecimalGetChecked : Dom.Element -> CheckedInput<decimal> option
+    val DecimalApplyChecked : Var<CheckedInput<decimal>> -> Init * Set<CheckedInput<decimal> option> * View<CheckedInput<decimal> option>
 
     val BoolCheckedApply : Apply<bool>
