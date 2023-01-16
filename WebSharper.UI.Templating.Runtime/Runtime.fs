@@ -277,21 +277,21 @@ type Handler private () =
                         | Some th ->
                             match th with
                             | :? TemplateHole.VarStr as v ->
-                                (n, t, Option.Some (box v.Value))
+                                (n, t, Option.Some (box v.Value.Value))
                             | :? TemplateHole.VarInt as v ->
-                                (n, t, Option.Some (box v.Value))
+                                (n, t, Option.Some (box v.Value.Value))
                             | :? TemplateHole.VarFloat as v ->
-                                (n, t, Option.Some (box v.Value))
+                                (n, t, Option.Some (box v.Value.Value))
                             | :? TemplateHole.VarDecimal as v ->
-                                (n, t, Option.Some (box v.Value))
+                                (n, t, Option.Some (box v.Value.Value))
                             | :? TemplateHole.VarBool as v ->
-                                (n, t, Option.Some (box v.Value))
+                                (n, t, Option.Some (box v.Value.Value))
                             | :? TemplateHole.VarDateTime as v ->
-                                (n, t, Option.Some (box v.Value))
+                                (n, t, Option.Some (box v.Value.Value))
                             | :? TemplateHole.VarDomElement as v ->
-                                (n, t, Option.Some (box v.Value))
+                                (n, t, Option.Some (box v.Value.Value))
                             | :? TemplateHole.VarFile as v ->
-                                (n, t, Option.Some (box v.Value))
+                                (n, t, Option.Some (box v.Value.Value))
                             | _ ->
                                 failwith "Invalid hole type"
                         | _ ->
