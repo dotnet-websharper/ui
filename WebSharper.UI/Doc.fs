@@ -372,18 +372,44 @@ and Elt
     // }}
 
 and [<AbstractClass; RequireQualifiedAccess; JavaScript>] TemplateHole () = 
-    [<JavaScript>]
     abstract member Name: string
-    [<JavaScript>]
     abstract member WithName: string -> TemplateHole
-    
+    abstract member ValueObj: obj
+
+    abstract member ApplyVarHole : Dom.Element -> unit
+    default this.ApplyVarHole (el: Dom.Element) =
+        JavaScript.Console.Warn("Not a var hole: ", this.Name)
+
+    abstract member ForTextView : unit -> View<string> option
+    default this.ForTextView () =
+        Console.Warn("Content hole filled with attribute data", this.Name);
+        None
+
+    abstract member AddAttribute : (Dom.Element -> Attr -> unit) * Dom.Element -> unit
+    default this.AddAttribute(_, _) =
+        Console.Warn("Var hole filled with non-Var data", this.Name)
+
+    abstract member AsChoiceView : Choice<string, View<string>>
+    default this.AsChoiceView =
+        Console.Warn("Attribute value hole filled with non-text data", this.Name)
+        Choice1Of2 ""
+
+
 [<JavaScript>]
 module TemplateHole =
+    open WebSharper.UI.Client
+
+    let applyTypedVarHole (bind: BindVar.Apply<'a>) (v: Var<'a>) el =
+        let init, set, view = bind v
+        init el
+        View.Sink (set el) view
+
     type Elt(name: string, fillWith: Doc) =
         inherit TemplateHole()
         
         override this.Name with get() = name
         member this.Value = fillWith
+        override this.ValueObj = this.Value
         override this.WithName n = Elt(n, fillWith)
         
     type Text(name: string, fillWith: string) =
@@ -391,20 +417,28 @@ module TemplateHole =
         
         override this.Name with get() = name
         member this.Value = fillWith
+        override this.ValueObj = this.Value
         override this.WithName n = Text(n, fillWith)
+        override this.AsChoiceView =
+            Choice1Of2 fillWith
         
     type TextView(name: string, fillWith: View<string>) =
         inherit TemplateHole()
         
         override this.Name with get() = name
         member this.Value = fillWith
+        override this.ValueObj = this.Value
         override this.WithName n = TextView(n, fillWith)
+        override this.AsChoiceView =
+            Choice2Of2 fillWith
+        override this.ForTextView() = fillWith |> Some
         
     type Attribute(name: string, fillWith: Attr) =
         inherit TemplateHole()
         
         override this.Name with get() = name
         member this.Value = fillWith
+        override this.ValueObj = this.Value
         override this.WithName n = Attribute(n, fillWith)
         
     type Event(name: string, fillWith: (Dom.Element -> Dom.Event -> unit)) =
@@ -412,6 +446,7 @@ module TemplateHole =
         
         override this.Name with get() = name
         member this.Value = fillWith
+        override this.ValueObj = this.Value
         override this.WithName n = Event(n, fillWith)
         
     type EventQ(name: string, fillWith: Expr<Dom.Element -> Dom.Event -> unit>) =
@@ -419,6 +454,7 @@ module TemplateHole =
         
         override this.Name with get() = name
         member this.Value = fillWith
+        override this.ValueObj = this.Value
         override this.WithName n = EventQ(n, fillWith)
         
     type EventE(name: string, key: string, fillWith: Expression<Action<Dom.Element, Dom.Event>>) =
@@ -426,6 +462,7 @@ module TemplateHole =
         
         override this.Name with get() = name
         member this.Value = fillWith
+        override this.ValueObj = this.Value
         override this.WithName n = EventE(n, key, fillWith)
 
         member this.Key () = key
@@ -435,6 +472,7 @@ module TemplateHole =
         
         override this.Name with get() = name
         member this.Value = fillWith
+        override this.ValueObj = this.Value
         override this.WithName n = AfterRender(n, fillWith)
         
     type AfterRenderQ(name: string, fillWith: Expr<Dom.Element -> unit>) =
@@ -442,6 +480,7 @@ module TemplateHole =
         
         override this.Name with get() = name
         member this.Value = fillWith
+        override this.ValueObj = this.Value
         override this.WithName n = AfterRenderQ(n, fillWith)
         
     type AfterRenderE(name: string, key: string, fillWith: Expression<Action<Dom.Element>>) =
@@ -449,6 +488,7 @@ module TemplateHole =
         
         override this.Name with get() = name
         member this.Value = fillWith
+        override this.ValueObj = this.Value
         override this.WithName n = AfterRenderE(n, key, fillWith)
 
         member this.Key () = key
@@ -458,87 +498,169 @@ module TemplateHole =
         
         override this.Name with get() = name
         member this.Value = fillWith
+        override this.ValueObj = this.Value
         override this.WithName n = VarStr(n, fillWith)
+        override this.ApplyVarHole (el: Dom.Element) =
+            applyTypedVarHole BindVar.StringApply fillWith el
+        override this.AddAttribute (addAttr, el) =
+            addAttr el (Attr.Value fillWith)
+        override this.AsChoiceView =
+            Choice2Of2 (fillWith.View.Map string)
+        override this.ForTextView() = fillWith.View |> Some
         
     type VarBool(name: string, fillWith: Var<bool>) =
         inherit TemplateHole()
         
         override this.Name with get() = name
         member this.Value = fillWith
+        override this.ValueObj = this.Value
         override this.WithName n = VarBool(n, fillWith)
+        override this.ApplyVarHole (el: Dom.Element) =
+            applyTypedVarHole BindVar.BoolCheckedApply fillWith el
+        override this.AddAttribute (addAttr, el) =
+            addAttr el (Attr.Checked fillWith)
+        override this.AsChoiceView =
+            Choice2Of2 (fillWith.View.Map string)
+        override this.ForTextView() = fillWith.View.Map string |> Some
         
     type VarDateTime(name: string, fillWith: Var<System.DateTime>) =
         inherit TemplateHole()
         
         override this.Name with get() = name
         member this.Value = fillWith
+        override this.ValueObj = this.Value
         override this.WithName n = VarDateTime(n, fillWith)
+        override this.ApplyVarHole (el: Dom.Element) =
+            applyTypedVarHole BindVar.DateTimeApplyUnchecked fillWith el
+        override this.AddAttribute (addAttr, el) =
+            addAttr el (Attr.DateTimeValue fillWith)
+        override this.AsChoiceView =
+            Choice2Of2 (fillWith.View.Map string)
+        override this.ForTextView() = fillWith.View.Map string |> Some
         
     type VarFile(name: string, fillWith: Var<File array>) =
         inherit TemplateHole()
         
         override this.Name with get() = name
         member this.Value = fillWith
+        override this.ValueObj = this.Value
         override this.WithName n = VarFile(n, fillWith)
+        override this.ApplyVarHole (el: Dom.Element) =
+            applyTypedVarHole BindVar.FileApplyUnchecked fillWith el
+        override this.AddAttribute (addAttr, el) =
+            addAttr el (Attr.FileValue fillWith)
+        override this.AsChoiceView =
+            Choice2Of2 (fillWith.View.Map string)
+        override this.ForTextView() = fillWith.View.Map string |> Some
         
     type VarDomElement(name: string, fillWith: Var<Dom.Element option>) =
         inherit TemplateHole()
         
         override this.Name with get() = name
         member this.Value = fillWith
+        override this.ValueObj = this.Value
         override this.WithName n = VarDomElement(n, fillWith)
+        override this.ApplyVarHole (el: Dom.Element) = ()
         
     type VarInt(name: string, fillWith: Var<Client.CheckedInput<int>>) =
         inherit TemplateHole()
         
         override this.Name with get() = name
         member this.Value = fillWith
+        override this.ValueObj = this.Value
         override this.WithName n = VarInt(n, fillWith)
+        override this.ApplyVarHole (el: Dom.Element) =
+            applyTypedVarHole BindVar.IntApplyChecked fillWith el
+        override this.AddAttribute (addAttr, el) =
+            addAttr el (Attr.IntValue fillWith)
+        override this.AsChoiceView =
+            Choice2Of2 (fillWith.View.Map (fun i -> i.Input))
+        override this.ForTextView() = fillWith.View.Map (fun i -> i.Input) |> Some
         
     type VarIntUnchecked(name: string, fillWith: Var<int>) =
         inherit TemplateHole()
         
         override this.Name with get() = name
         member this.Value = fillWith
+        override this.ValueObj = this.Value
         override this.WithName n = VarIntUnchecked(n, fillWith)
+        override this.ApplyVarHole (el: Dom.Element) =
+            applyTypedVarHole BindVar.IntApplyUnchecked fillWith el
+        override this.AddAttribute (addAttr, el) =
+            addAttr el (Attr.IntValueUnchecked fillWith)
+        override this.AsChoiceView =
+            Choice2Of2 (fillWith.View.Map string)
+        override this.ForTextView() = fillWith.View.Map string |> Some
         
     type VarFloat(name: string, fillWith: Var<Client.CheckedInput<float>>) =
         inherit TemplateHole()
         
         override this.Name with get() = name
         member this.Value = fillWith
+        override this.ValueObj = this.Value
         override this.WithName n = VarFloat(n, fillWith)
+        override this.ApplyVarHole (el: Dom.Element) =
+            applyTypedVarHole BindVar.FloatApplyChecked fillWith el
+        override this.AddAttribute (addAttr, el) =
+            addAttr el (Attr.FloatValue fillWith)
+        override this.AsChoiceView =
+            Choice2Of2 (fillWith.View.Map (fun i -> i.Input))
+        override this.ForTextView() = fillWith.View.Map (fun i -> i.Input) |> Some
         
     type VarFloatUnchecked(name: string, fillWith: Var<float>) =
         inherit TemplateHole()
         
         override this.Name with get() = name
         member this.Value = fillWith
+        override this.ValueObj = this.Value
         override this.WithName n = VarFloatUnchecked(n, fillWith)
+        override this.ApplyVarHole (el: Dom.Element) =
+            applyTypedVarHole BindVar.FloatApplyUnchecked fillWith el
+        override this.AddAttribute (addAttr, el) =
+            addAttr el (Attr.FloatValueUnchecked fillWith)
+        override this.AsChoiceView =
+            Choice2Of2 (fillWith.View.Map string)
+        override this.ForTextView() = fillWith.View.Map string |> Some
         
     type VarDecimal(name: string, fillWith: Var<Client.CheckedInput<decimal>>) =
         inherit TemplateHole()
         
         override this.Name with get() = name
         member this.Value = fillWith
+        override this.ValueObj = this.Value
         override this.WithName n = VarDecimal(n, fillWith)
+        override this.ApplyVarHole (el: Dom.Element) =
+            applyTypedVarHole BindVar.DecimalApplyChecked fillWith el
+        override this.AddAttribute (addAttr, el) =
+            addAttr el (Attr.DecimalValue fillWith)
+        override this.AsChoiceView =
+            Choice2Of2 (fillWith.View.Map (fun i -> i.Input))
+        override this.ForTextView() = fillWith.View.Map (fun i -> i.Input) |> Some
         
     type VarDecimalUnchecked(name: string, fillWith: Var<decimal>) =
         inherit TemplateHole()
         
         override this.Name with get() = name
         member this.Value = fillWith
+        override this.ValueObj = this.Value
         override this.WithName n = VarDecimalUnchecked(n, fillWith)
+        override this.ApplyVarHole (el: Dom.Element) =
+            applyTypedVarHole BindVar.DecimalApplyUnchecked fillWith el
+        override this.AddAttribute (addAttr, el) =
+            addAttr el (Attr.DecimalValueUnchecked fillWith)
+        override this.AsChoiceView =
+            Choice2Of2 (fillWith.View.Map string)
+        override this.ForTextView() = fillWith.View.Map string |> Some
         
     type UninitVar(name: string, key: string) =
         inherit TemplateHole()
         
         override this.Name with get() = name
         member this.Value = key
+        override this.ValueObj = key
         override this.WithName n = UninitVar(n, key)
 
-[<JavaScript>]
-type TemplateHoleHelpers =
+type TemplateHole with
     [<Inline>]
     static member NewActionEvent<'T when 'T :> Dom.Event>(name: string, f: Action<Dom.Element, 'T>) =
         if IsClient then
@@ -575,7 +697,7 @@ type TemplateHoleHelpers =
     
     [<Inline>]
     static member MakeTextView(name: string, text: View<string>) =
-        TemplateHole.TextView(name, text)
+        TemplateHole.TextView(name, text) :> TemplateHole
     
     [<Macro(typeof<Macros.TemplateVar>); Inline>]
     static member MakeVarLens(name: string, v: string) =
@@ -583,7 +705,7 @@ type TemplateHoleHelpers =
     
     [<Inline>]
     static member MakeVar(name: string, var: Var<string>) =
-        TemplateHole.VarStr(name, var)
+        TemplateHole.VarStr(name, var) :> TemplateHole
     
     [<Macro(typeof<Macros.TemplateVar>); Inline>]
     static member MakeVarLens(name: string, v: bool) =
@@ -591,7 +713,7 @@ type TemplateHoleHelpers =
     
     [<Inline>]
     static member MakeVar(name: string, var: Var<bool>) =
-        TemplateHole.VarBool(name, var)
+        TemplateHole.VarBool(name, var) :> TemplateHole
     
     [<Macro(typeof<Macros.TemplateVar>); Inline>]
     static member MakeVarLens(name: string, v: DateTime) =
@@ -599,7 +721,7 @@ type TemplateHoleHelpers =
     
     [<Inline>]
     static member MakeVar(name: string, var: Var<DateTime>) =
-        TemplateHole.VarDateTime(name, var)
+        TemplateHole.VarDateTime(name, var) :> TemplateHole
     
     [<Macro(typeof<Macros.TemplateVar>); Inline>]
     static member MakeVarLens(name: string, v: File array) =
@@ -607,7 +729,7 @@ type TemplateHoleHelpers =
     
     [<Inline>]
     static member MakeVar(name: string, var: Var<File array>) =
-        TemplateHole.VarFile(name, var)
+        TemplateHole.VarFile(name, var) :> TemplateHole
     
     [<Macro(typeof<Macros.TemplateVar>); Inline>]
     static member MakeVarLens(name: string, v: Client.CheckedInput<int>) =
@@ -615,7 +737,7 @@ type TemplateHoleHelpers =
     
     [<Inline>]
     static member MakeVar(name: string, var: Var<Client.CheckedInput<int>>) =
-        TemplateHole.VarInt(name, var)
+        TemplateHole.VarInt(name, var) :> TemplateHole
     
     [<Macro(typeof<Macros.TemplateVar>); Inline>]
     static member MakeVarLens(name: string, v: int) =
@@ -623,7 +745,7 @@ type TemplateHoleHelpers =
     
     [<Inline>]
     static member MakeVar(name: string, var: Var<int>) =
-        TemplateHole.VarIntUnchecked(name, var)
+        TemplateHole.VarIntUnchecked(name, var) :> TemplateHole
     
     [<Macro(typeof<Macros.TemplateVar>); Inline>]
     static member MakeVarLens(name: string, v: Client.CheckedInput<float>) =
@@ -631,7 +753,7 @@ type TemplateHoleHelpers =
     
     [<Inline>]
     static member MakeVar(name: string, var: Var<Client.CheckedInput<float>>) =
-        TemplateHole.VarFloat(name, var)
+        TemplateHole.VarFloat(name, var) :> TemplateHole
     
     [<Macro(typeof<Macros.TemplateVar>); Inline>]
     static member MakeVarLens(name: string, v: float) =
@@ -639,7 +761,7 @@ type TemplateHoleHelpers =
     
     [<Inline>]
     static member MakeVar(name: string, var: Var<float>) =
-        TemplateHole.VarFloatUnchecked(name, var)
+        TemplateHole.VarFloatUnchecked(name, var) :> TemplateHole
     
     [<Macro(typeof<Macros.TemplateVar>); Inline>]
     static member MakeVarLens(name: string, v: Client.CheckedInput<decimal>) =
@@ -647,7 +769,7 @@ type TemplateHoleHelpers =
     
     [<Inline>]
     static member MakeVar(name: string, var: Var<Client.CheckedInput<decimal>>) =
-        TemplateHole.VarDecimal(name, var)
+        TemplateHole.VarDecimal(name, var) :> TemplateHole
         
     [<Macro(typeof<Macros.TemplateVar>); Inline>]
     static member MakeVarLens(name: string, v: decimal) =
@@ -658,30 +780,7 @@ type TemplateHoleHelpers =
         TemplateHole.VarDecimalUnchecked(name, var) :> TemplateHole
 
     static member Value(th: TemplateHole) =
-        match th with
-        | :? TemplateHole.Elt as th -> th.Value :> obj
-        | :? TemplateHole.Text as th -> th.Value :> obj
-        | :? TemplateHole.TextView as th -> th.Value :> obj
-        | :? TemplateHole.Attribute as th -> th.Value :> obj
-        | :? TemplateHole.Event as th -> th.Value :> obj
-        | :? TemplateHole.EventQ as th -> th.Value :> obj
-        | :? TemplateHole.EventE as th -> th.Value :> obj
-        | :? TemplateHole.AfterRender as th -> th.Value :> obj
-        | :? TemplateHole.AfterRenderQ as th -> th.Value :> obj
-        | :? TemplateHole.AfterRenderE as th -> th.Value :> obj
-        | :? TemplateHole.VarStr as th -> th.Value :> obj
-        | :? TemplateHole.VarBool as th -> th.Value :> obj
-        | :? TemplateHole.VarDateTime as th -> th.Value :> obj
-        | :? TemplateHole.VarFile as th -> th.Value :> obj
-        | :? TemplateHole.VarDomElement as th -> th.Value :> obj
-        | :? TemplateHole.VarInt as th -> th.Value :> obj
-        | :? TemplateHole.VarIntUnchecked as th -> th.Value :> obj
-        | :? TemplateHole.VarFloat as th -> th.Value :> obj
-        | :? TemplateHole.VarFloatUnchecked as th -> th.Value :> obj
-        | :? TemplateHole.VarDecimal as th -> th.Value :> obj
-        | :? TemplateHole.VarDecimalUnchecked as th -> th.Value :> obj
-        | :? TemplateHole.UninitVar as th -> th.Value :> obj
-        | _ -> null
+        th.ValueObj
 
 type InlineControlWithPlaceHolder(docExpr: Expr<Doc>, doc: Doc) =
     inherit InlineControl<Doc>(%docExpr)

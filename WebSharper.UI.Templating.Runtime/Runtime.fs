@@ -69,30 +69,7 @@ type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
         View.Sink (set el) view
 
     static let applyVarHole (el: JavaScript.Dom.Element) (tpl: TemplateHole) =
-        match tpl with
-        | :? TemplateHole.VarStr as th ->
-            applyTypedVarHole BindVar.StringApply th.Value el
-        | :? TemplateHole.VarBool as th ->
-            applyTypedVarHole BindVar.BoolCheckedApply th.Value el
-        | :? TemplateHole.VarDateTime as th ->
-            applyTypedVarHole BindVar.DateTimeApplyUnchecked th.Value el
-        | :? TemplateHole.VarFile as th ->
-            applyTypedVarHole BindVar.FileApplyUnchecked th.Value el
-        | :? TemplateHole.VarInt as th ->
-            applyTypedVarHole BindVar.IntApplyChecked th.Value el
-        | :? TemplateHole.VarIntUnchecked as th ->
-            applyTypedVarHole BindVar.IntApplyUnchecked th.Value el
-        | :? TemplateHole.VarFloat as th ->
-            applyTypedVarHole BindVar.FloatApplyChecked th.Value el
-        | :? TemplateHole.VarFloatUnchecked as th ->
-            applyTypedVarHole BindVar.FloatApplyUnchecked th.Value el
-        | :? TemplateHole.VarDecimal as th ->
-            applyTypedVarHole BindVar.DecimalApplyChecked th.Value el
-        | :? TemplateHole.VarDecimalUnchecked as th ->
-            applyTypedVarHole BindVar.DecimalApplyUnchecked th.Value el
-        | :? TemplateHole.VarDomElement as th ->
-            ()
-        | _ -> JavaScript.Console.Warn("Not a var hole: ", tpl.Name)
+        tpl.ApplyVarHole el
 
     static member Initialized = initialized
 
@@ -205,7 +182,7 @@ type Handler private () =
         failwithf "%s overload is intended for client-side use only. Please use %sFromServer instead" holeName holeName
 
     static member EventQ (holeName: string, [<JavaScript>] f: Expr<DomElement -> DomEvent -> unit>) =
-        TemplateHole.EventQ(holeName, f)
+        TemplateHole.EventQ(holeName, f) :> TemplateHole
 
     static member EventQ2<'E when 'E :> DomEvent> (key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, obj, 'E> -> unit>) =
         Handler.EventQ(holeName, <@ fun el ev ->
@@ -221,7 +198,7 @@ type Handler private () =
         @>)
 
     static member AfterRenderQ (holeName: string, [<JavaScript>] f: Expr<DomElement -> unit>) =
-        TemplateHole.AfterRenderQ(holeName, f)
+        TemplateHole.AfterRenderQ(holeName, f) :> TemplateHole
 
     static member AfterRenderQ2(key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, obj, DomEvent> -> unit>) =
         Handler.AfterRenderQ(holeName, <@ fun el ->
@@ -375,7 +352,7 @@ type ProviderBuilder =
     /// Fill a hole of the template.
     [<Inline>]
     member this.With(hole: string, value: string) =
-        this.With(TemplateHoleHelpers.MakeText(hole, value))
+        this.With(TemplateHole.MakeText(hole, value))
 
     /// Fill a hole of the template.
     [<Inline>]
@@ -440,12 +417,12 @@ type ProviderBuilder =
     /// Fill a hole of the template.
     [<Inline>]
     member this.With(hole: string, value: int) =
-        this.With(TemplateHoleHelpers.MakeVarLens(hole, value))
+        this.With(TemplateHole.MakeVarLens(hole, value))
 
     /// Fill a hole of the template.
     [<Inline>]
     member this.With(hole: string, value: Client.CheckedInput<int>) =
-        this.With(TemplateHoleHelpers.MakeVarLens(hole, value))
+        this.With(TemplateHole.MakeVarLens(hole, value))
 
     /// Fill a hole of the template.
     [<Inline>]
@@ -460,12 +437,12 @@ type ProviderBuilder =
     /// Fill a hole of the template.
     [<Inline>]
     member this.With(hole: string, value: float) =
-        this.With(TemplateHoleHelpers.MakeVarLens(hole, value))
+        this.With(TemplateHole.MakeVarLens(hole, value))
 
     /// Fill a hole of the template.
     [<Inline>]
     member this.With(hole: string, value: Client.CheckedInput<float>) =
-        this.With(TemplateHoleHelpers.MakeVarLens(hole, value))
+        this.With(TemplateHole.MakeVarLens(hole, value))
 
     /// Fill a hole of the template.
     [<Inline>]
@@ -480,12 +457,12 @@ type ProviderBuilder =
     /// Fill a hole of the template.
     [<Inline>]
     member this.With(hole: string, value: decimal) =
-        this.With(TemplateHoleHelpers.MakeVarLens(hole, value))
+        this.With(TemplateHole.MakeVarLens(hole, value))
 
     /// Fill a hole of the template.
     [<Inline>]
     member this.With(hole: string, value: Client.CheckedInput<decimal>) =
-        this.With(TemplateHoleHelpers.MakeVarLens(hole, value))
+        this.With(TemplateHole.MakeVarLens(hole, value))
 
     /// Fill a hole of the template.
     [<Inline>]
@@ -495,7 +472,7 @@ type ProviderBuilder =
     /// Fill a hole of the template.
     [<Inline>]
     member this.With(hole: string, value: bool) =
-        this.With(TemplateHoleHelpers.MakeVarLens(hole, value))
+        this.With(TemplateHole.MakeVarLens(hole, value))
 
     /// Fill a hole of the template.
     [<Inline>]
@@ -510,7 +487,7 @@ type ProviderBuilder =
     /// Fill a hole of the template.
     [<Inline>]
     member this.With(hole: string, value: DateTime) =
-        this.With(TemplateHoleHelpers.MakeVarLens(hole, value))
+        this.With(TemplateHole.MakeVarLens(hole, value))
 
     /// Fill a hole of the template.
     [<Inline>]
@@ -520,7 +497,7 @@ type ProviderBuilder =
     /// Fill a hole of the template.
     [<Inline>]
     member this.With(hole: string, value: JavaScript.File array) =
-        this.With(TemplateHoleHelpers.MakeVarLens(hole, value))
+        this.With(TemplateHole.MakeVarLens(hole, value))
 
 
 module ProviderBuilder =

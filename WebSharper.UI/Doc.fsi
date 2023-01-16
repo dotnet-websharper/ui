@@ -557,6 +557,31 @@ and [<Class>] Elt =
 type TemplateHole =
     abstract Name: string with get
     abstract WithName: string -> TemplateHole
+    abstract ValueObj : obj with get
+    abstract member ForTextView : unit -> View<string> option
+    abstract member ApplyVarHole : Dom.Element -> unit
+    abstract member AddAttribute : (Dom.Element -> Attr -> unit) * Dom.Element -> unit
+    abstract member AsChoiceView : Choice<string, View<string>>
+
+    static member NewActionEvent<'T when 'T :> Dom.Event> : name: string * f: Action<Dom.Element, 'T> -> TemplateHole
+    static member NewEventExpr<'T when 'T :> Dom.Event> : name: string * key: string * f: Expression<Action<Dom.Element, 'T>> -> TemplateHole
+    static member NewEventExprAction : name: string * f: Expression<Action> -> TemplateHole
+    static member NewAfterRenderExprAction : name: string * f: Expression<Action> -> TemplateHole
+
+    static member MakeText : name: string * text: string -> TemplateHole
+
+    static member MakeVarLens : name: string * value: string -> TemplateHole
+    static member MakeVarLens : name: string * value: bool -> TemplateHole
+    static member MakeVarLens : name: string * value: DateTime -> TemplateHole
+    static member MakeVarLens : name: string * value: File array -> TemplateHole
+    static member MakeVarLens : name: string * value: Client.CheckedInput<int> -> TemplateHole
+    static member MakeVarLens : name: string * value: int -> TemplateHole
+    static member MakeVarLens : name: string * value: Client.CheckedInput<float> -> TemplateHole
+    static member MakeVarLens : name: string * value: float -> TemplateHole
+    static member MakeVarLens : name: string * value: Client.CheckedInput<decimal> -> TemplateHole
+    static member MakeVarLens : name: string * value: decimal -> TemplateHole
+
+    static member Value : th: TemplateHole -> obj
 
 module TemplateHole =
     type Elt =
@@ -670,27 +695,6 @@ module TemplateHole =
         inherit TemplateHole
         new: string * string -> UninitVar
         member Value: string
-
-type [<Class>] TemplateHoleHelpers =
-    static member NewActionEvent<'T when 'T :> Dom.Event> : name: string * f: Action<Dom.Element, 'T> -> TemplateHole
-    static member NewEventExpr<'T when 'T :> Dom.Event> : name: string * key: string * f: Expression<Action<Dom.Element, 'T>> -> TemplateHole
-    static member NewEventExprAction : name: string * f: Expression<Action> -> TemplateHole
-    static member NewAfterRenderExprAction : name: string * f: Expression<Action> -> TemplateHole
-
-    static member MakeText : name: string * text: string -> TemplateHole
-
-    static member MakeVarLens : name: string * value: string -> TemplateHole
-    static member MakeVarLens : name: string * value: bool -> TemplateHole
-    static member MakeVarLens : name: string * value: DateTime -> TemplateHole
-    static member MakeVarLens : name: string * value: File array -> TemplateHole
-    static member MakeVarLens : name: string * value: Client.CheckedInput<int> -> TemplateHole
-    static member MakeVarLens : name: string * value: int -> TemplateHole
-    static member MakeVarLens : name: string * value: Client.CheckedInput<float> -> TemplateHole
-    static member MakeVarLens : name: string * value: float -> TemplateHole
-    static member MakeVarLens : name: string * value: Client.CheckedInput<decimal> -> TemplateHole
-    static member MakeVarLens : name: string * value: decimal -> TemplateHole
-
-    static member Value : th: TemplateHole -> obj
     
 
 type DynDoc =

@@ -80,31 +80,8 @@ module internal Templates =
                     Some (As<Doc'> th.Value)
                 | :? TemplateHole.Text as th ->
                     Some (Doc'.TextNode th.Value)
-                | :? TemplateHole.TextView as th ->
-                    Some (Doc'.TextView th.Value)
-                | :? TemplateHole.VarStr as th ->
-                    Some (Doc'.TextView th.Value.View)
-                | :? TemplateHole.VarBool as th ->
-                    Some (Doc'.TextView (th.Value.View.Map string))
-                | :? TemplateHole.VarDateTime as th ->
-                    Some (Doc'.TextView (th.Value.View.Map string))
-                | :? TemplateHole.VarFile as th ->
-                    Some (Doc'.TextView (th.Value.View.Map string))
-                | :? TemplateHole.VarInt as th ->
-                    Some (Doc'.TextView (th.Value.View.Map (fun i -> i.Input)))
-                | :? TemplateHole.VarIntUnchecked as th ->
-                    Some (Doc'.TextView (th.Value.View.Map string))
-                | :? TemplateHole.VarFloat as th ->
-                    Some (Doc'.TextView (th.Value.View.Map (fun i -> i.Input)))
-                | :? TemplateHole.VarFloatUnchecked as th ->
-                    Some (Doc'.TextView (th.Value.View.Map string))
-                | :? TemplateHole.VarDecimal as th ->
-                    Some (Doc'.TextView (th.Value.View.Map (fun i -> i.Input)))
-                | :? TemplateHole.VarDecimalUnchecked as th ->
-                    Some (Doc'.TextView (th.Value.View.Map string))
                 | _ ->
-                    Console.Warn("Content hole filled with attribute data", name);
-                    None
+                    th.ForTextView () |> Option.map (Doc'.TextView)
             | false, _ -> None
 
         foreachNotPreserved el "[ws-hole]" <| fun p ->
@@ -224,18 +201,7 @@ module internal Templates =
             e.RemoveAttribute("ws-var")
             match fw.TryGetValue(name) with
             | true, th ->
-                match th with
-                | :? TemplateHole.VarStr as th -> addAttr e (Attr.Value th.Value)
-                | :? TemplateHole.VarBool as th -> addAttr e (Attr.Checked th.Value)
-                | :? TemplateHole.VarDateTime as th -> addAttr e (Attr.DateTimeValue th.Value)
-                | :? TemplateHole.VarFile as th -> addAttr e (Attr.FileValue th.Value)
-                | :? TemplateHole.VarInt as th -> addAttr e (Attr.IntValue th.Value)
-                | :? TemplateHole.VarIntUnchecked as th -> addAttr e (Attr.IntValueUnchecked th.Value)
-                | :? TemplateHole.VarFloat as th -> addAttr e (Attr.FloatValue th.Value)
-                | :? TemplateHole.VarFloatUnchecked as th -> addAttr e (Attr.FloatValueUnchecked th.Value)
-                | :? TemplateHole.VarDecimal as th -> addAttr e (Attr.DecimalValue th.Value)
-                | :? TemplateHole.VarDecimalUnchecked as th -> addAttr e (Attr.DecimalValueUnchecked th.Value)
-                | _ -> Console.Warn("Var hole filled with non-Var data", name)
+                th.AddAttribute(addAttr, e)
             | false, _ -> ()
 
         let wsdomHandling () =
@@ -301,46 +267,7 @@ module internal Templates =
                         let holeContent =
                             match fw.TryGetValue(holeName) with
                             | true, th ->
-                                match th with
-                                | :? TemplateHole.Text as th -> 
-                                    let v = th.Value
-                                    Choice1Of2 v
-                                | :? TemplateHole.TextView as th -> 
-                                    let v = th.Value
-                                    Choice2Of2 v
-                                | :? TemplateHole.VarStr as th -> 
-                                    let v = th.Value
-                                    Choice2Of2 v.View
-                                | :? TemplateHole.VarBool as th -> 
-                                    let v = th.Value
-                                    Choice2Of2 (v.View.Map string)
-                                | :? TemplateHole.VarDateTime as th -> 
-                                    let v = th.Value
-                                    Choice2Of2 (v.View.Map string)
-                                | :? TemplateHole.VarFile as th -> 
-                                    let v = th.Value
-                                    Choice2Of2 (v.View.Map string)
-                                | :? TemplateHole.VarInt as th -> 
-                                    let v = th.Value
-                                    Choice2Of2 (v.View.Map (fun i -> i.Input))
-                                | :? TemplateHole.VarIntUnchecked as th -> 
-                                    let v = th.Value
-                                    Choice2Of2 (v.View.Map string)
-                                | :? TemplateHole.VarFloat as th -> 
-                                    let v = th.Value
-                                    Choice2Of2 (v.View.Map (fun i -> i.Input))
-                                | :? TemplateHole.VarFloatUnchecked as th -> 
-                                    let v = th.Value
-                                    Choice2Of2 (v.View.Map string)
-                                | :? TemplateHole.VarDecimal as th -> 
-                                    let v = th.Value
-                                    Choice2Of2 (v.View.Map (fun i -> i.Input))
-                                | :? TemplateHole.VarDecimalUnchecked as th -> 
-                                    let v = th.Value
-                                    Choice2Of2 (v.View.Map string)
-                                | _ ->
-                                    Console.Warn("Attribute value hole filled with non-text data", holeName)
-                                    Choice1Of2 ""
+                                th.AsChoiceView
                             | false, _ -> Choice1Of2 ""
                         match holeContent with
                         | Choice1Of2 text -> textBefore + text + textAfter, views

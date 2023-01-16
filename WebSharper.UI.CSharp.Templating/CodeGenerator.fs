@@ -75,7 +75,7 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
         sprintf "public %s %s(%s x) { holes.Add(new TemplateHoleModule.%s(%s, %s)); return this; }"
             typeName holeName arg holeType holeName' value
     let sc arg holeType value =
-        sprintf "public %s %s(%s x) { holes.Add(TemplateHoleHelpers.New%s(%s, %s)); return this; }"
+        sprintf "public %s %s(%s x) { holes.Add(TemplateHole.New%s(%s, %s)); return this; }"
             typeName holeName arg holeType holeName' value
     let s2 arg holeType value =
         sprintf "public %s %s(%s x) { holes.Add(Handler.%s(%s, %s)); return this; }"
@@ -86,7 +86,7 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
     let serverS arg holeType value =
         [
             sprintf "[JavaScript(false)]"
-            sprintf "public %s %s_Server(%s y) { holes.Add(TemplateHoleHelpers.New%s(%s, %s)); return this; }"
+            sprintf "public %s %s_Server(%s y) { holes.Add(TemplateHole.New%s(%s, %s)); return this; }"
                 typeName holeName arg holeType holeName' value
         ]
     let serverSE arg holeType value =
@@ -105,14 +105,14 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
     let serverSEH arg holeType value =
         [
             sprintf "[JavaScript(false)]"
-            sprintf "public %s %s_Server(%s y) { holes.Add(TemplateHoleHelpers.New%s(%s, \"\", %s)); return this; }"
+            sprintf "public %s %s_Server(%s y) { holes.Add(TemplateHole.New%s(%s, \"\", %s)); return this; }"
                 typeName holeName arg holeType holeName' value
         ]
 
     let serverSTEH arg holeType value =
         [
             sprintf "[JavaScript(false)]"
-            sprintf "public %s %s_Server(%s y) { holes.Add(TemplateHoleHelpers.New%s(%s, key, %s)); return this; }"
+            sprintf "public %s %s_Server(%s y) { holes.Add(TemplateHole.New%s(%s, key, %s)); return this; }"
                 typeName holeName arg holeType holeName' value
         ]
 
@@ -260,15 +260,15 @@ let varsClass (ctx: Ctx) =
                 match holeDef.Kind with
                 | HoleKind.Var AST.ValTy.Any
                 | HoleKind.Var AST.ValTy.String ->
-                    yield sprintf """[Inline] public Var<string> %s => (Var<string>)TemplateHoleHelpers.Value((As<Instance>(this)).Hole("%s"));""" holeName holeName'
+                    yield sprintf """[Inline] public Var<string> %s => (Var<string>)TemplateHole.Value((As<Instance>(this)).Hole("%s"));""" holeName holeName'
                 | HoleKind.Var AST.ValTy.Number ->
-                    yield sprintf """[Inline] public Var<float> %s => (Var<float>)TemplateHoleHelpers.Value((As<Instance>(this)).Hole("%s"));""" holeName holeName'
+                    yield sprintf """[Inline] public Var<float> %s => (Var<float>)TemplateHole.Value((As<Instance>(this)).Hole("%s"));""" holeName holeName'
                 | HoleKind.Var AST.ValTy.Bool ->
-                    yield sprintf """[Inline] public Var<bool> %s => (Var<bool>)TemplateHoleHelpers.Value((As<Instance>(this)).Hole("%s"));""" holeName holeName'
+                    yield sprintf """[Inline] public Var<bool> %s => (Var<bool>)TemplateHole.Value((As<Instance>(this)).Hole("%s"));""" holeName holeName'
                 | HoleKind.Var AST.ValTy.DateTime ->
-                    yield sprintf """[Inline] public Var<DateTime> %s => (Var<DateTime>)TemplateHoleHelpers.Value((As<Instance>(this)).Hole("%s"));""" holeName holeName'
+                    yield sprintf """[Inline] public Var<DateTime> %s => (Var<DateTime>)TemplateHole.Value((As<Instance>(this)).Hole("%s"));""" holeName holeName'
                 | HoleKind.Var AST.ValTy.File ->
-                    yield sprintf """[Inline] public Var<JavaScript.File array> %s => (Var<JavaScript.File array>)TemplateHoleHelpers.Value((As<Instance>(this)).Hole("%s"));""" holeName holeName'
+                    yield sprintf """[Inline] public Var<JavaScript.File array> %s => (Var<JavaScript.File array>)TemplateHole.Value((As<Instance>(this)).Hole("%s"));""" holeName holeName'
                 | _ -> ()
         ]
         yield "}"
@@ -281,12 +281,12 @@ let anchorsClass (ctx: Ctx) =
         yield! indent [
             for anchorName in ctx.Template.Anchors do
                 let anchorName' = anchorName.ToLowerInvariant()
-                yield sprintf """[Inline] public DomElement %s => (DomElement)TemplateHoleHelpers.Value((As<Instance>(this)).Anchor("%s"));""" anchorName anchorName'
+                yield sprintf """[Inline] public DomElement %s => (DomElement)TemplateHole.Value((As<Instance>(this)).Anchor("%s"));""" anchorName anchorName'
             for KeyValue(holeName, holeDef) in ctx.Template.Holes do
                 let holeName' = holeName.ToLowerInvariant()
                 match holeDef.Kind with
                 | HoleKind.Var AST.ValTy.DomElement ->
-                    yield sprintf """[Inline] public Var<FSharpOption<JavaScript.Dom.Element>> %s => (Var<FSharpOption<JavaScript.Dom.Element>>)TemplateHoleHelpers.Value((As<Instance>(this)).Hole("%s"));""" holeName holeName'
+                    yield sprintf """[Inline] public Var<FSharpOption<JavaScript.Dom.Element>> %s => (Var<FSharpOption<JavaScript.Dom.Element>>)TemplateHole.Value((As<Instance>(this)).Hole("%s"));""" holeName holeName'
                 | _ -> ()
         ]
         yield "}"

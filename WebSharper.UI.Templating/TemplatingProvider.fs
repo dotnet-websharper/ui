@@ -43,7 +43,6 @@ module private Impl =
     type Var<'T> = WebSharper.UI.Var<'T>
     type UINVar = WebSharper.UI.Var
     type TemplateHole = WebSharper.UI.TemplateHole
-    type TemplateHoleHelpers = WebSharper.UI.TemplateHoleHelpers
     type DomElement = WebSharper.JavaScript.Dom.Element
     type DomEvent = WebSharper.JavaScript.Dom.Event
     type CheckedInput<'T> = WebSharper.UI.Client.CheckedInput<'T>
@@ -265,7 +264,7 @@ module private Impl =
         let mk wrapArg = BuildMethod hole resTy ctx wrapArg
         [
             mk <| fun b name (x: Expr<string>) ->
-                <@ (%b).With(TemplateHoleHelpers.MakeText(%name, %x)) @>
+                <@ (%b).With(TemplateHole.MakeText(%name, %x)) @>
             mk <| fun b name (x: Expr<View<string>>) ->
                 <@ (%b).With(%name, %x) @>
         ]
@@ -279,7 +278,7 @@ module private Impl =
             match hole with
             | Choice1Of2 _ ->
                 yield mk <| fun b name (x: Expr<string>) ->
-                    <@ (%b).With(TemplateHoleHelpers.MakeVarLens(%name, %x)) @>
+                    <@ (%b).With(TemplateHole.MakeVarLens(%name, %x)) @>
             | Choice2Of2 _ -> () // Don't make lensed .With(), it conflicts with normal string
         ]
 
@@ -290,27 +289,27 @@ module private Impl =
             yield! mkVar <| fun b name (x: Expr<Var<int>>) ->
                 <@ (%b).With(%name, %x) @>
             yield mk <| fun b name (x: Expr<int>) ->
-                <@ (%b).With(TemplateHoleHelpers.MakeVarLens(%name, %x)) @>
+                <@ (%b).With(TemplateHole.MakeVarLens(%name, %x)) @>
             yield! mkVar <| fun b name (x: Expr<Var<CheckedInput<int>>>) ->
                 <@ (%b).With(%name, %x) @>
             yield mk <| fun b name (x: Expr<CheckedInput<int>>) ->
-                <@ (%b).With(TemplateHoleHelpers.MakeVarLens(%name, %x)) @>
+                <@ (%b).With(TemplateHole.MakeVarLens(%name, %x)) @>
             yield! mkVar <| fun b name (x: Expr<Var<float>>) ->
                 <@ (%b).With(%name, %x) @>
             yield mk <| fun b name (x: Expr<float>) ->
-                <@ (%b).With(TemplateHoleHelpers.MakeVarLens(%name, %x)) @>
+                <@ (%b).With(TemplateHole.MakeVarLens(%name, %x)) @>
             yield! mkVar <| fun b name (x: Expr<Var<CheckedInput<float>>>) ->
                 <@ (%b).With(%name, %x) @>
             yield mk <| fun b name (x: Expr<CheckedInput<float>>) ->
-                <@ (%b).With(TemplateHoleHelpers.MakeVarLens(%name, %x)) @>
+                <@ (%b).With(TemplateHole.MakeVarLens(%name, %x)) @>
             yield! mkVar <| fun b name (x: Expr<Var<decimal>>) ->
                 <@ (%b).With(%name, %x) @>
             yield mk <| fun b name (x: Expr<decimal>) ->
-                <@ (%b).With(TemplateHoleHelpers.MakeVarLens(%name, %x)) @>
+                <@ (%b).With(TemplateHole.MakeVarLens(%name, %x)) @>
             yield! mkVar <| fun b name (x: Expr<Var<CheckedInput<decimal>>>) ->
                 <@ (%b).With(%name, %x) @>
             yield mk <| fun b name (x: Expr<CheckedInput<decimal>>) ->
-                <@ (%b).With(TemplateHoleHelpers.MakeVarLens(%name, %x)) @>
+                <@ (%b).With(TemplateHole.MakeVarLens(%name, %x)) @>
         ]
 
     let VarBoolHoleMethods hole resTy ctx =
@@ -320,7 +319,7 @@ module private Impl =
             yield! mkVar <| fun b name (x: Expr<Var<bool>>) ->
                 <@ (%b).With(%name, %x) @>
             yield mk <| fun b name (x: Expr<bool>) ->
-                <@ (%b).With(TemplateHoleHelpers.MakeVarLens(%name, %x)) @>
+                <@ (%b).With(TemplateHole.MakeVarLens(%name, %x)) @>
         ]
 
     let VarDateTimeHoleMethods hole resTy ctx =
@@ -330,7 +329,7 @@ module private Impl =
             yield! mkVar <| fun b name (x: Expr<Var<DateTime>>) ->
                 <@ (%b).With(%name, %x) @>
             yield mk <| fun b name (x: Expr<DateTime>) ->
-                <@ (%b).With(TemplateHoleHelpers.MakeVarLens(%name, %x)) @>
+                <@ (%b).With(TemplateHole.MakeVarLens(%name, %x)) @>
         ]
 
     let VarFileHoleMethods hole resTy ctx =
@@ -340,7 +339,7 @@ module private Impl =
             yield! mkVar <| fun b name (x: Expr<Var<WebSharper.JavaScript.File array>>) ->
                 <@ (%b).With(%name, %x) @>
             yield mk <| fun b name (x: Expr<WebSharper.JavaScript.File array>) ->
-                <@ (%b).With(TemplateHoleHelpers.MakeVarLens(%name, %x)) @>
+                <@ (%b).With(TemplateHole.MakeVarLens(%name, %x)) @>
         ]
 
     let VarDomElementHoleMethods hole resTy ctx =
@@ -502,23 +501,23 @@ module private Impl =
                 match def.Kind with
                 | AST.HoleKind.Var AST.ValTy.Any | AST.HoleKind.Var AST.ValTy.String ->
                     yield ProvidedProperty(holeName, typeof<Var<string>>, fun x ->
-                        <@@ ((%%x[0] : obj) :?> TI).Hole holeName' |> TemplateHoleHelpers.Value @@>)
+                        <@@ ((%%x[0] : obj) :?> TI).Hole holeName' |> TemplateHole.Value @@>)
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
                 | AST.HoleKind.Var AST.ValTy.Number ->
                     yield ProvidedProperty(holeName, typeof<Var<float>>, fun x ->
-                        <@@ ((%%x[0] : obj) :?> TI).Hole holeName' |> TemplateHoleHelpers.Value @@>)
+                        <@@ ((%%x[0] : obj) :?> TI).Hole holeName' |> TemplateHole.Value @@>)
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
                 | AST.HoleKind.Var AST.ValTy.Bool ->
                     yield ProvidedProperty(holeName, typeof<Var<bool>>, fun x ->
-                        <@@ ((%%x[0] : obj) :?> TI).Hole(holeName') |> TemplateHoleHelpers.Value @@>)
+                        <@@ ((%%x[0] : obj) :?> TI).Hole(holeName') |> TemplateHole.Value @@>)
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
                 | AST.HoleKind.Var AST.ValTy.DateTime ->
                     yield ProvidedProperty(holeName, typeof<Var<DateTime>>, fun x ->
-                        <@@ ((%%x[0] : obj) :?> TI).Hole(holeName') |> TemplateHoleHelpers.Value @@>)
+                        <@@ ((%%x[0] : obj) :?> TI).Hole(holeName') |> TemplateHole.Value @@>)
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
                 | AST.HoleKind.Var AST.ValTy.File ->
                     yield ProvidedProperty(holeName, typeof<Var<WebSharper.JavaScript.File array>>, fun x ->
-                        <@@ ((%%x[0] : obj) :?> TI).Hole(holeName') |> TemplateHoleHelpers.Value @@>)
+                        <@@ ((%%x[0] : obj) :?> TI).Hole(holeName') |> TemplateHole.Value @@>)
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
                 | _ -> ()
         ]
@@ -532,7 +531,7 @@ module private Impl =
                 match def.Kind with
                 | HoleKind.Var ValTy.DomElement ->
                     yield ProvidedProperty(holeName, typeof<Var<DomElement option>>, fun x ->
-                        <@@ ((%%x[0] : obj) :?> TI).Hole holeName' |> TemplateHoleHelpers.Value @@>)
+                        <@@ ((%%x[0] : obj) :?> TI).Hole holeName' |> TemplateHole.Value @@>)
                         .WithXmlDoc(XmlDoc.Member.Anchor holeName)
                 | _ -> ()
         ]
