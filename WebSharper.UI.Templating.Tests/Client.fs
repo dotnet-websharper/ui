@@ -145,10 +145,10 @@ module Client =
                             .Hole("d")
                             .FontStyle("italic")
                             .FontWeight("bold")
-                            //.Remove(fun e -> 
-                            //    Console.Log("Remove clicked", e.Anchors.NameSpan)
-                            //    myItems.RemoveByKey key
-                            //)
+                            .Remove(fun e -> 
+                                Console.Log("Remove clicked", e.Anchors.NameSpan)
+                                myItems.RemoveByKey key
+                            )
                             .Elt()
                             .OnClickView(item.View, fun _ _ x -> JS.Alert x.name)
                             .OnAfterRender(fun e -> Console.Log e)
@@ -162,9 +162,9 @@ module Client =
                 .LIExtraAttr(Attr.Class "class4")
                 .Replace2("Replace2")
                 .NewDescription(newDescr)
-                //.NewItem(fun e -> myItems.Add { id = freshKey(); name = e.Vars.NewName.Value; description = newDescr.Value })
-                //.SubmitItems(fun _ -> itemsSub.Trigger())
-                //.ClearItems(fun _ -> myItems.Clear())
+                .NewItem(fun e -> myItems.Add { id = freshKey(); name = e.Vars.NewName.Value; description = newDescr.Value })
+                .SubmitItems(fun _ -> itemsSub.Trigger())
+                .ClearItems(fun _ -> myItems.Clear())
                 .Test102(
                     // Test #102: this would empty the whole containing div
                     myItems.ViewState
@@ -204,14 +204,14 @@ module Client =
                 )
                 .MyInput(var)
                 .MyInputView(btnSub.View)
-                //.MyCallback(fun _ -> btnSub.Trigger())
+                .MyCallback(fun _ -> btnSub.Trigger())
                 .ButtonExtraText(" now")
                 .Checked(chk)
                 .IsChecked(if chk.V then "checked" else "not checked")
-                //.NameChanged(fun e -> 
-                //   let key = if e.Event?which then e.Event?which else e.Event?keyCode
-                //   if key = 13 then e.Vars.NewName := "")
-                //.PRendered(fun (el: Dom.Element) -> var := el.GetAttribute("id"))
+                .NameChanged(fun e -> 
+                   let key = if e.Event?which then e.Event?which else e.Event?keyCode
+                   if key = 13 then e.Vars.NewName := "")
+                .PRendered(fun (el: Dom.Element) -> var := el.GetAttribute("id"))
                 .ControlTests(
                     let clk = Var.Create ""
                     let chk = Var.Create true
@@ -248,11 +248,11 @@ module Client =
                         ]
                     ]
                 )
-                //.AddDiv(fun _ -> addDiv())
-                //.RemoveUpdater(fun _ -> removeUpdater())
-                //.ReAddUpdater(fun _ -> reAddUpdater())
-                //.RemoveAllUpdaters(fun _ -> removeAllUpdaters())
-                //.IncrEltUpdaterTest(fun _ -> testCounter := testCounter.Value + 1)
+                .AddDiv(fun _ -> addDiv())
+                .RemoveUpdater(fun _ -> removeUpdater())
+                .ReAddUpdater(fun _ -> reAddUpdater())
+                .RemoveAllUpdaters(fun _ -> removeAllUpdaters())
+                .IncrEltUpdaterTest(fun _ -> testCounter := testCounter.Value + 1)
                 .EltUpdaterTest(eltUpdater)
                 .SvgCircleHole(
                     let el =
@@ -264,7 +264,7 @@ module Client =
                 .Username(username)
                 .Password(password)
                 .Username1(username.View)
-                //.Submit(fun _ -> submit.Trigger())
+                .Submit(fun _ -> submit.Trigger())
                 .NestedInstantiationTest(MyTemplate.template.L3().MIAttr(Attr.Style "color" "red").Ok("Ok").Doc())
                 .Create()
 
@@ -290,28 +290,28 @@ module Client =
             .Hole(text "[OK] This replaces a ws-hole.")
             .Replace(p [] [text "[OK] This replaces a ws-replace."])
             .TextHole("[OK] This replaces a ${text} hole.")
-            //.MouseEnter(fun e -> DomUtility.AddClass e.Target "ok")
+            .MouseEnter(fun e -> DomUtility.AddClass e.Target "ok")
             .Attr(Attr.Class "ok")
             .MultiAttr(Attr.Class "ok1", Attr.Class "ok2")
-            //.AfterRender(fun (e: Runtime.Server.TemplateEvent<MyTemplate.index.Vars, MyTemplate.index.Anchors, _>) ->
-            //    Console.Log("OnAfterRender TemplateEvent overload on client-side should render.")
-            //    Console.Log("Header restrieved via ws-anchor", e.Anchors.Header)
-            //    let x =
-            //        MyTemplate.index.HTML5Template()
-            //            .Default("Hello")
-            //            .ThisIsOk("This is ok")
-            //            .Text()
-            //    Console.Log("HTML5 template text", x)
-            //    let y =
-            //        MyTemplate.index.HTML5Template()
-            //            .Default("Hello")
-            //            .ThisIsOk("This is ok")
-            //            .Content()
-            //    Console.Log("HTML5 template content", y)
-            //    e.Target.TextContent <- "[OK] This replaces text with ws-onafterrender.")
-            //.InputMouseEnter(fun e ->
-            //    e.Vars.Input := "[OK]"
-            //)
+            .AfterRender(fun (e: Runtime.Server.TemplateEvent<MyTemplate.index.Vars, MyTemplate.index.Anchors, _>) ->
+                Console.Log("OnAfterRender TemplateEvent overload on client-side should render.")
+                Console.Log("Header restrieved via ws-anchor", e.Anchors.Header)
+                let x =
+                    MyTemplate.index.HTML5Template()
+                        .Default("Hello")
+                        .ThisIsOk("This is ok")
+                        .Text()
+                Console.Log("HTML5 template text", x)
+                let y =
+                    MyTemplate.index.HTML5Template()
+                        .Default("Hello")
+                        .ThisIsOk("This is ok")
+                        .Content()
+                Console.Log("HTML5 template content", y)
+                e.Target.TextContent <- "[OK] This replaces text with ws-onafterrender.")
+            .InputMouseEnter(fun e ->
+                e.Vars.Input := "[OK]"
+            )
             .OkClass("ok")
             .OkView(View.Const "[OK]")
             .OkClassView(View.Const "ok")
@@ -336,9 +336,9 @@ module Client =
                     ]
                 ])
             .Username(username)
-            //.Submit(fun e ->
-            //    welcome := sprintf "Welcome %s!" !username
-            //)
+            .Submit(fun e ->
+                welcome := sprintf "Welcome %s!" !username
+            )
             .Welcome(welcome.View)
             .CheckBooleanAttr(
                 let disabledVar = Var.Create true
@@ -376,28 +376,28 @@ module Client =
             .``imAHtml5-Template``(
                template :> Doc
             )
-            //.ReplaceOnClick(fun (e: Runtime.Server.TemplateEvent<MyTemplate.index.Vars, MyTemplate.index.Anchors, _>) ->
-            //    let inp = Elt.span [] []
-            //    e.Vars.RangeVar.Set 50
-            //    e.Anchors.ReplaceMe.Set (Some inp.Dom)
-            //    e.Anchors.asd.Set (Some inp.Dom)
-            //)
+            .ReplaceOnClick(fun (e: Runtime.Server.TemplateEvent<MyTemplate.index.Vars, MyTemplate.index.Anchors, _>) ->
+                let inp = Elt.span [] []
+                e.Vars.RangeVar.Set 50
+                e.Anchors.ReplaceMe.Set (Some inp.Dom)
+                e.Anchors.asd.Set (Some inp.Dom)
+            )
             .TestWSDom(
                 MyTemplate.index.FileUploader()
-                    //.OnSubmit(fun (e: Runtime.Server.TemplateEvent<MyTemplate.index.FileUploader.Vars, MyTemplate.index.FileUploader.Anchors, _>) ->
-                    //    e.Event.PreventDefault()
-                    //    e.Anchors.MyNode := Some (Elt.span [] []).Dom
-                    //    ()
-                    //)
+                    .OnSubmit(fun (e: Runtime.Server.TemplateEvent<MyTemplate.index.FileUploader.Vars, MyTemplate.index.FileUploader.Anchors, _>) ->
+                        e.Event.PreventDefault()
+                        e.Anchors.MyNode := Some (Elt.span [] []).Dom
+                        ()
+                    )
                     .Doc()
             )
             .TestWSDom2(
                 MyTemplate.index.WSDOMINSIDETEMPLATE()
-                    //.ClickHandler(fun (e: Runtime.Server.TemplateEvent<MyTemplate.index.WSDOMINSIDETEMPLATE.Vars, MyTemplate.index.WSDOMINSIDETEMPLATE.Anchors, _>) ->
-                    //    e.Event.PreventDefault()
-                    //    e.Anchors.DomNode := Some (Elt.span [] []).Dom
-                    //    ()
-                    //)
+                    .ClickHandler(fun (e: Runtime.Server.TemplateEvent<MyTemplate.index.WSDOMINSIDETEMPLATE.Vars, MyTemplate.index.WSDOMINSIDETEMPLATE.Anchors, _>) ->
+                        e.Event.PreventDefault()
+                        e.Anchors.DomNode := Some (Elt.span [] []).Dom
+                        ()
+                    )
                     .Doc()
             )
             .Bind()
