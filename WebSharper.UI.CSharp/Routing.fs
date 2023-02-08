@@ -236,9 +236,9 @@ and private RouteMapBuilderMacro() =
                         cls.Fields
 //                        t'.GetFields(BF.Instance ||| BF.Public ||| BF.NonPublic)
                         |> Seq.choose (fun (KeyValue(compName, f)) ->
-                            match f with
-                            | Metadata.InstanceField name, _, ftyp 
-                            | Metadata.OptionalField name, _, ftyp -> 
+                            match f.CompiledForm with
+                            | Metadata.InstanceField name 
+                            | Metadata.OptionalField name -> 
                                 comp.GetFieldAttributes(td, compName) |> Option.map (fun fattrs ->
                                     let isQuery =
                                         fattrs
@@ -246,6 +246,7 @@ and private RouteMapBuilderMacro() =
                                             at.Value.FullName = "WebSharper.QueryAttribute" &&
                                                 Array.isEmpty args
                                         )
+                                    let ftyp = f.Type
                                     if isQuery then
                                         let queryItem, ty =
                                             match ftyp with
@@ -263,10 +264,10 @@ and private RouteMapBuilderMacro() =
                                         name, queryItem, ty
                                     else name, QueryItem.NotQuery, ftyp
                                 )
-                            | Metadata.IndexedField _, _, ftyp ->
+                            | Metadata.IndexedField _ ->
                                 failwithf "Field translated to an index is not supported for routing %s: %s."
-                                    compName ftyp.AssemblyQualifiedName
-                            | Metadata.StaticField _, _, _ -> None
+                                    compName f.Type.AssemblyQualifiedName
+                            | Metadata.StaticField _ -> None
                         ) 
                         |> List.ofSeq
                     let isHole (n: string) = n.StartsWith "{" && n.EndsWith "}"

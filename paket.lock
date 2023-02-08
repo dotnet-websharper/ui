@@ -461,21 +461,21 @@ NUGET
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
   remote: ../localnuget
-    WebSharper (7.0.0.253-alpha1)
+    WebSharper (7.0.0.270-alpha2)
       FSharp.Core (>= 6.0)
       System.Reflection.Emit.Lightweight (>= 4.7)
-    WebSharper.AspNetCore (7.0.0.253-alpha1)
+    WebSharper.AspNetCore (7.0.0.270-alpha2)
       Microsoft.AspNetCore.Authentication.Abstractions (>= 2.0)
       Microsoft.AspNetCore.Hosting.Abstractions (>= 2.0)
       Microsoft.AspNetCore.Mvc.Abstractions (>= 2.0)
       System.Configuration.ConfigurationManager (>= 4.7)
-      WebSharper (7.0.0.253-alpha1)
-    WebSharper.CSharp (7.0.0.253-alpha1)
-      WebSharper (7.0.0.253-alpha1)
-    WebSharper.FSharp (7.0.0.253-alpha1)
-      WebSharper (7.0.0.253-alpha1)
-    WebSharper.Testing (7.0.0.253-alpha1)
-      WebSharper (7.0.0.253-alpha1)
+      WebSharper (7.0.0.270-alpha2)
+    WebSharper.CSharp (7.0.0.270-alpha2)
+      WebSharper (7.0.0.270-alpha2)
+    WebSharper.FSharp (7.0.0.270-alpha2)
+      WebSharper (7.0.0.270-alpha2)
+    WebSharper.Testing (7.0.0.270-alpha2)
+      WebSharper (7.0.0.270-alpha2)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
     src/ProvidedTypes.fs (d3888ccc3945ca846c01945d4876bdd5701490f6)
@@ -489,4 +489,4 @@ GROUP wsbuild
 
 GIT
   remote: https://github.com/dotnet-websharper/build-script
-     (9e8c1e75760322e6dff2e976414bd85ec6c0cdbe)
+     (73d6303ae00aae83c1c075b5edc47ceb0068936e)
