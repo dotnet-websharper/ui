@@ -37,9 +37,24 @@ module Doc =
 type Content =
 
     /// Converts a `Doc` to a sitelet Page.
-    /// `Doc` values that correspond to HTML fragements are converted to full documents.
+    /// `Doc` values that correspond to HTML fragments are converted to full documents.
     /// WebSharper resources will be placed in place of the element with data-replace="scripts". 
     static member Page : Doc -> Async<Content<'Action>>
+
+    /// Converts a `Doc` to a sitelet Page.
+    /// `Doc` values that correspond to HTML fragments are converted to full documents.
+    /// WebSharper resources will be placed in place of the element with data-replace="scripts". 
+    static member Page : Doc * ?Status:Http.Status * ?ExtraContentHeaders:seq<Http.Header> -> Async<Content<'Action>>
+
+    /// Converts a `Doc` to a sitelet Page.
+    /// `Doc` values that correspond to HTML fragments.
+    /// WebSharper resources will be placed in place of the element with data-replace="scripts". 
+    static member PageFragment : Doc -> Async<Content<'Action>>
+
+    /// Converts a `Doc` to a sitelet Page.
+    /// `Doc` values that correspond to HTML fragments.
+    /// WebSharper resources will be placed in place of the element with data-replace="scripts". 
+    static member PageFragment : Doc * ?Status:Http.Status * ?ExtraContentHeaders:seq<Http.Header> -> Async<Content<'Action>>
 
     /// Converts a `Doc` to a sitelet Page.
     /// `Doc` values that correspond to HTML fragements are converted to full documents.

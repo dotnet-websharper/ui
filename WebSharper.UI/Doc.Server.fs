@@ -32,21 +32,35 @@ module Doc =
     let WebControl (c: WebSharper.Web.INode) =
         Doc.OfINode c
 
+module private ContentHelper =
+    let pageBase (doc: Doc) (withDocType: bool) (status: Http.Status option) (extraHeaders: Http.Header seq) =
+        Content.FromContext <| fun ctx ->
+            Content.Custom(
+                Status = (status |> Option.defaultValue Http.Status.Ok),
+                Headers = Seq.append [Http.Header.Custom "Content-Type" "text/html; charset=utf-8"] extraHeaders,
+                WriteBody = fun s ->
+                    use sw = new System.IO.StreamWriter(s, Text.Encoding.UTF8, 1024, leaveOpen = true)
+                    use w = new HtmlTextWriter(sw)
+                    if withDocType then
+                        w.WriteLine("<!DOCTYPE html>")
+                    doc.Write(ctx, w, true)
+                    sw.Flush()
+            )
+
 [<Sealed>]
 type Content =
 
     static member Page (doc: Doc) : Async<Content<'Action>> =
-        Content.FromContext <| fun ctx ->
-            Content.Custom(
-                Status = Http.Status.Ok,
-                Headers = [Http.Header.Custom "Content-Type" "text/html; charset=utf-8"],
-                WriteBody = fun s ->
-                    use sw = new System.IO.StreamWriter(s, Text.Encoding.UTF8, 1024, leaveOpen = true)
-                    use w = new HtmlTextWriter(sw)
-                    w.WriteLine("<!DOCTYPE html>")
-                    doc.Write(ctx, w, true)
-                    sw.Flush()
-            )
+        ContentHelper.pageBase doc true None Seq.empty
+
+    static member PageFragment (doc: Doc) : Async<Content<'Action>> =
+        ContentHelper.pageBase doc false None Seq.empty
+
+    static member Page (doc:Doc, ?Status:Http.Status, ?ExtraContentHeaders:seq<Http.Header>) : Async<Content<'Action>> =
+        ContentHelper.pageBase doc true Status (ExtraContentHeaders |> Option.defaultValue Seq.empty)
+
+    static member PageFragment (doc: Doc, ?Status:Http.Status, ?ExtraContentHeaders:seq<Http.Header>) : Async<Content<'Action>> =
+        ContentHelper.pageBase doc false Status (ExtraContentHeaders |> Option.defaultValue Seq.empty)
 
     static member Doc (doc: Doc) : Async<Content<'Action>> =
         Content.Page doc
