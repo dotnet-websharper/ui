@@ -53,14 +53,14 @@ type Content =
     static member Page (doc: Doc) : Async<Content<'Action>> =
         ContentHelper.pageBase doc true None Seq.empty
 
-    static member PageFragment (doc: Doc) : Async<Content<'Action>> =
-        ContentHelper.pageBase doc false None Seq.empty
-
     static member Page (doc:Doc, ?Status:Http.Status, ?ExtraContentHeaders:seq<Http.Header>) : Async<Content<'Action>> =
         ContentHelper.pageBase doc true Status (ExtraContentHeaders |> Option.defaultValue Seq.empty)
 
-    static member PageFragment (doc: Doc, ?Status:Http.Status, ?ExtraContentHeaders:seq<Http.Header>) : Async<Content<'Action>> =
-        ContentHelper.pageBase doc false Status (ExtraContentHeaders |> Option.defaultValue Seq.empty)
+    static member PageFragment (doc: seq<Doc>) : Async<Content<'Action>> =
+        ContentHelper.pageBase (Doc.Concat doc) false None Seq.empty
+
+    static member PageFragment (doc: seq<Doc>, ?Status:Http.Status, ?ExtraContentHeaders:seq<Http.Header>) : Async<Content<'Action>> =
+        ContentHelper.pageBase (Doc.Concat doc) false Status (ExtraContentHeaders |> Option.defaultValue Seq.empty)
 
     static member Doc (doc: Doc) : Async<Content<'Action>> =
         Content.Page doc
