@@ -63,7 +63,7 @@ module internal Templates =
         let attrs : (Dom.Element * Attrs.Dyn)[] = [||]
         let afterRender : (Dom.Element -> unit)[] = [||]
         let fw = Dictionary()
-        for x in fillWith do fw[TemplateHole.Name x] <- x
+        for x in fillWith do fw[x.Name] <- x
         let els = As<Union<Dom.Node, DocNode>[]> (DomUtility.ChildrenArray el)
         let addAttr (el: Dom.Element) (attr: Attr) =
             let attr = Attrs.Insert el attr
@@ -74,18 +74,14 @@ module internal Templates =
             | None -> ()
         let tryGetAsDoc name =
             match fw.TryGetValue(name) with
-            | true, TemplateHole.Elt (_, doc) -> Some (As<Doc'> doc)
-            | true, TemplateHole.Text (_, text) -> Some (Doc'.TextNode text)
-            | true, TemplateHole.TextView (_, tv) -> Some (Doc'.TextView tv)
-            | true, TemplateHole.VarStr (_, v) -> Some (Doc'.TextView v.View)
-            | true, TemplateHole.VarBool (_, v) -> Some (Doc'.TextView (v.View.Map string))
-            | true, TemplateHole.VarDateTime (_, v) -> Some (Doc'.TextView (v.View.Map string))
-            | true, TemplateHole.VarFile (_, v) -> Some (Doc'.TextView (v.View.Map string)) //?????????
-            | true, TemplateHole.VarInt (_, v) -> Some (Doc'.TextView (v.View.Map (fun i -> i.Input)))
-            | true, TemplateHole.VarIntUnchecked (_, v) -> Some (Doc'.TextView (v.View.Map string))
-            | true, TemplateHole.VarFloat (_, v) -> Some (Doc'.TextView (v.View.Map (fun i -> i.Input)))
-            | true, TemplateHole.VarFloatUnchecked (_, v) -> Some (Doc'.TextView (v.View.Map string))
-            | true, _ -> Console.Warn("Content hole filled with attribute data", name); None
+            | true, th ->
+                match th with
+                | :? TemplateHole.Elt as th ->
+                    Some (As<Doc'> th.Value)
+                | :? TemplateHole.Text as th ->
+                    Some (Doc'.TextNode th.Value)
+                | _ ->
+                    th.ForTextView () |> Option.map (Doc'.TextView)
             | false, _ -> None
 
         foreachNotPreserved el "[ws-hole]" <| fun p ->
@@ -161,8 +157,11 @@ module internal Templates =
             let name = e.GetAttribute("ws-attr")
             e.RemoveAttribute("ws-attr")
             match fw.TryGetValue(name) with
-            | true, TemplateHole.Attribute (_, attr) -> addAttr e attr
-            | true, _ -> Console.Warn("Attribute hole filled with non-attribute data", name)
+            | true, th ->
+                match th with
+                | :? TemplateHole.Attribute as th ->
+                    addAttr e th.Value
+                | _ -> Console.Warn("Attribute hole filled with non-attribute data", name)
             | false, _ -> ()
 
         foreachNotPreserved el "[ws-on]" <| fun e ->
@@ -170,11 +169,13 @@ module internal Templates =
             |> Array.choose (fun x ->
                 let a = x.Split([|':'|], StringSplitOptions.RemoveEmptyEntries)
                 match fw.TryGetValue(a[1]) with
-                | true, TemplateHole.Event (_, handler) -> Some (Attr.Handler a[0] handler)
-                | true, TemplateHole.EventQ (_, handler) -> Some (A.Handler a[0] handler)
-                | true, _ ->
-                    Console.Warn("Event hole on" + a[0] + " filled with non-event data", a[1])
-                    None
+                | true, th ->
+                    match th with
+                    | :? TemplateHole.Event as th -> Some (Attr.Handler a[0] th.Value)
+                    | :? TemplateHole.EventQ as th -> Some (A.Handler a[0] th.Value)
+                    | _ ->
+                        Console.Warn("Event hole on" + a[0] + " filled with non-event data", a[1])
+                        None
                 | false, _ -> None
             )
             |> Attr.Concat
@@ -184,66 +185,65 @@ module internal Templates =
         foreachNotPreserved el "[ws-onafterrender]" <| fun e ->
             let name = e.GetAttribute("ws-onafterrender")
             match fw.TryGetValue(name) with
-            | true, TemplateHole.AfterRender (_, handler) ->
-                e.RemoveAttribute("ws-onafterrender")
-                addAttr e (Attr.OnAfterRender handler)
-            | true, TemplateHole.AfterRenderQ (_, handler) ->
-                e.RemoveAttribute("ws-onafterrender")
-                addAttr e (Attr.OnAfterRender (As handler))
-            | true, _ -> Console.Warn("onafterrender hole filled with non-onafterrender data", name)
+            | true, th ->
+                match th with
+                | :? TemplateHole.AfterRender as th ->
+                    e.RemoveAttribute("ws-onafterrender")
+                    addAttr e (Attr.OnAfterRender th.Value)
+                | :? TemplateHole.AfterRenderQ as th ->
+                    e.RemoveAttribute("ws-onafterrender")
+                    addAttr e (Attr.OnAfterRender (As th.Value))
+                | _ -> Console.Warn("onafterrender hole filled with non-onafterrender data", name)
             | false, _ -> ()
 
         foreachNotPreserved el "[ws-var]" <| fun e ->
             let name = e.GetAttribute("ws-var")
             e.RemoveAttribute("ws-var")
             match fw.TryGetValue(name) with
-            | true, TemplateHole.VarStr (_, var) -> addAttr e (Attr.Value var)
-            | true, TemplateHole.VarBool (_, var) -> addAttr e (Attr.Checked var)
-            | true, TemplateHole.VarDateTime (_, var) -> addAttr e (Attr.DateTimeValue var)
-            | true, TemplateHole.VarFile (_, var) -> addAttr e (Attr.FileValue var)
-            | true, TemplateHole.VarInt (_, var) -> addAttr e (Attr.IntValue var)
-            | true, TemplateHole.VarIntUnchecked (_, var) -> addAttr e (Attr.IntValueUnchecked var)
-            | true, TemplateHole.VarFloat (_, var) -> addAttr e (Attr.FloatValue var)
-            | true, TemplateHole.VarFloatUnchecked (_, var) -> addAttr e (Attr.FloatValueUnchecked var)
-            | true, _ -> Console.Warn("Var hole filled with non-Var data", name)
+            | true, th ->
+                th.AddAttribute(addAttr, e)
             | false, _ -> ()
 
         let wsdomHandling () =
             foreachNotPreservedwsDOM "[ws-dom]" <| fun e ->
                 let name = e.GetAttribute("ws-dom")
                 match fw.TryGetValue(name.ToLower()) with
-                | true, TemplateHole.VarDomElement(_, var) ->
-                    e.RemoveAttribute("ws-dom")
-                    let mutable toWatch = e
-                    let mo =
-                        JavaScript.Dom.MutationObserver(
-                            (fun (mrs, mo) ->
-                                mrs
-                                |> Array.iter (fun mr ->
-                                    mr.RemovedNodes.ForEach((fun (x, _, _, _) ->
-                                        if x ===. toWatch && mr.AddedNodes.Length <> 1 then
-                                            var.SetFinal None
-                                            mo.Disconnect()
-                                    ), null)
+                | true, th ->
+                    match th with
+                    | :? TemplateHole.VarDomElement as th ->
+                        let var = th.Value
+                        e.RemoveAttribute("ws-dom")
+                        let mutable toWatch = e
+                        let mo =
+                            JavaScript.Dom.MutationObserver(
+                                (fun (mrs, mo) ->
+                                    mrs
+                                    |> Array.iter (fun mr ->
+                                        mr.RemovedNodes.ForEach((fun (x, _, _, _) ->
+                                            if x ===. toWatch && mr.AddedNodes.Length <> 1 then
+                                                var.SetFinal None
+                                                mo.Disconnect()
+                                        ), null)
+                                    )
                                 )
                             )
+                        if e.ParentElement !==. null then
+                            mo.Observe(e.ParentElement, Dom.MutationObserverInit(ChildList = true))
+                        var.Set (Some e)
+                        var.View
+                        |> View.Sink (fun nel ->
+                            match nel with
+                            | None ->
+                                toWatch.Remove()
+                                mo.Disconnect()
+                            | Some nel ->
+                                if toWatch ===. nel then
+                                    ()
+                                else
+                                    toWatch.ReplaceWith nel
+                                    toWatch <- nel
                         )
-                    if e.ParentElement !==. null then
-                        mo.Observe(e.ParentElement, Dom.MutationObserverInit(ChildList = true))
-                    var.Set (Some e)
-                    var.View
-                    |> View.Sink (fun nel ->
-                        match nel with
-                        | None ->
-                            toWatch.Remove()
-                            mo.Disconnect()
-                        | Some nel ->
-                            if toWatch ===. nel then
-                                ()
-                            else
-                                toWatch.ReplaceWith nel
-                                toWatch <- nel
-                    )
+                    | _ -> ()
                 | _ -> ()
 
         foreachNotPreserved el "[ws-attr-holes]" <| fun e ->
@@ -266,19 +266,8 @@ module internal Templates =
                     Array.foldBack (fun (textBefore, holeName: string) (textAfter, views) ->
                         let holeContent =
                             match fw.TryGetValue(holeName) with
-                            | true, TemplateHole.Text (_, t) -> Choice1Of2 t
-                            | true, TemplateHole.TextView (_, v) -> Choice2Of2 v
-                            | true, TemplateHole.VarStr (_, v) -> Choice2Of2 v.View
-                            | true, TemplateHole.VarBool (_, v) -> Choice2Of2 (v.View.Map string)
-                            | true, TemplateHole.VarDateTime (_, v) -> Choice2Of2 (v.View.Map string)
-                            | true, TemplateHole.VarFile (_, v) -> Choice2Of2 (v.View.Map string)
-                            | true, TemplateHole.VarInt (_, v) -> Choice2Of2 (v.View.Map (fun i -> i.Input))
-                            | true, TemplateHole.VarIntUnchecked (_, v) -> Choice2Of2 (v.View.Map string)
-                            | true, TemplateHole.VarFloat (_, v) -> Choice2Of2 (v.View.Map (fun i -> i.Input))
-                            | true, TemplateHole.VarFloatUnchecked (_, v) -> Choice2Of2 (v.View.Map string)
-                            | true, _ ->
-                                Console.Warn("Attribute value hole filled with non-text data", holeName)
-                                Choice1Of2 ""
+                            | true, th ->
+                                th.AsChoiceView
                             | false, _ -> Choice1Of2 ""
                         match holeContent with
                         | Choice1Of2 text -> textBefore + text + textAfter, views

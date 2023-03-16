@@ -25,6 +25,7 @@ open Microsoft.FSharp.Quotations
 open WebSharper
 open WebSharper.JavaScript
 open WebSharper.UI
+open WebSharper.MathJS
 module DU = DomUtility
 
 type IAttrNode =
@@ -407,15 +408,41 @@ module BindVar =
         let i = i.Input
         if el?value <> i then el?value <- i
     let FloatGetChecked : Get<CheckedInput<float>> = fun el ->
-            let s = el?value
-            if String.isBlank s then
-                if CheckValidity el then Blank s else Invalid s
-            else
-                let i = JS.Plus s
-                if JS.IsNaN i then Invalid s else Valid (i, s)
-            |> Some
+        let s = el?value
+        if String.isBlank s then
+            if CheckValidity el then Blank s else Invalid s
+        else
+            let i = JS.Plus s
+            if JS.IsNaN i then Invalid s else Valid (i, s)
+        |> Some
     let FloatApplyChecked : Apply<CheckedInput<float>> =
         ApplyValue FloatGetChecked FloatSetChecked
+
+    let DecimalSetUnchecked (el: Dom.Element) (i: decimal) =
+        el?value <- string i
+    let DecimalGetUnchecked (el: Dom.Element) =
+        let s = el?value
+        if String.isBlank s then Some 0.0m else
+        match System.Decimal.TryParse(s) with
+        | true, v -> Some v
+        | false, _ -> None
+    let DecimalApplyUnchecked v =
+        ApplyValue DecimalGetUnchecked DecimalSetUnchecked v
+
+    let DecimalSetChecked (el: Dom.Element) (i: CheckedInput<decimal>) =
+        let i = i.Input
+        if el?value <> i then el?value <- i
+    let DecimalGetChecked (el: Dom.Element) =
+        let s = el?value
+        if String.isBlank s then
+            if CheckValidity el then Blank s else Invalid s
+        else
+            match System.Decimal.TryParse(s) with
+            | true, v -> Valid (v, s)
+            | false, _ -> Invalid s
+        |> Some
+    let DecimalApplyChecked v =
+        ApplyValue DecimalGetChecked DecimalSetChecked v
 
 [<JavaScript; Name "WebSharper.UI.AttrModule">]
 module Attr =
@@ -539,6 +566,12 @@ module Attr =
     let FloatValue (var: Var<CheckedInput<float>>) =
         ValueWith BindVar.FloatApplyChecked var
 
+    let DecimalValueUnchecked (var: Var<decimal>) =
+        ValueWith BindVar.DecimalApplyUnchecked var
+
+    let DecimalValue (var: Var<CheckedInput<decimal>>) =
+        ValueWith BindVar.DecimalApplyChecked var
+    
     let Checked (var: Var<bool>) =
         ValueWith BindVar.BoolCheckedApply var
 

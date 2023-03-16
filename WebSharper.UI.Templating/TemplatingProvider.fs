@@ -302,6 +302,14 @@ module private Impl =
                 <@ (%b).With(%name, %x) @>
             yield mk <| fun b name (x: Expr<CheckedInput<float>>) ->
                 <@ (%b).With(TemplateHole.MakeVarLens(%name, %x)) @>
+            yield! mkVar <| fun b name (x: Expr<Var<decimal>>) ->
+                <@ (%b).With(%name, %x) @>
+            yield mk <| fun b name (x: Expr<decimal>) ->
+                <@ (%b).With(TemplateHole.MakeVarLens(%name, %x)) @>
+            yield! mkVar <| fun b name (x: Expr<Var<CheckedInput<decimal>>>) ->
+                <@ (%b).With(%name, %x) @>
+            yield mk <| fun b name (x: Expr<CheckedInput<decimal>>) ->
+                <@ (%b).With(TemplateHole.MakeVarLens(%name, %x)) @>
         ]
 
     let VarBoolHoleMethods hole resTy ctx =
@@ -705,7 +713,7 @@ type FileWatcher (invalidate: unit -> unit, disposing: IEvent<EventHandler, Even
 /// `serverLoad`: Decide how the HTML is loaded when the template is used on the server side, default is WhenChanged.
 /// `legacyMode`: Use WebSharper 3 or WebSharper 4+ templating engine or both, default is Both.
 type TemplatingProvider (cfg: TypeProviderConfig) as this =
-    inherit TypeProviderForNamespaces(cfg)
+    inherit TypeProviderForNamespaces(cfg, assemblyReplacementMap=["WebSharper.UI.Templating.DesignTime","WebSharper.UI.Templating.Runtime"], addDefaultProbingLocation = true)
 
     let thisAssembly = Assembly.GetExecutingAssembly()
     let rootNamespace = "WebSharper.UI.Templating"
@@ -788,6 +796,3 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
         | None ->
             //eprintfn "Type provider didn't find assembly: %s" args.Name
             null
-
-[<assembly:TypeProviderAssembly>]
-do ()

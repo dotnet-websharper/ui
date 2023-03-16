@@ -36,18 +36,29 @@ module Doc =
 [<Sealed>]
 type Content =
 
-    /// Converts a `Doc` to a sitelet Page.
-    /// `Doc` values that correspond to HTML fragements are converted to full documents.
-    /// WebSharper resources will be placed in place of the element with data-replace="scripts". 
+    /// Converts a Doc, representing a full document, to a fully formed HTML document.
+    /// Any meta placeholders ("scripts", etc.), will work as usual.
     static member Page : Doc -> Async<Content<'Action>>
 
-    /// Converts a `Doc` to a sitelet Page.
-    /// `Doc` values that correspond to HTML fragements are converted to full documents.
+    /// Converts a Doc, representing a full document, to a fully formed HTML document.
+    /// Any meta placeholders ("scripts", etc.), will work as usual.
+    static member Page : Doc * ?Status:Http.Status * ?ExtraContentHeaders:seq<Http.Header> -> Async<Content<'Action>>
+
+    /// Converts a sequence of Doc values to a partial HTML document.
+    /// Any meta placeholders ("scripts", etc.), will work as usual.
+    static member PageFragment : seq<Doc> -> Async<Content<'Action>>
+
+    /// Converts a sequence of Doc values to a partial HTML document.
+    /// Any meta placeholders ("scripts", etc.), will work as usual.
+    static member PageFragment : seq<Doc> * ?Status:Http.Status * ?ExtraContentHeaders:seq<Http.Header> -> Async<Content<'Action>>
+
+    /// Converts a Doc, representing a full document, to a fully formed HTML document.
+    /// Any meta placeholders ("scripts", etc.), will work as usual.
     [<Obsolete "Use Content.Page(...) instead">]
     static member Doc : Doc -> Async<Content<'Action>>
 
-    /// Constructs a sitelet Page from its parts.
-    /// Automatically includes resource links in head.
+    /// Constructs a fully formed HTML document from its parts.
+    /// Any meta placeholders ("scripts", etc.), will work as usual.
     static member inline Page
         : ?Body: #seq<#INode>
         * ?Head: #seq<#INode>

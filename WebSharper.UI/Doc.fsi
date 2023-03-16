@@ -553,32 +553,15 @@ and [<Class>] Elt =
 
     member internal WithAttrs : list<Attr> -> Elt
 
-[<RequireQualifiedAccess>]
+[<AbstractClass; RequireQualifiedAccess>]
 type TemplateHole =
-    | Elt of name: string * fillWith: Doc
-    | Text of name: string * fillWith: string
-    | TextView of name: string * fillWith: View<string>
-    | Attribute of name: string * fillWith: Attr
-    | Event of name: string * fillWith: (Dom.Element -> Dom.Event -> unit)
-    | EventQ of name: string * fillWith: Expr<Dom.Element -> Dom.Event -> unit>
-    | EventE of name: string * key: string * fillWith: Expression<Action<Dom.Element, Dom.Event>>
-    | AfterRender of name: string * fillWith: (Dom.Element -> unit)
-    | AfterRenderQ of name: string * fillWith: Expr<Dom.Element -> unit>
-    | AfterRenderE of name: string * key: string * fillWith: Expression<Action<Dom.Element>>
-    | VarStr of name: string * fillWith: Var<string>
-    | VarBool of name: string * fillWith: Var<bool>
-    | VarDateTime of name: string * fillWith: Var<System.DateTime>
-    | VarFile of name: string * fillWith: Var<File array>
-    | VarDomElement of name: string * fillWith: Var<Dom.Element option>
-    | VarInt of name: string * fillWith: Var<Client.CheckedInput<int>>
-    | VarIntUnchecked of name: string * fillWith: Var<int>
-    | VarFloat of name: string * fillWith: Var<Client.CheckedInput<float>>
-    | VarFloatUnchecked of name: string * fillWith: Var<float>
-    | UninitVar of name: string * key: string
-
-    static member Name : TemplateHole -> string
-    static member Value : TemplateHole -> obj
-    static member WithName : string -> TemplateHole -> TemplateHole
+    abstract Name: string with get
+    abstract WithName: string -> TemplateHole
+    abstract ValueObj : obj with get
+    abstract member ForTextView : unit -> View<string> option
+    abstract member ApplyVarHole : Dom.Element -> unit
+    abstract member AddAttribute : (Dom.Element -> Attr -> unit) * Dom.Element -> unit
+    abstract member AsChoiceView : Choice<string, View<string>>
 
     static member NewActionEvent<'T when 'T :> Dom.Event> : name: string * f: Action<Dom.Element, 'T> -> TemplateHole
     static member NewEventExpr<'T when 'T :> Dom.Event> : name: string * key: string * f: Expression<Action<Dom.Element, 'T>> -> TemplateHole
@@ -595,6 +578,124 @@ type TemplateHole =
     static member MakeVarLens : name: string * value: int -> TemplateHole
     static member MakeVarLens : name: string * value: Client.CheckedInput<float> -> TemplateHole
     static member MakeVarLens : name: string * value: float -> TemplateHole
+    static member MakeVarLens : name: string * value: Client.CheckedInput<decimal> -> TemplateHole
+    static member MakeVarLens : name: string * value: decimal -> TemplateHole
+
+    static member Value : th: TemplateHole -> obj
+
+module TemplateHole =
+    type Elt =
+        inherit TemplateHole
+        new: string * Doc -> Elt
+        member Value: Doc
+        
+    type Text =
+        inherit TemplateHole
+        new: string * string -> Text
+        member Value: string
+
+    type TextView =
+        inherit TemplateHole
+        new: string * View<string> -> TextView
+        member Value: View<string>
+
+    type Attribute =
+        inherit TemplateHole
+        new: string * Attr -> Attribute
+        member Value: Attr
+
+    type Event =
+        inherit TemplateHole
+        new: string * (Dom.Element -> Dom.Event -> unit) -> Event
+        member Value: (Dom.Element -> Dom.Event -> unit)
+
+    type EventQ =
+        inherit TemplateHole
+        new: string * Expr<(Dom.Element -> Dom.Event -> unit)> -> EventQ
+        member Value: Expr<(Dom.Element -> Dom.Event -> unit)>
+
+    type EventE =
+        inherit TemplateHole
+        new: string * string * Expression<Action<Dom.Element, Dom.Event>> -> EventE
+        member Value: Expression<Action<Dom.Element, Dom.Event>>
+        member Key: unit -> string
+
+    type AfterRender =
+        inherit TemplateHole
+        new: string * (Dom.Element -> unit) -> AfterRender
+        member Value: (Dom.Element -> unit)
+
+    type AfterRenderQ =
+        inherit TemplateHole
+        new: string * Expr<(Dom.Element -> unit)> -> AfterRenderQ
+        member Value: Expr<(Dom.Element -> unit)>
+
+    type AfterRenderE =
+        inherit TemplateHole
+        new: string * string * Expression<Action<Dom.Element>> -> AfterRenderE
+        member Value: Expression<Action<Dom.Element>>
+        member Key: unit -> string
+
+    type VarStr =
+        inherit TemplateHole
+        new: string * Var<string> -> VarStr
+        member Value: Var<string>
+
+    type VarBool =
+        inherit TemplateHole
+        new: string * Var<bool> -> VarBool
+        member Value: Var<bool>
+
+    type VarDateTime =
+        inherit TemplateHole
+        new: string * Var<DateTime> -> VarDateTime
+        member Value: Var<DateTime>
+
+    type VarFile =
+        inherit TemplateHole
+        new: string * Var<File array> -> VarFile
+        member Value: Var<File array>
+
+    type VarDomElement =
+        inherit TemplateHole
+        new: string * Var<Dom.Element option> -> VarDomElement
+        member Value: Var<Dom.Element option>
+
+    type VarInt =
+        inherit TemplateHole
+        new: string * Var<Client.CheckedInput<int>> -> VarInt
+        member Value: Var<Client.CheckedInput<int>>
+
+    type VarIntUnchecked=
+        inherit TemplateHole
+        new: string * Var<int> -> VarIntUnchecked
+        member Value: Var<int>
+
+    type VarFloat=
+        inherit TemplateHole
+        new: string * Var<Client.CheckedInput<float>> -> VarFloat
+        member Value: Var<Client.CheckedInput<float>>
+
+    type VarFloatUnchecked =
+        inherit TemplateHole
+        new: string * Var<float> -> VarFloatUnchecked
+        member Value: Var<float>
+
+    type VarDecimal =
+        inherit TemplateHole
+        new: string * Var<Client.CheckedInput<decimal>> -> VarDecimal
+        member Value: Var<Client.CheckedInput<decimal>>
+
+    type VarDecimalUnchecked =
+        inherit TemplateHole
+        new: string * Var<decimal> -> VarDecimalUnchecked
+        member Value: Var<decimal>
+
+    type UninitVar =
+        inherit TemplateHole
+        new: string * string -> UninitVar
+        member Value: string
+    
 
 type DynDoc =
     | AppendDoc of list<Doc>

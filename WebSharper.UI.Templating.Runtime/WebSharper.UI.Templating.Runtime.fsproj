@@ -5,6 +5,7 @@
     <WebSharperProject>Library</WebSharperProject>
     <WebSharperSourceMap>false</WebSharperSourceMap>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <NoWarn>3218;3186</NoWarn>
   </PropertyGroup>
   <ItemGroup>
@@ -15,6 +16,10 @@
   <ItemGroup>
     <ProjectReference Include="../WebSharper.UI\WebSharper.UI.fsproj" />
     <ProjectReference Include="../WebSharper.UI.Templating.Common\WebSharper.UI.Templating.Common.fsproj" />
+	<ProjectReference Include="../WebSharper.UI.Templating/WebSharper.UI.Templating.fsproj">
+	  <IsFSharpDesignTimeProvider>true</IsFSharpDesignTimeProvider>
+	  <PrivateAssets>all</PrivateAssets>
+	</ProjectReference>
   </ItemGroup>
   <Import Project="..\paket-files\wsbuild\github.com\dotnet-websharper\build-script\WebSharper.Fake.targets" Condition="Exists('..\paket-files\wsbuild\github.com\dotnet-websharper\build-script\WebSharper.Fake.targets')" />
   <Import Project="..\.paket\Paket.Restore.targets" />

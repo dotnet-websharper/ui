@@ -636,6 +636,8 @@ module Main =
         let rdt = Var.Create System.DateTime.Now
         let rf = Var.Create [||]
         let rr = Var.Create 0
+        let rvDecimal = Var.Create (CheckedInput.Make 10.131m)
+        let rvDecimalUnchecked = Var.Create 10.959m
         let rvDisabled = Var.Create false
         div [
             Attr.Style "color" rv.V.y.z
@@ -674,6 +676,19 @@ module Main =
                         Console.Log <| sprintf "Range: %d" range
                     )
                 ] rr
+                Doc.InputType.Decimal [
+                    on.changeView rvDecimal.View (fun _ _ v ->
+                            match v with
+                            | Blank inputText -> Console.Log <| $"Decimal: Blank inputText {inputText}"
+                            | Invalid inputText -> Console.Log <| $"Decimal: Invalid inputText {inputText}"
+                            | Valid(value, inputText) -> Console.Log <| $"Decimal: value: {value} inputText {inputText}"
+                    )
+                ] rvDecimal 0.02m
+                Doc.InputType.DecimalUnchecked [
+                    on.changeView rvDecimalUnchecked.View (fun _ _ v ->
+                        Console.Log <| sprintf "Decimal: %M" v 
+                    )
+                ] rvDecimalUnchecked 0.01m
             ]
             p [] [text (" You typed: " + rv.V.y.z)]
             V(ul [] (rv.V.y.z |> Seq.map (fun c -> li [] [text (string c)]))).V

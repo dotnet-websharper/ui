@@ -332,7 +332,7 @@ type Attr =
                                 Attr.HandlerFallback(b.Method, "no location",
                                     fun s -> if p.Type = typeof<Dom.Event> then s + "(event)" else s + "(this)")
                             Some (func meta, reqs)
-                        | :? ParameterExpression as p when p.Type.AssemblyQualifiedName.StartsWith "WebSharper.UI.Templating.Runtime.Server+TemplateEvent`2" ->
+                        | :? ParameterExpression as p when p.Type.AssemblyQualifiedName.StartsWith "WebSharper.UI.Templating.Runtime.Server+TemplateEvent`3" ->
                             let func, reqs =
                                 Attr.HandlerFallback(b.Method, "no location",
                                     fun s -> "WebSharper.UI.Templating.Runtime.Client.ClientTemplateInstanceHandlers.EventQ2Client(\"" + key + "\", this, event, " + s + ")")
@@ -388,7 +388,7 @@ type Attr =
                         | :? ParameterExpression as p when p.Type = q.Parameters[0].Type ->
                             let func, reqs = Attr.HandlerFallback(b.Method, "no location", id)
                             Some (func meta, Seq.append oarReqs reqs)
-                        | :? ParameterExpression as p when p.Type.AssemblyQualifiedName.StartsWith "WebSharper.UI.Templating.Runtime.Server+TemplateEvent`2" ->
+                        | :? ParameterExpression as p when p.Type.AssemblyQualifiedName.StartsWith "WebSharper.UI.Templating.Runtime.Server+TemplateEvent`3" ->
                             let func, reqs =
                                 Attr.HandlerFallback(b.Method, "no location",
                                     fun s -> "WebSharper.UI.Templating.Runtime.Client.ClientTemplateInstanceHandlers.AfterRenderQ2Client(\"" + key + "\", this, " + s + ")")

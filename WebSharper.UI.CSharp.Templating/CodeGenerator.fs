@@ -72,13 +72,16 @@ type Ctx =
 let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefinition) =
     let holeName' = formatString (holeName.ToLowerInvariant())
     let s arg holeType value =
+        sprintf "public %s %s(%s x) { holes.Add(new TemplateHoleModule.%s(%s, %s)); return this; }"
+            typeName holeName arg holeType holeName' value
+    let sc arg holeType value =
         sprintf "public %s %s(%s x) { holes.Add(TemplateHole.New%s(%s, %s)); return this; }"
             typeName holeName arg holeType holeName' value
     let s2 arg holeType value =
         sprintf "public %s %s(%s x) { holes.Add(Handler.%s(%s, %s)); return this; }"
             typeName holeName arg holeType holeName' value
     let sv arg holeType value =
-        sprintf "public %s %s(%s x) { holes.Add(TemplateHole.New%s(%s, %s)); return this; }"
+        sprintf "public %s %s(%s x) { holes.Add(new TemplateHoleModule.%s(%s, %s)); return this; }"
             typeName holeName arg holeType holeName' value  
     let serverS arg holeType value =
         [
@@ -89,11 +92,24 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
     let serverSE arg holeType value =
         [
             sprintf "[JavaScript(false)]"
-            sprintf "public %s %s_Server(%s y) { holes.Add(TemplateHole.New%s(%s, \"\", %s)); return this; }"
+            sprintf "public %s %s_Server(%s y) { holes.Add(new TemplateHoleModule.%s(%s, \"\", %s)); return this; }"
                 typeName holeName arg holeType holeName' value
         ]
 
     let serverSTE arg holeType value =
+        [
+            sprintf "[JavaScript(false)]"
+            sprintf "public %s %s_Server(%s y) { holes.Add(new TemplateHoleModule.%s(%s, key, %s)); return this; }"
+                typeName holeName arg holeType holeName' value
+        ]
+    let serverSEH arg holeType value =
+        [
+            sprintf "[JavaScript(false)]"
+            sprintf "public %s %s_Server(%s y) { holes.Add(TemplateHole.New%s(%s, \"\", %s)); return this; }"
+                typeName holeName arg holeType holeName' value
+        ]
+
+    let serverSTEH arg holeType value =
         [
             sprintf "[JavaScript(false)]"
             sprintf "public %s %s_Server(%s y) { holes.Add(TemplateHole.New%s(%s, key, %s)); return this; }"
@@ -134,17 +150,17 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
             let eventType = "WebSharper.JavaScript.Dom." + eventType
             let argType = "TemplateEvent<Vars, Anchors, "+eventType+">"
             [|
-                s ("Action<DomElement, "+eventType+">") "ActionEvent" "x"
+                sc ("Action<DomElement, "+eventType+">") "ActionEvent" "x"
                 s2 "Action" "EventClient" ("FSharpConvert.Fun<DomElement, DomEvent>((a,b) => x())")
                 s2 ("Action<"+argType+">") "EventClient"
                     ("FSharpConvert.Fun<DomElement, DomEvent>((a,b) => x(new "+argType+"(instance.Vars, instance.Anchors, a, ("+eventType+")b)))")
                 // serverSide
                 yield! 
-                    serverSE ("Expression<Action<DomElement, "+eventType+">>") "EventExpr" "y"
+                    serverSEH ("Expression<Action<DomElement, "+eventType+">>") "EventExpr" "y"
                 yield!
                     serverS ("Expression<Action>") "EventExprAction" "y"
                 yield!
-                    serverSTE ("Expression<Action<" + argType + ">>") "EventExpr" ("Expression.Lambda<Action<DomElement, "+eventType+">>(y.Body, Expression.Parameter(typeof(DomElement)), Expression.Parameter(typeof("+eventType+")))")
+                    serverSTEH ("Expression<Action<" + argType + ">>") "EventExpr" ("Expression.Lambda<Action<DomElement, "+eventType+">>(y.Body, Expression.Parameter(typeof(DomElement)), Expression.Parameter(typeof("+eventType+")))")
             |]
         | HoleKind.Simple ->
             [|
@@ -161,6 +177,8 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
                 s "Var<WebSharper.UI.Client.CheckedInput<int>>" "VarInt" "x"
                 sv "Var<double>" "VarFloatUnchecked" "x"
                 s "Var<WebSharper.UI.Client.CheckedInput<double>>" "VarFloat" "x"
+                sv "Var<decimal>" "VarDecimalUnchecked" "x"
+                s "Var<WebSharper.UI.Client.CheckedInput<decimal>>" "VarDecimal" "x"
             |]
         | HoleKind.Var ValTy.Bool ->
             [|
