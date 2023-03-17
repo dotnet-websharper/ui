@@ -2,7 +2,7 @@ build/
 packages/
 *.suo
 *.user
-*.Tests/Content/
+*.Tests/wwwroot/Content/
 *.Tests/wwwroot/Scripts/
 bin/
 obj/

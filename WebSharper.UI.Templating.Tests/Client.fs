@@ -32,7 +32,7 @@ open WebSharper.UI.Client
 [<JavaScript>]
 module Client =
 
-    type MyTemplate = Template<"index.html,template.html", clientLoad = ClientLoad.FromDocument, legacyMode = LegacyMode.New>
+    type MyTemplate = Template<"wwwroot/index.html,template.html", clientLoad = ClientLoad.FromDocument, legacyMode = LegacyMode.New>
 
     type Item =
         { id : int; name: string; description: string }
