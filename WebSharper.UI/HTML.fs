@@ -157,6 +157,9 @@ module Html =
         /// Create an HTML element <div> with attributes and children.
         [<JavaScript; Inline>]
         let div ats ch = Doc.Element "div" ats ch
+        /// Create an HTML element <dialog> with attributes and children.
+        [<JavaScript; Inline>]
+        let dialog ats ch = Doc.Element "dialog" ats ch
         /// Create an HTML element <dl> with attributes and children.
         [<JavaScript; Inline>]
         let dl ats ch = Doc.Element "dl" ats ch
@@ -523,6 +526,9 @@ module Html =
     /// Create an HTML element <div> with attributes and children.
     [<JavaScript; Inline>]
     let div ats ch = Elt.div ats ch :> Doc
+    /// Create an HTML element <dialog> with attributes and children.
+    [<JavaScript; Inline>]
+    let dialog ats ch = Elt.dialog ats ch :> Doc
     /// Create an HTML element <dl> with attributes and children.
     [<JavaScript; Inline>]
     let dl ats ch = Elt.dl ats ch :> Doc
@@ -1761,6 +1767,18 @@ module Html =
         /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "placeholder")>]
         static member placeholder value = Attr.Create "placeholder" value
+        /// Create an HTML attribute "popover" with the given value, which must be either "auto" or "manual".
+        /// The value can be reactive using `view.V`.
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "popover")>]
+        static member popover value = Attr.Create "popover" value
+        /// Create an HTML attribute "popovertarget" with the given value, which must be an HTML id.
+        /// The value can be reactive using `view.V`.
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "popovertarget")>]
+        static member popovertarget value = Attr.Create "popovertarget" value
+        /// Create an HTML attribute "popovertargetaction" with the given value, which must be either "show", "hide" or "toggle".
+        /// The value can be reactive using `view.V`.
+        [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "popovertargetaction")>]
+        static member popovertargetaction value = Attr.Create "popovertargetaction" value
         /// Create an HTML attribute "poster" with the given value.
         /// The value can be reactive using `view.V`.
         [<JavaScript; Inline; Macro(typeof<Macros.AttrCreate>, "poster")>]
