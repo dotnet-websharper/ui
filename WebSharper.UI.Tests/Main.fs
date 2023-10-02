@@ -693,6 +693,9 @@ module Main =
             p [] [text (" You typed: " + rv.V.y.z)]
             V(ul [] (rv.V.y.z |> Seq.map (fun c -> li [] [text (string c)]))).V
             p [Attr.ClassPred "is-green" (rv.V.y.z = "green")] [text "this should be bordered with green iff you typed \"green\"."]
+
+            dialog [attr.id "my-popover"; attr.popover "manual"; attr.style "background-color: darkslategray; color:white;"] [text "Popover attempt"]
+            button [attr.popovertarget "my-popover"; attr.popovertargetaction "toggle"] [text "Open/Close dialog"]
             rd.V
         ]
         |> Doc.RunAppend JS.Document.Body
