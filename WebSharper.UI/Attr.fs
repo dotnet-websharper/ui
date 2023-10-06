@@ -115,7 +115,7 @@ module private Internal =
                                         let typ = value.GetType()
                                         reqs.Add(M.TypeNode (WebSharper.Core.AST.Reflection.ReadTypeDefinition typ))
                                         fun (json: J.Provider) ->
-                                            let packed = json.GetEncoder(typ).Encode(value) |> json.Pack
+                                            let packed = json.GetEncoder(typ).Encode(value)
                                             let s = WebSharper.Core.Json.Stringify(packed)
                                             match packed with
                                             | WebSharper.Core.Json.Object ((("$TYPES" | "$DATA"), _) :: _) ->
@@ -166,7 +166,7 @@ type private OnAfterRenderControl private () =
 type Attr =
     | AppendAttr of list<Attr>
     | SingleAttr of string * string
-    | DepAttr of string * (M.Info -> J.Provider -> string) * (M.Info -> seq<M.Node>) * (M.Info -> J.Provider -> list<string * J.Encoded>)
+    | DepAttr of string * (M.Info -> J.Provider -> string) * (M.Info -> seq<M.Node>) * (M.Info -> J.Provider -> seq<ClientCode>)
 
     member this.Write(meta, json, w: HtmlTextWriter, removeWsHole) =
         match this with
@@ -195,9 +195,9 @@ type Attr =
         member this.Encode (meta, json) =
             match this with
             | AppendAttr attrs ->
-                attrs |> List.collect (fun a ->
+                attrs |> Seq.collect (fun a ->
                     if obj.ReferenceEquals(a, null)
-                    then []
+                    then Seq.empty
                     else (a :> IRequiresResources).Encode(meta, json))
             | DepAttr (_, _, _, enc) -> enc meta json
             | SingleAttr _ -> []

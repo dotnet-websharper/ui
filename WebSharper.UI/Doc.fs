@@ -71,7 +71,7 @@ type Doc() =
     abstract Write : Web.Context * HtmlTextWriter * res: option<Sitelets.Content.RenderedResources> -> unit
     abstract Write : Web.Context * HtmlTextWriter * renderResources: bool -> unit
     abstract SpecialHoles : SpecialHole
-    abstract Encode : Core.Metadata.Info * Core.Json.Provider -> list<string * Core.Json.Encoded>
+    abstract Encode : Core.Metadata.Info * Core.Json.Provider -> seq<ClientCode>
     abstract Requires : Core.Metadata.Info -> seq<Core.Metadata.Node>
 
     default this.Write(ctx: Web.Context, w: HtmlTextWriter, renderResources: bool) =
@@ -105,7 +105,7 @@ and ConcreteDoc(dd: DynDoc) =
 
     override this.Encode(meta, json) =
         match dd with
-        | AppendDoc docs -> docs |> List.collect (fun d -> d.Encode(meta, json))
+        | AppendDoc docs -> docs |> Seq.collect (fun d -> d.Encode(meta, json))
         | INodeDoc c -> c.Encode(meta, json)
         | ElemDoc elt -> (elt :> IRequiresResources).Encode(meta, json)
         | _ -> []

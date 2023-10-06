@@ -20,6 +20,7 @@
 
 namespace WebSharper.UI
 
+open WebSharper
 open Microsoft.FSharp.Quotations
 open WebSharper.JavaScript
 module M = WebSharper.Core.Metadata
@@ -31,7 +32,7 @@ type Attr =
     internal
     | AppendAttr of list<Attr>
     | SingleAttr of string * string
-    | DepAttr of string * (M.Info -> J.Provider -> string) * (M.Info -> seq<M.Node>) * (M.Info -> J.Provider -> list<string * J.Encoded>)
+    | DepAttr of string * (M.Info -> J.Provider -> string) * (M.Info -> seq<M.Node>) * (M.Info -> J.Provider -> seq<ClientCode>)
 
     interface WebSharper.IRequiresResources
 
