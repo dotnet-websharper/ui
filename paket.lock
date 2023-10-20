@@ -461,23 +461,23 @@ NUGET
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
   remote: ../localnuget
-    WebSharper (7.0.1.338-beta2)
+    WebSharper (7.0.3.349-beta2)
       FSharp.Core (>= 6.0)
       System.Reflection.Emit.Lightweight (>= 4.7)
-    WebSharper.AspNetCore (7.0.1.338-beta2)
+    WebSharper.AspNetCore (7.0.3.349-beta2)
       Microsoft.AspNetCore.Authentication.Abstractions (>= 2.0)
       Microsoft.AspNetCore.Hosting.Abstractions (>= 2.0)
       Microsoft.AspNetCore.Mvc.Abstractions (>= 2.0)
       System.Configuration.ConfigurationManager (>= 4.7)
-      WebSharper (7.0.1.338-beta2)
-    WebSharper.CSharp (7.0.1.338-beta2)
-      WebSharper (7.0.1.338-beta2)
-    WebSharper.FSharp (7.0.1.338-beta2)
-      WebSharper (7.0.1.338-beta2)
-    WebSharper.MathJS (7.0.1.338-beta2)
-      WebSharper (7.0.1.338-beta2)
-    WebSharper.Testing (7.0.1.338-beta2)
-      WebSharper (7.0.1.338-beta2)
+      WebSharper (7.0.3.349-beta2)
+    WebSharper.CSharp (7.0.3.349-beta2)
+      WebSharper (7.0.3.349-beta2)
+    WebSharper.FSharp (7.0.3.349-beta2)
+      WebSharper (7.0.3.349-beta2)
+    WebSharper.MathJS (7.0.3.349-beta2)
+      WebSharper (7.0.3.349-beta2)
+    WebSharper.Testing (7.0.3.349-beta2)
+      WebSharper (7.0.3.349-beta2)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
     src/ProvidedTypes.fs (b7c930b0bd9e0e0476981ba0813ac17e7d61742b)
@@ -486,9 +486,9 @@ GROUP includes
 REFERENCES: STRICT
 GITHUB
   remote: dotnet-websharper/websharper
-    src/htmllib/tags.csv (db2d834f0151ae409f6cc90bf8cc8928e67236b0)
+    src/htmllib/tags.csv (6a37a654a8b8e89714685b25b73b9d9441734a40)
 GROUP wsbuild
 
 GIT
   remote: https://github.com/dotnet-websharper/build-script
-     (1d2e8ce1ca419e3c90a439f0dcf508e650734ba8)
+     (0153b1033e752df2da5672528e9e04bedafefbea)

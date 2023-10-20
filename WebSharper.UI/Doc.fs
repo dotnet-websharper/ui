@@ -65,14 +65,12 @@ type Doc() =
         member this.IsAttribute = false
 
     interface IRequiresResources with
-        member this.Encode(meta, json) = this.Encode(meta, json)
-        member this.Requires(meta) = this.Requires(meta)
+        member this.Requires(meta, json) = this.Requires(meta, json)
 
     abstract Write : Web.Context * HtmlTextWriter * res: option<Sitelets.Content.RenderedResources> -> unit
     abstract Write : Web.Context * HtmlTextWriter * renderResources: bool -> unit
     abstract SpecialHoles : SpecialHole
-    abstract Encode : Core.Metadata.Info * Core.Json.Provider -> seq<ClientCode>
-    abstract Requires : Core.Metadata.Info -> seq<Core.Metadata.Node>
+    abstract Requires : Core.Metadata.Info * Core.Json.Provider -> seq<ClientCode>
 
     default this.Write(ctx: Web.Context, w: HtmlTextWriter, renderResources: bool) =
         let resources =
@@ -103,18 +101,11 @@ and ConcreteDoc(dd: DynDoc) =
             (elt :> Doc).SpecialHoles
         | _ -> SpecialHole.None
 
-    override this.Encode(meta, json) =
+    override this.Requires(meta, json) =
         match dd with
-        | AppendDoc docs -> docs |> Seq.collect (fun d -> d.Encode(meta, json))
-        | INodeDoc c -> c.Encode(meta, json)
-        | ElemDoc elt -> (elt :> IRequiresResources).Encode(meta, json)
-        | _ -> []
-
-    override this.Requires(meta) =
-        match dd with
-        | AppendDoc docs -> docs |> Seq.collect (fun d -> d.Requires(meta))
-        | INodeDoc c -> (c :> IRequiresResources).Requires(meta)
-        | ElemDoc elt -> (elt :> IRequiresResources).Requires(meta)
+        | AppendDoc docs -> docs |> Seq.collect (fun d -> d.Requires(meta, json))
+        | INodeDoc c -> (c :> IRequiresResources).Requires(meta, json)
+        | ElemDoc elt -> (elt :> IRequiresResources).Requires(meta, json)
         | _ -> Seq.empty
 
 and DynDoc =
@@ -140,15 +131,9 @@ and Elt
 
     override this.SpecialHoles = specialHoles
 
-    override this.Encode(m, j) =
-        [
-            for r in Seq.append requireResources (Seq.cast attrs) do
-                yield! r.Encode(m, j)
-        ]
-
-    override this.Requires(meta) =
+    override this.Requires(meta, json) =
         Seq.append requireResources (Seq.cast attrs)
-        |> Seq.collect (fun r -> r.Requires(meta))
+        |> Seq.collect (fun r -> r.Requires(meta, json))
 
     override this.Write(ctx, h, res) = write attrs ctx h res
 
@@ -178,6 +163,8 @@ and Elt
             | Some (HoleName.Replace, name, res) -> w.Write(res[name])
             | Some (HoleName.Hole, name, res) ->
                 w.WriteBeginTag(tag)
+                //let id =
+                //    attrs |> 
                 attrs |> List.iter (fun a -> a.Write(ctx.Metadata, ctx.Json, w, true))
                 w.Write(HtmlTextWriter.TagRightChar)
                 w.Write(res[name])
@@ -788,8 +775,10 @@ type InlineControlWithPlaceHolder(docExpr: Expr<Doc>, doc: Doc) =
     [<System.NonSerialized>]
     let doc = doc
 
-    // this is needed because WebSharper.Web.Control.GetBodyNode looks at Body property on current type
     [<JavaScript>]
+    static member DecodeJson(o: obj) = As<InlineControlWithPlaceHolder> (obj())
+
+    // this is needed because WebSharper.Web.Control.GetBodyNode looks at Body property on current type
     override this.Body = base.Body
 
     interface INode with

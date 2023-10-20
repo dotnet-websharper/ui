@@ -82,11 +82,8 @@ module Internal =
 
         override this.SpecialHoles = WebSharper.UI.Templating.AST.SpecialHole.None
 
-        override this.Encode(m, j) =
-            Seq.concat (requireResources |> Seq.map (fun rr -> rr.Encode(m, j)))
-
-        override this.Requires(m) =
-            Seq.concat (requireResources |> Seq.map (fun rr -> rr.Requires(m)))
+        override this.Requires(m, j) =
+            Seq.concat (requireResources |> Seq.map (fun rr -> rr.Requires(m, j)))
 
         override this.Write(ctx, h, res) = 
             write ctx h res

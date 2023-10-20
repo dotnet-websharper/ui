@@ -115,12 +115,10 @@ type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
 
     interface IRequiresResources with
         [<JavaScript false>]
-        member this.Requires(meta) =
-            [| M.TypeNode(Core.AST.Reflection.ReadTypeDefinition(typeof<TemplateInitializer>)) |] :> _
-        [<JavaScript false>]
-        member this.Encode(meta, json) =
-            let enc = json.GetEncoder<TemplateInitializer>().Encode(this)
-            [id, enc]
+        member this.Requires(meta, json) =
+            let node = M.TypeNode(Core.AST.Reflection.ReadTypeDefinition(typeof<TemplateInitializer>))
+            let enc = Control.EncodeClientObject(meta, json, this)
+            [ ClientRequire(node); ClientInitialize(id, enc) ]
 
     interface IInitializer with
 
@@ -144,8 +142,9 @@ type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
 and [<JavaScript>] TemplateInstances() =
     [<JavaScript>]
     static member GetInstance key : TemplateInstance =
-        let i = JavaScript.JS.Get key WebSharper.Activator.Instances : TemplateInitializer
-        i.Instance
+        //let i = JavaScript.JS.Get key WebSharper.Activator.Instances : TemplateInitializer
+        //i.Instance
+        JavaScript.Pervasives.As<TemplateInstance>(null)
 
 and CompletedHoles =
     | Client of Dictionary<string, TemplateHole>
