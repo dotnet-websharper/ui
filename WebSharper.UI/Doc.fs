@@ -65,12 +65,12 @@ type Doc() =
         member this.IsAttribute = false
 
     interface IRequiresResources with
-        member this.Requires(meta, json) = this.Requires(meta, json)
+        member this.Requires(meta, json, getId) = this.Requires(meta, json, getId)
 
     abstract Write : Web.Context * HtmlTextWriter * res: option<Sitelets.Content.RenderedResources> -> unit
     abstract Write : Web.Context * HtmlTextWriter * renderResources: bool -> unit
     abstract SpecialHoles : SpecialHole
-    abstract Requires : Core.Metadata.Info * Core.Json.Provider -> seq<ClientCode>
+    abstract Requires : Core.Metadata.Info * Core.Json.Provider * IUniqueIdSource -> seq<ClientCode>
 
     default this.Write(ctx: Web.Context, w: HtmlTextWriter, renderResources: bool) =
         let resources =
@@ -101,11 +101,11 @@ and ConcreteDoc(dd: DynDoc) =
             (elt :> Doc).SpecialHoles
         | _ -> SpecialHole.None
 
-    override this.Requires(meta, json) =
+    override this.Requires(meta, json, getId) =
         match dd with
-        | AppendDoc docs -> docs |> Seq.collect (fun d -> d.Requires(meta, json))
-        | INodeDoc c -> (c :> IRequiresResources).Requires(meta, json)
-        | ElemDoc elt -> (elt :> IRequiresResources).Requires(meta, json)
+        | AppendDoc docs -> docs |> Seq.collect (fun d -> d.Requires(meta, json, getId))
+        | INodeDoc c -> (c :> IRequiresResources).Requires(meta, json, getId)
+        | ElemDoc elt -> (elt :> IRequiresResources).Requires(meta, json, getId)
         | _ -> Seq.empty
 
 and DynDoc =
@@ -131,9 +131,43 @@ and Elt
 
     override this.SpecialHoles = specialHoles
 
-    override this.Requires(meta, json) =
-        Seq.append requireResources (Seq.cast attrs)
-        |> Seq.collect (fun r -> r.Requires(meta, json))
+    override this.Requires(meta, json, getId) =
+        if attrs.Length > 0 then
+            let rec hasDepAttr attr =
+                match attr with
+                | AppendAttr attrs -> attrs |> List.exists hasDepAttr
+                | DepAttr _ -> true
+                | _ -> false
+            let rec getIdAttr attr =
+                match attr with
+                | AppendAttr attrs -> attrs |> List.tryPick getIdAttr
+                | SingleAttr (n, v) -> if n = "id" then Some v else None
+                | _ -> None
+            let eltId  = 
+                if attrs |> List.exists hasDepAttr then
+                    match attrs |> List.tryPick getIdAttr with
+                    | None ->
+                        let i = getId.NewId()
+                        attrs <- SingleAttr("id", i) :: attrs
+                        Some i
+                    | found -> found
+                else 
+                    None
+            match eltId with
+            | Some id ->
+                let getEltId = 
+                    { new IUniqueIdSource with
+                        override this.NewId() = id
+                    }
+                Seq.append
+                    (attrs |> Seq.collect (fun r -> (r :> IRequiresResources).Requires(meta, json, getEltId)))
+                    (requireResources |> Seq.collect (fun r -> r.Requires(meta, json, getId)))
+            | None ->
+                Seq.append (Seq.cast attrs) requireResources
+                |> Seq.collect (fun r -> r.Requires(meta, json, getId))
+        else
+            requireResources
+            |> Seq.collect (fun r -> r.Requires(meta, json, getId))
 
     override this.Write(ctx, h, res) = write attrs ctx h res
 
@@ -163,8 +197,6 @@ and Elt
             | Some (HoleName.Replace, name, res) -> w.Write(res[name])
             | Some (HoleName.Hole, name, res) ->
                 w.WriteBeginTag(tag)
-                //let id =
-                //    attrs |> 
                 attrs |> List.iter (fun a -> a.Write(ctx.Metadata, ctx.Json, w, true))
                 w.Write(HtmlTextWriter.TagRightChar)
                 w.Write(res[name])

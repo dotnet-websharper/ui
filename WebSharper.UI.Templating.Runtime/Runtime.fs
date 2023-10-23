@@ -55,7 +55,7 @@ type ValTy =
 [<JavaScript; Serializable>]
 type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
 
-    [<NonSerialized; OptionalField>]
+    [<NonSerialized; OptionalField; JavaScript(false)>]
     let mutable instance = None
 
     [<NonSerialized>]
@@ -115,9 +115,9 @@ type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
 
     interface IRequiresResources with
         [<JavaScript false>]
-        member this.Requires(meta, json) =
+        member this.Requires(meta, json, getId) =
             let node = M.TypeNode(Core.AST.Reflection.ReadTypeDefinition(typeof<TemplateInitializer>))
-            let enc = Control.EncodeClientObject(meta, json, this)
+            let enc = ClientJsonData Json.Null //Control.EncodeClientObject(meta, json, this)
             [ ClientRequire(node); ClientInitialize(id, enc) ]
 
     interface IInitializer with

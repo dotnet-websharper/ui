@@ -32,7 +32,7 @@ type Attr =
     internal
     | AppendAttr of list<Attr>
     | SingleAttr of string * string
-    | DepAttr of string * (M.Info -> J.Provider -> seq<ClientCode>)
+    | DepAttr of (string -> M.Info -> J.Provider -> seq<ClientCode>)
 
     interface WebSharper.IRequiresResources
 
