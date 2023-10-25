@@ -507,6 +507,21 @@ module TemplateHole =
         override this.AsChoiceView =
             Choice2Of2 (fillWith.View.Map string)
         override this.ForTextView() = fillWith.View |> Some
+
+    type VarStrList(name: string, fillWith: Var<string array>) =
+        inherit TemplateHole()
+    
+        override this.Name with get() = name
+        member this.Value = fillWith
+        override this.ValueObj = this.Value
+        override this.WithName n = VarStrList(n, fillWith)
+        override this.ApplyVarHole (el: Dom.Element) =
+            applyTypedVarHole BindVar.StringListApply fillWith el
+        override this.AddAttribute (addAttr, el) =
+            addAttr el (Attr.StringListValue fillWith)
+        override this.AsChoiceView =
+            Choice2Of2 (fillWith.View.Map string)
+        override this.ForTextView() = fillWith.View |> View.Map (fun l -> String.concat "," l) |> Some
         
     type VarBool(name: string, fillWith: Var<bool>) =
         inherit TemplateHole()
@@ -702,6 +717,10 @@ type TemplateHole with
     [<Macro(typeof<Macros.TemplateVar>); Inline>]
     static member MakeVarLens(name: string, v: string) =
         TemplateHole.VarStr(name, Var.Create v) :> TemplateHole
+
+    [<Macro(typeof<Macros.TemplateVar>); Inline>]
+    static member MakeVarLens(name: string, v: string array) =
+        TemplateHole.VarStrList(name, Var.Create v) :> TemplateHole
     
     [<Inline>]
     static member MakeVar(name: string, var: Var<string>) =

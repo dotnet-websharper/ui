@@ -856,6 +856,41 @@ type internal Doc' [<JavaScript>] (docNode, updates) =
         Doc'.Elem el attrs (optionElements options)
 
     [<JavaScript>]
+    static member SelectMultipleImpl attrs (optionElements) (current: Var<'T list>) =
+        let options = ref []
+        let getSelectedItem (el: Dom.Element) : 'T list =
+            let select = el :?> HTMLSelectElement
+            let selectedOptions = select?selectedOptions |> As<Dom.HTMLCollection>
+            [
+                for i in 0..selectedOptions.Length-1 do
+                    let option = selectedOptions.Item i |> As<HTMLOptionElement>
+                    yield options.Value[option.Index]
+            ]
+        let setSelectedItem (el: Dom.Element) (item: 'T list) =
+            let select = el :?> HTMLSelectElement
+            let options' = select?options |> As<Dom.HTMLCollection>
+            for i in 0..options'.Length-1 do
+                let option = options'.Item i |> As<HTMLOptionElement>
+                option.Selected <- item |> List.contains (options.Value[option.Index])
+        let el = DU.CreateElement "select"
+        let selectedItemAttr =
+            current.View
+            |> Attr.DynamicCustom setSelectedItem
+        let onChange (x: Dom.Event) =
+            current.UpdateMaybe(fun x ->
+                let y = getSelectedItem el
+                if x = y then None else Some y
+            )
+        el.AddEventListener("change", onChange, false)
+        let attrs =
+            Attr.Concat attrs
+            |> Attr.Append selectedItemAttr
+            |> Attr.Append (Attr.OnAfterRender (fun el -> 
+                setSelectedItem el <| current.Get()))
+            |> Attr.Append (Attr.Create "multiple" "")
+        Doc'.Elem el attrs (optionElements options)
+
+    [<JavaScript>]
     static member SelectDyn attrs (show: 'T -> string) (vOptions: View<list<'T>>) (current: Var<'T>) =
         let optionElements (options: 'T list ref) =
             vOptions
@@ -884,6 +919,36 @@ type internal Doc' [<JavaScript>] (docNode, updates) =
             )
             |> Doc'.Concat
         Doc'.SelectImpl attrs show optionElements current
+
+    [<JavaScript>]
+    static member SelectMultipleDyn attrs (show: 'T -> string) (vOptions: View<list<'T>>) (current: Var<'T list>) =
+        let optionElements (options: 'T list ref) =
+            vOptions
+            |> View.Map (fun l ->
+                options.Value <- l
+                l |> Seq.mapi (fun i x -> i, x)
+            )
+            |> Doc'.Convert (fun (i, o) ->
+                Doc'.Element "option" [
+                    Attr.Create "value" (string i)
+                ] [Doc'.TextNode (show o)]
+                :> Doc'
+            )
+        Doc'.SelectMultipleImpl attrs optionElements current
+
+    [<JavaScript>]
+    static member SelectMultiple attrs show options current =
+        let optionElements (rOptions: 'T list ref) =
+            rOptions.Value <- options
+            options
+            |> List.mapi (fun i o ->
+                Doc'.Element "option" [
+                    Attr.Create "value" (string i)
+                ] [Doc'.TextNode (show o)]
+                :> Doc'
+            )
+            |> Doc'.Concat
+        Doc'.SelectMultipleImpl attrs optionElements current
 
     [<JavaScript>]
     static member SelectOptional attrs noneText show options current =

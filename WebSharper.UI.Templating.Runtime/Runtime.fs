@@ -51,6 +51,7 @@ type ValTy =
     | DateTime = 3
     | File = 4
     | DomElement = 5
+    | StringList = 6
 
 [<JavaScript; Serializable>]
 type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
@@ -100,6 +101,7 @@ type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
                     match t with
                     | ValTy.Bool -> TemplateHole.VarBool (n, Var.Create (ov |> Option.map (fun x -> x :?> bool) |> Option.defaultValue false)) :> TemplateHole
                     | ValTy.File -> TemplateHole.VarFile (n, Var.Create (ov |> Option.map (fun x -> x :?> JavaScript.File array) |> Option.defaultValue [||])) :> _
+                    | ValTy.StringList -> TemplateHole.VarStrList (n, Var.Create (ov |> Option.map (fun x -> x :?> string array) |> Option.defaultValue [||])) :> _
                     | ValTy.DateTime -> TemplateHole.VarDateTime (n, Var.Create (ov |> Option.map (fun x -> x :?> DateTime) |> Option.defaultValue DateTime.MinValue)) :> _ 
                     | ValTy.Number -> TemplateHole.VarFloatUnchecked (n, Var.Create (ov |> Option.map (fun x -> x :?> float) |> Option.defaultValue 0.)) :> _
                     | ValTy.String -> TemplateHole.VarStr (n, Var.Create (ov |> Option.map (fun x -> x :?> string) |> Option.defaultValue "")) :> _
@@ -403,6 +405,11 @@ type ProviderBuilder =
     [<Inline>]
     member this.With(hole: string, value: Var<string>) =
         this.With(TemplateHole.VarStr(hole, value))
+
+    /// Fill a hole of the template.
+    [<Inline>]
+    member this.With(hole: string, value: Var<string array>) =
+        this.With(TemplateHole.VarStrList(hole, value))
 
     /// Fill a hole of the template.
     [<Inline>]
