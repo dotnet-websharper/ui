@@ -140,33 +140,6 @@ module private Internal =
             applyCode s :: (reqs |> Seq.map ClientRequire |> List.ofSeq) :> seq<_>
         )
 
-
-
-//type private OnAfterRenderControl private () =
-//    inherit Web.Control()
-
-//    static member val Instance = new OnAfterRenderControl(ID = "ws.ui.oar") :> IRequiresResources
-
-//    [<JavaScript>]
-//    static member DecodeJson(o: obj) = As<OnAfterRenderControl> (obj())
-        
-//    override this.Body = X<_>
-
-    //[<JavaScript>]
-    //override this.Body =
-    //    let l = JS.Document.QuerySelectorAll("[ws-runafterrender]")
-    //    for i = 0 to l.Length - 1 do
-    //        let x = l[i] :?> Dom.Element
-    //        let attr = x.GetAttribute("ws-runafterrender")
-    //        if attr.Contains("AfterRenderQ2Client") then
-    //            x.RemoveAttribute("ws-runafterrender")
-    //            JS.Eval(attr) |> ignore
-    //        else
-    //            let f = JS.Eval(attr) :?> (Dom.Element -> unit)
-    //            x.RemoveAttribute("ws-runafterrender")
-    //            f x
-    //    { new IControlBody with member this.ReplaceInDom(_) = () }
-
 // We would have wanted to use UseNullAsTrueValue so that EmptyAttr = null,
 // which makes things much easier when it comes to optional arguments in Templating.
 // The problem is that for some reason UNATV is ignored if there are 4 or more cases.

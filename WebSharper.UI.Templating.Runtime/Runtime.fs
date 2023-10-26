@@ -55,13 +55,8 @@ type ValTy =
 [<JavaScript; Serializable>]
 type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
 
-    [<NonSerialized; OptionalField; JavaScript(false)>]
-    let mutable instance = None
-
-    [<NonSerialized>]
-    let id = id
-
     static let initialized = Dictionary<string, Dictionary<string, TemplateHole>>()
+    static let instances = Dictionary<string, TemplateInstance>()
 
     static let applyTypedVarHole (bind: BindVar.Apply<'a>) (v: Var<'a>) el =
         let init, set, view = bind v
@@ -90,7 +85,7 @@ type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
             d[holeName] <- h
             h
 
-    member this.Instance = instance.Value
+    static member GetInstance key = instances[key]
 
     member this.InitInstance(key) =
         let d = TemplateInitializer.GetHolesFor(key)
@@ -106,12 +101,13 @@ type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
                     | ValTy.DomElement -> TemplateHole.VarDomElement (n, Var.Create (ov |> Option.map (fun x -> x :?> JavaScript.Dom.Element) |> Option.defaultValue (JavaScript.JS.Document.QuerySelector("[ws-dom=" + n + "]")) |> Some)) :> _
                     | _ -> failwith "Invalid value type"
         let i = TemplateInstance(CompletedHoles.Client(d), Doc.Empty)
-        instance <- Some i
+        instances[key] <- i
+        i
 
     member this.Id = id
 
     [<JavaScript>]
-    static member Create(vars) = TemplateInitializer(vars)
+    static member Create(vars: (string * ValTy * obj option)[]) = TemplateInitializer("", vars)
 
     interface IRequiresResources with
         [<JavaScript false>]
@@ -124,7 +120,7 @@ type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
                     let jo =
                         match o with
                         | None -> ClientJsonData Json.Value.Null
-                        | Some o -> Control.EncodeClientObject(meta, json, o)
+                        | o -> Control.EncodeClientObject(meta, json, o)
                     ClientArrayData [ jn; jt; jo ]
                 )
                 |> ClientArrayData
@@ -149,18 +145,16 @@ type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
             
             [ ClientRequire(node); ClientInitialize(id, ClientApply(ClientImport createFunc, [ enc ])) ]
             
-            //[ ClientRequire(node) ]
-
     interface IInitializer with
 
         member this.PreInitialize(key) =
-            this.InitInstance(key)
+            let inst = this.InitInstance(key)
             let q = JavaScript.JS.Document.QuerySelectorAll("[ws-var^='" + key + "::']")
             for i = 0 to q.Length - 1 do
                 let el = q[i] :?> JavaScript.Dom.Element
                 let fullName = el.GetAttribute("ws-var")
                 let s = fullName[key.Length+2..]
-                let hole = this.Instance.Hole(s)
+                let hole = inst.Hole(s)
                 Client.Doc.RegisterGlobalTemplateHole(hole.WithName fullName)
                 applyVarHole el hole
             ()
@@ -169,13 +163,6 @@ type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
 
         member this.PostInitialize(key) =
             Client.Doc.RunFullDocTemplate [] |> ignore
-
-and [<JavaScript>] TemplateInstances() =
-    [<JavaScript>]
-    static member GetInstance key : TemplateInstance =
-        //let i = JavaScript.JS.Get key WebSharper.Activator.Instances : TemplateInitializer
-        //i.Instance
-        JavaScript.Pervasives.As<TemplateInstance>(null)
 
 and CompletedHoles =
     | Client of Dictionary<string, TemplateHole>
@@ -216,7 +203,7 @@ type Handler private () =
 
     static member EventQ2<'E when 'E :> DomEvent> (key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, obj, 'E> -> unit>) =
         Handler.EventQ(holeName, <@ fun el ev ->
-            let i = TemplateInstances.GetInstance key
+            let i = TemplateInitializer.GetInstance key
             i.SetAnchorRoot(el)
             (WebSharper.JavaScript.Pervasives.As<TemplateEvent<obj, obj, 'E> -> unit> f)
                 {
@@ -232,7 +219,7 @@ type Handler private () =
 
     static member AfterRenderQ2(key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, obj, DomEvent> -> unit>) =
         Handler.AfterRenderQ(holeName, <@ fun el ->
-            let i = TemplateInstances.GetInstance key
+            let i = TemplateInitializer.GetInstance key
             i.SetAnchorRoot(el)
             (WebSharper.JavaScript.Pervasives.As<TemplateEvent<obj, obj, DomEvent> -> unit> f)
                 {

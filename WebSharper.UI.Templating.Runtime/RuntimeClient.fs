@@ -301,7 +301,7 @@ type ClientTemplateInstanceHandlers =
 
     [<JavaScriptExport>]
     static member EventQ2Client (key: string, el: Dom.Element, ev: Dom.Event, f: obj -> unit) =
-        let i = Server.TemplateInstances.GetInstance key
+        let i = Server.TemplateInitializer.GetInstance key
         i.SetAnchorRoot(el)
         f
             ({
@@ -313,7 +313,7 @@ type ClientTemplateInstanceHandlers =
 
     [<JavaScriptExport>]
     static member AfterRenderQ2Client (key: string, el: Dom.Element, f: obj -> unit) =
-        let i = Server.TemplateInstances.GetInstance key
+        let i = Server.TemplateInitializer.GetInstance key
         i.SetAnchorRoot(el)
         f
             ({
