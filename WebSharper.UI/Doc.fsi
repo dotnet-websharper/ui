@@ -97,8 +97,7 @@ type Doc =
     abstract Write : Web.Context * HtmlTextWriter * renderResources: bool -> unit
     default Write : Web.Context * HtmlTextWriter * renderResources: bool -> unit
     abstract SpecialHoles : SpecialHole
-    abstract Encode : Core.Metadata.Info * Core.Json.Provider -> list<string * Core.Json.Encoded>
-    abstract Requires : Core.Metadata.Info -> seq<Core.Metadata.Node>
+    abstract Requires : Core.Metadata.Info * Core.Json.Provider * IUniqueIdSource -> seq<ClientCode>
     static member internal OfINode : Web.INode -> Doc
 
     internal new : unit -> Doc
@@ -116,8 +115,7 @@ and [<Class>] Elt =
 
     override Write : Web.Context * HtmlTextWriter * res: option<Sitelets.Content.RenderedResources> -> unit
     override SpecialHoles : SpecialHole
-    override Encode : Core.Metadata.Info * Core.Json.Provider -> list<string * Core.Json.Encoded>
-    override Requires : Core.Metadata.Info -> seq<Core.Metadata.Node>
+    override Requires : Core.Metadata.Info * Core.Json.Provider * IUniqueIdSource -> seq<ClientCode>
 
     /// Add an event handler.
     /// When called on the server side, the handler must be a top-level function or a static member.
