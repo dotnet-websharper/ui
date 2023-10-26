@@ -108,17 +108,48 @@ type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
         let i = TemplateInstance(CompletedHoles.Client(d), Doc.Empty)
         instance <- Some i
 
-    // Members unused, but necessary to force `id` and `vars` to be fields
-    // (and not just ctor arguments)
     member this.Id = id
-    member this.Vars = vars
+
+    [<JavaScript>]
+    static member Create(vars) = TemplateInitializer(vars)
 
     interface IRequiresResources with
         [<JavaScript false>]
         member this.Requires(meta, json, getId) =
             let node = M.TypeNode(Core.AST.Reflection.ReadTypeDefinition(typeof<TemplateInitializer>))
-            let enc = ClientJsonData Json.Null //Control.EncodeClientObject(meta, json, this)
-            [ ClientRequire(node); ClientInitialize(id, enc) ]
+            let enc = 
+                vars |> Seq.map (fun (n, t, o) ->
+                    let jn = ClientJsonData (Json.Value.String n)
+                    let jt = ClientJsonData (Json.Value.Number (string (int t)))
+                    let jo =
+                        match o with
+                        | None -> ClientJsonData Json.Value.Null
+                        | Some o -> Control.EncodeClientObject(meta, json, o)
+                    ClientArrayData [ jn; jt; jo ]
+                )
+                |> ClientArrayData
+            
+            let t = this.GetType()
+            let typ = Core.AST.Reflection.ReadTypeDefinition t
+            let createFunc =
+                match meta.Classes.TryGetValue(typ) with
+                | true, (cAddr, _, Some cls) ->
+                    
+                    match cls.Methods |> Seq.tryFind (fun kv -> kv.Key.Value.MethodName = "Create") with
+                    | Some kv ->
+                        match kv.Value.CompiledForm with
+                        | M.Static (name, _, _) ->
+                            cAddr.Static(name)
+                        | _ ->
+                            failwith "expected TemplateInitializer.Create to be a static method"
+                    | _ ->
+                        failwith "could not find TemplateInitializer.Create metadata"
+                | _ ->
+                    failwith "could not find TemplateInitializer metadata"
+            
+            [ ClientRequire(node); ClientInitialize(id, ClientApply(ClientImport createFunc, [ enc ])) ]
+            
+            //[ ClientRequire(node) ]
 
     interface IInitializer with
 
