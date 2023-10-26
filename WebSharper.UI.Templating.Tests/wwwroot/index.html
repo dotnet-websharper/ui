@@ -66,10 +66,15 @@
             [OK] ws-hole inside ws-preserve is not emptied
         </div>
     </div>
-    <div class="new-inputs">
+    <div class="new-inputs" ws-onafterrender="SelectPrint">
         <input type="datetime-local" ws-var="DateTimeVar" />
         <input type="file" ws-var="FileVar" />
         <input type="range" ws-var="RangeVar" />
+        <select ws-var="MultipleSelect" multiple>
+            <option value="a">A</option>
+            <option value="b">B</option>
+            <option value="c">C</option>
+        </select>
     </div>
     <template name="HTML5Template">
         <slot name="ThisIsOk"></slot>

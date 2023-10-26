@@ -214,6 +214,7 @@ module Impl =
         match ty', ty with
         | ValTy.Any, x | x, ValTy.Any -> Some x
         | ValTy.String, ValTy.String -> Some ValTy.String
+        | ValTy.StringList, ValTy.StringList -> Some ValTy.StringList
         | ValTy.Number, ValTy.Number -> Some ValTy.Number
         | ValTy.Bool, ValTy.Bool -> Some ValTy.Bool
         | ValTy.DateTime, ValTy.DateTime -> Some ValTy.DateTime
@@ -223,7 +224,11 @@ module Impl =
     let varTypeOf (node: HtmlNode) =
         match node.Name with
         | "textarea" -> ValTy.String
-        | "select" -> ValTy.Any
+        | "select" ->
+            if node.Attributes.AttributesWithName "multiple" |> Seq.isEmpty |> not then
+                ValTy.StringList
+            else
+                ValTy.Any
         | "input" ->
             match node.GetAttributeValue("type", null) with
             | ("number" | "range") -> ValTy.Number

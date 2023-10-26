@@ -312,6 +312,10 @@ module Client =
             .InputMouseEnter(fun e ->
                 e.Vars.Input := "[OK]"
             )
+            .SelectPrint_WithModel(fun model ->
+                model.Vars.MultipleSelect.View
+                |> View.Sink (fun l -> Console.Log l)
+            )
             .OkClass("ok")
             .OkView(View.Const "[OK]")
             .OkClassView(View.Const "ok")

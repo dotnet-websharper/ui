@@ -171,6 +171,10 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
             [|
                 sv "Var<string>" "VarStr" "x"
             |]
+        | HoleKind.Var ValTy.StringList ->
+            [|
+                sv "Var<string array>" "VarStrList" "x"
+            |]
         | HoleKind.Var ValTy.Number ->
             [|
                 sv "Var<int>" "VarIntUnchecked" "x"
@@ -231,6 +235,7 @@ let finalMethodBody (ctx: Ctx) =
             | HoleKind.Var AST.ValTy.DateTime -> yield sprintf """Tuple.Create("%s", ValTy.DateTime, FSharpOption<object>.None)""" holeName'
             | HoleKind.Var AST.ValTy.File -> yield sprintf """Tuple.Create("%s", ValTy.File, FSharpOption<object>.None)""" holeName'
             | HoleKind.Var AST.ValTy.DomElement -> yield sprintf """Tuple.Create("%s", ValTy.DomElement, FSharpOption<object>.None)""" holeName'
+            | HoleKind.Var AST.ValTy.StringList -> yield sprintf """Tuple.Create("%s", ValTy.StringList, FSharpOption<object>.None)""" holeName'
             | _ -> ()
         ]
         |> String.concat ", "
@@ -269,6 +274,8 @@ let varsClass (ctx: Ctx) =
                     yield sprintf """[Inline] public Var<DateTime> %s => (Var<DateTime>)TemplateHole.Value((As<Instance>(this)).Hole("%s"));""" holeName holeName'
                 | HoleKind.Var AST.ValTy.File ->
                     yield sprintf """[Inline] public Var<JavaScript.File array> %s => (Var<JavaScript.File array>)TemplateHole.Value((As<Instance>(this)).Hole("%s"));""" holeName holeName'
+                | HoleKind.Var AST.ValTy.StringList ->
+                    yield sprintf """[Inline] public Var<string array> %s => (Var<string array>)TemplateHole.Value((As<Instance>(this)).Hole("%s"));""" holeName holeName'
                 | _ -> ()
         ]
         yield "}"
@@ -329,6 +336,7 @@ let build typeName (ctx: Ctx) =
             | HoleKind.Var AST.ValTy.File -> yield sprintf """Tuple.Create("%s", ValTy.File, FSharpOption<object>.None)""" holeName'
             | HoleKind.Var AST.ValTy.DateTime -> yield sprintf """Tuple.Create("%s", ValTy.DateTime, FSharpOption<object>.None)""" holeName'
             | HoleKind.Var AST.ValTy.DomElement -> yield sprintf """Tuple.Create("%s", ValTy.DomElement, FSharpOption<object>.None)""" holeName'
+            | HoleKind.Var AST.ValTy.StringList -> yield sprintf """Tuple.Create("%s", ValTy.StringList, FSharpOption<object>.None)""" holeName'
             | _ -> ()
         ]
         |> String.concat ", "

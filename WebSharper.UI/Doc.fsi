@@ -569,6 +569,7 @@ type TemplateHole =
     static member MakeText : name: string * text: string -> TemplateHole
 
     static member MakeVarLens : name: string * value: string -> TemplateHole
+    static member MakeVarLens : name: string * value: string array -> TemplateHole
     static member MakeVarLens : name: string * value: bool -> TemplateHole
     static member MakeVarLens : name: string * value: DateTime -> TemplateHole
     static member MakeVarLens : name: string * value: File array -> TemplateHole
@@ -638,6 +639,11 @@ module TemplateHole =
         inherit TemplateHole
         new: string * Var<string> -> VarStr
         member Value: Var<string>
+
+    type VarStrList =
+        inherit TemplateHole
+        new: string * Var<string array> -> VarStrList
+        member Value: Var<string array>
 
     type VarBool =
         inherit TemplateHole

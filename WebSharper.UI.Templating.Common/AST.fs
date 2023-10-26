@@ -35,6 +35,7 @@ type ValTy =
     | DateTime
     | File
     | DomElement
+    | StringList
 
 [<RequireQualifiedAccess>]
 type HoleKind =
