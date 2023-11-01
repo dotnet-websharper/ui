@@ -197,7 +197,7 @@ type Attr =
             let applyCode code =
                 ClientApply(code, [ ClientDOMElement(eltId) ])
                 
-            match Internal.compile meta json q id with
+            match Internal.compile meta json q applyCode with
             | Some c -> c
             | _ ->
                 let m =
@@ -258,7 +258,7 @@ type Attr =
                 //    | _ -> fail()
                 //value.Value <- Some s
                 //s
-                applyCode (ClientApply(ClientImport addr, []))
+                applyCode (ClientImport addr)
 
             | _ -> fail()
         code :: (reqs |> List.map ClientRequire) :> seq<_>
