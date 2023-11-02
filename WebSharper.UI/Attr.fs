@@ -193,9 +193,9 @@ type Attr =
         AppendAttr (List.ofSeq xs)
 
     static member OnAfterRenderImpl(q: Expr<Dom.Element -> unit>) =
-        let getReqs eltId (meta: M.Info) (json: J.Provider) =
+        let getReqs wsId (meta: M.Info) (json: J.Provider) =
             let applyCode code =
-                ClientApply(code, [ ClientDOMElement(eltId) ])
+                ClientApply(code, [ ClientDOMElement(wsId) ])
                 
             match Internal.compile meta json q applyCode with
             | Some c -> c
@@ -209,9 +209,9 @@ type Attr =
         DepAttr getReqs
 
     static member HandlerImpl(event: string, q: Expr<Dom.Element -> #Dom.Event -> unit>) =
-        let getReqs eltId (meta: M.Info) (json: J.Provider) =
+        let getReqs wsId (meta: M.Info) (json: J.Provider) =
             let applyCode code =
-                ClientAddEventListener(eltId, event, code)
+                ClientAddEventListener(wsId, event, code)
             match Internal.compile meta json q applyCode with
             | Some v -> v
             | _ ->
@@ -264,9 +264,9 @@ type Attr =
         code :: (reqs |> List.map ClientRequire) :> seq<_>
 
     static member HandlerLinqImpl(event, m, key: string, q: Expression<Action<Dom.Element, #Dom.Event>>) =
-        let getReqs eltId (meta: M.Info) (json: J.Provider) =
+        let getReqs wsId (meta: M.Info) (json: J.Provider) =
             let applyCode code =
-                ClientAddEventListener(eltId, event, code)
+                ClientAddEventListener(wsId, event, code)
             match q.Body with
             | :? MethodCallExpression as b when b.Arguments.Count = 0 ->
                 Attr.HandlerFallback(b.Method, "no location", meta, json, applyCode)
@@ -302,9 +302,9 @@ type Attr =
         Attr.HandlerLinqImpl(event, meth, key, q)
 
     static member OnAfterRenderLinqImpl(m, location, key: string, q: Expression<Action<Dom.Element>>) =
-        let getReqs eltId (meta: M.Info) (json: J.Provider) =
+        let getReqs wsId (meta: M.Info) (json: J.Provider) =
             let applyCode code =
-                ClientApply(code, [ ClientDOMElement(eltId) ])
+                ClientApply(code, [ ClientDOMElement(wsId) ])
             match q.Body with
             | :? MethodCallExpression as b when b.Arguments.Count = 0 ->
                 Attr.HandlerFallback(b.Method, "no location", meta, json, applyCode)

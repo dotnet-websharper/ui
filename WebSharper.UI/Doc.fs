@@ -138,31 +138,23 @@ and Elt
                 | AppendAttr attrs -> attrs |> List.exists hasDepAttr
                 | DepAttr _ -> true
                 | _ -> false
-            let rec getIdAttr attr =
-                match attr with
-                | AppendAttr attrs -> attrs |> List.tryPick getIdAttr
-                | SingleAttr (n, v) -> if n = "id" then Some v else None
-                | _ -> None
-            let eltId  = 
-                if attrs |> List.exists hasDepAttr then
-                    match attrs |> List.tryPick getIdAttr with
-                    | None ->
-                        let i = getId.NewId()
-                        attrs <- SingleAttr("id", i) :: attrs
-                        Some i
-                    | found -> found
-                else 
-                    None
-            match eltId with
-            | Some id ->
-                let getEltId = 
+            if attrs |> List.exists hasDepAttr then
+                let mutable wsId = None
+                let getwsId = 
                     { new IUniqueIdSource with
-                        override this.NewId() = id
+                        override this.NewId() =
+                            match wsId with
+                            | Some i -> i
+                            | None ->
+                                let i = getId.NewId()
+                                attrs <- SingleAttr("ws-id", i) :: attrs
+                                wsId <- Some i
+                                i
                     }
                 Seq.append
-                    (attrs |> Seq.collect (fun r -> (r :> IRequiresResources).Requires(meta, json, getEltId)))
+                    (attrs |> Seq.collect (fun r -> (r :> IRequiresResources).Requires(meta, json, getwsId)))
                     (requireResources |> Seq.collect (fun r -> r.Requires(meta, json, getId)))
-            | None ->
+            else
                 Seq.append (Seq.cast attrs) requireResources
                 |> Seq.collect (fun r -> r.Requires(meta, json, getId))
         else
