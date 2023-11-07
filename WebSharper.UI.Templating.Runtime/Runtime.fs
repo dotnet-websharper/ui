@@ -751,7 +751,7 @@ type Runtime private () =
                     if plain then doPlain() else
                     match ctx.RequireResources.TryGetValue holeName with
                     | true, (:? UI.Attr as a) ->
-                        a.WithName("on" + event).Write(ctx.Context.Metadata, ctx.Context.Json, ctx.Writer, true)
+                        a.WithName(event).Write(ctx.Context.Metadata, ctx.Context.Json, ctx.Writer, true)
                     | _ ->
                         if ctx.FillWith.ContainsKey holeName then
                             failwithf "Invalid hole, expected quoted event: %s" holeName
@@ -857,7 +857,7 @@ type Runtime private () =
                     | Attr.Event(event, holeName) ->
                         match ctx.RequireResources.TryGetValue holeName with
                         | true, (:? UI.Attr as a) ->
-                            a.WithName("on" + event)
+                            a.WithName(event)
                         | _ ->
                             if ctx.FillWith.ContainsKey holeName then
                                 failwithf "Invalid hole, expected quoted event: %s" holeName

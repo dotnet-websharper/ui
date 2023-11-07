@@ -147,7 +147,7 @@ and Elt
                             | Some i -> i
                             | None ->
                                 let i = getId.NewId()
-                                attrs <- SingleAttr("ws-id", i) :: attrs
+                                attrs <- SingleAttr("ws-" + i, null) :: attrs
                                 wsId <- Some i
                                 i
                     }
@@ -826,7 +826,7 @@ type InlineControlWithPlaceHolder(docExpr: Expr<Doc>, doc: Doc) =
 
     interface INode with
         member this.Write (ctx, w) =
-            w.Write("""<div id="{0}">""", this.ID)
+            w.Write("""<div ws-{0}>""", this.ID)
             doc.Write(ctx, w, None)
             w.Write("</div>")
 

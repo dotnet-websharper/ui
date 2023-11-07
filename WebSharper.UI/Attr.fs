@@ -147,7 +147,7 @@ module private Internal =
 type Attr =
     | AppendAttr of list<Attr>
     | SingleAttr of string * string
-    | DepAttr of (string -> M.Info -> J.Provider -> seq<ClientCode>)
+    | DepAttr of ref<string> * string * (string -> M.Info -> J.Provider -> seq<ClientCode>)
 
     member this.Write(meta: M.Info, json: J.Provider, w: HtmlTextWriter, removeWsHole) =
         match this with
@@ -158,8 +158,9 @@ type Attr =
         | SingleAttr (n, v) ->
             if not (removeWsHole && n = "ws-hole") then
                 w.WriteAttribute(n, v)
-        | DepAttr _ ->
-            ()
+        | DepAttr (wsIdRef, name, _) ->
+            if removeWsHole then
+                w.WriteAttribute("ws-" + wsIdRef.Value, name)
 
     interface IRequiresResources with
 
@@ -170,13 +171,15 @@ type Attr =
                     if obj.ReferenceEquals(a, null)
                     then Seq.empty
                     else (a :> IRequiresResources).Requires(meta, json, getId))
-            | DepAttr reqs -> 
-                reqs (getId.NewId()) meta json
+            | DepAttr (wsIdRef, _, reqs) -> 
+                let i = getId.NewId()
+                wsIdRef.Value <- i
+                reqs i meta json
             | SingleAttr _ -> Seq.empty
 
     member this.WithName(n) =
         match this with
-        | DepAttr _
+        | DepAttr (i, _, r) -> DepAttr(i, n, r)
         | AppendAttr _ -> this
         | SingleAttr(_, v) -> SingleAttr(n, v)
 
@@ -206,7 +209,7 @@ type Attr =
                     | _ -> failwithf "Invalid handler function: %A" q
                 let loc = WebSharper.Web.ClientSideInternals.getLocation' q
                 Attr.HandlerFallback(m, loc, meta, json, applyCode)
-        DepAttr getReqs
+        DepAttr (ref "", null, getReqs)
 
     static member HandlerImpl(event: string, q: Expr<Dom.Element -> #Dom.Event -> unit>) =
         let getReqs wsId (meta: M.Info) (json: J.Provider) =
@@ -221,7 +224,7 @@ type Attr =
                     | _ -> failwithf "Invalid handler function: %A" q
                 let loc = WebSharper.Web.ClientSideInternals.getLocation' q
                 Attr.HandlerFallback(m, loc, meta, json, applyCode)
-        DepAttr getReqs
+        DepAttr (ref "", event, getReqs)
 
     static member Handler (event: string) ([<JavaScript>] q: Expr<Dom.Element -> #Dom.Event -> unit>) =
         Attr.HandlerImpl(event, q)
@@ -248,16 +251,6 @@ type Attr =
                             clAddr.Func(name)
                         | _ -> fail()
                     | _ -> fail()
-                //let s = 
-                //    match addr.Module with
-                //    | Core.AST.Module.JavaScriptFile _
-                //    | Core.AST.Module.StandardLibrary ->
-                //        String.concat "." (List.rev addr.Address.Value) |> doCall
-                //    | Core.AST.Module.JavaScriptModule m ->
-                //        // ((...args) => import('./file1.js').then(m => m.Show(...args)))
-                //    | _ -> fail()
-                //value.Value <- Some s
-                //s
                 applyCode (ClientImport addr)
 
             | _ -> fail()
@@ -285,7 +278,7 @@ type Attr =
                     Attr.HandlerFallback(b.Method, "no location", meta, json, applyCode)
                 | _ -> failwithf "Invalid handler function: %A" q
             | _ -> failwithf "Invalid handler function: %A" q
-        DepAttr getReqs
+        DepAttr (ref "", event, getReqs)
 
     static member HandlerLinq (event: string) (q: Expression<Action<Dom.Element, #Dom.Event>>) =
         let meth =
@@ -317,8 +310,7 @@ type Attr =
                 | _ -> failwithf "Invalid handler function: %A" q
             | _ -> failwithf "Invalid handler function: %A" q
                     
-            //reqs |> Seq.append (seq { Internal.afterRenderNode })
-        DepAttr getReqs
+        DepAttr (ref "", null, getReqs)
 
     static member OnAfterRenderLinq (key: string) (q: Expression<Action<Dom.Element>>) =
         let meth =
