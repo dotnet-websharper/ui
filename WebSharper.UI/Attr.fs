@@ -37,56 +37,11 @@ module private Internal =
     open WebSharper.Core
     open WebSharper.Web.ClientSideInternals
 
-    let activateNode =
-        M.MethodNode(
-            AST.TypeDefinition {
-                Assembly = "WebSharper.Main"
-                FullName = "WebSharper.Activator"
-            },
-            AST.Method {
-                MethodName = "Activate"
-                Parameters = []
-                ReturnType = AST.VoidType
-                Generics = 0
-            } 
-        )
-
-    let afterRenderNode =
-        M.MethodNode(
-            AST.TypeDefinition {
-                Assembly = "WebSharper.UI.Templating.Runtime"
-                FullName = "WebSharper.UI.Templating.Runtime.Client.ClientTemplateInstanceHandlers"
-            },
-            AST.Method {
-                MethodName = "AfterRenderQ2Client"
-                Parameters = [
-                    R.ReadType typeof<System.String>
-                    R.ReadType typeof<Dom.Element>
-                    R.ReadType typeof<obj -> unit>
-                ]
-                ReturnType = AST.VoidType
-                Generics = 0
-            } 
-        )
-
-    let eventNode =
-        M.MethodNode(
-            AST.TypeDefinition {
-                Assembly = "WebSharper.UI.Templating.Runtime"
-                FullName = "WebSharper.UI.Templating.Runtime.Client.ClientTemplateInstanceHandlers"
-            },
-            AST.Method {
-                MethodName = "EventQ2Client"
-                Parameters = [
-                    R.ReadType typeof<System.String>
-                    R.ReadType typeof<Dom.Element>
-                    R.ReadType typeof<Dom.Event>
-                    R.ReadType typeof<obj -> unit>
-                ]
-                ReturnType = AST.VoidType
-                Generics = 0
-            } 
-        )
+    let clientTemplateInstanceHandlers =
+        AST.TypeDefinition {
+            Assembly = "WebSharper.UI.Templating.Runtime"
+            FullName = "WebSharper.UI.Templating.Runtime.Client+ClientTemplateInstanceHandlers"
+        }
 
     let compile (meta: M.Info) (json: J.Provider) (q: Expr) applyCode =
         let reqs = ResizeArray<M.Node>()
@@ -136,7 +91,6 @@ module private Internal =
             | None -> None
         compile' q
         |> Option.map (fun s ->
-            reqs.Add(activateNode)
             applyCode s :: (reqs |> Seq.map ClientRequire |> List.ofSeq) :> seq<_>
         )
 
@@ -214,7 +168,7 @@ type Attr =
     static member HandlerImpl(event: string, q: Expr<Dom.Element -> #Dom.Event -> unit>) =
         let getReqs wsId (meta: M.Info) (json: J.Provider) =
             let applyCode code =
-                ClientAddEventListener(wsId, event, code)
+                ClientAddEventListener(wsId, event, ClientApply(code, [ ClientDOMElement(wsId) ]))
             match Internal.compile meta json q applyCode with
             | Some v -> v
             | _ ->
@@ -256,25 +210,63 @@ type Attr =
             | _ -> fail()
         code :: (reqs |> List.map ClientRequire) :> seq<_>
 
+    static member CallHelperMethod(meta: M.Info, name: string, args) =
+        let fail() =
+            failwithf "Error in CallHelperMethod: Couldn't find JavaScript address for method %s" name
+        match meta.Classes.TryGetValue Internal.clientTemplateInstanceHandlers with
+        | true, (clAddr, _, Some c) ->
+            let addr =
+                let compm = 
+                    c.Methods |> Seq.tryPick (fun m -> 
+                        if m.Key.Value.MethodName = name then
+                            Some m.Value
+                        else
+                            None
+                    )
+                match compm with
+                | Some info ->
+                    match info.CompiledForm with
+                    | M.CompiledMember.Func (name, false) ->
+                        clAddr.Func(name)
+                    | _ -> fail()
+                | _ -> fail()
+            ClientApply(ClientImport addr, args)
+        | _ -> fail()
+
     static member HandlerLinqImpl(event, m, key: string, q: Expression<Action<Dom.Element, #Dom.Event>>) =
         let getReqs wsId (meta: M.Info) (json: J.Provider) =
-            let applyCode code =
-                ClientAddEventListener(wsId, event, code)
             match q.Body with
             | :? MethodCallExpression as b when b.Arguments.Count = 0 ->
+                let applyCode code =
+                    ClientAddEventListener(wsId, event, code)
                 Attr.HandlerFallback(b.Method, "no location", meta, json, applyCode)
             | :? MethodCallExpression as b when b.Arguments.Count = 1 ->
                 match b.Arguments[0] with
                 | :? ParameterExpression as p when p.Type = q.Parameters[0].Type || p.Type = q.Parameters[1].Type ->
+                    let applyCode code =
+                        ClientAddEventListener(wsId, event, ClientApply(code, [ ClientDOMElement(wsId) ]))
                     Attr.HandlerFallback(b.Method, "no location", meta, json, applyCode)
                 | :? ParameterExpression as p when p.Type.AssemblyQualifiedName.StartsWith "WebSharper.UI.Templating.Runtime.Server+TemplateEvent`3" ->
+                    let jkey = ClientJsonData (Core.Json.Value.String key)
+                    let applyCode code =
+                        let tcode =
+                            Attr.CallHelperMethod(meta, "EventQ2Client", [jkey; ClientDOMElement(wsId); code])
+                        ClientAddEventListener(wsId, event, tcode)
                     Attr.HandlerFallback(b.Method, "no location", meta, json, applyCode)
                 | _ -> failwithf "Invalid handler function: %A" q
             | :? MethodCallExpression as b when b.Arguments.Count = 2 ->
                 match b.Arguments[0], b.Arguments[1] with
                 | :? ParameterExpression, :? ParameterExpression as (p1, p2) when p1.Type = q.Parameters[0].Type && q.Parameters[1].Type.IsAssignableFrom(p2.Type) ->
+                    let applyCode code =
+                        let tcode =
+                            Attr.CallHelperMethod(meta, "EventClient", [ClientDOMElement(wsId); code])
+                        ClientAddEventListener(wsId, event, tcode)
                     Attr.HandlerFallback(b.Method, "no location", meta, json, applyCode)
                 | :? ParameterExpression, :? ParameterExpression as (p1, p2) when p2.Type = q.Parameters[0].Type && q.Parameters[1].Type.IsAssignableFrom(p1.Type) ->
+                    let applyCode code =
+                        let tcode =
+                            Attr.CallHelperMethod(meta, "EventClientRev", [ClientDOMElement(wsId); code])
+                        ClientAddEventListener(wsId, event, tcode)
                     Attr.HandlerFallback(b.Method, "no location", meta, json, applyCode)
                 | _ -> failwithf "Invalid handler function: %A" q
             | _ -> failwithf "Invalid handler function: %A" q
@@ -296,16 +288,21 @@ type Attr =
 
     static member OnAfterRenderLinqImpl(m, location, key: string, q: Expression<Action<Dom.Element>>) =
         let getReqs wsId (meta: M.Info) (json: J.Provider) =
-            let applyCode code =
-                ClientApply(code, [ ClientDOMElement(wsId) ])
             match q.Body with
             | :? MethodCallExpression as b when b.Arguments.Count = 0 ->
+                let applyCode code =
+                    ClientApply(code, [])
                 Attr.HandlerFallback(b.Method, "no location", meta, json, applyCode)
             | :? MethodCallExpression as b when b.Arguments.Count = 1 ->
                 match b.Arguments[0] with
                 | :? ParameterExpression as p when p.Type = q.Parameters[0].Type ->
+                    let applyCode code =
+                        ClientApply(code, [ ClientDOMElement(wsId) ])
                     Attr.HandlerFallback(b.Method, "no location", meta, json, applyCode)
                 | :? ParameterExpression as p when p.Type.AssemblyQualifiedName.StartsWith "WebSharper.UI.Templating.Runtime.Server+TemplateEvent`3" ->
+                    let applyCode code =
+                        let jkey = ClientJsonData (Core.Json.Value.String key)
+                        Attr.CallHelperMethod(meta, "AfterRenderQ2Client", [jkey; ClientDOMElement(wsId); code])
                     Attr.HandlerFallback(b.Method, "no location", meta, json, applyCode)
                 | _ -> failwithf "Invalid handler function: %A" q
             | _ -> failwithf "Invalid handler function: %A" q

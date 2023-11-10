@@ -302,16 +302,30 @@ type private HandlerProxy =
 type ClientTemplateInstanceHandlers =
 
     [<JavaScriptExport>]
-    static member EventQ2Client (key: string, el: Dom.Element, ev: Dom.Event, f: obj -> unit) =
-        let i = Server.TemplateInitializer.GetInstance key
-        i.SetAnchorRoot(el)
-        f
-            ({
-                Vars = i
-                Anchors = i
-                Target = el
-                Event = ev
-            } : TemplateEvent<_, _, _>)
+    static member EventClient (el: Dom.Element, f: Action<obj, obj>) =
+        ()
+        fun ev ->
+            f.Invoke(el, ev)
+
+    [<JavaScriptExport>]
+    static member EventClientRev (el: Dom.Element, f: Action<obj, obj>) =
+        ()
+        fun ev ->
+            f.Invoke(ev, el)
+
+    [<JavaScriptExport>]
+    static member EventQ2Client (key: string, el: Dom.Element, f: obj -> unit) =
+        ()
+        fun ev ->
+            let i = Server.TemplateInitializer.GetInstance key
+            i.SetAnchorRoot(el)
+            f
+                ({
+                    Vars = i
+                    Anchors = i
+                    Target = el
+                    Event = ev
+                } : TemplateEvent<_, _, _>)
 
     [<JavaScriptExport>]
     static member AfterRenderQ2Client (key: string, el: Dom.Element, f: obj -> unit) =
