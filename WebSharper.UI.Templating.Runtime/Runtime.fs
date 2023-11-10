@@ -122,7 +122,11 @@ type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
                     let jo =
                         match o with
                         | None -> ClientJsonData Json.Value.Null
-                        | o -> Control.EncodeClientObject(meta, json, o)
+                        | Some v -> 
+                            ClientObjectData [
+                                "$", ClientJsonData (Json.Value.Number "1")
+                                "$0", Control.EncodeClientObject(meta, json, v)
+                            ]
                     ClientArrayData [ jn; jt; jo ]
                 )
                 |> ClientArrayData
