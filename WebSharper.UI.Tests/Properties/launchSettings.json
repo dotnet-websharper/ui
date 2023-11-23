@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "WebSharper.UI.Tests": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:3486;http://localhost:3487"
+    }
+  }
+}

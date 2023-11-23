@@ -474,6 +474,14 @@ module Doc =
         [<Inline>]
         let SelectDynOptional attrs noneText show options current : Doc =
             As (Doc'.SelectDynOptional attrs noneText show options current)
+
+        [<Inline>]
+        let SelectMultiple attrs show options current : Doc =
+            As (Doc'.SelectMultiple attrs show options current)
+
+        [<Inline>]
+        let SelectMultipleDyn attrs show options current : Doc =
+            As (Doc'.SelectMultipleDyn attrs show options current)
         
         [<Inline>]
         let CheckBox attrs chk : Doc =

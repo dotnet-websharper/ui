@@ -350,6 +350,24 @@ module BindVar =
     let StringApply : Apply<string> =
         ApplyValue StringGet StringSet
 
+    let StringListSet : Set<string array> = fun el s ->
+        let select = el :?> HTMLSelectElement
+        let options' = select?options |> As<Dom.HTMLCollection>
+        for i in 0..options'.Length-1 do
+            let option = options'.Item i |> As<HTMLOptionElement>
+            option.Selected <- s |> Array.contains (option.Value)
+    let StringListGet : Get<string array> = fun el ->
+        let select = el :?> HTMLSelectElement
+        let selectedOptions = select?selectedOptions |> As<Dom.HTMLCollection>
+        [|
+            for i in 0..selectedOptions.Length-1 do
+                let option = selectedOptions.Item i |> As<HTMLOptionElement>
+                option.Value
+        |]
+        |> Some
+    let StringListApply : Apply<string array> =
+        ApplyValue StringListGet StringListSet
+
     let DateTimeSetUnchecked : Set<System.DateTime> = fun el i ->
         el?value <- string i
     let DateTimeGetUnchecked : Get<System.DateTime> = fun el ->
@@ -547,6 +565,9 @@ module Attr =
 
     let Value (var: Var<string>) =
         ValueWith BindVar.StringApply var
+
+    let StringListValue (var: Var<string array>) =
+        ValueWith BindVar.StringListApply var
 
     let DateTimeValue (var: Var<System.DateTime>) =
         ValueWith BindVar.DateTimeApplyUnchecked var

@@ -608,6 +608,11 @@ module Main =
     type Rec = { x: string; y: Rec2 }
     and Rec2 = { z: string; t: string }
 
+    type SelectMultipleExample =
+        | A
+        | B
+        | C
+
     [<SPAEntryPoint>]
     let Main() =
         Runner.RunTests(
@@ -635,10 +640,12 @@ module Main =
         let rd = Var.Create (p [] [text "[OK] var.V"])
         let rdt = Var.Create System.DateTime.Now
         let rf = Var.Create [||]
+        let varSelectMultiple = Var.Create []
         let rr = Var.Create 0
         let rvDecimal = Var.Create (CheckedInput.Make 10.131m)
         let rvDecimalUnchecked = Var.Create 10.959m
         let rvDisabled = Var.Create false
+
         div [
             Attr.Style "color" rv.V.y.z
         ] [
@@ -693,6 +700,22 @@ module Main =
             p [] [text (" You typed: " + rv.V.y.z)]
             V(ul [] (rv.V.y.z |> Seq.map (fun c -> li [] [text (string c)]))).V
             p [Attr.ClassPred "is-green" (rv.V.y.z = "green")] [text "this should be bordered with green iff you typed \"green\"."]
+
+            dialog [attr.id "my-popover"; attr.popover "manual"; attr.style "background-color: darkslategray; color:white;"] [text "Popover attempt"]
+            button [attr.popovertarget "my-popover"; attr.popovertargetaction "toggle"] [text "Open/Close dialog"]
             rd.V
+            Doc.InputType.SelectMultiple
+                [
+                    on.viewUpdate varSelectMultiple.View (fun _ v ->
+                        Console.Log v
+                    )
+                ]
+                (function
+                    | A -> "A"
+                    | B -> "B"
+                    | C -> "C"
+                )
+                [A;B;C]
+                varSelectMultiple
         ]
         |> Doc.RunAppend JS.Document.Body

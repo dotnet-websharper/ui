@@ -128,15 +128,15 @@ module Macros =
                 | _ -> setterFail()
 
         let MakeSetter comp = function
-            | Lambda ([x], body)
-            | ExprSourcePos(_, Lambda ([x], body)) ->
+            | Lambda ([x], t, body)
+            | ExprSourcePos(_, Lambda ([x], t, body)) ->
                 let y = Id.New(mut = false)
                 let terminate getterBody valueArg =
                     match getterBody with
                     | IgnoreSourcePos.Var x' when x = x' -> Some valueArg
                     | _ -> None
                 match makeSetter comp terminate body (Var y) with
-                | MacroOk e -> MacroOk <| Lambda ([x], Lambda ([y], e))
+                | MacroOk e -> MacroOk <| Lambda ([x], t, Lambda ([y], None, e))
                 | err -> err
             | e -> setterFail()
 
@@ -154,8 +154,8 @@ module Macros =
                 let terminate getterBody valueArg =
                     match getterBody with
                     | IgnoreSourcePos.Var x' when x = x' ->
-                        let getter = Lambda([x], e)
-                        let setter = Lambda([x], Lambda([y], valueArg))
+                        let getter = Lambda([x], None, e)
+                        let setter = Lambda([x], None, Lambda([y], None, valueArg))
                         Some (Call(None, varModule, lensFn t.Generics[0] tOutput, [this; getter; setter]))
                     | _ -> None
                 makeSetter comp terminate e (Var y)
@@ -195,11 +195,11 @@ module Macros =
                 // original is straight-up x.V ==> return x
                 | Var id' | ExprSourcePos (_, Var id') when id = id' -> v
                 // View.Map (fun x -> body) v
-                | body -> Call(None, viewModule, mapFnOf targ t, [Lambda([id], body); v])
+                | body -> Call(None, viewModule, mapFnOf targ t, [Lambda([id], None, body); v])
                 |> Kind.View
             | (KeyValue(Key v1, (id1, targ1)) :: KeyValue(Key v2, (id2, targ2)) :: rest) as n ->
                 // View.Map2 (fun x1 x2 ...xn -> body) v1 v2 <*> v3 <*> ...vn
-                let lambda = (n, body) ||> List.foldBack (fun (KeyValue(_, (id, _))) body -> Lambda([id], body))
+                let lambda = (n, body) ||> List.foldBack (fun (KeyValue(_, (id, _))) body -> Lambda([id], None, body))
                 let cnst = Call(None, viewModule, map2FnOf targ1 targ2 t, [lambda; v1; v2])
                 (cnst, rest) ||> List.fold (fun e (KeyValue(Key v, (_, targ))) ->
                     Call(None, viewModule, applyFnOf targ targ (* ??? *), [e; v]))

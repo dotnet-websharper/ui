@@ -110,6 +110,9 @@ module Attr =
     val Value : Var<string> -> Attr
 
     /// Gets and sets the value of the element according to a Var.
+    val StringListValue : Var<string array> -> Attr
+
+    /// Gets and sets the value of the element according to a Var.
     val DateTimeValue : Var<System.DateTime> -> Attr
 
     /// Gets and sets the value of the element according to a Var.
@@ -189,6 +192,10 @@ module BindVar =
     val StringSet : Set<string>
     val StringGet : Get<string>
     val StringApply : Apply<string>
+
+    val StringListSet : Set<string array>
+    val StringListGet : Get<string array>
+    val StringListApply : Apply<string array>
 
     val IntSetUnchecked : Set<int>
     val IntGetUnchecked : Get<int>

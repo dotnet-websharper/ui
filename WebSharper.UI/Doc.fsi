@@ -97,8 +97,7 @@ type Doc =
     abstract Write : Web.Context * HtmlTextWriter * renderResources: bool -> unit
     default Write : Web.Context * HtmlTextWriter * renderResources: bool -> unit
     abstract SpecialHoles : SpecialHole
-    abstract Encode : Core.Metadata.Info * Core.Json.Provider -> list<string * Core.Json.Encoded>
-    abstract Requires : Core.Metadata.Info -> seq<Core.Metadata.Node>
+    abstract Requires : Core.Metadata.Info * Core.Json.Provider * IUniqueIdSource -> seq<ClientCode>
     static member internal OfINode : Web.INode -> Doc
 
     internal new : unit -> Doc
@@ -116,8 +115,7 @@ and [<Class>] Elt =
 
     override Write : Web.Context * HtmlTextWriter * res: option<Sitelets.Content.RenderedResources> -> unit
     override SpecialHoles : SpecialHole
-    override Encode : Core.Metadata.Info * Core.Json.Provider -> list<string * Core.Json.Encoded>
-    override Requires : Core.Metadata.Info -> seq<Core.Metadata.Node>
+    override Requires : Core.Metadata.Info * Core.Json.Provider * IUniqueIdSource -> seq<ClientCode>
 
     /// Add an event handler.
     /// When called on the server side, the handler must be a top-level function or a static member.
@@ -571,6 +569,7 @@ type TemplateHole =
     static member MakeText : name: string * text: string -> TemplateHole
 
     static member MakeVarLens : name: string * value: string -> TemplateHole
+    static member MakeVarLens : name: string * value: string array -> TemplateHole
     static member MakeVarLens : name: string * value: bool -> TemplateHole
     static member MakeVarLens : name: string * value: DateTime -> TemplateHole
     static member MakeVarLens : name: string * value: File array -> TemplateHole
@@ -640,6 +639,11 @@ module TemplateHole =
         inherit TemplateHole
         new: string * Var<string> -> VarStr
         member Value: Var<string>
+
+    type VarStrList =
+        inherit TemplateHole
+        new: string * Var<string array> -> VarStrList
+        member Value: Var<string array>
 
     type VarBool =
         inherit TemplateHole

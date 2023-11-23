@@ -2,7 +2,7 @@ build/
 packages/
 *.suo
 *.user
-*.Tests/Content/
+*.Tests/wwwroot/Content/
 *.Tests/wwwroot/Scripts/
 bin/
 obj/
@@ -14,3 +14,4 @@ paket-files/
 /.paket/.store/
 .ionide/
 *~
+websharper.log

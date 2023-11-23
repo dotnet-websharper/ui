@@ -282,6 +282,19 @@ module private Impl =
             | Choice2Of2 _ -> () // Don't make lensed .With(), it conflicts with normal string
         ]
 
+    let VarStringListHoleMethods hole resTy ctx =
+        let mk wrapArg = BuildMethod hole resTy ctx wrapArg
+        let mkVar wrapArg = BuildMethodVar hole resTy ctx wrapArg
+        [
+            yield! mkVar <| fun b name (x: Expr<Var<string array>>) ->
+                <@ (%b).With(%name, %x) @>
+            match hole with
+            | Choice1Of2 _ ->
+                yield mk <| fun b name (x: Expr<string array>) ->
+                    <@ (%b).With(TemplateHole.MakeVarLens(%name, %x)) @>
+            | Choice2Of2 _ -> () // Don't make lensed .With(), it conflicts with normal string
+        ]
+
     let VarNumberHoleMethods hole resTy ctx =
         let mk wrapArg = BuildMethod hole resTy ctx wrapArg
         let mkVar wrapArg = BuildMethodVar hole resTy ctx wrapArg
@@ -362,6 +375,7 @@ module private Impl =
             | HoleKind.Event eventType -> EventHandlerHoleMethods eventType (Choice1Of2 hole) resTy varsTy anchorsTy ctx
             | HoleKind.Simple -> SimpleHoleMethods (Choice1Of2 hole) resTy ctx
             | HoleKind.Var (ValTy.Any | ValTy.String) -> VarStringHoleMethods (Choice1Of2 hole) resTy ctx
+            | HoleKind.Var ValTy.StringList -> VarStringListHoleMethods (Choice1Of2 hole) resTy ctx
             | HoleKind.Var ValTy.Number -> VarNumberHoleMethods (Choice1Of2 hole) resTy ctx
             | HoleKind.Var ValTy.Bool -> VarBoolHoleMethods (Choice1Of2 hole) resTy ctx
             | HoleKind.Var ValTy.DateTime -> VarDateTimeHoleMethods (Choice1Of2 hole) resTy ctx
@@ -421,6 +435,7 @@ module private Impl =
                     | HoleKind.Var AST.ValTy.Bool -> yield <@@ (holeName', RTS.ValTy.Bool, Option.None) @@>
                     | HoleKind.Var AST.ValTy.DateTime -> yield <@@ (holeName', RTS.ValTy.DateTime, Option.None) @@>
                     | HoleKind.Var AST.ValTy.File -> yield <@@ (holeName', RTS.ValTy.File, Option.None) @@>
+                    | HoleKind.Var AST.ValTy.StringList -> yield <@@ (holeName', RTS.ValTy.StringList, Option.None) @@>
                     | HoleKind.Var AST.ValTy.DomElement -> yield <@@ (holeName', RTS.ValTy.DomElement, Option.None) @@>
                     | _ -> ()
             ]
@@ -501,6 +516,10 @@ module private Impl =
                 match def.Kind with
                 | AST.HoleKind.Var AST.ValTy.Any | AST.HoleKind.Var AST.ValTy.String ->
                     yield ProvidedProperty(holeName, typeof<Var<string>>, fun x ->
+                        <@@ ((%%x[0] : obj) :?> TI).Hole holeName' |> TemplateHole.Value @@>)
+                        .WithXmlDoc(XmlDoc.Member.Var holeName)
+                | AST.HoleKind.Var AST.ValTy.StringList  ->
+                    yield ProvidedProperty(holeName, typeof<Var<string array>>, fun x ->
                         <@@ ((%%x[0] : obj) :?> TI).Hole holeName' |> TemplateHole.Value @@>)
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
                 | AST.HoleKind.Var AST.ValTy.Number ->

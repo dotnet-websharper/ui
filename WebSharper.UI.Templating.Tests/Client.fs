@@ -32,7 +32,7 @@ open WebSharper.UI.Client
 [<JavaScript>]
 module Client =
 
-    type MyTemplate = Template<"index.html,template.html", clientLoad = ClientLoad.FromDocument, legacyMode = LegacyMode.New>
+    type MyTemplate = Template<"wwwroot/index.html,template.html", clientLoad = ClientLoad.FromDocument, legacyMode = LegacyMode.New>
 
     type Item =
         { id : int; name: string; description: string }
@@ -311,6 +311,10 @@ module Client =
                 e.Target.TextContent <- "[OK] This replaces text with ws-onafterrender.")
             .InputMouseEnter(fun e ->
                 e.Vars.Input := "[OK]"
+            )
+            .SelectPrint_WithModel(fun model ->
+                model.Vars.MultipleSelect.View
+                |> View.Sink (fun l -> Console.Log l)
             )
             .OkClass("ok")
             .OkView(View.Const "[OK]")

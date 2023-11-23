@@ -1128,6 +1128,33 @@ module HtmlExtensions =
         /// Create an animated HTML attribute "poster" whose value is computed from the given reactive view.
         [<JavaScript; Inline>]
         static member posterAnim view convert trans = Client.Attr.Animated "poster" trans view convert
+        /// Create an HTML attribute "popover" with the given reactive value.
+        [<JavaScript; Inline>]
+        static member popoverDyn view = Client.Attr.Dynamic "popover" view
+        /// `popover v p` sets an HTML attribute "popover" with reactive value v when p is true, and unsets it when p is false.
+        [<JavaScript; Inline>]
+        static member popoverDynPred view pred = Client.Attr.DynamicPred "popover" pred view
+        /// Create an animated HTML attribute "popover" whose value is computed from the given reactive view.
+        [<JavaScript; Inline>]
+        static member popoverAnim view convert trans = Client.Attr.Animated "popover" trans view convert
+        /// Create an HTML attribute "popovertarget" with the given reactive value.
+        [<JavaScript; Inline>]
+        static member popovertargetDyn view = Client.Attr.Dynamic "popovertarget" view
+        /// `popovertarget v p` sets an HTML attribute "popovertarget" with reactive value v when p is true, and unsets it when p is false.
+        [<JavaScript; Inline>]
+        static member popovertargetDynPred view pred = Client.Attr.DynamicPred "popovertarget" pred view
+        /// Create an animated HTML attribute "popovertarget" whose value is computed from the given reactive view.
+        [<JavaScript; Inline>]
+        static member popovertargetAnim view convert trans = Client.Attr.Animated "popovertarget" trans view convert
+        /// Create an HTML attribute "popovertargetaction" with the given reactive value.
+        [<JavaScript; Inline>]
+        static member popovertargetactionDyn view = Client.Attr.Dynamic "popovertargetaction" view
+        /// `popovertargetaction v p` sets an HTML attribute "popovertargetaction" with reactive value v when p is true, and unsets it when p is false.
+        [<JavaScript; Inline>]
+        static member popovertargetactionDynPred view pred = Client.Attr.DynamicPred "popovertargetaction" pred view
+        /// Create an animated HTML attribute "popovertargetaction" whose value is computed from the given reactive view.
+        [<JavaScript; Inline>]
+        static member popovertargetactionAnim view convert trans = Client.Attr.Animated "popovertargetaction" trans view convert
         /// Create an HTML attribute "preload" with the given reactive value.
         [<JavaScript; Inline>]
         static member preloadDyn view = Client.Attr.Dynamic "preload" view

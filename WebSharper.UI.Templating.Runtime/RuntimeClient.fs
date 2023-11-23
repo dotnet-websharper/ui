@@ -121,14 +121,13 @@ type GetOrLoadTemplateMacro() =
 
     override this.TranslateCall(call) =
         let comp = call.Compilation
-        let top = comp.AssemblyName.Replace(".","$") + "_Templates"
         let keyOf src =
             match src with
             | I.Value (String s) -> 
                 M.StringEntry s
             | _ -> failwith "Expecting a string value for src argument"
         let rec loadRef inlineBaseName = function
-            | I.NewArray [I.Value (String baseName); name; src] ->
+            | I.NewTuple ([I.Value (String baseName); name; src], _) ->
                 let td, m = getOrAddFunc baseName name src (NewArray []) inlineBaseName
                 Call(None, NonGeneric td, NonGeneric m, [])
             | _ -> failwith "Expecting an array of 3-tuple literals for refs argument"
@@ -139,13 +138,13 @@ type GetOrLoadTemplateMacro() =
             | _ ->
                 let loadRefs =
                     match refs with
-                    | I.NewArray ls -> List.map (loadRef inlineBaseName) ls
+                    | I.NewTuple (ls, _) -> List.map (loadRef inlineBaseName) ls
                     | x -> failwithf "Expecting an array literal for refs argument, got %A" x
                 let n =
                     match ExtractOption name with
                     | Some (I.Value (String n)) -> n
                     | _ -> "t"
-                let td, m, _ = comp.NewGenerated [ top; n ]
+                let td, m, _ = comp.NewGenerated n
                 let holesId = Id.New "h"
                 let nameId = Id.New "n"
                 let expr =
@@ -175,7 +174,7 @@ type GetOrLoadTemplateMacro() =
                                 )
                             )]
                     )
-                comp.AddGeneratedCode(m, Lambda([ holesId ], Let(nameId, name, expr)))
+                comp.AddGeneratedCode(m, Lambda([ holesId ], None, Let(nameId, name, expr)))
                 comp.AddMetadataEntry(meKey, M.CompositeEntry [ M.TypeDefinitionEntry td; M.MethodEntry m ])
                 td, m
         match call.Arguments with
@@ -286,10 +285,12 @@ type private HandlerProxy =
                         Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarDateTime (name, Var.Create DateTime.MinValue))
                     | Server.ValTy.File ->
                         Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarFile (name, Var.Create [||]))
+                    | Server.ValTy.StringList ->
+                        Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarStrList (name, Var.Create [||]))
                     | Server.ValTy.DomElement ->
                         Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () ->
                             let el = JavaScript.JS.Document.QuerySelector("[ws-dom=" + name + "]")
-                            el.RemoveAttribute("ws-dom")
+                            // el.RemoveAttribute("ws-dom")
                             TemplateHole.VarDomElement (name, Var.Create <| Some el))
                     | _ -> failwith "Invalid value type"
                 allVars[name] <- r
@@ -301,20 +302,34 @@ type private HandlerProxy =
 type ClientTemplateInstanceHandlers =
 
     [<JavaScriptExport>]
-    static member EventQ2Client (key: string, el: Dom.Element, ev: Dom.Event, f: obj -> unit) =
-        let i = Server.TemplateInstances.GetInstance key
-        i.SetAnchorRoot(el)
-        f
-            ({
-                Vars = i
-                Anchors = i
-                Target = el
-                Event = ev
-            } : TemplateEvent<_, _, _>)
+    static member EventClient (el: Dom.Element, f: Action<obj, obj>) =
+        ()
+        fun ev ->
+            f.Invoke(el, ev)
+
+    [<JavaScriptExport>]
+    static member EventClientRev (el: Dom.Element, f: Action<obj, obj>) =
+        ()
+        fun ev ->
+            f.Invoke(ev, el)
+
+    [<JavaScriptExport>]
+    static member EventQ2Client (key: string, el: Dom.Element, f: obj -> unit) =
+        ()
+        fun ev ->
+            let i = Server.TemplateInitializer.GetInstance key
+            i.SetAnchorRoot(el)
+            f
+                ({
+                    Vars = i
+                    Anchors = i
+                    Target = el
+                    Event = ev
+                } : TemplateEvent<_, _, _>)
 
     [<JavaScriptExport>]
     static member AfterRenderQ2Client (key: string, el: Dom.Element, f: obj -> unit) =
-        let i = Server.TemplateInstances.GetInstance key
+        let i = Server.TemplateInitializer.GetInstance key
         i.SetAnchorRoot(el)
         f
             ({

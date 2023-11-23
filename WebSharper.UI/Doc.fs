@@ -65,14 +65,12 @@ type Doc() =
         member this.IsAttribute = false
 
     interface IRequiresResources with
-        member this.Encode(meta, json) = this.Encode(meta, json)
-        member this.Requires(meta) = this.Requires(meta)
+        member this.Requires(meta, json, getId) = this.Requires(meta, json, getId)
 
     abstract Write : Web.Context * HtmlTextWriter * res: option<Sitelets.Content.RenderedResources> -> unit
     abstract Write : Web.Context * HtmlTextWriter * renderResources: bool -> unit
     abstract SpecialHoles : SpecialHole
-    abstract Encode : Core.Metadata.Info * Core.Json.Provider -> list<string * Core.Json.Encoded>
-    abstract Requires : Core.Metadata.Info -> seq<Core.Metadata.Node>
+    abstract Requires : Core.Metadata.Info * Core.Json.Provider * IUniqueIdSource -> seq<ClientCode>
 
     default this.Write(ctx: Web.Context, w: HtmlTextWriter, renderResources: bool) =
         let resources =
@@ -103,18 +101,11 @@ and ConcreteDoc(dd: DynDoc) =
             (elt :> Doc).SpecialHoles
         | _ -> SpecialHole.None
 
-    override this.Encode(meta, json) =
+    override this.Requires(meta, json, getId) =
         match dd with
-        | AppendDoc docs -> docs |> List.collect (fun d -> d.Encode(meta, json))
-        | INodeDoc c -> c.Encode(meta, json)
-        | ElemDoc elt -> (elt :> IRequiresResources).Encode(meta, json)
-        | _ -> []
-
-    override this.Requires(meta) =
-        match dd with
-        | AppendDoc docs -> docs |> Seq.collect (fun d -> d.Requires(meta))
-        | INodeDoc c -> (c :> IRequiresResources).Requires(meta)
-        | ElemDoc elt -> (elt :> IRequiresResources).Requires(meta)
+        | AppendDoc docs -> docs |> Seq.collect (fun d -> d.Requires(meta, json, getId))
+        | INodeDoc c -> (c :> IRequiresResources).Requires(meta, json, getId)
+        | ElemDoc elt -> (elt :> IRequiresResources).Requires(meta, json, getId)
         | _ -> Seq.empty
 
 and DynDoc =
@@ -140,15 +131,35 @@ and Elt
 
     override this.SpecialHoles = specialHoles
 
-    override this.Encode(m, j) =
-        [
-            for r in Seq.append requireResources (Seq.cast attrs) do
-                yield! r.Encode(m, j)
-        ]
-
-    override this.Requires(meta) =
-        Seq.append requireResources (Seq.cast attrs)
-        |> Seq.collect (fun r -> r.Requires(meta))
+    override this.Requires(meta, json, getId) =
+        if attrs.Length > 0 then
+            let rec hasDepAttr attr =
+                match attr with
+                | AppendAttr attrs -> attrs |> List.exists hasDepAttr
+                | DepAttr _ -> true
+                | _ -> false
+            if attrs |> List.exists hasDepAttr then
+                let mutable wsId = None
+                let getwsId = 
+                    { new IUniqueIdSource with
+                        override this.NewId() =
+                            match wsId with
+                            | Some i -> i
+                            | None ->
+                                let i = getId.NewId()
+                                attrs <- SingleAttr("ws-" + i, null) :: attrs
+                                wsId <- Some i
+                                i
+                    }
+                Seq.append
+                    (attrs |> Seq.collect (fun r -> (r :> IRequiresResources).Requires(meta, json, getwsId)))
+                    (requireResources |> Seq.collect (fun r -> r.Requires(meta, json, getId)))
+            else
+                Seq.append (Seq.cast attrs) requireResources
+                |> Seq.collect (fun r -> r.Requires(meta, json, getId))
+        else
+            requireResources
+            |> Seq.collect (fun r -> r.Requires(meta, json, getId))
 
     override this.Write(ctx, h, res) = write attrs ctx h res
 
@@ -507,6 +518,21 @@ module TemplateHole =
         override this.AsChoiceView =
             Choice2Of2 (fillWith.View.Map string)
         override this.ForTextView() = fillWith.View |> Some
+
+    type VarStrList(name: string, fillWith: Var<string array>) =
+        inherit TemplateHole()
+    
+        override this.Name with get() = name
+        member this.Value = fillWith
+        override this.ValueObj = this.Value
+        override this.WithName n = VarStrList(n, fillWith)
+        override this.ApplyVarHole (el: Dom.Element) =
+            applyTypedVarHole BindVar.StringListApply fillWith el
+        override this.AddAttribute (addAttr, el) =
+            addAttr el (Attr.StringListValue fillWith)
+        override this.AsChoiceView =
+            Choice2Of2 (fillWith.View.Map string)
+        override this.ForTextView() = fillWith.View |> View.Map (fun l -> String.concat "," l) |> Some
         
     type VarBool(name: string, fillWith: Var<bool>) =
         inherit TemplateHole()
@@ -702,6 +728,10 @@ type TemplateHole with
     [<Macro(typeof<Macros.TemplateVar>); Inline>]
     static member MakeVarLens(name: string, v: string) =
         TemplateHole.VarStr(name, Var.Create v) :> TemplateHole
+
+    [<Macro(typeof<Macros.TemplateVar>); Inline>]
+    static member MakeVarLens(name: string, v: string array) =
+        TemplateHole.VarStrList(name, Var.Create v) :> TemplateHole
     
     [<Inline>]
     static member MakeVar(name: string, var: Var<string>) =
@@ -788,13 +818,15 @@ type InlineControlWithPlaceHolder(docExpr: Expr<Doc>, doc: Doc) =
     [<System.NonSerialized>]
     let doc = doc
 
-    // this is needed because WebSharper.Web.Control.GetBodyNode looks at Body property on current type
     [<JavaScript>]
+    static member DecodeJson(o: obj) = As<InlineControlWithPlaceHolder> (obj())
+
+    // this is needed because WebSharper.Web.Control.GetBodyNode looks at Body property on current type
     override this.Body = base.Body
 
     interface INode with
         member this.Write (ctx, w) =
-            w.Write("""<div id="{0}">""", this.ID)
+            w.Write("""<div ws-{0}>""", this.ID)
             doc.Write(ctx, w, None)
             w.Write("</div>")
 

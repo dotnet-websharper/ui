@@ -422,6 +422,14 @@ module Doc =
         /// Select box with time-varying option list.
         val SelectDyn : seq<Attr> -> optionText: ('T -> string) -> options: View<list<'T>> -> Var<'T> -> Doc
             when 'T : equality
+
+        /// Select box with mutliple selections.
+        val SelectMultiple : seq<Attr> -> optionText: ('T -> string) -> options: list<'T> -> Var<'T list> -> Doc
+            when 'T : equality
+
+        /// Select box with mutliple selections and time-varying option list.
+        val SelectMultipleDyn : seq<Attr> -> optionText: ('T -> string) -> options: View<list<'T>> -> Var<'T list> -> Doc
+            when 'T : equality
         
         /// Select box where the first option returns None.
         val SelectOptional : seq<Attr> -> noneText: string -> optionText: ('T -> string) -> options: list<'T> -> Var<option<'T>> -> Doc
