@@ -15,7 +15,6 @@
     <Compile Include="Utility\DomUtility.fs" />
     <Compile Include="Utility\Trie.fsi" />
     <Compile Include="Utility\Trie.fs" />
-    <Compile Include="Utility\Resources.fs" />
     <Compile Include="Snap.fsi" />
     <Compile Include="Snap.fs" />
     <Compile Include="Macros.fsi" />
@@ -57,7 +56,6 @@
     <Content Include="SVG.fs" />
     <Compile Include="Input.fsi" />
     <Compile Include="Input.fs" />
-    <EmbeddedResource Include="closest.js" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../WebSharper.UI.Templating.Common\WebSharper.UI.Templating.Common.fsproj" />

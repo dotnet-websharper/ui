@@ -45,13 +45,11 @@ module internal Templates =
     /// Run `f` on all descendants of `root` that match `selector`
     /// and aren't descendants of an element with a ws-preserve attribute
     /// nor have a ws-preserve attribute themselves.
-    [<Require(typeof<Resources.Closest>)>]
     let foreachNotPreserved (root: Dom.Element) (selector: string) (f: Dom.Element -> unit) =
         DomUtility.IterSelector root selector <| fun p ->
             if isNull (p.Closest("[ws-preserve]")) then
                 f p
 
-    [<Require(typeof<Resources.Closest>)>]
     let foreachNotPreservedwsDOM (selector: string) (f: Dom.Element -> unit) =
         DomUtility.IterSelectorDoc selector <| fun p ->
             if isNull (p.Closest("[ws-preserve]")) then
