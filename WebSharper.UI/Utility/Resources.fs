@@ -24,22 +24,6 @@ open WebSharper
 open WebSharper.JavaScript
 open WebSharper.Core.Resources
 
-type H5F() =
-    interface IResource with
-        member this.Render ctx =
-            let ren = ctx.GetWebResourceRendering typeof<H5F> "h5f.js"
-            fun html ->
-                let html = html Scripts
-                html.WriteLine "<!--[if lte IE 9.0]>"
-                ren.Emit(html, Js)
-                html.WriteLine "<![endif]-->"
-
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module internal H5F =
-    [<Require(typeof<H5F>)>]
-    [<Inline "$global.H5F?$global.H5F.setup($e):undefined">]
-    let Setup (e: Dom.Element) = X<unit>
-
 type Closest() =
     interface IResource with
         member this.Render ctx =
@@ -50,6 +34,5 @@ type Closest() =
                 ren.Emit(html, Js)
                 html.WriteLine "<![endif]-->"
 
-[<assembly:WebResource("h5f.js", "text/javascript")>]
 [<assembly:WebResource("closest.js", "text/javascript")>]
 do ()

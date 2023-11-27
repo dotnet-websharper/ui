@@ -139,10 +139,6 @@ module Attr =
     /// Gets and sets the checked status of the element according to a Var.
     val Checked : Var<bool> -> Attr
 
-    /// Add this attribute to any <form> element that contains validation
-    /// (including Doc.IntInput, Doc.FloatInput, and Doc.DecimalInput) for compatibility in Internet Explorer 9 and older.
-    val ValidateForm : unit -> Attr
-
 /// Internals used in Doc.
 module internal Attrs =
 

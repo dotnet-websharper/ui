@@ -58,7 +58,6 @@
     <Compile Include="Input.fsi" />
     <Compile Include="Input.fs" />
     <EmbeddedResource Include="closest.js" />
-    <EmbeddedResource Include="h5f.js" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../WebSharper.UI.Templating.Common\WebSharper.UI.Templating.Common.fsproj" />

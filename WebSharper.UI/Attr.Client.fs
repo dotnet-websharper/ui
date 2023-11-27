@@ -596,8 +596,5 @@ module Attr =
     let Checked (var: Var<bool>) =
         ValueWith BindVar.BoolCheckedApply var
 
-    let ValidateForm () =
-        OnAfterRender Resources.H5F.Setup
-
 [<assembly:System.Reflection.AssemblyVersionAttribute("4.0.0.0")>]
 do()
