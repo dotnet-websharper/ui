@@ -577,8 +577,6 @@ type TemplateHole =
     static member MakeVarLens : name: string * value: int -> TemplateHole
     static member MakeVarLens : name: string * value: Client.CheckedInput<float> -> TemplateHole
     static member MakeVarLens : name: string * value: float -> TemplateHole
-    static member MakeVarLens : name: string * value: Client.CheckedInput<decimal> -> TemplateHole
-    static member MakeVarLens : name: string * value: decimal -> TemplateHole
 
     static member Value : th: TemplateHole -> obj
 
@@ -684,16 +682,6 @@ module TemplateHole =
         inherit TemplateHole
         new: string * Var<float> -> VarFloatUnchecked
         member Value: Var<float>
-
-    type VarDecimal =
-        inherit TemplateHole
-        new: string * Var<Client.CheckedInput<decimal>> -> VarDecimal
-        member Value: Var<Client.CheckedInput<decimal>>
-
-    type VarDecimalUnchecked =
-        inherit TemplateHole
-        new: string * Var<decimal> -> VarDecimalUnchecked
-        member Value: Var<decimal>
 
     type UninitVar =
         inherit TemplateHole

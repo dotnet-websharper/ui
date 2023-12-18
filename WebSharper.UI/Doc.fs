@@ -648,36 +648,6 @@ module TemplateHole =
             Choice2Of2 (fillWith.View.Map string)
         override this.ForTextView() = fillWith.View.Map string |> Some
         
-    type VarDecimal(name: string, fillWith: Var<Client.CheckedInput<decimal>>) =
-        inherit TemplateHole()
-        
-        override this.Name with get() = name
-        member this.Value = fillWith
-        override this.ValueObj = this.Value
-        override this.WithName n = VarDecimal(n, fillWith)
-        override this.ApplyVarHole (el: Dom.Element) =
-            applyTypedVarHole BindVar.DecimalApplyChecked fillWith el
-        override this.AddAttribute (addAttr, el) =
-            addAttr el (Attr.DecimalValue fillWith)
-        override this.AsChoiceView =
-            Choice2Of2 (fillWith.View.Map (fun i -> i.Input))
-        override this.ForTextView() = fillWith.View.Map (fun i -> i.Input) |> Some
-        
-    type VarDecimalUnchecked(name: string, fillWith: Var<decimal>) =
-        inherit TemplateHole()
-        
-        override this.Name with get() = name
-        member this.Value = fillWith
-        override this.ValueObj = this.Value
-        override this.WithName n = VarDecimalUnchecked(n, fillWith)
-        override this.ApplyVarHole (el: Dom.Element) =
-            applyTypedVarHole BindVar.DecimalApplyUnchecked fillWith el
-        override this.AddAttribute (addAttr, el) =
-            addAttr el (Attr.DecimalValueUnchecked fillWith)
-        override this.AsChoiceView =
-            Choice2Of2 (fillWith.View.Map string)
-        override this.ForTextView() = fillWith.View.Map string |> Some
-        
     type UninitVar(name: string, key: string) =
         inherit TemplateHole()
         
@@ -792,22 +762,6 @@ type TemplateHole with
     [<Inline>]
     static member MakeVar(name: string, var: Var<float>) =
         TemplateHole.VarFloatUnchecked(name, var) :> TemplateHole
-    
-    [<Macro(typeof<Macros.TemplateVar>); Inline>]
-    static member MakeVarLens(name: string, v: Client.CheckedInput<decimal>) =
-        TemplateHole.VarDecimal(name, Var.Create v) :> TemplateHole
-    
-    [<Inline>]
-    static member MakeVar(name: string, var: Var<Client.CheckedInput<decimal>>) =
-        TemplateHole.VarDecimal(name, var) :> TemplateHole
-        
-    [<Macro(typeof<Macros.TemplateVar>); Inline>]
-    static member MakeVarLens(name: string, v: decimal) =
-        TemplateHole.VarDecimalUnchecked(name, Var.Create v) :> TemplateHole
-    
-    [<Inline>]
-    static member MakeVar(name: string, var: Var<decimal>) =
-        TemplateHole.VarDecimalUnchecked(name, var) :> TemplateHole
 
     static member Value(th: TemplateHole) =
         th.ValueObj

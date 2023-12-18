@@ -474,8 +474,6 @@ NUGET
       WebSharper (7.0.6.386-beta4)
     WebSharper.FSharp (7.0.6.386-beta4)
       WebSharper (7.0.6.386-beta4)
-    WebSharper.MathJS (7.0.6.386-beta3)
-      WebSharper (>= 7.0.6 < 7.1)
     WebSharper.Testing (7.0.6.386-beta4)
       WebSharper (7.0.6.386-beta4)
 GITHUB

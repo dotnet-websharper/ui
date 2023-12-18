@@ -181,8 +181,6 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
                 s "Var<WebSharper.UI.Client.CheckedInput<int>>" "VarInt" "x"
                 sv "Var<double>" "VarFloatUnchecked" "x"
                 s "Var<WebSharper.UI.Client.CheckedInput<double>>" "VarFloat" "x"
-                sv "Var<decimal>" "VarDecimalUnchecked" "x"
-                s "Var<WebSharper.UI.Client.CheckedInput<decimal>>" "VarDecimal" "x"
             |]
         | HoleKind.Var ValTy.Bool ->
             [|

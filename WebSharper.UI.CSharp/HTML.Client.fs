@@ -91,14 +91,6 @@ module Html =
     [<Inline; CompiledName "input">]
     let FloatInput(var, [<ParamArray>] attrs: Attr[]) =
         Client.Doc.InputType.FloatUnchecked attrs var
-        
-    /// Input box with type="number".
-    /// If the input box is blank, the value is set to 0.
-    /// If the input is not parseable as a decimal, the value is unchanged from its last valid value.
-    /// It is advised to use DecimalInput instead for better user experience.
-    [<Inline; CompiledName "input">]
-    let DecimalInput(var, [<ParamArray>] attrs: Attr[]) =
-        Client.Doc.InputType.DecimalUnchecked attrs var
 
     /// Input text area.
     [<Inline; CompiledName "textarea">]

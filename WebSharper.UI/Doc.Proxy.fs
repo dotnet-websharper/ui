@@ -704,24 +704,6 @@ type internal Doc' [<JavaScript>] (docNode, updates) =
                 Attr.Create "type" "number"
             |])
 
-    [<JavaScript>]
-    static member DecimalInputUnchecked attr (var: Var<decimal>) (step: decimal)=
-        Doc'.InputInternal "input" (fun _ ->
-            Seq.append attr [|
-                (if var.Get() = 0.m then Attr.Create "value" "0" else Attr.Empty)
-                Attr.DecimalValueUnchecked var
-                Attr.Create "type" "number"
-                Attr.Create "step" $"{step}"
-            |])
-
-    [<JavaScript>]
-    static member DecimalInput attr (var: Var<CheckedInput<decimal>>) (step: decimal)=
-        Doc'.InputInternal "input" (fun el ->
-            Seq.append attr [|
-                Attr.DecimalValue var
-                Attr.Create "type" "number"
-                Attr.Create "step" $"{step}"
-            |])
 
     [<JavaScript>]
     static member ColorInput attr (var: Var<string>) =

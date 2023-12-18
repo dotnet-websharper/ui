@@ -129,12 +129,6 @@ module Attr =
 
     /// Gets and sets the value of the element according to a Var.
     val FloatValue : Var<CheckedInput<float>> -> Attr
-    
-    /// Gets and sets the value of the element according to a Var.
-    val DecimalValueUnchecked : Var<decimal> -> Attr
-
-    /// Gets and sets the value of the element according to a Var.
-    val DecimalValue : Var<CheckedInput<decimal>> -> Attr
 
     /// Gets and sets the checked status of the element according to a Var.
     val Checked : Var<bool> -> Attr
@@ -217,12 +211,4 @@ module BindVar =
     val FloatGetChecked : Get<CheckedInput<float>>
     val FloatApplyChecked : Apply<CheckedInput<float>>
     
-    val DecimalSetUnchecked : Dom.Element -> decimal -> unit
-    val DecimalGetUnchecked : Dom.Element -> decimal option
-    val DecimalApplyUnchecked : Var<decimal> -> Init * Set<decimal option> * View<decimal option>
-
-    val DecimalSetChecked : Dom.Element -> CheckedInput<decimal> -> unit
-    val DecimalGetChecked : Dom.Element -> CheckedInput<decimal> option
-    val DecimalApplyChecked : Var<CheckedInput<decimal>> -> Init * Set<CheckedInput<decimal> option> * View<CheckedInput<decimal> option>
-
     val BoolCheckedApply : Apply<bool>

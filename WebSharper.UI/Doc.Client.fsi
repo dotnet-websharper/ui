@@ -370,30 +370,6 @@ module Doc =
         /// The var must be passed using the .V property.
         val FloatUncheckedV : seq<Attr> -> float -> Doc
         
-        /// Input box with type="number".
-        /// For validation to work properly in Internet Explorer 9 and older,
-        /// needs to be inside a <form> with Attr.ValidateForm.
-        val Decimal : seq<Attr> -> Var<CheckedInput<decimal>> -> decimal -> Doc
-        
-        /// Input box with type="number".
-        /// For validation to work properly in Internet Explorer 9 and older,
-        /// needs to be inside a <form> with Attr.ValidateForm.
-        /// The var must be passed using the .V property.
-        val DecimalV : seq<Attr> -> CheckedInput<decimal> -> decimal -> Doc
-        
-        /// Input box with type="number".
-        /// If the input box is blank, the value is set to 0.
-        /// If the input is not parseable as a decimal, the value is unchanged from its last valid value.
-        /// It is advised to use Decimal instead for better user experience.
-        val DecimalUnchecked : seq<Attr> -> Var<decimal> -> decimal -> Doc
-        
-        /// Input box with type="number".
-        /// If the input box is blank, the value is set to 0.
-        /// If the input is not parseable as a decimal, the value is unchanged from its last valid value.
-        /// It is advised to use Decimal instead for better user experience.
-        /// The var must be passed using the .V property.
-        val DecimalUncheckedV : seq<Attr> -> decimal -> decimal -> Doc
-        
         /// Input text area.
         val TextArea : seq<Attr> -> Var<string> -> Doc
         
@@ -721,30 +697,6 @@ module Elt =
         /// The var must be passed using the .V property.
         val FloatUncheckedV : seq<Attr> -> float -> Elt
 
-        /// Input box with type="number".
-        /// For validation to work properly in Internet Explorer 9 and older,
-        /// needs to be inside a <form> with Attr.ValidateForm.
-        val Decimal : seq<Attr> -> Var<CheckedInput<decimal>> -> decimal -> Elt
-
-        /// Input box with type="number".
-        /// For validation to work properly in Internet Explorer 9 and older,
-        /// needs to be inside a <form> with Attr.ValidateForm.
-        /// The var must be passed using the .V property.
-        val DecimalV : seq<Attr> -> CheckedInput<decimal> -> decimal -> Elt
-
-        /// Input box with type="number".
-        /// If the input box is blank, the value is set to 0.
-        /// If the input is not parseable as a decimal, the value is unchanged from its last valid value.
-        /// It is advised to use Decimal instead for better user experience.
-        val DecimalUnchecked : seq<Attr> -> Var<decimal> -> decimal -> Elt
-
-        /// Input box with type="number".
-        /// If the input box is blank, the value is set to 0.
-        /// If the input is not parseable as a decimal, the value is unchanged from its last valid value.
-        /// It is advised to use Decimal instead for better user experience.
-        /// The var must be passed using the .V property.
-        val DecimalUncheckedV : seq<Attr> -> decimal -> decimal -> Elt
-        
         /// Input text area.
         val TextArea : seq<Attr> -> Var<string> -> Elt
 

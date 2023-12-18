@@ -13,7 +13,6 @@ tags
 dependencies
     framework: netstandard2.0
         WebSharper ~> LOCKEDVERSION:[3]
-        WebSharper.MathJS ~> LOCKEDVERSION:[3]
         HtmlAgilityPack >= LOCKEDVERSION
 files
     ../WebSharper.UI/bin/Release/netstandard2.0/WebSharper.UI.dll ==> lib/netstandard2.0
