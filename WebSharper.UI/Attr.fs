@@ -51,15 +51,15 @@ module private Internal =
                 match meta.Quotations.TryGetValue(p) with
                 | false, _ ->
                     None
-                | true, (declType, meth, argNames) ->
+                | true, quot ->
                     let fail() =
-                        failwithf "Error in Handler: Couldn't find JavaScript address for method %s.%s" declType.Value.FullName meth.Value.MethodName
-                    match meta.Classes.TryGetValue declType with
+                        failwithf "Error in Handler: Couldn't find JavaScript address for method %s.%s" quot.TypeDefinition.Value.FullName quot.Method.Value.MethodName
+                    match meta.Classes.TryGetValue quot.TypeDefinition with
                     | true, (clAddr, _, Some c) ->
-                        let argIndices = Map (argNames |> List.mapi (fun i x -> x, i))
-                        let args = Array.zeroCreate<ClientCode> argNames.Length
-                        reqs.Add(M.MethodNode (declType, meth))
-                        reqs.Add(M.TypeNode declType)
+                        let argIndices = Map (quot.Arguments |> List.mapi (fun i x -> x, i))
+                        let args = Array.zeroCreate<ClientCode> quot.Arguments.Length
+                        reqs.Add(M.MethodNode (quot.TypeDefinition, quot.Method))
+                        reqs.Add(M.TypeNode quot.TypeDefinition)
                         let setArg (name: string) (value: obj) =
                             let i = argIndices[name]
                             if obj.ReferenceEquals(args[i], null) then
@@ -73,7 +73,7 @@ module private Internal =
                                         Web.Control.EncodeClientObject(meta, json, value)
                         findArgs Set.empty setArg q
                         let addr =
-                            match c.Methods.TryGetValue meth with
+                            match c.Methods.TryGetValue quot.Method with
                             | true, m ->
                                 match m.CompiledForm with
                                 | M.CompiledMember.Static (name, false, AST.MemberKind.Simple) -> 
