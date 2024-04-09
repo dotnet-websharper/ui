@@ -366,13 +366,13 @@ module private Impl =
             | HoleKind.ElemHandler -> ElemHandlerHoleMethods' hole resTy varsTy anchorsTy ctx
             | HoleKind.Event eventType -> EventHandlerHoleMethods eventType (Choice1Of2 hole) resTy varsTy anchorsTy ctx
             | HoleKind.Simple -> SimpleHoleMethods (Choice1Of2 hole) resTy ctx
-            | HoleKind.Var (ValTy.Any | ValTy.String) -> VarStringHoleMethods (Choice1Of2 hole) resTy ctx
-            | HoleKind.Var ValTy.StringList -> VarStringListHoleMethods (Choice1Of2 hole) resTy ctx
-            | HoleKind.Var ValTy.Number -> VarNumberHoleMethods (Choice1Of2 hole) resTy ctx
-            | HoleKind.Var ValTy.Bool -> VarBoolHoleMethods (Choice1Of2 hole) resTy ctx
-            | HoleKind.Var ValTy.DateTime -> VarDateTimeHoleMethods (Choice1Of2 hole) resTy ctx
-            | HoleKind.Var ValTy.File -> VarFileHoleMethods (Choice1Of2 hole) resTy ctx
-            | HoleKind.Var ValTy.DomElement -> VarDomElementHoleMethods (Choice1Of2 hole) resTy ctx
+            | HoleKind.Var ((ValTy.Any | ValTy.String), _) -> VarStringHoleMethods (Choice1Of2 hole) resTy ctx
+            | HoleKind.Var (ValTy.StringList, _) -> VarStringListHoleMethods (Choice1Of2 hole) resTy ctx
+            | HoleKind.Var (ValTy.Number, _) -> VarNumberHoleMethods (Choice1Of2 hole) resTy ctx
+            | HoleKind.Var (ValTy.Bool, _) -> VarBoolHoleMethods (Choice1Of2 hole) resTy ctx
+            | HoleKind.Var (ValTy.DateTime, _) -> VarDateTimeHoleMethods (Choice1Of2 hole) resTy ctx
+            | HoleKind.Var (ValTy.File, _) -> VarFileHoleMethods (Choice1Of2 hole) resTy ctx
+            | HoleKind.Var (ValTy.DomElement, _) -> VarDomElementHoleMethods (Choice1Of2 hole) resTy ctx
             | HoleKind.Mapped (kind = k) -> build k
             | HoleKind.Unknown -> failwithf "Error: Unknown HoleKind: %s" holeName
         build holeDef.Kind
@@ -421,14 +421,14 @@ module private Impl =
                 for KeyValue(holeName, holeDef) in ctx.Template.Holes do
                     let holeName' = holeName.ToLowerInvariant()
                     match holeDef.Kind with
-                    | HoleKind.Var AST.ValTy.Any
-                    | HoleKind.Var AST.ValTy.String -> yield <@@ (holeName', RTS.ValTy.String, Option.None) @@>
-                    | HoleKind.Var AST.ValTy.Number -> yield <@@ (holeName', RTS.ValTy.Number, Option.None) @@>
-                    | HoleKind.Var AST.ValTy.Bool -> yield <@@ (holeName', RTS.ValTy.Bool, Option.None) @@>
-                    | HoleKind.Var AST.ValTy.DateTime -> yield <@@ (holeName', RTS.ValTy.DateTime, Option.None) @@>
-                    | HoleKind.Var AST.ValTy.File -> yield <@@ (holeName', RTS.ValTy.File, Option.None) @@>
-                    | HoleKind.Var AST.ValTy.StringList -> yield <@@ (holeName', RTS.ValTy.StringList, Option.None) @@>
-                    | HoleKind.Var AST.ValTy.DomElement -> yield <@@ (holeName', RTS.ValTy.DomElement, Option.None) @@>
+                    | HoleKind.Var (AST.ValTy.Any, d)
+                    | HoleKind.Var (AST.ValTy.String, d) -> yield <@@ (holeName', RTS.ValTy.String, d) @@> // THIS
+                    | HoleKind.Var (AST.ValTy.Number, _) -> yield <@@ (holeName', RTS.ValTy.Number, Option.None) @@>
+                    | HoleKind.Var (AST.ValTy.Bool, _) -> yield <@@ (holeName', RTS.ValTy.Bool, Option.None) @@>
+                    | HoleKind.Var (AST.ValTy.DateTime, _) -> yield <@@ (holeName', RTS.ValTy.DateTime, Option.None) @@>
+                    | HoleKind.Var (AST.ValTy.File, _) -> yield <@@ (holeName', RTS.ValTy.File, Option.None) @@>
+                    | HoleKind.Var (AST.ValTy.StringList, _) -> yield <@@ (holeName', RTS.ValTy.StringList, Option.None) @@>
+                    | HoleKind.Var (AST.ValTy.DomElement, _) -> yield <@@ (holeName', RTS.ValTy.DomElement, Option.None) @@>
                     | _ -> ()
             ]
         )
@@ -506,27 +506,27 @@ module private Impl =
             for KeyValue(holeName, def) in ctx.Template.Holes do
                 let holeName' = holeName.ToLowerInvariant()
                 match def.Kind with
-                | AST.HoleKind.Var AST.ValTy.Any | AST.HoleKind.Var AST.ValTy.String ->
+                | AST.HoleKind.Var (AST.ValTy.Any, _) | AST.HoleKind.Var (AST.ValTy.String, _) ->
                     yield ProvidedProperty(holeName, typeof<Var<string>>, fun x ->
                         <@@ ((%%x[0] : obj) :?> TI).Hole holeName' |> TemplateHole.Value @@>)
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
-                | AST.HoleKind.Var AST.ValTy.StringList  ->
+                | AST.HoleKind.Var (AST.ValTy.StringList, _)  ->
                     yield ProvidedProperty(holeName, typeof<Var<string array>>, fun x ->
                         <@@ ((%%x[0] : obj) :?> TI).Hole holeName' |> TemplateHole.Value @@>)
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
-                | AST.HoleKind.Var AST.ValTy.Number ->
+                | AST.HoleKind.Var (AST.ValTy.Number, _) ->
                     yield ProvidedProperty(holeName, typeof<Var<float>>, fun x ->
                         <@@ ((%%x[0] : obj) :?> TI).Hole holeName' |> TemplateHole.Value @@>)
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
-                | AST.HoleKind.Var AST.ValTy.Bool ->
+                | AST.HoleKind.Var (AST.ValTy.Bool, _) ->
                     yield ProvidedProperty(holeName, typeof<Var<bool>>, fun x ->
                         <@@ ((%%x[0] : obj) :?> TI).Hole(holeName') |> TemplateHole.Value @@>)
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
-                | AST.HoleKind.Var AST.ValTy.DateTime ->
+                | AST.HoleKind.Var (AST.ValTy.DateTime, _) ->
                     yield ProvidedProperty(holeName, typeof<Var<DateTime>>, fun x ->
                         <@@ ((%%x[0] : obj) :?> TI).Hole(holeName') |> TemplateHole.Value @@>)
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
-                | AST.HoleKind.Var AST.ValTy.File ->
+                | AST.HoleKind.Var (AST.ValTy.File, _) ->
                     yield ProvidedProperty(holeName, typeof<Var<WebSharper.JavaScript.File array>>, fun x ->
                         <@@ ((%%x[0] : obj) :?> TI).Hole(holeName') |> TemplateHole.Value @@>)
                         .WithXmlDoc(XmlDoc.Member.Var holeName)
@@ -540,7 +540,7 @@ module private Impl =
             for KeyValue(holeName, def) in ctx.Template.Holes do
                 let holeName' = holeName.ToLowerInvariant()
                 match def.Kind with
-                | HoleKind.Var ValTy.DomElement ->
+                | HoleKind.Var (ValTy.DomElement, _) ->
                     yield ProvidedProperty(holeName, typeof<Var<DomElement option>>, fun x ->
                         <@@ ((%%x[0] : obj) :?> TI).Hole holeName' |> TemplateHole.Value @@>)
                         .WithXmlDoc(XmlDoc.Member.Anchor holeName)

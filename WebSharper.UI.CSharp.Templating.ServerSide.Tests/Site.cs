@@ -28,7 +28,7 @@ namespace WebSharper.UI.CSharp.Templating.ServerSide.Tests
 
         [JavaScript]
         public static void AfterRenderOverloadTempl(UI.Templating.Runtime.Server.TemplateEvent<Vars, Anchors, JavaScript.Dom.Event> m) =>
-            m.Vars.Logger.Set("I'm initialized from after render");
+            JavaScript.Console.Log("I'm not initialized from after render");
 
         [JavaScript]
         public static void ClickMeTempl(UI.Templating.Runtime.Server.TemplateEvent<Vars, Anchors, JavaScript.Dom.MouseEvent> m) => m.Vars.Logger.Set(m.Vars.Logger.Value + "\nI'm initialized from click");

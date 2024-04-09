@@ -223,23 +223,29 @@ module Impl =
 
     let varTypeOf (node: HtmlNode) =
         match node.Name with
-        | "textarea" -> ValTy.String
+        | "textarea" ->
+            let defVal =
+                if String.IsNullOrWhiteSpace node.InnerText then
+                    None
+                else
+                    Some (node.InnerText :> obj)
+            ValTy.String, defVal
         | "select" ->
             if node.Attributes.AttributesWithName "multiple" |> Seq.isEmpty |> not then
-                ValTy.StringList
+                ValTy.StringList, None
             else
-                ValTy.Any
+                ValTy.Any, None
         | "input" ->
             match node.GetAttributeValue("type", null) with
-            | ("number" | "range") -> ValTy.Number
-            | "checkbox" -> ValTy.Bool
-            | "datetime-local" -> ValTy.DateTime
-            | "file" -> ValTy.File
+            | ("number" | "range") -> ValTy.Number, None
+            | "checkbox" -> ValTy.Bool, None
+            | "datetime-local" -> ValTy.DateTime, None
+            | "file" -> ValTy.File, None
             | ("button" | "submit") as t ->
                 failwithf "Using %s on a <input type=\"%s\"> node" VarAttr t
             | "radio" ->
                 failwithf "Using %s on a <input type=\"radio\"> node is not supported yet" VarAttr
-            | _ -> ValTy.Any
+            | _ -> ValTy.Any, None
         | n -> failwithf "Using %s on a <%s> node" VarAttr n
 
     let addHole (holes: Dictionary<HoleName, HoleDefinition>) (name: HoleName) (def: HoleDefinition) =
@@ -267,7 +273,7 @@ module Impl =
                     holes[name] <- { def with Kind = HoleKind.Event "Event" }
             | HoleKind.Event _, _ -> fail()
             // A Var can be used several times if the types are compatible.
-            | HoleKind.Var ty', HoleKind.Var ty ->
+            | HoleKind.Var (ty', d'), HoleKind.Var (ty, d) ->
                 match mergeValTy ty ty' with
                 | Some ty -> holes[name] <- def
                 | None -> fail()
@@ -277,9 +283,9 @@ module Impl =
             // A value can be used several times.
             | HoleKind.Simple, HoleKind.Simple -> ()
             // A Var can be viewed by a Simple hole.
-            | HoleKind.Simple, HoleKind.Var ty ->
+            | HoleKind.Simple, HoleKind.Var (ty, d) ->
                 holes[name] <- def
-            | HoleKind.Simple _, _ -> fail()
+            | HoleKind.Simple, _ -> fail()
             | HoleKind.Unknown, _ -> failwith "Unknown hole kind; should not happen."
 
     let mkRefs thisFileId =
@@ -323,7 +329,7 @@ module Impl =
             | domattr ->
                 state.AddHole domattr.Value
                     {
-                        HoleDefinition.Kind = HoleKind.Var (ValTy.DomElement)
+                        HoleDefinition.Kind = HoleKind.Var (ValTy.DomElement, None)
                         HoleDefinition.Line = domattr.Line
                         HoleDefinition.Column = domattr.LinePosition + domattr.Name.Length
                     }
@@ -332,8 +338,9 @@ module Impl =
             let domAttr = n.Attributes[DomAttr]
             let isDomAttr = domAttr <> null
             let domAttrO = if isDomAttr then Some domAttr.Value else None
+            let valTy, d = varTypeOf n
             state.AddHole varAttr.Value {
-                HoleDefinition.Kind = HoleKind.Var (varTypeOf n)
+                HoleDefinition.Kind = HoleKind.Var (valTy, d)
                 HoleDefinition.Line = varAttr.Line
                 HoleDefinition.Column = varAttr.LinePosition + varAttr.Name.Length
             }
@@ -655,32 +662,37 @@ let TryGetAsSingleElement (doc: HtmlNode) =
 let ParseSource fileId (src: string) =
     let html = HtmlDocument()
     html.LoadHtml(src)
-    let clientLoad, serverLoad = ParseOptions html
-    let wsTemplates = Dictionary()
-    let childrenTemplateNodes =
-        match html.DocumentNode.SelectNodes("//*[@"+ChildrenTemplateAttr+"]") with
-        | null -> [||]
-        | x -> Array.ofSeq x
-    let html5TemplateNodes =
-        match html.DocumentNode.SelectNodes("//template[@id or @name]") with 
-        | null -> [||]
-        | x -> Array.ofSeq x
-    let childrenTemplateNodes = Array.append childrenTemplateNodes html5TemplateNodes
-    let templateNodes =
-        match html.DocumentNode.SelectNodes("//*[@"+TemplateAttr+"]") with
-        | null -> [||]
-        | x -> Array.ofSeq x
-    detachAllChildrenTemplateNodes childrenTemplateNodes wsTemplates
-    detachAllTemplateNodes templateNodes wsTemplates
-    let templates = Dictionary()
-    for KeyValue(k, v) in wsTemplates do
-        templates.Add(k, parseNodeChildrenAsTemplate fileId v)
-    let rootTemplate =
-        match TryGetAsSingleElement html.DocumentNode with
-        | Some n -> parseNodeAsTemplate fileId n
-        | None -> parseNodeChildrenAsTemplate fileId html.DocumentNode
-    templates.Add(WrappedTemplateName null, rootTemplate)
-    Map [ for KeyValue(k, v) in templates -> k, v ], clientLoad, serverLoad
+    let errors = html.ParseErrors
+    if errors |> Seq.length > 0 then
+        let errors = errors |> Seq.map (fun e -> e.Reason) |> String.concat "," 
+        failwithf "HTML Parse errors: %s" errors
+    else
+        let clientLoad, serverLoad = ParseOptions html
+        let wsTemplates = Dictionary()
+        let childrenTemplateNodes =
+            match html.DocumentNode.SelectNodes("//*[@"+ChildrenTemplateAttr+"]") with
+            | null -> [||]
+            | x -> Array.ofSeq x
+        let html5TemplateNodes =
+            match html.DocumentNode.SelectNodes("//template[@id or @name]") with 
+            | null -> [||]
+            | x -> Array.ofSeq x
+        let childrenTemplateNodes = Array.append childrenTemplateNodes html5TemplateNodes
+        let templateNodes =
+            match html.DocumentNode.SelectNodes("//*[@"+TemplateAttr+"]") with
+            | null -> [||]
+            | x -> Array.ofSeq x
+        detachAllChildrenTemplateNodes childrenTemplateNodes wsTemplates
+        detachAllTemplateNodes templateNodes wsTemplates
+        let templates = Dictionary()
+        for KeyValue(k, v) in wsTemplates do
+            templates.Add(k, parseNodeChildrenAsTemplate fileId v)
+        let rootTemplate =
+            match TryGetAsSingleElement html.DocumentNode with
+            | Some n -> parseNodeAsTemplate fileId n
+            | None -> parseNodeChildrenAsTemplate fileId html.DocumentNode
+        templates.Add(WrappedTemplateName null, rootTemplate)
+        Map [ for KeyValue(k, v) in templates -> k, v ], clientLoad, serverLoad
 
 let transitiveClosure err (direct: Map<'A, Set<'A>>) : Map<'A, Set<'A>> =
     let rec closureOf (pathToHere: list<'A>) (k: 'A) (directs: Set<'A>) (knownClosures: Map<'A, Set<'A>>) =

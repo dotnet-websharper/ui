@@ -40,7 +40,7 @@ type ValTy =
 [<RequireQualifiedAccess>]
 type HoleKind =
     | Simple
-    | Var of valTy: ValTy
+    | Var of valTy: ValTy * defVal: obj option
     | Attr
     | Doc
     | Event of eventType: string

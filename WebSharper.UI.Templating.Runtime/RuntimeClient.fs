@@ -271,12 +271,12 @@ type private HandlerProxy =
             filledVars.Add(n) |> ignore
             allVars[n] <- h
         let extraHoles =
-            vars |> Array.choose (fun (name, ty, _) ->
+            vars |> Array.choose (fun (name, ty, d) ->
                 if filledVars.Contains name then None else
                 let r =
                     match ty with
                     | Server.ValTy.String ->
-                        Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarStr (name, Var.Create "") :> TemplateHole)
+                        Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarStr (name, Var.Create (d |> Option.map (fun x -> x :?> string) |> Option.defaultValue "")) :> TemplateHole)
                     | Server.ValTy.Number ->
                         Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarFloatUnchecked (name, Var.Create 0.))
                     | Server.ValTy.Bool ->
