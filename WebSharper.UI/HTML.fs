@@ -646,6 +646,9 @@ module Html =
     /// Create an HTML element <optgroup> with attributes and children.
     [<JavaScript; Inline>]
     let optgroup ats ch = Elt.optgroup ats ch :> Doc
+    /// Create an HTML element <option> with attributes and children.
+    [<JavaScript; Inline>]
+    let option ats ch = Elt.option ats ch :> Doc
     /// Create an HTML element <output> with attributes and children.
     [<JavaScript; Inline>]
     let output ats ch = Elt.output ats ch :> Doc
