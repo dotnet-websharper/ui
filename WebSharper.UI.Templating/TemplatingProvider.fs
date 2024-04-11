@@ -422,12 +422,37 @@ module private Impl =
                     let holeName' = holeName.ToLowerInvariant()
                     match holeDef.Kind with
                     | HoleKind.Var (AST.ValTy.Any, d)
-                    | HoleKind.Var (AST.ValTy.String, d) -> yield <@@ (holeName', RTS.ValTy.String, d) @@> // THIS
-                    | HoleKind.Var (AST.ValTy.Number, _) -> yield <@@ (holeName', RTS.ValTy.Number, Option.None) @@>
-                    | HoleKind.Var (AST.ValTy.Bool, _) -> yield <@@ (holeName', RTS.ValTy.Bool, Option.None) @@>
-                    | HoleKind.Var (AST.ValTy.DateTime, _) -> yield <@@ (holeName', RTS.ValTy.DateTime, Option.None) @@>
+                    | HoleKind.Var (AST.ValTy.String, d) ->
+                        match d with
+                        | None ->
+                            yield <@@ (holeName', RTS.ValTy.String, Option.None) @@>
+                        | Some d ->
+                            yield <@@ (holeName', RTS.ValTy.String, Option.Some d) @@>
+                    | HoleKind.Var (AST.ValTy.Number, d) ->
+                        match d with
+                        | None ->
+                            yield <@@ (holeName', RTS.ValTy.Number, Option.None) @@>
+                        | Some d ->
+                            yield <@@ (holeName', RTS.ValTy.Number, Option.Some d) @@>
+                    | HoleKind.Var (AST.ValTy.Bool, d) ->
+                        match d with
+                        | None ->
+                            yield <@@ (holeName', RTS.ValTy.Bool, Option.None) @@>
+                        | Some d ->
+                            yield <@@ (holeName', RTS.ValTy.Bool, Option.Some d) @@>
+                    | HoleKind.Var (AST.ValTy.DateTime, d) ->
+                        match d with
+                        | None ->
+                            yield <@@ (holeName', RTS.ValTy.DateTime, Option.None) @@>
+                        | Some d ->
+                            yield <@@ (holeName', RTS.ValTy.DateTime, Option.Some d) @@>
                     | HoleKind.Var (AST.ValTy.File, _) -> yield <@@ (holeName', RTS.ValTy.File, Option.None) @@>
-                    | HoleKind.Var (AST.ValTy.StringList, _) -> yield <@@ (holeName', RTS.ValTy.StringList, Option.None) @@>
+                    | HoleKind.Var (AST.ValTy.StringList, d) ->
+                        match d with
+                        | None ->
+                            yield <@@ (holeName', RTS.ValTy.StringList, Option.None) @@>
+                        | Some d ->
+                            yield <@@ (holeName', RTS.ValTy.StringList, Option.Some d) @@>
                     | HoleKind.Var (AST.ValTy.DomElement, _) -> yield <@@ (holeName', RTS.ValTy.DomElement, Option.None) @@>
                     | _ -> ()
             ]

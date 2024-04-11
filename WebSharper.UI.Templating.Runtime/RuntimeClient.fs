@@ -278,15 +278,15 @@ type private HandlerProxy =
                     | Server.ValTy.String ->
                         Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarStr (name, Var.Create (d |> Option.map (fun x -> x :?> string) |> Option.defaultValue "")) :> TemplateHole)
                     | Server.ValTy.Number ->
-                        Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarFloatUnchecked (name, Var.Create 0.))
+                        Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarFloatUnchecked (name, Var.Create (d |> Option.map (fun x -> x :?> float) |> Option.defaultValue 0.)))
                     | Server.ValTy.Bool ->
-                        Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarBool (name, Var.Create false))
+                        Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarBool (name, Var.Create (d |> Option.map (fun x -> x :?> bool) |> Option.defaultValue false)))
                     | Server.ValTy.DateTime ->
-                        Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarDateTime (name, Var.Create DateTime.MinValue))
+                        Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarDateTime (name, Var.Create (d |> Option.map (fun x -> x :?> DateTime) |> Option.defaultValue DateTime.MinValue)))
                     | Server.ValTy.File ->
                         Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarFile (name, Var.Create [||]))
                     | Server.ValTy.StringList ->
-                        Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarStrList (name, Var.Create [||]))
+                        Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () -> TemplateHole.VarStrList (name, Var.Create (d |> Option.map (fun x -> x :?> string []) |> Option.defaultValue [||])))
                     | Server.ValTy.DomElement ->
                         Server.TemplateInitializer.GetOrAddHoleFor(key, name, fun () ->
                             let el = JavaScript.JS.Document.QuerySelector("[ws-dom=" + name + "]")

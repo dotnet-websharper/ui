@@ -232,20 +232,73 @@ module Impl =
             ValTy.String, defVal
         | "select" ->
             if node.Attributes.AttributesWithName "multiple" |> Seq.isEmpty |> not then
-                ValTy.StringList, None
+                let selectedNodes =
+                    [|
+                        for node in node.ChildNodes do
+                            if node.Attributes.AttributesWithName "selected" |> Seq.isEmpty |> not then
+                                if node.Attributes.AttributesWithName "value" |> Seq.isEmpty |> not then
+                                    yield (node.Attributes.AttributesWithName "value" |> Seq.head).Value
+                                else
+                                    yield node.InnerText
+                    |]
+                    |> function
+                        | [||] -> None
+                        | v -> Some (v :> obj)
+                ValTy.StringList, selectedNodes
             else
-                ValTy.Any, None
+                let selectedNodes =
+                    [
+                        for node in node.ChildNodes do
+                            if node.Attributes.AttributesWithName "selected" |> Seq.isEmpty |> not then
+                                if node.Attributes.AttributesWithName "value" |> Seq.isEmpty |> not then
+                                    yield (node.Attributes.AttributesWithName "value" |> Seq.head).Value
+                                else
+                                    yield node.InnerText
+                    ]
+                    |> function
+                        | [v] -> Some (v :> obj)
+                        | _ ->  None
+                ValTy.Any, selectedNodes
         | "input" ->
             match node.GetAttributeValue("type", null) with
-            | ("number" | "range") -> ValTy.Number, None
-            | "checkbox" -> ValTy.Bool, None
-            | "datetime-local" -> ValTy.DateTime, None
+            | ("number" | "range") ->
+                let v =
+                    if node.Attributes.AttributesWithName "value" |> Seq.isEmpty |> not then
+                        (node.Attributes.AttributesWithName "value" |> Seq.head).Value
+                        |> int
+                        |> fun v -> Some (v :> obj)
+                    else
+                        None
+                ValTy.Number, v
+            | "checkbox" ->
+                let v =
+                    if node.Attributes.AttributesWithName "checked" |> Seq.isEmpty |> not then
+                        Some (true :> obj)
+                    else
+                        None
+                ValTy.Bool, v
+            | "datetime-local" ->
+                let v =
+                    if node.Attributes.AttributesWithName "value" |> Seq.isEmpty |> not then
+                        (node.Attributes.AttributesWithName "value" |> Seq.head).Value
+                        |> DateTime.Parse
+                        |> fun v -> Some (v :> obj)
+                    else
+                        None
+                ValTy.DateTime, v
             | "file" -> ValTy.File, None
             | ("button" | "submit") as t ->
                 failwithf "Using %s on a <input type=\"%s\"> node" VarAttr t
             | "radio" ->
                 failwithf "Using %s on a <input type=\"radio\"> node is not supported yet" VarAttr
-            | _ -> ValTy.Any, None
+            | _ ->
+                let v =
+                    if node.Attributes.AttributesWithName "value" |> Seq.isEmpty |> not then
+                        (node.Attributes.AttributesWithName "value" |> Seq.head).Value
+                        |> fun v -> Some (v :> obj)
+                    else
+                        None
+                ValTy.Any, v
         | n -> failwithf "Using %s on a <%s> node" VarAttr n
 
     let addHole (holes: Dictionary<HoleName, HoleDefinition>) (name: HoleName) (def: HoleDefinition) =

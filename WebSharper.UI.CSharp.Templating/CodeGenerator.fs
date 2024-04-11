@@ -173,7 +173,7 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
             |]
         | HoleKind.Var (ValTy.StringList, _) ->
             [|
-                sv "Var<string array>" "VarStrList" "x"
+                sv "Var<string[]>" "VarStrList" "x"
             |]
         | HoleKind.Var (ValTy.Number, _) ->
             [|
@@ -233,12 +233,32 @@ let finalMethodBody (ctx: Ctx) =
                     | None -> "FSharpOption<object>.None"
                     | Some d -> sprintf "FSharpOption<object>.Some(\"%s\")" (d :?> string)
                 yield sprintf """Tuple.Create("%s", ValTy.String, %s)""" holeName' (opt)
-            | HoleKind.Var (AST.ValTy.Number, d) -> yield sprintf """Tuple.Create("%s", ValTy.Number, FSharpOption<object>.None)""" holeName'
-            | HoleKind.Var (AST.ValTy.Bool, d) -> yield sprintf """Tuple.Create("%s", ValTy.Bool, FSharpOption<object>.None)""" holeName'
-            | HoleKind.Var (AST.ValTy.DateTime, d) -> yield sprintf """Tuple.Create("%s", ValTy.DateTime, FSharpOption<object>.None)""" holeName'
+            | HoleKind.Var (AST.ValTy.Number, d) ->
+                let opt =
+                    match d with
+                    | None -> "FSharpOption<object>.None"
+                    | Some d -> sprintf "FSharpOption<object>.Some(%s)" (string (d :?> int))
+                yield sprintf """Tuple.Create("%s", ValTy.Number, %s)""" holeName' opt
+            | HoleKind.Var (AST.ValTy.Bool, d) ->
+                let opt =
+                    match d with
+                    | None -> "FSharpOption<object>.None"
+                    | Some d -> sprintf "FSharpOption<object>.Some(%s)" (string (d :?> bool))
+                yield sprintf """Tuple.Create("%s", ValTy.Bool, %s)""" holeName' opt
+            | HoleKind.Var (AST.ValTy.DateTime, d) ->
+                let opt =
+                    match d with
+                    | None -> "FSharpOption<object>.None"
+                    | Some d -> sprintf "FSharpOption<object>.Some(\"%s\")" (d :?> string)
+                yield sprintf """Tuple.Create("%s", ValTy.DateTime, %s)""" holeName' opt
             | HoleKind.Var (AST.ValTy.File, d) -> yield sprintf """Tuple.Create("%s", ValTy.File, FSharpOption<object>.None)""" holeName'
             | HoleKind.Var (AST.ValTy.DomElement, d) -> yield sprintf """Tuple.Create("%s", ValTy.DomElement, FSharpOption<object>.None)""" holeName'
-            | HoleKind.Var (AST.ValTy.StringList, d) -> yield sprintf """Tuple.Create("%s", ValTy.StringList, FSharpOption<object>.None)""" holeName'
+            | HoleKind.Var (AST.ValTy.StringList, d) ->
+                let opt =
+                    match d with
+                    | None -> "FSharpOption<object>.None"
+                    | Some d -> sprintf "FSharpOption<object>.Some(new string[]{%s})" (d :?> string list |> List.map (fun v -> sprintf "\"%s\"" v) |> fun x -> String.Join(",", x))
+                yield sprintf """Tuple.Create("%s", ValTy.StringList, %s)""" holeName' opt
             | _ -> ()
         ]
         |> String.concat ", "
@@ -278,7 +298,7 @@ let varsClass (ctx: Ctx) =
                 | HoleKind.Var (AST.ValTy.File, _) ->
                     yield sprintf """[Inline] public Var<JavaScript.File array> %s => (Var<JavaScript.File array>)TemplateHole.Value((As<Instance>(this)).Hole("%s"));""" holeName holeName'
                 | HoleKind.Var (AST.ValTy.StringList, _) ->
-                    yield sprintf """[Inline] public Var<string array> %s => (Var<string array>)TemplateHole.Value((As<Instance>(this)).Hole("%s"));""" holeName holeName'
+                    yield sprintf """[Inline] public Var<string[]> %s => (Var<string[]>)TemplateHole.Value((As<Instance>(this)).Hole("%s"));""" holeName holeName'
                 | _ -> ()
         ]
         yield "}"
