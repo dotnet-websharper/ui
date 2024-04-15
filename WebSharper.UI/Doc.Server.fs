@@ -65,11 +65,11 @@ type Content =
     static member Doc (doc: Doc) : Async<Content<'Action>> =
         Content.Page doc
 
-    static member inline Page (?Body, ?Head, ?Title, ?Doctype) =
-        Content<_>.Page(?Body = Body, ?Head = Head, ?Title = Title, ?Doctype = Doctype)
+    static member inline Page (?Body, ?Head, ?Title, ?Doctype, ?Bundle) =
+        Content<_>.Page(?Body = Body, ?Head = Head, ?Title = Title, ?Doctype = Doctype, ?Bundle = Bundle)
 
-    static member inline Page (page: Page) : Async<Content<'Action>> =
-        Content<_>.Page page
+    static member inline Page (page: Page, ?Bundle) : Async<Content<'Action>> =
+        Content<_>.Page (page, ?Bundle = Bundle)
 
 module Internal =
 

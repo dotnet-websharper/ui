@@ -64,6 +64,7 @@ type Content =
         * ?Head: #seq<#INode>
         * ?Title: string
         * ?Doctype: string
+        * ?Bundle: string
         -> Async<Content<'Action>>
 
     /// Converts a Page record to a sitelet Page.
