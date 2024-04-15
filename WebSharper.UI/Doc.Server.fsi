@@ -68,7 +68,7 @@ type Content =
         -> Async<Content<'Action>>
 
     /// Converts a Page record to a sitelet Page.
-    static member inline Page : Page -> Async<Content<'Action>>
+    static member inline Page : Page * ?Bundle: string -> Async<Content<'Action>>
 
 module Internal =
 
