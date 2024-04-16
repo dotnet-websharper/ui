@@ -42,15 +42,19 @@ type Content =
 
     /// Converts a Doc, representing a full document, to a fully formed HTML document.
     /// Any meta placeholders ("scripts", etc.), will work as usual.
-    static member Page : Doc * ?Status:Http.Status * ?ExtraContentHeaders:seq<Http.Header> -> Async<Content<'Action>>
+    static member Page : Doc * ?Bundle: string -> Async<Content<'Action>>
+
+    /// Converts a Doc, representing a full document, to a fully formed HTML document.
+    /// Any meta placeholders ("scripts", etc.), will work as usual.
+    static member Page : Doc * ?Status:Http.Status * ?ExtraContentHeaders:seq<Http.Header> * ?Bundle: string -> Async<Content<'Action>>
 
     /// Converts a sequence of Doc values to a partial HTML document.
     /// Any meta placeholders ("scripts", etc.), will work as usual.
-    static member PageFragment : seq<Doc> -> Async<Content<'Action>>
+    static member PageFragment : seq<Doc> * ?Bundle: string -> Async<Content<'Action>>
 
     /// Converts a sequence of Doc values to a partial HTML document.
     /// Any meta placeholders ("scripts", etc.), will work as usual.
-    static member PageFragment : seq<Doc> * ?Status:Http.Status * ?ExtraContentHeaders:seq<Http.Header> -> Async<Content<'Action>>
+    static member PageFragment : seq<Doc> * ?Status:Http.Status * ?ExtraContentHeaders:seq<Http.Header> * ?Bundle: string -> Async<Content<'Action>>
 
     /// Converts a Doc, representing a full document, to a fully formed HTML document.
     /// Any meta placeholders ("scripts", etc.), will work as usual.

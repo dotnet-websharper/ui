@@ -108,6 +108,18 @@ and ConcreteDoc(dd: DynDoc) =
         | ElemDoc elt -> (elt :> IRequiresResources).Requires(meta, json, getId)
         | _ -> Seq.empty
 
+and BundleDoc(d: Doc, bundle: string) =
+    inherit Doc()
+
+    override this.Write(ctx, w, res: option<Sitelets.Content.RenderedResources>) =
+        d.Write(ctx, w, res)
+
+    override this.SpecialHoles =
+        d.SpecialHoles
+
+    override this.Requires(meta, json, getId) =
+        Seq.append (Seq.singleton (ClientCode.ClientBundle bundle)) (d.Requires(meta, json, getId))
+    
 and DynDoc =
     | AppendDoc of list<Doc>
     | ElemDoc of Elt

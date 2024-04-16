@@ -102,6 +102,15 @@ type Doc =
 
     internal new : unit -> Doc
 
+and [<Class>] BundleDoc =
+    inherit Doc
+
+    new : d: Doc * bundle: string -> BundleDoc
+
+    override Write : Web.Context * HtmlTextWriter * res: option<Sitelets.Content.RenderedResources> -> unit
+    override SpecialHoles : SpecialHole
+    override Requires : Core.Metadata.Info * Core.Json.Provider * IUniqueIdSource -> seq<ClientCode>
+
 and [<Class>] Elt =
     inherit Doc
 

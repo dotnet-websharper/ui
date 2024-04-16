@@ -53,22 +53,41 @@ type Content =
     static member Page (doc: Doc) : Async<Content<'Action>> =
         ContentHelper.pageBase doc true None Seq.empty
 
-    static member Page (doc:Doc, ?Status:Http.Status, ?ExtraContentHeaders:seq<Http.Header>) : Async<Content<'Action>> =
-        ContentHelper.pageBase doc true Status (ExtraContentHeaders |> Option.defaultValue Seq.empty)
+    static member Page (doc: Doc, ?Bundle: string) : Async<Content<'Action>> =
+        let bdoc =
+            match Bundle with
+            | Some b -> BundleDoc(doc, b) :> Doc
+            | None -> doc
+        ContentHelper.pageBase bdoc true None Seq.empty
 
-    static member PageFragment (doc: seq<Doc>) : Async<Content<'Action>> =
-        ContentHelper.pageBase (Doc.Concat doc) false None Seq.empty
+    static member Page (doc:Doc, ?Status:Http.Status, ?ExtraContentHeaders:seq<Http.Header>, ?Bundle: string) : Async<Content<'Action>> =
+        let bdoc =
+            match Bundle with
+            | Some b -> BundleDoc(doc, b) :> Doc
+            | None -> doc
+        ContentHelper.pageBase bdoc true Status (ExtraContentHeaders |> Option.defaultValue Seq.empty)
 
-    static member PageFragment (doc: seq<Doc>, ?Status:Http.Status, ?ExtraContentHeaders:seq<Http.Header>) : Async<Content<'Action>> =
-        ContentHelper.pageBase (Doc.Concat doc) false Status (ExtraContentHeaders |> Option.defaultValue Seq.empty)
+    static member PageFragment (doc: seq<Doc>, ?Bundle: string) : Async<Content<'Action>> =
+        let bdoc =
+            match Bundle with
+            | Some b -> BundleDoc(Doc.Concat doc, b) :> Doc
+            | None -> Doc.Concat doc
+        ContentHelper.pageBase bdoc false None Seq.empty
+
+    static member PageFragment (doc: seq<Doc>, ?Status:Http.Status, ?ExtraContentHeaders:seq<Http.Header>, ?Bundle: string) : Async<Content<'Action>> =
+        let bdoc =
+            match Bundle with
+            | Some b -> BundleDoc(Doc.Concat doc, b) :> Doc
+            | None -> Doc.Concat doc
+        ContentHelper.pageBase bdoc false Status (ExtraContentHeaders |> Option.defaultValue Seq.empty)
 
     static member Doc (doc: Doc) : Async<Content<'Action>> =
         Content.Page doc
 
-    static member inline Page (?Body, ?Head, ?Title, ?Doctype, ?Bundle) =
+    static member inline Page (?Body: #seq<#WebSharper.Web.INode>, ?Head: #seq<#WebSharper.Web.INode>, ?Title: string, ?Doctype: string, ?Bundle: string) : Async<Content<'Action>> =
         Content<_>.Page(?Body = Body, ?Head = Head, ?Title = Title, ?Doctype = Doctype, ?Bundle = Bundle)
 
-    static member inline Page (page: Page, ?Bundle) : Async<Content<'Action>> =
+    static member inline Page (page: Page, ?Bundle: string) : Async<Content<'Action>> =
         Content<_>.Page (page, ?Bundle = Bundle)
 
 module Internal =
