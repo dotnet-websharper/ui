@@ -114,6 +114,9 @@ and BundleDoc(d: Doc, bundle: string) =
     override this.Write(ctx, w, res: option<Sitelets.Content.RenderedResources>) =
         d.Write(ctx, w, res)
 
+    override this.Write(ctx, w, renderResources: bool) =
+        d.Write(ctx, w, renderResources)
+
     override this.SpecialHoles =
         d.SpecialHoles
 
