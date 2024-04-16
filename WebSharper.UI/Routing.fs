@@ -116,8 +116,8 @@ module Routing =
             if not (same var.Value value) then
                 var.Value <- value
         let onUpdate = System.Action<_>(fun (evt: Dom.Event) -> set (cur ()))
-        win.Onpopstate <- onUpdate
-        win.Onhashchange <- onUpdate
+        win.OnPopState <- onUpdate
+        win.OnHashChange <- onUpdate
         var.View
         |> View.Sink (fun loc ->
             let ha = Route.MakeHash (Route.FromList (rt.Ser loc))

@@ -27,6 +27,11 @@ open WebSharper
 module VarModule =
     val Lens : 'T -> Var<'T>
 
+[<Extension; Class ;JavaScript>]
+type VarExteions =
+    [<Extension>]
+    static member GetAsync : Var<'A> -> Async<'A>
+
 /// More members on View.
 [<Extension; Class>]
 type ReactiveExtensions =

@@ -31,6 +31,12 @@ module VarModule =
     [<Macro(typeof<Macros.LensFunction>)>]
     let Lens (x: 'T) = Var.Create x
 
+[<Extension; JavaScript>]
+type VarExteions =
+    [<Extension>]
+    static member GetAsync(v: Var<'A>) : Async<'A> =
+        v.View |> View.GetAsync
+
 // These methods apply to specific types of View (such as View<seq<'A>> when 'A : equality)
 /// so we need to use C#-style extension methods.
 [<Extension; JavaScript>]

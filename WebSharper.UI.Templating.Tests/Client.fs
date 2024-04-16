@@ -47,7 +47,7 @@ module Client =
         let itemsSub = Submitter.Create myItems.View Seq.empty
         let stitle = "Starting titlo"
         let var = Var.Create ""
-
+        let varInAsync = Var.Create "Hello"
         let title = 
             stitle
             |> Seq.toList
@@ -55,6 +55,8 @@ module Client =
 
         async {
             do! Async.Sleep 1500
+            let! asyncValue = varInAsync
+            Console.Log(asyncValue)
             Var.Set (List.item (title.Length - 1) title) 'e'
         } |> Async.Start
 

@@ -56,6 +56,7 @@
     <Content Include="SVG.fs" />
     <Compile Include="Input.fsi" />
     <Compile Include="Input.fs" />
+    <Compile Include="Extensions.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../WebSharper.UI.Templating.Common\WebSharper.UI.Templating.Common.fsproj" />
