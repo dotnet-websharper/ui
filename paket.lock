@@ -461,25 +461,25 @@ NUGET
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
   remote: https://nuget.pkg.github.com/dotnet-websharper/index.json
-    WebSharper (7.0.6.454-beta5)
+    WebSharper (7.0.6.455-beta5)
       FSharp.Core (>= 6.0)
       System.Reflection.Emit.Lightweight (>= 4.7)
-    WebSharper.AspNetCore (7.0.6.454-beta5)
+    WebSharper.AspNetCore (7.0.6.455-beta5)
       Microsoft.AspNetCore.Authentication.Abstractions (>= 2.0)
       Microsoft.AspNetCore.Hosting.Abstractions (>= 2.0)
       Microsoft.AspNetCore.Mvc.Abstractions (>= 2.0)
       System.Configuration.ConfigurationManager (>= 4.7)
-      WebSharper (7.0.6.454-beta5)
-    WebSharper.CSharp (7.0.6.454-beta5)
-      WebSharper (7.0.6.454-beta5)
-    WebSharper.FSharp (7.0.6.454-beta5)
-      WebSharper (7.0.6.454-beta5)
-    WebSharper.Testing (7.0.6.454-beta5)
-      WebSharper (7.0.6.454-beta5)
+      WebSharper (7.0.6.455-beta5)
+    WebSharper.CSharp (7.0.6.455-beta5)
+      WebSharper (7.0.6.455-beta5)
+    WebSharper.FSharp (7.0.6.455-beta5)
+      WebSharper (7.0.6.455-beta5)
+    WebSharper.Testing (7.0.6.455-beta5)
+      WebSharper (7.0.6.455-beta5)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (6149ed507f15caa68a475808bcf5b3c2f52a4d34)
-    src/ProvidedTypes.fsi (6149ed507f15caa68a475808bcf5b3c2f52a4d34)
+    src/ProvidedTypes.fs (3a9510e466cb8ab04e0b86841dc777994909f881)
+    src/ProvidedTypes.fsi (3a9510e466cb8ab04e0b86841dc777994909f881)
 GROUP includes
 REFERENCES: STRICT
 GITHUB
