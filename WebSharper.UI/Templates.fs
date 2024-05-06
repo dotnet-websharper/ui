@@ -62,7 +62,7 @@ module internal Templates =
         let afterRender : (Dom.Element -> unit)[] = [||]
         let fw = Dictionary()
         for x in fillWith do fw[x.Name] <- x
-        let els = As<Union<Dom.Node, DocNode>[]> (DomUtility.ChildrenArray el)
+        let mutable els = As<Union<Dom.Node, DocNode>[]> (DomUtility.ChildrenArray el)
         let addAttr (el: Dom.Element) (attr: Attr) =
             let attr = Attrs.Insert el attr
             updates.JS.Push (Attrs.Updates attr) |> ignore
@@ -111,6 +111,7 @@ module internal Templates =
                 let after = JS.Document.CreateTextNode("") :> Dom.Node
                 p.ReplaceChild(after, e) |> ignore
                 let before = Docs.InsertBeforeDelim after doc.DocNode
+                els <- As<Union<Dom.Node, DocNode>[]> (DomUtility.ChildrenArray el)
                 els
                 |> Array.tryFindIndex ((===.) e)
                 |> Option.iter (fun i -> els[i] <- Union2Of2 doc.DocNode)
