@@ -171,3 +171,7 @@ type RouterExtensions =
     [<Extension; Inline>]
     static member InstallHash(router, onParseError) =
         Router.InstallHash onParseError router
+
+    [<Extension; Inline>]
+    static member LinkHash (router: Router<'T>, ep : 'T) =
+        "/#" + router.Link ep
