@@ -2,7 +2,7 @@ source https://api.nuget.org/v3/index.json
 source https://nuget.pkg.github.com/dotnet-websharper/index.json
 source ../localnuget
 
-framework: net6.0, netstandard2.0
+framework: net8.0, netstandard2.0
 strategy: min
 storage: none
 
@@ -18,7 +18,7 @@ github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fs
 nuget Microsoft.Build.Utilities.Core 16.8.0
 
 group wsbuild
-    git https://github.com/dotnet-websharper/build-script websharper50
+    git https://github.com/dotnet-websharper/build-script websharper80
 
 group includes
     references: strict
