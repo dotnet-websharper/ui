@@ -43,9 +43,10 @@ module Client =
                     ]
                 )
             let cSharpTests =
-                WebSharper.UI.CSharp.Routing.Tests.Root.TestValues |> Seq.map (fun test ->
-                    div [] [ Link (clientOrServer (CSharpInferred test)) (sprintf "C# inferred %A" test) ]
-                )
+                // WebSharper.UI.CSharp.Routing.Tests.Root.TestValues |> Seq.map (fun test ->
+                //     div [] [ Link (clientOrServer (CSharpInferred test)) (sprintf "C# inferred %A" test) ]
+                // )
+                []
             Doc.Concat (Seq.append fSharpTests cSharpTests)
         | Inferred test ->
             Doc.Concat [
@@ -56,8 +57,8 @@ module Client =
             ]
         | Constructed test ->
             div [] [ text (sprintf "%A" test) ]
-        | CSharpInferred test ->
-            div [] [ text (sprintf "%A" test) ]
+        // | CSharpInferred test ->
+        //     div [] [ text (sprintf "%A" test) ]
 
     let ClientSideRoutingPage () =
         let location = 

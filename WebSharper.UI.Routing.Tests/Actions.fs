@@ -72,7 +72,7 @@ module Actions =
         | RouterTestsHome
         | Inferred of RouterTest
         | Constructed of RouterTest
-        | CSharpInferred of WebSharper.UI.CSharp.Routing.Tests.Root
+        // | CSharpInferred of WebSharper.UI.CSharp.Routing.Tests.Root
 
     type EndPoint =
         | Home
@@ -110,7 +110,7 @@ module Actions =
             rRoot |> Router.MapTo RouterTestsHome            
             "inferred" / inferred |> Router.Embed Inferred (function Inferred t -> Some t | _ -> None)
             "constructed" / constructed |> Router.Embed Constructed (function Constructed t -> Some t | _ -> None)
-            "csharp-inferred" / WebSharper.UI.CSharp.Routing.Tests.Root.Inferred |> Router.Embed CSharpInferred (function CSharpInferred t -> Some t | _ -> None) 
+            // "csharp-inferred" / WebSharper.UI.CSharp.Routing.Tests.Root.Inferred |> Router.Embed CSharpInferred (function CSharpInferred t -> Some t | _ -> None) 
         ]
 
     let router = 
