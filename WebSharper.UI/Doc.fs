@@ -878,5 +878,5 @@ type ClientServer =
             // value missing, nothing to render on server
             Doc.ClientSideImpl expr
 
-    static member clientLinq (expr: System.Linq.Expressions.Expression<System.Func<IControlBody>>) =
+    static member clientLinq ([<JavaScript>] expr: System.Linq.Expressions.Expression<System.Func<IControlBody>>) =
         ConcreteDoc(INodeDoc (new Web.CSharpInlineControl(expr))) :> Doc
