@@ -44,7 +44,7 @@ module Html =
     let textView v = Client.Doc.TextView v
 
     /// Insert a client-side Doc.
-    let client q = WebSharper.UI.ClientServer.clientLinq q
+    let client ([<JavaScript>] q) = WebSharper.UI.ClientServer.clientLinq q
 
     /// Concatenate Docs.
     [<JavaScript; Inline>]
