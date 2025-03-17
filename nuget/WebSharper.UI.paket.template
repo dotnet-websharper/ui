@@ -28,13 +28,11 @@ files
     ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.UI.Templating.Common.dll ==> typeproviders/fsharp41/netstandard2.0
     ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.UI.Templating.Common.xml ==> typeproviders/fsharp41/netstandard2.0
     ../WebSharper.UI.Templating/bin/Release/netstandard2.0/HtmlAgilityPack.dll ==> typeproviders/fsharp41/netstandard2.0
-    ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.Collections.dll ==> typeproviders/fsharp41/netstandard2.0
-    ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.Control.dll ==> typeproviders/fsharp41/netstandard2.0
     ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.Core.dll ==> typeproviders/fsharp41/netstandard2.0
     ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.Core.JavaScript.dll ==> typeproviders/fsharp41/netstandard2.0
     ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.InterfaceGenerator.dll ==> typeproviders/fsharp41/netstandard2.0
     ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.JavaScript.dll ==> typeproviders/fsharp41/netstandard2.0
-    ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.Main.dll ==> typeproviders/fsharp41/netstandard2.0
+    ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.StdLib.dll ==> typeproviders/fsharp41/netstandard2.0
     ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.Sitelets.dll ==> typeproviders/fsharp41/netstandard2.0
     ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.Web.dll ==> typeproviders/fsharp41/netstandard2.0
 
