@@ -33,7 +33,16 @@ module Doc =
         Doc.OfINode c
 
 module private ContentHelper =
-    let pageBase (doc: Doc) (withDocType: bool) (status: Http.Status option) (extraHeaders: Http.Header seq) =
+    let pageBase (doc: Doc) (withDocType: bool) (status: Http.Status option) (extraHeaders: Http.Header seq) (bundleName: string option) =
+        let doc =
+            match bundleName with
+            | Some b -> 
+                match doc with
+                | :? Elt as elt ->
+                    let getReqs _ _ _ = Seq.singleton (ClientBundle b)
+                    elt.WithAttrs [ DepAttr(ref "", null, getReqs) ] :> Doc
+                | _ -> Doc.Append doc (Doc.Bundle b)
+            | None -> doc
         Content.FromContext <| fun ctx ->
             Content.Custom(
                 Status = (status |> Option.defaultValue Http.Status.Ok),
@@ -51,35 +60,19 @@ module private ContentHelper =
 type Content =
 
     static member Page (doc: Doc) : Async<Content<'Action>> =
-        ContentHelper.pageBase doc true None Seq.empty
+        ContentHelper.pageBase doc true None Seq.empty None
 
     static member Page (doc: Doc, ?Bundle: string) : Async<Content<'Action>> =
-        let bdoc =
-            match Bundle with
-            | Some b -> BundleDoc(doc, b) :> Doc
-            | None -> doc
-        ContentHelper.pageBase bdoc true None Seq.empty
+        ContentHelper.pageBase doc true None Seq.empty Bundle
 
     static member Page (doc:Doc, ?Status:Http.Status, ?ExtraContentHeaders:seq<Http.Header>, ?Bundle: string) : Async<Content<'Action>> =
-        let bdoc =
-            match Bundle with
-            | Some b -> BundleDoc(doc, b) :> Doc
-            | None -> doc
-        ContentHelper.pageBase bdoc true Status (ExtraContentHeaders |> Option.defaultValue Seq.empty)
+        ContentHelper.pageBase doc true Status (ExtraContentHeaders |> Option.defaultValue Seq.empty) Bundle
 
     static member PageFragment (doc: seq<Doc>, ?Bundle: string) : Async<Content<'Action>> =
-        let bdoc =
-            match Bundle with
-            | Some b -> BundleDoc(Doc.Concat doc, b) :> Doc
-            | None -> Doc.Concat doc
-        ContentHelper.pageBase bdoc false None Seq.empty
+        ContentHelper.pageBase (Doc.Concat doc) false None Seq.empty Bundle
 
     static member PageFragment (doc: seq<Doc>, ?Status:Http.Status, ?ExtraContentHeaders:seq<Http.Header>, ?Bundle: string) : Async<Content<'Action>> =
-        let bdoc =
-            match Bundle with
-            | Some b -> BundleDoc(Doc.Concat doc, b) :> Doc
-            | None -> Doc.Concat doc
-        ContentHelper.pageBase bdoc false Status (ExtraContentHeaders |> Option.defaultValue Seq.empty)
+        ContentHelper.pageBase (Doc.Concat doc) false Status (ExtraContentHeaders |> Option.defaultValue Seq.empty) Bundle
 
     static member Doc (doc: Doc) : Async<Content<'Action>> =
         Content.Page doc

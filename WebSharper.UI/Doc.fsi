@@ -93,6 +93,9 @@ type Doc =
     /// Verbatim HTML.
     static member Verbatim : string -> Doc
 
+    /// Registers a bundle to use for this page for the runtime
+    static member Bundle : string -> Doc
+
     abstract Write : Web.Context * HtmlTextWriter * res: option<Sitelets.Content.RenderedResources> -> unit
     abstract Write : Web.Context * HtmlTextWriter * renderResources: bool -> unit
     default Write : Web.Context * HtmlTextWriter * renderResources: bool -> unit
@@ -101,15 +104,6 @@ type Doc =
     static member internal OfINode : Web.INode -> Doc
 
     internal new : unit -> Doc
-
-and [<Class>] BundleDoc =
-    inherit Doc
-
-    new : d: Doc * bundle: string -> BundleDoc
-
-    override Write : Web.Context * HtmlTextWriter * res: option<Sitelets.Content.RenderedResources> -> unit
-    override SpecialHoles : SpecialHole
-    override Requires : Core.Metadata.Info * Core.Json.Provider * IUniqueIdSource -> seq<ClientCode>
 
 and [<Class>] Elt =
     inherit Doc
@@ -705,6 +699,7 @@ type DynDoc =
     | TextDoc of string
     | VerbatimDoc of string
     | INodeDoc of WebSharper.Web.INode
+    | BundleDoc of string
 
 type ConcreteDoc =
     inherit Doc

@@ -92,6 +92,7 @@ and ConcreteDoc(dd: DynDoc) =
         | TextDoc t -> w.WriteEncodedText(t)
         | VerbatimDoc t -> w.Write(t)
         | INodeDoc d -> d.Write(ctx, w)
+        | BundleDoc _ -> ()
 
     override this.SpecialHoles =
         match dd with
@@ -106,22 +107,8 @@ and ConcreteDoc(dd: DynDoc) =
         | AppendDoc docs -> docs |> Seq.collect (fun d -> d.Requires(meta, json, getId))
         | INodeDoc c -> (c :> IRequiresResources).Requires(meta, json, getId)
         | ElemDoc elt -> (elt :> IRequiresResources).Requires(meta, json, getId)
+        | BundleDoc b -> Seq.singleton (ClientBundle b)
         | _ -> Seq.empty
-
-and BundleDoc(d: Doc, bundle: string) =
-    inherit Doc()
-
-    override this.Write(ctx, w, res: option<Sitelets.Content.RenderedResources>) =
-        d.Write(ctx, w, res)
-
-    override this.Write(ctx, w, renderResources: bool) =
-        d.Write(ctx, w, renderResources)
-
-    override this.SpecialHoles =
-        d.SpecialHoles
-
-    override this.Requires(meta, json, getId) =
-        Seq.append (Seq.singleton (ClientCode.ClientBundle bundle)) (d.Requires(meta, json, getId))
     
 and DynDoc =
     | AppendDoc of list<Doc>
@@ -130,6 +117,7 @@ and DynDoc =
     | TextDoc of string
     | VerbatimDoc of string
     | INodeDoc of INode
+    | BundleDoc of string
 
 and HoleName = Replace | Hole
 
@@ -863,6 +851,8 @@ type Doc with
     static member Verbatim t = ConcreteDoc(VerbatimDoc t) :> Doc
 
     static member OfINode n = ConcreteDoc(INodeDoc n) :> Doc
+
+    static member Bundle b = ConcreteDoc(BundleDoc b) :> Doc
 
 [<AbstractClass; Sealed>]
 type ClientServer =
