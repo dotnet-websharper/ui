@@ -12,9 +12,8 @@
     <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <!-- Exclude the output of source generators from the C# compilation but pass to WebSharper -->
+    <!-- Exclude the earlier output of source generators from the C# compilation -->
     <Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.cs" />
-    <GeneratedSources Include="$(CompilerGeneratedFilesOutputPath)/**/*.cs" />
   </ItemGroup>
   <ItemGroup>
     <AdditionalFiles Include="template.html" />
