@@ -935,3 +935,21 @@ let Parse (pathOrXml: string) (rootFolder: string)
                 |> checkMappedHoles
                 |> checkInstantiations
         }
+
+let ParseHtml (html: string) (path: string)
+        (defaultServerLoad: ServerLoad) (defaultClientLoad: ClientLoad) =
+    let tpl, clientLoad, serverLoad = ParseSource "" html
+    {
+        ParseKind = ParseKind.Inline
+        Items =
+            [|
+                {
+                    Templates = tpl
+                    Path = Some path
+                    ClientLoad = defaultArg clientLoad defaultClientLoad
+                    ServerLoad = defaultArg serverLoad defaultServerLoad
+                }
+            |]
+            |> checkMappedHoles
+            |> checkInstantiations
+    }

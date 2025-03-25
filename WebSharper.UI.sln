@@ -41,7 +41,7 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WebSharper.UI.Templating.Co
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WebSharper.UI.Templating.Runtime", "WebSharper.UI.Templating.Runtime\WebSharper.UI.Templating.Runtime.fsproj", "{31738154-5576-4E56-BB71-86BD5E63FCAF}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WebSharper.UI.CSharp.Templating.Analyzer", "WebSharper.UI.CSharp.Templating.Analyzer\WebSharper.UI.CSharp.Templating.Analyzer.fsproj", "{AC8E0153-76B5-4035-991D-F7CC05439B9D}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WebSharper.UI.CSharp.Templating.Generator", "WebSharper.UI.CSharp.Templating.Generator\WebSharper.UI.CSharp.Templating.Generator.fsproj", "{AC8E0153-76B5-4035-991D-F7CC05439B9D}"
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WebSharper.UI.CSharp.Templating.Build", "WebSharper.UI.CSharp.Templating.Build\WebSharper.UI.CSharp.Templating.Build.fsproj", "{3B1280C3-1F2B-4231-9B6C-2640CA9F7A6D}"
 EndProject
