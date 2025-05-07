@@ -102,7 +102,7 @@ let Main = Application.SinglePage(fun ctx ->
                         JavaScript.Console.Log("Anchored span for button 2:", e.Anchors.SpanAnchor)
                     )
                     .Doc()
-                MainTemplate.template("""<a id="basic-4" ws-onclick="Click" href="#">Greetings <span ws-anchor="SpanAnchor">${Who}!</span></button>""")
+                MainTemplate.template("""<button id="basic-4" ws-onclick="Click" href="#">Greetings <span ws-anchor="SpanAnchor">${Who}!</span></button>""")
                     .Who("world 3")
                     .Click(fun e -> 
                         JavaScript.JS.Set e.Target "wsuiDispatched4" true

@@ -25,7 +25,9 @@ open WebSharper
 [<AutoOpen;JavaScript>]
 module Extensions =
     type AsyncBuilder with
+        [<Inline>]
         member this.Bind(var: Var<'T>, continuation: 'T -> Async<'U>) : Async<'U> =
             var.View |> View.GetAsync |> fun res -> async.Bind(res, continuation)
+        [<Inline>]
         member this.Bind(view: View<'T>, continuation: 'T -> Async<'U>) : Async<'U> =
             view |> View.GetAsync |> fun res -> async.Bind(res, continuation)

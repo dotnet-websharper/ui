@@ -70,6 +70,7 @@ module DomUtility =
     /// Position in a `children` list of a DOM Element
     /// where a node can be inserted.
     [<AllowNullLiteral>]
+    [<Type "Node">]
     type InsertPos [<Inline "$x">] private (x: Dom.Node) =
         [<Inline>]
         static member AtEnd = null : InsertPos

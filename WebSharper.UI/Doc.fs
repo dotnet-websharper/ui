@@ -775,9 +775,6 @@ type InlineControlWithPlaceHolder(docExpr: Expr<Doc>, doc: Doc) =
     [<System.NonSerialized>]
     let doc = doc
 
-    [<JavaScript>]
-    static member DecodeJson(o: obj) = As<InlineControlWithPlaceHolder> (obj())
-
     // this is needed because WebSharper.Web.Control.GetBodyNode looks at Body property on current type
     override this.Body = base.Body
 
