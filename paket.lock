@@ -484,9 +484,9 @@ GROUP includes
 REFERENCES: STRICT
 GITHUB
   remote: dotnet-websharper/websharper
-    src/htmllib/tags.csv (35c354b583b6046c75865f7f33d9bf08919ad5af)
+    src/htmllib/tags.csv (a6001be735e573fdf3bf8ef75f874cb0c2229d4e)
 GROUP wsbuild
 
 GIT
   remote: https://github.com/dotnet-websharper/build-script
-     (a7b506f18c67bb036a16a9adee507c44aa9e5bbc)
+     (19e0fb7bdeb2b7dfb855df993a47cf168dd07244)
