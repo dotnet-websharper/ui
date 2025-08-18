@@ -24,6 +24,7 @@ open WebSharper
 open System
 open System.Threading.Tasks
 open System.Runtime.CompilerServices
+open WebSharper.JavaScript
 
 [<Extension; JavaScript>]
 type ViewExtensions =
@@ -110,6 +111,10 @@ type VarExtension =
     [<Extension; Inline>]
     static member Lens(ref: Var<'A>, get: Func<'A, 'B>, set: Func<'A, 'B, 'A>) =
         Var.Lens ref (FSharpConvert.Fun get) (FSharpConvert.Fun set)
+
+    [<Extension; Macro(typeof<Macros.LensMethod>)>]
+    static member LensAuto(ref: Var<'A>, get: Func<'A, 'B>) =
+        X<Var<'B>>
 
 [<Extension; Sealed; JavaScript>]
 type DocExtension =

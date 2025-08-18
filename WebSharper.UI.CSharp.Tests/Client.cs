@@ -175,11 +175,13 @@ namespace WebSharper.UI.CSharp.Tests
             //    ).SnapshotOn(null, rvSubmit.View).MapAsync(async res => LoginUser)
         }
 
-        public class TestRecord
+        public class TestClass
         {
             public string X;
             public string P { get; set; }
         }
+
+        public record TestRecord(string Name, int Count);
 
         [SPAEntryPoint]
         public static void ClientMain()
@@ -219,7 +221,8 @@ namespace WebSharper.UI.CSharp.Tests
                     }
                 });
 
-            var testRecordVar = Var.Create(new TestRecord { X = "Hello from a field", P = "Hello from a property" });
+            var testClassVar = Var.Create(new TestClass { X = "Hello from a field", P = "Hello from a property" });
+            var testRecordVar = Var.Create(new TestRecord("Test", 42));
 
             div(
                 h1("My list of unique people"),
@@ -237,8 +240,13 @@ namespace WebSharper.UI.CSharp.Tests
                 routed,
                 h1("V test:"),
                 ul(
-                    li(testRecordVar.V.X), 
-                    li(testRecordVar.V.P)
+                    li(testClassVar.V.X), 
+                    li(testClassVar.V.P)
+                ),
+                input(testRecordVar.V.Name),
+                div(
+                    "Name: ",
+                    testRecordVar.V.Name
                 )
             ).RunById("main");
             TodoApp();

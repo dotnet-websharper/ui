@@ -111,6 +111,12 @@ module Macros =
                 )
             )
 
+        let cloneWith (e: Expression) fieldName value =
+            let c = Id.New(mut = true)
+            Let(c, 
+                JSRuntime.Clone(e), 
+                Sequential [ ItemSet(Var c, Value (String fieldName), value); Var c ])
+
         let setterFail() =
             MacroError "Cannot deduce setter from this getter"
 
@@ -124,8 +130,31 @@ module Macros =
                     | M.FSharpRecordInfo fields ->
                         recordWith this ty fields [f, valueArg]
                         |> makeSetter comp terminate this
-                    | _ -> setterFail()
-                | _ -> setterFail()
+                    | M.NotCustomType ->
+                        match comp.GetClassInfo(ty.Entity) with
+                        | Some c ->
+                            match c.Fields.TryGetValue f with
+                            | true, { CompiledForm = M.InstanceField cf } ->
+                                cloneWith this cf valueArg
+                                |> makeSetter comp terminate this
+                            | _ -> MacroError "Cannot deduce setter from this getter: not an instance field"
+                        | _ -> MacroError "Cannot deduce setter from this getter: class info not found"
+                    | _ -> MacroError "Cannot deduce setter from this getter: only classes and F# records are supported"
+                | IgnoreSourcePos.Call(Some this, ty, m, []) ->                    
+                    match comp.GetClassInfo(ty.Entity) with
+                    | Some c ->
+                        let mName = m.Entity.Value.MethodName
+                        if mName.StartsWith "get_" then
+                            let fName = "<" + mName.Substring(4) + ">k__BackingField"
+                            match c.Fields.TryGetValue fName with
+                            | true, { CompiledForm = M.InstanceField cf } ->
+                                cloneWith this cf valueArg
+                                |> makeSetter comp terminate this
+                            | _ -> MacroError "Cannot deduce setter from this getter: for properties only C# records are supported"
+                        else
+                            MacroError "Cannot deduce setter from this getter: not a getter method"
+                    | _ -> MacroError "Cannot deduce setter from this getter: class info not found"
+                | _ -> MacroError "Cannot deduce setter from this getter: only fields and properties are supported"
 
         let MakeSetter comp = function
             | Lambda ([x], t, body)
@@ -138,7 +167,7 @@ module Macros =
                 match makeSetter comp terminate body (Var y) with
                 | MacroOk e -> MacroOk <| Lambda ([x], t, Lambda ([y], None, e))
                 | err -> err
-            | e -> setterFail()
+            | _ -> MacroError "Cannot deduce setter from this getter: expecting a lambda function"
 
         let VMakeLens comp tOutput e =
             let x = Id.New(mut = false)
@@ -147,7 +176,10 @@ module Macros =
                     let r, e = mkE this
                     r, FieldGet(Some e, ty, f)
                 | IgnoreSourcePos.Call(Some this, t, m, []) when isVarT t.Entity && isV m.Entity -> (this, t), Var x
-                | _ -> failwith "Cannot deduce setter from this getter"
+                | IgnoreSourcePos.Call(Some this, t, m, []) when m.Entity.Value.MethodName.StartsWith "get_" ->
+                    let r, e = mkE this  
+                    r, Call(Some e, t, m, [])
+                | e -> failwith "Expecting a Var.V property use for auto-lensing on an input"
             let y = Id.New(mut = false)
             try
                 let (this, t), e = mkE e
@@ -168,25 +200,57 @@ module Macros =
             | Const of Expression
             | View of Expression
 
-        let Visit t e =
+        let vEnablingMacroes =
+            HashSet [
+                "WebSharper.UI.Macros+V"
+                "WebSharper.UI.Macros+TextView"
+                "WebSharper.UI.Macros+TemplateText"
+                "WebSharper.UI.Macros+AttrCreate"
+                "WebSharper.UI.Macros+ElementMixed"
+                "WebSharper.UI.Macros+DocConcatMixed"
+                "WebSharper.UI.Macros+AttrStyle"
+                "WebSharper.UI.Macros+AttrClass"
+                "WebSharper.UI.Macros+AttrProp"
+                "WebSharper.UI.Macros+LensFunction"
+                "WebSharper.UI.Macros+InputV"
+                "WebSharper.UI.Macros+InputV2"
+                "WebSharper.UI.Macros+InputV2CS"
+                "WebSharper.UI.Macros+TemplateVar"
+            ]
+
+        let Visit (c: M.ICompilation) t e =
             let env = Dictionary()
             let body =
                 { new Transformer() with
                     member v.TransformCall (this, ty, m, args) =
-                        let addItem v =
-                            let k = key v
-                            match env.TryFind k with
-                            | Some (id, _) -> Var id
-                            | None ->
-                                let id = Id.New()
-                                env[k] <- (id, ty.Generics[0])
-                                Var id
-                        if isViewT ty.Entity && isV m.Entity then
-                            addItem this.Value
-                        elif isVarT ty.Entity && isV m.Entity then
-                            Call(Some this.Value, ty, viewProp, [])
-                            |> addItem
-                        else base.TransformCall (this, ty, m, args)
+                        // opt-out of recursion if finding inner V-enabled calls
+                        let isVEnabled =
+                            match c.GetClassInfo(ty.Entity) with
+                            | Some cInfo ->
+                                match cInfo.Methods.TryGetValue m.Entity with
+                                | true, mInfo ->
+                                    match mInfo.CompiledForm with
+                                    | M.Macro (td, _, _) -> vEnablingMacroes.Contains td.Value.FullName 
+                                    | _ -> false
+                                | false, _ -> false
+                            | _ -> false
+                        if isVEnabled then
+                            Call (this, ty, m, args)
+                        else
+                            let addItem v =
+                                let k = key v
+                                match env.TryFind k with
+                                | Some (id, _) -> Var id
+                                | None ->
+                                    let id = Id.New()
+                                    env[k] <- (id, ty.Generics[0])
+                                    Var id
+                            if isViewT ty.Entity && isV m.Entity then
+                                addItem this.Value
+                            elif isVarT ty.Entity && isV m.Entity then
+                                Call(Some this.Value, ty, viewProp, [])
+                                |> addItem
+                            else base.TransformCall (this, ty, m, args)
                 }.TransformExpression e
             match List.ofSeq env with
             | [] -> Kind.Const body
@@ -218,7 +282,7 @@ module Macros =
 
         override this.TranslateCall(call) =
             let t = call.Method.Generics[0]
-            match V.Visit t call.Arguments[0] with
+            match V.Visit call.Compilation t call.Arguments[0] with
             | V.Kind.Const body -> Call(None, viewModule, constFnOf t, [body])
             | V.Kind.View e -> e
             |> MacroOk
@@ -244,7 +308,7 @@ module Macros =
         inherit Macro()
 
         override this.TranslateCall(call) =
-            match V.Visit stringT call.Arguments[0] with
+            match V.Visit call.Compilation stringT call.Arguments[0] with
             | V.Kind.Const _ -> MacroFallback
             | V.Kind.View e -> MacroOk (Call (None, clientDocModule, textViewFn, [e]))
 
@@ -253,7 +317,7 @@ module Macros =
 
         override this.TranslateCall(call) =
             let id, e = getBound call call.Arguments[1]
-            match V.Visit stringT e with
+            match V.Visit call.Compilation stringT e with
             | V.Kind.Const _ -> MacroFallback
             | V.Kind.View e ->
                 let res = MacroOk (Call (None, tplHoleModule, tplHoleTextView, [call.Arguments[0]; e]))
@@ -265,7 +329,7 @@ module Macros =
         inherit Macro()
 
         override this.TranslateCall(call) =
-            match V.Visit stringT call.Arguments[0] with
+            match V.Visit call.Compilation stringT call.Arguments[0] with
             | V.Kind.Const _ -> MacroFallback
             | V.Kind.View e ->
                 let name = call.Parameter.Value :?> string
@@ -277,7 +341,7 @@ module Macros =
         override this.TranslateCall(call) =
             match call.Arguments[0] with
             | NewArray items ->
-                let itemsV = items |> List.map (V.Visit objT)
+                let itemsV = items |> List.map (V.Visit call.Compilation objT)
                 if itemsV |> List.forall (function V.Kind.Const _ -> true | _ -> false) then
                     MacroFallback
                 else
@@ -296,7 +360,7 @@ module Macros =
         override this.TranslateCall(call) =
             match call.Arguments[0] with
             | NewArray items ->
-                let itemsV = items |> List.map (V.Visit objT)
+                let itemsV = items |> List.map (V.Visit call.Compilation objT)
                 if itemsV |> List.forall (function V.Kind.Const _ -> true | _ -> false) then
                     MacroFallback
                 else
@@ -312,7 +376,7 @@ module Macros =
         inherit Macro()
 
         override this.TranslateCall(call) =
-            match V.Visit stringT call.Arguments[1] with
+            match V.Visit call.Compilation stringT call.Arguments[1] with
             | V.Kind.Const _ -> MacroFallback
             | V.Kind.View e -> MacroOk (Call (None, clientAttrModule, attrDynStyleFn, [call.Arguments[0]; e]))
 
@@ -320,7 +384,7 @@ module Macros =
         inherit Macro()
 
         override this.TranslateCall(call) =
-            match V.Visit stringT call.Arguments[1] with
+            match V.Visit call.Compilation stringT call.Arguments[1] with
             | V.Kind.Const _ -> MacroFallback
             | V.Kind.View e -> MacroOk (Call (None, clientAttrModule, attrDynClassFn, [call.Arguments[0]; e]))
 
@@ -329,7 +393,7 @@ module Macros =
 
         override this.TranslateCall(call) =
             let targ = call.Method.Generics[0]
-            match V.Visit stringT call.Arguments[1] with
+            match V.Visit call.Compilation stringT call.Arguments[1] with
             | V.Kind.Const _ -> MacroFallback
             | V.Kind.View e -> MacroOk (Call (None, clientAttrModule, attrDynPropFn targ, [call.Arguments[0]; e]))
 
@@ -371,6 +435,17 @@ module Macros =
             | MacroOk lens ->
                 let o = call.Method.Entity.Value.ReturnType
                 MacroOk (Call (None, clientDocInputModule, inputFn (downcast call.Parameter.Value) t o, [call.Arguments[0]; lens]))
+            | err -> err
+
+    type InputV2CS() =
+        inherit Macro()
+        
+        override this.TranslateCall(call) =
+            let t = call.Method.Entity.Value.Parameters[0]
+            match Lens.VMakeLens call.Compilation t call.Arguments[0] with
+            | MacroOk lens ->
+                let o = call.Method.Entity.Value.ReturnType
+                MacroOk (Call (None, clientDocInputModule, inputFn (downcast call.Parameter.Value) t o, [call.Arguments[1]; lens]))
             | err -> err
 
     type TemplateVar() =
