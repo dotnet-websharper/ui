@@ -75,12 +75,24 @@ module Html =
     let StringInput(var, [<ParamArray>] attrs: Attr[]) =
         Client.Doc.InputType.Text attrs var
 
+    /// Input box.
+    [<Macro(typeof<Macros.InputV2CS>, "Text"); CompiledName "input">]
+    let StringInputV(var: string, [<ParamArray>] attrs: Attr[]) =
+        X<Doc>
+
     /// Input box with type="number".
     /// For validation to work properly in Internet Explorer 9 and older,
     /// needs to be inside a <form> with Attr.ValidateForm.
     [<Inline; CompiledName "input">]
     let IntInput(var, [<ParamArray>] attrs: Attr[]) =
         Client.Doc.InputType.IntUnchecked attrs var
+
+    /// Input box with type="number".
+    /// For validation to work properly in Internet Explorer 9 and older,
+    /// needs to be inside a <form> with Attr.ValidateForm.
+    [<Macro(typeof<Macros.InputV2CS>, "IntUnchecked"); CompiledName "input">]
+    let IntInputV(var: int, [<ParamArray>] attrs: Attr[]) =
+        X<Doc>
 
     // TODO checked int input
 
@@ -92,15 +104,33 @@ module Html =
     let FloatInput(var, [<ParamArray>] attrs: Attr[]) =
         Client.Doc.InputType.FloatUnchecked attrs var
 
+    /// Input box with type="number".
+    /// If the input box is blank, the value is set to 0.
+    /// If the input is not parseable as a float, the value is unchanged from its last valid value.
+    /// It is advised to use FloatInput instead for better user experience.
+    [<Macro(typeof<Macros.InputV2CS>, "FloatUnchecked"); CompiledName "input">]
+    let FloatInputV(var: float, [<ParamArray>] attrs: Attr[]) =
+        X<Doc>
+
     /// Input text area.
     [<Inline; CompiledName "textarea">]
     let TextAreaInput(var, [<ParamArray>] attrs: Attr[]) =
         Client.Doc.InputType.TextArea attrs var
 
+    /// Input text area.
+    [<Macro(typeof<Macros.InputV2CS>, "TextArea"); CompiledName "textarea">]
+    let TextAreaInputV(var: string, [<ParamArray>] attrs: Attr[]) =
+        X<Doc>
+
     /// Password box.
     [<Inline; CompiledName "passwordBox">]
     let PasswordBox(var, [<ParamArray>] attrs: Attr[]) =
         Client.Doc.InputType.Password attrs var
+
+    /// Password box.
+    [<Macro(typeof<Macros.InputV2CS>, "Password"); CompiledName "passwordBox">]
+    let PasswordBoxV(var: string, [<ParamArray>] attrs: Attr[]) =
+        X<Doc>
 
     /// Submit button. Calls the callback function when the button is pressed.
     [<Inline; CompiledName "button">]
