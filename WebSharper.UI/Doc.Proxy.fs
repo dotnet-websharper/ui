@@ -718,7 +718,7 @@ type internal Doc' [<JavaScript>] (docNode, updates) =
         Doc'.InputInternal "input" (fun el ->
             Seq.append attr [|
                 Attr.Value var
-                Attr.Create "type" "datetime"
+                Attr.Create "type" "date"
             |])
 
     [<JavaScript>]
