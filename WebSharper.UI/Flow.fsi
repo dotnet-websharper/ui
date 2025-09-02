@@ -22,17 +22,35 @@
 namespace WebSharper.UI
 
 open System
+open WebSharper.UI
+
+[<Sealed>]
+[<Class>]
+type FlowActions<'A> =
+    /// Go back to the previous page of the flow.
+    member Back : unit -> unit
+    /// Go to the cancelled page of the flow if it exists.
+    member Cancel : unit -> unit
+    /// Go back to the next page of the flow.
+    member Next : View<'A> -> unit
+
+[<Sealed>]
+[<Class>]
+type CancelledFlowActions =
+    /// Restart the flow from the first page re-rendered.
+    member Restart : unit -> unit
 
 /// Support for mutli-stage applications,
 /// where the current stage may depend on previous stages.
-type Flow<'T> =
-    new : Func<Func<'T, unit>, Doc> -> Flow<'T>
+[<Sealed>]
+type Flow<'A> =
+    new : Func<FlowActions<'A>, Doc> -> Flow<'A>
 
-/// Computation expression builder for Flow.
+/// Computation expression builder for flow.
 [<Sealed>]
 type FlowBuilder =
-    member Bind : Flow<'A> * ('A -> Flow<'B>) -> Flow<'B>
-    member Return : 'A -> Flow<'A>
+    member Bind : Flow<'A> * (View<'A> -> Flow<'B>) -> Flow<'B>
+    member Return : View<'A> -> Flow<'A>
     member ReturnFrom : Flow<'A> -> Flow<'A>
 
 /// Flow functionality.
@@ -44,20 +62,27 @@ type Flow =
 
     /// Monadic composition: compose two flows, allowing the
     /// result of one to be used to determine future ones.
-    static member Bind : Flow<'A> -> ('A -> Flow<'B>) -> Flow<'B>
+    static member Bind : Flow<'A> -> (View<'A> -> Flow<'B>) -> Flow<'B>
 
     /// Creates a flow from the given value, with an empty rendering function.
-    static member Return : 'A -> Flow<'A>
+    static member Return : View<'A> -> Flow<'A>
 
     /// Embeds a flow into a document, ignoring the result.
     static member Embed : Flow<'A> -> Doc
 
+    /// Embeds a flow into a document, ignoring the result.
+    /// Also adds a cancelled page from which the flow can be restarted anew.
+    static member EmbedWithCancel : (CancelledFlowActions -> Doc) -> Flow<'A> -> Doc
+
     /// Defines a flow, given a rendering function taking a continuation
     /// to invoke when the interaction is done.
-    static member Define : (('A -> unit) -> Doc) -> Flow<'A>
+    static member Define : (FlowActions<'A> -> Doc) -> Flow<'A>
 
-    /// Creates a flow from a static document.
-    static member Static : Doc -> Flow<unit>
+    /// Creates a flow from a static document that serves as the last page.
+    /// There is no more navigation from here, the flow must be re-rendered to restart.
+    static member End : Doc -> Flow<unit>
 
-    /// Used within computation expressions to construct a new flow.
-    static member Do : FlowBuilder
+[<AutoOpen>]
+module FlowHelper =
+    /// Computation expression for building flows.
+    val flow : FlowBuilder

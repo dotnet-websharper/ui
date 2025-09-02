@@ -29,13 +29,17 @@ open WebSharper.UI
 type FlowExtensions =
 
     [<Extension; Inline>]
-    static member Map(flow, f: Func<'A, 'B>) =
+    static member Map(flow: Flow<'A>, f: Func<'A, 'B>) =
         Flow.Map f.Invoke flow
 
     [<Extension; Inline>]
-    static member Bind(flow, f: Func<'A, Flow<'B>>) =
+    static member Bind(flow: Flow<'A>, f: Func<View<'A>, Flow<'B>>) =
         Flow.Bind flow f.Invoke
 
     [<Extension; Inline>]
     static member Embed(flow) =
         Flow.Embed flow
+
+    [<Extension; Inline>]
+    static member EmbedWithCancel(flow, cancel: Func<CancelledFlowActions, Doc>) =
+        Flow.EmbedWithCancel cancel.Invoke flow
