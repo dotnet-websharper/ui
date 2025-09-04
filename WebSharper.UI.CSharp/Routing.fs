@@ -267,7 +267,7 @@ and private RouteMapBuilderMacro() =
                             | Metadata.IndexedField _ ->
                                 failwithf "Field translated to an index is not supported for routing %s: %s."
                                     compName f.Type.AssemblyQualifiedName
-                            | Metadata.StaticField _ -> None
+                            | _ -> None
                         ) 
                         |> List.ofSeq
                     let isHole (n: string) = n.StartsWith "{" && n.EndsWith "}"
