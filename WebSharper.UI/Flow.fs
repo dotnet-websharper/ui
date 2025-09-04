@@ -39,17 +39,58 @@ type FlowActions<'A> =
 module FlowRouting =
     let flowVars = ResizeArray<Var<int>>()
 
-    let uniqueName = "WSUIFlow" + (As<string> DateTime.Now)
+    let flowStateName = "WSUIFlow" + (As<string> DateTime.Now)
+    let flowPrevStateName = flowStateName + "Prev"
     
+    let markState() =
+        let mutable st = JS.Window.History.State
+        if st = null || JS.TypeOf st <> JS.Kind.Object then 
+            st <- New []
+        st?(flowStateName) <- flowVars |> Seq.map (fun var -> var.Value) |> Array.ofSeq
+        JS.Window.History.ReplaceState(st, "")
+
     let install (var: Var<int>) =
         if flowVars.Count = 0 then
             let handlePopState (e: Dom.Event) =
-                let (n, v, i) = e?state
-                if n = uniqueName then
-                    flowVars[v].Set i
+                let st = e?state
+                let flowSt =
+                    if st <> null && JS.TypeOf st = JS.Kind.Object then
+                        st?(flowStateName)
+                    else
+                        [||] : int[]
+                if flowSt <> JS.Undefined then
+                    flowSt |> Array.iteri (fun i p ->
+                        let varI = flowVars[i] 
+                        if varI.Value <> p then
+                            varI.Set p
+                    )
             JS.Window.AddEventListener("popstate", handlePopState, false)
         flowVars.Add(var)
         flowVars.Count - 1
+
+    let markPrev (index: int) =
+        let mutable st = JS.Window.History.State
+        if st = null || JS.TypeOf st <> JS.Kind.Object then 
+            st <- New []
+        st?(flowPrevStateName) <- index
+        JS.Window.History.ReplaceState(st, "")
+
+    let tryBack (index: int) =
+        let mutable st = JS.Window.History.State
+        let indexSt =
+            if st <> null && JS.TypeOf st = JS.Kind.Object then
+                let prevSt = st?(flowPrevStateName)
+                if prevSt <> JS.Undefined then
+                    As<int> prevSt
+                else
+                    -1
+            else
+                -1
+        if index = indexSt then
+            JS.Window.History.Back()
+            true
+        else
+            false
 
 [<JavaScript>]
 type FlowState =
@@ -57,14 +98,22 @@ type FlowState =
         Index: int
         Pages: ResizeArray<Doc>
         mutable EndedOn: int option
+        mutable FirstRender: bool
         RenderFirst: unit -> unit
     }
+
+    member this.CurrentPage =
+        let v = FlowRouting.flowVars[this.Index]   
+        v.Value
 
     member this.UpdatePage f =
         let v = FlowRouting.flowVars[this.Index]   
         v.Update f
-        let st = (FlowRouting.uniqueName, this.Index, v.Value)
-        JS.Window.History.PushState(st, "")
+        if not this.FirstRender then
+            JS.Window.History.PushState(New [], "")
+            FlowRouting.markState()
+        else
+            this.FirstRender <- false
 
     member this.Add(page) =
         this.UpdatePage(fun i -> 
@@ -76,6 +125,7 @@ type FlowState =
         this.UpdatePage(fun _ ->
             this.Pages.Clear()
             this.Pages.Add(page)
+            this.EndedOn <- Some 0
             0
         )
 
@@ -89,13 +139,6 @@ type FlowState =
     member this.Embed() =
         let v = FlowRouting.flowVars[this.Index]
         v.View.Map(fun i ->
-            let reset() =
-                this.EndedOn <- None
-                this.Pages.Clear()
-                this.Pages.Add(Doc.Empty)
-                this.UpdatePage(fun _ -> 0)
-                this.RenderFirst()
-                Doc.Empty
             // do not navigate away from ending page
             match this.EndedOn with 
             | Some e -> this.Pages[e] 
@@ -104,10 +147,16 @@ type FlowState =
                 if this.Pages.Count >= i + 1 then
                     this.Pages[i]
                 elif this.Pages.Count > 1 then
-                    // show last rendered page instead
-                    this.Pages[i]       
+                    // move to last rendered page instead
+                    this.UpdatePage(fun _ -> this.Pages.Count - 1)
+                    Doc.Empty   
                 else
-                    reset()
+                    this.EndedOn <- None
+                    this.Pages.Clear()
+                    this.Pages.Add(Doc.Empty)
+                    this.UpdatePage(fun _ -> 0)
+                    this.RenderFirst()
+                    Doc.Empty
         )
         |> Doc.EmbedView
 
@@ -148,12 +197,14 @@ type Flow =
                     back = actions.Back
                     cancel = actions.Cancel
                     next = fun resView ->
-                        st.UpdatePage (fun i ->
-                            // check if st.Pages does not contain index i + 1
-                            if st.Pages.Count < i + 2 then
-                                (k resView).Render st actions
-                            i + 1                       
-                        )
+                        // check if st.Pages does not contain index i + 1
+                        if st.Pages.Count <= st.CurrentPage + 1 then
+                            (k resView).Render st actions
+                        else
+                            st.UpdatePage (fun i ->
+                                i + 1                       
+                            )
+                        FlowRouting.markPrev st.Index
                 }
             m.Render st outerActions    
         )
@@ -169,15 +220,22 @@ type Flow =
                 Index = FlowRouting.install var
                 Pages = ResizeArray [ Doc.Empty ]
                 EndedOn = None
+                FirstRender = true
                 RenderFirst = fun () -> renderFirst ()
             }
         let action =
             {
-                back = fun () -> st.UpdatePage(fun i -> if i > 1 then i - 1 else i)
+                back =
+                    fun () -> 
+                        if not (FlowRouting.tryBack st.Index) then
+                            st.UpdatePage(fun i -> if i > 1 then i - 1 else i)
                 next = ignore
                 cancel = ignore
             }
-        renderFirst <- fun () -> fl.Render st action
+        renderFirst <- 
+            fun () -> 
+                fl.Render st action
+                FlowRouting.markState()
         var.Set 0
         st.RenderFirst()
         st.Embed()
@@ -190,20 +248,30 @@ type Flow =
                 Index = FlowRouting.install var
                 Pages = ResizeArray [ Doc.Empty ]
                 EndedOn = None
+                FirstRender = true
                 RenderFirst = fun () -> renderFirst ()
             }
         let mutable action = Unchecked.defaultof<FlowActions<'A>>
         let cancelledAction =
             {
-                restart = fun () -> fl.Render st action
+                restart = 
+                    fun () -> 
+                        st.EndedOn <- None
+                        fl.Render st action
             }
         action <-
             {
-                back = fun () -> st.UpdatePage(fun i -> if i > 1 then i - 1 else i)
+                back =
+                    fun () -> 
+                        if not (FlowRouting.tryBack st.Index) then
+                            st.UpdatePage(fun i -> if i > 1 then i - 1 else i)
                 next = ignore
                 cancel = fun () -> st.Cancel (cancel cancelledAction)
             }
-        renderFirst <- fun () -> fl.Render st action
+        renderFirst <- 
+            fun () -> 
+                fl.Render st action
+                FlowRouting.markState()
         var.Set 0
         st.RenderFirst()
         st.Embed()
