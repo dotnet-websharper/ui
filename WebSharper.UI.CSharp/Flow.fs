@@ -33,7 +33,19 @@ type FlowExtensions =
         Flow.Map f.Invoke flow
 
     [<Extension; Inline>]
-    static member Bind(flow: Flow<'A>, f: Func<View<'A>, Flow<'B>>) =
+    static member Validate(flow: Flow<View<'A>>, pred: Predicate<'A>) =
+        Flow.ValidateView pred.Invoke flow
+
+    [<Extension; Inline>]
+    static member Validate(flow: Flow<Var<'A>>, pred: Predicate<'A>) =
+        Flow.ValidateVar pred.Invoke flow
+
+    [<Extension; Inline>]
+    static member View(flow: Flow<'A>) =
+        Flow.View flow
+
+    [<Extension; Inline>]
+    static member Bind(flow: Flow<'A>, f: Func<'A, Flow<'B>>) =
         Flow.Bind flow f.Invoke
 
     [<Extension; Inline>]
@@ -41,5 +53,5 @@ type FlowExtensions =
         Flow.Embed flow
 
     [<Extension; Inline>]
-    static member EmbedWithCancel(flow, cancel: Func<CancelledFlowActions, Doc>) =
+    static member EmbedWithCancel(flow, cancel: Func<EndedFlowActions, Doc>) =
         Flow.EmbedWithCancel cancel.Invoke flow

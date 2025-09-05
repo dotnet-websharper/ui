@@ -32,13 +32,23 @@ type FlowExtensions =
     /// Mapping.
     static member Map : Flow<'A> * Func<'A, 'B> -> Flow<'B>
 
+    /// Adds a validator function to a flow passing forward a View.
+    static member Validate : Flow<View<'A>> * Predicate<'A> -> Flow<View<'A>>
+
+    /// Adds a validator function to a flow passing forward a Var.
+    static member Validate : Flow<Var<'A>> * Predicate<'A> -> Flow<Var<'A>>
+
+    /// Creates a View from the result value of the flow, so that updates
+    /// can be propagated when the user navigates back and changes inputs. 
+    static member View : Flow<'A> -> Flow<View<'A>>
+
     /// Monadic composition: compose two flows, allowing the
     /// result of one to be used to determine future ones.
-    static member Bind : Flow<'A> * Func<View<'A>, Flow<'B>> -> Flow<'B>
+    static member Bind : Flow<'A> * Func<'A, Flow<'B>> -> Flow<'B>
 
     /// Embeds a flow into a document, ignoring the result.
     static member Embed : Flow<'A> -> Doc
 
     /// Embeds a flow into a document, ignoring the result.
     /// Also adds a cancelled page from which the flow can be restarted anew.
-    static member EmbedWithCancel : Flow<'A> * Func<CancelledFlowActions, Doc> -> Doc
+    static member EmbedWithCancel : Flow<'A> * Func<EndedFlowActions, Doc> -> Doc
