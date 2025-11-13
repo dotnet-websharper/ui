@@ -46,7 +46,6 @@ module private Impl =
     type DomElement = WebSharper.JavaScript.Dom.Element
     type DomEvent = WebSharper.JavaScript.Dom.Event
     type CheckedInput<'T> = WebSharper.UI.Client.CheckedInput<'T>
-    module RTC = Runtime.Client
     module RTS = Runtime.Server
     type TI = RTS.TemplateInstance
     type Builder = RTS.ProviderBuilder
@@ -217,18 +216,18 @@ module private Impl =
             mkWithModel ""
             mkWithModel "_WithModel"
             mk <| fun b name (x: Expr<Expr<DomElement -> unit>>) ->
-                <@ (%b).With(RTC.AfterRenderQ(%name, %x)) @>
+                <@ (%b).With(RTS.Handler.AfterRenderQ(%name, %x)) @>
             mk <| fun b name (x: Expr<Expr<unit -> unit>>) ->
-                <@ (%b).With(RTC.AfterRenderQ2(%name, %x)) @>
+                <@ (%b).With(RTS.Handler.AfterRenderQU(%name, %x)) @>
         ]
 
     let ElemHandlerHoleMethods hole resTy ctx =
         let mk wrapArg = BuildMethod hole resTy ctx wrapArg
         [
             mk <| fun b name (x: Expr<Expr<DomElement -> unit>>) ->
-                <@ (%b).With(RTC.AfterRenderQ(%name, %x)) @>
+                <@ (%b).With(RTS.Handler.AfterRenderQ(%name, %x)) @>
             mk <| fun b name (x: Expr<Expr<unit -> unit>>) ->
-                <@ (%b).With(RTC.AfterRenderQ2(%name, %x)) @>
+                <@ (%b).With(RTS.Handler.AfterRenderQU(%name, %x)) @>
         ]
 
     let EventHandlerHoleMethods eventType hole resTy varsTy anchorsTy ctx =

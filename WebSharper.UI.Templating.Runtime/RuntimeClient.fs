@@ -63,14 +63,6 @@ type private TemplateInstanceProxy(c: Server.CompletedHoles, doc: Doc) =
         findUnder anchorRoot
 
 [<Inline>]
-let AfterRenderQ(name: string, f: Expr<Dom.Element -> unit>) =
-    TemplateHole.AfterRenderQ(name, f) :> TemplateHole
-
-[<Inline>]
-let AfterRenderQ2(name: string, f: Expr<unit -> unit>) =
-    AfterRenderQ(name, <@ fun el -> (WebSharper.JavaScript.Pervasives.As f)() @>)
-
-[<Inline>]
 let LazyParseHtml (src: string) =
     ()
     fun () -> DomUtility.ParseHTMLIntoFakeRoot src
@@ -235,32 +227,38 @@ type private HandlerProxy =
         TemplateHole.EventQ(holeName, f) :> TemplateHole
 
     static member EventQ2<'E when 'E :> DomEvent> (key: string, holeName: string, ti: (unit -> TemplateInstance), f: Expr<TemplateEvent<obj, obj, 'E> -> unit>) =
-        TemplateHole.EventQ(holeName, <@ fun el ev ->
+        TemplateHole.EventQ(holeName, As (fun el ev ->
             let i = ti() 
             i.SetAnchorRoot(el)
-            (%f) {
+            (As<TemplateEvent<obj, obj, 'E> -> unit> f) 
+                {
                     Vars = i  
                     Anchors = i
                     Target = el
-                    Event = downcast ev
+                    Event = ev
                 }
-        @>) :> TemplateHole
+        )) :> TemplateHole
 
     [<Inline>]
     static member AfterRenderQ (holeName: string, f: Expr<Dom.Element -> unit>) =
         TemplateHole.AfterRenderQ(holeName, f) :> TemplateHole
 
+    [<Inline>]
+    static member AfterRenderQU (holeName: string, [<JavaScript>] f: Expr<unit -> unit>) =
+        TemplateHole.AfterRenderQ(holeName, As f) :> TemplateHole
+
     static member AfterRenderQ2(key: string, holeName: string, ti: (unit -> TemplateInstance), f: Expr<TemplateEvent<obj, obj, Dom.Event> -> unit>) =
-        TemplateHole.AfterRenderQ(holeName, <@ fun el ->
+        TemplateHole.AfterRenderQ(holeName, As (fun el ->
             let i = ti() 
             i.SetAnchorRoot(el)
-            (%f) {
+            (As<TemplateEvent<obj, obj, Dom.Event> -> unit> f) 
+                {
                     Vars = i  
                     Anchors = i
                     Target = el
                     Event = null
                 }
-        @>) :> TemplateHole
+        )) :> TemplateHole
 
     [<JavaScript>]
     static member CompleteHoles(key: string, filledHoles: seq<TemplateHole>, vars: array<string * Server.ValTy * obj option>) : seq<TemplateHole> * Server.CompletedHoles =

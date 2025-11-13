@@ -179,10 +179,10 @@ let Main = Application.SinglePage(fun ctx ->
                 //e.Anchors.WsDom.Value <- Some msgDiv
                 Client.OnStartup()
             )
-            //.AfterRenderSimple(fun () ->
-            //    JavaScript.Console.Log("AfterRenderSimple " + executedMsg)
-            //    JavaScript.Console.Log("precompilation with capture working")
-            //)
+            .AfterRenderSimple(fun () ->
+                JavaScript.Console.Log("AfterRenderSimple " + executedMsg)
+                JavaScript.Console.Log("precompilation with capture working")
+            )
             .TBody([MainTemplate.Main.Row().Doc(); MainTemplate.Main.Row().Doc()])
             .With("DynamicText", """[OK] Inserted using .With("name", "text")""")
             .With("DynamicDoc", text """[OK] Inserted using .With("name", doc)""")

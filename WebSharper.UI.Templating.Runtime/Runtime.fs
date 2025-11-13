@@ -235,6 +235,12 @@ type Handler private () =
         TemplateHole.AfterRenderQ(holeName, f) :> TemplateHole
 
     [<RequireFeature(typeof<TemplateInitializerFeature>)>]
+    static member AfterRenderQU (holeName: string, [<JavaScript>] f: Expr<unit -> unit>) =
+        Handler.AfterRenderQ(holeName, <@ fun el -> 
+            (WebSharper.JavaScript.Pervasives.As<unit -> unit> f)() 
+        @>)
+
+    [<RequireFeature(typeof<TemplateInitializerFeature>)>]
     static member AfterRenderQ2(key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, obj, DomEvent> -> unit>) =
         Handler.AfterRenderQ(holeName, <@ fun el ->
             let i = TemplateInitializer.GetInstance key
