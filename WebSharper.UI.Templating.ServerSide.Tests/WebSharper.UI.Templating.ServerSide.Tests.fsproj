@@ -11,6 +11,7 @@
 	<WebSharperStandalone>true</WebSharperStandalone>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="esbuild.config.mjs" />
     <None Include="paket.references" />
     <Compile Include="Unit.fs" />
     <Compile Include="Main.fs" />
@@ -25,6 +26,10 @@
     <ProjectReference Include="../WebSharper.UI.Templating.Runtime\WebSharper.UI.Templating.Runtime.fsproj" />
     <ProjectReference Include="../WebSharper.UI.Templating\WebSharper.UI.Templating.fsproj" />
   </ItemGroup>
+  <Target Name="ESBuildBundle" AfterTargets="WebSharperCompile" Condition=" '$(Configuration)' == 'Release' ">
+    <Exec Command="npm install" />
+    <Exec Command="node ./esbuild.config.mjs" />
+  </Target>
   <Import Project="..\paket-files\wsbuild\github.com\dotnet-websharper\build-script\WebSharper.Fake.targets" Condition="Exists('..\paket-files\wsbuild\github.com\dotnet-websharper\build-script\WebSharper.Fake.targets')" />
   <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

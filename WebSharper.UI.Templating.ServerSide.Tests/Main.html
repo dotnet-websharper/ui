@@ -9,6 +9,7 @@
     <meta ws-replace="meta" />
 </head>
 <body ws-onafterrender="AfterRender">
+    <div ws-onafterrender="AfterRenderSimple"></div>
     <div ws-replace="UnitTests"></div>
     <div id="basic-1"></div>
     <div ws-replace="Main">
@@ -98,6 +99,7 @@
         <ws-templates.Field6 />
     </div>
     <input ws-var="ServerVarOnMainTemplate" type="text" />
+    <!--<input ws-var="FileVar" type="file" />-->
     <div ws-anchor="ServerAnchorOnMainTemplate">Server anchor, it's not ok to see this, text should be replaced</div>
     <div ws-preserve="">
         <!-- Testing comment -->
@@ -109,6 +111,7 @@
             [OK] ws-hole inside ws-preserve is not emptied
         </div>
     </div>
+    <!--<div ws-dom="WsDom"></div>-->
     <script ws-replace="scripts"></script>
 </body>
 </html>

@@ -81,6 +81,7 @@ let mkServerVarForm(id: string) =
 
 [<Website>]
 let Main = Application.SinglePage(fun ctx ->
+    let executedMsg = "executed"
     Content.Page(
         MainTemplate.Main()
             .ServerInitVar("Initialized as a string on the server")
@@ -173,8 +174,15 @@ let Main = Application.SinglePage(fun ctx ->
             .AfterRender_WithModel(fun e ->
                 Var.Set e.Vars.ServerVarOnMainTemplate "This should be initialized"
                 e.Anchors.ServerAnchorOnMainTemplate.TextContent <- "Server anchor ok"
+                let msgDiv = JavaScript.JS.Document.CreateElement("div")
+                msgDiv.TextContent <- "[OK] ws-dom variable set"
+                //e.Anchors.WsDom.Value <- Some msgDiv
                 Client.OnStartup()
             )
+            //.AfterRenderSimple(fun () ->
+            //    JavaScript.Console.Log("AfterRenderSimple " + executedMsg)
+            //    JavaScript.Console.Log("precompilation with capture working")
+            //)
             .TBody([MainTemplate.Main.Row().Doc(); MainTemplate.Main.Row().Doc()])
             .With("DynamicText", """[OK] Inserted using .With("name", "text")""")
             .With("DynamicDoc", text """[OK] Inserted using .With("name", doc)""")

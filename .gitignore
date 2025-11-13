@@ -15,3 +15,4 @@ paket-files/
 .ionide/
 *~
 websharper.log
+node_modules/

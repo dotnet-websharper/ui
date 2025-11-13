@@ -32,7 +32,7 @@ open WebSharper.AspNetCore
 type Startup() =
 
     member this.ConfigureServices(services: IServiceCollection) =
-        services.AddSitelet(WebSharper.UI.ServerSide.Tests.Main)
+        services.AddWebSharper()
         |> ignore
 
     member this.Configure(app: IApplicationBuilder, env: IWebHostEnvironment) =
@@ -40,7 +40,10 @@ type Startup() =
 
         app.UseDefaultFiles()
             .UseStaticFiles()
-            .UseWebSharper()
+            .UseWebSharper(fun ws -> 
+                ws.Sitelet(WebSharper.UI.ServerSide.Tests.Main) 
+                |> ignore
+            )
             .Run(fun context ->
                 context.Response.StatusCode <- 404
                 context.Response.WriteAsync("Page not found"))
