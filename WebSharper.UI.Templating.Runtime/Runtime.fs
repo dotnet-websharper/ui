@@ -291,7 +291,7 @@ type Handler private () =
                     //| ValTy.Bool ->
                     //    let r = Var.Create false
                     //    TemplateHole.VarBool (name, r), box r
-                    | _ -> failwith "Invalid value type"
+                    | _ -> failwith $"Template Var hole must be filled: {name}"
                 Some h
             )
         let holes =
