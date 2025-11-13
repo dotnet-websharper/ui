@@ -184,6 +184,14 @@ and TemplateInstance(c: CompletedHoles, doc: Doc) =
 
     member internal this.SetAnchorRoot(el : DomElement): unit = failwith "Cannot access template SetAnchorRoot from the server side"
 
+type TemplateInitializerFeature() =
+    interface IBundleExports with
+        member this.Exports _ = 
+            let t = typeof<TemplateInitializer>
+            let typ = Core.AST.Reflection.ReadTypeDefinition t
+            let create = Core.AST.Reflection.ReadMethod (t.GetMethod("Create"))
+            [| typ, create |]
+
 type TemplateEvent<'TV, 'TA, 'E when 'E :> DomEvent> =
     {
         /// The reactive variables of this template instance.
@@ -204,9 +212,11 @@ type Handler private () =
     static member EventClient (holeName: string, [<JavaScript>] f : DomElement -> DomEvent -> unit) : TemplateHole =
         failwithf "%s overload is intended for client-side use only. Please use %sFromServer instead" holeName holeName
 
+    [<RequireFeature(typeof<TemplateInitializerFeature>)>]
     static member EventQ (holeName: string, [<JavaScript>] f: Expr<DomElement -> DomEvent -> unit>) =
         TemplateHole.EventQ(holeName, f) :> TemplateHole
 
+    [<RequireFeature(typeof<TemplateInitializerFeature>)>]
     static member EventQ2<'E when 'E :> DomEvent> (key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, obj, 'E> -> unit>) =
         Handler.EventQ(holeName, <@ fun el ev ->
             let i = TemplateInitializer.GetInstance key
@@ -220,9 +230,11 @@ type Handler private () =
                 }
         @>)
 
+    [<RequireFeature(typeof<TemplateInitializerFeature>)>]
     static member AfterRenderQ (holeName: string, [<JavaScript>] f: Expr<DomElement -> unit>) =
         TemplateHole.AfterRenderQ(holeName, f) :> TemplateHole
 
+    [<RequireFeature(typeof<TemplateInitializerFeature>)>]
     static member AfterRenderQ2(key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, obj, DomEvent> -> unit>) =
         Handler.AfterRenderQ(holeName, <@ fun el ->
             let i = TemplateInitializer.GetInstance key
