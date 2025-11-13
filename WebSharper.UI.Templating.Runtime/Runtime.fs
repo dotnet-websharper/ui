@@ -59,10 +59,10 @@ type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
     static let initialized = Dictionary<string, Dictionary<string, TemplateHole>>()
     static let instances = Dictionary<string, TemplateInstance>()
 
-    static let applyTypedVarHole (bind: BindVar.Apply<'a>) (v: Var<'a>) el =
-        let init, set, view = bind v
-        init el
-        View.Sink (set el) view
+    //static let applyTypedVarHole (bind: BindVar.Apply<'a>) (v: Var<'a>) el =
+    //    let init, set, view = bind v
+    //    init el
+    //    View.Sink (set el) view
 
     static let applyVarHole (el: JavaScript.Dom.Element) (tpl: TemplateHole) =
         tpl.ApplyVarHole el

@@ -63,11 +63,11 @@ type private TemplateInstanceProxy(c: Server.CompletedHoles, doc: Doc) =
         findUnder anchorRoot
 
 [<Inline>]
-let AfterRenderQ(name: string, [<JavaScript>] f: Expr<Dom.Element -> unit>) =
+let AfterRenderQ(name: string, f: Expr<Dom.Element -> unit>) =
     TemplateHole.AfterRenderQ(name, f) :> TemplateHole
 
 [<Inline>]
-let AfterRenderQ2(name: string, [<JavaScript>] f: Expr<unit -> unit>) =
+let AfterRenderQ2(name: string, f: Expr<unit -> unit>) =
     AfterRenderQ(name, <@ fun el -> (WebSharper.JavaScript.Pervasives.As f)() @>)
 
 [<Inline>]
@@ -223,18 +223,18 @@ type private RuntimeProxy =
 type private HandlerProxy =
 
     [<Inline>]
-    static member AfterRenderClient (holeName: string, [<JavaScript>] f : Dom.Element -> unit) : TemplateHole =
+    static member AfterRenderClient (holeName: string, f : Dom.Element -> unit) : TemplateHole =
         TemplateHole.AfterRender (holeName, f) :> TemplateHole
 
     [<Inline>]
-    static member EventClient (holeName: string, [<JavaScript>] f : Dom.Element -> Dom.Event -> unit) : TemplateHole =
+    static member EventClient (holeName: string, f : Dom.Element -> Dom.Event -> unit) : TemplateHole =
         TemplateHole.Event (holeName, f) :> TemplateHole
 
     [<Inline>]
     static member EventQ (holeName: string, f: Expr<Dom.Element -> Dom.Event -> unit>) =
         TemplateHole.EventQ(holeName, f) :> TemplateHole
 
-    static member EventQ2<'E when 'E :> DomEvent> (key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, obj, 'E> -> unit>) =
+    static member EventQ2<'E when 'E :> DomEvent> (key: string, holeName: string, ti: (unit -> TemplateInstance), f: Expr<TemplateEvent<obj, obj, 'E> -> unit>) =
         TemplateHole.EventQ(holeName, <@ fun el ev ->
             let i = ti() 
             i.SetAnchorRoot(el)
@@ -250,7 +250,7 @@ type private HandlerProxy =
     static member AfterRenderQ (holeName: string, f: Expr<Dom.Element -> unit>) =
         TemplateHole.AfterRenderQ(holeName, f) :> TemplateHole
 
-    static member AfterRenderQ2(key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, obj, Dom.Event> -> unit>) =
+    static member AfterRenderQ2(key: string, holeName: string, ti: (unit -> TemplateInstance), f: Expr<TemplateEvent<obj, obj, Dom.Event> -> unit>) =
         TemplateHole.AfterRenderQ(holeName, <@ fun el ->
             let i = ti() 
             i.SetAnchorRoot(el)
