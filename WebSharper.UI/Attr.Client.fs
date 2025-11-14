@@ -242,15 +242,16 @@ module Attrs =
     let internal Dynamic view set =
         A1 (DynamicAttrNode (view, set))
 
+    [<Inline>]
     let internal Static attr =
         A3 attr
-
 
 type AttrProxy with
 
     static member Create name value =
         As<Attr> (Attrs.Static (fun el -> DU.SetAttr el name value))
 
+    [<Inline>]
     static member Append (a: Attr) (b: Attr) =
         As<Attr> (Attrs.AppendTree (As a) (As b))
 
@@ -262,12 +263,14 @@ type AttrProxy with
         Array.ofSeqNonCopying xs
         |> Array.TreeReduce Attr.Empty Attr.Append
 
+    [<Inline>]
     static member OnAfterRenderImpl(q: Expr<Dom.Element -> unit>) =
         As<Attr> (A4 (As q))
 
     static member HandlerImpl(event: string, q: Expr<Dom.Element -> #Dom.Event-> unit>) =
         As<Attr> (Attrs.Static (fun el -> el.AddEventListener(event, (As<Dom.Element -> Dom.Event -> unit> q) el, false)))
 
+    [<Inline>]
     static member Handler (event: string) (q: Expr<Dom.Element -> #Dom.Event-> unit>) =
         AttrProxy.HandlerImpl(event, q)
 

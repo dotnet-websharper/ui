@@ -224,10 +224,10 @@ type private HandlerProxy =
 
     [<Inline>]
     static member EventQ (holeName: string, f: Expr<Dom.Element -> Dom.Event -> unit>) =
-        TemplateHole.EventQ(holeName, f) :> TemplateHole
+        TemplateHole.EventQ(holeName, "", f) :> TemplateHole
 
     static member EventQ2<'E when 'E :> DomEvent> (key: string, holeName: string, ti: (unit -> TemplateInstance), f: Expr<TemplateEvent<obj, obj, 'E> -> unit>) =
-        TemplateHole.EventQ(holeName, As (fun el ev ->
+        TemplateHole.EventQ(holeName, "", As (fun el ev ->
             let i = ti() 
             i.SetAnchorRoot(el)
             (As<TemplateEvent<obj, obj, 'E> -> unit> f) 
@@ -241,14 +241,14 @@ type private HandlerProxy =
 
     [<Inline>]
     static member AfterRenderQ (holeName: string, f: Expr<Dom.Element -> unit>) =
-        TemplateHole.AfterRenderQ(holeName, f) :> TemplateHole
+        TemplateHole.AfterRenderQ(holeName, "", f) :> TemplateHole
 
     [<Inline>]
-    static member AfterRenderQU (holeName: string, [<JavaScript>] f: Expr<unit -> unit>) =
-        TemplateHole.AfterRenderQ(holeName, As f) :> TemplateHole
+    static member AfterRenderQU (holeName: string, f: Expr<unit -> unit>) =
+        TemplateHole.AfterRenderQ(holeName, "", As f) :> TemplateHole
 
     static member AfterRenderQ2(key: string, holeName: string, ti: (unit -> TemplateInstance), f: Expr<TemplateEvent<obj, obj, Dom.Event> -> unit>) =
-        TemplateHole.AfterRenderQ(holeName, As (fun el ->
+        TemplateHole.AfterRenderQ(holeName, "", As (fun el ->
             let i = ti() 
             i.SetAnchorRoot(el)
             (As<TemplateEvent<obj, obj, Dom.Event> -> unit> f) 
@@ -260,7 +260,6 @@ type private HandlerProxy =
                 }
         )) :> TemplateHole
 
-    [<JavaScript>]
     static member CompleteHoles(key: string, filledHoles: seq<TemplateHole>, vars: array<string * Server.ValTy * obj option>) : seq<TemplateHole> * Server.CompletedHoles =
         let allVars = Dictionary<string, TemplateHole>()
         let filledVars = HashSet()
@@ -295,23 +294,20 @@ type private HandlerProxy =
                 Some r
             )
         Seq.append filledHoles extraHoles, Server.CompletedHoles.Client(allVars)
-        
+
 [<JavaScript>]
 type ClientTemplateInstanceHandlers =
 
-    [<JavaScriptExport>]
     static member EventClient (el: Dom.Element, f: Action<obj, obj>) =
         ()
         fun ev ->
             f.Invoke(el, ev)
 
-    [<JavaScriptExport>]
     static member EventClientRev (el: Dom.Element, f: Action<obj, obj>) =
         ()
         fun ev ->
             f.Invoke(ev, el)
 
-    [<JavaScriptExport>]
     static member EventQ2Client (key: string, el: Dom.Element, f: obj -> unit) =
         ()
         fun ev ->
@@ -325,7 +321,6 @@ type ClientTemplateInstanceHandlers =
                     Event = ev
                 } : TemplateEvent<_, _, _>)
 
-    [<JavaScriptExport>]
     static member AfterRenderQ2Client (key: string, el: Dom.Element, f: obj -> unit) =
         let i = Server.TemplateInitializer.GetInstance key
         i.SetAnchorRoot(el)
@@ -336,3 +331,4 @@ type ClientTemplateInstanceHandlers =
                 Target = el
                 Event = null
             } : TemplateEvent<_, _, _>)
+        

@@ -56,15 +56,19 @@ type Attr =
 
     /// Sets an event handler, for a given event such as `click`.
     /// When called on the server side, the handler must be a top-level function or a static member.
-    static member Handler : event: string -> callback: (Expr<Dom.Element -> #Dom.Event -> unit>) -> Attr
+    static member Handler : event: string -> callback: Expr<Dom.Element -> #Dom.Event -> unit> -> Attr
 
     /// Sets an event handler, for a given event such as `click`.
     /// When called on the server side, the handler must be a top-level function or a static member.
-    static member HandlerLinq : event: string -> callback: (System.Linq.Expressions.Expression<System.Action<Dom.Element, #Dom.Event>>) -> Attr
+    static member HandlerLinq : event: string -> callback: System.Linq.Expressions.Expression<System.Action<Dom.Element, #Dom.Event>> -> Attr
 
-    static member HandlerLinqWithKey : event: string -> key: string -> callback: (System.Linq.Expressions.Expression<System.Action<Dom.Element, #Dom.Event>>) -> Attr
+    static member HandlerLinqWithKey : event: string -> key: string -> callback: System.Linq.Expressions.Expression<System.Action<Dom.Element, #Dom.Event>> -> Attr
 
-    static member HandlerImpl : event: string * callback: (Expr<Dom.Element -> #Dom.Event -> unit>) -> Attr
+    static member ServerHandler : key: string * event: string * callback: Expr -> Attr
+
+    static member HandlerImpl : event: string * callback: Expr<Dom.Element -> #Dom.Event -> unit> -> Attr
+
+    static member ServerOnAfterRender : key: string * callback: Expr -> Attr
 
     static member OnAfterRenderImpl : callback: Expr<Dom.Element -> unit> -> Attr
 

@@ -611,14 +611,15 @@ module TemplateHole =
 
     type EventQ =
         inherit TemplateHole
-        new: string * Expr<(Dom.Element -> Dom.Event -> unit)> -> EventQ
-        member Value: Expr<(Dom.Element -> Dom.Event -> unit)>
+        new: string * string * Expr -> EventQ
+        member Value: Expr
+        member Key: string
 
     type EventE =
         inherit TemplateHole
         new: string * string * Expression<Action<Dom.Element, Dom.Event>> -> EventE
         member Value: Expression<Action<Dom.Element, Dom.Event>>
-        member Key: unit -> string
+        member Key: string
 
     type AfterRender =
         inherit TemplateHole
@@ -627,14 +628,15 @@ module TemplateHole =
 
     type AfterRenderQ =
         inherit TemplateHole
-        new: string * Expr<(Dom.Element -> unit)> -> AfterRenderQ
-        member Value: Expr<(Dom.Element -> unit)>
+        new: string * string * Expr -> AfterRenderQ
+        member Value: Expr
+        member Key: string
 
     type AfterRenderE =
         inherit TemplateHole
         new: string * string * Expression<Action<Dom.Element>> -> AfterRenderE
         member Value: Expression<Action<Dom.Element>>
-        member Key: unit -> string
+        member Key: string
 
     type VarStr =
         inherit TemplateHole

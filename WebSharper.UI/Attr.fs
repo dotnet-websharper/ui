@@ -149,11 +149,14 @@ type Attr =
     static member Concat (xs: seq<Attr>) =
         AppendAttr (List.ofSeq xs)
 
-    static member OnAfterRenderImpl(q: Expr<Dom.Element -> unit>) =
+    static member ServerOnAfterRender(key: string, q: Expr) =
         let getReqs wsId (meta: M.Info) (json: J.Provider) =
             let applyCode code =
-                ClientApply(code, [ ClientDOMElement(wsId) ])
-                
+                if String.IsNullOrWhiteSpace key then
+                    ClientApply(code, [ ClientDOMElement(wsId) ])                
+                else
+                    let jkey = ClientJsonData (Core.Json.Value.String key)
+                    Attr.CallHelperMethod(meta, "AfterRenderQ2Client", [jkey; ClientDOMElement(wsId); code])
             match Internal.compile meta json q applyCode with
             | Some c -> c
             | _ ->
@@ -165,10 +168,19 @@ type Attr =
                 Attr.HandlerFallback(m, loc, meta, json, applyCode)
         DepAttr (ref "", null, getReqs)
 
-    static member HandlerImpl(event: string, q: Expr<Dom.Element -> #Dom.Event -> unit>) =
+    static member OnAfterRenderImpl(q: Expr<Dom.Element -> unit>) =
+        Attr.ServerOnAfterRender("", q)
+
+    static member ServerHandler(event: string, key: string, q: Expr) =
         let getReqs wsId (meta: M.Info) (json: J.Provider) =
             let applyCode code =
-                ClientAddEventListener(wsId, event, ClientApply(code, [ ClientDOMElement(wsId) ]))
+                if String.IsNullOrWhiteSpace key then
+                    ClientAddEventListener(wsId, event, ClientApply(code, [ ClientDOMElement(wsId) ]))
+                else
+                    let jkey = ClientJsonData (Core.Json.Value.String key)
+                    let tcode =
+                        Attr.CallHelperMethod(meta, "EventQ2Client", [jkey; ClientDOMElement(wsId); code])
+                    ClientAddEventListener(wsId, event, tcode)
             match Internal.compile meta json q applyCode with
             | Some v -> v
             | _ ->
@@ -179,6 +191,9 @@ type Attr =
                 let loc = WebSharper.Web.ClientSideInternals.getLocation' q
                 Attr.HandlerFallback(m, loc, meta, json, applyCode)
         DepAttr (ref "", event, getReqs)
+
+    static member HandlerImpl(event: string, q: Expr<Dom.Element -> #Dom.Event -> unit>) =
+        Attr.ServerHandler(event, "", q)
 
     static member Handler (event: string) ([<JavaScript>] q: Expr<Dom.Element -> #Dom.Event -> unit>) =
         Attr.HandlerImpl(event, q)

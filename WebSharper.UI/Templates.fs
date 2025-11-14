@@ -171,7 +171,7 @@ module internal Templates =
                 | true, th ->
                     match th with
                     | :? TemplateHole.Event as th -> Some (Attr.Handler a[0] th.Value)
-                    | :? TemplateHole.EventQ as th -> Some (A.Handler a[0] th.Value)
+                    | :? TemplateHole.EventQ as th -> Some (A.HandlerImpl (a[0], As th.Value))
                     | _ ->
                         Console.Warn("Event hole on" + a[0] + " filled with non-event data", a[1])
                         None

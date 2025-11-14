@@ -184,13 +184,40 @@ and TemplateInstance(c: CompletedHoles, doc: Doc) =
 
     member internal this.SetAnchorRoot(el : DomElement): unit = failwith "Cannot access template SetAnchorRoot from the server side"
 
+let clientTemplateInstanceHandlers =
+    AST.TypeDefinition {
+        Assembly = "WebSharper.UI.Templating.Runtime"
+        FullName = "WebSharper.UI.Templating.Runtime.Client+ClientTemplateInstanceHandlers"
+    }
+
 type TemplateInitializerFeature() =
     interface IBundleExports with
-        member this.Exports _ = 
-            let t = typeof<TemplateInitializer>
-            let typ = Core.AST.Reflection.ReadTypeDefinition t
-            let create = Core.AST.Reflection.ReadMethod (t.GetMethod("Create"))
-            [| typ, create |]
+        member this.Exports call = 
+            let ti = typeof<TemplateInitializer>
+            let tiTyp = Core.AST.Reflection.ReadTypeDefinition ti
+            let tiCreate = Core.AST.Reflection.ReadMethod (ti.GetMethod("Create"))
+            let clientSideHelper =
+                let helperMethod name =
+                    match call.Compilation.GetClassInfo clientTemplateInstanceHandlers with
+                    | Some cls ->
+                        cls.Methods.Keys |> Seq.find (fun m -> m.Value.MethodName = name)
+                    | _ ->
+                        failwith "Could not find ClientTemplateInstanceHandlers helper method"
+                match call.Initiator with
+                | Some (_, m) ->
+                    match m.Value.MethodName with
+                    | "EventQ2" ->
+                        helperMethod "EventQ2Client"    
+                    | "AfterRenderQ2" ->
+                        helperMethod "AfterRenderQ2Client"    
+                    | mn ->
+                        failwith $"Unrecognized method {mn} using TemplateInitializerFeature"
+                | _ ->
+                    failwith "Could not find initiator method using TemplateInitializerFeature"
+            [| 
+                tiTyp, tiCreate 
+                clientTemplateInstanceHandlers, clientSideHelper 
+            |]
 
 type TemplateEvent<'TV, 'TA, 'E when 'E :> DomEvent> =
     {
@@ -212,47 +239,22 @@ type Handler private () =
     static member EventClient (holeName: string, [<JavaScript>] f : DomElement -> DomEvent -> unit) : TemplateHole =
         failwithf "%s overload is intended for client-side use only. Please use %sFromServer instead" holeName holeName
 
-    [<RequireFeature(typeof<TemplateInitializerFeature>)>]
     static member EventQ (holeName: string, [<JavaScript>] f: Expr<DomElement -> DomEvent -> unit>) =
-        TemplateHole.EventQ(holeName, f) :> TemplateHole
+        TemplateHole.EventQ(holeName, "", f) :> TemplateHole
 
     [<RequireFeature(typeof<TemplateInitializerFeature>)>]
     static member EventQ2<'E when 'E :> DomEvent> (key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, obj, 'E> -> unit>) =
-        Handler.EventQ(holeName, <@ fun el ev ->
-            let i = TemplateInitializer.GetInstance key
-            i.SetAnchorRoot(el)
-            (WebSharper.JavaScript.Pervasives.As<TemplateEvent<obj, obj, 'E> -> unit> f)
-                {
-                    Vars = i
-                    Anchors = i
-                    Target = el
-                    Event = ev :?> 'E
-                }
-        @>)
+        TemplateHole.EventQ(holeName, key, f) :> TemplateHole
 
-    [<RequireFeature(typeof<TemplateInitializerFeature>)>]
     static member AfterRenderQ (holeName: string, [<JavaScript>] f: Expr<DomElement -> unit>) =
-        TemplateHole.AfterRenderQ(holeName, f) :> TemplateHole
+        TemplateHole.AfterRenderQ(holeName, "", f) :> TemplateHole
 
-    [<RequireFeature(typeof<TemplateInitializerFeature>)>]
     static member AfterRenderQU (holeName: string, [<JavaScript>] f: Expr<unit -> unit>) =
-        Handler.AfterRenderQ(holeName, <@ fun el -> 
-            (WebSharper.JavaScript.Pervasives.As<unit -> unit> f)() 
-        @>)
+        TemplateHole.AfterRenderQ(holeName, "", f) :> TemplateHole
 
     [<RequireFeature(typeof<TemplateInitializerFeature>)>]
     static member AfterRenderQ2(key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, obj, DomEvent> -> unit>) =
-        Handler.AfterRenderQ(holeName, <@ fun el ->
-            let i = TemplateInitializer.GetInstance key
-            i.SetAnchorRoot(el)
-            (WebSharper.JavaScript.Pervasives.As<TemplateEvent<obj, obj, DomEvent> -> unit> f)
-                {
-                    Vars = i
-                    Anchors = i
-                    Target = el
-                    Event = null
-                }
-        @>)
+        TemplateHole.AfterRenderQ(holeName, key, f) :> TemplateHole
 
     static member CompleteHoles(key: string, filledHoles: seq<TemplateHole>, vars: (string * ValTy * obj option)[]) : seq<TemplateHole> * CompletedHoles =
         let filledVars = HashSet()
@@ -429,12 +431,12 @@ type ProviderBuilder =
     /// Fill a hole of the template.
     [<Inline>]
     member this.With(hole: string, [<ReflectedDefinition; JavaScript>] value: Expr<DomElement -> DomEvent -> unit>) =
-        this.With(TemplateHole.EventQ(hole, value))
+        this.With(TemplateHole.EventQ(hole, "", value))
 
     /// Fill a hole of the template.
     [<Inline>]
     member this.WithAfterRender(hole: string, [<ReflectedDefinition; JavaScript>] value: Expr<DomElement -> unit>) =
-        this.With(TemplateHole.AfterRenderQ(hole, value))
+        this.With(TemplateHole.AfterRenderQ(hole, "", value))
 
     /// Fill a hole of the template.
     [<Inline>]
@@ -656,13 +658,13 @@ type Runtime private () =
             | :? TemplateHole.Attribute as th when not (obj.ReferenceEquals(th.Value, null)) ->
                 dict.Add(th.Name, th.Value :> IRequiresResources)
             | :? TemplateHole.EventQ as th ->
-                dict.Add(th.Name, Attr.HandlerImpl("", th.Value) :> IRequiresResources)
+                dict.Add(th.Name, Attr.ServerHandler("", th.Key, th.Value) :> IRequiresResources)
             | :? TemplateHole.AfterRenderQ as th ->
-                dict.Add(th.Name, Attr.OnAfterRenderImpl(th.Value) :> IRequiresResources)
+                dict.Add(th.Name, Attr.ServerOnAfterRender(th.Key, th.Value) :> IRequiresResources)
             | :? TemplateHole.EventE as th ->
-                dict.Add(th.Name, (Attr.HandlerLinqWithKey "" (th.Key()) th.Value) :> IRequiresResources)
+                dict.Add(th.Name, (Attr.HandlerLinqWithKey "" th.Key th.Value) :> IRequiresResources)
             | :? TemplateHole.AfterRenderE as th ->
-                dict.Add(th.Name, Attr.OnAfterRenderLinq (th.Key()) th.Value :> IRequiresResources)
+                dict.Add(th.Name, Attr.OnAfterRenderLinq th.Key th.Value :> IRequiresResources)
             | _ -> ()
         
         fillWith |> Seq.iter (addTemplateHole requireResources)

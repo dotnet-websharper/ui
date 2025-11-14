@@ -463,13 +463,14 @@ module TemplateHole =
         override this.ValueObj = this.Value
         override this.WithName n = Event(n, fillWith)
         
-    type EventQ(name: string, fillWith: Expr<Dom.Element -> Dom.Event -> unit>) =
+    type EventQ(name: string, key: string, fillWith: Expr) =
         inherit TemplateHole()
         
         override this.Name with get() = name
         member this.Value = fillWith
         override this.ValueObj = this.Value
-        override this.WithName n = EventQ(n, fillWith)
+        override this.WithName n = EventQ(n, key, fillWith)
+        member this.Key = key
         
     type EventE(name: string, key: string, fillWith: Expression<Action<Dom.Element, Dom.Event>>) =
         inherit TemplateHole()
@@ -478,8 +479,7 @@ module TemplateHole =
         member this.Value = fillWith
         override this.ValueObj = this.Value
         override this.WithName n = EventE(n, key, fillWith)
-
-        member this.Key () = key
+        member this.Key = key
         
     type AfterRender(name: string, fillWith: (Dom.Element -> unit)) =
         inherit TemplateHole()
@@ -489,13 +489,14 @@ module TemplateHole =
         override this.ValueObj = this.Value
         override this.WithName n = AfterRender(n, fillWith)
         
-    type AfterRenderQ(name: string, fillWith: Expr<Dom.Element -> unit>) =
+    type AfterRenderQ(name: string, key: string, fillWith: Expr) =
         inherit TemplateHole()
         
         override this.Name with get() = name
         member this.Value = fillWith
         override this.ValueObj = this.Value
-        override this.WithName n = AfterRenderQ(n, fillWith)
+        override this.WithName n = AfterRenderQ(n, key, fillWith)
+        member this.Key = key
         
     type AfterRenderE(name: string, key: string, fillWith: Expression<Action<Dom.Element>>) =
         inherit TemplateHole()
@@ -504,8 +505,7 @@ module TemplateHole =
         member this.Value = fillWith
         override this.ValueObj = this.Value
         override this.WithName n = AfterRenderE(n, key, fillWith)
-
-        member this.Key () = key
+        member this.Key = key
         
     type VarStr(name: string, fillWith: Var<string>) =
         inherit TemplateHole()
