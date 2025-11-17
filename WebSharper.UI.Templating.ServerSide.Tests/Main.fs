@@ -85,6 +85,7 @@ let Main = Application.SinglePage(fun ctx ->
     Content.Page(
         MainTemplate.Main()
             .ServerInitVar("Initialized as a string on the server")
+            .ServerInitVarInt(40)
             .Main(
                 [
                 MainTemplate.template()
@@ -172,6 +173,10 @@ let Main = Application.SinglePage(fun ctx ->
                 ])
             .ServerVarForms([mkServerVarForm("var-1"); mkServerVarForm("var-2")])
             .AfterRender_WithModel(fun e ->
+                JavaScript.Console.Log("AfterRender_WithModel running, vars and anchors:", e.Vars, e.Anchors)
+                Var.Update e.Vars.ServerInitVar (fun v -> v + " (modified on AfterRender)")
+                Var.Update e.Vars.ServerInitVarInt (fun v -> v + 2.)
+                Var.Set e.Vars.ServerUninitVarInt 42
                 Var.Set e.Vars.ServerVarOnMainTemplate "This should be initialized"
                 e.Anchors.ServerAnchorOnMainTemplate.TextContent <- "Server anchor ok"
                 let msgDiv = JavaScript.JS.Document.CreateElement("div")

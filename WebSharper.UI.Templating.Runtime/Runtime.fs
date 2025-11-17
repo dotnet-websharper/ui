@@ -280,20 +280,11 @@ type Handler private () =
                 | _ -> hasEventHandler
             )
 
-        let strHole s = TemplateHole.UninitVar(s, key + "::" + s) :> TemplateHole
         let extraHoles =
             vars |> Array.choose (fun (name, ty, _) ->
                 if filledVars.Contains name then None else
                 let h =
-                    match ty with
-                    | ValTy.String -> strHole name
-                    //| ValTy.Number ->
-                    //    let r = Var.Create 0.
-                    //    TemplateHole.VarFloatUnchecked (name, r), box r
-                    //| ValTy.Bool ->
-                    //    let r = Var.Create false
-                    //    TemplateHole.VarBool (name, r), box r
-                    | _ -> failwith $"Template Var hole must be filled: {name}"
+                    TemplateHole.UninitVar(name, key + "::" + name) :> TemplateHole
                 Some h
             )
         let holes =
@@ -319,7 +310,11 @@ type Handler private () =
                             match th with
                             | :? TemplateHole.VarStr as v ->
                                 (n, t, Option.Some (box v.Value.Value))
+                            | :? TemplateHole.VarIntUnchecked as v ->
+                                (n, t, Option.Some (box v.Value.Value))
                             | :? TemplateHole.VarInt as v ->
+                                (n, t, Option.Some (box v.Value.Value))
+                            | :? TemplateHole.VarFloatUnchecked as v ->
                                 (n, t, Option.Some (box v.Value.Value))
                             | :? TemplateHole.VarFloat as v ->
                                 (n, t, Option.Some (box v.Value.Value))
@@ -332,9 +327,9 @@ type Handler private () =
                             | :? TemplateHole.VarFile as v ->
                                 (n, t, Option.Some (box v.Value.Value))
                             | _ ->
-                                failwith "Invalid hole type"
+                                failwith $"Invalid server-side var initialization type {th.GetType().Name} on hole {n}"
                         | _ ->
-                            failwith "Invalid hole type"
+                            failwith $"Server-side hole {n} must be filled"
                 else
                     (n, t, ov)
             )
@@ -798,10 +793,14 @@ type Runtime private () =
                             | :? TemplateHole.UninitVar as th ->
                                 Some th.Value, attrs
                             | :? TemplateHole.VarStr
+                            | :? TemplateHole.VarIntUnchecked
+                            | :? TemplateHole.VarInt
+                            | :? TemplateHole.VarFloatUnchecked
+                            | :? TemplateHole.VarFloat
+                            | :? TemplateHole.VarStr
                             | :? TemplateHole.VarBool
                             | :? TemplateHole.VarDateTime
-                            | :? TemplateHole.VarFile
-                            | :? TemplateHole.VarFloat ->
+                            | :? TemplateHole.VarFile ->
                                 Some (if String.IsNullOrEmpty id then th.Name else id + "::" + th.Name), attrs
                             | _ ->
                                 Some holeName, attrs

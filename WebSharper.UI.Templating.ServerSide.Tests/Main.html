@@ -46,7 +46,22 @@
         <button id="${InputId}-btn" ws-onclick="ServerClick">Click me!</button>
         <hr />
     </div>
-    <input ws-var="ServerInitVar" />
+    <div>
+        Server initialization for string:
+        <input ws-var="ServerInitVar" />
+    </div>
+    <div>
+        Server initialization for int:
+        <input ws-var="ServerInitVarInt" type="number" />
+    </div>
+    <div>
+        Server uninitialized int:
+        <input ws-var="ServerUninitVarInt" type="number" />
+    </div>
+    <div>
+        Server uninitialized file:
+        <input ws-var="FileVar" type="file" />
+    </div>
     <div ws-replace="Client"></div>
     <div style="display:none">
         <div data-template="OldTemplate">
@@ -99,7 +114,6 @@
         <ws-templates.Field6 />
     </div>
     <input ws-var="ServerVarOnMainTemplate" type="text" />
-    <!--<input ws-var="FileVar" type="file" />-->
     <div ws-anchor="ServerAnchorOnMainTemplate">Server anchor, it's not ok to see this, text should be replaced</div>
     <div ws-preserve="">
         <!-- Testing comment -->
