@@ -101,7 +101,7 @@ type TemplateInitializer(id: string, vars: (string * ValTy * obj option)[]) =
                     | ValTy.Number -> TemplateHole.VarFloatUnchecked (n, Var.Create (ov |> Option.map (fun x -> x :?> float) |> Option.defaultValue 0.)) :> _
                     | ValTy.String -> TemplateHole.VarStr (n, Var.Create (ov |> Option.map (fun x -> x :?> string) |> Option.defaultValue "")) :> _
                     | ValTy.DomElement -> TemplateHole.VarDomElement (n, Var.Create (ov |> Option.map (fun x -> x :?> JavaScript.Dom.Element) |> Option.defaultValue (JavaScript.JS.Document.QuerySelector("[ws-dom=" + n + "]")) |> Some)) :> _
-                    | _ -> failwith "Invalid value type"
+                    | _ -> failwith $"Invalid kind for template Var type: {t}"
         let i = TemplateInstance(CompletedHoles.Client(d), Doc.Empty)
         instances[key] <- i
         i
@@ -205,7 +205,7 @@ type TemplateInitializerFeature() =
                 | Some clsInfo ->
                     clsInfo.Methods.Keys |> Seq.find (fun m -> m.Value.MethodName = name)
                 | _ ->
-                    failwith "Could not find ClientTemplateInstanceHandlers helper method"
+                    failwith $"Could not find {cls.Value.FullName} for bundling"
             let tiCreate = getMethod templateInitializer "Create"
             match call.Initiator with
             | Some (_, m) when m.Value.MethodName = "EventQ2" ->

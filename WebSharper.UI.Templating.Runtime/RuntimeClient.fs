@@ -289,7 +289,7 @@ type private HandlerProxy =
                             let el = JavaScript.JS.Document.QuerySelector("[ws-dom=" + name + "]")
                             // el.RemoveAttribute("ws-dom")
                             TemplateHole.VarDomElement (name, Var.Create <| Some el))
-                    | _ -> failwith "Invalid value type"
+                    | _ -> failwith $"Invalid kind for template Var type: {ty}"
                 allVars[name] <- r
                 Some r
             )
