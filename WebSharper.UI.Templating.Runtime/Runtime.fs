@@ -184,40 +184,44 @@ and TemplateInstance(c: CompletedHoles, doc: Doc) =
 
     member internal this.SetAnchorRoot(el : DomElement): unit = failwith "Cannot access template SetAnchorRoot from the server side"
 
-let clientTemplateInstanceHandlers =
-    AST.TypeDefinition {
-        Assembly = "WebSharper.UI.Templating.Runtime"
-        FullName = "WebSharper.UI.Templating.Runtime.Client+ClientTemplateInstanceHandlers"
-    }
-
 type TemplateInitializerFeature() =
+
+    static let templateInitializer =
+        AST.TypeDefinition {
+            Assembly = "WebSharper.UI.Templating.Runtime"
+            FullName = "WebSharper.UI.Templating.Runtime.Server+TemplateInitializer"
+        }
+
+    static let clientTemplateInstanceHandlers =
+        AST.TypeDefinition {
+            Assembly = "WebSharper.UI.Templating.Runtime"
+            FullName = "WebSharper.UI.Templating.Runtime.Client+ClientTemplateInstanceHandlers"
+        }
+
     interface IBundleExports with
         member this.Exports call = 
-            let ti = typeof<TemplateInitializer>
-            let tiTyp = Core.AST.Reflection.ReadTypeDefinition ti
-            let tiCreate = Core.AST.Reflection.ReadMethod (ti.GetMethod("Create"))
-            let clientSideHelper =
-                let helperMethod name =
-                    match call.Compilation.GetClassInfo clientTemplateInstanceHandlers with
-                    | Some cls ->
-                        cls.Methods.Keys |> Seq.find (fun m -> m.Value.MethodName = name)
-                    | _ ->
-                        failwith "Could not find ClientTemplateInstanceHandlers helper method"
-                match call.Initiator with
-                | Some (_, m) ->
-                    match m.Value.MethodName with
-                    | "EventQ2" ->
-                        helperMethod "EventQ2Client"    
-                    | "AfterRenderQ2" ->
-                        helperMethod "AfterRenderQ2Client"    
-                    | mn ->
-                        failwith $"Unrecognized method {mn} using TemplateInitializerFeature"
+            let getMethod cls name =
+                match call.Compilation.GetClassInfo cls with
+                | Some clsInfo ->
+                    clsInfo.Methods.Keys |> Seq.find (fun m -> m.Value.MethodName = name)
                 | _ ->
-                    failwith "Could not find initiator method using TemplateInitializerFeature"
-            [| 
-                tiTyp, tiCreate 
-                clientTemplateInstanceHandlers, clientSideHelper 
-            |]
+                    failwith "Could not find ClientTemplateInstanceHandlers helper method"
+            let tiCreate = getMethod templateInitializer "Create"
+            match call.Initiator with
+            | Some (_, m) when m.Value.MethodName = "EventQ2" ->
+                [| 
+                    templateInitializer, tiCreate 
+                    clientTemplateInstanceHandlers, getMethod clientTemplateInstanceHandlers "EventQ2Client" 
+                |]
+            | Some (_, m) when m.Value.MethodName = "AfterRenderQ2" ->
+                [| 
+                    templateInitializer, tiCreate 
+                    clientTemplateInstanceHandlers, getMethod clientTemplateInstanceHandlers "AfterRenderQ2Client" 
+                |]
+            | _ ->
+                [| 
+                    templateInitializer, tiCreate 
+                |]
 
 type TemplateEvent<'TV, 'TA, 'E when 'E :> DomEvent> =
     {
@@ -239,6 +243,7 @@ type Handler private () =
     static member EventClient (holeName: string, [<JavaScript>] f : DomElement -> DomEvent -> unit) : TemplateHole =
         failwithf "%s overload is intended for client-side use only. Please use %sFromServer instead" holeName holeName
 
+    [<RequireFeature(typeof<TemplateInitializerFeature>)>]
     static member EventQ (holeName: string, [<JavaScript>] f: Expr<DomElement -> DomEvent -> unit>) =
         TemplateHole.EventQ(holeName, "", f) :> TemplateHole
 
@@ -246,9 +251,11 @@ type Handler private () =
     static member EventQ2<'E when 'E :> DomEvent> (key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, obj, 'E> -> unit>) =
         TemplateHole.EventQ(holeName, key, f) :> TemplateHole
 
+    [<RequireFeature(typeof<TemplateInitializerFeature>)>]
     static member AfterRenderQ (holeName: string, [<JavaScript>] f: Expr<DomElement -> unit>) =
         TemplateHole.AfterRenderQ(holeName, "", f) :> TemplateHole
 
+    [<RequireFeature(typeof<TemplateInitializerFeature>)>]
     static member AfterRenderQU (holeName: string, [<JavaScript>] f: Expr<unit -> unit>) =
         TemplateHole.AfterRenderQ(holeName, "", f) :> TemplateHole
 
@@ -425,11 +432,13 @@ type ProviderBuilder =
 
     /// Fill a hole of the template.
     [<Inline>]
+    [<RequireFeature(typeof<TemplateInitializerFeature>)>]
     member this.With(hole: string, [<ReflectedDefinition; JavaScript>] value: Expr<DomElement -> DomEvent -> unit>) =
         this.With(TemplateHole.EventQ(hole, "", value))
 
     /// Fill a hole of the template.
     [<Inline>]
+    [<RequireFeature(typeof<TemplateInitializerFeature>)>]
     member this.WithAfterRender(hole: string, [<ReflectedDefinition; JavaScript>] value: Expr<DomElement -> unit>) =
         this.With(TemplateHole.AfterRenderQ(hole, "", value))
 
