@@ -69,6 +69,8 @@ type Ctx =
         ServerLoad : ServerLoad
     }
 
+let serverSideAttrs = "[JavaScript(false), RequireFeature(typeof(TemplateInitializerFeature))]"
+
 let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefinition) =
     let holeName' = formatString (holeName.ToLowerInvariant())
     let s arg holeType value =
@@ -85,33 +87,33 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
             typeName holeName arg holeType holeName' value  
     let serverS arg holeType value =
         [
-            sprintf "[JavaScript(false)]"
+            serverSideAttrs
             sprintf "public %s %s_Server(%s y) { holes.Add(TemplateHole.New%s(%s, %s)); return this; }"
                 typeName holeName arg holeType holeName' value
         ]
     let serverSE arg holeType value =
         [
-            sprintf "[JavaScript(false)]"
+            serverSideAttrs
             sprintf "public %s %s_Server(%s y) { holes.Add(new TemplateHoleModule.%s(%s, \"\", %s)); return this; }"
                 typeName holeName arg holeType holeName' value
         ]
 
     let serverSTE arg holeType value =
         [
-            sprintf "[JavaScript(false)]"
+            serverSideAttrs
             sprintf "public %s %s_Server(%s y) { holes.Add(new TemplateHoleModule.%s(%s, key, %s)); return this; }"
                 typeName holeName arg holeType holeName' value
         ]
     let serverSEH arg holeType value =
         [
-            sprintf "[JavaScript(false)]"
+            serverSideAttrs
             sprintf "public %s %s_Server(%s y) { holes.Add(TemplateHole.New%s(%s, \"\", %s)); return this; }"
                 typeName holeName arg holeType holeName' value
         ]
 
     let serverSTEH arg holeType value =
         [
-            sprintf "[JavaScript(false)]"
+            serverSideAttrs
             sprintf "public %s %s_Server(%s y) { holes.Add(TemplateHole.New%s(%s, key, %s)); return this; }"
                 typeName holeName arg holeType holeName' value
         ]
@@ -140,11 +142,11 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
                 s2 ("Action<"+argType+">") "AfterRenderClient"
                     ("FSharpConvert.Fun<DomElement>((a) => x(new "+argType+"(instance.Vars, instance.Anchors, a, null)))")
                 yield!
-                    serverSE ("Expression<Action<DomElement>>") "AfterRenderE" "y"
+                    serverSE ("[JavaScript] Expression<Action<DomElement>>") "AfterRenderE" "y"
                 yield!
-                    serverS ("Expression<Action>") "AfterRenderExprAction" "y"
+                    serverS ("[JavaScript] Expression<Action>") "AfterRenderExprAction" "y"
                 yield!
-                    serverSTE ("Expression<Action<" + argType + ">>") "AfterRenderE" "Expression.Lambda<Action<DomElement>>(y.Body, Expression.Parameter(typeof(DomElement)))"
+                    serverSTE ("[JavaScript] Expression<Action<" + argType + ">>") "AfterRenderE" "Expression.Lambda<Action<DomElement>>(y.Body, Expression.Parameter(typeof(DomElement)))"
             |]
         | HoleKind.Event eventType ->
             let eventType = "WebSharper.JavaScript.Dom." + eventType
@@ -156,11 +158,11 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
                     ("FSharpConvert.Fun<DomElement, DomEvent>((a,b) => x(new "+argType+"(instance.Vars, instance.Anchors, a, ("+eventType+")b)))")
                 // serverSide
                 yield! 
-                    serverSEH ("Expression<Action<DomElement, "+eventType+">>") "EventExpr" "y"
+                    serverSEH ("[JavaScript] Expression<Action<DomElement, "+eventType+">>") "EventExpr" "y"
                 yield!
-                    serverS ("Expression<Action>") "EventExprAction" "y"
+                    serverS ("[JavaScript] Expression<Action>") "EventExprAction" "y"
                 yield!
-                    serverSTEH ("Expression<Action<" + argType + ">>") "EventExpr" ("Expression.Lambda<Action<DomElement, "+eventType+">>(y.Body, Expression.Parameter(typeof(DomElement)), Expression.Parameter(typeof("+eventType+")))")
+                    serverSTEH ("[JavaScript] Expression<Action<" + argType + ">>") "EventExpr" ("Expression.Lambda<Action<DomElement, "+eventType+">>(y.Body, Expression.Parameter(typeof(DomElement)), Expression.Parameter(typeof("+eventType+")))")
             |]
         | HoleKind.Simple ->
             [|
