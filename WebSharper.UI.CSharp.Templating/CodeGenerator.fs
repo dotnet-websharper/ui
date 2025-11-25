@@ -70,6 +70,7 @@ type Ctx =
     }
 
 let serverSideAttrs = "[JavaScript(false), RequireFeature(typeof(TemplateInitializerFeature))]"
+let serverSideAttrsWithHelper helper = $"[JavaScript(false), RequireFeature(typeof(TemplateInitializerFeature), \"{helper}\")]"
 
 let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefinition) =
     let holeName' = formatString (holeName.ToLowerInvariant())
@@ -100,20 +101,20 @@ let buildHoleMethods (typeName: string) (holeName: HoleName) (holeDef: HoleDefin
 
     let serverSTE arg holeType value =
         [
-            serverSideAttrs
+            serverSideAttrsWithHelper "AfterRenderQ2Client"
             sprintf "public %s %s_Server(%s y) { holes.Add(new TemplateHoleModule.%s(%s, key, %s)); return this; }"
                 typeName holeName arg holeType holeName' value
         ]
     let serverSEH arg holeType value =
         [
-            serverSideAttrs
+            serverSideAttrsWithHelper "EventClient"
             sprintf "public %s %s_Server(%s y) { holes.Add(TemplateHole.New%s(%s, \"\", %s)); return this; }"
                 typeName holeName arg holeType holeName' value
         ]
 
     let serverSTEH arg holeType value =
         [
-            serverSideAttrs
+            serverSideAttrsWithHelper "EventQ2Client"
             sprintf "public %s %s_Server(%s y) { holes.Add(TemplateHole.New%s(%s, key, %s)); return this; }"
                 typeName holeName arg holeType holeName' value
         ]

@@ -207,16 +207,11 @@ type TemplateInitializerFeature() =
                 | _ ->
                     failwith $"Could not find {cls.Value.FullName} for bundling"
             let tiCreate = getMethod templateInitializer "Create"
-            match call.Initiator with
-            | Some (_, m) when m.Value.MethodName = "EventQ2" ->
+            match call.Parameter with
+            | Some (:? string as clientHelper) ->
                 [| 
                     templateInitializer, tiCreate 
-                    clientTemplateInstanceHandlers, getMethod clientTemplateInstanceHandlers "EventQ2Client" 
-                |]
-            | Some (_, m) when m.Value.MethodName = "AfterRenderQ2" ->
-                [| 
-                    templateInitializer, tiCreate 
-                    clientTemplateInstanceHandlers, getMethod clientTemplateInstanceHandlers "AfterRenderQ2Client" 
+                    clientTemplateInstanceHandlers, getMethod clientTemplateInstanceHandlers clientHelper
                 |]
             | _ ->
                 [| 
@@ -247,7 +242,7 @@ type Handler private () =
     static member EventQ (holeName: string, [<JavaScript>] f: Expr<DomElement -> DomEvent -> unit>) =
         TemplateHole.EventQ(holeName, "", f) :> TemplateHole
 
-    [<RequireFeature(typeof<TemplateInitializerFeature>)>]
+    [<RequireFeature(typeof<TemplateInitializerFeature>, "EventQ2Client")>]
     static member EventQ2<'E when 'E :> DomEvent> (key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, obj, 'E> -> unit>) =
         TemplateHole.EventQ(holeName, key, f) :> TemplateHole
 
@@ -259,7 +254,7 @@ type Handler private () =
     static member AfterRenderQU (holeName: string, [<JavaScript>] f: Expr<unit -> unit>) =
         TemplateHole.AfterRenderQ(holeName, "", f) :> TemplateHole
 
-    [<RequireFeature(typeof<TemplateInitializerFeature>)>]
+    [<RequireFeature(typeof<TemplateInitializerFeature>, "AfterRenderQ2Client")>]
     static member AfterRenderQ2(key: string, holeName: string, ti: (unit -> TemplateInstance), [<JavaScript>] f: Expr<TemplateEvent<obj, obj, DomEvent> -> unit>) =
         TemplateHole.AfterRenderQ(holeName, key, f) :> TemplateHole
 
