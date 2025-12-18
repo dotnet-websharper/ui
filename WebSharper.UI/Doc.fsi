@@ -122,6 +122,9 @@ and [<Class>] Elt =
     override Write : Web.Context * HtmlTextWriter * res: option<Sitelets.Content.RenderedResources> -> unit
     override SpecialHoles : SpecialHole
     override Requires : Core.Metadata.Info * Core.Json.Provider * IUniqueIdSource -> seq<ClientCode>
+    
+    /// Always returns false.
+    override IsEmpty : bool
 
     /// Add an event handler.
     /// When called on the server side, the handler must be a top-level function or a static member.

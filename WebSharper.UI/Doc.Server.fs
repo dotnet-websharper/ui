@@ -109,6 +109,8 @@ module Internal =
                 fun ctx w x -> doc.Write(ctx, w, x)
             )
 
+        override this.IsEmpty = false
+
     type TemplateElt =
         inherit Elt
 

@@ -181,8 +181,7 @@ and Elt
         | Some f -> f attrs ctx h res
         | None -> base.Write(ctx, h, res)
 
-    override this.IsEmpty =
-        false
+    override this.IsEmpty = false
 
     new (tag: string, attrs: list<Attr>, children: list<Doc>) =
         let write attrs (ctx: Web.Context) (w: HtmlTextWriter) (res: option<Sitelets.Content.RenderedResources>) =

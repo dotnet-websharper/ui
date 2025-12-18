@@ -85,6 +85,9 @@ module Internal =
             -> TemplateDoc
 
         new : seq<IRequiresResources> * doc: Doc -> TemplateDoc
+        
+        /// Always returns false.
+        override IsEmpty : bool
 
     [<Class>]
     type TemplateElt =
