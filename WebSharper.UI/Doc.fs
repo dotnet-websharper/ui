@@ -71,6 +71,7 @@ type Doc() =
     abstract Write : Web.Context * HtmlTextWriter * renderResources: bool -> unit
     abstract SpecialHoles : SpecialHole
     abstract Requires : Core.Metadata.Info * Core.Json.Provider * IUniqueIdSource -> seq<ClientCode>
+    abstract IsEmpty : bool
 
     default this.Write(ctx: Web.Context, w: HtmlTextWriter, renderResources: bool) =
         let resources =
@@ -109,6 +110,15 @@ and ConcreteDoc(dd: DynDoc) =
         | ElemDoc elt -> (elt :> IRequiresResources).Requires(meta, json, getId)
         | BundleDoc b -> Seq.singleton (ClientBundle b)
         | _ -> Seq.empty
+
+    override this.IsEmpty =
+        match dd with
+        | AppendDoc docs -> docs |> List.forall (fun d -> d.IsEmpty)
+        | EmptyDoc
+        | BundleDoc _ -> true
+        | TextDoc s 
+        | VerbatimDoc s -> String.IsNullOrEmpty s
+        | _ -> false
     
 and DynDoc =
     | AppendDoc of list<Doc>
@@ -170,6 +180,9 @@ and Elt
         match write' with
         | Some f -> f attrs ctx h res
         | None -> base.Write(ctx, h, res)
+
+    override this.IsEmpty =
+        false
 
     new (tag: string, attrs: list<Attr>, children: list<Doc>) =
         let write attrs (ctx: Web.Context) (w: HtmlTextWriter) (res: option<Sitelets.Content.RenderedResources>) =

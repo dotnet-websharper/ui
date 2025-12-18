@@ -96,6 +96,9 @@ type Doc =
     /// Registers a bundle to use for this page for the runtime
     static member Bundle : string -> Doc
 
+    /// Checks if the Doc is empty. Assumes a `Doc.OfINode` will render something. Server side only.
+    abstract IsEmpty : bool
+
     abstract Write : Web.Context * HtmlTextWriter * res: option<Sitelets.Content.RenderedResources> -> unit
     abstract Write : Web.Context * HtmlTextWriter * renderResources: bool -> unit
     default Write : Web.Context * HtmlTextWriter * renderResources: bool -> unit
