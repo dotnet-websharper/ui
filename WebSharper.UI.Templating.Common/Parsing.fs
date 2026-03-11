@@ -714,6 +714,12 @@ let TryGetAsSingleElement (doc: HtmlNode) =
 
 let ParseSource fileId (src: string) =
     let html = HtmlDocument()
+    // This is needed so that we can keep the original behavior
+    html.OptionCheckSyntax <- false
+    html.OptionFixNestedTags <- false
+    html.OptionAutoCloseOnEnd <- false
+    html.OptionOutputOriginalCase <- true
+    html.OptionWriteEmptyNodes <- true
     html.LoadHtml(src)
     let errors = html.ParseErrors
     if errors |> Seq.length > 0 then
