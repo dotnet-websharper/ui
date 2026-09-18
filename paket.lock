@@ -130,22 +130,22 @@ NUGET
     System.Windows.Extensions (4.7) - restriction: || (== net8.0) (&& (== netstandard2.0) (>= netcoreapp3.0))
       System.Drawing.Common (>= 4.7) - restriction: || (== net8.0) (&& (== netstandard2.0) (>= netcoreapp3.0))
   remote: https://nuget.pkg.github.com/dotnet-websharper/index.json
-    WebSharper (10.1.6.676)
+    WebSharper (10.1.6.677)
       FSharp.Core (>= 6.0)
       System.Reflection.Emit.Lightweight (>= 4.7)
-    WebSharper.AspNetCore (10.1.6.676)
+    WebSharper.AspNetCore (10.1.6.677)
       System.Text.Json (>= 10.0) - restriction: || (== net8.0) (&& (== netstandard2.0) (>= net5.0))
-      WebSharper (10.1.6.676) - restriction: || (== net8.0) (&& (== netstandard2.0) (>= net5.0))
-    WebSharper.CSharp (10.1.6.676)
-      WebSharper (10.1.6.676)
-    WebSharper.FSharp (10.1.6.676)
-      WebSharper (10.1.6.676)
-    WebSharper.Testing (10.1.6.676)
-      WebSharper (10.1.6.676)
+      WebSharper (10.1.6.677) - restriction: || (== net8.0) (&& (== netstandard2.0) (>= net5.0))
+    WebSharper.CSharp (10.1.6.677)
+      WebSharper (10.1.6.677)
+    WebSharper.FSharp (10.1.6.677)
+      WebSharper (10.1.6.677)
+    WebSharper.Testing (10.1.6.677)
+      WebSharper (10.1.6.677)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (0a95768a2247daba80b24a2604f77f89fc88ff1f)
-    src/ProvidedTypes.fsi (0a95768a2247daba80b24a2604f77f89fc88ff1f)
+    src/ProvidedTypes.fs (44b57261a0207630dd72c546af97506ba1a6b225)
+    src/ProvidedTypes.fsi (44b57261a0207630dd72c546af97506ba1a6b225)
 GROUP includes
 REFERENCES: STRICT
 GITHUB
