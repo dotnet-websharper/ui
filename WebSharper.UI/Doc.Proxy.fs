@@ -177,7 +177,11 @@ module internal Docs =
 
     /// Synchronizes an element with its children (shallow).
     let DoSyncElement (el : DocElemNode) =
-        let parent = el.El
+        let parent =
+            match el.Delimiters with
+            // A children-only template can move out of its original wrapper.
+            | Some (_, rdelim) -> As<Dom.Element> rdelim.ParentNode
+            | None -> el.El
         let rec ins doc pos =
             match doc with
             | AppendDoc (a, b) -> ins a (ins b pos)
@@ -200,9 +204,9 @@ module internal Docs =
                 ) t.Els pos
         let ch = DomNodes.DocChildren el
         // remove children that are not in the current set
-        DomNodes.Children el.El el.Delimiters
+        DomNodes.Children parent el.Delimiters
         |> DomNodes.Except ch
-        |> DomNodes.Iter (DU.RemoveNode el.El)
+        |> DomNodes.Iter (DU.RemoveNode parent)
         // insert current children
         let pos =
             match el.Delimiters with
