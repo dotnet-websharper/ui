@@ -130,6 +130,10 @@ let Main = Application.SinglePage(fun ctx ->
                         .OnClick(<@ Client.OnClick @>)
                         .OnAfterRender(fun el -> JavaScript.JS.Set el "wsuiDispatchedOar" true)
                     :> Doc
+                    (Elt.button [attr.id "elt-2"] [text "Event and after-render handlers in reverse order"])
+                        .OnAfterRender(fun el -> JavaScript.JS.Set el "wsuiDispatchedOar" true)
+                        .OnClick(<@ Client.OnClick @>)
+                    :> Doc
                     button [
                         on.click(fun _ _ -> JavaScript.JS.Alert "hey!")
                     ] [text "Click me!"]
