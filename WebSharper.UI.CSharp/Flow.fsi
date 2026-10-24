@@ -30,25 +30,32 @@ open WebSharper.UI
 type FlowExtensions =
 
     /// Mapping.
+    [<Extension>]
     static member Map : Flow<'A> * Func<'A, 'B> -> Flow<'B>
 
     /// Adds a validator function to a flow passing forward a View.
+    [<Extension>]
     static member Validate : Flow<View<'A>> * Predicate<'A> -> Flow<View<'A>>
 
     /// Adds a validator function to a flow passing forward a Var.
+    [<Extension>]
     static member Validate : Flow<Var<'A>> * Predicate<'A> -> Flow<Var<'A>>
 
     /// Creates a View from the result value of the flow, so that updates
     /// can be propagated when the user navigates back and changes inputs. 
+    [<Extension>]
     static member View : Flow<'A> -> Flow<View<'A>>
 
     /// Monadic composition: compose two flows, allowing the
     /// result of one to be used to determine future ones.
+    [<Extension>]
     static member Bind : Flow<'A> * Func<'A, Flow<'B>> -> Flow<'B>
 
     /// Embeds a flow into a document, ignoring the result.
+    [<Extension>]
     static member Embed : Flow<'A> -> Doc
 
     /// Embeds a flow into a document, ignoring the result.
     /// Also adds a cancelled page from which the flow can be restarted anew.
+    [<Extension>]
     static member EmbedWithCancel : Flow<'A> * Func<EndedFlowActions, Doc> -> Doc

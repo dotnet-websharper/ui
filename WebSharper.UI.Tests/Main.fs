@@ -563,6 +563,24 @@ module Main =
     let EltTest =
         TestCategory "Elt" {
 
+            Test "Children template updates after moving out of its wrapper" {
+                Doc.LoadLocalTemplates "local"
+                let value = Var.Create "first"
+                let host = JS.Document.CreateElement "div"
+                JS.Document.Body.AppendChild(host) |> ignore
+                let child = value.View |> Doc.BindView (fun value -> div [] [text value])
+                Doc.NamedTemplate "local" (Some "movedfragment") [TemplateHole.Elt("child", child)]
+                |> Doc.Run host
+                let getText = async {
+                    do! Async.Sleep 50
+                    return host.TextContent
+                }
+                equalMsgAsync getText "beforefirstafter" "initial fragment contents"
+                value.Value <- "second"
+                equalMsgAsync getText "beforesecondafter" "updated fragment contents and order"
+                host.ParentNode.RemoveChild(host) |> ignore
+            }
+
             Test "Class" {
                 let elt =
                     Elt.div [

@@ -5,7 +5,7 @@
 #r "nuget: Fake.DotNet.Cli"
 #r "nuget: Fake.DotNet.AssemblyInfoFile"
 #r "nuget: Fake.DotNet.Paket"
-#r "nuget: Paket.Core, 8.1.0-alpha004"
+#r "nuget: Paket.Core, 12.0.0-alpha001"
 #r "nuget: MSBuild.StructuredLogger"
 
 open Fake.Core

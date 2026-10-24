@@ -77,6 +77,13 @@ let Basic = TestCategory "Basic templates" {
 }
 
 let Elt = TestCategory "Elt post-instantiation" {
+
+    Test "event and after-render handlers work in reverse order" {
+        let elt = getElt "elt-2"
+        isTrue elt?wsuiDispatchedOar
+        trigger elt "click"
+        isTrue elt?wsuiDispatchedClick
+    }
     
     Test "event handler is bound" {
         let elt = getElt "elt-1"
