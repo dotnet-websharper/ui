@@ -631,6 +631,402 @@ module Main =
         | B
         | C
 
+    /// Renders a Doc into a new host appended to the body, so that its reactive parts are live.
+    let mount (doc: Doc) =
+        let host = JS.Document.CreateElement "div"
+        JS.Document.Body.AppendChild(host) |> ignore
+        Doc.Run host doc
+        host
+
+    let unmount (host: Dom.Element) =
+        host.ParentNode.RemoveChild(host) |> ignore
+
+    /// Reads the DOM after the batched update of the next animation frame.
+    let afterUpdate (f: unit -> 'T) =
+        async {
+            do! Async.Sleep 50
+            return f ()
+        }
+
+    let trigger (el: Dom.Element) (eventName: string) =
+        Dom.Event(eventName, New []) |> el.DispatchEvent |> ignore
+
+    [<Inline "$el.click()">]
+    let click (el: Dom.Element) = X<unit>
+
+    [<Inline "$el.matches($selector)">]
+    let matches (el: Dom.Element) (selector: string) = X<bool>
+
+    let isChecked (el: Dom.Element) : bool = el?``checked``
+
+    let selectedIndices (el: Dom.Element) =
+        let options = el.QuerySelectorAll "option"
+        [ for i in 0 .. options.Length - 1 do
+            if options.Item(i)?selected then yield i ]
+
+    let InputTest =
+        TestCategory "Input controls" {
+
+            Test "Text" {
+                let rv = Var.Create "initial"
+                let inp = Elt.InputType.Text [] rv
+                let host = mount inp
+                equalMsgAsync (afterUpdate (fun () -> inp.Value)) "initial" "initial value rendered"
+                rv.Value <- "set from var"
+                equalMsgAsync (afterUpdate (fun () -> inp.Value)) "set from var" "var change updates input"
+                inp.Value <- "typed"
+                trigger inp.Dom "input"
+                equalMsg rv.Value "typed" "input event updates var"
+                unmount host
+            }
+
+            Test "TextArea" {
+                let rv = Var.Create "initial"
+                let inp = Elt.InputType.TextArea [] rv
+                let host = mount inp
+                equalMsgAsync (afterUpdate (fun () -> inp.Value)) "initial" "initial value rendered"
+                inp.Value <- "line1\nline2"
+                trigger inp.Dom "change"
+                equalMsg rv.Value "line1\nline2" "change event updates var"
+                unmount host
+            }
+
+            Test "Int" {
+                let rv = Var.Create (CheckedInput.Make 42)
+                let inp = Elt.InputType.Int [] rv
+                let host = mount inp
+                equalMsgAsync (afterUpdate (fun () -> inp.Value)) "42" "initial value rendered"
+                inp.Value <- "17"
+                trigger inp.Dom "input"
+                equalMsg rv.Value (Valid (17, "17")) "valid number parsed"
+                inp.Value <- ""
+                trigger inp.Dom "input"
+                equalMsg rv.Value (Blank "") "blank input"
+                rv.Value <- CheckedInput.Make 5
+                equalMsgAsync (afterUpdate (fun () -> inp.Value)) "5" "var change updates input"
+                unmount host
+            }
+
+            Test "Range" {
+                let rv = Var.Create 10
+                let inp = Elt.InputType.Range [] rv
+                let host = mount inp
+                equalMsgAsync (afterUpdate (fun () -> inp.Value)) "10" "initial value rendered"
+                inp.Value <- "30"
+                trigger inp.Dom "input"
+                equalMsg rv.Value 30 "input event updates var"
+                unmount host
+            }
+
+            Test "CheckBox" {
+                let rv = Var.Create false
+                let chk = Elt.InputType.CheckBox [] rv
+                let host = mount chk
+                equalMsgAsync (afterUpdate (fun () -> isChecked chk.Dom)) false "initially unchecked"
+                click chk.Dom
+                equalMsg rv.Value true "click updates var"
+                rv.Value <- false
+                equalMsgAsync (afterUpdate (fun () -> isChecked chk.Dom)) false "var change updates checkbox"
+                unmount host
+            }
+
+            Test "CheckBoxGroup" {
+                let rv = Var.Create [ 2 ]
+                let boxes = [ for i in 1 .. 3 -> Elt.InputType.CheckBoxGroup [] i rv ]
+                let host = mount (boxes |> List.map (fun b -> b :> Doc) |> Doc.Concat)
+                let states () = boxes |> List.map (fun b -> isChecked b.Dom)
+                equalMsgAsync (afterUpdate states) [ false; true; false ] "initial state"
+                click boxes[0].Dom
+                equalMsg (List.sort rv.Value) [ 1; 2 ] "checking adds to list"
+                click boxes[1].Dom
+                equalMsg rv.Value [ 1 ] "unchecking removes from list"
+                rv.Value <- [ 3 ]
+                equalMsgAsync (afterUpdate states) [ false; false; true ] "var change updates boxes"
+                unmount host
+            }
+
+            Test "Radio" {
+                let rv = Var.Create 1
+                let radios = [ for i in 1 .. 3 -> Elt.InputType.Radio [] i rv ]
+                let host = mount (radios |> List.map (fun r -> r :> Doc) |> Doc.Concat)
+                let states () = radios |> List.map (fun r -> isChecked r.Dom)
+                equalMsgAsync (afterUpdate states) [ true; false; false ] "initial state"
+                click radios[1].Dom
+                equalMsg rv.Value 2 "click updates var"
+                rv.Value <- 3
+                equalMsgAsync (afterUpdate states) [ false; false; true ] "var change updates radios"
+                unmount host
+            }
+
+            Test "Select" {
+                let rv = Var.Create B
+                let sel = Elt.InputType.Select [] string [ A; B; C ] rv
+                let host = mount sel
+                equalMsgAsync (afterUpdate (fun () -> selectedIndices sel.Dom)) [ 1 ] "initial selection"
+                sel.Dom?selectedIndex <- 2
+                trigger sel.Dom "change"
+                equalMsg rv.Value C "change event updates var"
+                rv.Value <- A
+                equalMsgAsync (afterUpdate (fun () -> selectedIndices sel.Dom)) [ 0 ] "var change updates selection"
+                unmount host
+            }
+
+            Test "SelectMultiple" {
+                let rv = Var.Create [ B ]
+                // there is no Elt variant of SelectMultiple, so look up the element in the host
+                let host = mount (Doc.InputType.SelectMultiple [] string [ A; B; C ] rv)
+                let sel = host.QuerySelector "select"
+                equalMsgAsync (afterUpdate (fun () -> selectedIndices sel)) [ 1 ] "initial selection"
+                (sel.QuerySelectorAll "option").Item(0)?selected <- true
+                trigger sel "change"
+                equalMsg rv.Value [ A; B ] "change event updates var"
+                rv.Value <- [ C ]
+                equalMsgAsync (afterUpdate (fun () -> selectedIndices sel)) [ 2 ] "var change updates selection"
+                unmount host
+            }
+
+            Test "Text bound to LensAuto" {
+                let rv = Var.Create { x = "red"; y = { z = "green"; t = "test" } }
+                let inp = Elt.InputType.Text [] (rv.LensAuto(fun v -> v.y.z))
+                let host = mount inp
+                equalMsgAsync (afterUpdate (fun () -> inp.Value)) "green" "initial value rendered"
+                inp.Value <- "blue"
+                trigger inp.Dom "input"
+                equalMsg rv.Value { x = "red"; y = { z = "blue"; t = "test" } } "input updates nested field"
+                unmount host
+            }
+        }
+
+    let AttrTest =
+        TestCategory "Reactive attributes" {
+
+            Test "ClassPred with V" {
+                let rv = Var.Create true
+                let el = Elt.div [ Attr.ClassPred "is-green" rv.V ] []
+                let host = mount el
+                equalMsgAsync (afterUpdate (fun () -> el.HasClass "is-green")) true "class set"
+                rv.Value <- false
+                equalMsgAsync (afterUpdate (fun () -> el.HasClass "is-green")) false "class removed"
+                unmount host
+            }
+
+            Test "Style with V" {
+                let rv = Var.Create "red"
+                let el = Elt.div [ Attr.Style "color" rv.V ] []
+                let host = mount el
+                equalMsgAsync (afterUpdate (fun () -> el.Dom?style?color : string)) "red" "initial style"
+                rv.Value <- "green"
+                equalMsgAsync (afterUpdate (fun () -> el.Dom?style?color : string)) "green" "updated style"
+                unmount host
+            }
+
+            Test "Prop with V" {
+                let rv = Var.Create false
+                let el = Elt.input [ Attr.Prop "disabled" rv.V ] []
+                let host = mount el
+                equalMsgAsync (afterUpdate (fun () -> el.Dom?disabled : bool)) false "initially enabled"
+                rv.Value <- true
+                equalMsgAsync (afterUpdate (fun () -> el.Dom?disabled : bool)) true "disabled after var change"
+                unmount host
+            }
+
+            Test "Boolean attribute from View" {
+                let rv = Var.Create true
+                let el = Elt.button [ attr.disabledBool rv.View ] [ text "button" ]
+                let host = mount el
+                equalMsgAsync (afterUpdate (fun () -> el.Dom.HasAttribute "disabled")) true "attribute set"
+                rv.Value <- false
+                equalMsgAsync (afterUpdate (fun () -> el.Dom.HasAttribute "disabled")) false "attribute removed"
+                unmount host
+            }
+
+            Test "Dynamic attribute" {
+                let rv = Var.Create "first"
+                let el = Elt.div [ Attr.Dynamic "title" rv.View ] []
+                let host = mount el
+                equalMsgAsync (afterUpdate (fun () -> el.Dom.GetAttribute "title")) "first" "initial value"
+                rv.Value <- "second"
+                equalMsgAsync (afterUpdate (fun () -> el.Dom.GetAttribute "title")) "second" "updated value"
+                unmount host
+            }
+
+            Test "Popover" {
+                let popup = Elt.div [ attr.id "test-popover"; attr.popover "manual" ] [ text "Popover" ]
+                let btn = Elt.button [ attr.popovertarget "test-popover"; attr.popovertargetaction "toggle" ] [ text "Toggle" ]
+                let host = mount (Doc.Concat [ popup; btn ])
+                equalMsg (popup.Dom.GetAttribute "popover") "manual" "popover attribute"
+                equalMsg (btn.Dom.GetAttribute "popovertarget") "test-popover" "popovertarget attribute"
+                equalMsg (btn.Dom.GetAttribute "popovertargetaction") "toggle" "popovertargetaction attribute"
+                isFalseMsg (matches popup.Dom ":popover-open") "initially hidden"
+                click btn.Dom
+                isTrueMsg (matches popup.Dom ":popover-open") "shown after click"
+                click btn.Dom
+                isFalseMsg (matches popup.Dom ":popover-open") "hidden after second click"
+                unmount host
+            }
+        }
+
+    let DocTest =
+        TestCategory "Reactive Doc" {
+
+            Test "textView" {
+                let rv = Var.Create "first"
+                let el = Elt.div [] [ textView rv.View ]
+                let host = mount el
+                equalMsgAsync (afterUpdate (fun () -> el.Text)) "first" "initial text"
+                rv.Value <- "second"
+                equalMsgAsync (afterUpdate (fun () -> el.Text)) "second" "updated text"
+                unmount host
+            }
+
+            Test "V notation for a Doc" {
+                let rv = Var.Create "ab"
+                let el = Elt.div [] [ V(ul [] (rv.V |> Seq.map (fun c -> li [] [ text (string c) ]))).V ]
+                let host = mount el
+                let items () = el.Dom.QuerySelectorAll("li").Length, el.Text
+                equalMsgAsync (afterUpdate items) (2, "ab") "initial list"
+                rv.Value <- "xyz"
+                equalMsgAsync (afterUpdate items) (3, "xyz") "updated list"
+                unmount host
+            }
+
+            Test "BindSeqCached keeps nodes" {
+                let lm = ListModel.Create id [ "a"; "b" ]
+                let el = Elt.ul [] [ lm.View |> Doc.BindSeqCached (fun x -> li [] [ text x ]) ]
+                let host = mount el
+                let firstItem () = el.Dom.QuerySelectorAll("li").Item(0)
+                let first = ref null
+                equalMsgAsync (afterUpdate (fun () -> first.Value <- firstItem (); el.Text)) "ab" "initial items"
+                lm.Add "c"
+                equalMsgAsync (afterUpdate (fun () -> el.Text)) "abc" "after add"
+                equalMsgAsync (afterUpdate (fun () -> firstItem () ===. first.Value)) true "existing node kept"
+                lm.RemoveByKey "a"
+                equalMsgAsync (afterUpdate (fun () -> el.Text)) "bc" "after remove"
+                unmount host
+            }
+
+            Test "Button" {
+                let clicks = ref 0
+                let btn = Elt.Button "Click me" [] (fun () -> clicks.Value <- clicks.Value + 1)
+                let host = mount btn
+                equalMsg btn.Text "Click me" "caption"
+                click btn.Dom
+                click btn.Dom
+                equalMsg clicks.Value 2 "callback called on each click"
+                unmount host
+            }
+
+            Test "EltUpdater" {
+                let counter = Var.Create 0
+                let updater = Elt.div [] [] |> Elt.ToUpdater
+                let host = mount updater
+                let child = Elt.span [] [ textView (counter.View.Map string) ]
+                updater.Dom.AppendChild(child.Dom) |> ignore
+                updater.AddUpdated child
+                counter.Value <- 1
+                equalMsgAsync (afterUpdate (fun () -> child.Text)) "1" "added child is updated"
+                updater.RemoveUpdated child
+                counter.Value <- 2
+                equalMsgAsync (afterUpdate (fun () -> child.Text)) "1" "removed child is not updated"
+                updater.AddUpdated child
+                counter.Value <- 3
+                equalMsgAsync (afterUpdate (fun () -> child.Text)) "3" "re-added child is updated"
+                updater.RemoveAllUpdated()
+                counter.Value <- 4
+                equalMsgAsync (afterUpdate (fun () -> child.Text)) "3" "RemoveAllUpdated stops updates"
+                unmount host
+            }
+
+            Test "Runtime template holes" {
+                Doc.LoadLocalTemplates "local"
+                let clicks = ref 0
+                let rv = Var.Create "initial"
+                let host = JS.Document.CreateElement "div"
+                JS.Document.Body.AppendChild(host) |> ignore
+                Doc.NamedTemplate "local" (Some "holes") [
+                    // hole names are matched in lowercase
+                    TemplateHole.Text("text", "filled text")
+                    TemplateHole.Attribute("attr", Attr.Class "filled-attr")
+                    TemplateHole.Event("click", fun _ _ -> clicks.Value <- clicks.Value + 1)
+                    TemplateHole.VarStr("input", rv)
+                ]
+                |> Doc.Run host
+                let q (sel: string) = host.QuerySelector sel
+                equalMsgAsync (afterUpdate (fun () -> (q ".text").TextContent)) "filled text" "text hole"
+                isTrueMsg ((q ".attr").ClassList.Contains "filled-attr") "attribute hole"
+                click (q "button")
+                equalMsg clicks.Value 1 "event hole"
+                equalMsg (q "input")?value "initial" "var hole rendered"
+                (q "input")?value <- "typed"
+                trigger (q "input") "input"
+                equalMsg rv.Value "typed" "var hole updates var"
+                rv.Value <- "set from var"
+                equalMsgAsync (afterUpdate (fun () -> (q "input")?value : string)) "set from var" "var change updates input"
+                unmount host
+            }
+        }
+
+    let LensAndSubmitterTest =
+        TestCategory "Lens and Submitter" {
+
+            Test "Lens" {
+                let rv = Var.Create { x = "a"; y = { z = "b"; t = "c" } }
+                let lz = rv.Lens (fun r -> r.y.z) (fun r z -> { r with y = { r.y with z = z } })
+                equalMsg lz.Value "b" "get through lens"
+                lz.Value <- "B"
+                equalMsg rv.Value { x = "a"; y = { z = "B"; t = "c" } } "set through lens"
+                rv.Value <- { x = "a"; y = { z = "Z"; t = "c" } }
+                equalMsgAsync (View.GetAsync lz.View) "Z" "lens view follows var"
+            }
+
+            Test "LensAuto" {
+                let rv = Var.Create { x = "a"; y = { z = "b"; t = "c" } }
+                let lz = rv.LensAuto (fun r -> r.y.z)
+                equalMsg lz.Value "b" "get through lens"
+                lz.Value <- "B"
+                equalMsg rv.Value { x = "a"; y = { z = "B"; t = "c" } } "set through lens"
+                rv.Value <- { x = "a"; y = { z = "Z"; t = "c" } }
+                equalMsgAsync (View.GetAsync lz.View) "Z" "lens view follows var"
+            }
+
+            Test "Submitter.Create" {
+                let rv = Var.Create 1
+                let s = Submitter.Create rv.View 0
+                equalMsgAsync (View.GetAsync s.View) 0 "initial value"
+                rv.Value <- 2
+                equalMsgAsync (View.GetAsync s.View) 0 "input change alone has no effect"
+                s.Trigger()
+                equalMsgAsync (View.GetAsync s.View) 2 "trigger takes input value"
+                rv.Value <- 3
+                equalMsgAsync (View.GetAsync s.View) 2 "no effect until next trigger"
+            }
+
+            Test "Submitter.CreateOption" {
+                let rv = Var.Create "a"
+                let s = Submitter.CreateOption rv.View
+                equalMsgAsync (View.GetAsync s.View) None "initial value"
+                s.Trigger()
+                equalMsgAsync (View.GetAsync s.View) (Some "a") "after trigger"
+            }
+
+            Test "MapSeqCached and Sequence of Var views (ui#67)" {
+                let inputs = Var.Create Seq.empty<Var<bool>>
+                let count =
+                    inputs.View
+                    |> View.MapSeqCached (fun (x: Var<bool>) -> x.View)
+                    |> View.MapCached View.Sequence
+                    |> View.Join
+                    |> View.Map Seq.length
+                equalMsgAsync (View.GetAsync count) 0 "empty"
+                inputs.Value <- Seq.ofList (Var.Create false :: List.ofSeq inputs.Value)
+                equalMsgAsync (View.GetAsync count) 1 "after first add"
+                inputs.Value <- Seq.ofList (Var.Create false :: List.ofSeq inputs.Value)
+                equalMsgAsync (View.GetAsync count) 2 "after second add"
+                inputs.Value <- Seq.empty
+                equalMsgAsync (View.GetAsync count) 0 "after removing all"
+            }
+        }
+
     [<SPAEntryPoint>]
     let Main() =
         Runner.RunTests(
@@ -638,7 +1034,12 @@ module Main =
                 VarTest
                 ViewTest
                 ListModelTest
+                SerializerTest
                 EltTest
+                InputTest
+                AttrTest
+                DocTest
+                LensAndSubmitterTest
             |]
         ).ReplaceInDom(JS.Document.QuerySelector "#main")
 
