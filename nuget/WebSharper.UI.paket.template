@@ -16,11 +16,13 @@ dependencies
         HtmlAgilityPack >= LOCKEDVERSION
 files
     ../WebSharper.UI/bin/Release/netstandard2.0/WebSharper.UI.dll ==> lib/netstandard2.0
+    ../WebSharper.UI/bin/Release/netstandard2.0/WebSharper.UI.websharper ==> lib/netstandard2.0
     ../WebSharper.UI/bin/Release/netstandard2.0/WebSharper.UI.xml ==> lib/netstandard2.0
     ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.UI.Templating.Common.dll ==> lib/netstandard2.0
     ../WebSharper.UI.Templating/bin/Release/netstandard2.0/WebSharper.UI.Templating.Common.xml ==> lib/netstandard2.0
     ../WebSharper.UI.Templating.Common/bin/Release/netstandard2.0/WebSharper.UI.Templating.Common.websharper ==> lib/netstandard2.0
     ../WebSharper.UI.Templating.Runtime/bin/Release/netstandard2.0/WebSharper.UI.Templating.Runtime.dll ==> lib/netstandard2.0
+    ../WebSharper.UI.Templating.Runtime/bin/Release/netstandard2.0/WebSharper.UI.Templating.Runtime.websharper ==> lib/netstandard2.0
     ../WebSharper.UI.Templating.Runtime/bin/Release/netstandard2.0/WebSharper.UI.Templating.Runtime.xml ==> lib/netstandard2.0
     ../WebSharper.UI/bin/Release/netstandard2.0/WebSharper.UI.dll ==> typeproviders/fsharp41/netstandard2.0
     ../WebSharper.UI/bin/Release/netstandard2.0/WebSharper.UI.xml ==> typeproviders/fsharp41/netstandard2.0
