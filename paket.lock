@@ -125,23 +125,23 @@ NUGET
       System.Runtime.CompilerServices.Unsafe (>= 4.5.3) - restriction: || (&& (== net11.0) (>= net461)) (&& (== net11.0) (< netcoreapp2.1)) (&& (== net11.0) (< netstandard1.0)) (&& (== net11.0) (< netstandard2.0)) (&& (== net11.0) (>= wp8)) (== netstandard2.0)
     System.Windows.Extensions (4.7) - restriction: || (== net11.0) (&& (== netstandard2.0) (>= netcoreapp3.0))
       System.Drawing.Common (>= 4.7) - restriction: || (== net11.0) (&& (== netstandard2.0) (>= netcoreapp3.0))
-  remote: ../localnuget
-    WebSharper (10.1.6.9999)
+  remote: https://nuget.pkg.github.com/dotnet-websharper/index.json
+    WebSharper (11.0.0.695-preview.1)
       FSharp.Core (>= 6.0)
       System.Reflection.Emit.Lightweight (>= 4.7)
-    WebSharper.AspNetCore (10.1.6.9999)
+    WebSharper.AspNetCore (11.0.0.695-preview.1)
       System.Text.Json (>= 10.0) - restriction: || (== net11.0) (&& (== netstandard2.0) (>= net5.0))
-      WebSharper (10.1.6.9999) - restriction: || (== net11.0) (&& (== netstandard2.0) (>= net5.0))
-    WebSharper.CSharp (10.1.6.9999)
-      WebSharper (10.1.6.9999)
-    WebSharper.FSharp (10.1.6.9999)
-      WebSharper (10.1.6.9999)
-    WebSharper.Testing (10.1.6.9999)
-      WebSharper (10.1.6.9999)
+      WebSharper (11.0.0.695-preview.1) - restriction: || (== net11.0) (&& (== netstandard2.0) (>= net5.0))
+    WebSharper.CSharp (11.0.0.695-preview.1)
+      WebSharper (11.0.0.695-preview.1)
+    WebSharper.FSharp (11.0.0.695-preview.1)
+      WebSharper (11.0.0.695-preview.1)
+    WebSharper.Testing (11.0.0.695-preview.1)
+      WebSharper (11.0.0.695-preview.1)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (b1958662ce11ea601635c1a88d00e2db10b4cd24)
-    src/ProvidedTypes.fsi (b1958662ce11ea601635c1a88d00e2db10b4cd24)
+    src/ProvidedTypes.fs (45e7f93526814b688b2f49a0700a94bb5675984f)
+    src/ProvidedTypes.fsi (45e7f93526814b688b2f49a0700a94bb5675984f)
 GROUP includes
 REFERENCES: STRICT
 GITHUB
@@ -151,4 +151,4 @@ GROUP wsbuild
 
 GIT
   remote: https://github.com/dotnet-websharper/build-script
-     (f7e340ad41f38d87e701cdbc5418dc06632d2142)
+     (6ecf97f00d4afc53204d3277c355fc69c6f8b812)
