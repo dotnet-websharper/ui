@@ -250,6 +250,23 @@ namespace WebSharper.UI.CSharp.Tests
                 )
             ).RunById("main");
             TodoApp();
+            BindDocument();
+        }
+
+        // Fills the holes placed directly in wwwroot/index.html and binds the
+        // document in place, using the generated root-template Bind().
+        public static void BindDocument()
+        {
+            var clicks = Var.Create(0);
+            new Template.Index()
+                .BindTitle("Template.Index.Bind()")
+                .BindClicks(clicks.View.Map(c => $"Clicked {c} times"))
+                .BindClick(e =>
+                {
+                    clicks.Value++;
+                    e.Vars.BindInput.Value = e.Vars.BindInput.Value.ToUpper();
+                })
+                .Bind();
         }
 
         public class TaskItem
