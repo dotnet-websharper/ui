@@ -6,6 +6,28 @@ WebSharper.UI is a UI library featuring a dataflow layer for expressing
 time-varying values. It integrates with DOM and makes it
 simple to construct animated UI in the browser.
 
+![WebSharper.UI test suite and playground](docs/sample.png)
+
+## Test suite and playground
+
+The `WebSharper.UI.Tests` project is both the F# browser test suite and a small
+interactive playground. The playground walks through two-way binding, derived
+views, keyed `ListModel` rendering, transitions, lenses and input controls,
+native popovers, and runtime templates. Below it, QUnit runs the full F#
+suite against a real DOM.
+
+The page is light-themed by default and has a dark mode toggle that persists
+the choice in `localStorage`.
+
+To run it:
+
+```sh
+dotnet run --project WebSharper.UI.Tests -c Release
+```
+
+Then open the URL printed by ASP.NET Core (or the one from
+`WebSharper.UI.Tests/Properties/launchSettings.json`).
+
 * [Examples](https://websharper-samples.github.io/ui/)
 * [Example Site Repository](https://github.com/websharper-samples/ui)
 * [Tutorial and documentation](https://developers.websharper.com/docs/v4.x/fs/ui)

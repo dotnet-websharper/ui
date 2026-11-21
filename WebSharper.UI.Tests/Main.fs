@@ -36,9 +36,7 @@ module Main =
         d : float
     }
 
-    do // updating an memory stress test
-        Anim.UseAnimations <- false
-        
+    do // Dataflow stress test: a Var updated on every animation frame.
         let m = ref 0
         let v = Var.Create {
             i = 0
@@ -60,29 +58,28 @@ module Main =
 
         JS.RequestAnimationFrame f |> ignore
 
-        div [] [
-            div [] [v.View |> View.Map (fun t -> "Frame " + string t.i) |> textView]
-            div [] [v.View |> View.Map (fun t -> sprintf "Started: %.1f" t.n) |> textView]
-            div [] [v.View |> View.Map (fun t -> sprintf "Duration: %.1fms" t.d) |> textView]
-            div [ Attr.Style "display" "none" ] [unchanging.View |> textView]
+        div [ Attr.Class "metrics" ] [
+            div [ Attr.Class "metric" ] [
+                span [ Attr.Class "metric-label" ] [ text "Frame" ]
+                span [ Attr.Class "metric-value" ] [
+                    v.View |> View.Map (fun t -> string t.i) |> textView
+                ]
+            ]
+            div [ Attr.Class "metric" ] [
+                span [ Attr.Class "metric-label" ] [ text "Started" ]
+                span [ Attr.Class "metric-value" ] [
+                    v.View |> View.Map (fun t -> sprintf "%.1f" t.n) |> textView
+                ]
+            ]
+            div [ Attr.Class "metric" ] [
+                span [ Attr.Class "metric-label" ] [ text "Last frame" ]
+                span [ Attr.Class "metric-value" ] [
+                    v.View |> View.Map (fun t -> sprintf "%.1f ms" t.d) |> textView
+                ]
+            ]
+            div [ Attr.Style "display" "none" ] [ unchanging.View |> textView ]
         ]
         |> Doc.RunById "stresstest"
-    
-    let TestAnim =
-        let linearAnim = Anim.Simple Interpolation.Double (Easing.Custom id) 300.
-        let cubicAnim = Anim.Simple Interpolation.Double Easing.CubicInOut 300.
-        let swipeTransition =
-            Trans.Create linearAnim
-            |> Trans.Enter (fun x -> cubicAnim (x - 100.) x)
-            |> Trans.Exit (fun x -> cubicAnim x (x + 100.))
-        let rvLeftPos = Var.Create 0.
-        
-        div [
-            Attr.Style "position" "relative"
-            Attr.AnimatedStyle "left" swipeTransition rvLeftPos.View (fun pos -> string pos + "%")
-        ] [
-            Doc.TextNode "content"
-        ]
 
     let VarTest =
         TestCategory "Var" {
@@ -631,6 +628,23 @@ module Main =
         | B
         | C
 
+    // Types used by the interactive playground below.
+    type DemoProfile = { DisplayName: string; Date: string }
+
+    type DemoSettings = {
+        Profile: DemoProfile
+        Accent: string
+        Volume: int
+        Subscribe: bool
+    }
+
+    type DemoTask = { Name: string; Done: Var<bool> }
+
+    type Plan =
+        | Free
+        | Pro
+        | Team
+
     /// Renders a Doc into a new host appended to the body, so that its reactive parts are live.
     let mount (doc: Doc) =
         let host = JS.Document.CreateElement "div"
@@ -1027,8 +1041,359 @@ module Main =
             }
         }
 
+    // ---------------------------------------------------------------------
+    // Interactive playground
+    // ---------------------------------------------------------------------
+
+    /// Theme: light is the default; the choice is persisted in localStorage.
+    /// The storage key is shared with the bootstrap script in wwwroot/index.html.
+    let themeStorageKey = "websharper-ui-theme"
+
+    let theme = Var.Create "light"
+
+    let themeLabel =
+        theme.View
+        |> View.Map (fun t -> if t = "dark" then "☀️ Light mode" else "🌙 Dark mode")
+
+    let applyTheme () =
+        JS.Document.DocumentElement.SetAttribute("data-theme", theme.Value)
+
+    let toggleTheme () =
+        theme.Value <- (if theme.Value = "dark" then "light" else "dark")
+        try JS.Window.LocalStorage.SetItem(themeStorageKey, theme.Value) with _ -> ()
+        applyTheme ()
+
+    let restoreTheme () =
+        let saved =
+            try JS.Window.LocalStorage.GetItem(themeStorageKey) with _ -> null
+        if saved = "dark" || saved = "light" then
+            theme.Value <- saved
+        applyTheme ()
+
+    /// A labelled form control, matching the field markup used in the sample CSS.
+    let formField (labelText: string) (control: Doc) =
+        label [ Attr.Class "field" ] [
+            span [ Attr.Class "field-label" ] [ text labelText ]
+            control
+        ]
+
+    let greetingDemo () =
+        let name = Var.Create "WebSharper"
+        let trimmed = name.View |> View.Map (fun (n: string) -> n.Trim())
+        let greeting =
+            trimmed |> View.Map (fun n ->
+                if n = "" then "Hello, stranger!" else "Hello, " + n + "!")
+
+        div [ Attr.Class "demo" ] [
+            formField "Your name" (
+                Doc.InputType.Text [
+                    attr.``class`` "input"
+                    attr.placeholder "Type a name…"
+                ] name
+            )
+            div [ Attr.Class "actions" ] [
+                button [
+                    Attr.Class "btn"
+                    on.click (fun _ _ -> name.Value <- "WebSharper")
+                ] [ text "Reset" ]
+                button [
+                    Attr.Class "btn btn-primary"
+                    on.click (fun _ _ -> name.Value <- "Reactive F#")
+                ] [ text "Use an example" ]
+            ]
+            p [
+                Attr.Class "greeting"
+                Attr.DynamicClassPred "is-empty" (trimmed |> View.Map (fun n -> n = ""))
+            ] [ textView greeting ]
+            span [ Attr.Class "pill" ] [
+                textView (name.View |> View.Map (fun (n: string) -> sprintf "%d characters" n.Length))
+            ]
+        ]
+
+    let dataflowDemo () =
+        let first = Var.Create "Ada"
+        let last = Var.Create "Lovelace"
+
+        let fullName =
+            View.Map2 (fun (f: string) (l: string) ->
+                (f.Trim() + " " + l.Trim()).Trim()) first.View last.View
+
+        let complete =
+            View.Map2 (fun (f: string) (l: string) ->
+                f.Trim() <> "" && l.Trim() <> "") first.View last.View
+
+        let initials =
+            View.Map2 (fun (f: string) (l: string) ->
+                let initial (s: string) =
+                    if s.Trim() = "" then "?" else s.Trim().Substring(0, 1).ToUpper()
+                initial f + initial l) first.View last.View
+
+        div [ Attr.Class "demo" ] [
+            div [ Attr.Class "form-grid" ] [
+                formField "First name" (Doc.InputType.Text [ attr.``class`` "input" ] first)
+                formField "Last name" (Doc.InputType.Text [ attr.``class`` "input" ] last)
+            ]
+            div [
+                Attr.Class "profile-card"
+                Attr.DynamicClassPred "is-complete" complete
+            ] [
+                div [ Attr.Class "avatar" ] [ textView initials ]
+                div [ Attr.Class "profile-text" ] [
+                    strong [] [ textView fullName ]
+                    p [ Attr.Class "hint" ] [
+                        textView (complete |> View.Map (fun ok ->
+                            if ok then "Both fields are filled in — ready to submit."
+                            else "Fill in both fields to complete the profile."))
+                    ]
+                ]
+            ]
+        ]
+
+    let listDemo () =
+        let tasks =
+            ListModel.Create (fun (t: DemoTask) -> t.Name) [
+                { Name = "Reactive dataflow"; Done = Var.Create true }
+                { Name = "Keyed list rendering"; Done = Var.Create false }
+                { Name = "Type-safe DOM"; Done = Var.Create false }
+            ]
+
+        let newTask = Var.Create ""
+
+        let addTask () =
+            let name = newTask.Value.Trim()
+            if name <> "" && not (tasks.ContainsKey name) then
+                tasks.Add { Name = name; Done = Var.Create false }
+                newTask.Value <- ""
+
+        let doneCount =
+            tasks.Map (fun t -> t.Done.View)
+            |> View.MapCached View.Sequence
+            |> View.Join
+            |> View.Map (fun flags -> flags |> Seq.filter id |> Seq.length)
+
+        div [ Attr.Class "demo" ] [
+            div [ Attr.Class "toolbar" ] [
+                Doc.InputType.Text [
+                    attr.``class`` "input"
+                    attr.placeholder "Add an item…"
+                    on.keyDown (fun _ ev ->
+                        if ev.Key = "Enter" then addTask ())
+                ] newTask
+                button [
+                    Attr.Class "btn btn-primary"
+                    on.click (fun _ _ -> addTask ())
+                ] [ text "Add" ]
+                span [ Attr.Class "spacer" ] []
+                span [ Attr.Class "pill" ] [
+                    textView (tasks.LengthAsView |> View.Map (fun n -> sprintf "%d item(s)" n))
+                ]
+                span [ Attr.Class "pill" ] [
+                    textView (doneCount |> View.Map (fun n -> sprintf "%d done" n))
+                ]
+            ]
+            ul [ Attr.Class "task-list" ] [
+                Doc.BindListModel (fun (t: DemoTask) ->
+                    li [
+                        Attr.Class "task"
+                        Attr.DynamicClassPred "is-done" t.Done.View
+                    ] [
+                        Doc.InputType.CheckBox [] t.Done
+                        span [ Attr.Class "task-name" ] [ text t.Name ]
+                        button [
+                            Attr.Class "icon-btn"
+                            attr.title "Remove"
+                            on.click (fun _ _ -> tasks.RemoveByKey t.Name)
+                        ] [ text "×" ]
+                    ]
+                ) tasks
+            ]
+        ]
+
+    let animationDemo () =
+        let position = Var.Create 0.
+
+        let linear : float -> float -> Anim<float> =
+            Anim.Simple Interpolation.Double (Easing.Custom id) 360.
+
+        let cubic : float -> float -> Anim<float> =
+            Anim.Simple Interpolation.Double Easing.CubicInOut 360.
+
+        let transition =
+            Trans.Create linear
+            |> Trans.Enter (fun x -> cubic (x - 18.) x)
+            |> Trans.Exit (fun x -> cubic x (x + 18.))
+
+        div [ Attr.Class "demo" ] [
+            div [ Attr.Class "stage" ] [
+                div [
+                    Attr.Class "slider"
+                    Attr.AnimatedStyle "left" transition position.View (fun p -> sprintf "%.1f%%" p)
+                ] [
+                    textView (position.View |> View.Map (fun p -> if p > 0. then "On" else "Off"))
+                ]
+            ]
+            div [ Attr.Class "actions" ] [
+                button [
+                    Attr.Class "btn btn-primary"
+                    on.click (fun _ _ ->
+                        position.Value <- if position.Value > 0. then 0. else 55.)
+                ] [ text "Toggle position" ]
+            ]
+            p [ Attr.Class "hint" ] [
+                text "Driven by Attr.AnimatedStyle with a Trans built from Anim.Simple and Easing.CubicInOut."
+            ]
+        ]
+
+    let planText (p: Plan) =
+        match p with
+        | Free -> "Free"
+        | Pro -> "Pro"
+        | Team -> "Team"
+
+    let formDemo () =
+        let settings =
+            Var.Create {
+                Profile = { DisplayName = "Ada Lovelace"; Date = "2026-11-21" }
+                Accent = "#4f46e5"
+                Volume = 70
+                Subscribe = true
+            }
+
+        let password = Var.Create "hunter2"
+        let plan = Var.Create Pro
+        let files : Var<WebSharper.JavaScript.File array> = Var.Create [||]
+
+        let displayName = settings.LensAuto (fun s -> s.Profile.DisplayName)
+        let date = settings.LensAuto (fun s -> s.Profile.Date)
+        let accent = settings.LensAuto (fun s -> s.Accent)
+        let volume = settings.LensAuto (fun s -> s.Volume)
+        let subscribe = settings.LensAuto (fun s -> s.Subscribe)
+
+        let accentView = accent.View
+        let settingsView = settings.View
+
+        div [ Attr.Class "demo" ] [
+            div [ Attr.Class "form-grid" ] [
+                formField "Display name" (Doc.InputType.Text [ attr.``class`` "input" ] displayName)
+                formField "Accent" (Doc.InputType.Color [ attr.``class`` "input color-input" ] accent)
+                formField "Password" (Doc.InputType.Password [ attr.``class`` "input" ] password)
+                formField "Sign-up date" (Doc.InputType.Date [ attr.``class`` "input" ] date)
+                formField "Volume" (
+                    div [ Attr.Class "range-row" ] [
+                        Doc.InputType.Range [ Attr.Class "range" ] volume
+                        span [ Attr.Class "pill" ] [
+                            textView (volume.View |> View.Map (fun v -> sprintf "%d%%" v))
+                        ]
+                    ]
+                )
+                formField "Plan" (
+                    Doc.InputType.Select [ attr.``class`` "input" ] planText [ Free; Pro; Team ] plan
+                )
+                formField "Notifications" (
+                    label [ Attr.Class "check" ] [
+                        Doc.InputType.CheckBox [] subscribe
+                        text "Email me about updates"
+                    ]
+                )
+                formField "Attachments" (
+                    div [ Attr.Class "range-row" ] [
+                        Doc.InputType.File [ Attr.Class "file-input" ] files
+                        span [ Attr.Class "pill" ] [
+                            textView (files.View |> View.Map (fun (fs: WebSharper.JavaScript.File array) -> sprintf "%d file(s)" fs.Length))
+                        ]
+                    ]
+                )
+            ]
+            div [
+                Attr.Class "preview-card"
+                Attr.DynamicStyle "border-color" accentView
+                Attr.DynamicStyle "background" (accentView |> View.Map (fun c -> c + "18"))
+            ] [
+                span [ Attr.Class "preview-accent"; Attr.DynamicStyle "background" accentView ] []
+                div [] [
+                    strong [] [
+                        textView (settingsView |> View.Map (fun s ->
+                            if s.Profile.DisplayName.Trim() = "" then "Unnamed profile"
+                            else s.Profile.DisplayName))
+                    ]
+                    p [ Attr.Class "hint" ] [
+                        textView (
+                            View.Map2 (fun (s: DemoSettings) (p: Plan) ->
+                                sprintf "%s plan · volume %d%% · %s"
+                                    (planText p) s.Volume
+                                    (if s.Subscribe then "notifications on" else "notifications off"))
+                                settingsView plan.View
+                        )
+                    ]
+                    p [ Attr.Class "hint" ] [
+                        textView (
+                            View.Map2 (fun (p: string) (d: string) ->
+                                if p.Length = 0 then "No password set."
+                                else sprintf "%d-character password · date %s" p.Length d)
+                                password.View date.View
+                        )
+                    ]
+                ]
+            ]
+        ]
+
+    let popoverDemo () =
+        div [ Attr.Class "demo" ] [
+            button [
+                Attr.Class "btn btn-primary"
+                attr.popovertarget "demo-popover-panel"
+                attr.popovertargetaction "toggle"
+            ] [ text "Toggle popover" ]
+            div [
+                attr.id "demo-popover-panel"
+                attr.popover "auto"
+                Attr.Class "popover-card"
+            ] [
+                h3 [] [ text "Native popovers" ]
+                p [] [
+                    text "A top-layer element toggled declaratively with "
+                    code [] [ text "popovertarget" ]
+                    text "."
+                ]
+            ]
+            p [ Attr.Class "hint" ] [
+                text "Click the button to open the panel; click outside it (or press Escape) to dismiss."
+            ]
+        ]
+
+    let templateDemo () =
+        Doc.LoadLocalTemplates "local"
+        let value = Var.Create "initial"
+        Doc.NamedTemplate "local" (Some "testtemplate") [
+            TemplateHole.Elt ("input", Doc.InputType.Text [ attr.``class`` "input" ] value)
+            TemplateHole.Elt ("value", textView value.View)
+            TemplateHole.Elt ("item",
+                Doc.NamedTemplate "local" (Some "item") [
+                    TemplateHole.Text ("text", "This item comes from a nested runtime template.")
+                ]
+            )
+        ]
+
     [<SPAEntryPoint>]
     let Main() =
+        restoreTheme ()
+
+        Doc.RunById "theme-slot" (
+            button [
+                Attr.Class "btn theme-toggle"
+                attr.title "Switch between the light and dark theme"
+                on.click (fun _ _ -> toggleTheme ())
+            ] [ textView themeLabel ]
+        )
+
+        greetingDemo () |> Doc.RunById "demo-greeting"
+        dataflowDemo () |> Doc.RunById "demo-dataflow"
+        listDemo () |> Doc.RunById "demo-list"
+        animationDemo () |> Doc.RunById "demo-animation"
+        formDemo () |> Doc.RunById "demo-form"
+        popoverDemo () |> Doc.RunById "demo-popover"
+        templateDemo () |> Doc.RunById "demo-template"
+
         Runner.RunTests(
             [|
                 VarTest
@@ -1042,84 +1407,3 @@ module Main =
                 LensAndSubmitterTest
             |]
         ).ReplaceInDom(JS.Document.QuerySelector "#main")
-
-        Doc.LoadLocalTemplates "local"
-        let var = Var.Create "init"
-        Doc.NamedTemplate "local" (Some "TestTemplate") [
-            TemplateHole.Elt ("Input", Doc.InputType.Text [] var)
-            TemplateHole.Elt ("Value", textView var.View)
-            TemplateHole.Elt ("Item",
-                Doc.NamedTemplate "local" (Some "Item") [
-                    TemplateHole.Text ("Text", "This is an item")
-                ]
-            )
-        ]
-        |> Doc.RunAppend JS.Document.Body
-        let rv = Var.Create { x = "red"; y = { z = "green"; t = "test" } }
-        let rd = Var.Create (p [] [text "[OK] var.V"])
-        let rdt = Var.Create System.DateTime.Now
-        let rf = Var.Create [||]
-        let varSelectMultiple = Var.Create []
-        let rr = Var.Create 0
-        let rvDisabled = Var.Create false
-
-        div [
-            Attr.Style "color" rv.V.y.z
-        ] [
-            p [] [
-                text "Test text x.V: enter a color: "
-                Doc.InputType.Text [
-                    attr.style ("background: " + rv.V.y.z)
-                    Attr.Prop "disabled" rvDisabled.V
-                    on.click (fun el ev ->
-                        let f x = x // Inner generic function that fails to compile if this lambda is passed as an Expr.
-                                    // This checks that we are calling:
-                                    //      Client.on.click : (Element -> Event -> unit) -> Attr
-                                    // and not:
-                                    //      Html.on.click : Expr<Element -> Event -> unit> -> Attr
-                        ()
-                    )
-                ] (rv.LensAuto(fun v -> v.y.z))
-                Doc.InputType.PasswordV [attr.style ("background: " + rv.V.y.z)] rv.V.y.z
-                label [] [
-                    Doc.InputType.CheckBox [] rvDisabled
-                    text "Disable input"
-                ]
-                Doc.InputType.DateTimeLocal [
-                    on.changeView rdt.View (fun _ _ dt -> 
-                        Console.Log <| sprintf "Number of files: %s" (dt.ToString())
-                    )
-                ] rdt
-                Doc.InputType.File [
-                    on.changeView rf.View (fun _ _ files -> 
-                        Console.Log <| sprintf "Number of files: %d" files.Length
-                    )
-                ] rf
-                Doc.InputType.Range [
-                    on.changeView rr.View (fun _ _ range -> 
-                        Console.Log <| sprintf "Range: %d" range
-                    )
-                ] rr
-            ]
-            p [] [text (" You typed: " + rv.V.y.z)]
-            V(ul [] (rv.V.y.z |> Seq.map (fun c -> li [] [text (string c)]))).V
-            p [Attr.ClassPred "is-green" (rv.V.y.z = "green")] [text "this should be bordered with green iff you typed \"green\"."]
-
-            dialog [attr.id "my-popover"; attr.popover "manual"; attr.style "background-color: darkslategray; color:white;"] [text "Popover attempt"]
-            button [attr.popovertarget "my-popover"; attr.popovertargetaction "toggle"] [text "Open/Close dialog"]
-            rd.V
-            Doc.InputType.SelectMultiple
-                [
-                    on.viewUpdate varSelectMultiple.View (fun _ v ->
-                        Console.Log v
-                    )
-                ]
-                (function
-                    | A -> "A"
-                    | B -> "B"
-                    | C -> "C"
-                )
-                [A;B;C]
-                varSelectMultiple
-        ]
-        |> Doc.RunAppend JS.Document.Body
