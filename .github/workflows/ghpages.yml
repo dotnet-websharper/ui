@@ -1,0 +1,67 @@
+name: Build and Deploy Test App to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 11
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-quality: preview
+          dotnet-version: '11.0.x'
+
+      - name: Install Paket as a .NET Tool
+        run: dotnet tool restore
+
+      - name: Add credentials for Paket
+        run: |
+          dotnet paket config add-credentials https://nuget.pkg.github.com/dotnet-websharper/index.json \
+            --username intellifactory-gh \
+            --password ${{ secrets.PAT_PACKAGE }}
+
+      - name: Add GitHub registry NuGet source
+        run: |
+          dotnet nuget add source https://nuget.pkg.github.com/dotnet-websharper/index.json \
+            --name github \
+            --username intellifactory-gh \
+            --password ${{ secrets.PAT_PACKAGE }} \
+            --store-password-in-clear-text
+
+      - name: Prime Paket Git cache for build-script
+        run: |
+          cache="$HOME/.paket/git/db/build-script"
+          rm -rf "$cache"
+          mkdir -p "$(dirname "$cache")"
+          git clone --mirror https://github.com/dotnet-websharper/build-script "$cache"
+
+      - name: Restore dependencies using Paket
+        run: dotnet paket restore
+
+      - name: Build test app in Release
+        run: dotnet build WebSharper.UI.Tests/WebSharper.UI.Tests.fsproj --configuration Release --nologo
+
+      - name: Prepare deployment
+        run: |
+          mkdir -p dist
+          cp -r WebSharper.UI.Tests/wwwroot/. dist/
+
+      - name: Deploy 🚀
+        if: github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: dist
+          enable_jekyll: false

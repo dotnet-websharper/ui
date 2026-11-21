@@ -6,6 +6,8 @@ WebSharper.UI is a UI library featuring a dataflow layer for expressing
 time-varying values. It integrates with DOM and makes it
 simple to construct animated UI in the browser.
 
+**Try it live:** [Open the test suite and playground in your browser](https://dotnet-websharper.github.io/ui/)
+
 ![WebSharper.UI test suite and playground](docs/sample.png)
 
 ## Test suite and playground
@@ -31,7 +33,7 @@ Then open the URL printed by ASP.NET Core (or the one from
 * [Examples](https://websharper-samples.github.io/ui/)
 * [Example Site Repository](https://github.com/websharper-samples/ui)
 * [Tutorial and documentation](https://developers.websharper.com/docs/v4.x/fs/ui)
-* [Guide for contributing to this project](https://github.com/dotnet-websharper/ui/blob/master/CONTRIBUTING.md)
+* [Guide for contributing to this project](https://github.com/dotnet-websharper/ui/blob/main/CONTRIBUTING.md)
 
 > Note: WebSharper.UI is the new name of WebSharper.UI.Next. If you have been using the latter, we recommend that you upgrade to UI.
 

@@ -4,7 +4,7 @@ authors IntelliFactory
 projectUrl https://websharper.com/
 repositoryType git
 repositoryUrl https://github.com/dotnet-websharper/ui/
-licenseUrl https://github.com/dotnet-websharper/ui/blob/master/LICENSE.md
+licenseUrl https://github.com/dotnet-websharper/ui/blob/main/LICENSE.md
 iconUrl https://github.com/dotnet-websharper/core/raw/websharper50/tools/WebSharper.png
 description
     User interface combinators for WebSharper
