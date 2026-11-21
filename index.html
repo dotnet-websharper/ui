@@ -1,0 +1,156 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebSharper.UI — Test Suite &amp; Playground</title>
+    <meta name="description" content="Interactive playground and browser test suite for WebSharper.UI, the reactive DOM and dataflow library for F#." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%234f46e5'/%3E%3Cpath d='M4 5.5h8M4 8h5M4 10.5h8' stroke='white' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
+    <script>
+        // Apply a previously chosen theme before first paint. Light is the
+        // default; the storage key is shared with Main.fs (themeStorageKey).
+        try {
+            var t = localStorage.getItem('websharper-ui-theme');
+            if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+        } catch (e) { }
+    </script>
+    <link rel="stylesheet" type="text/css" href="Content/WebSharper.UI.Tests.css" />
+    <script type="text/javascript" src="Content/WebSharper.UI.Tests.head.js"></script>
+    <!-- Loaded after the generated head so these overrides win over QUnit's CSS. -->
+    <link rel="stylesheet" type="text/css" href="site.css" />
+</head>
+<body>
+    <header class="app-header">
+        <div class="app-titles">
+            <h1>WebSharper.UI</h1>
+            <p>Reactive DOM, dataflow and time-varying values for F# — with <a href="https://websharper.com" target="_blank" rel="noreferrer">WebSharper</a></p>
+        </div>
+        <div class="app-actions">
+            <div id="theme-slot"></div>
+            <a class="app-source" href="https://github.com/dotnet-websharper/ui" target="_blank" rel="noreferrer">Source</a>
+        </div>
+    </header>
+
+    <main class="page">
+        <section class="hero">
+            <p class="eyebrow">Test suite &amp; live playground</p>
+            <h2>Model the UI as a value. Let the dataflow do the rest.</h2>
+            <p class="lede">
+                This page doubles as the library's browser test suite and as a small, interactive
+                tour of WebSharper.UI. Every example below is built with the same reactive
+                primitives that the tests exercise against a real DOM.
+            </p>
+            <div class="tags">
+                <span class="pill">Var &amp; View</span>
+                <span class="pill">ListModel</span>
+                <span class="pill">Reactive attributes</span>
+                <span class="pill">Transitions</span>
+                <span class="pill">Runtime templates</span>
+            </div>
+        </section>
+
+        <div class="grid">
+            <section class="card">
+                <header class="card-header">
+                    <h2>Two-way binding</h2>
+                    <p>A <code>Var</code> feeds an input; its mapped <code>View</code> feeds the greeting.</p>
+                </header>
+                <div id="demo-greeting"></div>
+            </section>
+
+            <section class="card">
+                <header class="card-header">
+                    <h2>Reactive dataflow</h2>
+                    <p>Two inputs combine into a single derived view, with a reactive status class.</p>
+                </header>
+                <div id="demo-dataflow"></div>
+            </section>
+
+            <section class="card">
+                <header class="card-header">
+                    <h2>Keyed collections</h2>
+                    <p><code>ListModel</code> keeps stable nodes while items are added, toggled and removed.</p>
+                </header>
+                <div id="demo-list"></div>
+            </section>
+
+            <section class="card">
+                <header class="card-header">
+                    <h2>Transitions</h2>
+                    <p>An animated style is driven by the same <code>Trans</code> and <code>Anim</code> values used in the tests.</p>
+                </header>
+                <div id="demo-animation"></div>
+            </section>
+
+            <section class="card">
+                <header class="card-header">
+                    <h2>Inputs &amp; lenses</h2>
+                    <p>Typed controls edit a nested record through <code>LensAuto</code>, with every change reflected in a preview.</p>
+                </header>
+                <div id="demo-form"></div>
+            </section>
+
+            <section class="card">
+                <header class="card-header">
+                    <h2>Native popovers</h2>
+                    <p>A declarative top-layer popover, no JavaScript required.</p>
+                </header>
+                <div id="demo-popover"></div>
+            </section>
+
+            <section class="card">
+                <header class="card-header">
+                    <h2>Runtime templates</h2>
+                    <p>Holes in a hidden DOM template are filled with typed docs and views at runtime.</p>
+                </header>
+                <div id="demo-template"></div>
+            </section>
+
+            <section class="card">
+                <header class="card-header">
+                    <h2>Dataflow stress test</h2>
+                    <p>A <code>Var</code> updated every animation frame measures the cost of pushing changes through views.</p>
+                </header>
+                <div id="stresstest"></div>
+            </section>
+        </div>
+
+        <section class="card tests">
+            <header class="card-header">
+                <h2>Test suite</h2>
+                <p>
+                    QUnit runs the F# suite against the real DOM. The tests cover variables, views,
+                    list models, serialization, elements, input controls, reactive attributes and
+                    runtime templates.
+                </p>
+            </header>
+            <div id="main"></div>
+        </section>
+
+        <footer class="app-footer">
+            <p>
+                WebSharper.UI is part of the <a href="https://websharper.com" target="_blank" rel="noreferrer">WebSharper</a> family.
+                Browse the <a href="https://github.com/dotnet-websharper/ui" target="_blank" rel="noreferrer">source</a>
+                or read the <a href="https://developers.websharper.com/docs/v4.x/fs/ui" target="_blank" rel="noreferrer">documentation</a>.
+            </p>
+        </footer>
+    </main>
+
+    <!-- Hidden templates used by the runtime-template demo and the tests. -->
+    <div ws-children-template="movedfragment" style="display:none"><span>before</span><div ws-replace="child"></div><span>after</span></div>
+    <div ws-children-template="holes" style="display:none"><span class="text">${Text}</span><span class="attr" ws-attr="Attr"></span><button ws-onclick="Click">Click</button><input ws-var="Input" /></div>
+    <div ws-children-template="testtemplate" style="display:none">
+        <div class="template-card">
+            <label class="field">
+                <span class="field-label">Template input</span>
+                <span ws-replace="input"></span>
+            </label>
+            <p class="readout">Value: <span ws-replace="value"></span></p>
+            <div ws-replace="item"></div>
+        </div>
+    </div>
+    <div ws-children-template="item" style="display:none"><span class="pill">${text}</span></div>
+
+    <script type="module" src="Content/WebSharper.UI.Tests.js"></script>
+</body>
+</html>
