@@ -210,6 +210,48 @@ let optionValue (show: 'T -> string) ty (x: option<'T>) =
     | None -> "null"
     | Some x -> sprintf "FSharpOption<%s>.Some(%s)" ty (show x)
 
+let varsArray (ctx: Ctx) =
+    [ for KeyValue(holeName, holeDef) in ctx.Template.Holes do
+        let holeName' = holeName.ToLowerInvariant()
+        match holeDef.Kind with
+        | HoleKind.Var (AST.ValTy.Any, d) 
+        | HoleKind.Var (AST.ValTy.String, d) -> 
+            let opt =
+                match d with
+                | None -> "FSharpOption<object>.None"
+                | Some d -> sprintf "FSharpOption<object>.Some(\"%s\")" (d :?> string)
+            yield sprintf """Tuple.Create("%s", ValTy.String, %s)""" holeName' (opt)
+        | HoleKind.Var (AST.ValTy.Number, d) ->
+            let opt =
+                match d with
+                | None -> "FSharpOption<object>.None"
+                | Some d -> sprintf "FSharpOption<object>.Some(%s)" (string (d :?> int))
+            yield sprintf """Tuple.Create("%s", ValTy.Number, %s)""" holeName' opt
+        | HoleKind.Var (AST.ValTy.Bool, d) ->
+            let opt =
+                match d with
+                | None -> "FSharpOption<object>.None"
+                | Some d -> sprintf "FSharpOption<object>.Some(%s)" (string (d :?> bool))
+            yield sprintf """Tuple.Create("%s", ValTy.Bool, %s)""" holeName' opt
+        | HoleKind.Var (AST.ValTy.DateTime, d) ->
+            let opt =
+                match d with
+                | None -> "FSharpOption<object>.None"
+                | Some d -> sprintf "FSharpOption<object>.Some(\"%s\")" (d :?> string)
+            yield sprintf """Tuple.Create("%s", ValTy.DateTime, %s)""" holeName' opt
+        | HoleKind.Var (AST.ValTy.File, d) -> yield sprintf """Tuple.Create("%s", ValTy.File, FSharpOption<object>.None)""" holeName'
+        | HoleKind.Var (AST.ValTy.DomElement, d) -> yield sprintf """Tuple.Create("%s", ValTy.DomElement, FSharpOption<object>.None)""" holeName'
+        | HoleKind.Var (AST.ValTy.StringList, d) ->
+            let opt =
+                match d with
+                | None -> "FSharpOption<object>.None"
+                | Some d -> sprintf "FSharpOption<object>.Some(new string[]{%s})" (d :?> string list |> List.map (fun v -> sprintf "\"%s\"" v) |> fun x -> String.Join(",", x))
+            yield sprintf """Tuple.Create("%s", ValTy.StringList, %s)""" holeName' opt
+        | _ -> ()
+    ]
+    |> String.concat ", "
+    |> sprintf "new Tuple<string, ValTy, FSharpOption<object>>[] { %s }"
+
 let finalMethodBody (ctx: Ctx) =
     let name = ctx.Id |> Option.map (fun s -> s.ToLowerInvariant())
     let references =
@@ -225,47 +267,7 @@ let finalMethodBody (ctx: Ctx) =
         ]
         |> String.concat ", "
         |> sprintf "new Tuple<string, FSharpOption<string>, string>[] { %s }"
-    let vars =
-        [ for KeyValue(holeName, holeDef) in ctx.Template.Holes do
-            let holeName' = holeName.ToLowerInvariant()
-            match holeDef.Kind with
-            | HoleKind.Var (AST.ValTy.Any, d) 
-            | HoleKind.Var (AST.ValTy.String, d) -> 
-                let opt =
-                    match d with
-                    | None -> "FSharpOption<object>.None"
-                    | Some d -> sprintf "FSharpOption<object>.Some(\"%s\")" (d :?> string)
-                yield sprintf """Tuple.Create("%s", ValTy.String, %s)""" holeName' (opt)
-            | HoleKind.Var (AST.ValTy.Number, d) ->
-                let opt =
-                    match d with
-                    | None -> "FSharpOption<object>.None"
-                    | Some d -> sprintf "FSharpOption<object>.Some(%s)" (string (d :?> int))
-                yield sprintf """Tuple.Create("%s", ValTy.Number, %s)""" holeName' opt
-            | HoleKind.Var (AST.ValTy.Bool, d) ->
-                let opt =
-                    match d with
-                    | None -> "FSharpOption<object>.None"
-                    | Some d -> sprintf "FSharpOption<object>.Some(%s)" (string (d :?> bool))
-                yield sprintf """Tuple.Create("%s", ValTy.Bool, %s)""" holeName' opt
-            | HoleKind.Var (AST.ValTy.DateTime, d) ->
-                let opt =
-                    match d with
-                    | None -> "FSharpOption<object>.None"
-                    | Some d -> sprintf "FSharpOption<object>.Some(\"%s\")" (d :?> string)
-                yield sprintf """Tuple.Create("%s", ValTy.DateTime, %s)""" holeName' opt
-            | HoleKind.Var (AST.ValTy.File, d) -> yield sprintf """Tuple.Create("%s", ValTy.File, FSharpOption<object>.None)""" holeName'
-            | HoleKind.Var (AST.ValTy.DomElement, d) -> yield sprintf """Tuple.Create("%s", ValTy.DomElement, FSharpOption<object>.None)""" holeName'
-            | HoleKind.Var (AST.ValTy.StringList, d) ->
-                let opt =
-                    match d with
-                    | None -> "FSharpOption<object>.None"
-                    | Some d -> sprintf "FSharpOption<object>.Some(new string[]{%s})" (d :?> string list |> List.map (fun v -> sprintf "\"%s\"" v) |> fun x -> String.Join(",", x))
-                yield sprintf """Tuple.Create("%s", ValTy.StringList, %s)""" holeName' opt
-            | _ -> ()
-        ]
-        |> String.concat ", "
-        |> sprintf "new Tuple<string, ValTy, FSharpOption<object>>[] { %s }"
+    let vars = varsArray ctx
     [
         sprintf "var (completed, initializer) = Handler.CompleteHoles(key, holes, %s);" vars
         sprintf "var doc = Runtime.GetOrLoadTemplate(%s, %s, %s, %s, null, completed, %s, ServerLoad.%s, %s, initializer, %b, false, false);"
@@ -337,7 +339,19 @@ let instanceClass (ctx: Ctx) =
         yield "}"
     ]
 
-let buildFinalMethods (ctx: Ctx) =
+/// The body of Bind(), only generated for the root template of a
+/// ClientLoad.FromDocument file. Mirrors the F# provider's Bind(): it fills
+/// the holes placed directly in the current document and binds it in place.
+let bindMethodBody (ctx: Ctx) =
+    [
+        "if (!global::WebSharper.Pervasives.IsClient)"
+        "    throw new InvalidOperationException(\"Template.Bind() can only be called from the client side.\");"
+        sprintf "var (completed, initializer) = Handler.CompleteHoles(key, holes, %s);" (varsArray ctx)
+        "var doc = global::WebSharper.UI.Client.Doc.RunFullDocTemplate(completed);"
+        "instance = new Instance(initializer, doc);"
+    ]
+
+let buildFinalMethods (isRoot: bool) (ctx: Ctx) =
     [|
         yield! varsClass ctx
         yield! anchorsClass ctx
@@ -348,16 +362,22 @@ let buildFinalMethods (ctx: Ctx) =
         yield "public Doc Doc() => Create().Doc;"
         if ctx.Template.IsElt then
             yield sprintf "[Inline] public Elt Elt() => (Elt)Doc();"
+        if isRoot then
+            yield "/// <summary>Fills the holes of the current document and binds it in place."
+            yield "/// Client-side only.</summary>"
+            yield "public void Bind() {"
+            yield! indent (bindMethodBody ctx)
+            yield "}"
     |]
 
-let build typeName (ctx: Ctx) =
+let build typeName (isRoot: bool) (ctx: Ctx) =
     [|
         yield "string key = System.Guid.NewGuid().ToString();"
         yield "List<TemplateHole> holes = new List<TemplateHole>();"
         yield "Instance instance;"
         for KeyValue(holeName, holeDef) in ctx.Template.Holes do
             yield! buildHoleMethods typeName holeName holeDef
-        yield! buildFinalMethods ctx
+        yield! buildFinalMethods isRoot ctx
     |]
 
 let getRelPath (baseDir: string) (fullPath: string) =
@@ -413,12 +433,13 @@ let getCodeInternal namespaceName templateName (item: ParseItem) =
                         }
                     match name.NameAsOption with
                     | None ->
-                        for line in build templateName ctx do
+                        let isRoot = item.ClientLoad = ClientLoad.FromDocument
+                        for line in build templateName isRoot ctx do
                             yield line
                     | Some name' ->
                         yield "public class " + name'
                         yield "{"
-                        yield! indent (build name' ctx)
+                        yield! indent (build name' false ctx)
                         yield "}"
             ]
             yield "}"
