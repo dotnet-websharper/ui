@@ -492,26 +492,38 @@ module private Impl =
             if List.isEmpty fileIds then <@@ () @@> else 
                 fileIds |> List.reduce (fun a b -> Expr.Sequential(a, b))
         
-        <@@ let builder = (%%args[0] : obj) :?> Builder
-            let holes, completed = Builder.CompleteHoles builder %%vars
-            %%inits
-            let doc =
-                RTS.Runtime.GetOrLoadTemplate(
-                    %%Expr.Value ctx.FileId,
-                    %OptionValue name,
-                    %OptionValue ctx.Path,
-                    %%Expr.Value ctx.Template.Src,
-                    Builder.Source builder,
-                    holes,
-                    %OptionValue ctx.InlineFileId,
-                    %%Expr.Value ctx.ServerLoad,
-                    %%references,
-                    completed,
-                    %%Expr.Value ctx.Template.IsElt,
-                    %%(match args with _::keepUnfilled::_ -> keepUnfilled | _ -> Expr.Value false),
-                    false
-                )
-            Builder.SetAndReturnInstance builder (TI(completed, doc)) @@>
+        // a template with ws-var holes needs the TemplateInitializer on the client (#302)
+        let hasVars =
+            ctx.Template.Holes.Values |> Seq.exists (fun h -> match h.Kind with HoleKind.Var _ -> true | _ -> false)
+        // args[0] is the inlined receiver expression, it must only be spliced once
+        let builderVar = Var("builder", typeof<Builder>)
+        let builder = Expr.Var builderVar
+        let completed =
+            if hasVars then
+                <@@ Builder.CompleteHolesWithVars (%%builder : Builder) %%vars @@>
+            else
+                <@@ Builder.CompleteHoles (%%builder : Builder) %%vars @@>
+        let body =
+            <@@ let holes, completed = %%completed
+                %%inits
+                let doc =
+                    RTS.Runtime.GetOrLoadTemplate(
+                        %%Expr.Value ctx.FileId,
+                        %OptionValue name,
+                        %OptionValue ctx.Path,
+                        %%Expr.Value ctx.Template.Src,
+                        Builder.Source (%%builder : Builder),
+                        holes,
+                        %OptionValue ctx.InlineFileId,
+                        %%Expr.Value ctx.ServerLoad,
+                        %%references,
+                        completed,
+                        %%Expr.Value ctx.Template.IsElt,
+                        %%(match args with _::keepUnfilled::_ -> keepUnfilled | _ -> Expr.Value false),
+                        false
+                    )
+                Builder.SetAndReturnInstance (%%builder : Builder) (TI(completed, doc)) @@>
+        Expr.Let(builderVar, <@@ (%%args[0] : obj) :?> Builder @@>, body)
 
     let BuildInstanceType (ty: PT.Type) (ctx: Ctx) =
         let res =

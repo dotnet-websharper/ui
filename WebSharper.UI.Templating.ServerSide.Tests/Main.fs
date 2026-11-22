@@ -176,6 +176,12 @@ let Main = Application.SinglePage(fun ctx ->
                         .Doc()
                 ])
             .ServerVarForms([mkServerVarForm("var-1"); mkServerVarForm("var-2")])
+            .ServerVarTypesHere(
+                MainTemplate.Main.ServerVarTypes()
+                    .SetText(Var.Create "set on the server")
+                    .SetMulti(Var.Create [| "n" |])
+                    .Doc()
+            )
             .AfterRender_WithModel(fun e ->
                 JavaScript.Console.Log("AfterRender_WithModel running, vars and anchors:", e.Vars, e.Anchors)
                 Var.Update e.Vars.ServerInitVar (fun v -> v + " (modified on AfterRender)")

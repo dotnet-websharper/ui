@@ -62,6 +62,21 @@
         Server uninitialized file:
         <input ws-var="FileVar" type="file" />
     </div>
+    <div ws-replace="ServerVarTypesHere" ws-template="ServerVarTypes">
+        Server-side vars of every type, unset unless noted:
+        <input id="svt-text" ws-var="UText" value="t" />
+        <input id="svt-notype" ws-var="UNoType" />
+        <input id="svt-number" ws-var="UNumber" type="number" value="1.5" />
+        <input id="svt-check" ws-var="UCheck" type="checkbox" checked="checked" />
+        <input id="svt-date" ws-var="UDate" type="datetime-local" />
+        <textarea id="svt-area" ws-var="UArea">a</textarea>
+        <select id="svt-select" ws-var="USelect"><option>x</option><option selected="selected">y</option></select>
+        <select id="svt-multi" ws-var="UMulti" multiple="multiple"><option selected="selected">m</option><option>n</option></select>
+        Set on the server:
+        <input id="svt-set" ws-var="SetText" />
+        <select id="svt-set-multi" ws-var="SetMulti" multiple="multiple"><option>m</option><option>n</option></select>
+        <span id="svt-out">${UText}|${UNoType}|${UNumber}|${UCheck}|${UArea}|${USelect}|${SetText}</span>
+    </div>
     <div ws-replace="Client"></div>
     <div style="display:none">
         <div data-template="OldTemplate">

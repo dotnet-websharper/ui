@@ -265,6 +265,7 @@ type Handler private () =
             ||> Seq.fold (fun hasEventHandler h ->
                 match h with
                 | :? TemplateHole.VarStr
+                | :? TemplateHole.VarStrList
                 | :? TemplateHole.VarIntUnchecked
                 | :? TemplateHole.VarInt
                 | :? TemplateHole.VarFloatUnchecked
@@ -311,6 +312,8 @@ type Handler private () =
                         | Some th ->
                             match th with
                             | :? TemplateHole.VarStr as v ->
+                                (n, t, Option.Some (box v.Value.Value))
+                            | :? TemplateHole.VarStrList as v ->
                                 (n, t, Option.Some (box v.Value.Value))
                             | :? TemplateHole.VarIntUnchecked as v ->
                                 (n, t, Option.Some (box v.Value.Value))
@@ -545,6 +548,13 @@ module ProviderBuilder =
     let CompleteHoles (builder: ProviderBuilder) (vars: (string * ValTy * obj option)[]) =
         Handler.CompleteHoles(builder.Key, builder.Holes, vars)
 
+    /// CompleteHoles for a template with ws-var holes: rendered on the server, its vars
+    /// are created on the client by the TemplateInitializer, so it must be in the bundle.
+    [<Inline>]
+    [<RequireFeature(typeof<TemplateInitializerFeature>)>]
+    let CompleteHolesWithVars (builder: ProviderBuilder) (vars: (string * ValTy * obj option)[]) =
+        Handler.CompleteHoles(builder.Key, builder.Holes, vars)
+
     [<Inline>]
     let BindBody (builder: ProviderBuilder) (vars: (string * ValTy * obj option)[]) =
         let holes, completed = CompleteHoles builder vars
@@ -692,6 +702,21 @@ type Runtime private () =
             ctx.Writer.Write(after)
 
         and writeTemplate (template: Template) (plain: bool) (extraAttrs: list<UI.Attr>) (ctx: RenderContext) (id: string) =
+            // The client-side name of a var hole filled on the server, used both for ws-var
+            // and for the ${...} text holes that show its value, so that they bind to the same Var.
+            let filledVarName (th: TemplateHole) =
+                match th with
+                | :? TemplateHole.VarStr
+                | :? TemplateHole.VarStrList
+                | :? TemplateHole.VarIntUnchecked
+                | :? TemplateHole.VarInt
+                | :? TemplateHole.VarFloatUnchecked
+                | :? TemplateHole.VarFloat
+                | :? TemplateHole.VarBool
+                | :? TemplateHole.VarDateTime
+                | :? TemplateHole.VarFile ->
+                    Some (if String.IsNullOrEmpty id then th.Name else id + "::" + th.Name)
+                | _ -> None
             let writeStringParts text (w: HtmlTextWriter) =
                 text |> Array.iter (function
                     | StringPart.Text t -> w.Write(t)
@@ -704,7 +729,10 @@ type Runtime private () =
                             | :? TemplateHole.Text as th -> w.WriteEncodedText(th.Value)
                             | :? TemplateHole.UninitVar as th ->
                                     w.Write("${" + th.Value + "}")
-                            | _ -> failwithf "Invalid hole, expected text: %s" holeName
+                            | th ->
+                                match filledVarName th with
+                                | Some n -> w.Write("${" + n + "}")
+                                | None -> failwithf "Invalid hole, expected text: %s" holeName
                         | false, _ -> 
                             match ctx.FillWithText with
                             | Some t -> w.WriteEncodedText(t)
@@ -723,7 +751,10 @@ type Runtime private () =
                             | :? TemplateHole.Text as th -> th.Value
                             | :? TemplateHole.UninitVar as th ->
                                 "${" + th.Value + "}"
-                            | _ -> failwithf "Invalid hole, expected text: %s" holeName
+                            | th ->
+                                match filledVarName th with
+                                | Some n -> "${" + n + "}"
+                                | None -> failwithf "Invalid hole, expected text: %s" holeName
                         | false, _ ->
                             match ctx.FillWithText with
                             | Some t -> t
@@ -796,18 +827,10 @@ type Runtime private () =
                             match th with
                             | :? TemplateHole.UninitVar as th ->
                                 Some th.Value, attrs
-                            | :? TemplateHole.VarStr
-                            | :? TemplateHole.VarIntUnchecked
-                            | :? TemplateHole.VarInt
-                            | :? TemplateHole.VarFloatUnchecked
-                            | :? TemplateHole.VarFloat
-                            | :? TemplateHole.VarStr
-                            | :? TemplateHole.VarBool
-                            | :? TemplateHole.VarDateTime
-                            | :? TemplateHole.VarFile ->
-                                Some (if String.IsNullOrEmpty id then th.Name else id + "::" + th.Name), attrs
-                            | _ ->
-                                Some holeName, attrs
+                            | th ->
+                                match filledVarName th with
+                                | Some n -> Some n, attrs
+                                | None -> Some holeName, attrs
                         | _ ->
                             Some holeName, attrs
                     writeElement (Option.isNone parent) plain tag attrs wsVar children domAttr
