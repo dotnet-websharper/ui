@@ -130,6 +130,37 @@ let Vars = TestCategory "Server-bound vars" {
         equalAsync (View.GetAsync var1.View) ""
         equalAsync (View.GetAsync var2.View) ""
     }
+
+    // one test, so that the defaults are checked before the inputs are changed
+    Test "server-side vars of every type" {
+        // unset vars get the template's defaults
+        equal (getElt "svt-text")?value "t"
+        equal (getElt "svt-notype")?value ""
+        equal (getElt "svt-number")?value "1.5"
+        equal (getElt "svt-check")?``checked`` true
+        equal (getElt "svt-area")?value "a"
+        equal (getElt "svt-select")?value "y"
+        // vars set on the server keep their value, also in text holes
+        equal (getElt "svt-set")?value "set on the server"
+        let multi = getElt "svt-set-multi"
+        equal (multi?selectedOptions?length : int) 1
+        equal (multi?selectedOptions?item(0)?value : string) "n"
+        equal (getElt "svt-out").TextContent "t||1.5|true|a|y|set on the server"
+        // both are bound
+        let text = getElt "svt-notype"
+        text?value <- "typed"
+        trigger text "input"
+        let set = getElt "svt-set"
+        set?value <- "changed"
+        trigger set "input"
+        // the text holes are updated asynchronously
+        equalAsync
+            (async {
+                do! Async.Sleep 50
+                return (getElt "svt-out").TextContent
+            })
+            "t|typed|1.5|true|a|y|changed"
+    }
 }
 
 let Overridden = TestCategory "Templates overridden by a string" {

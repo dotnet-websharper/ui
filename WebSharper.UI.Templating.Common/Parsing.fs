@@ -265,7 +265,8 @@ module Impl =
                 let v =
                     if node.Attributes.AttributesWithName "value" |> Seq.isEmpty |> not then
                         (node.Attributes.AttributesWithName "value" |> Seq.head).Value
-                        |> int
+                        // the client creates a Var<float> from it, and value="1.5" is valid HTML
+                        |> fun v -> Double.Parse(v, Globalization.CultureInfo.InvariantCulture)
                         |> fun v -> Some (v :> obj)
                     else
                         None
