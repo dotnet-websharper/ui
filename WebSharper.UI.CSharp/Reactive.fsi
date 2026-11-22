@@ -167,6 +167,36 @@ type DocExtension =
         * Func<'K, View<'T>, Doc>
         -> Doc
 
+    /// DocSeqCached over an array.
+    [<Extension>]
+    static member DocSeqCached<'T when 'T : equality>
+        : View<'T[]>
+        * Func<'T, Doc>
+        -> Doc
+
+    /// DocSeqCached over an array, with a custom key.
+    [<Extension>]
+    static member DocSeqCached<'T, 'K when 'K : equality>
+        : View<'T[]>
+        * Func<'T,'K>
+        * Func<'T, Doc>
+        -> Doc
+
+    /// DocSeqCached over an array, passing a view of each item.
+    [<Extension>]
+    static member DocSeqCached<'T when 'T : equality>
+        : View<'T[]>
+        * Func<View<'T>, Doc>
+        -> Doc
+
+    /// DocSeqCached over an array, with a custom key, passing a view of each item.
+    [<Extension>]
+    static member DocSeqCached<'T, 'K when 'K : equality>
+        : View<'T[]>
+        * Func<'T, 'K>
+        * Func<'K, View<'T>, Doc>
+        -> Doc
+
     [<Extension>]
     static member DocLens<'T, 'K when 'K : equality>
         : Var<list<'T>>
