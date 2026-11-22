@@ -248,7 +248,7 @@ module Doc =
     val FloatInputUncheckedV : seq<Attr> -> float -> Doc
 
     /// Input text area.
-    [<Obsolete "Use Doc.InputType.TextAreaV instead">]
+    [<Obsolete "Use Doc.InputType.TextArea instead">]
     val InputArea : seq<Attr> -> Var<string> -> Doc
 
     /// Input text area.
