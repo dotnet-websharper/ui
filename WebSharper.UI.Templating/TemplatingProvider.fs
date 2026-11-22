@@ -724,7 +724,8 @@ type FileWatcher (invalidate: unit -> unit, disposing: IEvent<EventHandler, Even
         let rootedPath =
             Path.Combine(cfg.ResolutionFolder, path)
             |> Path.GetFullPath // canonicalize so that Renamed test below works
-        if not (watchers.ContainsKey rootedPath) then
+        // a missing folder is reported by the parser, FileSystemWatcher would throw on it
+        if not (watchers.ContainsKey rootedPath) && Directory.Exists(Path.GetDirectoryName rootedPath) then
             let watcher =
                 new FileSystemWatcher(
                     Path.GetDirectoryName rootedPath, Path.GetFileName rootedPath,
@@ -795,8 +796,10 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
                         pathOrHtml, clientLoad, serverLoad, legacyMode
                     | a -> failwithf "Unexpected parameter values: %A" a
                 let ty = //lazy (
+                    // watch the files before parsing them: if parsing fails, the compiler
+                    // keeps the error until the type provider is invalidated (#311)
+                    setupWatcher (Parsing.GetParseKind pathOrHtml)
                     let parsed = Parsing.Parse pathOrHtml cfg.ResolutionFolder serverLoad clientLoad
-                    setupWatcher parsed.ParseKind
                     let ty =
                         ProvidedTypeDefinition(thisAssembly, rootNamespace, typename, Some typeof<obj>)
                             .WithXmlDoc(XmlDoc.TemplateType "")
