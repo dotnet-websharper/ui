@@ -1,6 +1,6 @@
 import Runtime from "./WebSharper.Core.JavaScript/Runtime.js"
 Runtime.ScriptBasePath="/Scripts/";
-import { GetOptional, CreateFuncWithArgs, DeleteEmptyFields, Create as Create_3, Lazy, MarkResizable, SetOptional } from "./WebSharper.Core.JavaScript/Runtime.js"
+import { Iter as Iter_1, GetOptional, CreateFuncWithArgs, DeleteEmptyFields, Create as Create_3, Lazy, Iterate, MarkResizable, SetOptional } from "./WebSharper.Core.JavaScript/Runtime.js"
 function isIDisposable(x){
   return"Dispose"in x;
 }
@@ -44,13 +44,11 @@ function restoreTheme(){
   applyTheme();
 }
 function toggleTheme(){
-  let _1;
   theme().Set(theme().Get()=="dark"?"light":"dark");
   try {
-    _1=globalThis.localStorage.setItem(themeStorageKey(), theme().Get());
+    globalThis.localStorage.setItem(themeStorageKey(), theme().Get());
   }
   catch(m){
-    _1=null;
   }
   applyTheme();
 }
@@ -61,7 +59,7 @@ function greetingDemo(){
   const name=_c_1.Create_1("WebSharper");
   const trimmed=Map((n) => Trim(n), name.View);
   const greeting=Map((n) => n==""?"Hello, stranger!":"Hello, "+n+"!", trimmed);
-  return Doc.Element("div", [Class("demo")], [formField("Your name", Doc.Input([Attr.Create("class", "input"), Attr.Create("placeholder", "Type a name\u2026")], name)), Doc.Element("div", [Class("actions")], [Doc.Element("button", [Class("btn"), Handler("click", () =>() => name.Set("WebSharper"))], [Doc.TextNode("Reset")]), Doc.Element("button", [Class("btn btn-primary"), Handler("click", () =>() => name.Set("Reactive F#"))], [Doc.TextNode("Use an example")])]), Doc.Element("p", [Class("greeting"), DynamicClassPred("is-empty", Map((n) => n=="", trimmed))], [Doc.TextView(greeting)]), Doc.Element("span", [Class("pill")], [Doc.TextView(Map((n) =>(((_1) =>(_2) => _1(String(_2)+" characters"))((x) => x))(n.length), name.View))])]);
+  return Doc.Element("div", [Class("demo")], [formField("Your name", Doc.Input([Attr.Create("class", "input"), Attr.Create("placeholder", "Type a name\u2026")], name)), Doc.Element("div", [Class("actions")], [Doc.Element("button", [Class("btn"), Handler("click", () =>() => name.Set("WebSharper"))], [Doc.TextNode("Reset")]), Doc.Element("button", [Class("btn btn-primary"), Handler("click", () =>() => name.Set("Reactive F#"))], [Doc.TextNode("Use an example")])]), Doc.Element("p", [Class("greeting"), DynamicClassPred("is-empty", Map((n) => n=="", trimmed))], [Doc.TextView(greeting)]), Doc.Element("span", [Class("pill")], [Doc.TextView(Map((n) => String(n.length)+" characters", name.View))])]);
 }
 function dataflowDemo(){
   const first=_c_1.Create_1("Ada");
@@ -85,7 +83,7 @@ function listDemo(){
     }
   };
   const doneCount=Map((flags) => length(filter_1((x) => x, flags)), Join(MapCached(Sequence, MapSeqCachedBy(tasks.key, (t) => t.Done.View, tasks.u0076ar.View))));
-  return Doc.Element("div", [Class("demo")], [Doc.Element("div", [Class("toolbar")], [Doc.Input([Attr.Create("class", "input"), Attr.Create("placeholder", "Add an item\u2026"), Handler("keydown", () =>(ev) => ev.key=="Enter"?addTask():null)], newTask), Doc.Element("button", [Class("btn btn-primary"), Handler("click", () =>() => addTask())], [Doc.TextNode("Add")]), Doc.Element("span", [Class("spacer")], []), Doc.Element("span", [Class("pill")], [Doc.TextView(Map((n) =>(((_1) =>(_2) => _1(String(_2)+" item(s)"))((x) => x))(n), tasks.LengthAsView))]), Doc.Element("span", [Class("pill")], [Doc.TextView(Map((n) =>(((_1) =>(_2) => _1(String(_2)+" done"))((x) => x))(n), doneCount))])]), Doc.Element("ul", [Class("task-list")], [Doc.ConvertBy(tasks.key, (t) => Doc.Element("li", [Class("task"), DynamicClassPred("is-done", t.Done.View)], [Doc.CheckBox([], t.Done), Doc.Element("span", [Class("task-name")], [Doc.TextNode(t.Name)]), Doc.Element("button", [Class("icon-btn"), Attr.Create("title", "Remove"), Handler("click", () =>() => tasks.RemoveByKey(t.Name))], [Doc.TextNode("×")])]), tasks.u0076ar.View)])]);
+  return Doc.Element("div", [Class("demo")], [Doc.Element("div", [Class("toolbar")], [Doc.Input([Attr.Create("class", "input"), Attr.Create("placeholder", "Add an item\u2026"), Handler("keydown", () =>(ev) => ev.key=="Enter"?addTask():void 0)], newTask), Doc.Element("button", [Class("btn btn-primary"), Handler("click", () =>() => addTask())], [Doc.TextNode("Add")]), Doc.Element("span", [Class("spacer")], []), Doc.Element("span", [Class("pill")], [Doc.TextView(Map((n) => String(n)+" item(s)", tasks.LengthAsView))]), Doc.Element("span", [Class("pill")], [Doc.TextView(Map((n) => String(n)+" done", doneCount))])]), Doc.Element("ul", [Class("task-list")], [Doc.ConvertBy(tasks.key, (t) => Doc.Element("li", [Class("task"), DynamicClassPred("is-done", t.Done.View)], [Doc.CheckBox([], t.Done), Doc.Element("span", [Class("task-name")], [Doc.TextNode(t.Name)]), Doc.Element("button", [Class("icon-btn"), Attr.Create("title", "Remove"), Handler("click", () =>() => tasks.RemoveByKey(t.Name))], [Doc.TextNode("×")])]), tasks.u0076ar.View)])]);
 }
 function animationDemo(){
   const position=_c_1.Create_1(0);
@@ -95,7 +93,7 @@ function animationDemo(){
   const a_2=get_Double();
   const cubic=(s) =>(e) => Simple(a_2, Easing.CubicInOut, 360, s, e);
   const transition=Exit((x) =>(cubic(x))(x+18), Enter((x) =>(cubic(x-18))(x), Create_1((_1, _2) =>(linear(_1))(_2))));
-  return Doc.Element("div", [Class("demo")], [Doc.Element("div", [Class("stage")], [Doc.Element("div", [Class("slider"), AnimatedStyle("left", transition, position.View, (p) =>(((_1) =>(_2) => _1(_2.toFixed(1)+"%"))((x) => x))(p))], [Doc.TextView(Map((p) => p>0?"On":"Off", position.View))])]), Doc.Element("div", [Class("actions")], [Doc.Element("button", [Class("btn btn-primary"), Handler("click", () =>() => position.Set(position.Get()>0?0:55))], [Doc.TextNode("Toggle position")])]), Doc.Element("p", [Class("hint")], [Doc.TextNode("Driven by Attr.AnimatedStyle with a Trans built from Anim.Simple and Easing.CubicInOut.")])]);
+  return Doc.Element("div", [Class("demo")], [Doc.Element("div", [Class("stage")], [Doc.Element("div", [Class("slider"), AnimatedStyle("left", transition, position.View, (p) => p.toFixed(1)+"%")], [Doc.TextView(Map((p) => p>0?"On":"Off", position.View))])]), Doc.Element("div", [Class("actions")], [Doc.Element("button", [Class("btn btn-primary"), Handler("click", () =>() => position.Set(position.Get()>0?0:55))], [Doc.TextNode("Toggle position")])]), Doc.Element("p", [Class("hint")], [Doc.TextNode("Driven by Attr.AnimatedStyle with a Trans built from Anim.Simple and Easing.CubicInOut.")])]);
 }
 function formDemo(){
   const settings=_c_1.Create_1(New_1(New_2("Ada Lovelace", "2026-11-21"), "#4f46e5", 70, true));
@@ -109,7 +107,7 @@ function formDemo(){
   const subscribe=_c_1.Lens(settings, (s) => s.Subscribe, (_1, _2) => New_1(_1.Profile, _1.Accent, _1.Volume, _2));
   const accentView=accent.View;
   const settingsView=settings.View;
-  return Doc.Element("div", [Class("demo")], [Doc.Element("div", [Class("form-grid")], [formField("Display name", Doc.Input([Attr.Create("class", "input")], displayName)), formField("Accent", Doc.ColorInput([Attr.Create("class", "input color-input")], accent)), formField("Password", Doc.PasswordBox([Attr.Create("class", "input")], password)), formField("Sign-up date", Doc.DateInput([Attr.Create("class", "input")], date)), formField("Volume", Doc.Element("div", [Class("range-row")], [Doc.RangeInput([Class("range")], volume), Doc.Element("span", [Class("pill")], [Doc.TextView(Map((v) =>(((_1) =>(_2) => _1(String(_2)+"%"))((x) => x))(v), volume.View))])])), formField("Plan", Doc.Select([Attr.Create("class", "input")], planText, ofArray([Free, Pro, Team]), plan)), formField("Notifications", Doc.Element("label", [Class("check")], [Doc.CheckBox([], subscribe), Doc.TextNode("Email me about updates")])), formField("Attachments", Doc.Element("div", [Class("range-row")], [Doc.FileInput([Class("file-input")], files), Doc.Element("span", [Class("pill")], [Doc.TextView(Map((fs) =>(((_1) =>(_2) => _1(String(_2)+" file(s)"))((x) => x))(length_1(fs)), files.View))])]))]), Doc.Element("div", [Class("preview-card"), DynamicStyle("border-color", accentView), DynamicStyle("background", Map((c) => c+"18", accentView))], [Doc.Element("span", [Class("preview-accent"), DynamicStyle("background", accentView)], []), Doc.Element("div", [], [Doc.Element("strong", [], [Doc.TextView(Map((s) => Trim(s.Profile.DisplayName)==""?"Unnamed profile":s.Profile.DisplayName, settingsView))]), Doc.Element("p", [Class("hint")], [Doc.TextView(Map2((_1, _2) =>(((((_3) =>(_4) =>(_5) =>(_6) => _3(toSafe(_4)+" plan · volume "+String(_5)+"% · "+toSafe(_6)))((x) => x))(planText(_2)))(_1.Volume))(_1.Subscribe?"notifications on":"notifications off"), settingsView, plan.View))]), Doc.Element("p", [Class("hint")], [Doc.TextView(Map2((_1, _2) => _1.length===0?"No password set.":((((_3) =>(_4) =>(_5) => _3(String(_4)+"-character password · date "+toSafe(_5)))((x) => x))(_1.length))(_2), password.View, date.View))])])])]);
+  return Doc.Element("div", [Class("demo")], [Doc.Element("div", [Class("form-grid")], [formField("Display name", Doc.Input([Attr.Create("class", "input")], displayName)), formField("Accent", Doc.ColorInput([Attr.Create("class", "input color-input")], accent)), formField("Password", Doc.PasswordBox([Attr.Create("class", "input")], password)), formField("Sign-up date", Doc.DateInput([Attr.Create("class", "input")], date)), formField("Volume", Doc.Element("div", [Class("range-row")], [Doc.RangeInput([Class("range")], volume), Doc.Element("span", [Class("pill")], [Doc.TextView(Map((v) => String(v)+"%", volume.View))])])), formField("Plan", Doc.Select([Attr.Create("class", "input")], planText, ofArray([Free, Pro, Team]), plan)), formField("Notifications", Doc.Element("label", [Class("check")], [Doc.CheckBox([], subscribe), Doc.TextNode("Email me about updates")])), formField("Attachments", Doc.Element("div", [Class("range-row")], [Doc.FileInput([Class("file-input")], files), Doc.Element("span", [Class("pill")], [Doc.TextView(Map((fs) => String(length_1(fs))+" file(s)", files.View))])]))]), Doc.Element("div", [Class("preview-card"), DynamicStyle("border-color", accentView), DynamicStyle("background", Map((c) => c+"18", accentView))], [Doc.Element("span", [Class("preview-accent"), DynamicStyle("background", accentView)], []), Doc.Element("div", [], [Doc.Element("strong", [], [Doc.TextView(Map((s) => Trim(s.Profile.DisplayName)==""?"Unnamed profile":s.Profile.DisplayName, settingsView))]), Doc.Element("p", [Class("hint")], [Doc.TextView(Map2((_1, _2) => toSafe(planText(_2))+" plan · volume "+String(_1.Volume)+"% · "+toSafe(_1.Subscribe?"notifications on":"notifications off"), settingsView, plan.View))]), Doc.Element("p", [Class("hint")], [Doc.TextView(Map2((_1, _2) => _1.length===0?"No password set.":String(_1.length)+"-character password · date "+toSafe(_2), password.View, date.View))])])])]);
 }
 function popoverDemo(){
   return Doc.Element("div", [Class("demo")], [Doc.Element("button", [Class("btn btn-primary"), Attr.Create("popovertarget", "demo-popover-panel"), Attr.Create("popovertargetaction", "toggle")], [Doc.TextNode("Toggle popover")]), Doc.Element("div", [Attr.Create("id", "demo-popover-panel"), Attr.Create("popover", "auto"), Class("popover-card")], [Doc.Element("h3", [], [Doc.TextNode("Native popovers")]), Doc.Element("p", [], [Doc.TextNode("A top-layer element toggled declaratively with "), Doc.Element("code", [], [Doc.TextNode("popovertarget")]), Doc.TextNode(".")])]), Doc.Element("p", [Class("hint")], [Doc.TextNode("Click the button to open the panel; click outside it (or press Escape) to dismiss.")])]);
@@ -170,9 +168,8 @@ function mount(doc){
 }
 function afterUpdate(f){
   const f_1=() => {
-    const x=Sleep(50);
     const f_2=() => Return(f());
-    return Bind_1(x, (_1, _2) =>(f_2(_1))(_2));
+    return Bind_1(Sleep(50), (_1, _2) =>(f_2(_1))(_2));
   };
   return Delay((_1, _2) =>(f_1(_1))(_2));
 }
@@ -187,7 +184,15 @@ function isChecked(el){
 }
 function selectedIndices(el){
   const options=el.querySelectorAll("option");
-  return ofSeq(delay(() => collect((i) => options[i].selected?[i]:[], range(0, options.length-1))));
+  const l=FSharpList.Cons(void 0, void 0);
+  let last=l;
+  for(const i of Iter_1(range(0, options.length-1)))if(options[i].selected){
+    const c=FSharpList.Cons(i, void 0);
+    last.$1=c;
+    last=c;
+  }
+  last.$1=FSharpList.Empty;
+  return l.$1;
 }
 function Class(name){
   return ClassPred(name, true);
@@ -292,19 +297,17 @@ function RunTests(tests){
         }
     }
     finally {
-      const _1=e;
-      if(typeof _1=="object"&&isIDisposable(_1))e.Dispose();
+      if(typeof e=="object"&&isIDisposable(e))e.Dispose();
     }
   });
 }
 function GetFieldValues(o){
-  let r=[];
+  const r=[];
   let k;
   for(var k_1 in o)r.push(o[k_1]);
   return r;
 }
 function Equals(a, b){
-  let _1;
   if(a===b)return true;
   else {
     const m=typeof a;
@@ -315,24 +318,20 @@ function Equals(a, b){
       else if(a instanceof Array&&b instanceof Array)return arrayEquals(a, b);
       else if(a instanceof Date&&b instanceof Date)return dateEquals(a, b);
       else {
-        const a_1=a;
-        const b_1=b;
-        const eqR=[true];
         let k;
-        for(var k_2 in a_1)if(((k_3) => {
-          eqR[0]=!a_1.hasOwnProperty(k_3)||b_1.hasOwnProperty(k_3)&&Equals(a_1[k_3], b_1[k_3]);
-          return!eqR[0];
+        let eqR=true;
+        for(var k_2 in a)if(((k_3) => {
+          eqR=!a.hasOwnProperty(k_3)||b.hasOwnProperty(k_3)&&Equals(a[k_3], b[k_3]);
+          return!eqR;
         })(k_2))break;
-        if(eqR[0]){
+        if(eqR){
           let k_1;
-          for(var k_3 in b_1)if(((k_4) => {
-            eqR[0]=!b_1.hasOwnProperty(k_4)||a_1.hasOwnProperty(k_4);
-            return!eqR[0];
+          for(var k_3 in b)if(((k_4) => {
+            eqR=!b.hasOwnProperty(k_4)||a.hasOwnProperty(k_4);
+            return!eqR;
           })(k_3))break;
-          _1=void 0;
         }
-        else _1=null;
-        return eqR[0];
+        return eqR;
       }
     }
     else return m=="function"&&("$Func"in a?a.$Func===b.$Func&&a.$Target===b.$Target:"$Invokes"in a&&"$Invokes"in b&&arrayEquals(a.$Invokes, b.$Invokes));
@@ -369,7 +368,6 @@ function Compare(a, b){
       case 1:
         return a<b?-1:1;
       case 2:
-        let _1;
         if(a===null)return -1;
         else if(b===null)return 1;
         else if("CompareTo"in a)return a.CompareTo(b);
@@ -377,18 +375,14 @@ function Compare(a, b){
         else if(a instanceof Array&&b instanceof Array)return compareArrays(a, b);
         else if(a instanceof Date&&b instanceof Date)return compareDates(a, b);
         else {
-          const a_1=a;
-          const b_1=b;
-          const cmp=[0];
           let k;
-          for(var k_2 in a_1)if(((k_3) =>!a_1.hasOwnProperty(k_3)?false:!b_1.hasOwnProperty(k_3)?(cmp[0]=1,true):(cmp[0]=Compare(a_1[k_3], b_1[k_3]),cmp[0]!==0))(k_2))break;
-          if(cmp[0]===0){
+          let cmp=0;
+          for(var k_2 in a)if(((k_3) =>!a.hasOwnProperty(k_3)?false:!b.hasOwnProperty(k_3)?(cmp=1,true):(cmp=Compare(a[k_3], b[k_3]),cmp!==0))(k_2))break;
+          if(cmp===0){
             let k_1;
-            for(var k_3 in b_1)if(((k_4) =>!b_1.hasOwnProperty(k_4)?false:!a_1.hasOwnProperty(k_4)&&(cmp[0]=-1,true))(k_3))break;
-            _1=void 0;
+            for(var k_3 in b)if(((k_4) =>!b.hasOwnProperty(k_4)?false:!a.hasOwnProperty(k_4)&&(cmp=-1,true))(k_3))break;
           }
-          else _1=null;
-          return cmp[0];
+          return cmp;
         }
         break;
       case 3:
@@ -408,22 +402,21 @@ function hashString(s){
   }
 }
 function hashArray(o){
-  let h;
-  h=-34948909;
+  let h=-34948909;
   for(let i=0, _1=length_1(o)-1;i<=_1;i++)h=hashMix(h, Hash(get(o, i)));
   return h;
 }
 function hashObject(o){
   if("GetHashCode"in o)return o.GetHashCode();
   else {
-    const ____=hashMix;
-    const h=[0];
     let k;
+    const ____=hashMix;
+    let h=0;
     for(var k_1 in o)if(((key) => {
-      h[0]=____(____(h[0], hashString(key)), Hash(o[key]));
+      h=____(____(h, hashString(key)), Hash(o[key]));
       return false;
     })(k_1))break;
-    return h[0];
+    return h;
   }
 }
 function compareArrays(a, b){
@@ -488,10 +481,10 @@ function LoadNestedTemplates(root, baseName){
   const instantiated=new HashSet("New_3");
   function prepareTemplate(name_2){
     if(!loadedTpls.ContainsKey(name_2)){
-      let o;
-      const m=(o=null,[rawTpls.TryGetValue(name_2, {get:() => o, set:(v) => {
+      let o=null;
+      const m=[rawTpls.TryGetValue(name_2, {get:() => o, set:(v) => {
         o=v;
-      }}), o]);
+      }}), o];
       if(m[0]){
         instantiated.SAdd(name_2);
         rawTpls.RemoveKey(name_2);
@@ -507,10 +500,10 @@ function LoadedTemplates(){
   return _c_2.LoadedTemplates;
 }
 function LoadedTemplateFile(name){
-  let o;
-  const m=(o=null,[LoadedTemplates().TryGetValue(name, {get:() => o, set:(v) => {
+  let o=null;
+  const m=[LoadedTemplates().TryGetValue(name, {get:() => o, set:(v) => {
     o=v;
-  }}), o]);
+  }}), o];
   if(m[0])return m[1];
   else {
     const d=new Dictionary("New_5");
@@ -519,24 +512,22 @@ function LoadedTemplateFile(name){
   }
 }
 function NamedTemplate(baseName, name, fillWith){
-  let o;
-  const m=(o=null,[LoadedTemplateFile(baseName).TryGetValue(name==null?"":name.$0, {get:() => o, set:(v) => {
+  let o=null;
+  const m=[LoadedTemplateFile(baseName).TryGetValue(name==null?"":name.$0, {get:() => o, set:(v) => {
     o=v;
-  }}), o]);
+  }}), o];
   return m[0]?ChildrenTemplate(m[1].cloneNode(true), fillWith):(console.warn("Local template doesn't exist", name),Doc.Empty);
 }
 function FakeRootSingle(el){
-  let _1;
   el.removeAttribute("ws-template");
   const m=el.getAttribute("ws-replace");
-  if(m==null)_1=null;
-  else {
+  if(!(m==null)){
     el.removeAttribute("ws-replace");
     const m_1=el.parentNode;
-    if(Equals(m_1, null))_1=null;
-    else {
+    if(!Equals(m_1, null)){
       const n=globalThis.document.createElement(el.tagName);
-      _1=(n.setAttribute("ws-replace", m),void m_1.replaceChild(n, el));
+      n.setAttribute("ws-replace", m);
+      m_1.replaceChild(n, el);
     }
   }
   const fakeroot=globalThis.document.createElement("div");
@@ -564,14 +555,12 @@ function PrepareTemplateStrict(baseName, name, fakeroot, prepareLocalTemplate){
           if(_1!==null){
             const next=_1.nextSibling;
             if(Equals(_1.nodeType, Node.TEXT_NODE))convertTextNode(_1);
-            else Equals(_1.nodeType, Node.ELEMENT_NODE)?convertElement(_1):null;
+            else Equals(_1.nodeType, Node.ELEMENT_NODE)?convertElement(_1):void 0;
             _1=next;
           }
-          else return null;
+          else return;
           break;
         case 1:
-          let _2;
-          let _3;
           const name_2=string(_1.nodeName, Some(3), null).toLowerCase();
           const m=name_2.indexOf(".");
           const p=m===-1?[baseName, name_2]:[string(name_2, null, Some(m-1)), string(name_2, Some(m+1), null)];
@@ -580,7 +569,6 @@ function PrepareTemplateStrict(baseName, name, fakeroot, prepareLocalTemplate){
           if(instBaseName!=""&&!LoadedTemplates().ContainsKey(instBaseName))return failNotLoaded(instName);
           else {
             if(instBaseName==""&&prepareLocalTemplate!=null)prepareLocalTemplate.$0(instName);
-            else null;
             const d=LoadedTemplates().Item(instBaseName);
             if(!d.ContainsKey(instName))return failNotLoaded(instName);
             else {
@@ -589,14 +577,13 @@ function PrepareTemplateStrict(baseName, name, fakeroot, prepareLocalTemplate){
               const usedHoles=new HashSet("New_3");
               const mappings=new Dictionary("New_5");
               const attrs=_1.attributes;
-              for(let i=0, _6=attrs.length-1;i<=_6;i++){
+              for(let i=0, _2=attrs.length-1;i<=_2;i++){
                 const name_3=attrs.item(i).name.toLowerCase();
                 const m_1=attrs.item(i).nodeValue;
-                let _4=m_1==""?name_3:m_1.toLowerCase();
-                mappings.set_Item(name_3, _4);
+                mappings.set_Item(name_3, m_1==""?name_3:m_1.toLowerCase());
                 if(!usedHoles.SAdd(name_3))console.warn("Hole mapped twice", name_3);
               }
-              for(let i_1=0, _7=_1.childNodes.length-1;i_1<=_7;i_1++){
+              for(let i_1=0, _3=_1.childNodes.length-1;i_1<=_3;i_1++){
                 const n=_1.childNodes[i_1];
                 if(Equals(n.nodeType, Node.ELEMENT_NODE))if(!usedHoles.SAdd(n.nodeName.toLowerCase()))console.warn("Hole filled twice", instName);
               }
@@ -604,24 +591,20 @@ function PrepareTemplateStrict(baseName, name, fakeroot, prepareLocalTemplate){
               if(singleTextFill){
                 const x=fillTextHole(instance, _1.firstChild.textContent, instName);
                 const f=((usedHoles_1) =>(i_2) => usedHoles_1.SAdd(i_2))(usedHoles);
-                let _5=((a) =>(o) => {
+                ((((a) =>(o) => {
                   if(o!=null)a(o.$0);
                 })((x_1) => {
                   f(x_1);
-                });
-                _2=_5(x);
+                }))(x));
               }
-              else _2=null;
               removeHolesExcept(instance, usedHoles);
               if(!singleTextFill){
-                for(let i_2=0, _8=_1.childNodes.length-1;i_2<=_8;i_2++){
+                for(let i_2=0, _4=_1.childNodes.length-1;i_2<=_4;i_2++){
                   const n_1=_1.childNodes[i_2];
                   if(Equals(n_1.nodeType, Node.ELEMENT_NODE))if(n_1.hasAttributes())fillInstanceAttrs(instance, n_1);
                   else fillDocHole(instance, n_1);
                 }
-                _3=void 0;
               }
-              else _3=null;
               mapHoles(instance, mappings);
               fill(instance, _1.parentNode, _1);
               _1.parentNode.removeChild(_1);
@@ -634,27 +617,23 @@ function PrepareTemplateStrict(baseName, name, fakeroot, prepareLocalTemplate){
   function fillDocHole(instance, fillWith){
     const name_2=fillWith.nodeName.toLowerCase();
     const fillHole=(p, n) => {
-      let _1;
       if(name_2=="title"&&fillWith.hasChildNodes()){
         const parsed=ParseHTMLIntoFakeRoot(fillWith.textContent);
         fillWith.removeChild(fillWith.firstChild);
         while(parsed.hasChildNodes())
           fillWith.appendChild(parsed.firstChild);
-        _1=void 0;
       }
-      else _1=null;
       convertElement(fillWith);
       return fill(fillWith, p, n);
     };
     foreachNotPreserved(instance, "[ws-attr-holes]", (e) => {
       const holeAttrs=SplitChars(e.getAttribute("ws-attr-holes"), [" "], 1);
-      for(let i=0, _2=holeAttrs.length-1;i<=_2;i++){
+      for(let i=0, _1=holeAttrs.length-1;i<=_1;i++){
         const attrName=get(holeAttrs, i);
-        let this_1=new RegExp("\\${"+name_2+"}", "ig");
-        let str=e.getAttribute(attrName);
-        let newSubStr=fillWith.textContent;
-        let _1=str.replace(this_1, newSubStr);
-        e.setAttribute(attrName, _1);
+        const this_1=new RegExp("\\${"+name_2+"}", "ig");
+        const str=e.getAttribute(attrName);
+        const newSubStr=fillWith.textContent;
+        e.setAttribute(attrName, str.replace(this_1, newSubStr));
       }
     });
     const m=instance.querySelector("[ws-hole="+name_2+"]");
@@ -662,7 +641,7 @@ function PrepareTemplateStrict(baseName, name, fakeroot, prepareLocalTemplate){
       const m_1=instance.querySelector("[ws-replace="+name_2+"]");
       if(Equals(m_1, null)){
         const m_2=instance.querySelector("slot[name="+name_2+"]");
-        return instance.tagName.toLowerCase()=="template"?(fillHole(m_2.parentNode, m_2),void m_2.parentNode.removeChild(m_2)):null;
+        return instance.tagName.toLowerCase()=="template"?(fillHole(m_2.parentNode, m_2),void m_2.parentNode.removeChild(m_2)):void 0;
       }
       else {
         fillHole(m_1.parentNode, m_1);
@@ -674,10 +653,7 @@ function PrepareTemplateStrict(baseName, name, fakeroot, prepareLocalTemplate){
       while(m.hasChildNodes())
         m.removeChild(m.lastChild);
       m.removeAttribute("ws-hole");
-      return(((a) => {
-        const _1=a;
-        return(_2) => fillHole(_1, _2);
-      })(m))(null);
+      return fillHole(m, null);
     }
   }
   function convertElement(el){
@@ -703,8 +679,7 @@ function PrepareTemplateStrict(baseName, name, fakeroot, prepareLocalTemplate){
             const idTemplates=el.querySelectorAll("template[id]");
             for(let i=1, _1=idTemplates.length-1;i<=_1;i++){
               const n=idTemplates[i];
-              if(processedHTML5Templates.Contains(n)){ }
-              else {
+              if(!processedHTML5Templates.Contains(n)){
                 PrepareTemplateStrict(baseName, Some(n.getAttribute("id")), n, null);
                 processedHTML5Templates.SAdd(n);
               }
@@ -712,13 +687,12 @@ function PrepareTemplateStrict(baseName, name, fakeroot, prepareLocalTemplate){
             const nameTemplates=el.querySelectorAll("template[name]");
             for(let i_1=1, _2=nameTemplates.length-1;i_1<=_2;i_1++){
               const n_1=nameTemplates[i_1];
-              if(processedHTML5Templates.Contains(n_1)){ }
-              else {
+              if(!processedHTML5Templates.Contains(n_1)){
                 PrepareTemplateStrict(baseName, Some(n_1.getAttribute("name")), n_1, null);
                 processedHTML5Templates.SAdd(n_1);
               }
             }
-            return null;
+            return;
           }
           else {
             const name_2=m_1.getAttribute("ws-children-template");
@@ -742,12 +716,11 @@ function PrepareTemplateStrict(baseName, name, fakeroot, prepareLocalTemplate){
   }
 }
 function ChildrenTemplate(el, fillWith){
-  let _1;
   const p=InlineTemplate(el, append_1(fillWith, GlobalHoles().Values));
   const updates=p[1];
   const docTreeNode=p[0];
   const m=docTreeNode.Els;
-  return!Equals(m, null)&&m.length===1&&(get(m, 0)instanceof Node&&(Equals(get(m, 0).nodeType, Node.ELEMENT_NODE)&&(_1=get(m, 0),true)))?Elt_1.TreeNode(docTreeNode, updates):Doc.Mk(TreeDoc(docTreeNode), updates);
+  return!Equals(m, null)&&m.length===1&&(get(m, 0)instanceof Node&&(Equals(get(m, 0).nodeType, Node.ELEMENT_NODE)&&true))?Elt_1.TreeNode(docTreeNode, updates):Doc.Mk(TreeDoc(docTreeNode), updates);
 }
 function foreachNotPreserved(root, selector, f){
   IterSelector(root, selector, (p) => {
@@ -761,7 +734,7 @@ function PrepareSingleTemplate(baseName, name, el){
   };
 }
 function InlineTemplate(el, fillWith){
-  let _1, els, isDefaultSlotProcessed, _2;
+  let _1;
   const holes=[];
   const updates=[];
   const attrs=[];
@@ -774,19 +747,17 @@ function InlineTemplate(el, fillWith){
         const x=e.Current;
         fw.set_Item(x.Name, x);
       }
-    _1=void 0;
   }
   finally {
-    const _3=e;
-    if(typeof _3=="object"&&isIDisposable(_3))e.Dispose();
+    if(typeof e=="object"&&isIDisposable(e))e.Dispose();
   }
-  els=ChildrenArray(el);
+  let els=ChildrenArray(el);
   const addAttr=(el_1, attr_1) => {
     const attr_2=Insert(el_1, attr_1);
     updates.push(Updates(attr_2));
     attrs.push([el_1, attr_2]);
     const m=GetOptional(attr_2.OnAfterRender);
-    if(m==null)return null;
+    if(m==null)return;
     else {
       const f=m.$0;
       afterRender.push(() => {
@@ -796,10 +767,10 @@ function InlineTemplate(el, fillWith){
     }
   };
   const tryGetAsDoc=(name) => {
-    let o;
-    const m=(o=null,[fw.TryGetValue(name, {get:() => o, set:(v) => {
+    let o=null;
+    const m=[fw.TryGetValue(name, {get:() => o, set:(v) => {
       o=v;
-    }}), o]);
+    }}), o];
     if(m[0]){
       const th=m[1];
       if(th instanceof Elt)return Some(th.Value);
@@ -825,7 +796,6 @@ function InlineTemplate(el, fillWith){
     }
   });
   foreachNotPreserved(el, "[ws-replace]", (e_1) => {
-    let _8;
     const m=tryGetAsDoc(e_1.getAttribute("ws-replace"));
     if(m!=null&&m.$==1){
       const doc=m.$0;
@@ -835,21 +805,17 @@ function InlineTemplate(el, fillWith){
       const before=InsertBeforeDelim(after, doc.docNode);
       els=ChildrenArray(el);
       const o=tryFindIndex_1((y) => e_1===y, els);
-      if(o==null)_8=void 0;
-      else {
-        const i=o.$0;
-        _8=set(els, i, doc.docNode);
-      }
+      if(o==null){ }
+      else set(els, o.$0, doc.docNode);
       holes.push(DocElemNode.New(Empty(p), doc.docNode, Some([before, after]), p, Int(), null));
       updates.push(doc.updates);
     }
   });
-  isDefaultSlotProcessed=false;
+  let isDefaultSlotProcessed=false;
   foreachNotPreserved(el, "slot", (p) => {
     const name=p.getAttribute("name");
     const name_1=name==""||name==null?"default":name.toLowerCase();
-    if(isDefaultSlotProcessed&&name_1=="default"||!Equals(el.parentElement, null)){ }
-    else {
+    if(!(isDefaultSlotProcessed&&name_1=="default"||!Equals(el.parentElement, null))){
       while(p.hasChildNodes())
         p.removeChild(p.lastChild);
       if(name_1=="default")isDefaultSlotProcessed=true;
@@ -863,12 +829,12 @@ function InlineTemplate(el, fillWith){
     }
   });
   foreachNotPreserved(el, "[ws-attr]", (e_1) => {
-    let o;
     const name=e_1.getAttribute("ws-attr");
     e_1.removeAttribute("ws-attr");
-    const m=(o=null,[fw.TryGetValue(name, {get:() => o, set:(v) => {
+    let o=null;
+    const m=[fw.TryGetValue(name, {get:() => o, set:(v) => {
       o=v;
-    }}), o]);
+    }}), o];
     if(m[0]){
       const th=m[1];
       if(th instanceof Attribute)addAttr(e_1, th.Value);
@@ -877,11 +843,11 @@ function InlineTemplate(el, fillWith){
   });
   foreachNotPreserved(el, "[ws-on]", (e_1) => {
     addAttr(e_1, Attr.Concat(choose((x_1) => {
-      let o;
       const a=SplitChars(x_1, [":"], 1);
-      const m=(o=null,[fw.TryGetValue(get(a, 1), {get:() => o, set:(v) => {
+      let o=null;
+      const m=[fw.TryGetValue(get(a, 1), {get:() => o, set:(v) => {
         o=v;
-      }}), o]);
+      }}), o];
       if(m[0]){
         const th=m[1];
         return th instanceof Event_1?Some(Handler(get(a, 0), th.Value)):th instanceof EventQ?Some(Attr.HandlerImpl(get(a, 0), th.Value)):(console.warn("Event hole on"+get(a, 0)+" filled with non-event data", get(a, 1)),null);
@@ -891,11 +857,11 @@ function InlineTemplate(el, fillWith){
     e_1.removeAttribute("ws-on");
   });
   foreachNotPreserved(el, "[ws-onafterrender]", (e_1) => {
-    let o;
     const name=e_1.getAttribute("ws-onafterrender");
-    const m=(o=null,[fw.TryGetValue(name, {get:() => o, set:(v) => {
+    let o=null;
+    const m=[fw.TryGetValue(name, {get:() => o, set:(v) => {
       o=v;
-    }}), o]);
+    }}), o];
     if(m[0]){
       const th=m[1];
       if(th instanceof AfterRender_1){
@@ -910,40 +876,39 @@ function InlineTemplate(el, fillWith){
     }
   });
   foreachNotPreserved(el, "[ws-var]", (e_1) => {
-    let o;
     const name=e_1.getAttribute("ws-var");
     e_1.removeAttribute("ws-var");
-    const m=(o=null,[fw.TryGetValue(name, {get:() => o, set:(v) => {
+    let o=null;
+    const m=[fw.TryGetValue(name, {get:() => o, set:(v) => {
       o=v;
-    }}), o]);
-    if(m[0])m[1].AddAttribute((_8) =>(_9) => addAttr(_8, _9), e_1);
+    }}), o];
+    if(m[0])m[1].AddAttribute((_5) =>(_6) => addAttr(_5, _6), e_1);
   });
   const wsdomHandling=() => {
     foreachNotPreservedwsDOM("[ws-dom]", (e_1) => {
-      let o, toWatch, r;
-      const m=(o=null,[fw.TryGetValue(e_1.getAttribute("ws-dom").toLowerCase(), {get:() => o, set:(v) => {
+      let toWatch, r;
+      let o=null;
+      const m=[fw.TryGetValue(e_1.getAttribute("ws-dom").toLowerCase(), {get:() => o, set:(v) => {
         o=v;
-      }}), o]);
+      }}), o];
       if(m[0]){
         const th=m[1];
         if(th instanceof VarDomElement){
           const var_1=th.Value;
           e_1.removeAttribute("ws-dom");
           toWatch=e_1;
-          const mo=new MutationObserver((_8, mo_1) => {
+          const mo=new MutationObserver((_5, mo_1) => {
             iter_2((mr) => {
-              mr.removedNodes.forEach(CreateFuncWithArgs((_9) => _9[0]===toWatch&&mr.addedNodes.length!==1?(var_1.SetFinal(null),mo_1.disconnect()):null), null);
-            }, _8);
+              mr.removedNodes.forEach(CreateFuncWithArgs((_6) => _6[0]===toWatch&&mr.addedNodes.length!==1?(var_1.SetFinal(null),mo_1.disconnect()):void 0), null);
+            }, _5);
           });
           if(e_1.parentElement!==null)mo.observe(e_1.parentElement, (r={},r.childList=true,r));
           var_1.Set(Some(e_1));
           Sink((nel) => {
             if(nel!=null&&nel.$==1){
               const nel_1=nel.$0;
-              if(toWatch===nel_1){ }
-              else {
-                let ps=[nel_1];
-                toWatch.replaceWith.apply(toWatch, ps);
+              if(!(toWatch===nel_1)){
+                toWatch.replaceWith(nel_1);
                 toWatch=nel_1;
               }
             }
@@ -960,12 +925,12 @@ function InlineTemplate(el, fillWith){
     const re=new RegExp(TextHoleRE(), "g");
     const holeAttrs=SplitChars(e_1.getAttribute("ws-attr-holes"), [" "], 1);
     e_1.removeAttribute("ws-attr-holes");
-    for(let i=0, _8=holeAttrs.length-1;i<=_8;i++)((() => {
-      let m, lastIndex, _9;
+    for(let i=0, _6=holeAttrs.length-1;i<=_6;i++){
+      let _5;
       const attrName=get(holeAttrs, i);
       const s=e_1.getAttribute(attrName);
-      m=null;
-      lastIndex=0;
+      let m=null;
+      let lastIndex=0;
       const res=[];
       while(m=re.exec(s),m!==null)
         {
@@ -975,48 +940,49 @@ function InlineTemplate(el, fillWith){
         }
       const finalText=string(s, Some(lastIndex), null);
       re.lastIndex=0;
-      const value=foldBack((_10, _11) =>(((t) => {
+      const value=foldBack((_7, _8) =>(((t) => {
         const textBefore_1=t[0];
         const holeName=t[1];
         return(t_1) => {
-          let o;
           const textAfter=t_1[0];
           const views=t_1[1];
-          const m_1=(o=null,[fw.TryGetValue(holeName, {get:() => o, set:(v) => {
+          let o=null;
+          const m_1=[fw.TryGetValue(holeName, {get:() => o, set:(v) => {
             o=v;
-          }}), o]);
+          }}), o];
           const holeContent=m_1[0]?m_1[1].AsChoiceView:Choice1Of2("");
           return holeContent.$==1?[textBefore_1, FSharpList.Cons(textAfter==""?holeContent.$0:Map((s_5) => s_5+textAfter, holeContent.$0), views)]:[textBefore_1+holeContent.$0+textAfter, views];
         };
-      })(_10))(_11), res, [finalText, FSharpList.Empty]);
+      })(_7))(_8), res, [finalText, FSharpList.Empty]);
       if(value[1].$==1){
         if(value[1].$1.$==1){
           if(value[1].$1.$1.$==1){
             if(value[1].$1.$1.$1.$==0){
               const s_1=value[0];
-              _9=Dynamic(attrName, Map3((_10, _11, _12) => s_1+_10+_11+_12, value[1].$0, value[1].$1.$0, value[1].$1.$1.$0));
+              _5=Dynamic(attrName, Map3((_7, _8, _9) => s_1+_7+_8+_9, value[1].$0, value[1].$1.$0, value[1].$1.$1.$0));
             }
             else {
               const s_2=value[0];
-              _9=Dynamic(attrName, Map((vs) => s_2+concat_1("", vs), Sequence(value[1])));
+              _5=Dynamic(attrName, Map((vs) => s_2+concat("", vs), Sequence(value[1])));
             }
           }
           else {
             const s_3=value[0];
-            _9=Dynamic(attrName, Map2((_10, _11) => s_3+_10+_11, value[1].$0, value[1].$1.$0));
+            _5=Dynamic(attrName, Map2((_7, _8) => s_3+_7+_8, value[1].$0, value[1].$1.$0));
           }
         }
-        else if(value[0]=="")_9=Dynamic(attrName, value[1].$0);
+        else if(value[0]=="")_5=Dynamic(attrName, value[1].$0);
         else {
           const s_4=value[0];
-          _9=Dynamic(attrName, Map((v) => s_4+v, value[1].$0));
+          _5=Dynamic(attrName, Map((v) => s_4+v, value[1].$0));
         }
       }
-      else _9=Attr.Create(attrName, value[0]);
-      return addAttr(e_1, _9);
-    })());
+      else _5=Attr.Create(attrName, value[0]);
+      addAttr(e_1, _5);
+    }
   });
-  const R=afterRender.length==0?Some(() => {
+  const _2=els;
+  const _3=afterRender.length==0?Some(() => {
     wsdomHandling();
   }):Some((el_1) => {
     wsdomHandling();
@@ -1024,18 +990,15 @@ function InlineTemplate(el, fillWith){
       f(el_1);
     }, afterRender);
   });
-  let _4=els;
-  const _5=!Equals(els, null)&&els.length===1&&(get(els, 0)instanceof Node&&(get(els, 0)instanceof Element&&(_2=get(els, 0),true)))?Some(_2):null;
-  let _6={
-    Els:_4, 
+  const _4=!Equals(els, null)&&els.length===1&&(get(els, 0)instanceof Node&&(get(els, 0)instanceof Element&&(_1=get(els, 0),true)))?Some(_1):null;
+  return[DeleteEmptyFields({
+    Els:_2, 
     Dirty:true, 
     Holes:holes, 
     Attrs:attrs, 
-    Render:R?R.$0:void 0, 
-    El:_5?_5.$0:void 0
-  };
-  let _7=DeleteEmptyFields(_6, ["Render", "El"]);
-  return[_7, TreeReduce(Const(), Map2Unit, updates)];
+    Render:_3?_3.$0:void 0, 
+    El:_4?_4.$0:void 0
+  }, ["Render", "El"]), TreeReduce(Const(), Map2Unit, updates)];
 }
 function GlobalHoles(){
   return _c_2.GlobalHoles;
@@ -1124,8 +1087,7 @@ class Doc extends Object_1 {
   }
   static CheckBoxGroup(attrs, item, chk){
     const p=(y) => Equals(item, y);
-    let _1=_c_1.Lens(chk, (l) => exists(p, l), (_2, _3) => _3?exists((y) => Equals(item, y), _2)?_2:FSharpList.Cons(item, _2):filter((y) =>!Equals(item, y), _2));
-    return Doc.CheckBox(attrs, _1);
+    return Doc.CheckBox(attrs, _c_1.Lens(chk, (l) => exists(p, l), (_1, _2) => _2?exists((y) => Equals(item, y), _1)?_1:FSharpList.Cons(item, _1):filter((y) =>!Equals(item, y), _1)));
   }
   static Append(a, b){
     return Doc.Mk(AppendDoc(a.docNode, b.docNode), Map2Unit(a.updates, b.updates));
@@ -1173,17 +1135,15 @@ class Doc extends Object_1 {
       el_1.selectedIndex=findIndex((y) => Equals(item, y), options[0]);
     };
     const el=globalThis.document.createElement("select");
-    const selectedItemAttr=DynamicCustom((_2) =>(_3) => setSelectedItem(_2, _3), current.View);
-    el.addEventListener("change", () => current.UpdateMaybe((x_1) => {
+    const selectedItemAttr=DynamicCustom((_1) =>(_2) => setSelectedItem(_1, _2), current.View);
+    el.addEventListener("change", () => current.UpdateMaybe((x) => {
       const i=el.selectedIndex;
       const y=options[0].get_Item(i);
-      return Equals(x_1, y)?null:Some(y);
+      return Equals(x, y)?null:Some(y);
     }), false);
-    const x=AppendTree(selectedItemAttr, Attr.Concat(attrs));
-    let _1=AppendTree(OnAfterRender((el_1) => {
+    return Elt_1.New(el, AppendTree(OnAfterRender((el_1) => {
       setSelectedItem(el_1, current.Get());
-    }), x);
-    return Elt_1.New(el, _1, optionElements(options));
+    }), AppendTree(selectedItemAttr, Attr.Concat(attrs))), optionElements(options));
   }
   static RunBefore(rdelim, doc){
     const ldelim=globalThis.document.createTextNode("");
@@ -1194,27 +1154,30 @@ class Doc extends Object_1 {
     const options=[FSharpList.Empty];
     const setSelectedItem=(el_1, item) => {
       const options_=el_1.options;
-      for(let i=0, _2=options_.length-1;i<=_2;i++)((() => {
+      for(let i=0, _1=options_.length-1;i<=_1;i++){
         const option=options_.item(i);
         option.selected=contains(options[0].get_Item(option.index), item);
-      })());
+      }
     };
     const el=globalThis.document.createElement("select");
-    const selectedItemAttr=DynamicCustom((_2) =>(_3) => setSelectedItem(_2, _3), current.View);
-    el.addEventListener("change", () => current.UpdateMaybe((x_2) => {
+    const selectedItemAttr=DynamicCustom((_1) =>(_2) => setSelectedItem(_1, _2), current.View);
+    el.addEventListener("change", () => current.UpdateMaybe((x) => {
       const selectedOptions=el.selectedOptions;
-      const y=ofSeq(delay(() => collect((i) => {
+      const l=FSharpList.Cons(void 0, void 0);
+      let last=l;
+      for(const i of Iter_1(range(0, selectedOptions.length-1))){
         const option=selectedOptions.item(i);
-        return[options[0].get_Item(option.index)];
-      }, range(0, selectedOptions.length-1))));
-      return Equals(x_2, y)?null:Some(y);
+        const c=FSharpList.Cons(options[0].get_Item(option.index), void 0);
+        last.$1=c;
+        last=c;
+      }
+      last.$1=FSharpList.Empty;
+      const y=l.$1;
+      return Equals(x, y)?null:Some(y);
     }), false);
-    const x=AppendTree(selectedItemAttr, Attr.Concat(attrs));
-    const x_1=AppendTree(OnAfterRender((el_1) => {
+    return Elt_1.New(el, AppendTree(Attr.Create("multiple", ""), AppendTree(OnAfterRender((el_1) => {
       setSelectedItem(el_1, current.Get());
-    }), x);
-    let _1=AppendTree(Attr.Create("multiple", ""), x_1);
-    return Elt_1.New(el, _1, optionElements(options));
+    }), AppendTree(selectedItemAttr, Attr.Concat(attrs)))), optionElements(options));
   }
   static Flatten(view){
     return Doc.EmbedView(Map((x) => Doc.Concat(x), view));
@@ -1246,7 +1209,6 @@ class Doc extends Object_1 {
   }
 }
 function NewFromSeq(fields){
-  let _1;
   const r={};
   const e=Get_1(fields);
   try {
@@ -1255,11 +1217,9 @@ function NewFromSeq(fields){
         const f=e.Current;
         r[f[0]]=f[1];
       }
-    _1=void 0;
   }
   finally {
-    const _2=e;
-    if(typeof _2=="object"&&isIDisposable(_2))e.Dispose();
+    if(typeof e=="object"&&isIDisposable(e))e.Dispose();
   }
   return r;
 }
@@ -1315,23 +1275,23 @@ let _c=Lazy((_i) => class $StartupCode_Main {
   static ViewTest;
   static VarTest;
   static {
-    const m=[0];
+    let m=0;
     const v=_c_1.Create_1(New_3(0, 0, 0));
     function f(n){
       const w=v.Get();
       v.Set(New_3(w.i+1, n, n-w.n));
       requestAnimationFrame((x) => {
-        m[0]=m[0]+1;
+        m=m+1;
         f(x);
       });
     }
     const unchanging=_c_1.Create_1("unchanging");
     requestAnimationFrame(f);
-    const _1=Doc.Element("div", [Class("metrics")], [Doc.Element("div", [Class("metric")], [Doc.Element("span", [Class("metric-label")], [Doc.TextNode("Frame")]), Doc.Element("span", [Class("metric-value")], [Doc.TextView(Map((t) => String(t.i), v.View))])]), Doc.Element("div", [Class("metric")], [Doc.Element("span", [Class("metric-label")], [Doc.TextNode("Started")]), Doc.Element("span", [Class("metric-value")], [Doc.TextView(Map((t) =>(((_21) =>(_22) => _21(_22.toFixed(1)))((x) => x))(t.n), v.View))])]), Doc.Element("div", [Class("metric")], [Doc.Element("span", [Class("metric-label")], [Doc.TextNode("Last frame")]), Doc.Element("span", [Class("metric-value")], [Doc.TextView(Map((t) =>(((_21) =>(_22) => _21(_22.toFixed(1)+" ms"))((x) => x))(t.d), v.View))])]), Doc.Element("div", [Style("display", "none")], [Doc.TextView(unchanging.View)])]);
-    let _2=(LoadLocalTemplates(""),Doc.RunById("stresstest", _1));
-    _2;
-    const _3=TestCategory("Var");
-    const s={name:_3.name, run:() => {
+    const _1=Doc.Element("div", [Class("metrics")], [Doc.Element("div", [Class("metric")], [Doc.Element("span", [Class("metric-label")], [Doc.TextNode("Frame")]), Doc.Element("span", [Class("metric-value")], [Doc.TextView(Map((t) => String(t.i), v.View))])]), Doc.Element("div", [Class("metric")], [Doc.Element("span", [Class("metric-label")], [Doc.TextNode("Started")]), Doc.Element("span", [Class("metric-value")], [Doc.TextView(Map((t) => t.n.toFixed(1), v.View))])]), Doc.Element("div", [Class("metric")], [Doc.Element("span", [Class("metric-label")], [Doc.TextNode("Last frame")]), Doc.Element("span", [Class("metric-value")], [Doc.TextView(Map((t) => t.d.toFixed(1)+" ms", v.View))])]), Doc.Element("div", [Style("display", "none")], [Doc.TextView(unchanging.View)])]);
+    LoadLocalTemplates("");
+    Doc.RunById("stresstest", _1);
+    const _2=TestCategory("Var");
+    const s={name:_2.name, run:() => {
       Test("Create").Run(Runner.Yield([_c_1.Create_1(1), _c_1.Create_1("a")]).Expect(() => 0));
       Test("CreateWaiting").Run(Runner.Yield(_c_1.CreateWaiting()).EqualMsg((rv_3) => rv_3.Get(), () => null, "initial").For((a) => {
         const count=[0];
@@ -1349,193 +1309,139 @@ let _c=Lazy((_i) => class $StartupCode_Main {
         _c_1.Set(a, 35);
         return Runner.Yield(a);
       }).EqualMsg((rv_3) => rv_3.Get(), () => 35, "Var.Set"));
-      const _21=Test("Update");
+      const _11=Test("Update");
       const rv=_c_1.Create_1(4);
-      let _22=(_c_1.Update(rv, (y) => 16+y),Runner.Yield(rv));
-      let _23=_22.Equal((rv_3) => rv_3.Get(), () => 20);
-      _21.Run(_23);
-      const _24=Test("SetFinal");
+      _c_1.Update(rv, (y) => 16+y);
+      _11.Run(Runner.Yield(rv).Equal((rv_3) => rv_3.Get(), () => 20));
+      const _12=Test("SetFinal");
       const rv_1=_c_1.Create_1(5);
-      let _25=(_c_1.SetFinal(rv_1, 27),Runner.Yield(rv_1));
-      let _26=_25.EqualMsg((rv_3) => rv_3.Get(), () => 27, "SetFinal sets");
-      let _27=_26.For((a) => {
+      _c_1.SetFinal(rv_1, 27);
+      _12.Run(Runner.Yield(rv_1).EqualMsg((rv_3) => rv_3.Get(), () => 27, "SetFinal sets").For((a) => {
         a.Set(33);
         return Runner.Yield(a);
-      });
-      let _28=_27.EqualMsg((rv_3) => rv_3.Get(), () => 27, "Subsequently setting changes nothing");
-      _24.Run(_28);
-      const _29=Test("View");
+      }).EqualMsg((rv_3) => rv_3.Get(), () => 27, "Subsequently setting changes nothing"));
+      const _13=Test("View");
       const rv_2=_c_1.Create_1(3);
-      let _30=Runner.Yield([rv_2, GetAsync(rv_2.View)]);
-      let _31=_30.EqualMsgAsync((t) => t[1], () => 3, "initial");
-      let _32=_31.For((a) => {
+      _13.Run(Runner.Yield([rv_2, GetAsync(rv_2.View)]).EqualMsgAsync((t) => t[1], () => 3, "initial").For((a) => {
         const rv_3=a[0];
         rv_3.Set(57);
         return Runner.Yield([rv_3, a[1]]);
-      });
-      let _33=_32.EqualMsgAsync((t) => t[1], () => 57, "after set");
-      _29.Run(_33);
+      }).EqualMsgAsync((t) => t[1], () => 57, "after set"));
     }};
-    let _4=(globalThis.QUnit.module(s.name),s);
-    this.VarTest=_4;
-    const _5=TestCategory("View");
-    const s_1={name:_5.name, run:() => {
+    globalThis.QUnit.module(s.name);
+    this.VarTest=s;
+    const _3=TestCategory("View");
+    const s_1={name:_3.name, run:() => {
       Test("Const").Run(Runner.Yield(GetAsync(Const(12))).EqualAsync((v_2) => v_2, () => 12));
-      const _21=Test("ConstAsync");
+      const _11=Test("ConstAsync");
       const f_1=() => Return(86);
-      const a=Delay((_192, _193) =>(f_1(_192))(_193));
-      let _22=Runner.Yield([a, GetAsync(ConstAsync(a))]);
-      let _23=_22.EqualAsync((t) => t[1], () => 86);
-      _21.Run(_23);
-      const _24=Test("FromVar");
+      const a=Delay((_33, _34) =>(f_1(_33))(_34));
+      _11.Run(Runner.Yield([a, GetAsync(ConstAsync(a))]).EqualAsync((t) => t[1], () => 86));
+      const _12=Test("FromVar");
       const rv=_c_1.Create_1(38);
-      let _25=Runner.Yield([rv, GetAsync(rv.View)]);
-      let _26=_25.EqualMsgAsync((t) => t[1], () => 38, "initial");
-      let _27=_26.For((a_1) => {
+      _12.Run(Runner.Yield([rv, GetAsync(rv.View)]).EqualMsgAsync((t) => t[1], () => 38, "initial").For((a_1) => {
         const rv_7=a_1[0];
         rv_7.Set(92);
         return Runner.Yield([rv_7, a_1[1]]);
-      });
-      let _28=_27.EqualMsgAsync((t) => t[1], () => 92, "after set");
-      _24.Run(_28);
-      const _29=Test("Map");
+      }).EqualMsgAsync((t) => t[1], () => 92, "after set"));
+      const _13=Test("Map");
       const count=[0];
       const rv_1=_c_1.Create_1(7);
-      let _30=Runner.Yield([count, rv_1, GetAsync(Map((x) => {
+      _13.Run(Runner.Yield([count, rv_1, GetAsync(Map((x) => {
         count[0]=count[0]+1;
         return x+15;
-      }, rv_1.View))]);
-      let _31=_30.EqualMsgAsync((t) => t[2], () => 7+15, "initial");
-      let _32=_31.For((a_1) => {
+      }, rv_1.View))]).EqualMsgAsync((t) => t[2], () => 7+15, "initial").For((a_1) => {
         const rv_7=a_1[1];
         rv_7.Set(23);
         return Runner.Yield([a_1[0], rv_7, a_1[2]]);
-      });
-      let _33=_32.EqualMsgAsync((t) => t[2], () => 23+15, "after set");
-      let _34=_33.EqualMsg((t) => t[0][0], () => 2, "function call count");
-      _29.Run(_34);
-      const _35=Test("MapCached");
+      }).EqualMsgAsync((t) => t[2], () => 23+15, "after set").EqualMsg((t) => t[0][0], () => 2, "function call count"));
+      const _14=Test("MapCached");
       const count_1=[0];
       const rv_2=_c_1.Create_1(9);
-      let _36=Runner.Yield([count_1, rv_2, GetAsync(MapCached((x) => {
+      _14.Run(Runner.Yield([count_1, rv_2, GetAsync(MapCached((x) => {
         count_1[0]=count_1[0]+1;
         return x+21;
-      }, rv_2.View))]);
-      let _37=_36.EqualMsgAsync((t) => t[2], () => 9+21, "initial");
-      let _38=_37.For((a_1) => {
+      }, rv_2.View))]).EqualMsgAsync((t) => t[2], () => 9+21, "initial").For((a_1) => {
         const rv_7=a_1[1];
         rv_7.Set(66);
         return Runner.Yield([a_1[0], rv_7, a_1[2]]);
-      });
-      let _39=_38.EqualMsgAsync((t) => t[2], () => 66+21, "after set");
-      let _40=_39.For((a_1) => {
+      }).EqualMsgAsync((t) => t[2], () => 66+21, "after set").For((a_1) => {
         const rv_7=a_1[1];
         rv_7.Set(66);
         return Runner.Yield([a_1[0], rv_7, a_1[2]]);
-      });
-      let _41=_40.EqualMsgAsync((t) => t[2], () => 66+21, "after set to the same value");
-      let _42=_41.EqualMsg((t) => t[0][0], () => 2, "function call count");
-      _35.Run(_42);
-      const _43=Test("MapCachedBy");
+      }).EqualMsgAsync((t) => t[2], () => 66+21, "after set to the same value").EqualMsg((t) => t[0][0], () => 2, "function call count"));
+      const _15=Test("MapCachedBy");
       const count_2=[0];
       const rv_3=_c_1.Create_1(9);
-      let _44=Runner.Yield([count_2, rv_3, GetAsync(MapCachedBy((_192, _193) => _192%10===_193%10, (x) => {
+      _15.Run(Runner.Yield([count_2, rv_3, GetAsync(MapCachedBy((_33, _34) => _33%10===_34%10, (x) => {
         count_2[0]=count_2[0]+1;
         return x+21;
-      }, rv_3.View))]);
-      let _45=_44.EqualMsgAsync((t) => t[2], () => 9+21, "initial");
-      let _46=_45.For((a_1) => {
+      }, rv_3.View))]).EqualMsgAsync((t) => t[2], () => 9+21, "initial").For((a_1) => {
         const rv_7=a_1[1];
         rv_7.Set(66);
         return Runner.Yield([a_1[0], rv_7, a_1[2]]);
-      });
-      let _47=_46.EqualMsgAsync((t) => t[2], () => 66+21, "after set");
-      let _48=_47.For((a_1) => {
+      }).EqualMsgAsync((t) => t[2], () => 66+21, "after set").For((a_1) => {
         const rv_7=a_1[1];
         rv_7.Set(56);
         return Runner.Yield([a_1[0], rv_7, a_1[2]]);
-      });
-      let _49=_48.EqualMsgAsync((t) => t[2], () => 66+21, "after set to the same value");
-      let _50=_49.EqualMsg((t) => t[0][0], () => 2, "function call count");
-      _43.Run(_50);
-      const _51=Test("MapAsync");
+      }).EqualMsgAsync((t) => t[2], () => 66+21, "after set to the same value").EqualMsg((t) => t[0][0], () => 2, "function call count"));
+      const _16=Test("MapAsync");
       const count_3=[0];
       const rv_4=_c_1.Create_1(11);
-      let _52=Runner.Yield([count_3, rv_4, GetAsync(MapAsync((x) => {
+      _16.Run(Runner.Yield([count_3, rv_4, GetAsync(MapAsync((x) => {
         const f_2=() => {
           count_3[0]=count_3[0]+1;
           return Return(x*43);
         };
-        return Delay((_192, _193) =>(f_2(_192))(_193));
-      }, rv_4.View))]);
-      let _53=_52.EqualMsgAsync((t) => t[2], () => 11*43, "initial");
-      let _54=_53.For((a_1) => {
+        return Delay((_33, _34) =>(f_2(_33))(_34));
+      }, rv_4.View))]).EqualMsgAsync((t) => t[2], () => 11*43, "initial").For((a_1) => {
         const rv_7=a_1[1];
         rv_7.Set(45);
         return Runner.Yield([a_1[0], rv_7, a_1[2]]);
-      });
-      let _55=_54.EqualMsgAsync((t) => t[2], () => 45*43, "after set");
-      let _56=_55.EqualMsg((t) => t[0][0], () => 2, "function call count");
-      _51.Run(_56);
-      const _57=Test("Map2");
+      }).EqualMsgAsync((t) => t[2], () => 45*43, "after set").EqualMsg((t) => t[0][0], () => 2, "function call count"));
+      const _17=Test("Map2");
       const count_4=[0];
       const rv1=_c_1.Create_1(29);
       const rv2=_c_1.Create_1(8);
-      let _58=Runner.Yield([count_4, rv1, rv2, GetAsync(Map2((_192, _193) => {
+      _17.Run(Runner.Yield([count_4, rv1, rv2, GetAsync(Map2((_33, _34) => {
         count_4[0]=count_4[0]+1;
-        return _192*_193;
-      }, rv1.View, rv2.View))]);
-      let _59=_58.EqualMsgAsync((t) => t[3], () => 29*8, "initial");
-      let _60=_59.For((a_1) => {
+        return _33*_34;
+      }, rv1.View, rv2.View))]).EqualMsgAsync((t) => t[3], () => 29*8, "initial").For((a_1) => {
         const rv1_8=a_1[1];
         rv1_8.Set(78);
         return Runner.Yield([a_1[0], rv1_8, a_1[2], a_1[3]]);
-      });
-      let _61=_60.EqualMsgAsync((t) => t[3], () => 78*8, "after set v1");
-      let _62=_61.For((a_1) => {
+      }).EqualMsgAsync((t) => t[3], () => 78*8, "after set v1").For((a_1) => {
         const rv2_8=a_1[2];
         rv2_8.Set(30);
         return Runner.Yield([a_1[0], a_1[1], rv2_8, a_1[3]]);
-      });
-      let _63=_62.EqualMsgAsync((t) => t[3], () => 78*30, "after set v2");
-      let _64=_63.EqualMsg((t) => t[0][0], () => 3, "function call count");
-      _57.Run(_64);
-      const _65=Test("MapAsync2");
+      }).EqualMsgAsync((t) => t[3], () => 78*30, "after set v2").EqualMsg((t) => t[0][0], () => 3, "function call count"));
+      const _18=Test("MapAsync2");
       const count_5=[0];
       const rv1_1=_c_1.Create_1(36);
       const rv2_1=_c_1.Create_1(22);
-      let _66=Runner.Yield([count_5, rv1_1, rv2_1, GetAsync(MapAsync2((_192, _193) => {
+      _18.Run(Runner.Yield([count_5, rv1_1, rv2_1, GetAsync(MapAsync2((_33, _34) => {
         const f_2=() => {
           count_5[0]=count_5[0]+1;
-          return Return(_192-_193);
+          return Return(_33-_34);
         };
-        return Delay((_194, _195) =>(f_2(_194))(_195));
-      }, rv1_1.View, rv2_1.View))]);
-      let _67=_66.EqualMsgAsync((t) => t[3], () => 36-22, "initial");
-      let _68=_67.For((a_1) => {
+        return Delay((_35, _36) =>(f_2(_35))(_36));
+      }, rv1_1.View, rv2_1.View))]).EqualMsgAsync((t) => t[3], () => 36-22, "initial").For((a_1) => {
         const rv1_8=a_1[1];
         rv1_8.Set(82);
         return Runner.Yield([a_1[0], rv1_8, a_1[2], a_1[3]]);
-      });
-      let _69=_68.EqualMsgAsync((t) => t[3], () => 82-22, "after set v1");
-      let _70=_69.For((a_1) => {
+      }).EqualMsgAsync((t) => t[3], () => 82-22, "after set v1").For((a_1) => {
         const rv2_8=a_1[2];
         rv2_8.Set(13);
         return Runner.Yield([a_1[0], a_1[1], rv2_8, a_1[3]]);
-      });
-      let _71=_70.EqualMsgAsync((t) => t[3], () => 82-13, "after set v2");
-      let _72=_71.EqualMsg((t) => t[0][0], () => 3, "function call count");
-      _65.Run(_72);
-      const _73=Test("Apply");
+      }).EqualMsgAsync((t) => t[3], () => 82-13, "after set v2").EqualMsg((t) => t[0][0], () => 3, "function call count"));
+      const _19=Test("Apply");
       const count_6=[0];
       const rv1_2=_c_1.Create_1((x) => {
         count_6[0]=count_6[0]+1;
         return x+5;
       });
       const rv2_2=_c_1.Create_1(57);
-      let _74=Runner.Yield([count_6, rv1_2, rv2_2, GetAsync(Apply(rv1_2.View, rv2_2.View))]);
-      let _75=_74.EqualMsgAsync((t) => t[3], () => 57+5, "initial");
-      let _76=_75.For((a_1) => {
+      _19.Run(Runner.Yield([count_6, rv1_2, rv2_2, GetAsync(Apply(rv1_2.View, rv2_2.View))]).EqualMsgAsync((t) => t[3], () => 57+5, "initial").For((a_1) => {
         const rv1_8=a_1[1];
         const count_8=a_1[0];
         rv1_8.Set((x) => {
@@ -1543,32 +1449,23 @@ let _c=Lazy((_i) => class $StartupCode_Main {
           return x*4;
         });
         return Runner.Yield([count_8, rv1_8, a_1[2], a_1[3]]);
-      });
-      let _77=_76.EqualMsgAsync((t) => t[3], () => 57*4, "after set v1");
-      let _78=_77.For((a_1) => {
+      }).EqualMsgAsync((t) => t[3], () => 57*4, "after set v1").For((a_1) => {
         const rv2_8=a_1[2];
         rv2_8.Set(33);
         return Runner.Yield([a_1[0], a_1[1], rv2_8, a_1[3]]);
-      });
-      let _79=_78.EqualMsgAsync((t) => t[3], () => 33*4, "after set v2");
-      let _80=_79.EqualMsg((t) => t[0][0], () => 3, "function call count");
-      _73.Run(_80);
-      const _81=Test("Join");
+      }).EqualMsgAsync((t) => t[3], () => 33*4, "after set v2").EqualMsg((t) => t[0][0], () => 3, "function call count"));
+      const _20=Test("Join");
       const count_7=[0];
       const rv1_3=_c_1.Create_1(76);
       const rv2_3=_c_1.Create_1(rv1_3.View);
-      let _82=Runner.Yield([count_7, rv1_3, rv2_3, GetAsync(Join(Map((x) => {
+      _20.Run(Runner.Yield([count_7, rv1_3, rv2_3, GetAsync(Join(Map((x) => {
         count_7[0]=count_7[0]+1;
         return x;
-      }, rv2_3.View)))]);
-      let _83=_82.EqualMsgAsync((t) => t[3], () => 76, "initial");
-      let _84=_83.For((a_1) => {
+      }, rv2_3.View)))]).EqualMsgAsync((t) => t[3], () => 76, "initial").For((a_1) => {
         const rv1_8=a_1[1];
         rv1_8.Set(44);
         return Runner.Yield([a_1[0], rv1_8, a_1[2], a_1[3]]);
-      });
-      let _85=_84.EqualMsgAsync((t) => t[3], () => 44, "after set inner");
-      let _86=_85.For((a_1) => {
+      }).EqualMsgAsync((t) => t[3], () => 44, "after set inner").For((a_1) => {
         const rv2_8=a_1[2];
         const count_8=a_1[0];
         rv2_8.Set(Map((x) => {
@@ -1576,38 +1473,28 @@ let _c=Lazy((_i) => class $StartupCode_Main {
           return x;
         }, Const(39)));
         return Runner.Yield([count_8, a_1[1], rv2_8, a_1[3]]);
-      });
-      let _87=_86.EqualMsgAsync((t) => t[3], () => 39, "after set outer");
-      let _88=_87.EqualMsg((t) => t[0][0], () => 3, "function call count");
-      _81.Run(_88);
-      const _89=Test("Bind");
+      }).EqualMsgAsync((t) => t[3], () => 39, "after set outer").EqualMsg((t) => t[0][0], () => 3, "function call count"));
+      const _21=Test("Bind");
       const outerCount=[0];
       const innerCount=[0];
       const rv1_4=_c_1.Create_1(93);
       const rv2_4=_c_1.Create_1(27);
-      let _90=Runner.Yield([outerCount, innerCount, rv1_4, rv2_4, GetAsync(BindInner((x) => {
+      _21.Run(Runner.Yield([outerCount, innerCount, rv1_4, rv2_4, GetAsync(BindInner((x) => {
         outerCount[0]=outerCount[0]+1;
         return Map((y) => {
           innerCount[0]=innerCount[0]+1;
           return x+y;
         }, rv1_4.View);
-      }, rv2_4.View))]);
-      let _91=_90.EqualMsgAsync((t) => t[4], () => 93+27, "initial");
-      let _92=_91.For((a_1) => {
+      }, rv2_4.View))]).EqualMsgAsync((t) => t[4], () => 93+27, "initial").For((a_1) => {
         const rv1_8=a_1[2];
         rv1_8.Set(74);
         return Runner.Yield([a_1[0], a_1[1], rv1_8, a_1[3], a_1[4]]);
-      });
-      let _93=_92.EqualMsgAsync((t) => t[4], () => 74+27, "after set inner");
-      let _94=_93.For((a_1) => {
+      }).EqualMsgAsync((t) => t[4], () => 74+27, "after set inner").For((a_1) => {
         const rv2_8=a_1[3];
         rv2_8.Set(22);
         return Runner.Yield([a_1[0], a_1[1], a_1[2], rv2_8, a_1[4]]);
-      });
-      let _95=_94.EqualMsgAsync((t) => t[4], () => 74+22, "after set outer");
-      let _96=_95.EqualMsg((t) =>[t[0][0], t[1][0]], () =>[2, 3], "function call count");
-      _89.Run(_96);
-      const _97=Test("Bind with outside Map");
+      }).EqualMsgAsync((t) => t[4], () => 74+22, "after set outer").EqualMsg((t) =>[t[0][0], t[1][0]], () =>[2, 3], "function call count"));
+      const _22=Test("Bind with outside Map");
       const outerCount_1=[0];
       const innerCount1=[0];
       const innerCount2=[0];
@@ -1622,32 +1509,23 @@ let _c=Lazy((_i) => class $StartupCode_Main {
         innerCount2[0]=innerCount2[0]+1;
         return x*x;
       }, i2.View);
-      let _98=Runner.Yield([outerCount_1, innerCount1, innerCount2, o, i1, i2, m1, m2, GetAsync(Bind((x) => {
+      _22.Run(Runner.Yield([outerCount_1, innerCount1, innerCount2, o, i1, i2, m1, m2, GetAsync(Bind((x) => {
         outerCount_1[0]=outerCount_1[0]+1;
         return x?m1:m2;
-      }, o.View))]);
-      let _99=_98.EqualMsgAsync((t) => t[8], () => 1, "initial");
-      let _100=_99.For((a_1) => {
+      }, o.View))]).EqualMsgAsync((t) => t[8], () => 1, "initial").For((a_1) => {
         const i1_2=a_1[4];
         i1_2.Set(3);
         return Runner.Yield([a_1[0], a_1[1], a_1[2], a_1[3], i1_2, a_1[5], a_1[6], a_1[7], a_1[8]]);
-      });
-      let _101=_100.EqualMsgAsync((t) => t[8], () => 9, "after set inner");
-      let _102=_101.For((a_1) => {
+      }).EqualMsgAsync((t) => t[8], () => 9, "after set inner").For((a_1) => {
         const o_2=a_1[3];
         o_2.Set(true);
         return Runner.Yield([a_1[0], a_1[1], a_1[2], o_2, a_1[4], a_1[5], a_1[6], a_1[7], a_1[8]]);
-      });
-      let _103=_102.EqualMsgAsync((t) => t[8], () => 9, "after set outer unchanged");
-      let _104=_103.For((a_1) => {
+      }).EqualMsgAsync((t) => t[8], () => 9, "after set outer unchanged").For((a_1) => {
         const o_2=a_1[3];
         o_2.Set(false);
         return Runner.Yield([a_1[0], a_1[1], a_1[2], o_2, a_1[4], a_1[5], a_1[6], a_1[7], a_1[8]]);
-      });
-      let _105=_104.EqualMsgAsync((t) => t[8], () => 4, "after set outer");
-      let _106=_105.EqualMsg((t) =>[t[0][0], t[1][0], t[2][0]], () =>[3, 2, 1], "function call count");
-      _97.Run(_106);
-      const _107=Test("BindInner with outside Map");
+      }).EqualMsgAsync((t) => t[8], () => 4, "after set outer").EqualMsg((t) =>[t[0][0], t[1][0], t[2][0]], () =>[3, 2, 1], "function call count"));
+      const _23=Test("BindInner with outside Map");
       const outerCount_2=[0];
       const innerCount1_1=[0];
       const innerCount2_1=[0];
@@ -1662,32 +1540,23 @@ let _c=Lazy((_i) => class $StartupCode_Main {
         innerCount2_1[0]=innerCount2_1[0]+1;
         return x*x;
       }, i2_1.View);
-      let _108=Runner.Yield([outerCount_2, innerCount1_1, innerCount2_1, o_1, i1_1, i2_1, m1_1, m2_1, GetAsync(BindInner((x) => {
+      _23.Run(Runner.Yield([outerCount_2, innerCount1_1, innerCount2_1, o_1, i1_1, i2_1, m1_1, m2_1, GetAsync(BindInner((x) => {
         outerCount_2[0]=outerCount_2[0]+1;
         return x?m1_1:m2_1;
-      }, o_1.View))]);
-      let _109=_108.EqualMsgAsync((t) => t[8], () => 1, "initial");
-      let _110=_109.For((a_1) => {
+      }, o_1.View))]).EqualMsgAsync((t) => t[8], () => 1, "initial").For((a_1) => {
         const i1_2=a_1[4];
         i1_2.Set(3);
         return Runner.Yield([a_1[0], a_1[1], a_1[2], a_1[3], i1_2, a_1[5], a_1[6], a_1[7], a_1[8]]);
-      });
-      let _111=_110.EqualMsgAsync((t) => t[8], () => 9, "after set inner");
-      let _112=_111.For((a_1) => {
+      }).EqualMsgAsync((t) => t[8], () => 9, "after set inner").For((a_1) => {
         const o_2=a_1[3];
         o_2.Set(true);
         return Runner.Yield([a_1[0], a_1[1], a_1[2], o_2, a_1[4], a_1[5], a_1[6], a_1[7], a_1[8]]);
-      });
-      let _113=_112.EqualMsgAsync((t) => t[8], () => 9, "after set outer unchanged");
-      let _114=_113.For((a_1) => {
+      }).EqualMsgAsync((t) => t[8], () => 9, "after set outer unchanged").For((a_1) => {
         const o_2=a_1[3];
         o_2.Set(false);
         return Runner.Yield([a_1[0], a_1[1], a_1[2], o_2, a_1[4], a_1[5], a_1[6], a_1[7], a_1[8]]);
-      });
-      let _115=_114.EqualMsgAsync((t) => t[8], () => 4, "after set outer");
-      let _116=_115.EqualMsg((t) =>[t[0][0], t[1][0], t[2][0]], () =>[3, 3, 1], "function call count");
-      _107.Run(_116);
-      const _117=Test("UpdateWhile");
+      }).EqualMsgAsync((t) => t[8], () => 4, "after set outer").EqualMsg((t) =>[t[0][0], t[1][0], t[2][0]], () =>[3, 3, 1], "function call count"));
+      const _24=Test("UpdateWhile");
       const outerCount_3=[0];
       const innerCount_1=[0];
       const rv1_5=_c_1.Create_1(false);
@@ -1700,41 +1569,28 @@ let _c=Lazy((_i) => class $StartupCode_Main {
         innerCount_1[0]=innerCount_1[0]+1;
         return x;
       }, rv2_5.View);
-      let _118=Runner.Yield([outerCount_3, innerCount_1, rv1_5, v1, rv2_5, v2, GetAsync(UpdateWhile(1, v1, v2))]);
-      let _119=_118.EqualMsgAsync((t) => t[6], () => 1, "initial");
-      let _120=_119.For((a_1) => {
+      _24.Run(Runner.Yield([outerCount_3, innerCount_1, rv1_5, v1, rv2_5, v2, GetAsync(UpdateWhile(1, v1, v2))]).EqualMsgAsync((t) => t[6], () => 1, "initial").For((a_1) => {
         const rv2_8=a_1[4];
         rv2_8.Set(27);
         return Runner.Yield([a_1[0], a_1[1], a_1[2], a_1[3], rv2_8, a_1[5], a_1[6]]);
-      });
-      let _121=_120.EqualMsgAsync((t) => t[6], () => 1, "changing inner should have no effect");
-      let _122=_121.For((a_1) => {
+      }).EqualMsgAsync((t) => t[6], () => 1, "changing inner should have no effect").For((a_1) => {
         const rv1_8=a_1[2];
         rv1_8.Set(true);
         return Runner.Yield([a_1[0], a_1[1], rv1_8, a_1[3], a_1[4], a_1[5], a_1[6]]);
-      });
-      let _123=_122.EqualMsgAsync((t) => t[6], () => 27, "after set pred true");
-      let _124=_123.For((a_1) => {
+      }).EqualMsgAsync((t) => t[6], () => 27, "after set pred true").For((a_1) => {
         const rv2_8=a_1[4];
         rv2_8.Set(22);
         return Runner.Yield([a_1[0], a_1[1], a_1[2], a_1[3], rv2_8, a_1[5], a_1[6]]);
-      });
-      let _125=_124.EqualMsgAsync((t) => t[6], () => 22, "after set inner");
-      let _126=_125.For((a_1) => {
+      }).EqualMsgAsync((t) => t[6], () => 22, "after set inner").For((a_1) => {
         const rv1_8=a_1[2];
         rv1_8.Set(false);
         return Runner.Yield([a_1[0], a_1[1], rv1_8, a_1[3], a_1[4], a_1[5], a_1[6]]);
-      });
-      let _127=_126.EqualMsgAsync((t) => t[6], () => 22, "after set pred false");
-      let _128=_127.For((a_1) => {
+      }).EqualMsgAsync((t) => t[6], () => 22, "after set pred false").For((a_1) => {
         const rv2_8=a_1[4];
         rv2_8.Set(0);
         return Runner.Yield([a_1[0], a_1[1], a_1[2], a_1[3], rv2_8, a_1[5], a_1[6]]);
-      });
-      let _129=_128.EqualMsgAsync((t) => t[6], () => 22, "changing inner should have no effect");
-      let _130=_129.EqualMsg((t) =>[t[0][0], t[1][0]], () =>[3, 2], "function call count");
-      _117.Run(_130);
-      const _131=Test("SnapShotOn");
+      }).EqualMsgAsync((t) => t[6], () => 22, "changing inner should have no effect").EqualMsg((t) =>[t[0][0], t[1][0]], () =>[3, 2], "function call count"));
+      const _25=Test("SnapShotOn");
       const outerCount_4=[0];
       const innerCount_2=[0];
       const rv1_6=_c_1.Create_1();
@@ -1746,35 +1602,24 @@ let _c=Lazy((_i) => class $StartupCode_Main {
         innerCount_2[0]=innerCount_2[0]+1;
         return x;
       }, rv2_6.View);
-      let _132=Runner.Yield([outerCount_4, innerCount_2, rv1_6, v1_1, rv2_6, v2_1, GetAsync(SnapshotOn(1, v1_1, v2_1))]);
-      let _133=_132.EqualMsgAsync((t) => t[6], () => 1, "initial");
-      let _134=_133.For((a_1) => {
+      _25.Run(Runner.Yield([outerCount_4, innerCount_2, rv1_6, v1_1, rv2_6, v2_1, GetAsync(SnapshotOn(1, v1_1, v2_1))]).EqualMsgAsync((t) => t[6], () => 1, "initial").For((a_1) => {
         const rv2_8=a_1[4];
         rv2_8.Set(27);
         return Runner.Yield([a_1[0], a_1[1], a_1[2], a_1[3], rv2_8, a_1[5], a_1[6]]);
-      });
-      let _135=_134.EqualMsgAsync((t) => t[6], () => 1, "changing inner should have no effect");
-      let _136=_135.For((a_1) => {
+      }).EqualMsgAsync((t) => t[6], () => 1, "changing inner should have no effect").For((a_1) => {
         const rv1_8=a_1[2];
-        rv1_8.Set(null);
+        rv1_8.Set(void 0);
         return Runner.Yield([a_1[0], a_1[1], rv1_8, a_1[3], a_1[4], a_1[5], a_1[6]]);
-      });
-      let _137=_136.EqualMsgAsync((t) => t[6], () => 27, "after taking snapshot");
-      let _138=_137.For((a_1) => {
+      }).EqualMsgAsync((t) => t[6], () => 27, "after taking snapshot").For((a_1) => {
         const rv2_8=a_1[4];
         rv2_8.Set(22);
         return Runner.Yield([a_1[0], a_1[1], a_1[2], a_1[3], rv2_8, a_1[5], a_1[6]]);
-      });
-      let _139=_138.EqualMsgAsync((t) => t[6], () => 27, "changing inner should have no effect");
-      let _140=_139.For((a_1) => {
+      }).EqualMsgAsync((t) => t[6], () => 27, "changing inner should have no effect").For((a_1) => {
         const rv1_8=a_1[2];
-        rv1_8.Set(null);
+        rv1_8.Set(void 0);
         return Runner.Yield([a_1[0], a_1[1], rv1_8, a_1[3], a_1[4], a_1[5], a_1[6]]);
-      });
-      let _141=_140.EqualMsgAsync((t) => t[6], () => 22, "after taking snapshot");
-      let _142=_141.EqualMsg((t) =>[t[0][0], t[1][0]], () =>[3, 2], "function call count");
-      _131.Run(_142);
-      const _143=Test("Sequence");
+      }).EqualMsgAsync((t) => t[6], () => 22, "after taking snapshot").EqualMsg((t) =>[t[0][0], t[1][0]], () =>[3, 2], "function call count"));
+      const _26=Test("Sequence");
       const seqCount=[0];
       const innerCount_3=[0];
       const rv1_7=_c_1.Create_1(93);
@@ -1783,278 +1628,214 @@ let _c=Lazy((_i) => class $StartupCode_Main {
         innerCount_3[0]=innerCount_3[0]+1;
         return x;
       }, rv2_7.View);
-      const rvs=delay(() => {
+      const rvs=Iterate(function*(){
         seqCount[0]=seqCount[0]+1;
-        return append_1([rv1_7.View], delay(() => seqCount[0]===2?[v2_2]:[]));
+        yield rv1_7.View;
+        if(seqCount[0]===2)yield v2_2;
       });
-      let _144=Runner.Yield([seqCount, innerCount_3, rv1_7, rv2_7, v2_2, rvs, GetAsync(Map(ofSeq, Sequence(rvs)))]);
-      let _145=_144.EqualMsgAsync((t) => t[6], () => ofArray([93]), "initial");
-      let _146=_145.For((a_1) => {
+      _26.Run(Runner.Yield([seqCount, innerCount_3, rv1_7, rv2_7, v2_2, rvs, GetAsync(Map(ofSeq, Sequence(rvs)))]).EqualMsgAsync((t) => t[6], () => ofArray([93]), "initial").For((a_1) => {
         const rv1_8=a_1[2];
         rv1_8.Set(94);
         return Runner.Yield([a_1[0], a_1[1], rv1_8, a_1[3], a_1[4], a_1[5], a_1[6]]);
-      });
-      let _147=_146.EqualMsgAsync((t) => t[6], () => ofArray([94, 27]), "setting an item");
-      let _148=_147.For((a_1) => {
+      }).EqualMsgAsync((t) => t[6], () => ofArray([94, 27]), "setting an item").For((a_1) => {
         const rv2_8=a_1[3];
         rv2_8.Set(0);
         return Runner.Yield([a_1[0], a_1[1], a_1[2], rv2_8, a_1[4], a_1[5], a_1[6]]);
-      });
-      let _149=_148.EqualMsgAsync((t) => t[6], () => ofArray([94]), "setting an item");
-      let _150=_149.For((a_1) => {
+      }).EqualMsgAsync((t) => t[6], () => ofArray([94]), "setting an item").For((a_1) => {
         const rv2_8=a_1[3];
         rv2_8.Set(1);
         return Runner.Yield([a_1[0], a_1[1], a_1[2], rv2_8, a_1[4], a_1[5], a_1[6]]);
-      });
-      let _151=_150.EqualMsgAsync((t) => t[6], () => ofArray([94]), "setting an outside item");
-      let _152=_151.EqualMsg((t) =>[t[0][0], t[1][0]], () =>[3, 1], "function call count");
-      _143.Run(_152);
-      const _153=Test("Get");
+      }).EqualMsgAsync((t) => t[6], () => ofArray([94]), "setting an outside item").EqualMsg((t) =>[t[0][0], t[1][0]], () =>[3, 1], "function call count"));
+      const _27=Test("Get");
       const rv_5=_c_1.Create_1(53);
-      let _154=Runner.Yield([rv_5, FromContinuations((ok) => Get(ok, rv_5.View))]);
-      let _155=_154.EqualMsgAsync((t) => t[1], () => 53, "initial");
-      let _156=_155.For((a_1) => {
+      _27.Run(Runner.Yield([rv_5, FromContinuations((ok) => Get(ok, rv_5.View))]).EqualMsgAsync((t) => t[1], () => 53, "initial").For((a_1) => {
         const rv_7=a_1[0];
         rv_7.Set(84);
         return Runner.Yield([rv_7, a_1[1]]);
-      });
-      let _157=_156.EqualMsgAsync((t) => t[1], () => 84, "after set");
-      let _158=_157.For((a_1) => {
+      }).EqualMsgAsync((t) => t[1], () => 84, "after set").For((a_1) => {
         const rv_7=a_1[0];
         const v_2=MapAsync((x) => {
           const f_2=() => {
-            const x_1=Sleep(100);
             const f_3=() => Return(x);
-            return Bind_1(x_1, (_192, _193) =>(f_3(_192))(_193));
+            return Bind_1(Sleep(100), (_33, _34) =>(f_3(_33))(_34));
           };
-          return Delay((_192, _193) =>(f_2(_192))(_193));
+          return Delay((_33, _34) =>(f_2(_33))(_34));
         }, rv_7.View);
         return Runner.Yield([rv_7, a_1[1], v_2, FromContinuations((ok) => Get(ok, v_2))]);
-      });
-      let _159=_158.EqualMsgAsync((t) => t[3], () => 84, "async before set");
-      let _160=_159.For((a_1) => {
+      }).EqualMsgAsync((t) => t[3], () => 84, "async before set").For((a_1) => {
         const rv_7=a_1[0];
         rv_7.Set(12);
         return Runner.Yield([rv_7, a_1[1], a_1[2], a_1[3]]);
-      });
-      let _161=_160.EqualMsgAsync((t) => t[3], () => 12, "async after set");
-      _153.Run(_161);
-      const _162=Test("GetAsync");
+      }).EqualMsgAsync((t) => t[3], () => 12, "async after set"));
+      const _28=Test("GetAsync");
       const rv_6=_c_1.Create_1(79);
-      let _163=Runner.Yield([rv_6, GetAsync(rv_6.View)]);
-      let _164=_163.EqualMsgAsync((t) => t[1], () => 79, "initial");
-      let _165=_164.For((a_1) => {
+      _28.Run(Runner.Yield([rv_6, GetAsync(rv_6.View)]).EqualMsgAsync((t) => t[1], () => 79, "initial").For((a_1) => {
         const rv_7=a_1[0];
         rv_7.Set(62);
         return Runner.Yield([rv_7, a_1[1]]);
-      });
-      let _166=_165.EqualMsgAsync((t) => t[1], () => 62, "after set");
-      let _167=_166.For((a_1) => {
+      }).EqualMsgAsync((t) => t[1], () => 62, "after set").For((a_1) => {
         const rv_7=a_1[0];
         const v_2=MapAsync((x) => {
           const f_2=() => {
-            const x_1=Sleep(100);
             const f_3=() => Return(x);
-            return Bind_1(x_1, (_192, _193) =>(f_3(_192))(_193));
+            return Bind_1(Sleep(100), (_33, _34) =>(f_3(_33))(_34));
           };
-          return Delay((_192, _193) =>(f_2(_192))(_193));
+          return Delay((_33, _34) =>(f_2(_33))(_34));
         }, rv_7.View);
         return Runner.Yield([rv_7, a_1[1], v_2, GetAsync(v_2)]);
-      });
-      let _168=_167.EqualMsgAsync((t) => t[3], () => 62, "async before set");
-      let _169=_168.For((a_1) => {
+      }).EqualMsgAsync((t) => t[3], () => 62, "async before set").For((a_1) => {
         const rv_7=a_1[0];
         rv_7.Set(43);
         return Runner.Yield([rv_7, a_1[1], a_1[2], a_1[3]]);
-      });
-      let _170=_169.EqualMsgAsync((t) => t[3], () => 43, "async after set");
-      _162.Run(_170);
-      Test("V").Run(Runner.Yield(Const(12)).EqualMsgAsync(GetAsync, () => 12, "Const").For((a_1) => Runner.Yield([a_1, Map((_192) =>"b"+String(_192), a_1)])).EqualMsgAsync((t) => GetAsync(t[1]), () =>"b12", "Map").For((a_1) => {
+      }).EqualMsgAsync((t) => t[3], () => 43, "async after set"));
+      Test("V").Run(Runner.Yield(Const(12)).EqualMsgAsync(GetAsync, () => 12, "Const").For((a_1) => Runner.Yield([a_1, Map((_33) =>"b"+String(_33), a_1)])).EqualMsgAsync((t) => GetAsync(t[1]), () =>"b12", "Map").For((a_1) => {
         const vconst=a_1[0];
-        return Runner.Yield([vconst, a_1[1], Map((_192) => _192+_192, vconst)]);
+        return Runner.Yield([vconst, a_1[1], Map((_33) => _33+_33, vconst)]);
       }).EqualMsgAsync((t) => GetAsync(t[2]), () => 24, "Map using the same view twice").For((a_1) => {
         const vmap=a_1[1];
         const vconst=a_1[0];
-        return Runner.Yield([vconst, vmap, a_1[2], Map2((_192, _193) => String(_192)+"c"+_193, vconst, vmap)]);
+        return Runner.Yield([vconst, vmap, a_1[2], Map2((_33, _34) => String(_33)+"c"+_34, vconst, vmap)]);
       }).EqualMsgAsync((t) => GetAsync(t[3]), () =>"12cb12", "Map2").For((a_1) => {
         const vmap2=a_1[3];
         const vmap=a_1[1];
         const vconst=a_1[0];
-        return Runner.Yield([vconst, vmap, a_1[2], vmap2, Apply(Map2((_192, _193) =>(_194) => _192+"d"+_193+"e"+String(_194), vmap2, vmap), vconst)]);
+        return Runner.Yield([vconst, vmap, a_1[2], vmap2, Apply(Map2((_33, _34) =>(_35) => _33+"d"+_34+"e"+String(_35), vmap2, vmap), vconst)]);
       }).EqualMsgAsync((t) => GetAsync(t[4]), () =>"12cb12db12e12", "Apply"));
-      const _171=Test("WithInit");
+      const _29=Test("WithInit");
       const e=new FSharpEvent();
-      let _172=Runner.Yield([e, WithInit("waiting", ConstAsync(AwaitEvent(e.event, null)))]);
-      let _173=_172.EqualMsgAsync((t) => GetAsync(t[1]), () =>"waiting", "Initial value");
-      let _174=_173.For((a_1) => {
+      _29.Run(Runner.Yield([e, WithInit("waiting", ConstAsync(AwaitEvent(e.event, null)))]).EqualMsgAsync((t) => GetAsync(t[1]), () =>"waiting", "Initial value").For((a_1) => {
         const e_2=a_1[0];
         e_2.event.Trigger("done");
         return Runner.Yield([e_2, a_1[1]]);
-      });
-      let _175=_174.EqualMsgAsync((t) => GetAsync(t[1]), () =>"done", "Value after waiting");
-      _171.Run(_175);
-      const _176=Test("WithInitOption");
+      }).EqualMsgAsync((t) => GetAsync(t[1]), () =>"done", "Value after waiting"));
+      const _30=Test("WithInitOption");
       const e_1=new FSharpEvent();
-      let _177=Runner.Yield([e_1, WithInitOption(ConstAsync(AwaitEvent(e_1.event, null)))]);
-      let _178=_177.EqualMsgAsync((t) => GetAsync(t[1]), () => null, "Initial value");
-      let _179=_178.For((a_1) => {
+      _30.Run(Runner.Yield([e_1, WithInitOption(ConstAsync(AwaitEvent(e_1.event, null)))]).EqualMsgAsync((t) => GetAsync(t[1]), () => null, "Initial value").For((a_1) => {
         const e_2=a_1[0];
         e_2.event.Trigger("done");
         return Runner.Yield([e_2, a_1[1]]);
-      });
-      let _180=_179.EqualMsgAsync((t) => GetAsync(t[1]), () => Some("done"), "Value after waiting");
-      _176.Run(_180);
-      const _181=Test("Stress test");
+      }).EqualMsgAsync((t) => GetAsync(t[1]), () => Some("done"), "Value after waiting"));
+      const _31=Test("Stress test");
       const n=400;
       const sheet=init_2(n, n, () => _c_1.Create_1(Const(0)));
-      for(let i=1, _192=n-1;i<=_192;i++)(((i_1) => {
-        get2D(sheet, 0, i).Set(Join(get2D(sheet, 0, i-1).View));
-        get2D(sheet, i, 0).Set(Join(get2D(sheet, i-1, 0).View));
-        for(let j=1, _193=n-1;j<=_193;j++)(((j_1) => {
+      for(let i_1=1, _33=n-1;i_1<=_33;i_1++){
+        const i=i_1;
+        get2D(sheet, 0, i_1).Set(Join(get2D(sheet, 0, i_1-1).View));
+        get2D(sheet, i_1, 0).Set(Join(get2D(sheet, i_1-1, 0).View));
+        for(let j_1=1, _34=n-1;j_1<=_34;j_1++){
+          const j=j_1;
           const set_1=(f_2) => {
-            get2D(sheet, i_1, j_1).Set(Map2((_194, _195) =>(f_2(_194))(_195), Join(get2D(sheet, i_1-1, j_1).View), Join(get2D(sheet, i_1, j_1-1).View)));
+            get2D(sheet, i, j).Set(Map2((_35, _36) =>(f_2(_35))(_36), Join(get2D(sheet, i-1, j).View), Join(get2D(sheet, i, j-1).View)));
           };
-          return i_1===100&&j===100?set_1((a_1) =>(b) => {
+          if(i_1===100&&j_1===100)set_1((a_1) =>(b) => {
             console.log("calculating value at (100, 100)");
             return(a_1+b)%1000000;
-          }):i_1===n-1&&j===n-1?set_1((a_1) =>(b) => {
+          });
+          else i_1===n-1&&j_1===n-1?set_1((a_1) =>(b) => {
             console.log("calculating final value");
             return(a_1+b)%1000000;
           }):set_1((a_1) =>(b) =>(a_1+b)%1000000);
-        })(j));
-      })(i));
-      let _182=Runner.Yield([n, sheet]);
-      let _183=_182.EqualAsync((t) => {
+        }
+      }
+      _31.Run(Runner.Yield([n, sheet]).EqualAsync((t) => {
         const n_2=t[0];
         return GetAsync(Join(get2D(t[1], n_2-1, n_2-1).View));
-      }, () => 0);
-      let _184=_183.For((a_1) => {
+      }, () => 0).For((a_1) => {
         const sheet_1=a_1[1];
         get2D(sheet_1, 0, 0).Set(Const(1));
         return Runner.Yield([a_1[0], sheet_1]);
-      });
-      let _185=_184.EqualAsync((t) => {
+      }).EqualAsync((t) => {
         const n_2=t[0];
         return GetAsync(Join(get2D(t[1], n_2-1, n_2-1).View));
-      }, () => 272000);
-      let _186=_185.For((a_1) => {
+      }, () => 272000).For((a_1) => {
         globalThis.stressTest=a_1[1];
         return Runner.Zero();
-      });
-      _181.Run(_186);
-      const _187=Test("Long chain");
+      }));
+      const _32=Test("Long chain");
       const n_1=1000;
       const v_1=_c_1.Create_1(0);
-      let _188=Runner.Yield([n_1, v_1, nth(n_1-1, unfold((a_1) => {
+      _32.Run(Runner.Yield([n_1, v_1, nth(n_1-1, unfold((a_1) => {
         const b=Map((y) => 1+y, a_1);
         return Some([b, b]);
-      }, v_1.View))]);
-      let _189=_188.EqualAsync((t) => GetAsync(t[2]), () => 1000);
-      let _190=_189.For((a_1) => {
+      }, v_1.View))]).EqualAsync((t) => GetAsync(t[2]), () => 1000).For((a_1) => {
         const v_2=a_1[1];
         v_2.Set(1);
         return Runner.Yield([a_1[0], v_2, a_1[2]]);
-      });
-      let _191=_190.EqualAsync((t) => GetAsync(t[2]), () => 1001);
-      _187.Run(_191);
+      }).EqualAsync((t) => GetAsync(t[2]), () => 1001));
     }};
-    let _6=(globalThis.QUnit.module(s_1.name),s_1);
-    this.ViewTest=_6;
-    const _7=TestCategory("ListModel");
-    const s_2={name:_7.name, run:() => {
-      const _21=Test("Wrap");
+    globalThis.QUnit.module(s_1.name);
+    this.ViewTest=s_1;
+    const _4=TestCategory("ListModel");
+    const s_2={name:_4.name, run:() => {
+      const _11=Test("Wrap");
       const u=Create((t) => t[0], ofArray([[1, "11"], [2, "22"]]));
-      const l=u.Wrap((_36) =>[_36[0], _36[1]], (_36) => {
-        const k=_36[0];
-        return[k, _36[1], k];
-      }, (_36, _37) =>(((_38) => {
-        const f_1=_38[2];
+      const l=u.Wrap((_12) =>[_12[0], _12[1]], (_12) => {
+        const k=_12[0];
+        return[k, _12[1], k];
+      }, (_12, _13) =>(((_14) => {
+        const f_1=_14[2];
         return(t) =>[t[0], t[1], f_1];
-      })(_36))(_37));
-      let _22=Runner.Yield([u, l, GetAsync(Map(ofSeq, u.v)), GetAsync(Map(ofSeq, l.v))]);
-      let _23=_22.EqualMsgAsync((t) => t[3], () => ofArray([[1, "11", 1], [2, "22", 2]]), "initialization");
-      let _24=_23.For((a) => {
+      })(_12))(_13));
+      _11.Run(Runner.Yield([u, l, GetAsync(Map(ofSeq, u.v)), GetAsync(Map(ofSeq, l.v))]).EqualMsgAsync((t) => t[3], () => ofArray([[1, "11", 1], [2, "22", 2]]), "initialization").For((a) => {
         const u_1=a[0];
         u_1.UpdateBy(() => Some([1, "111"]), 1);
         return Runner.Yield([u_1, a[1], a[2], a[3]]);
-      });
-      let _25=_24.EqualMsgAsync((t) => t[3], () => ofArray([[1, "111", 1], [2, "22", 2]]), "update underlying item");
-      let _26=_25.For((a) => {
+      }).EqualMsgAsync((t) => t[3], () => ofArray([[1, "111", 1], [2, "22", 2]]), "update underlying item").For((a) => {
         const u_1=a[0];
         u_1.Append([3, "33"]);
         return Runner.Yield([u_1, a[1], a[2], a[3]]);
-      });
-      let _27=_26.EqualMsgAsync((t) => t[3], () => ofArray([[1, "111", 1], [2, "22", 2], [3, "33", 3]]), "insert into underlying");
-      let _28=_27.For((a) => {
+      }).EqualMsgAsync((t) => t[3], () => ofArray([[1, "111", 1], [2, "22", 2], [3, "33", 3]]), "insert into underlying").For((a) => {
         const u_1=a[0];
         u_1.RemoveByKey(2);
         return Runner.Yield([u_1, a[1], a[2], a[3]]);
-      });
-      let _29=_28.EqualMsgAsync((t) => t[3], () => ofArray([[1, "111", 1], [3, "33", 3]]), "remove from underlying");
-      let _30=_29.For((a) => {
+      }).EqualMsgAsync((t) => t[3], () => ofArray([[1, "111", 1], [3, "33", 3]]), "remove from underlying").For((a) => {
         const l_1=a[1];
         l_1.UpdateBy(() => Some([1, "1111", 1]), 1);
         return Runner.Yield([a[0], l_1, a[2], a[3]]);
-      });
-      let _31=_30.EqualMsgAsync((t) => t[2], () => ofArray([[1, "1111"], [3, "33"]]), "update contextual");
-      let _32=_31.For((a) => {
+      }).EqualMsgAsync((t) => t[2], () => ofArray([[1, "1111"], [3, "33"]]), "update contextual").For((a) => {
         const l_1=a[1];
         l_1.Append([4, "44", 4]);
         return Runner.Yield([a[0], l_1, a[2], a[3]]);
-      });
-      let _33=_32.EqualMsgAsync((t) => t[2], () => ofArray([[1, "1111"], [3, "33"], [4, "44"]]), "insert into contextual");
-      let _34=_33.For((a) => {
+      }).EqualMsgAsync((t) => t[2], () => ofArray([[1, "1111"], [3, "33"], [4, "44"]]), "insert into contextual").For((a) => {
         const l_1=a[1];
         l_1.RemoveByKey(3);
         return Runner.Yield([a[0], l_1, a[2], a[3]]);
-      });
-      let _35=_34.EqualMsgAsync((t) => t[2], () => ofArray([[1, "1111"], [4, "44"]]), "remove from contextual");
-      _21.Run(_35);
+      }).EqualMsgAsync((t) => t[2], () => ofArray([[1, "1111"], [4, "44"]]), "remove from contextual"));
     }};
-    let _8=(globalThis.QUnit.module(s_2.name),s_2);
-    this.ListModelTest=_8;
-    const _9=TestCategory("Serializer");
-    const s_3={name:_9.name, run:() => {
-      const _21=Test("Typed");
-      const s_9={Encode:(EncodeList(Id()))(), Decode:(x) =>((DecodeList(Id()))())(x)};
-      let _22=Runner.Yield([s_9, s_9.Decode(JSON.parse(JSON.stringify(s_9.Encode(ofArray([1, 2, 3])))))]);
-      let _23=_22.Equal((t) => nth(2, t[1]), () => 3);
-      _21.Run(_23);
+    globalThis.QUnit.module(s_2.name);
+    this.ListModelTest=s_2;
+    const _5=TestCategory("Serializer");
+    const s_3={name:_5.name, run:() => {
+      const _11=Test("Typed");
+      const s_9={Encode:(EncodeList(Id()))(), Decode:(DecodeList(Id()))()};
+      _11.Run(Runner.Yield([s_9, s_9.Decode(JSON.parse(JSON.stringify(s_9.Encode(ofArray([1, 2, 3])))))]).Equal((t) => nth(2, t[1]), () => 3));
     }};
-    let _10=(globalThis.QUnit.module(s_3.name),s_3);
-    this.SerializerTest=_10;
-    const _11=TestCategory("Elt");
-    const s_4={name:_11.name, run:() => {
-      const _21=Test("Children template updates after moving out of its wrapper");
+    globalThis.QUnit.module(s_3.name);
+    this.SerializerTest=s_3;
+    const _6=TestCategory("Elt");
+    const s_4={name:_6.name, run:() => {
+      const _11=Test("Children template updates after moving out of its wrapper");
       LoadLocalTemplates("local");
       const value=_c_1.Create_1("first");
       const host=globalThis.document.createElement("div");
       globalThis.document.body.appendChild(host);
       const child=Doc.BindView((value_1) => Doc.Element("div", [], [Doc.TextNode(value_1)]), value.View);
-      const _22=NamedTemplate("local", Some("movedfragment"), [new Elt("child", child)]);
+      const _12=NamedTemplate("local", Some("movedfragment"), [new Elt("child", child)]);
       LoadLocalTemplates("");
-      Doc.Run(host, _22);
+      Doc.Run(host, _12);
       const f_1=() => {
-        const x=Sleep(50);
         const f_2=() => Return(host.textContent);
-        return Bind_1(x, (_30, _31) =>(f_2(_30))(_31));
+        return Bind_1(Sleep(50), (_13, _14) =>(f_2(_13))(_14));
       };
-      let _23=Delay((_30, _31) =>(f_1(_30))(_31));
-      let _24=[value, host, child, _23];
-      let _25=Runner.Yield(_24);
-      let _26=_25.EqualMsgAsync((t) => t[3], () =>"beforefirstafter", "initial fragment contents");
-      let _27=_26.For((a) => {
+      _11.Run(Runner.Yield([value, host, child, Delay((_13, _14) =>(f_1(_13))(_14))]).EqualMsgAsync((t) => t[3], () =>"beforefirstafter", "initial fragment contents").For((a) => {
         const value_1=a[0];
         value_1.Set("second");
         return Runner.Yield([value_1, a[1], a[2], a[3]]);
-      });
-      let _28=_27.EqualMsgAsync((t) => t[3], () =>"beforesecondafter", "updated fragment contents and order");
-      let _29=_28.For((a) => {
+      }).EqualMsgAsync((t) => t[3], () =>"beforesecondafter", "updated fragment contents and order").For((a) => {
         const host_1=a[1];
         host_1.parentNode.removeChild(host_1);
         return Runner.Zero();
-      });
-      _21.Run(_29);
+      }));
       Test("Class").Run(Runner.Yield(Doc.Element("div", [Attr.Create("class", "overridden1"), Class("overridden2"), Attr.Create("class", "base1 base2"), Class("extra1"), Class("extra2 extra3")], [])).IsFalseMsg((elt) => elt.HasClass("overridden1"), "overridden1").IsFalseMsg((elt) => elt.HasClass("overridden2"), "overridden2").IsTrueMsg((elt) => elt.HasClass("base1"), "base1").IsTrueMsg((elt) => elt.HasClass("base2"), "base2").IsTrueMsg((elt) => elt.HasClass("extra1"), "extra1").IsTrueMsg((elt) => elt.HasClass("extra2"), "extra2").IsTrueMsg((elt) => elt.HasClass("extra3"), "extra3").EqualMsg((elt) => elt.elt.className, () =>"base1 base2 extra1 extra2 extra3", "full initial").For((a) => {
         AddClass(a.elt, "extra4");
         return Runner.Yield(a);
@@ -2078,459 +1859,361 @@ let _c=Lazy((_i) => class $StartupCode_Main {
         return Runner.Yield(a);
       }).EqualMsg((elt) => elt.elt.className, () =>"cls1", "remove duplicate in final position"));
     }};
-    let _12=(globalThis.QUnit.module(s_4.name),s_4);
-    this.EltTest=_12;
-    const _13=TestCategory("Input controls");
-    const s_5={name:_13.name, run:() => {
-      const _21=Test("Text");
+    globalThis.QUnit.module(s_4.name);
+    this.EltTest=s_4;
+    const _7=TestCategory("Input controls");
+    const s_5={name:_7.name, run:() => {
+      const _11=Test("Text");
       const rv=_c_1.Create_1("initial");
       const inp=Doc.Input([], rv);
-      let _22=Runner.Yield([rv, inp, mount(inp)]);
-      let _23=_22.EqualMsgAsync((t) => {
+      _11.Run(Runner.Yield([rv, inp, mount(inp)]).EqualMsgAsync((t) => {
         const inp_5=t[1];
         return afterUpdate(() => inp_5.GetValue());
-      }, () =>"initial", "initial value rendered");
-      let _24=_23.For((a) => {
+      }, () =>"initial", "initial value rendered").For((a) => {
         const rv_10=a[0];
         rv_10.Set("set from var");
         return Runner.Yield([rv_10, a[1], a[2]]);
-      });
-      let _25=_24.EqualMsgAsync((t) => {
+      }).EqualMsgAsync((t) => {
         const inp_5=t[1];
         return afterUpdate(() => inp_5.GetValue());
-      }, () =>"set from var", "var change updates input");
-      let _26=_25.For((a) => {
+      }, () =>"set from var", "var change updates input").For((a) => {
         const inp_5=a[1];
         inp_5.SetValue("typed");
         trigger(inp_5.elt, "input");
         return Runner.Yield([a[0], inp_5, a[2]]);
-      });
-      let _27=_26.EqualMsg((t) => t[0].Get(), () =>"typed", "input event updates var");
-      let _28=_27.For((a) => {
+      }).EqualMsg((t) => t[0].Get(), () =>"typed", "input event updates var").For((a) => {
         unmount(a[2]);
         return Runner.Zero();
-      });
-      _21.Run(_28);
-      const _29=Test("TextArea");
+      }));
+      const _12=Test("TextArea");
       const rv_1=_c_1.Create_1("initial");
       const inp_1=Doc.InputArea([], rv_1);
-      let _30=Runner.Yield([rv_1, inp_1, mount(inp_1)]);
-      let _31=_30.EqualMsgAsync((t) => {
+      _12.Run(Runner.Yield([rv_1, inp_1, mount(inp_1)]).EqualMsgAsync((t) => {
         const inp_5=t[1];
         return afterUpdate(() => inp_5.GetValue());
-      }, () =>"initial", "initial value rendered");
-      let _32=_31.For((a) => {
+      }, () =>"initial", "initial value rendered").For((a) => {
         const inp_5=a[1];
         inp_5.SetValue("line1\nline2");
         trigger(inp_5.elt, "change");
         return Runner.Yield([a[0], inp_5, a[2]]);
-      });
-      let _33=_32.EqualMsg((t) => t[0].Get(), () =>"line1\nline2", "change event updates var");
-      let _34=_33.For((a) => {
+      }).EqualMsg((t) => t[0].Get(), () =>"line1\nline2", "change event updates var").For((a) => {
         unmount(a[2]);
         return Runner.Zero();
-      });
-      _29.Run(_34);
-      const _35=Test("Int");
+      }));
+      const _13=Test("Int");
       const rv_2=_c_1.Create_1(CheckedInput.Make(42));
       const inp_2=Doc.IntInput([], rv_2);
-      let _36=Runner.Yield([rv_2, inp_2, mount(inp_2)]);
-      let _37=_36.EqualMsgAsync((t) => {
+      _13.Run(Runner.Yield([rv_2, inp_2, mount(inp_2)]).EqualMsgAsync((t) => {
         const inp_5=t[1];
         return afterUpdate(() => inp_5.GetValue());
-      }, () =>"42", "initial value rendered");
-      let _38=_37.For((a) => {
+      }, () =>"42", "initial value rendered").For((a) => {
         const inp_5=a[1];
         inp_5.SetValue("17");
         trigger(inp_5.elt, "input");
         return Runner.Yield([a[0], inp_5, a[2]]);
-      });
-      let _39=_38.EqualMsg((t) => t[0].Get(), () => CheckedInput.Valid(17, "17"), "valid number parsed");
-      let _40=_39.For((a) => {
+      }).EqualMsg((t) => t[0].Get(), () => CheckedInput.Valid(17, "17"), "valid number parsed").For((a) => {
         const inp_5=a[1];
         inp_5.SetValue("");
         trigger(inp_5.elt, "input");
         return Runner.Yield([a[0], inp_5, a[2]]);
-      });
-      let _41=_40.EqualMsg((t) => t[0].Get(), () => CheckedInput.Blank(""), "blank input");
-      let _42=_41.For((a) => {
+      }).EqualMsg((t) => t[0].Get(), () => CheckedInput.Blank(""), "blank input").For((a) => {
         const rv_10=a[0];
         rv_10.Set(CheckedInput.Make(5));
         return Runner.Yield([rv_10, a[1], a[2]]);
-      });
-      let _43=_42.EqualMsgAsync((t) => {
+      }).EqualMsgAsync((t) => {
         const inp_5=t[1];
         return afterUpdate(() => inp_5.GetValue());
-      }, () =>"5", "var change updates input");
-      let _44=_43.For((a) => {
+      }, () =>"5", "var change updates input").For((a) => {
         unmount(a[2]);
         return Runner.Zero();
-      });
-      _35.Run(_44);
-      const _45=Test("Range");
+      }));
+      const _14=Test("Range");
       const rv_3=_c_1.Create_1(10);
       const inp_3=Doc.RangeInput([], rv_3);
-      let _46=Runner.Yield([rv_3, inp_3, mount(inp_3)]);
-      let _47=_46.EqualMsgAsync((t) => {
+      _14.Run(Runner.Yield([rv_3, inp_3, mount(inp_3)]).EqualMsgAsync((t) => {
         const inp_5=t[1];
         return afterUpdate(() => inp_5.GetValue());
-      }, () =>"10", "initial value rendered");
-      let _48=_47.For((a) => {
+      }, () =>"10", "initial value rendered").For((a) => {
         const inp_5=a[1];
         inp_5.SetValue("30");
         trigger(inp_5.elt, "input");
         return Runner.Yield([a[0], inp_5, a[2]]);
-      });
-      let _49=_48.EqualMsg((t) => t[0].Get(), () => 30, "input event updates var");
-      let _50=_49.For((a) => {
+      }).EqualMsg((t) => t[0].Get(), () => 30, "input event updates var").For((a) => {
         unmount(a[2]);
         return Runner.Zero();
-      });
-      _45.Run(_50);
-      const _51=Test("CheckBox");
+      }));
+      const _15=Test("CheckBox");
       const rv_4=_c_1.Create_1(false);
       const chk=Doc.CheckBox([], rv_4);
-      let _52=Runner.Yield([rv_4, chk, mount(chk)]);
-      let _53=_52.EqualMsgAsync((t) => {
+      _15.Run(Runner.Yield([rv_4, chk, mount(chk)]).EqualMsgAsync((t) => {
         const chk_1=t[1];
         return afterUpdate(() => isChecked(chk_1.elt));
-      }, () => false, "initially unchecked");
-      let _54=_53.For((a) => {
+      }, () => false, "initially unchecked").For((a) => {
         const chk_1=a[1];
         chk_1.elt.click();
         return Runner.Yield([a[0], chk_1, a[2]]);
-      });
-      let _55=_54.EqualMsg((t) => t[0].Get(), () => true, "click updates var");
-      let _56=_55.For((a) => {
+      }).EqualMsg((t) => t[0].Get(), () => true, "click updates var").For((a) => {
         const rv_10=a[0];
         rv_10.Set(false);
         return Runner.Yield([rv_10, a[1], a[2]]);
-      });
-      let _57=_56.EqualMsgAsync((t) => {
+      }).EqualMsgAsync((t) => {
         const chk_1=t[1];
         return afterUpdate(() => isChecked(chk_1.elt));
-      }, () => false, "var change updates checkbox");
-      let _58=_57.For((a) => {
+      }, () => false, "var change updates checkbox").For((a) => {
         unmount(a[2]);
         return Runner.Zero();
-      });
-      _51.Run(_58);
-      const _59=Test("CheckBoxGroup");
+      }));
+      const _16=Test("CheckBoxGroup");
       const rv_5=_c_1.Create_1(ofArray([2]));
-      const boxes=ofSeq(delay(() => map_1((i) => Doc.CheckBoxGroup([], i, rv_5), range(1, 3))));
-      let _60=Runner.Yield([rv_5, boxes, mount(Doc.Concat(map((b) => b, boxes))), () => map((b) => isChecked(b.elt), boxes)]);
-      let _61=_60.EqualMsgAsync((t) => afterUpdate(t[3]), () => ofArray([false, true, false]), "initial state");
-      let _62=_61.For((a) => {
+      const l=FSharpList.Cons(void 0, void 0);
+      let last=l;
+      for(const i of Iter_1(range(1, 3))){
+        const c=FSharpList.Cons(Doc.CheckBoxGroup([], i, rv_5), void 0);
+        last.$1=c;
+        last=c;
+      }
+      last.$1=FSharpList.Empty;
+      const boxes=l.$1;
+      _16.Run(Runner.Yield([rv_5, boxes, mount(Doc.Concat(map((b) => b, boxes))), () => map((b) => isChecked(b.elt), boxes)]).EqualMsgAsync((t) => afterUpdate(t[3]), () => ofArray([false, true, false]), "initial state").For((a) => {
         const boxes_1=a[1];
         boxes_1.get_Item(0).elt.click();
         return Runner.Yield([a[0], boxes_1, a[2], a[3]]);
-      });
-      let _63=_62.EqualMsg((t) => sort(t[0].Get()), () => ofArray([1, 2]), "checking adds to list");
-      let _64=_63.For((a) => {
+      }).EqualMsg((t) => sort(t[0].Get()), () => ofArray([1, 2]), "checking adds to list").For((a) => {
         const boxes_1=a[1];
         boxes_1.get_Item(1).elt.click();
         return Runner.Yield([a[0], boxes_1, a[2], a[3]]);
-      });
-      let _65=_64.EqualMsg((t) => t[0].Get(), () => ofArray([1]), "unchecking removes from list");
-      let _66=_65.For((a) => {
+      }).EqualMsg((t) => t[0].Get(), () => ofArray([1]), "unchecking removes from list").For((a) => {
         const rv_10=a[0];
         rv_10.Set(ofArray([3]));
         return Runner.Yield([rv_10, a[1], a[2], a[3]]);
-      });
-      let _67=_66.EqualMsgAsync((t) => afterUpdate(t[3]), () => ofArray([false, false, true]), "var change updates boxes");
-      let _68=_67.For((a) => {
+      }).EqualMsgAsync((t) => afterUpdate(t[3]), () => ofArray([false, false, true]), "var change updates boxes").For((a) => {
         unmount(a[2]);
         return Runner.Zero();
-      });
-      _59.Run(_68);
-      const _69=Test("Radio");
+      }));
+      const _17=Test("Radio");
       const rv_6=_c_1.Create_1(1);
-      const radios=ofSeq(delay(() => map_1((i) => Doc.Radio([], i, rv_6), range(1, 3))));
-      let _70=Runner.Yield([rv_6, radios, mount(Doc.Concat(map((r) => r, radios))), () => map((r) => isChecked(r.elt), radios)]);
-      let _71=_70.EqualMsgAsync((t) => afterUpdate(t[3]), () => ofArray([true, false, false]), "initial state");
-      let _72=_71.For((a) => {
+      const l_1=FSharpList.Cons(void 0, void 0);
+      let last_1=l_1;
+      for(const i_1 of Iter_1(range(1, 3))){
+        const c_1=FSharpList.Cons(Doc.Radio([], i_1, rv_6), void 0);
+        last_1.$1=c_1;
+        last_1=c_1;
+      }
+      last_1.$1=FSharpList.Empty;
+      const radios=l_1.$1;
+      _17.Run(Runner.Yield([rv_6, radios, mount(Doc.Concat(map((r) => r, radios))), () => map((r) => isChecked(r.elt), radios)]).EqualMsgAsync((t) => afterUpdate(t[3]), () => ofArray([true, false, false]), "initial state").For((a) => {
         const radios_1=a[1];
         radios_1.get_Item(1).elt.click();
         return Runner.Yield([a[0], radios_1, a[2], a[3]]);
-      });
-      let _73=_72.EqualMsg((t) => t[0].Get(), () => 2, "click updates var");
-      let _74=_73.For((a) => {
+      }).EqualMsg((t) => t[0].Get(), () => 2, "click updates var").For((a) => {
         const rv_10=a[0];
         rv_10.Set(3);
         return Runner.Yield([rv_10, a[1], a[2], a[3]]);
-      });
-      let _75=_74.EqualMsgAsync((t) => afterUpdate(t[3]), () => ofArray([false, false, true]), "var change updates radios");
-      let _76=_75.For((a) => {
+      }).EqualMsgAsync((t) => afterUpdate(t[3]), () => ofArray([false, false, true]), "var change updates radios").For((a) => {
         unmount(a[2]);
         return Runner.Zero();
-      });
-      _69.Run(_76);
-      const _77=Test("Select");
+      }));
+      const _18=Test("Select");
       const rv_7=_c_1.Create_1(B);
       const sel=Doc.Select([], String, ofArray([A, B, C]), rv_7);
-      let _78=Runner.Yield([rv_7, sel, mount(sel)]);
-      let _79=_78.EqualMsgAsync((t) => {
+      _18.Run(Runner.Yield([rv_7, sel, mount(sel)]).EqualMsgAsync((t) => {
         const sel_1=t[1];
         return afterUpdate(() => selectedIndices(sel_1.elt));
-      }, () => ofArray([1]), "initial selection");
-      let _80=_79.For((a) => {
+      }, () => ofArray([1]), "initial selection").For((a) => {
         const sel_1=a[1];
         sel_1.elt.selectedIndex=2;
         trigger(sel_1.elt, "change");
         return Runner.Yield([a[0], sel_1, a[2]]);
-      });
-      let _81=_80.EqualMsg((t) => t[0].Get(), () => C, "change event updates var");
-      let _82=_81.For((a) => {
+      }).EqualMsg((t) => t[0].Get(), () => C, "change event updates var").For((a) => {
         const rv_10=a[0];
         rv_10.Set(A);
         return Runner.Yield([rv_10, a[1], a[2]]);
-      });
-      let _83=_82.EqualMsgAsync((t) => {
+      }).EqualMsgAsync((t) => {
         const sel_1=t[1];
         return afterUpdate(() => selectedIndices(sel_1.elt));
-      }, () => ofArray([0]), "var change updates selection");
-      let _84=_83.For((a) => {
+      }, () => ofArray([0]), "var change updates selection").For((a) => {
         unmount(a[2]);
         return Runner.Zero();
-      });
-      _77.Run(_84);
-      const _85=Test("SelectMultiple");
+      }));
+      const _19=Test("SelectMultiple");
       const rv_8=_c_1.Create_1(ofArray([B]));
       const host=mount(Doc.SelectMultiple([], String, ofArray([A, B, C]), rv_8));
-      let _86=Runner.Yield([rv_8, host, host.querySelector("select")]);
-      let _87=_86.EqualMsgAsync((t) => {
+      _19.Run(Runner.Yield([rv_8, host, host.querySelector("select")]).EqualMsgAsync((t) => {
         const sel_1=t[2];
         return afterUpdate(() => selectedIndices(sel_1));
-      }, () => ofArray([1]), "initial selection");
-      let _88=_87.For((a) => {
+      }, () => ofArray([1]), "initial selection").For((a) => {
         const sel_1=a[2];
         (sel_1.querySelectorAll("option"))[0].selected=true;
         trigger(sel_1, "change");
         return Runner.Yield([a[0], a[1], sel_1]);
-      });
-      let _89=_88.EqualMsg((t) => t[0].Get(), () => ofArray([A, B]), "change event updates var");
-      let _90=_89.For((a) => {
+      }).EqualMsg((t) => t[0].Get(), () => ofArray([A, B]), "change event updates var").For((a) => {
         const rv_10=a[0];
         rv_10.Set(ofArray([C]));
         return Runner.Yield([rv_10, a[1], a[2]]);
-      });
-      let _91=_90.EqualMsgAsync((t) => {
+      }).EqualMsgAsync((t) => {
         const sel_1=t[2];
         return afterUpdate(() => selectedIndices(sel_1));
-      }, () => ofArray([2]), "var change updates selection");
-      let _92=_91.For((a) => {
+      }, () => ofArray([2]), "var change updates selection").For((a) => {
         unmount(a[1]);
         return Runner.Zero();
-      });
-      _85.Run(_92);
-      const _93=Test("Text bound to LensAuto");
+      }));
+      const _20=Test("Text bound to LensAuto");
       const rv_9=_c_1.Create_1(New_4("red", New_5("green", "test")));
-      const inp_4=Doc.Input([], _c_1.Lens(rv_9, (v_1) => v_1.y.z, (_99, _100) => New_4(_99.x, New_5(_100, _99.y.t))));
-      let _94=Runner.Yield([rv_9, inp_4, mount(inp_4)]);
-      let _95=_94.EqualMsgAsync((t) => {
+      const inp_4=Doc.Input([], _c_1.Lens(rv_9, (v_1) => v_1.y.z, (_21, _22) => New_4(_21.x, New_5(_22, _21.y.t))));
+      _20.Run(Runner.Yield([rv_9, inp_4, mount(inp_4)]).EqualMsgAsync((t) => {
         const inp_5=t[1];
         return afterUpdate(() => inp_5.GetValue());
-      }, () =>"green", "initial value rendered");
-      let _96=_95.For((a) => {
+      }, () =>"green", "initial value rendered").For((a) => {
         const inp_5=a[1];
         inp_5.SetValue("blue");
         trigger(inp_5.elt, "input");
         return Runner.Yield([a[0], inp_5, a[2]]);
-      });
-      let _97=_96.EqualMsg((t) => t[0].Get(), () => New_4("red", New_5("blue", "test")), "input updates nested field");
-      let _98=_97.For((a) => {
+      }).EqualMsg((t) => t[0].Get(), () => New_4("red", New_5("blue", "test")), "input updates nested field").For((a) => {
         unmount(a[2]);
         return Runner.Zero();
-      });
-      _93.Run(_98);
+      }));
     }};
-    let _14=(globalThis.QUnit.module(s_5.name),s_5);
-    this.InputTest=_14;
-    const _15=TestCategory("Reactive attributes");
-    const s_6={name:_15.name, run:() => {
-      const _21=Test("ClassPred with V");
+    globalThis.QUnit.module(s_5.name);
+    this.InputTest=s_5;
+    const _8=TestCategory("Reactive attributes");
+    const s_6={name:_8.name, run:() => {
+      const _11=Test("ClassPred with V");
       const rv=_c_1.Create_1(true);
       const el=Doc.Element("div", [DynamicClassPred("is-green", rv.View)], []);
-      let _22=Runner.Yield([rv, el, mount(el)]);
-      let _23=_22.EqualMsgAsync((t) => {
+      _11.Run(Runner.Yield([rv, el, mount(el)]).EqualMsgAsync((t) => {
         const el_5=t[1];
         return afterUpdate(() => el_5.HasClass("is-green"));
-      }, () => true, "class set");
-      let _24=_23.For((a) => {
+      }, () => true, "class set").For((a) => {
         const rv_5=a[0];
         rv_5.Set(false);
         return Runner.Yield([rv_5, a[1], a[2]]);
-      });
-      let _25=_24.EqualMsgAsync((t) => {
+      }).EqualMsgAsync((t) => {
         const el_5=t[1];
         return afterUpdate(() => el_5.HasClass("is-green"));
-      }, () => false, "class removed");
-      let _26=_25.For((a) => {
+      }, () => false, "class removed").For((a) => {
         unmount(a[2]);
         return Runner.Zero();
-      });
-      _21.Run(_26);
-      const _27=Test("Style with V");
+      }));
+      const _12=Test("Style with V");
       const rv_1=_c_1.Create_1("red");
       const el_1=Doc.Element("div", [DynamicStyle("color", rv_1.View)], []);
-      let _28=Runner.Yield([rv_1, el_1, mount(el_1)]);
-      let _29=_28.EqualMsgAsync((t) => {
+      _12.Run(Runner.Yield([rv_1, el_1, mount(el_1)]).EqualMsgAsync((t) => {
         const el_5=t[1];
         return afterUpdate(() => el_5.elt.style.color);
-      }, () =>"red", "initial style");
-      let _30=_29.For((a) => {
+      }, () =>"red", "initial style").For((a) => {
         const rv_5=a[0];
         rv_5.Set("green");
         return Runner.Yield([rv_5, a[1], a[2]]);
-      });
-      let _31=_30.EqualMsgAsync((t) => {
+      }).EqualMsgAsync((t) => {
         const el_5=t[1];
         return afterUpdate(() => el_5.elt.style.color);
-      }, () =>"green", "updated style");
-      let _32=_31.For((a) => {
+      }, () =>"green", "updated style").For((a) => {
         unmount(a[2]);
         return Runner.Zero();
-      });
-      _27.Run(_32);
-      const _33=Test("Prop with V");
+      }));
+      const _13=Test("Prop with V");
       const rv_2=_c_1.Create_1(false);
       const el_2=Doc.Element("input", [DynamicProp("disabled", rv_2.View)], []);
-      let _34=Runner.Yield([rv_2, el_2, mount(el_2)]);
-      let _35=_34.EqualMsgAsync((t) => {
+      _13.Run(Runner.Yield([rv_2, el_2, mount(el_2)]).EqualMsgAsync((t) => {
         const el_5=t[1];
         return afterUpdate(() => el_5.elt.disabled);
-      }, () => false, "initially enabled");
-      let _36=_35.For((a) => {
+      }, () => false, "initially enabled").For((a) => {
         const rv_5=a[0];
         rv_5.Set(true);
         return Runner.Yield([rv_5, a[1], a[2]]);
-      });
-      let _37=_36.EqualMsgAsync((t) => {
+      }).EqualMsgAsync((t) => {
         const el_5=t[1];
         return afterUpdate(() => el_5.elt.disabled);
-      }, () => true, "disabled after var change");
-      let _38=_37.For((a) => {
+      }, () => true, "disabled after var change").For((a) => {
         unmount(a[2]);
         return Runner.Zero();
-      });
-      _33.Run(_38);
-      const _39=Test("Boolean attribute from View");
+      }));
+      const _14=Test("Boolean attribute from View");
       const rv_3=_c_1.Create_1(true);
       const el_3=Doc.Element("button", [DynamicBool("disabled", rv_3.View)], [Doc.TextNode("button")]);
-      let _40=Runner.Yield([rv_3, el_3, mount(el_3)]);
-      let _41=_40.EqualMsgAsync((t) => {
+      _14.Run(Runner.Yield([rv_3, el_3, mount(el_3)]).EqualMsgAsync((t) => {
         const el_5=t[1];
         return afterUpdate(() => el_5.elt.hasAttribute("disabled"));
-      }, () => true, "attribute set");
-      let _42=_41.For((a) => {
+      }, () => true, "attribute set").For((a) => {
         const rv_5=a[0];
         rv_5.Set(false);
         return Runner.Yield([rv_5, a[1], a[2]]);
-      });
-      let _43=_42.EqualMsgAsync((t) => {
+      }).EqualMsgAsync((t) => {
         const el_5=t[1];
         return afterUpdate(() => el_5.elt.hasAttribute("disabled"));
-      }, () => false, "attribute removed");
-      let _44=_43.For((a) => {
+      }, () => false, "attribute removed").For((a) => {
         unmount(a[2]);
         return Runner.Zero();
-      });
-      _39.Run(_44);
-      const _45=Test("Dynamic attribute");
+      }));
+      const _15=Test("Dynamic attribute");
       const rv_4=_c_1.Create_1("first");
       const el_4=Doc.Element("div", [Dynamic("title", rv_4.View)], []);
-      let _46=Runner.Yield([rv_4, el_4, mount(el_4)]);
-      let _47=_46.EqualMsgAsync((t) => {
+      _15.Run(Runner.Yield([rv_4, el_4, mount(el_4)]).EqualMsgAsync((t) => {
         const el_5=t[1];
         return afterUpdate(() => el_5.elt.getAttribute("title"));
-      }, () =>"first", "initial value");
-      let _48=_47.For((a) => {
+      }, () =>"first", "initial value").For((a) => {
         const rv_5=a[0];
         rv_5.Set("second");
         return Runner.Yield([rv_5, a[1], a[2]]);
-      });
-      let _49=_48.EqualMsgAsync((t) => {
+      }).EqualMsgAsync((t) => {
         const el_5=t[1];
         return afterUpdate(() => el_5.elt.getAttribute("title"));
-      }, () =>"second", "updated value");
-      let _50=_49.For((a) => {
+      }, () =>"second", "updated value").For((a) => {
         unmount(a[2]);
         return Runner.Zero();
-      });
-      _45.Run(_50);
-      const _51=Test("Popover");
+      }));
+      const _16=Test("Popover");
       const popup=Doc.Element("div", [Attr.Create("id", "test-popover"), Attr.Create("popover", "manual")], [Doc.TextNode("Popover")]);
       const btn=Doc.Element("button", [Attr.Create("popovertarget", "test-popover"), Attr.Create("popovertargetaction", "toggle")], [Doc.TextNode("Toggle")]);
-      let _52=Runner.Yield([popup, btn, mount(Doc.Concat([popup, btn]))]);
-      let _53=_52.EqualMsg((t) => t[0].elt.getAttribute("popover"), () =>"manual", "popover attribute");
-      let _54=_53.EqualMsg((t) => t[1].elt.getAttribute("popovertarget"), () =>"test-popover", "popovertarget attribute");
-      let _55=_54.EqualMsg((t) => t[1].elt.getAttribute("popovertargetaction"), () =>"toggle", "popovertargetaction attribute");
-      let _56=_55.IsFalseMsg((t) => t[0].elt.matches(":popover-open"), "initially hidden");
-      let _57=_56.For((a) => {
+      _16.Run(Runner.Yield([popup, btn, mount(Doc.Concat([popup, btn]))]).EqualMsg((t) => t[0].elt.getAttribute("popover"), () =>"manual", "popover attribute").EqualMsg((t) => t[1].elt.getAttribute("popovertarget"), () =>"test-popover", "popovertarget attribute").EqualMsg((t) => t[1].elt.getAttribute("popovertargetaction"), () =>"toggle", "popovertargetaction attribute").IsFalseMsg((t) => t[0].elt.matches(":popover-open"), "initially hidden").For((a) => {
         const btn_1=a[1];
         btn_1.elt.click();
         return Runner.Yield([a[0], btn_1, a[2]]);
-      });
-      let _58=_57.IsTrueMsg((t) => t[0].elt.matches(":popover-open"), "shown after click");
-      let _59=_58.For((a) => {
+      }).IsTrueMsg((t) => t[0].elt.matches(":popover-open"), "shown after click").For((a) => {
         const btn_1=a[1];
         btn_1.elt.click();
         return Runner.Yield([a[0], btn_1, a[2]]);
-      });
-      let _60=_59.IsFalseMsg((t) => t[0].elt.matches(":popover-open"), "hidden after second click");
-      let _61=_60.For((a) => {
+      }).IsFalseMsg((t) => t[0].elt.matches(":popover-open"), "hidden after second click").For((a) => {
         unmount(a[2]);
         return Runner.Zero();
-      });
-      _51.Run(_61);
+      }));
     }};
-    let _16=(globalThis.QUnit.module(s_6.name),s_6);
-    this.AttrTest=_16;
-    const _17=TestCategory("Reactive Doc");
-    const s_7={name:_17.name, run:() => {
-      const _21=Test("textView");
+    globalThis.QUnit.module(s_6.name);
+    this.AttrTest=s_6;
+    const _9=TestCategory("Reactive Doc");
+    const s_7={name:_9.name, run:() => {
+      const _11=Test("textView");
       const rv=_c_1.Create_1("first");
       const el=Doc.Element("div", [], [Doc.TextView(rv.View)]);
-      let _22=Runner.Yield([rv, el, mount(el)]);
-      let _23=_22.EqualMsgAsync((t) => {
+      _11.Run(Runner.Yield([rv, el, mount(el)]).EqualMsgAsync((t) => {
         const el_3=t[1];
         return afterUpdate(() => el_3.GetText());
-      }, () =>"first", "initial text");
-      let _24=_23.For((a) => {
+      }, () =>"first", "initial text").For((a) => {
         const rv_3=a[0];
         rv_3.Set("second");
         return Runner.Yield([rv_3, a[1], a[2]]);
-      });
-      let _25=_24.EqualMsgAsync((t) => {
+      }).EqualMsgAsync((t) => {
         const el_3=t[1];
         return afterUpdate(() => el_3.GetText());
-      }, () =>"second", "updated text");
-      let _26=_25.For((a) => {
+      }, () =>"second", "updated text").For((a) => {
         unmount(a[2]);
         return Runner.Zero();
-      });
-      _21.Run(_26);
-      const _27=Test("V notation for a Doc");
+      }));
+      const _12=Test("V notation for a Doc");
       const rv_1=_c_1.Create_1("ab");
-      const el_1=Doc.Element("div", [], [Doc.EmbedView(Map((_71) => Doc.Element("ul", [], map_1((c) => Doc.Element("li", [], [Doc.TextNode(c)]), _71)), rv_1.View))]);
-      let _28=Runner.Yield([rv_1, el_1, mount(el_1), () =>[el_1.elt.querySelectorAll("li").length, el_1.GetText()]]);
-      let _29=_28.EqualMsgAsync((t) => afterUpdate(t[3]), () =>[2, "ab"], "initial list");
-      let _30=_29.For((a) => {
+      const el_1=Doc.Element("div", [], [Doc.EmbedView(Map((_18) => Doc.Element("ul", [], map_1((c) => Doc.Element("li", [], [Doc.TextNode(c)]), _18)), rv_1.View))]);
+      _12.Run(Runner.Yield([rv_1, el_1, mount(el_1), () =>[el_1.elt.querySelectorAll("li").length, el_1.GetText()]]).EqualMsgAsync((t) => afterUpdate(t[3]), () =>[2, "ab"], "initial list").For((a) => {
         const rv_3=a[0];
         rv_3.Set("xyz");
         return Runner.Yield([rv_3, a[1], a[2], a[3]]);
-      });
-      let _31=_30.EqualMsgAsync((t) => afterUpdate(t[3]), () =>[3, "xyz"], "updated list");
-      let _32=_31.For((a) => {
+      }).EqualMsgAsync((t) => afterUpdate(t[3]), () =>[3, "xyz"], "updated list").For((a) => {
         unmount(a[2]);
         return Runner.Zero();
-      });
-      _27.Run(_32);
-      const _33=Test("BindSeqCached keeps nodes");
+      }));
+      const _13=Test("BindSeqCached keeps nodes");
       const lm=Create((x) => x, ofArray(["a", "b"]));
       const el_2=Doc.Element("ul", [], [Doc.Convert((x) => Doc.Element("li", [], [Doc.TextNode(x)]), lm.v)]);
-      let _34=Runner.Yield([lm, el_2, mount(el_2), () =>(el_2.elt.querySelectorAll("li"))[0], [null]]);
-      let _35=_34.EqualMsgAsync((t) => {
+      _13.Run(Runner.Yield([lm, el_2, mount(el_2), () =>(el_2.elt.querySelectorAll("li"))[0], [null]]).EqualMsgAsync((t) => {
         const el_3=t[1];
         const firstItem=t[3];
         const first=t[4];
@@ -2538,248 +2221,187 @@ let _c=Lazy((_i) => class $StartupCode_Main {
           first[0]=firstItem();
           return el_3.GetText();
         });
-      }, () =>"ab", "initial items");
-      let _36=_35.For((a) => {
+      }, () =>"ab", "initial items").For((a) => {
         const lm_1=a[0];
         lm_1.Append("c");
         return Runner.Yield([lm_1, a[1], a[2], a[3], a[4]]);
-      });
-      let _37=_36.EqualMsgAsync((t) => {
+      }).EqualMsgAsync((t) => {
         const el_3=t[1];
         return afterUpdate(() => el_3.GetText());
-      }, () =>"abc", "after add");
-      let _38=_37.EqualMsgAsync((t) => {
+      }, () =>"abc", "after add").EqualMsgAsync((t) => {
         const firstItem=t[3];
         const first=t[4];
         return afterUpdate(() => firstItem()===first[0]);
-      }, () => true, "existing node kept");
-      let _39=_38.For((a) => {
+      }, () => true, "existing node kept").For((a) => {
         const lm_1=a[0];
         lm_1.RemoveByKey("a");
         return Runner.Yield([lm_1, a[1], a[2], a[3], a[4]]);
-      });
-      let _40=_39.EqualMsgAsync((t) => {
+      }).EqualMsgAsync((t) => {
         const el_3=t[1];
         return afterUpdate(() => el_3.GetText());
-      }, () =>"bc", "after remove");
-      let _41=_40.For((a) => {
+      }, () =>"bc", "after remove").For((a) => {
         unmount(a[2]);
         return Runner.Zero();
-      });
-      _33.Run(_41);
-      const _42=Test("Button");
+      }));
+      const _14=Test("Button");
       const clicks=[0];
       const btn=Doc.Button("Click me", [], () => {
         clicks[0]=clicks[0]+1;
       });
-      let _43=Runner.Yield([clicks, btn, mount(btn)]);
-      let _44=_43.EqualMsg((t) => t[1].GetText(), () =>"Click me", "caption");
-      let _45=_44.For((a) => {
+      _14.Run(Runner.Yield([clicks, btn, mount(btn)]).EqualMsg((t) => t[1].GetText(), () =>"Click me", "caption").For((a) => {
         const btn_1=a[1];
         btn_1.elt.click();
         btn_1.elt.click();
         return Runner.Yield([a[0], btn_1, a[2]]);
-      });
-      let _46=_45.EqualMsg((t) => t[0][0], () => 2, "callback called on each click");
-      let _47=_46.For((a) => {
+      }).EqualMsg((t) => t[0][0], () => 2, "callback called on each click").For((a) => {
         unmount(a[2]);
         return Runner.Zero();
-      });
-      _42.Run(_47);
-      const _48=Test("EltUpdater");
+      }));
+      const _15=Test("EltUpdater");
       const counter_1=_c_1.Create_1(0);
       const updater=Doc.Element("div", [], []).ToUpdater();
       const host=mount(updater);
       const child=Doc.Element("span", [], [Doc.TextView(Map(String, counter_1.View))]);
-      let _49=(updater.elt.appendChild(child.elt),updater.AddUpdated(child),counter_1.Set(1),Runner.Yield([counter_1, updater, host, child]));
-      let _50=_49.EqualMsgAsync((t) => {
+      updater.elt.appendChild(child.elt);
+      updater.AddUpdated(child);
+      counter_1.Set(1);
+      _15.Run(Runner.Yield([counter_1, updater, host, child]).EqualMsgAsync((t) => {
         const child_1=t[3];
         return afterUpdate(() => child_1.GetText());
-      }, () =>"1", "added child is updated");
-      let _51=_50.For((a) => {
+      }, () =>"1", "added child is updated").For((a) => {
         const updater_1=a[1];
         const counter_2=a[0];
         const child_1=a[3];
         updater_1.RemoveUpdated(child_1);
         counter_2.Set(2);
         return Runner.Yield([counter_2, updater_1, a[2], child_1]);
-      });
-      let _52=_51.EqualMsgAsync((t) => {
+      }).EqualMsgAsync((t) => {
         const child_1=t[3];
         return afterUpdate(() => child_1.GetText());
-      }, () =>"1", "removed child is not updated");
-      let _53=_52.For((a) => {
+      }, () =>"1", "removed child is not updated").For((a) => {
         const updater_1=a[1];
         const counter_2=a[0];
         const child_1=a[3];
         updater_1.AddUpdated(child_1);
         counter_2.Set(3);
         return Runner.Yield([counter_2, updater_1, a[2], child_1]);
-      });
-      let _54=_53.EqualMsgAsync((t) => {
+      }).EqualMsgAsync((t) => {
         const child_1=t[3];
         return afterUpdate(() => child_1.GetText());
-      }, () =>"3", "re-added child is updated");
-      let _55=_54.For((a) => {
+      }, () =>"3", "re-added child is updated").For((a) => {
         const updater_1=a[1];
         const counter_2=a[0];
         updater_1.RemoveAllUpdated();
         counter_2.Set(4);
         return Runner.Yield([counter_2, updater_1, a[2], a[3]]);
-      });
-      let _56=_55.EqualMsgAsync((t) => {
+      }).EqualMsgAsync((t) => {
         const child_1=t[3];
         return afterUpdate(() => child_1.GetText());
-      }, () =>"3", "RemoveAllUpdated stops updates");
-      let _57=_56.For((a) => {
+      }, () =>"3", "RemoveAllUpdated stops updates").For((a) => {
         unmount(a[2]);
         return Runner.Zero();
-      });
-      _48.Run(_57);
-      const _58=Test("Runtime template holes");
+      }));
+      const _16=Test("Runtime template holes");
       LoadLocalTemplates("local");
       const clicks_1=[0];
       const rv_2=_c_1.Create_1("initial");
       const host_1=globalThis.document.createElement("div");
       globalThis.document.body.appendChild(host_1);
-      const _59=NamedTemplate("local", Some("holes"), [new Text("text", "filled text"), new Attribute("attr", Class("filled-attr")), new Event_1("click", () =>() => {
+      const _17=NamedTemplate("local", Some("holes"), [new Text("text", "filled text"), new Attribute("attr", Class("filled-attr")), new Event_1("click", () =>() => {
         clicks_1[0]=clicks_1[0]+1;
       }), new VarStr("input", rv_2)]);
       LoadLocalTemplates("");
-      Doc.Run(host_1, _59);
-      let _60=Runner.Yield([clicks_1, rv_2, host_1, (sel) => host_1.querySelector(sel)]);
-      let _61=_60.EqualMsgAsync((t) => {
+      Doc.Run(host_1, _17);
+      _16.Run(Runner.Yield([clicks_1, rv_2, host_1, (sel) => host_1.querySelector(sel)]).EqualMsgAsync((t) => {
         const q=t[3];
         return afterUpdate(() => q(".text").textContent);
-      }, () =>"filled text", "text hole");
-      let _62=_61.IsTrueMsg((t) => t[3](".attr").classList.contains("filled-attr"), "attribute hole");
-      let _63=_62.For((a) => {
+      }, () =>"filled text", "text hole").IsTrueMsg((t) => t[3](".attr").classList.contains("filled-attr"), "attribute hole").For((a) => {
         const q=a[3];
         q("button").click();
         return Runner.Yield([a[0], a[1], a[2], q]);
-      });
-      let _64=_63.EqualMsg((t) => t[0][0], () => 1, "event hole");
-      let _65=_64.EqualMsg((t) => t[3]("input").value, () =>"initial", "var hole rendered");
-      let _66=_65.For((a) => {
+      }).EqualMsg((t) => t[0][0], () => 1, "event hole").EqualMsg((t) => t[3]("input").value, () =>"initial", "var hole rendered").For((a) => {
         const q=a[3];
         q("input").value="typed";
         trigger(q("input"), "input");
         return Runner.Yield([a[0], a[1], a[2], q]);
-      });
-      let _67=_66.EqualMsg((t) => t[1].Get(), () =>"typed", "var hole updates var");
-      let _68=_67.For((a) => {
+      }).EqualMsg((t) => t[1].Get(), () =>"typed", "var hole updates var").For((a) => {
         const rv_3=a[1];
         rv_3.Set("set from var");
         return Runner.Yield([a[0], rv_3, a[2], a[3]]);
-      });
-      let _69=_68.EqualMsgAsync((t) => {
+      }).EqualMsgAsync((t) => {
         const q=t[3];
         return afterUpdate(() => q("input").value);
-      }, () =>"set from var", "var change updates input");
-      let _70=_69.For((a) => {
+      }, () =>"set from var", "var change updates input").For((a) => {
         unmount(a[2]);
         return Runner.Zero();
-      });
-      _58.Run(_70);
+      }));
     }};
-    let _18=(globalThis.QUnit.module(s_7.name),s_7);
-    this.DocTest=_18;
-    const _19=TestCategory("Lens and Submitter");
-    const s_8={name:_19.name, run:() => {
-      const _21=Test("Lens");
+    globalThis.QUnit.module(s_7.name);
+    this.DocTest=s_7;
+    const _10=TestCategory("Lens and Submitter");
+    const s_8={name:_10.name, run:() => {
+      const _11=Test("Lens");
       const rv=_c_1.Create_1(New_4("a", New_5("b", "c")));
-      let _22=Runner.Yield([rv, _c_1.Lens(rv, (r) => r.y.z, (_58, _59) => New_4(_58.x, New_5(_59, _58.y.t)))]);
-      let _23=_22.EqualMsg((t) => t[1].Get(), () =>"b", "get through lens");
-      let _24=_23.For((a) => {
+      _11.Run(Runner.Yield([rv, _c_1.Lens(rv, (r) => r.y.z, (_16, _17) => New_4(_16.x, New_5(_17, _16.y.t)))]).EqualMsg((t) => t[1].Get(), () =>"b", "get through lens").For((a) => {
         const lz=a[1];
         lz.Set("B");
         return Runner.Yield([a[0], lz]);
-      });
-      let _25=_24.EqualMsg((t) => t[0].Get(), () => New_4("a", New_5("B", "c")), "set through lens");
-      let _26=_25.For((a) => {
+      }).EqualMsg((t) => t[0].Get(), () => New_4("a", New_5("B", "c")), "set through lens").For((a) => {
         const rv_4=a[0];
         rv_4.Set(New_4("a", New_5("Z", "c")));
         return Runner.Yield([rv_4, a[1]]);
-      });
-      let _27=_26.EqualMsgAsync((t) => GetAsync(t[1].View), () =>"Z", "lens view follows var");
-      _21.Run(_27);
-      const _28=Test("LensAuto");
+      }).EqualMsgAsync((t) => GetAsync(t[1].View), () =>"Z", "lens view follows var"));
+      const _12=Test("LensAuto");
       const rv_1=_c_1.Create_1(New_4("a", New_5("b", "c")));
-      let _29=Runner.Yield([rv_1, _c_1.Lens(rv_1, (r) => r.y.z, (_58, _59) => New_4(_58.x, New_5(_59, _58.y.t)))]);
-      let _30=_29.EqualMsg((t) => t[1].Get(), () =>"b", "get through lens");
-      let _31=_30.For((a) => {
+      _12.Run(Runner.Yield([rv_1, _c_1.Lens(rv_1, (r) => r.y.z, (_16, _17) => New_4(_16.x, New_5(_17, _16.y.t)))]).EqualMsg((t) => t[1].Get(), () =>"b", "get through lens").For((a) => {
         const lz=a[1];
         lz.Set("B");
         return Runner.Yield([a[0], lz]);
-      });
-      let _32=_31.EqualMsg((t) => t[0].Get(), () => New_4("a", New_5("B", "c")), "set through lens");
-      let _33=_32.For((a) => {
+      }).EqualMsg((t) => t[0].Get(), () => New_4("a", New_5("B", "c")), "set through lens").For((a) => {
         const rv_4=a[0];
         rv_4.Set(New_4("a", New_5("Z", "c")));
         return Runner.Yield([rv_4, a[1]]);
-      });
-      let _34=_33.EqualMsgAsync((t) => GetAsync(t[1].View), () =>"Z", "lens view follows var");
-      _28.Run(_34);
-      const _35=Test("Submitter.Create");
+      }).EqualMsgAsync((t) => GetAsync(t[1].View), () =>"Z", "lens view follows var"));
+      const _13=Test("Submitter.Create");
       const rv_2=_c_1.Create_1(1);
-      let _36=Runner.Yield([rv_2, new Submitter(rv_2.View, 0)]);
-      let _37=_36.EqualMsgAsync((t) => GetAsync(t[1].view), () => 0, "initial value");
-      let _38=_37.For((a) => {
+      _13.Run(Runner.Yield([rv_2, new Submitter(rv_2.View, 0)]).EqualMsgAsync((t) => GetAsync(t[1].view), () => 0, "initial value").For((a) => {
         const rv_4=a[0];
         rv_4.Set(2);
         return Runner.Yield([rv_4, a[1]]);
-      });
-      let _39=_38.EqualMsgAsync((t) => GetAsync(t[1].view), () => 0, "input change alone has no effect");
-      let _40=_39.For((a) => {
+      }).EqualMsgAsync((t) => GetAsync(t[1].view), () => 0, "input change alone has no effect").For((a) => {
         const s_9=a[1];
         s_9.Trigger();
         return Runner.Yield([a[0], s_9]);
-      });
-      let _41=_40.EqualMsgAsync((t) => GetAsync(t[1].view), () => 2, "trigger takes input value");
-      let _42=_41.For((a) => {
+      }).EqualMsgAsync((t) => GetAsync(t[1].view), () => 2, "trigger takes input value").For((a) => {
         const rv_4=a[0];
         rv_4.Set(3);
         return Runner.Yield([rv_4, a[1]]);
-      });
-      let _43=_42.EqualMsgAsync((t) => GetAsync(t[1].view), () => 2, "no effect until next trigger");
-      _35.Run(_43);
-      const _44=Test("Submitter.CreateOption");
+      }).EqualMsgAsync((t) => GetAsync(t[1].view), () => 2, "no effect until next trigger"));
+      const _14=Test("Submitter.CreateOption");
       const rv_3=_c_1.Create_1("a");
-      let _45=Runner.Yield([rv_3, CreateOption(rv_3.View)]);
-      let _46=_45.EqualMsgAsync((t) => GetAsync(t[1].view), () => null, "initial value");
-      let _47=_46.For((a) => {
+      _14.Run(Runner.Yield([rv_3, CreateOption(rv_3.View)]).EqualMsgAsync((t) => GetAsync(t[1].view), () => null, "initial value").For((a) => {
         const s_9=a[1];
         s_9.Trigger();
         return Runner.Yield([a[0], s_9]);
-      });
-      let _48=_47.EqualMsgAsync((t) => GetAsync(t[1].view), () => Some("a"), "after trigger");
-      _44.Run(_48);
-      const _49=Test("MapSeqCached and Sequence of Var views (ui#67)");
+      }).EqualMsgAsync((t) => GetAsync(t[1].view), () => Some("a"), "after trigger"));
+      const _15=Test("MapSeqCached and Sequence of Var views (ui#67)");
       const inputs=_c_1.Create_1([]);
-      let _50=Runner.Yield([inputs, Map(length, Join(MapCached(Sequence, MapSeqCached((x) => x.View, inputs.View))))]);
-      let _51=_50.EqualMsgAsync((t) => GetAsync(t[1]), () => 0, "empty");
-      let _52=_51.For((a) => {
+      _15.Run(Runner.Yield([inputs, Map(length, Join(MapCached(Sequence, MapSeqCached((x) => x.View, inputs.View))))]).EqualMsgAsync((t) => GetAsync(t[1]), () => 0, "empty").For((a) => {
         const inputs_1=a[0];
         inputs_1.Set(FSharpList.Cons(_c_1.Create_1(false), ofSeq(inputs_1.Get())));
         return Runner.Yield([inputs_1, a[1]]);
-      });
-      let _53=_52.EqualMsgAsync((t) => GetAsync(t[1]), () => 1, "after first add");
-      let _54=_53.For((a) => {
+      }).EqualMsgAsync((t) => GetAsync(t[1]), () => 1, "after first add").For((a) => {
         const inputs_1=a[0];
         inputs_1.Set(FSharpList.Cons(_c_1.Create_1(false), ofSeq(inputs_1.Get())));
         return Runner.Yield([inputs_1, a[1]]);
-      });
-      let _55=_54.EqualMsgAsync((t) => GetAsync(t[1]), () => 2, "after second add");
-      let _56=_55.For((a) => {
+      }).EqualMsgAsync((t) => GetAsync(t[1]), () => 2, "after second add").For((a) => {
         const inputs_1=a[0];
         inputs_1.Set([]);
         return Runner.Yield([inputs_1, a[1]]);
-      });
-      let _57=_56.EqualMsgAsync((t) => GetAsync(t[1]), () => 0, "after removing all");
-      _49.Run(_57);
+      }).EqualMsgAsync((t) => GetAsync(t[1]), () => 0, "after removing all"));
     }};
-    let _20=(globalThis.QUnit.module(s_8.name),s_8);
-    this.LensAndSubmitterTest=_20;
+    globalThis.QUnit.module(s_8.name);
+    this.LensAndSubmitterTest=s_8;
     this.themeStorageKey="websharper-ui-theme";
     this.theme=_c_1.Create_1("light");
     this.themeLabel=Map((t) => t=="dark"?"\u2600\ufe0f Light mode":"\ud83c\udf19 Dark mode", theme().View);
@@ -2838,7 +2460,7 @@ let _c_1=Lazy((_i) => class Var_1 extends Object_1 {
     var_1.SetFinal(value);
   }
   static Create(){
-    return new ConcreteVar(false, {s:Ready(null, [])}, null);
+    return new ConcreteVar(false, {s:Ready(void 0, [])}, void 0);
   }
   static { }
 });
@@ -2888,26 +2510,26 @@ function Bind(fn, view){
   return Join(Map(fn, view));
 }
 function UpdateWhile(def, v1, v2){
-  const value=[def];
+  let value=def;
   return BindInner((pred) => pred?Map((v) => {
-    value[0]=v;
+    value=v;
     return v;
-  }, v2):Const(value[0]), v1);
+  }, v2):Const(value), v1);
 }
 function SnapshotOn(def, a, a_1){
   const sInit={s:Ready(def, [])};
   return CreateLazy(() => sInit.s==null?SnapshotOn_1(a(), a_1()):(WhenObsolete(a(), sInit),sInit));
 }
 function Get(f, a){
-  const ok=[false];
+  let ok=false;
   function obs(){
     WhenRun(a(), (v) => {
-      if(!ok[0]){
-        ok[0]=true;
+      if(!ok){
+        ok=true;
         f(v);
       }
     }, () => {
-      if(!ok[0])obs();
+      if(!ok)obs();
     });
   }
   obs();
@@ -2924,8 +2546,7 @@ function MapSeqCached(conv, view){
 function CreateLazy(observe){
   const lv={c:null, o:observe};
   return() => {
-    let c;
-    c=lv.c;
+    let c=lv.c;
     if(c===null){
       c=lv.o();
       lv.c=c;
@@ -2940,9 +2561,9 @@ function CreateLazy(observe){
   };
 }
 function MapSeqCachedBy(key, conv, view){
-  const state=[new Dictionary("New_5")];
+  let state=new Dictionary("New_5");
   return Map((xs) => {
-    const prevState=state[0];
+    const prevState=state;
     const newState=new Dictionary("New_5");
     const result=mapInPlace((x) => {
       const k=key(x);
@@ -2950,7 +2571,7 @@ function MapSeqCachedBy(key, conv, view){
       newState.set_Item(k, res);
       return res;
     }, ofSeq_1(xs));
-    state[0]=newState;
+    state=newState;
     return result;
   }, view);
 }
@@ -2978,21 +2599,21 @@ function CreateWithStorage(key, storage){
   return new ListModel("New", key, storage);
 }
 function Wrap(underlying, extract, createItem, updateItem){
-  const state=[new Dictionary("New_5")];
+  let state=new Dictionary("New_5");
   const init_4=map_2((u) => {
     const t=createItem(u);
-    state[0].set_Item(underlying.key(u), t);
+    state.set_Item(underlying.key(u), t);
     return t;
   }, underlying.u0076ar.Get());
   return new ListModel("New_3", (a) => underlying.key(extract(a)), _c_1.Lens(underlying.u0076ar, (us) => {
     const newState=new Dictionary("New_5");
     const ts=map_2((u) => {
       const k=underlying.key(u);
-      const t=state[0].ContainsKey(k)?updateItem(state[0].Item(k), u):createItem(u);
+      const t=state.ContainsKey(k)?updateItem(state.Item(k), u):createItem(u);
       newState.set_Item(k, t);
       return t;
     }, us);
-    state[0]=newState;
+    state=newState;
     return ts;
   }, (_1, _2) => {
     const newState=new Dictionary("New_5");
@@ -3001,13 +2622,12 @@ function Wrap(underlying, extract, createItem, updateItem){
       newState.set_Item(underlying.key(u), t);
       return u;
     }, _2);
-    state[0]=newState;
+    state=newState;
     return us;
   }), InMemory(init_4));
 }
 function ofArray(arr){
-  let r;
-  r=FSharpList.Empty;
+  let r=FSharpList.Empty;
   for(let i=length_1(arr)-1, _1=0;i>=_1;i--)r=FSharpList.Cons(get(arr, i), r);
   return r;
 }
@@ -3017,8 +2637,8 @@ function ofSeq(s){
   else {
     const e=Get_1(s);
     try {
-      let go, r;
-      go=e.MoveNext();
+      let r;
+      let go=e.MoveNext();
       if(!go)return FSharpList.Empty;
       else {
         const res=Create_3(FSharpList, {$:1});
@@ -3037,8 +2657,7 @@ function ofSeq(s){
       }
     }
     finally {
-      const _1=e;
-      if(typeof _1=="object"&&isIDisposable(_1))e.Dispose();
+      if(typeof e=="object"&&isIDisposable(e))e.Dispose();
     }
   }
 }
@@ -3070,8 +2689,7 @@ function sort(l){
   return ofArray(a);
 }
 function iter(f, l){
-  let r;
-  r=l;
+  let r=l;
   while(r.$==1)
     {
       f(head(r));
@@ -3106,9 +2724,8 @@ function mapi(f, x){
   }
 }
 function exists(p, x){
-  let e, l;
-  e=false;
-  l=x;
+  let e=false;
+  let l=x;
   while(!e&&l.$==1)
     {
       e=p(l.$0);
@@ -3126,17 +2743,19 @@ function filter(p, x){
     go=true;
     while(go)
       {
-        let _1, _2;
         if(p(l.$0)){
-          if(res.$==0)_1=(res=Create_3(FSharpList, {$:1}),r=res);
+          if(res.$==0){
+            res=Create_3(FSharpList, {$:1});
+            r=res;
+          }
           else {
             const t=Create_3(FSharpList, {$:1});
-            _1=r=(r.$1=t,t);
+            r=(r.$1=t,t);
           }
           const v=l.$0;
-          _2=(r.$=1,r.$0=v);
+          r.$=1;
+          r.$0=v;
         }
-        else _2=void 0;
         l=l.$1;
         if(l.$==0)go=false;
       }
@@ -3174,9 +2793,8 @@ function append(x, y){
   }
 }
 function contains(el, x){
-  let c, l;
-  c=false;
-  l=x;
+  let c=false;
+  let l=x;
   while(!c&&l.$==1)
     {
       c=Equals(el, l.$0);
@@ -3220,7 +2838,6 @@ class ListModel extends Object_1 {
         this.ObsoleteKey(key);
       }
     }
-    else void 0;
   }
   Append(item){
     const v=this.u0076ar.Get();
@@ -3231,10 +2848,10 @@ class ListModel extends Object_1 {
     this.ObsoleteKey(t);
   }
   ObsoleteKey(key){
-    let o;
-    const m=(o=null,[this.it.TryGetValue(key, {get:() => o, set:(v) => {
+    let o=null;
+    const m=[this.it.TryGetValue(key, {get:() => o, set:(v) => {
       o=v;
-    }}), o]);
+    }}), o];
     if(m[0]){
       Obsolete(m[1]);
       this.it.RemoveKey(key);
@@ -3272,11 +2889,10 @@ class ListModel extends Object_1 {
 function filter_1(f, s){
   return{GetEnumerator:() => {
     const o=Get_1(s);
-    return new T(null, null, (e) => {
-      let loop, c, res;
-      loop=o.MoveNext();
-      c=void 0;
-      res=false;
+    return new T(void 0, null, (e) => {
+      let c;
+      let loop=o.MoveNext();
+      let res=false;
       while(loop)
         {
           c=o.Current;
@@ -3300,53 +2916,20 @@ function length(s){
       return i;
     }
     finally {
-      const _1=e;
-      if(typeof _1=="object"&&isIDisposable(_1))e.Dispose();
+      if(typeof e=="object"&&isIDisposable(e))e.Dispose();
     }
   }
-}
-function delay(f){
-  return{GetEnumerator:() => Get_1(f())};
-}
-function append_1(s1, s2){
-  return{GetEnumerator:() => {
-    const e1=Get_1(s1);
-    const first=[true];
-    return new T(e1, null, (x) => {
-      if(x.s.MoveNext()){
-        x.c=x.s.Current;
-        return true;
-      }
-      else {
-        const x_1=x.s;
-        if(!Equals(x_1, null))x_1.Dispose();
-        else null;
-        x.s=null;
-        return first[0]&&(first[0]=false,x.s=Get_1(s2),x.s.MoveNext()?(x.c=x.s.Current,true):(x.s.Dispose(),x.s=null,false));
-      }
-    }, (x) => {
-      const x_1=x.s;
-      if(!Equals(x_1, null))x_1.Dispose();
-    });
-  }};
 }
 function unfold(f, s){
   return{GetEnumerator:() => new T(s, null, (e) => {
     const m=f(e.s);
-    if(m==null)return false;
-    else {
-      const t=m.$0[0];
-      const s_1=m.$0[1];
-      e.c=t;
-      e.s=s_1;
-      return true;
-    }
+    return m==null?false:(e.c=m.$0[0],e.s=m.$0[1],true);
   }, void 0)};
 }
 function map_1(f, s){
   return{GetEnumerator:() => {
     const en=Get_1(s);
-    return new T(null, null, (e) => en.MoveNext()&&(e.c=f(en.Current),true), () => {
+    return new T(void 0, null, (e) => en.MoveNext()&&(e.c=f(en.Current),true), () => {
       en.Dispose();
     });
   }};
@@ -3357,15 +2940,12 @@ function head_1(s){
     return e.MoveNext()?e.Current:insufficient();
   }
   finally {
-    const _1=e;
-    if(typeof _1=="object"&&isIDisposable(_1))e.Dispose();
+    if(typeof e=="object"&&isIDisposable(e))e.Dispose();
   }
 }
 function nth(index, s){
-  let pos;
   if(index<0)FailWith("negative index requested");
-  else null;
-  pos=-1;
+  let pos=-1;
   const e=Get_1(s);
   try {
     while(pos<index)
@@ -3376,29 +2956,46 @@ function nth(index, s){
     return e.Current;
   }
   finally {
-    const _1=e;
-    if(typeof _1=="object"&&isIDisposable(_1))e.Dispose();
+    if(typeof e=="object"&&isIDisposable(e))e.Dispose();
   }
 }
 function init_1(n, f){
   return take(n, initInfinite(f));
 }
-function collect(f, s){
-  return concat(map_1(f, s));
+function append_1(s1, s2){
+  return{GetEnumerator:() => {
+    const e1=Get_1(s1);
+    let first=true;
+    return new T(e1, null, (x) => {
+      if(x.s.MoveNext()){
+        x.c=x.s.Current;
+        return true;
+      }
+      else {
+        const x_1=x.s;
+        if(!Equals(x_1, null))x_1.Dispose();
+        x.s=null;
+        return first&&(first=false,x.s=Get_1(s2),x.s.MoveNext()?(x.c=x.s.Current,true):(x.s.Dispose(),x.s=null,false));
+      }
+    }, (x) => {
+      const x_1=x.s;
+      if(!Equals(x_1, null))x_1.Dispose();
+    });
+  }};
 }
 function take(n, s){
   n<0?nonNegative():void 0;
   return{GetEnumerator:() => {
-    const e=[Get_1(s)];
+    let e=Get_1(s);
     return new T(0, null, (o) => {
       o.s=o.s+1;
       if(o.s>n)return false;
       else {
-        const en=e[0];
-        return Equals(en, null)?insufficient():en.MoveNext()?(o.c=en.Current,o.s===n?(en.Dispose(),e[0]=null):void 0,true):(en.Dispose(),e[0]=null,insufficient());
+        const en=e;
+        return Equals(en, null)?insufficient():en.MoveNext()?(o.c=en.Current,o.s===n?(en.Dispose(),e=null):void 0,true):(en.Dispose(),e=null,insufficient());
       }
     }, () => {
-      const x=e[0];
+      const x=e;
       if(!Equals(x, null))x.Dispose();
     });
   }};
@@ -3410,47 +3007,11 @@ function initInfinite(f){
     return true;
   }, void 0)};
 }
-function concat(ss){
-  return{GetEnumerator:() => {
-    const outerE=Get_1(ss);
-    function next(st){
-      while(true)
-        {
-          const m=st.s;
-          if(Equals(m, null)){
-            if(outerE.MoveNext()){
-              st.s=Get_1(outerE.Current);
-              st=st;
-            }
-            else {
-              outerE.Dispose();
-              return false;
-            }
-          }
-          else if(m.MoveNext()){
-            st.c=m.Current;
-            return true;
-          }
-          else {
-            st.Dispose();
-            st.s=null;
-            st=st;
-          }
-        }
-    }
-    return new T(null, null, next, (st) => {
-      const x=st.s;
-      if(!Equals(x, null))x.Dispose();
-      const x_1=outerE;
-      if(!Equals(x_1, null))x_1.Dispose();
-    });
-  }};
-}
 function distinctBy(f, s){
   return{GetEnumerator:() => {
     const o=Get_1(s);
     const seen=new HashSet("New_3");
-    return new T(null, null, (e) => {
+    return new T(void 0, null, (e) => {
       let cur, has;
       if(o.MoveNext()){
         cur=o.Current;
@@ -3469,8 +3030,7 @@ function distinctBy(f, s){
   }};
 }
 function fold(f, x, s){
-  let r;
-  r=x;
+  let r=x;
   const e=Get_1(s);
   try {
     while(e.MoveNext())
@@ -3478,8 +3038,7 @@ function fold(f, x, s){
     return r;
   }
   finally {
-    const _1=e;
-    if(typeof _1=="object"&&isIDisposable(_1))e.Dispose();
+    if(typeof e=="object"&&isIDisposable(e))e.Dispose();
   }
 }
 function findIndex(p, s){
@@ -3489,17 +3048,15 @@ function findIndex(p, s){
 function tryFindIndex(ok, s){
   const e=Get_1(s);
   try {
-    let loop, i;
-    loop=true;
-    i=0;
+    let loop=true;
+    let i=0;
     while(loop&&e.MoveNext())
       if(ok(e.Current))loop=false;
       else i=i+1;
     return loop?null:Some(i);
   }
   finally {
-    const _1=e;
-    if(typeof _1=="object"&&isIDisposable(_1))e.Dispose();
+    if(typeof e=="object"&&isIDisposable(e))e.Dispose();
   }
 }
 function iter_1(p, s){
@@ -3509,17 +3066,14 @@ function iter_1(p, s){
       p(e.Current);
   }
   finally {
-    const _1=e;
-    if(typeof _1=="object"&&isIDisposable(_1))e.Dispose();
+    if(typeof e=="object"&&isIDisposable(e))e.Dispose();
   }
 }
 function max(s){
   const e=Get_1(s);
   try {
-    let m;
     if(!e.MoveNext())seqEmpty();
-    else null;
-    m=e.Current;
+    let m=e.Current;
     while(e.MoveNext())
       {
         const x=e.Current;
@@ -3528,8 +3082,7 @@ function max(s){
     return m;
   }
   finally {
-    const _1=e;
-    if(typeof _1=="object"&&isIDisposable(_1))e.Dispose();
+    if(typeof e=="object"&&isIDisposable(e))e.Dispose();
   }
 }
 function forall(p, s){
@@ -3541,15 +3094,13 @@ function seqEmpty(){
 function exists_1(p, s){
   const e=Get_1(s);
   try {
-    let r;
-    r=false;
+    let r=false;
     while(!r&&e.MoveNext())
       r=p(e.Current);
     return r;
   }
   finally {
-    const _1=e;
-    if(typeof _1=="object"&&isIDisposable(_1))e.Dispose();
+    if(typeof e=="object"&&isIDisposable(e))e.Dispose();
   }
 }
 function Simple(inter, easing, dur, x, y){
@@ -3566,7 +3117,7 @@ function Play(anim){
     const x=Run(() => { }, Actions(anim));
     const f_1=() => {
       Finalize(anim);
-      return Return(null);
+      return Return(void 0);
     };
     return Bind_1(x, (_1, _2) =>(f_1(_1))(_2));
   };
@@ -3645,14 +3196,12 @@ function Exit(f, tr){
   return tr.Copy(null, null, Some(f), Some(tr.TFlags|4));
 }
 function CanAnimateEnter(tr){
-  let c;
-  c=tr.TFlags;
+  const c=tr.TFlags;
   const flag=2;
   return(c&flag)===flag;
 }
 function CanAnimateExit(tr){
-  let c;
-  c=tr.TFlags;
+  const c=tr.TFlags;
   const flag=4;
   return(c&flag)===flag;
 }
@@ -3676,9 +3225,9 @@ function New_1(Profile, Accent, Volume, Subscribe){
 function New_2(DisplayName, Date_1){
   return{DisplayName:DisplayName, Date:Date_1};
 }
-let Pro={$:1};
-let Free={$:0};
-let Team={$:2};
+const Pro={$:1};
+const Free={$:0};
+const Team={$:2};
 class ReactiveExtensions extends Object_1 { }
 function toSafe(s){
   return s==null?"":s;
@@ -3735,16 +3284,15 @@ class Text extends TemplateHole {
 class RunnerControlBody extends Object_1 {
   run;
   ReplaceInDom(e){
-    let _1;
     if(Equals(globalThis.document.querySelector("#qunit"), null)){
       const fixture=globalThis.document.createElement("div");
       fixture.setAttribute("id", "qunit-fixture");
       const qunit=globalThis.document.createElement("div");
       qunit.setAttribute("id", "qunit");
       const parent=e.parentNode;
-      _1=(parent.replaceChild(fixture, e),parent.insertBefore(qunit, fixture));
+      parent.replaceChild(fixture, e);
+      parent.insertBefore(qunit, fixture);
     }
-    else _1=void 0;
     this.run();
   }
   constructor(run){
@@ -3850,7 +3398,7 @@ class Dictionary extends Object_1 {
     return new ValueCollection(this);
   }
   GetEnumerator(){
-    return Get0(concat_2(GetFieldValues(this.data)));
+    return Get0(concat_1(GetFieldValues(this.data)));
   }
   constructor(i, _1, _2, _3){
     if(i=="New_5"){
@@ -3877,8 +3425,7 @@ class Dictionary extends Object_1 {
           }
       }
       finally {
-        const _4=e;
-        if(typeof _4=="object"&&isIDisposable(_4))e.Dispose();
+        if(typeof e=="object"&&isIDisposable(e))e.Dispose();
       }
     }
   }
@@ -3887,13 +3434,10 @@ function Dynamic_1(view, set_1){
   return Attr.A1(new DynamicAttrNode(view, set_1));
 }
 function Animated(tr, view, set_1){
-  let flags;
   const node=new AnimatedAttrNode(tr, view, set_1);
-  flags=4;
+  let flags=4;
   if(CanAnimateEnter(tr))flags=flags|1;
-  else null;
   if(CanAnimateExit(tr))flags=flags|2;
-  else null;
   const n=Attr.A1(node);
   SetFlags(n, flags);
   return n;
@@ -3930,19 +3474,18 @@ function Insert(elem, tree){
             loop(a);
             node=b;
           }
-          else return node!=null&&node.$==3?node.$0(elem):node!=null&&node.$==4?oar.push(node.$0):null;
+          else return node!=null&&node.$==3?node.$0(elem):node!=null&&node.$==4?oar.push(node.$0):void 0;
         }
-        else return null;
+        else return;
       }
   }
   loop(tree);
   const arr=nodes.slice(0);
-  let _1=New_7(elem, Flags(tree), arr, oar.length===0?null:Some((el) => {
+  return New_7(elem, Flags(tree), arr, oar.length===0?null:Some((el) => {
     iter_1((f) => {
       f(el);
     }, oar);
   }));
-  return _1;
 }
 function Empty(e){
   return New_7(e, 0, [], null);
@@ -3985,11 +3528,8 @@ function AddClass(element, cl){
   else!clsRE(cl).test(c)?setClass(element, c+" "+cl):void 0;
 }
 function RemoveClass(element, cl){
-  let this_1=clsRE(cl);
-  let str=getClass(element);
-  let replaceFn=(_2, _3, _4) => _3==""||_4==""?"":" ";
-  let _1=str.replace(this_1, replaceFn);
-  setClass(element, _1);
+  const this_1=clsRE(cl);
+  setClass(element, getClass(element).replace(this_1, (_1, _2, _3) => _2==""||_3==""?"":" "));
 }
 function getClass(element){
   return element instanceof SVGElement?element.getAttribute("class"):element.className;
@@ -4024,10 +3564,7 @@ function ParseHTMLIntoFakeRoot(elem){
           }
         }
     }
-    return(((a) => {
-      const _1=a;
-      return(_2) => unwrap(_1, _2);
-    })(root))(p[0]);
+    return unwrap(root, p[0]);
   }
 }
 function rhtml(){
@@ -4058,8 +3595,7 @@ function InsertAt(parent, pos, node){
   let _1;
   if(node.parentNode===parent){
     const m=node.nextSibling;
-    let _2=Equals(m, null)?null:m;
-    _1=pos===_2;
+    _1=pos===(Equals(m, null)?null:m);
   }
   else _1=false;
   if(!_1)parent.insertBefore(node, pos);
@@ -4112,28 +3648,22 @@ class TestBuilder extends SubtestBuilder {
           const __done__=asserter.async();
           const f=() => {
             const f_1=() => {
-              const f_2=() => {
-                const f_4=() => Return(null);
-                return Bind_1(WithTimeout(1000, asy), (_5, _6) =>(f_4(_5))(_6));
+              const f_2=(a) => {
+                asserter.equal(a, null, "Test threw an unexpected asynchronous exception");
+                return Return(void 0);
               };
-              const a=Delay((_5, _6) =>(f_2(_5))(_6));
-              const f_3=(a_1) => {
-                asserter.equal(a_1, null, "Test threw an unexpected asynchronous exception");
-                return Return(null);
+              const f_3=() => {
+                const f_4=() => Return(void 0);
+                return Bind_1(WithTimeout(1000, asy), (_1, _2) =>(f_4(_1))(_2));
               };
-              return TryWith(a, (_5, _6) =>(f_3(_5))(_6));
+              return TryWith(Delay((_1, _2) =>(f_3(_1))(_2)), (_1, _2) =>(f_2(_1))(_2));
             };
-            let _3=Delay((_5, _6) =>(f_1(_5))(_6));
-            let _4=_3;
-            return TryFinally(_4, () => {
+            return TryFinally(Delay((_1, _2) =>(f_1(_1))(_2)), () => {
               __done__();
             });
           };
-          let _1=Delay((_3, _4) =>(f(_3))(_4));
-          let _2=_1;
-          Start(_2, null);
+          Start(Delay((_1, _2) =>(f(_1))(_2)), null);
         }
-        else null;
       }
       catch(e_1){
         asserter.equal(e_1, null, "Test threw an unexpected synchronous exception");
@@ -4202,9 +3732,6 @@ class CheckedInput {
   $1;
 }
 class FSharpList {
-  get_Item(x){
-    return nth(x, this);
-  }
   static Cons(Head, Tail){
     return Create_3(FSharpList, {
       $:1, 
@@ -4213,25 +3740,22 @@ class FSharpList {
     });
   }
   static Empty=Create_3(FSharpList, {$:0});
+  get_Item(x){
+    return nth(x, this);
+  }
   GetEnumerator(){
     return new T(this, null, (e) => {
       const m=e.s;
-      if(m.$==0)return false;
-      else {
-        const xs=m.$1;
-        e.c=m.$0;
-        e.s=xs;
-        return true;
-      }
+      return m.$==0?false:(e.c=m.$0,e.s=m.$1,true);
     }, void 0);
   }
   $;
   $0;
   $1;
 }
-let B={$:1};
-let A={$:0};
-let C={$:2};
+const B={$:1};
+const A={$:0};
+const C={$:2};
 function New_4(x, y){
   return{x:x, y:y};
 }
@@ -4259,18 +3783,15 @@ class Elt_1 extends Doc {
     let _1;
     const m=this.docNode_1;
     if(m!=null&&m.$==1){
-      let _2=[this.elt];
-      let _3=[[this.elt, m.$0.Attr]];
-      const _4=Some(this.elt);
-      let _5={
-        Els:_2, 
+      const _2=Some(this.elt);
+      _1=DeleteEmptyFields({
+        Els:[this.elt], 
         Dirty:true, 
         Holes:[], 
-        Attrs:_3, 
+        Attrs:[[this.elt, m.$0.Attr]], 
         Render:null?null.$0:void 0, 
-        El:_4?_4.$0:void 0
-      };
-      _1=DeleteEmptyFields(_5, ["Render", "El"]);
+        El:_2?_2.$0:void 0
+      }, ["Render", "El"]);
     }
     else _1=m!=null&&m.$==6?m.$0:FailWith("Invalid docNode in Elt");
     return new EltUpdater(_1, this.updates_1, this.elt, this.rvUpdates, _c_1.Create_1([]));
@@ -4282,11 +3803,8 @@ class Elt_1 extends Doc {
   }
   static TreeNode(tree, updates){
     const rvUpdates=Updates_1.Create(updates);
-    let _1=TreeDoc(tree);
-    const x=map_2((_4) => Updates(_4[1]), tree.Attrs);
-    let _2=TreeReduce(Const(), Map2Unit, x);
-    let _3=Map2Unit(_2, rvUpdates.v);
-    return new Elt_1(_1, _3, get(tree.Els, 0), rvUpdates);
+    const x=map_2((_1) => Updates(_1[1]), tree.Attrs);
+    return new Elt_1(TreeDoc(tree), Map2Unit(TreeReduce(Const(), Map2Unit, x), rvUpdates.v), get(tree.Els, 0), rvUpdates);
   }
   constructor(docNode, updates, elt, rvUpdates){
     super(docNode, updates);
@@ -4325,15 +3843,12 @@ class EltUpdater extends Elt_1 {
     this.holeUpdates.Set([]);
   }
   constructor(treeNode, updates, elt, rvUpdates, holeUpdates){
-    let _1=TreeDoc(treeNode);
     const x=holeUpdates.View;
     const m=(t) => t[1];
     const f=(a) => map_2(m, a);
     const d=Const();
     const g=(a) => TreeReduce(d, Map2Unit, a);
-    let _2=BindInner((x_1) => g(f(x_1)), x);
-    let _3=Map2Unit(updates, _2);
-    super(_1, _3, elt, rvUpdates);
+    super(TreeDoc(treeNode), Map2Unit(updates, BindInner((x_1) => g(f(x_1)), x)), elt, rvUpdates);
     this.treeNode=treeNode;
     this.holeUpdates=holeUpdates;
     this.origHoles=this.treeNode.Holes;
@@ -4391,14 +3906,14 @@ class VarStr extends TemplateHole {
   }
 }
 function CreateOption(input){
-  return new Submitter(Map((V) => Some(V), input), null);
+  return new Submitter(Map(Some, input), null);
 }
 class Submitter extends Object_1 {
   input;
   u0076ar;
   view;
   Trigger(){
-    this.u0076ar.Set(null);
+    this.u0076ar.Set(void 0);
   }
   constructor(input, init_4){
     super();
@@ -4496,9 +4011,9 @@ function Sequence_1(snaps){
   if(snaps_1.length==0)return{s:Forever([])};
   else {
     const res={s:Waiting([], [])};
-    const w=[length_1(snaps_1)-1];
+    let w=length_1(snaps_1)-1;
     const cont=() => {
-      if(w[0]===0){
+      if(w===0){
         const vs=map_2((s) => {
           const m=s.s;
           return m!=null&&m.$==0?m.$0:m!=null&&m.$==2?m.$0:FailWith("value not found by View.Sequence");
@@ -4509,7 +4024,7 @@ function Sequence_1(snaps){
         }, snaps_1))MarkForever(res, vs);
         else MarkReady(res, vs);
       }
-      else w[0]=w[0]-1;
+      else w=w-1;
     };
     iter_2((s) => {
       When(s, cont, res);
@@ -4546,7 +4061,7 @@ function MapCachedBy_1(eq, prev, fn, sn){
   return Map_2((x) => {
     let _1;
     const m=prev[0];
-    if(m!=null&&m.$==1&&(m.$0,eq(x, m.$0[0])&&(_1=[m.$0[0], m.$0[1]],true)))return _1[1];
+    if(m!=null&&m.$==1&&(eq(x, m.$0[0])&&(_1=[m.$0[0], m.$0[1]],true)))return _1[1];
     else {
       const y=fn(x);
       prev[0]=Some([x, y]);
@@ -4580,22 +4095,12 @@ function SnapshotOn_1(sn1, sn2){
 function WhenObsolete(snap, obs){
   const m=snap.s;
   if(m==null)Obsolete(obs);
-  else m!=null&&m.$==2?(m.$0,EnqueueSafe(m.$1, obs)):m!=null&&m.$==3?(m.$0,EnqueueSafe(m.$1, obs)):m.$0;
+  else m!=null&&m.$==2?EnqueueSafe(m.$1, obs):m!=null&&m.$==3?EnqueueSafe(m.$1, obs):void 0;
 }
 function WhenRun(snap, avail, obs){
   const m=snap.s;
   if(m==null)obs();
-  else if(m!=null&&m.$==2){
-    const v=m.$0;
-    m.$1.push(obs);
-    avail(v);
-  }
-  else if(m!=null&&m.$==3){
-    const q2=m.$1;
-    m.$0.push(avail);
-    q2.push(obs);
-  }
-  else avail(m.$0);
+  else m!=null&&m.$==2?(m.$1.push(obs),avail(m.$0)):m!=null&&m.$==3?(m.$0.push(avail),m.$1.push(obs)):avail(m.$0);
 }
 function WithInit_1(x, sn){
   const m=sn.s;
@@ -4634,22 +4139,12 @@ function WithInitOption_1(sn){
 function WhenObsoleteRun(snap, obs){
   const m=snap.s;
   if(m==null)obs();
-  else m!=null&&m.$==2?(m.$0,m.$1.push(obs)):m!=null&&m.$==3?(m.$0,m.$1.push(obs)):m.$0;
+  else m!=null&&m.$==2?m.$1.push(obs):m!=null&&m.$==3?m.$1.push(obs):void 0;
 }
 function When(snap, avail, obs){
   const m=snap.s;
   if(m==null)Obsolete(obs);
-  else if(m!=null&&m.$==2){
-    const v=m.$0;
-    EnqueueSafe(m.$1, obs);
-    avail(v);
-  }
-  else if(m!=null&&m.$==3){
-    const q2=m.$1;
-    m.$0.push(avail);
-    EnqueueSafe(q2, obs);
-  }
-  else avail(m.$0);
+  else m!=null&&m.$==2?(EnqueueSafe(m.$1, obs),avail(m.$0)):m!=null&&m.$==3?(m.$0.push(avail),EnqueueSafe(m.$1, obs)):avail(m.$0);
 }
 function MarkDone(res, sn, v){
   const _1=sn.s;
@@ -4669,21 +4164,18 @@ function ValueAndForever(snap){
 function MarkForever(sn, v){
   const m=sn.s;
   if(m!=null&&m.$==3){
-    const q=m.$0;
     sn.s=Forever(v);
-    for(let i=0, _1=length_1(q)-1;i<=_1;i++)(get(q, i))(v);
+    const qa=m.$0;
+    for(let i=0, _1=length_1(qa)-1;i<=_1;i++)(get(qa, i))(v);
   }
-  else void 0;
 }
 function MarkReady(sn, v){
   const m=sn.s;
   if(m!=null&&m.$==3){
-    const q2=m.$1;
-    const q1=m.$0;
-    sn.s=Ready(v, q2);
-    for(let i=0, _1=length_1(q1)-1;i<=_1;i++)(get(q1, i))(v);
+    sn.s=Ready(v, m.$1);
+    const qa=m.$0;
+    for(let i=0, _1=length_1(qa)-1;i<=_1;i++)(get(qa, i))(v);
   }
-  else void 0;
 }
 function JoinInner_1(snap){
   const res={s:Waiting([], [])};
@@ -4712,7 +4204,6 @@ function WhenReady(snap, avail){
       avail(_1);
       break;
     case 1:
-      null;
       break;
     case 2:
       m.$0.push(avail);
@@ -4734,12 +4225,11 @@ function EnqueueSafe(q, x){
       })(o));
     }
   }
-  else void 0;
 }
 function Map2Unit_1(sn1, sn2){
   const _1=sn1.s;
   const _2=sn2.s;
-  if(_1!=null&&_1.$==0)return _2!=null&&_2.$==0?{s:Forever(null)}:sn2;
+  if(_1!=null&&_1.$==0)return _2!=null&&_2.$==0?{s:Forever(void 0)}:sn2;
   else if(_2!=null&&_2.$==0)return sn1;
   else {
     const res={s:Waiting([], [])};
@@ -4748,8 +4238,8 @@ function Map2Unit_1(sn1, sn2){
       if(!(m!=null&&m.$==0||m!=null&&m.$==2)){
         const _3=ValueAndForever(sn1);
         const _4=ValueAndForever(sn2);
-        if(_3!=null&&_3.$==1)if(_4!=null&&_4.$==1)if(_3.$0[1]&&_4.$0[1])MarkForever(res, null);
-        else MarkReady(res, null);
+        if(_3!=null&&_3.$==1)if(_4!=null&&_4.$==1)if(_3.$0[1]&&_4.$0[1])MarkForever(res, void 0);
+        else MarkReady(res, void 0);
       }
     };
     When(sn1, cont, res);
@@ -4823,7 +4313,7 @@ function Trim(s){
 function Substring(s, ix, ct){
   return s.substr(ix, ct);
 }
-function concat_1(separator, strings){
+function concat(separator, strings){
   return ofSeq_1(strings).join(separator);
 }
 function SplitChars(s, sep, opts){
@@ -4851,19 +4341,16 @@ function InMemory(init_4){
   return new ArrayStorage(init_4);
 }
 function exists_2(f, x){
-  let e, i;
-  e=false;
-  i=0;
-  const l=length_1(x);
-  while(!e&&i<l)
+  let e=false;
+  let i=0;
+  while(!e&&i<length_1(x))
     if(f(x[i]))e=true;
     else i=i+1;
   return e;
 }
 function tryFindIndex_1(f, arr){
-  let res, i;
-  res=null;
-  i=0;
+  let res=null;
+  let i=0;
   while(i<arr.length&&res==null)
     {
       f(arr[i])?res=Some(i):void 0;
@@ -4872,9 +4359,8 @@ function tryFindIndex_1(f, arr){
   return res;
 }
 function ofList(xs){
-  let l;
   const q=[];
-  l=xs;
+  let l=xs;
   while(!(l.$==0))
     {
       q.push(head(l));
@@ -4902,8 +4388,7 @@ function ofSeq_1(xs){
       return q;
     }
     finally {
-      const _1=o;
-      if(typeof _1=="object"&&isIDisposable(_1))o.Dispose();
+      if(typeof o=="object"&&isIDisposable(o))o.Dispose();
     }
   }
 }
@@ -4916,19 +4401,16 @@ function map_2(f, arr){
   return r;
 }
 function forall_2(f, x){
-  let a, i;
-  a=true;
-  i=0;
-  const l=length_1(x);
-  while(a&&i<l)
+  let a=true;
+  let i=0;
+  while(a&&i<length_1(x))
     if(f(x[i]))i=i+1;
     else a=false;
   return a;
 }
 function tryPick(f, arr){
-  let res, i;
-  res=null;
-  i=0;
+  let res=null;
+  let i=0;
   while(i<arr.length&&res==null)
     {
       const m=f(arr[i]);
@@ -4939,14 +4421,12 @@ function tryPick(f, arr){
 }
 function init_3(size, f){
   if(size<0)FailWith("Negative size given.");
-  else null;
   const r=new Array(size);
   for(let i=0, _1=size-1;i<=_1;i++)r[i]=f(i);
   return r;
 }
 function foldBack(f, arr, zero){
-  let acc;
-  acc=zero;
+  let acc=zero;
   const len=arr.length;
   for(let i=1, _1=len;i<=_1;i++)acc=f(arr[len-i], acc);
   return acc;
@@ -4964,7 +4444,7 @@ function choose(f, arr){
   }
   return q;
 }
-function concat_2(xs){
+function concat_1(xs){
   return Array.prototype.concat.apply([], ofSeq_1(xs));
 }
 function create(size, value){
@@ -5032,14 +4512,11 @@ class Trans extends Object_1 {
   exit;
   flags;
   Copy(change, enter, exit, flags){
-    const ch=change==null?(_4) =>(_5) => this.TChange(_4, _5):change.$0;
+    const ch=change==null?(_1) =>(_2) => this.TChange(_1, _2):change.$0;
     const d=this.TEnter;
-    let _1=enter==null?d:enter.$0;
     const d_1=this.TExit;
-    let _2=exit==null?d_1:exit.$0;
     const d_2=this.TFlags;
-    let _3=flags==null?d_2:flags.$0;
-    return new Trans("New_3", (a, a_1) =>(ch(a))(a_1), _1, _2, _3);
+    return new Trans("New_3", (a, a_1) =>(ch(a))(a_1), enter==null?d:enter.$0, exit==null?d_1:exit.$0, flags==null?d_2:flags.$0);
   }
   get TFlags(){
     return this.flags;
@@ -5128,9 +4605,8 @@ class HashSet extends Object_1 {
     return arr==null?(this.data[h]=[item],this.count=this.count+1,true):this.arrContains(item, arr)?false:(arr.push(item),this.count=this.count+1,true);
   }
   arrContains(item, arr){
-    let c, i;
-    c=true;
-    i=0;
+    let c=true;
+    let i=0;
     const l=arr.length;
     while(c&&i<l)
       if(this.equals.apply(null, [arr[i], item]))c=false;
@@ -5138,7 +4614,7 @@ class HashSet extends Object_1 {
     return!c;
   }
   GetEnumerator(){
-    return Get_1(concat_3(this.data));
+    return Get_1(concat_2(this.data));
   }
   ExceptWith(xs){
     const e=Get_1(xs);
@@ -5147,8 +4623,7 @@ class HashSet extends Object_1 {
         this.Remove(e.Current);
     }
     finally {
-      const _1=e;
-      if(typeof _1=="object"&&isIDisposable(_1))e.Dispose();
+      if(typeof e=="object"&&isIDisposable(e))e.Dispose();
     }
   }
   get Count(){
@@ -5156,7 +4631,7 @@ class HashSet extends Object_1 {
   }
   IntersectWith(xs){
     const other=new HashSet("New_4", xs, this.equals, this.hash);
-    const all=concat_3(this.data);
+    const all=concat_2(this.data);
     for(let i=0, _1=all.length-1;i<=_1;i++){
       const item=all[i];
       if(!other.Contains(item))this.Remove(item);
@@ -5167,13 +4642,12 @@ class HashSet extends Object_1 {
     return arr==null?false:this.arrRemove(item, arr)&&(this.count=this.count-1,true);
   }
   CopyTo(arr, index){
-    const all=concat_3(this.data);
+    const all=concat_2(this.data);
     for(let i=0, _1=all.length-1;i<=_1;i++)set(arr, i+index, all[i]);
   }
   arrRemove(item, arr){
-    let c, i;
-    c=true;
-    i=0;
+    let c=true;
+    let i=0;
     const l=arr.length;
     while(c&&i<l)
       if(this.equals.apply(null, [arr[i], item])){
@@ -5213,8 +4687,7 @@ class HashSet extends Object_1 {
           this.add(e.Current);
       }
       finally {
-        const _4=e;
-        if(typeof _4=="object"&&isIDisposable(_4))e.Dispose();
+        if(typeof e=="object"&&isIDisposable(e))e.Dispose();
       }
     }
   }
@@ -5302,7 +4775,7 @@ function PerformAnimatedUpdate(childrenOnly, st, doc){
           const x_2=Play(enter);
           const f_3=() => {
             st.PreviousNodes=cur;
-            return Return(null);
+            return Return(void 0);
           };
           return Bind_1(x_2, (_1, _2) =>(f_3(_1))(_2));
         };
@@ -5347,7 +4820,7 @@ function SyncElemNodesNextFrame(childrenOnly, st){
   }
   else {
     SyncElemNode(childrenOnly, st.Top);
-    return Return(null);
+    return Return(void 0);
   }
 }
 function ComputeExitAnim(st, cur){
@@ -5415,11 +4888,11 @@ function Sync_1(doc){
         const n=doc.$0;
         doc=n.Current;
       }
-      else if(doc==null)return null;
-      else if(doc!=null&&doc.$==5)return null;
+      else if(doc==null)return;
+      else if(doc!=null&&doc.$==5)return;
       else if(doc!=null&&doc.$==4){
         const d=doc.$0;
-        return d.Dirty?(d.Text.nodeValue=d.Value,d.Dirty=false):null;
+        return d.Dirty?(d.Text.nodeValue=d.Value,d.Dirty=false):void 0;
       }
       else if(doc!=null&&doc.$==6){
         const t=doc.$0;
@@ -5473,7 +4946,7 @@ function DoSyncElement(el){
         else if(doc!=null&&doc.$==6){
           const t=doc.$0;
           if(t.Dirty)t.Dirty=false;
-          return foldBack((_3, _4) => _3==null||_3.constructor===Object?ins(_3, _4):_3, t.Els, pos);
+          return foldBack((_2, _3) => _2==null||_2.constructor===Object?ins(_2, _3):_2, t.Els, pos);
         }
         else {
           const b=doc.$1;
@@ -5486,10 +4959,9 @@ function DoSyncElement(el){
   Iter((e) => {
     RemoveNode(parent, e);
   }, Except_2(DocChildren(el), Children(parent, GetOptional(el.Delimiters))));
-  let _1=el.Children;
+  const _1=el.Children;
   const m_1=GetOptional(el.Delimiters);
-  let _2=m_1!=null&&m_1.$==1?m_1.$0[1]:null;
-  ins(_1, _2);
+  ins(_1, m_1!=null&&m_1.$==1?m_1.$0[1]:null);
 }
 class Runner {
   Invoke(a){
@@ -5525,7 +4997,7 @@ class Runner {
             expected:expected_1, 
             message:message
           });
-          return Return(null);
+          return Return(void 0);
         };
         return Bind_1(x, (_3, _4) =>(f_1(_3))(_4));
       };
@@ -5542,10 +5014,9 @@ class Runner {
             const m_1=y(a_1).Invoke(asserter);
             return m_1.$==1?m_1.$0:Return(m_1.$0);
           };
-          return Bind_1(a, (_2, _3) =>(f_1(_2))(_3));
+          return Bind_1(a, (_1, _2) =>(f_1(_1))(_2));
         };
-        let _1=Delay((_2, _3) =>(f(_2))(_3));
-        return Choice2Of2(_1);
+        return Choice2Of2(Delay((_1, _2) =>(f(_1))(_2)));
       }
       else return y(m.$0).Invoke(asserter);
     });
@@ -5572,7 +5043,7 @@ class Runner {
             actual:a, 
             expected:expected_1
           });
-          return Return(null);
+          return Return(void 0);
         };
         return Bind_1(x, (_3, _4) =>(f_1(_3))(_4));
       };
@@ -5618,10 +5089,9 @@ function Map_3(f, x){
     const args=x.$0;
     const f_1=() => {
       const f_2=(a) => Return(f(a));
-      return Bind_1(args, (_2, _3) =>(f_2(_2))(_3));
+      return Bind_1(args, (_1, _2) =>(f_2(_1))(_2));
     };
-    let _1=Delay((_2, _3) =>(f_1(_2))(_3));
-    return Choice2Of2(_1);
+    return Choice2Of2(Delay((_1, _2) =>(f_1(_1))(_2)));
   }
   else return Choice1Of2(f(x.$0));
 }
@@ -5630,17 +5100,16 @@ function MapAsync_2(f, x){
     const args=x.$0;
     const f_1=() => {
       const f_2=(a) => f(a);
-      return Bind_1(args, (_2, _3) =>(f_2(_2))(_3));
+      return Bind_1(args, (_1, _2) =>(f_2(_1))(_2));
     };
-    let _1=Delay((_2, _3) =>(f_1(_2))(_3));
-    return Choice2Of2(_1);
+    return Choice2Of2(Delay((_1, _2) =>(f_1(_1))(_2)));
   }
   else return Choice2Of2(f(x.$0));
 }
 function Delay(mk){
   return(c) => {
     try {
-      mk(null, c);
+      mk(void 0, c);
     }
     catch(e){
       c.k(No(e));
@@ -5654,11 +5123,11 @@ function Return(x){
 }
 function FromContinuations(subscribe){
   return(c) => {
-    const continued=[false];
+    let continued=false;
     const once=(cont) => {
-      if(continued[0])FailWith("A continuation provided by Async.FromContinuations was invoked multiple times");
+      if(continued)FailWith("A continuation provided by Async.FromContinuations was invoked multiple times");
       else {
-        continued[0]=true;
+        continued=true;
         scheduler().Fork(cont);
       }
     };
@@ -5699,13 +5168,11 @@ function Bind_1(r, f){
 }
 function Sleep(ms){
   return(c) => {
-    let pending, creg;
-    pending=void 0;
-    creg=void 0;
-    pending=setTimeout(() => {
+    let creg;
+    const pending=setTimeout(() => {
       creg.Dispose();
       scheduler().Fork(() => {
-        c.k(Ok(null));
+        c.k(Ok(void 0));
       });
     }, ms);
     creg=Register(c.ct, () => {
@@ -5719,8 +5186,6 @@ function Sleep(ms){
 function AwaitEvent(e, ca){
   return(c) => {
     let sub, creg;
-    sub=void 0;
-    creg=void 0;
     sub=e.Subscribe(observer((x) => {
       sub.Dispose();
       creg.Dispose();
@@ -5784,9 +5249,7 @@ function checkCancel(r){
   };
 }
 function Register(ct, callback){
-  if(ct===noneCT())return{Dispose(){
-    return null;
-  }};
+  if(ct===noneCT())return{Dispose(){ }};
   else {
     const i=ct.r.push(callback)-1;
     return{Dispose(){
@@ -5840,11 +5303,8 @@ class Event_2 {
   }
   RemoveHandler_1(h){
     const o=tryFindIndex((y) => Equals(h, y), this.Handlers);
-    if(o==null)void 0;
-    else {
-      const i=o.$0;
-      this.Handlers.splice(i, 1);
-    }
+    if(o==null){ }
+    else this.Handlers.splice(o.$0, 1);
   }
   Dispose(){ }
   Subscribe(observer_1){
@@ -5867,8 +5327,7 @@ function ofSeqNonCopying(xs){
       return q;
     }
     finally {
-      const _1=o;
-      if(typeof _1=="object"&&isIDisposable(_1))o.Dispose();
+      if(typeof o=="object"&&isIDisposable(o))o.Dispose();
     }
   }
 }
@@ -5876,8 +5335,7 @@ function TreeReduce(defaultValue, reduction, array){
   const l=length_1(array);
   function loop(off){
     return(len) => {
-      let _1;
-      switch(len<=0?0:len===1?off>=0&&off<l?1:(_1=len,2):(_1=len,2)){
+      switch(len<=0?0:len===1?off>=0&&off<l?1:2:2){
         case 0:
           return defaultValue;
         case 1:
@@ -5898,8 +5356,7 @@ function MapTreeReduce(mapping, defaultValue, reduction, array){
   const l=length_1(array);
   function loop(off){
     return(len) => {
-      let _1;
-      switch(len<=0?0:len===1?off>=0&&off<l?1:(_1=len,2):(_1=len,2)){
+      switch(len<=0?0:len===1?off>=0&&off<l?1:2:2){
         case 0:
           return defaultValue;
         case 1:
@@ -5932,8 +5389,9 @@ class DocElemNode {
       El:El, 
       ElKey:ElKey
     };
-    let _2=(SetOptional(_1, "Delimiters", Delimiters),SetOptional(_1, "Render", Render),_1);
-    return Create_3(DocElemNode, _2);
+    SetOptional(_1, "Delimiters", Delimiters);
+    SetOptional(_1, "Render", Render);
+    return Create_3(DocElemNode, _1);
   }
 }
 function Ready(Item1, Item2){
@@ -5956,8 +5414,7 @@ function Forever(Item){
 function Obsolete(sn){
   let _1;
   const m=sn.s;
-  if(m==null||(m!=null&&m.$==2?(_1=m.$1,false):m!=null&&m.$==3?(_1=m.$1,false):true))void 0;
-  else {
+  if(!(m==null||(m!=null&&m.$==2?(_1=m.$1,false):m!=null&&m.$==3?(_1=m.$1,false):true))){
     sn.s=null;
     for(let i=0, _2=length_1(_1)-1;i<=_2;i++){
       const o=get(_1, i);
@@ -6051,13 +5508,9 @@ class AnimatedAttrNode extends Object_1 {
   }
   sync(p){
     if(this.dirty){
-      let _1;
       const x=this.logical;
-      if(x==null)_1=void 0;
-      else {
-        const v=x.$0;
-        _1=(this.push(p))(v);
-      }
+      if(x==null){ }
+      else(this.push(p))(x.$0);
       this.visible=this.logical;
       this.dirty=false;
     }
@@ -6067,19 +5520,18 @@ class AnimatedAttrNode extends Object_1 {
   }
   NGetExitAnim(parent){
     const m=this.visible;
-    let _1=m!=null&&m.$==1?Pack(Map_1((v) => {
-      this.pushVisible(parent, v);
-    }, AnimateExit(this.tr, m.$0))):get_Empty();
     return WhenDone(() => {
       this.dirty=true;
       this.visible=null;
-    }, _1);
+    }, m!=null&&m.$==1?Pack(Map_1((v) => {
+      this.pushVisible(parent, v);
+    }, AnimateExit(this.tr, m.$0))):get_Empty());
   }
   NGetEnterAnim(parent){
     let _1, _2;
     const _3=this.visible;
     const _4=this.logical;
-    switch(_3==null?_4!=null&&_4.$==1?(_1=_4.$0,1):2:_4!=null&&_4.$==1?(_3.$0,_4.$0,this.dirty?(_1=[_4.$0, _3.$0],0):2):2){
+    switch(_3==null?_4!=null&&_4.$==1?(_1=_4.$0,1):2:_4!=null&&_4.$==1?this.dirty?(_1=[_4.$0, _3.$0],0):2:2){
       case 0:
         _2=Pack(Map_1((v) => {
           this.pushVisible(parent, v);
@@ -6102,12 +5554,11 @@ class AnimatedAttrNode extends Object_1 {
     let _1;
     const _2=this.visible;
     const _3=this.logical;
-    let _4=_2!=null&&_2.$==1&&(_3!=null&&_3.$==1&&(_2.$0,_3.$0,this.dirty&&(_1=[_3.$0, _2.$0],true)))?Pack(Map_1((v) => {
-      this.pushVisible(parent, v);
-    }, AnimateChange(this.tr, _1[1], _1[0]))):get_Empty();
     return WhenDone(() => {
       this.sync(parent);
-    }, _4);
+    }, _2!=null&&_2.$==1&&(_3!=null&&_3.$==1&&(this.dirty&&(_1=[_3.$0, _2.$0],true)))?Pack(Map_1((v) => {
+      this.pushVisible(parent, v);
+    }, AnimateChange(this.tr, _1[1], _1[0]))):get_Empty());
   }
   NSync(parent){ }
   constructor(tr, view, push){
@@ -6127,9 +5578,8 @@ function notPresent(){
   throw new KeyNotFoundException("New");
 }
 function convertTextNode(n){
-  let m, li;
-  m=null;
-  li=0;
+  let m=null;
+  let li=0;
   const s=n.textContent;
   const strRE=new RegExp(TextHoleRE(), "g");
   while(m=strRE.exec(s),m!==null)
@@ -6170,17 +5620,14 @@ function removeHolesExcept(instance, dontRemove){
     if(!dontRemove.Contains(e.getAttribute("ws-replace")))e.parentNode.removeChild(e);
   });
   foreachNotPreserved(instance, "[ws-on]", (e) => {
-    e.setAttribute("ws-on", concat_1(" ", filter_2((x) => dontRemove.Contains(get(SplitChars(x, [":"], 1), 1)), SplitChars(e.getAttribute("ws-on"), [" "], 1))));
+    e.setAttribute("ws-on", concat(" ", filter_2((x) => dontRemove.Contains(get(SplitChars(x, [":"], 1), 1)), SplitChars(e.getAttribute("ws-on"), [" "], 1))));
   });
   foreachNotPreserved(instance, "[ws-attr-holes]", (e) => {
     const holeAttrs=SplitChars(e.getAttribute("ws-attr-holes"), [" "], 1);
-    for(let i=0, _2=holeAttrs.length-1;i<=_2;i++){
+    for(let i=0, _1=holeAttrs.length-1;i<=_1;i++){
       const attrName=get(holeAttrs, i);
-      let this_1=new RegExp(TextHoleRE(), "g");
-      let str=e.getAttribute(attrName);
-      let replaceFn=(_3, _4) => dontRemove.Contains(_4)?_3:"";
-      let _1=str.replace(this_1, replaceFn);
-      e.setAttribute(attrName, _1);
+      const this_1=new RegExp(TextHoleRE(), "g");
+      e.setAttribute(attrName, e.getAttribute(attrName).replace(this_1, (_2, _3) => dontRemove.Contains(_3)?_2:""));
     }
   });
 }
@@ -6201,10 +5648,10 @@ function fillInstanceAttrs(instance, fillWith){
 function mapHoles(t, mappings){
   const run=(attrName) => {
     foreachNotPreserved(t, "["+attrName+"]", (e) => {
-      let o;
-      const m=(o=null,[mappings.TryGetValue(e.getAttribute(attrName).toLowerCase(), {get:() => o, set:(v) => {
+      let o=null;
+      const m=[mappings.TryGetValue(e.getAttribute(attrName).toLowerCase(), {get:() => o, set:(v) => {
         o=v;
-      }}), o]);
+      }}), o];
       if(m[0])e.setAttribute(attrName, m[1]);
     });
   };
@@ -6214,31 +5661,31 @@ function mapHoles(t, mappings){
   run("ws-onafterrender");
   run("ws-var");
   foreachNotPreserved(t, "[ws-on]", (e) => {
-    e.setAttribute("ws-on", concat_1(" ", map_2((x) => {
-      let o;
+    e.setAttribute("ws-on", concat(" ", map_2((x) => {
       const a=SplitChars(x, [":"], 1);
-      const m=(o=null,[mappings.TryGetValue(get(a, 1), {get:() => o, set:(v) => {
+      let o=null;
+      const m=[mappings.TryGetValue(get(a, 1), {get:() => o, set:(v) => {
         o=v;
-      }}), o]);
+      }}), o];
       return m[0]?get(a, 0)+":"+m[1]:x;
     }, SplitChars(e.getAttribute("ws-on"), [" "], 1))));
   });
   foreachNotPreserved(t, "[ws-attr-holes]", (e) => {
     const holeAttrs=SplitChars(e.getAttribute("ws-attr-holes"), [" "], 1);
-    for(let i=0, _1=holeAttrs.length-1;i<=_1;i++)((() => {
+    for(let i=0, _1=holeAttrs.length-1;i<=_1;i++){
       const attrName=get(holeAttrs, i);
-      return e.setAttribute(attrName, fold((_2, _3) => {
+      e.setAttribute(attrName, fold((_2, _3) => {
         const a=KeyValue(_3);
         return _2.replace(new RegExp("\\${"+a[0]+"}", "ig"), "${"+a[1]+"}");
       }, e.getAttribute(attrName), mappings));
-    })());
+    }
   });
 }
 function fill(fillWith, p, n){
   while(true)
     {
       if(fillWith.hasChildNodes())n=p.insertBefore(fillWith.lastChild, n);
-      else return null;
+      else return;
     }
 }
 function convertAttrs(el){
@@ -6246,24 +5693,20 @@ function convertAttrs(el){
   const toRemove=[];
   const events=[];
   const holedAttrs=[];
-  for(let i=0, _2=attrs.length-1;i<=_2;i++){
+  for(let i=0, _1=attrs.length-1;i<=_1;i++){
     const a=attrs.item(i);
     if(StartsWith(a.nodeName, "ws-on")&&a.nodeName!="ws-onafterrender"&&a.nodeName!="ws-on"){
       toRemove.push(a.nodeName);
       events.push(string(a.nodeName, Some("ws-on".length), null)+":"+a.nodeValue.toLowerCase());
     }
     else if(!StartsWith(a.nodeName, "ws-")&&(new RegExp(TextHoleRE())).test(a.nodeValue)){
-      let this_1=new RegExp(TextHoleRE(), "g");
-      let str=a.nodeValue;
-      let replaceFn=(_3, _4) =>"${"+_4.toLowerCase()+"}";
-      let _1=str.replace(this_1, replaceFn);
-      a.nodeValue=_1;
+      const this_1=new RegExp(TextHoleRE(), "g");
+      a.nodeValue=a.nodeValue.replace(this_1, (_2, _3) =>"${"+_3.toLowerCase()+"}");
       holedAttrs.push(a.nodeName);
     }
-    else void 0;
   }
-  if(!(events.length==0))el.setAttribute("ws-on", concat_1(" ", events));
-  if(!(holedAttrs.length==0))el.setAttribute("ws-attr-holes", concat_1(" ", holedAttrs));
+  if(!(events.length==0))el.setAttribute("ws-on", concat(" ", events));
+  if(!(holedAttrs.length==0))el.setAttribute("ws-attr-holes", concat(" ", holedAttrs));
   const lowercaseAttr=(name) => {
     const m=el.getAttribute(name);
     if(m==null){ }
@@ -6289,8 +5732,7 @@ function string(source, start, finish){
   else if(finish==null)return source.slice(start.$0);
   else {
     const f_1=finish.$0;
-    const s=start.$0;
-    return f_1<0?"":source.slice(s, f_1+1);
+    return f_1<0?"":source.slice(start.$0, f_1+1);
   }
 }
 function insufficient(){
@@ -6307,11 +5749,9 @@ function nonNegative(){
   return FailWith("The input must be non-negative.");
 }
 function arrContains(item, arr){
-  let c, i;
-  c=true;
-  i=0;
-  const l=length_1(arr);
-  while(c&&i<l)
+  let c=true;
+  let i=0;
+  while(c&&i<length_1(arr))
     if(Equals(arr[i], item))c=false;
     else i=i+1;
   return!c;
@@ -6330,24 +5770,24 @@ function BatchUpdatesEnabled(){
   return _c_5.BatchUpdatesEnabled;
 }
 function StartProcessor(procAsync){
-  const st=[0];
+  let st=0;
   function work(){
     const f=() => {
       const f_1=() => {
-        const m=st[0];
-        return Equals(m, 1)?(st[0]=0,Zero()):Equals(m, 2)?(st[0]=1,work()):Zero();
+        const m=st;
+        return Equals(m, 1)?(st=0,Zero()):Equals(m, 2)?(st=1,work()):Zero();
       };
       return Bind_1(procAsync, (_1, _2) =>(f_1(_1))(_2));
     };
     return Delay((_1, _2) =>(f(_1))(_2));
   }
   return() => {
-    const m=st[0];
+    const m=st;
     if(Equals(m, 0)){
-      st[0]=1;
+      st=1;
       Start(work(), null);
     }
-    else Equals(m, 1)?st[0]=2:void 0;
+    else Equals(m, 1)?st=2:void 0;
   };
 }
 function Choice1Of2(Item){
@@ -6378,12 +5818,8 @@ function OnError(e){
 }
 function observer(h){
   return{
-    OnCompleted(){
-      return null;
-    }, 
-    OnError(){
-      return null;
-    }, 
+    OnCompleted(){ }, 
+    OnError(){ }, 
     OnNext(args){
       return h(args);
     }
@@ -6426,8 +5862,7 @@ function IntApplyChecked(){
   return _c_6.IntApplyChecked;
 }
 function ApplyValue(get_1, set_1, var_1){
-  let expectedValue;
-  expectedValue=null;
+  let expectedValue=null;
   return[(el) => {
     const onChange=() => {
       var_1.UpdateMaybe((v) => {
@@ -6441,11 +5876,8 @@ function ApplyValue(get_1, set_1, var_1){
     el.addEventListener("keypress", onChange);
   }, (x) => {
     const _1=set_1(x);
-    return(_2) => _2==null?null:_1(_2.$0);
-  }, Map((v) => {
-    let _1;
-    return expectedValue!=null&&expectedValue.$==1&&(Equals(expectedValue.$0, v)&&(_1=expectedValue.$0,true))?null:Some(v);
-  }, var_1.View)];
+    return(_2) => _2==null?void 0:_1(_2.$0);
+  }, Map((v) => expectedValue!=null&&expectedValue.$==1&&(Equals(expectedValue.$0, v)&&true)?null:Some(v), var_1.View)];
 }
 function StringSet(){
   return _c_6.StringSet;
@@ -6466,8 +5898,7 @@ function DateTimeGetUnchecked(){
   return _c_6.DateTimeGetUnchecked;
 }
 function FileApplyValue(get_1, set_1, var_1){
-  let expectedValue;
-  expectedValue=null;
+  let expectedValue=null;
   return[(el) => {
     el.addEventListener("change", () => {
       var_1.UpdateMaybe((v) => {
@@ -6478,11 +5909,8 @@ function FileApplyValue(get_1, set_1, var_1){
     });
   }, (x) => {
     const _1=set_1(x);
-    return(_2) => _2==null?null:_1(_2.$0);
-  }, Map((v) => {
-    let _1;
-    return expectedValue!=null&&expectedValue.$==1&&(Equals(expectedValue.$0, v)&&(_1=expectedValue.$0,true))?null:Some(v);
-  }, var_1.View)];
+    return(_2) => _2==null?void 0:_1(_2.$0);
+  }, Map((v) => expectedValue!=null&&expectedValue.$==1&&(Equals(expectedValue.$0, v)&&true)?null:Some(v), var_1.View)];
 }
 function FileSetUnchecked(){
   return _c_6.FileSetUnchecked;
@@ -6597,7 +6025,7 @@ function FindAll(doc){
               iter_2(a_1, a_2);
             })(loopEN))(x);
           }
-          else return null;
+          else return;
           break;
         case 1:
           q.push(_1);
@@ -6644,11 +6072,9 @@ class Updates_1 {
   s;
   v;
   static Create(v){
-    let var_1;
-    var_1=null;
+    let var_1=null;
     var_1=Updates_1.New(v, null, () => {
-      let c;
-      c=var_1.s;
+      let c=var_1.s;
       return c===null?(c=Copy(var_1.c()),var_1.s=c,WhenObsoleteRun(c, () => {
         var_1.s=null;
       }),c):c;
@@ -6676,9 +6102,8 @@ class Scheduler extends Object_1 {
     }, 0)):void 0;
   }
   tick(){
-    let loop;
     const t=Date.now();
-    loop=true;
+    let loop=true;
     while(loop)
       if(this.robin.length===0){
         this.idle=true;
@@ -6751,8 +6176,8 @@ let _c_6=Lazy((_i) => class Client {
   static {
     this.EmptyAttr=null;
     this.BoolCheckedApply=(var_1) =>[(el) => {
-      el.addEventListener("change", () => var_1.Get()!=el.checked?var_1.Set(el.checked):null);
-    }, (_1) =>(_2) => _2!=null&&_2.$==1?void(_1.checked=_2.$0):null, Map((V) => Some(V), var_1.View)];
+      el.addEventListener("change", () => var_1.Get()!=el.checked?var_1.Set(el.checked):void 0);
+    }, (_1) =>(_2) => _2!=null&&_2.$==1?void(_1.checked=_2.$0):void 0, Map(Some, var_1.View)];
     this.StringSet=(el) =>(s_8) => {
       el.value=s_8;
     };
@@ -6762,14 +6187,19 @@ let _c_6=Lazy((_i) => class Client {
     this.StringApply=(v) => ApplyValue(g, s, v);
     this.StringListSet=(el) =>(s_8) => {
       const options_=el.options;
-      for(let i=0, _1=options_.length-1;i<=_1;i++)((() => {
+      for(let i=0, _1=options_.length-1;i<=_1;i++){
         const option=options_.item(i);
         option.selected=arrContains(option.value, s_8);
-      })());
+      }
     };
     this.StringListGet=(el) => {
       const selectedOptions=el.selectedOptions;
-      return Some(ofSeq_1(delay(() => collect((i) =>[selectedOptions.item(i).value], range(0, selectedOptions.length-1)))));
+      const a=[];
+      for(const i of Iter_1(range(0, selectedOptions.length-1))){
+        const option=selectedOptions.item(i);
+        a.push(option.value);
+      }
+      return Some(a);
     };
     const g_1=StringListGet();
     const s_1=StringListSet();
@@ -6784,18 +6214,19 @@ let _c_6=Lazy((_i) => class Client {
       else {
         o=0;
         const m_1=TryParse_1(s_8);
-        let _1=m_1!=null&&m_1.$==1&&(o=m_1.$0,true);
-        m=[_1, o];
+        m=[m_1!=null&&m_1.$==1&&(o=m_1.$0,true), o];
         return m[0]?Some(m[1]):null;
       }
     };
     const g_2=DateTimeGetUnchecked();
     const s_2=DateTimeSetUnchecked();
     this.DateTimeApplyUnchecked=(v) => ApplyValue(g_2, s_2, v);
-    this.FileSetUnchecked=() =>() => null;
+    this.FileSetUnchecked=() =>() => { };
     this.FileGetUnchecked=(el) => {
       const files=el.files;
-      return Some(ofSeq_1(delay(() => map_1((i) => files.item(i), range(0, files.length-1)))));
+      const a=[];
+      for(const i of Iter_1(range(0, files.length-1)))a.push(files.item(i));
+      return Some(a);
     };
     const g_3=FileGetUnchecked();
     const s_3=FileSetUnchecked();
@@ -6816,16 +6247,17 @@ let _c_6=Lazy((_i) => class Client {
     this.IntApplyUnchecked=(v) => ApplyValue(g_4, s_4, v);
     this.IntSetChecked=(el) =>(i) => {
       const i_1=i.Input;
-      return el.value!=i_1?void(el.value=i_1):null;
+      return el.value!=i_1?void(el.value=i_1):void 0;
     };
     this.IntGetChecked=(el) => {
       let _1, o;
       const s_8=el.value;
       if(isBlank(s_8))_1=(el.checkValidity?el.checkValidity():true)?CheckedInput.Blank(s_8):CheckedInput.Invalid(s_8);
       else {
-        const m=(o=0,[TryParse(s_8, {get:() => o, set:(v) => {
+        o=0;
+        const m=[TryParse(s_8, {get:() => o, set:(v) => {
           o=v;
-        }}), o]);
+        }}), o];
         _1=m[0]?CheckedInput.Valid(m[1], s_8):CheckedInput.Invalid(s_8);
       }
       return Some(_1);
@@ -6849,7 +6281,7 @@ let _c_6=Lazy((_i) => class Client {
     this.FloatApplyUnchecked=(v) => ApplyValue(g_6, s_6, v);
     this.FloatSetChecked=(el) =>(i) => {
       const i_1=i.Input;
-      return el.value!=i_1?void(el.value=i_1):null;
+      return el.value!=i_1?void(el.value=i_1):void 0;
     };
     this.FloatGetChecked=(el) => {
       let _1;
@@ -6932,8 +6364,7 @@ let _c_7=Lazy((_i) => class $StartupCode_DomUtility {
     this.rtagName=new RegExp("<([\\w:]+)");
     this.rhtml=new RegExp("<|&#?\\w+;");
     const table=[1, "<table>", "</table>"];
-    let _1=Object.fromEntries([["option", [1, "<select multiple='multiple'>", "</select>"]], ["legend", [1, "<fieldset>", "</fieldset>"]], ["area", [1, "<map>", "</map>"]], ["param", [1, "<object>", "</object>"]], ["thead", table], ["tbody", table], ["tfoot", table], ["tr", [2, "<table><tbody>", "</tbody></table>"]], ["col", [2, "<table><colgroup>", "</colgoup></table>"]], ["td", [3, "<table><tbody><tr>", "</tr></tbody></table>"]]]);
-    this.wrapMap=_1;
+    this.wrapMap=Object.fromEntries([["option", [1, "<select multiple='multiple'>", "</select>"]], ["legend", [1, "<fieldset>", "</fieldset>"]], ["area", [1, "<map>", "</map>"]], ["param", [1, "<object>", "</object>"]], ["thead", table], ["tbody", table], ["tfoot", table], ["tr", [2, "<table><tbody>", "</tbody></table>"]], ["col", [2, "<table><colgroup>", "</colgoup></table>"]], ["td", [3, "<table><tbody><tr>", "</tr></tbody></table>"]]]);
     this.defaultWrap=[0, "", ""];
   }
 });
@@ -6958,7 +6389,7 @@ function ToArray_1(xs){
         }
         else return xs_1.$==3?iter_2((v) => {
           out.push(v);
-        }, xs_1.$0):null;
+        }, xs_1.$0):void 0;
       }
   }
   loop(xs);
@@ -7011,8 +6442,8 @@ class KeyNotFoundException extends Error {
     }
   }
 }
-function concat_3(o){
-  let r=[];
+function concat_2(o){
+  const r=[];
   let k;
   for(var k_1 in o)r.push.apply(r, o[k_1]);
   return r;
@@ -7064,11 +6495,9 @@ function TryParse_2(s, min, max_1, r){
 function Children(elem, delims){
   let n;
   if(delims!=null&&delims.$==1){
-    const rdelim=delims.$0[1];
-    const ldelim=delims.$0[0];
     const a=[];
-    n=ldelim.nextSibling;
-    while(n!==rdelim)
+    n=delims.$0[0].nextSibling;
+    while(n!==delims.$0[1])
       {
         a.push(n);
         n=n.nextSibling;
@@ -7076,10 +6505,9 @@ function Children(elem, delims){
     return DomNodes(a);
   }
   else {
-    let _1=elem.childNodes.length;
+    const _1=elem.childNodes.length;
     const o=elem.childNodes;
-    let _2=init_3(_1, (i) => o[i]);
-    return DomNodes(_2);
+    return DomNodes(init_3(_1, (i) => o[i]));
   }
 }
 function Except_2(a, a_1){
@@ -7099,7 +6527,7 @@ function DocChildren(node){
           doc=d.Current;
         }
         else if(doc!=null&&doc.$==1)return q.push(doc.$0.El);
-        else if(doc==null)return null;
+        else if(doc==null)return;
         else if(doc!=null&&doc.$==5)return q.push(doc.$0);
         else if(doc!=null&&doc.$==4)return q.push(doc.$0.Text);
         else if(doc!=null&&doc.$==6){
