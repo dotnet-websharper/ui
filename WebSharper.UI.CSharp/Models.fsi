@@ -112,6 +112,7 @@ type ListModelExtensions =
     /// <param name="extract">Extract the underlying item from a wrapped item</param>
     /// <param name="wrap">Construct a wrapped item from an underlying item</param>
     /// <param name="update">Update a wrapped item's underlying data</param>
+    [<Extension>]
     static member Wrap<'K,'T,'V when 'K : equality>
         : model: ListModel<'K, 'T>
         * extract: Func<'V, 'T>
