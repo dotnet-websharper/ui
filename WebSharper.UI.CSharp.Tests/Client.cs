@@ -223,10 +223,13 @@ namespace WebSharper.UI.CSharp.Tests
 
             var testClassVar = Var.Create(new TestClass { X = "Hello from a field", P = "Hello from a property" });
             var testRecordVar = Var.Create(new TestRecord("Test", 42));
+            var arrayVar = Var.Create(new[] { "array item 1", "array item 2" });  // #316: DocSeqCached on View<T[]>
 
             div(
                 h1("My list of unique people"),
                 ul(people.View.DocSeqCached((string x) => li(x))),
+                ul(attr.id("arrayList"), arrayVar.View.DocSeqCached((string x) => li(x))),
+                ul(attr.id("arrayListKeyed"), arrayVar.View.DocSeqCached((string x) => x, (string x) => li(x))),
                 div(
                     input(newName, attr.placeholder("Name")),
                     button("Add", () =>

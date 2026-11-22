@@ -142,6 +142,27 @@ type DocExtension =
         (v: View<seq<'T>>, f: Func<'T, 'K>, g: Func<'K, View<'T>, Doc>) =
         Client.Doc.BindSeqCachedViewBy (FSharpConvert.Fun f) (FSharpConvert.Fun g) v
 
+    // Array overloads: View<T[]> does not convert to View<IEnumerable<T>> in C#.
+    [<Extension; Inline>]
+    static member DocSeqCached<'T when 'T : equality>
+        (v: View<'T[]>, f: Func<'T, Doc>) =
+        Client.Doc.BindSeqCached (FSharpConvert.Fun f) (View.Map (fun (a: 'T[]) -> a :> seq<'T>) v)
+
+    [<Extension; Inline>]
+    static member DocSeqCached<'T,'K when 'K : equality>
+        (v: View<'T[]>, f: Func<'T,'K>, g: Func<'T, Doc>) =
+        Client.Doc.BindSeqCachedBy (FSharpConvert.Fun f) (FSharpConvert.Fun g) (View.Map (fun (a: 'T[]) -> a :> seq<'T>) v)
+
+    [<Extension; Inline>]
+    static member DocSeqCached<'T when 'T : equality>
+        (v: View<'T[]>, f: Func<View<'T>, Doc>) =
+        Client.Doc.BindSeqCachedView (FSharpConvert.Fun f) (View.Map (fun (a: 'T[]) -> a :> seq<'T>) v)
+
+    [<Extension>]
+    static member DocSeqCached<'T,'K when 'K : equality>
+        (v: View<'T[]>, f: Func<'T, 'K>, g: Func<'K, View<'T>, Doc>) =
+        Client.Doc.BindSeqCachedViewBy (FSharpConvert.Fun f) (FSharpConvert.Fun g) (View.Map (fun (a: 'T[]) -> a :> seq<'T>) v)
+
     [<Extension>]
     static member DocLens<'T,'K when 'K : equality>
         (v: Var<list<'T>>, f: Func<'T, 'K>, g: Func<Var<'T>, Doc>) =
