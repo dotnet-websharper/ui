@@ -901,9 +901,20 @@ let private checkMappedHoles (items: ParseItem[]) =
          }
     )
 
+/// Tells whether the static argument of a template is inline HTML or a list of files,
+/// without reading them, so that the files can be watched even if parsing them fails.
+let GetParseKind (pathOrXml: string) =
+    if pathOrXml.Contains("<") then
+        ParseKind.Inline
+    else
+        pathOrXml.Split([|','|], StringSplitOptions.RemoveEmptyEntries)
+        |> Array.map (fun path -> path.Trim())
+        |> ParseKind.Files
+
 let Parse (pathOrXml: string) (rootFolder: string)
         (defaultServerLoad: ServerLoad) (defaultClientLoad: ClientLoad) =
-    if pathOrXml.Contains("<") then
+    match GetParseKind pathOrXml with
+    | ParseKind.Inline ->
         let tpl, clientLoad, serverLoad = ParseSource "" pathOrXml
         {
             ParseKind = ParseKind.Inline
@@ -919,15 +930,12 @@ let Parse (pathOrXml: string) (rootFolder: string)
                 |> checkMappedHoles
                 |> checkInstantiations
         }
-    else
-        let paths =
-            pathOrXml.Split([|','|], StringSplitOptions.RemoveEmptyEntries)
+    | ParseKind.Files paths ->
         {
             ParseKind = ParseKind.Files paths
             Items =
                 paths
                 |> Array.mapi (fun i path ->
-                    let path = path.Trim()
                     let rootedPath = Path.Combine(rootFolder, path)
                     let defaultClientLoad = if i = 0 then defaultClientLoad else ClientLoad.Inline
                     let templates, clientLoad, serverLoad = ParseSource (ParseItem.GetIdFromPath path) (File.ReadAllText rootedPath)
