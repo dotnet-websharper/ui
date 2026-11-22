@@ -21,6 +21,13 @@
         </template>
     </div>
     <div ws-dom="TestDom"></div>
+    <div id="bindTest">
+        <h2>Bound in place by ${BindTitle}</h2>
+        <input id="bindInput" ws-var="BindInput" />
+        <p id="bindEcho">You typed: ${BindInput}</p>
+        <button id="bindButton" type="button" ws-onclick="BindClick">Click</button>
+        <p id="bindClicks">${BindClicks}</p>
+    </div>
     <div id="tasksTitle"></div>
     <div id="tasks"></div>
     <script type="module" src="Content/WebSharper.UI.CSharp.Tests.js"></script>
