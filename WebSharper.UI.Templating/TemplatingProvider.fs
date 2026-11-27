@@ -807,7 +807,7 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
                     | [| :? string as pathOrHtml; ClientLoad clientLoad; ServerLoad serverLoad; LegacyMode legacyMode |] ->
                         pathOrHtml, clientLoad, serverLoad, legacyMode
                     | a -> failwithf "Unexpected parameter values: %A" a
-                let ty = //lazy (
+                let ty =
                     // watch the files before parsing them: if parsing fails, the compiler
                     // keeps the error until the type provider is invalidated (#311)
                     setupWatcher (Parsing.GetParseKind pathOrHtml)
@@ -825,8 +825,6 @@ type TemplatingProvider (cfg: TypeProviderConfig) as this =
                     | _ ->
                         BuildTP parsed.Items ty
                     ty
-                //)
-                //cache.AddOrGetExisting(typename, ty)
                 ty
             with e -> failwithf "%s %s" e.Message e.StackTrace
         )
