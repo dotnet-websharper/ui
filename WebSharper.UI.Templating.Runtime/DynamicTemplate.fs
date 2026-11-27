@@ -17,6 +17,17 @@
 // permissions and limitations under the License.
 //
 // $end{copyright}
+#if !IS_DESIGNTIME
+namespace WebSharper
+
+/// Marks this type provider assembly as thread-safe for the WebSharper F# compiler, which
+/// recognizes the attribute by its full name (dotnet-websharper/core#1697). Declared here so the
+/// runtime does not need a WebSharper release that defines it.
+[<Sealed; System.AttributeUsage(System.AttributeTargets.Assembly)>]
+type internal ThreadSafeTypeProviderAttribute() =
+    inherit System.Attribute()
+#endif
+
 namespace WebSharper.UI.Templating
 
 /// Create a template from the given HTML.
@@ -25,7 +36,11 @@ type DynamicTemplate(html: string) =
     inherit Runtime.Server.ProviderBuilder(html)
 
 #if !IS_DESIGNTIME
-// Put the TypeProviderAssemblyAttribute in the runtime DLL, pointing to the design-time DLL
+// Put the TypeProviderAssemblyAttribute in the runtime DLL, pointing to the design-time DLL.
+// The templating type provider builds new provided types for every instantiation and shares
+// no state between its instances, so the WebSharper F# compiler may run its two type checks
+// at the same time, emitting the assembly in parallel (dotnet-websharper/core#1697).
 [<assembly:CompilerServices.TypeProviderAssembly("WebSharper.UI.Templating.DesignTime.dll")>]
+[<assembly:WebSharper.ThreadSafeTypeProvider>]
 do ()
 #endif
