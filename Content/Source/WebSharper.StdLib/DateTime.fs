@@ -54,10 +54,12 @@ module private DateTimeHelpers =
 
     let AddYears(d: int, years) =
         let e = Date(d)
+        // Feb 29 + 1 year = Feb 28, like .NET
+        let daysInTarget = Date(e.GetFullYear() + years, e.GetMonth() + 1, 0).GetDate()
         Date(   
             e.GetFullYear() + years,
             e.GetMonth(),
-            e.GetDate(),
+            min (e.GetDate()) daysInTarget,
             e.GetHours(),
             e.GetMinutes(),
             e.GetSeconds(),
@@ -67,10 +69,12 @@ module private DateTimeHelpers =
 
     let AddMonths(d: int, months: int) =
         let e = Date(d)
+        // like .NET, the day is clamped to the length of the target month (Jan 31 + 1 month = Feb 28/29)
+        let daysInTarget = Date(e.GetFullYear(), e.GetMonth() + months + 1, 0).GetDate()
         Date(   
             e.GetFullYear(),
             e.GetMonth() + months,
-            e.GetDate(),
+            min (e.GetDate()) daysInTarget,
             e.GetHours(),
             e.GetMinutes(),
             e.GetSeconds(),
@@ -100,7 +104,32 @@ module private DateTimeHelpers =
     let LongTime (d: obj) = X<string>
 
     [<Direct "var d = new Date($y, $mo - 1, $d, $h, $m, $s, $ms); if ($y < 99) d.setFullYear($y); return d.getTime()">]
-    let Create(y: int, mo: int, d: int, h: int, m: int, s: int, ms: int) = X<DateTime>
+    let CreateUnchecked(y: int, mo: int, d: int, h: int, m: int, s: int, ms: int) = X<DateTime>
+
+    /// The constructor throws for components outside the calendar (2023-02-29, month 13, hour 24), as in .NET,
+    /// instead of rolling over into the next month or day.
+    let Validate(y: int, mo: int, d: int, h: int, m: int, s: int, ms: int) =
+        let leap = y % 4 = 0 && (y % 100 <> 0 || y % 400 = 0)
+        let days =
+            match mo with
+            | 2 -> if leap then 29 else 28
+            | 4 | 6 | 9 | 11 -> 30
+            | _ -> 31
+        if y < 1 || y > 9999 || mo < 1 || mo > 12 || d < 1 || d > days then
+            raise (System.ArgumentOutOfRangeException(null, "Year, Month, and Day parameters describe an un-representable DateTime."))
+        if h < 0 || h > 23 || m < 0 || m > 59 || s < 0 || s > 59 then
+            raise (System.ArgumentOutOfRangeException(null, "Hour, Minute, and Second parameters describe an un-representable DateTime."))
+        if ms < 0 || ms > 999 then
+            raise (System.ArgumentOutOfRangeException("millisecond", "Valid values are between 0 and 999, inclusive."))
+
+    let Create(y: int, mo: int, d: int, h: int, m: int, s: int, ms: int) =
+        Validate(y, mo, d, h, m, s, ms)
+        CreateUnchecked(y, mo, d, h, m, s, ms)
+
+    /// .NET ticks count 100 ns intervals of the wall-clock time from 0001-01-01; the value here is a UTC epoch of
+    /// the local time, so shift by the local offset first.
+    [<Direct "var t = $d - new Date($d).getTimezoneOffset() * 60000 + 62135596800000; return BigInt(Math.trunc(t)) * 10000n + BigInt(Math.round((t - Math.trunc(t)) * 1E4))">]
+    let Ticks (d: DateTime) = X<int64>
                 
 // DateTime is represented as an UTC epoch for remoting purposes.
 // Properties for getting sub-dates/times like Day or Hour convert it to local time on the client for easier display purposes.
@@ -123,6 +152,14 @@ type private DateTimeProxy =
     [<Inline; Pure>]
     static member CtorProxy (y: int, mo: int, d: int, h: int, m: int, s: int, ms: int) = 
         DateTimeHelpers.Create(y, mo, d, h, m, s, ms)
+
+    /// DateTimeKind.Utc: the components are UTC; otherwise local, like the constructor without a kind
+    [<Inline; Pure>]
+    static member CtorProxy (y: int, mo: int, d: int, h: int, m: int, s: int, kind: System.DateTimeKind) = 
+        if kind = System.DateTimeKind.Utc then
+            DateTimeHelpers.Validate(y, mo, d, h, m, s, 0)
+            As<D> (JS.Inline("(function (d) { if ($0 < 100) d.setUTCFullYear($0); return d.getTime(); })(new Date(Date.UTC($0, $1 - 1, $2, $3, $4, $5)))", y, mo, d, h, m, s))
+        else DateTimeHelpers.Create(y, mo, d, h, m, s, 0)
     
     static member Now
         with [<Inline "Date.now()">] get() = X<D>
@@ -169,8 +206,11 @@ type private DateTimeProxy =
     member this.DayOfWeek 
         with [<Inline; JavaScript>] get() = As<System.DayOfWeek>(Date(As<int> this).GetDay())
 
+    member this.DayOfYear
+        with [<Inline "(d => Math.round((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - Date.UTC(d.getFullYear(), 0, 1)) / 864e5) + 1)(new Date($this))">] get() = X<int>
+
     member this.Ticks
-        with [<Inline "BigInt(Math.trunc($this)) * BigInt(1E4) + BigInt(($this - Math.trunc($this)) * 1E4)">] get() = X<int64>
+        with [<Inline; JavaScript>] get() = DateTimeHelpers.Ticks(As<DateTime> this)
 
     [<Inline "$this + $t">]
     member this.Add(t: TS) = X<D>
@@ -234,11 +274,13 @@ type private DateTimeProxy =
             true
         | _ -> false    
 
+    /// 9999-12-31 23:59:59.999 local time (the server sends DateTime.MaxValue as that local time too)
     static member MaxValue
-        with [<Inline "8640000000000000">] get () = X<int>
+        with [<Inline; JavaScript>] get () = DateTimeHelpers.CreateUnchecked(9999, 12, 31, 23, 59, 59, 999)
 
+    /// 0001-01-01 00:00 local time, as the server sends DateTime.MinValue
     static member MinValue
-        with [<Inline "-8640000000000000">] get () = X<int>
+        with [<Inline; JavaScript>] get () = DateTimeHelpers.CreateUnchecked(1, 1, 1, 0, 0, 0, 0)
 
     [<Inline "$a + $b">]
     static member (+) (a: D, b: TS) = X<D>
@@ -398,3 +440,48 @@ type private DateTimeOffsetProxy [<Inline "{d: $d, o: $o}">] (d: D, o: int) =
 
     [<Inline "$a.d <= $b.d">]
     static member op_LessThanOrEqual (a: DO, b: DO) = X<bool>
+
+/// System.DateOnly: like a DateTime, the milliseconds of local midnight of that day
+[<Proxy(typeof<System.DateOnly>)>]
+[<Type "number">]
+type private DateOnlyProxy =
+
+    [<Inline "new Date($y, $m - 1, $d).getTime()">]
+    new (y: int, m: int, d: int) = {}
+
+    [<Inline>]
+    static member FromDateTime(dt: D) : System.DateOnly = As (DateTimeHelpers.DatePortion(As dt))
+
+    member this.Year with [<Inline; JavaScript>] get() = (As<D> this).Year
+    member this.Month with [<Inline; JavaScript>] get() = (As<D> this).Month
+    member this.Day with [<Inline; JavaScript>] get() = (As<D> this).Day
+    member this.DayOfWeek with [<Inline; JavaScript>] get() = (As<D> this).DayOfWeek
+    member this.DayOfYear with [<Inline; JavaScript>] get() = (As<D> this).DayOfYear
+    // by calendar day, so a DST change doesn't move the time of day
+    [<Inline "(d => new Date(d.getFullYear(), d.getMonth(), d.getDate() + $days).getTime())(new Date($this))">]
+    member this.AddDays(days: int) = X<System.DateOnly>
+
+    [<Inline>]
+    member this.AddMonths(months: int) : System.DateOnly = As ((As<D> this).AddMonths months)
+
+    [<Inline>]
+    member this.AddYears(years: int) : System.DateOnly = As ((As<D> this).AddYears years)
+
+    [<Inline>]
+    override this.ToString() : string = WebSharper.Formatting.FormatDateOnly (As this)
+
+    [<Inline>]
+    member this.ToString(format: string) : string = (As<D> this).ToString(format)
+
+    [<Inline "$a == $b">]
+    static member op_Equality (a: System.DateOnly, b: System.DateOnly) = X<bool>
+    [<Inline "$a != $b">]
+    static member op_Inequality (a: System.DateOnly, b: System.DateOnly) = X<bool>
+    [<Inline "$a < $b">]
+    static member op_LessThan (a: System.DateOnly, b: System.DateOnly) = X<bool>
+    [<Inline "$a > $b">]
+    static member op_GreaterThan (a: System.DateOnly, b: System.DateOnly) = X<bool>
+    [<Inline "$a <= $b">]
+    static member op_LessThanOrEqual (a: System.DateOnly, b: System.DateOnly) = X<bool>
+    [<Inline "$a >= $b">]
+    static member op_GreaterThanOrEqual (a: System.DateOnly, b: System.DateOnly) = X<bool>

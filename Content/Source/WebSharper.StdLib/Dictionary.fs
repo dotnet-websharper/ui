@@ -47,6 +47,23 @@ module internal DictionaryUtil =
     let getHashCode (c: IEqualityComparer<'T>) x =
         c.GetHashCode x
 
+    // Buckets by hash code in a JS Map: a Map enumerates in insertion order (a sparse array or object would
+    // enumerate integer keys in ascending order), so a dictionary or set enumerates in insertion order like .NET.
+    [<Inline "new Map()">]
+    let newBuckets () = X<obj>
+
+    [<Inline "$m.get($h)">]
+    let getBucket (m: obj) (h: int) = X<Array<'T>>
+
+    [<Inline "$m.set($h, $b)">]
+    let setBucket (m: obj) (h: int) (b: Array<'T>) = X<unit>
+
+    [<Inline "$m.delete($h)">]
+    let deleteBucket (m: obj) (h: int) = X<unit>
+
+    [<Inline "Array.prototype.concat.apply([], Array.from($m.values()))">]
+    let allItems (m: obj) = X<Array<'T>>
+
 open DictionaryUtil
 open System.Runtime.InteropServices
 
@@ -193,11 +210,11 @@ type internal Dictionary<'K,'V when 'K : equality>
              hash   : 'K -> int) =
 
         let mutable count = 0
-        let mutable data  = As<Array<Array<KVP<'K, 'V>>>> [||]
+        let mutable data  = newBuckets ()
 
         let get k =
             let h = hash k
-            let d = data.[h]
+            let d : Array<KVP<'K,'V>> = getBucket data h
             if d ==. null then
                 notPresent()
             else
@@ -207,10 +224,10 @@ type internal Dictionary<'K,'V when 'K : equality>
 
         let set k v =
             let h = hash k
-            let d = data.[h]
+            let d : Array<KVP<'K,'V>> = getBucket data h
             if d ==.null then
                 count <- count + 1
-                data.[h] <- Array(KVP(k, v))
+                setBucket data h (Array(KVP(k, v)))
             else
                 match d.Self |> Array.tryFindIndex (fun (KeyValue(dk, _)) -> equals.Call(dk, k)) with
                 | Some i ->
@@ -221,10 +238,10 @@ type internal Dictionary<'K,'V when 'K : equality>
                     
         let add k v =
             let h = hash k
-            let d = data.[h]
+            let d : Array<KVP<'K,'V>> = getBucket data h
             if d ==. null then
                 count <- count + 1
-                data.[h] <- Array(KVP(k, v))
+                setBucket data h (Array(KVP(k, v)))
             else
                 if d.Self |> Array.exists (fun (KeyValue(dk, _)) -> equals.Call(dk, k)) then
                     alreadyAdded()                    
@@ -233,14 +250,14 @@ type internal Dictionary<'K,'V when 'K : equality>
                     
         let remove k =
             let h = hash k 
-            let d = data.[h]
+            let d : Array<KVP<'K,'V>> = getBucket data h
             if d ==. null then
                 false
             else
                 let r = d.Self |> Array.filter (fun (KeyValue(dk, _)) -> not (equals.Call(dk, k)))
                 if r.Length < d.Length then                  
                     count <- count - 1
-                    data.[h] <- r.JS
+                    if r.Length = 0 then deleteBucket data h else setBucket data h r.JS
                     true
                 else
                     false
@@ -273,12 +290,19 @@ type internal Dictionary<'K,'V when 'K : equality>
             add k v
 
         member this.Clear() =
-            data <- Array()
+            data <- newBuckets ()
             count <- 0
+
+        /// adds the pair unless the key is already present
+        member this.TryAdd(k: 'K, v: 'V) =
+            if this.ContainsKey k then false
+            else
+                add k v
+                true
 
         member this.ContainsKey(k: 'K) =
             let h = hash k
-            let d = data.[h]
+            let d : Array<KVP<'K,'V>> = getBucket data h
             if d ==. null then
                 false
             else
@@ -298,8 +322,7 @@ type internal Dictionary<'K,'V when 'K : equality>
 
         [<Name("GetEnumerator")>]
         member this.GetEnumerator() = 
-            let s = JS.GetFieldValues data
-            As<D<'K,'V>.Enumerator> ((As<KeyValuePair<'K,'V>[][]> s |> Array.concat).GetEnumerator())
+            As<D<'K,'V>.Enumerator> ((As<KeyValuePair<'K,'V>[]> (allItems data)).GetEnumerator())
             
         interface System.Collections.IEnumerable with
             [<JavaScript(false)>]
@@ -405,7 +428,7 @@ type internal Dictionary<'K,'V when 'K : equality>
 
         member this.TryGetValue(k: 'K, [<Out>] res : byref<'V>) =
             let h = hash k
-            let d = data.[h]
+            let d : Array<KVP<'K,'V>> = getBucket data h
             if d ==. null then
                 false
             else
@@ -426,3 +449,25 @@ type internal Dictionary<'K,'V when 'K : equality>
         [<Name("Keys")>]
         member this.Keys =
             As<D<'K,'V>.KeyCollection>(KeyCollectionProxy(As<D<'K,'V>>this))
+
+/// System.Collections.Generic.CollectionExtensions (.NET Core 2.0+)
+[<Proxy "System.Collections.Generic.CollectionExtensions, netstandard">]
+type internal CollectionExtensionsProxy =
+
+    [<Inline>]
+    static member GetValueOrDefault<'K, 'V>(dictionary: IReadOnlyDictionary<'K, 'V>, key: 'K, defaultValue: 'V) : 'V =
+        match dictionary.TryGetValue key with
+        | true, v -> v
+        | _ -> defaultValue
+
+    [<Inline>]
+    static member GetValueOrDefault<'K, 'V>(dictionary: IReadOnlyDictionary<'K, 'V>, key: 'K) : 'V =
+        match dictionary.TryGetValue key with
+        | true, v -> v
+        | _ -> As<'V> null
+
+    static member TryAdd<'K, 'V>(dictionary: IDictionary<'K, 'V>, key: 'K, value: 'V) : bool =
+        if dictionary.ContainsKey key then false
+        else
+            dictionary.Add(key, value)
+            true

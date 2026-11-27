@@ -46,7 +46,7 @@ let GetArray2DLength2 (arr: 'T[,]) =  X<int>
 [<Name "checkBounds">]
 let checkBounds (arr: 'T[]) (n: int) =
     if n < 0 || n >= Array.length arr then
-        failwith "Index was outside the bounds of the array."
+        raise (new IndexOutOfRangeException())
 
 [<Name "checkBounds2D">]
 let checkBounds2D<'T> (arr: 'T[,]) (n1: int) (n2: int) =
@@ -57,7 +57,7 @@ let checkBounds2D<'T> (arr: 'T[,]) (n1: int) (n2: int) =
 [<Name "checkRange">]
 let checkRange (arr: 'T []) (start: int) (size: int) : unit =
     if (size < 0) || (start < 0) || (Array.length arr < start + size) then
-        failwith "Index was outside the bounds of the array."
+        raise (new ArgumentOutOfRangeException("count", "Index was outside the bounds of the array."))
 
 [<Inline "$arr[$n]"; Pure>]
 let GetArrayInternal<'T> (arr: 'T[]) (n:int) = X<'T>
@@ -134,7 +134,7 @@ let SetArray2DSub<'T> (dst: 'T[,]) src1 src2 len1 len2 (src: 'T[,]) =
 [<Name "length"; Pure >]
 let GetLength<'T> (arr: System.Array) =
     match arr?dims with
-    | 2 -> GetArray2DLength1 (As arr) * GetArray2DLength1 (As arr)
+    | 2 -> GetArray2DLength1 (As arr) * GetArray2DLength2 (As arr)
     | _ -> Array.length (As arr)
 
 [<Name "checkThis">]

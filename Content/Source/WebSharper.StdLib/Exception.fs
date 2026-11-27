@@ -58,6 +58,34 @@ type private IndexOutOfRangeExceptionProxy(message: string) =
 
     new () = IndexOutOfRangeExceptionProxy "Index was outside the bounds of the array."
 
+[<Proxy(typeof<System.DivideByZeroException>)>]
+[<Name "DivideByZeroException">]
+type private DivideByZeroExceptionProxy(message: string) =
+    inherit exn(message)
+
+    new () = DivideByZeroExceptionProxy "Attempted to divide by zero."
+
+[<Proxy(typeof<System.NullReferenceException>)>]
+[<Name "NullReferenceException">]
+type private NullReferenceExceptionProxy(message: string) =
+    inherit exn(message)
+
+    new () = NullReferenceExceptionProxy "Object reference not set to an instance of an object."
+
+[<Proxy(typeof<System.NotSupportedException>)>]
+[<Name "NotSupportedException">]
+type private NotSupportedExceptionProxy(message: string) =
+    inherit exn(message)
+
+    new () = NotSupportedExceptionProxy "Specified method is not supported."
+
+[<Proxy(typeof<System.NotImplementedException>)>]
+[<Name "NotImplementedException">]
+type private NotImplementedExceptionProxy(message: string) =
+    inherit exn(message)
+
+    new () = NotImplementedExceptionProxy "The method or operation is not implemented."
+
 [<Proxy(typeof<System.InvalidCastException>)>]
 [<Name "InvalidCastException">]
 type private InvalidCastExceptionProxy(message: string) =
@@ -86,13 +114,14 @@ type private OperationCanceledExceptionProxy(message: string, inner: exn, ct: CT
 
 [<Proxy(typeof<System.ArgumentException>)>]
 [<Name "ArgumentException">]
-type private ArgumentExceptionProxy(message: string) =
-    inherit exn(message)
-    
-    new () = ArgumentExceptionProxy "Value does not fall within the expected range."
+type private ArgumentExceptionProxy(message: string, paramName: string) =
+    inherit exn(if isNull paramName then message else message + " (Parameter '" + paramName + "')")
 
-    new (argumentName: string, message: string) =
-        ArgumentExceptionProxy (message + "\nParameter name: " + argumentName)
+    new () = ArgumentExceptionProxy("Value does not fall within the expected range.", null)
+
+    new (message: string) = ArgumentExceptionProxy(message, null)
+
+    member this.ParamName = paramName
 
 [<Proxy(typeof<System.ArgumentOutOfRangeException>)>]
 [<Name "ArgumentOutOfRangeException">]

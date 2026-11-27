@@ -57,9 +57,9 @@ function themeLabel(){
 }
 function greetingDemo(){
   const name=_c_1.Create_1("WebSharper");
-  const trimmed=Map((n) => Trim(n), name.View);
-  const greeting=Map((n) => n==""?"Hello, stranger!":"Hello, "+n+"!", trimmed);
-  return Doc.Element("div", [Class("demo")], [formField("Your name", Doc.Input([Attr.Create("class", "input"), Attr.Create("placeholder", "Type a name\u2026")], name)), Doc.Element("div", [Class("actions")], [Doc.Element("button", [Class("btn"), Handler("click", () =>() => name.Set("WebSharper"))], [Doc.TextNode("Reset")]), Doc.Element("button", [Class("btn btn-primary"), Handler("click", () =>() => name.Set("Reactive F#"))], [Doc.TextNode("Use an example")])]), Doc.Element("p", [Class("greeting"), DynamicClassPred("is-empty", Map((n) => n=="", trimmed))], [Doc.TextView(greeting)]), Doc.Element("span", [Class("pill")], [Doc.TextView(Map((n) => String(n.length)+" characters", name.View))])]);
+  const trimmed=Map_1((n) => Trim(n), name.View);
+  const greeting=Map_1((n) => n==""?"Hello, stranger!":"Hello, "+n+"!", trimmed);
+  return Doc.Element("div", [Class("demo")], [formField("Your name", Doc.Input([Attr.Create("class", "input"), Attr.Create("placeholder", "Type a name\u2026")], name)), Doc.Element("div", [Class("actions")], [Doc.Element("button", [Class("btn"), Handler("click", () =>() => name.Set("WebSharper"))], [Doc.TextNode("Reset")]), Doc.Element("button", [Class("btn btn-primary"), Handler("click", () =>() => name.Set("Reactive F#"))], [Doc.TextNode("Use an example")])]), Doc.Element("p", [Class("greeting"), DynamicClassPred("is-empty", Map_1((n) => n=="", trimmed))], [Doc.TextView(greeting)]), Doc.Element("span", [Class("pill")], [Doc.TextView(Map_1((n) => String(n.length)+" characters", name.View))])]);
 }
 function dataflowDemo(){
   const first=_c_1.Create_1("Ada");
@@ -67,10 +67,10 @@ function dataflowDemo(){
   const fullName=Map2((_1, _2) => Trim(Trim(_1)+" "+Trim(_2)), first.View, last.View);
   const complete=Map2((_1, _2) => Trim(_1)!=""&&Trim(_2)!="", first.View, last.View);
   const initials=Map2((_1, _2) => {
-    const initial=(s) => Trim(s)==""?"?":Substring(Trim(s), 0, 1).toUpperCase();
+    const initial=(s) => Trim(s)==""?"?":SubstringChecked(Trim(s), 0, 1).toUpperCase();
     return initial(_1)+initial(_2);
   }, first.View, last.View);
-  return Doc.Element("div", [Class("demo")], [Doc.Element("div", [Class("form-grid")], [formField("First name", Doc.Input([Attr.Create("class", "input")], first)), formField("Last name", Doc.Input([Attr.Create("class", "input")], last))]), Doc.Element("div", [Class("profile-card"), DynamicClassPred("is-complete", complete)], [Doc.Element("div", [Class("avatar")], [Doc.TextView(initials)]), Doc.Element("div", [Class("profile-text")], [Doc.Element("strong", [], [Doc.TextView(fullName)]), Doc.Element("p", [Class("hint")], [Doc.TextView(Map((ok) => ok?"Both fields are filled in \u2014 ready to submit.":"Fill in both fields to complete the profile.", complete))])])])]);
+  return Doc.Element("div", [Class("demo")], [Doc.Element("div", [Class("form-grid")], [formField("First name", Doc.Input([Attr.Create("class", "input")], first)), formField("Last name", Doc.Input([Attr.Create("class", "input")], last))]), Doc.Element("div", [Class("profile-card"), DynamicClassPred("is-complete", complete)], [Doc.Element("div", [Class("avatar")], [Doc.TextView(initials)]), Doc.Element("div", [Class("profile-text")], [Doc.Element("strong", [], [Doc.TextView(fullName)]), Doc.Element("p", [Class("hint")], [Doc.TextView(Map_1((ok) => ok?"Both fields are filled in \u2014 ready to submit.":"Fill in both fields to complete the profile.", complete))])])])]);
 }
 function listDemo(){
   const tasks=Create((t) => t.Name, ofArray([New("Reactive dataflow", _c_1.Create_1(true)), New("Keyed list rendering", _c_1.Create_1(false)), New("Type-safe DOM", _c_1.Create_1(false))]));
@@ -82,8 +82,8 @@ function listDemo(){
       newTask.Set("");
     }
   };
-  const doneCount=Map((flags) => length(filter_1((x) => x, flags)), Join(MapCached(Sequence, MapSeqCachedBy(tasks.key, (t) => t.Done.View, tasks.u0076ar.View))));
-  return Doc.Element("div", [Class("demo")], [Doc.Element("div", [Class("toolbar")], [Doc.Input([Attr.Create("class", "input"), Attr.Create("placeholder", "Add an item\u2026"), Handler("keydown", () =>(ev) => ev.key=="Enter"?addTask():void 0)], newTask), Doc.Element("button", [Class("btn btn-primary"), Handler("click", () =>() => addTask())], [Doc.TextNode("Add")]), Doc.Element("span", [Class("spacer")], []), Doc.Element("span", [Class("pill")], [Doc.TextView(Map((n) => String(n)+" item(s)", tasks.LengthAsView))]), Doc.Element("span", [Class("pill")], [Doc.TextView(Map((n) => String(n)+" done", doneCount))])]), Doc.Element("ul", [Class("task-list")], [Doc.ConvertBy(tasks.key, (t) => Doc.Element("li", [Class("task"), DynamicClassPred("is-done", t.Done.View)], [Doc.CheckBox([], t.Done), Doc.Element("span", [Class("task-name")], [Doc.TextNode(t.Name)]), Doc.Element("button", [Class("icon-btn"), Attr.Create("title", "Remove"), Handler("click", () =>() => tasks.RemoveByKey(t.Name))], [Doc.TextNode("×")])]), tasks.u0076ar.View)])]);
+  const doneCount=Map_1((flags) => length(filter_1((x) => x, flags)), Join(MapCached(Sequence, MapSeqCachedBy(tasks.key, (t) => t.Done.View, tasks.u0076ar.View))));
+  return Doc.Element("div", [Class("demo")], [Doc.Element("div", [Class("toolbar")], [Doc.Input([Attr.Create("class", "input"), Attr.Create("placeholder", "Add an item\u2026"), Handler("keydown", () =>(ev) => ev.key=="Enter"?addTask():void 0)], newTask), Doc.Element("button", [Class("btn btn-primary"), Handler("click", () =>() => addTask())], [Doc.TextNode("Add")]), Doc.Element("span", [Class("spacer")], []), Doc.Element("span", [Class("pill")], [Doc.TextView(Map_1((n) => String(n)+" item(s)", tasks.LengthAsView))]), Doc.Element("span", [Class("pill")], [Doc.TextView(Map_1((n) => String(n)+" done", doneCount))])]), Doc.Element("ul", [Class("task-list")], [Doc.ConvertBy(tasks.key, (t) => Doc.Element("li", [Class("task"), DynamicClassPred("is-done", t.Done.View)], [Doc.CheckBox([], t.Done), Doc.Element("span", [Class("task-name")], [Doc.TextNode(t.Name)]), Doc.Element("button", [Class("icon-btn"), Attr.Create("title", "Remove"), Handler("click", () =>() => tasks.RemoveByKey(t.Name))], [Doc.TextNode("×")])]), tasks.u0076ar.View)])]);
 }
 function animationDemo(){
   const position=_c_1.Create_1(0);
@@ -93,7 +93,7 @@ function animationDemo(){
   const a_2=get_Double();
   const cubic=(s) =>(e) => Simple(a_2, Easing.CubicInOut, 360, s, e);
   const transition=Exit((x) =>(cubic(x))(x+18), Enter((x) =>(cubic(x-18))(x), Create_1((_1, _2) =>(linear(_1))(_2))));
-  return Doc.Element("div", [Class("demo")], [Doc.Element("div", [Class("stage")], [Doc.Element("div", [Class("slider"), AnimatedStyle("left", transition, position.View, (p) => p.toFixed(1)+"%")], [Doc.TextView(Map((p) => p>0?"On":"Off", position.View))])]), Doc.Element("div", [Class("actions")], [Doc.Element("button", [Class("btn btn-primary"), Handler("click", () =>() => position.Set(position.Get()>0?0:55))], [Doc.TextNode("Toggle position")])]), Doc.Element("p", [Class("hint")], [Doc.TextNode("Driven by Attr.AnimatedStyle with a Trans built from Anim.Simple and Easing.CubicInOut.")])]);
+  return Doc.Element("div", [Class("demo")], [Doc.Element("div", [Class("stage")], [Doc.Element("div", [Class("slider"), AnimatedStyle("left", transition, position.View, (p) => p.toFixed(1)+"%")], [Doc.TextView(Map_1((p) => p>0?"On":"Off", position.View))])]), Doc.Element("div", [Class("actions")], [Doc.Element("button", [Class("btn btn-primary"), Handler("click", () =>() => position.Set(position.Get()>0?0:55))], [Doc.TextNode("Toggle position")])]), Doc.Element("p", [Class("hint")], [Doc.TextNode("Driven by Attr.AnimatedStyle with a Trans built from Anim.Simple and Easing.CubicInOut.")])]);
 }
 function formDemo(){
   const settings=_c_1.Create_1(New_1(New_2("Ada Lovelace", "2026-11-21"), "#4f46e5", 70, true));
@@ -107,7 +107,7 @@ function formDemo(){
   const subscribe=_c_1.Lens(settings, (s) => s.Subscribe, (_1, _2) => New_1(_1.Profile, _1.Accent, _1.Volume, _2));
   const accentView=accent.View;
   const settingsView=settings.View;
-  return Doc.Element("div", [Class("demo")], [Doc.Element("div", [Class("form-grid")], [formField("Display name", Doc.Input([Attr.Create("class", "input")], displayName)), formField("Accent", Doc.ColorInput([Attr.Create("class", "input color-input")], accent)), formField("Password", Doc.PasswordBox([Attr.Create("class", "input")], password)), formField("Sign-up date", Doc.DateInput([Attr.Create("class", "input")], date)), formField("Volume", Doc.Element("div", [Class("range-row")], [Doc.RangeInput([Class("range")], volume), Doc.Element("span", [Class("pill")], [Doc.TextView(Map((v) => String(v)+"%", volume.View))])])), formField("Plan", Doc.Select([Attr.Create("class", "input")], planText, ofArray([Free, Pro, Team]), plan)), formField("Notifications", Doc.Element("label", [Class("check")], [Doc.CheckBox([], subscribe), Doc.TextNode("Email me about updates")])), formField("Attachments", Doc.Element("div", [Class("range-row")], [Doc.FileInput([Class("file-input")], files), Doc.Element("span", [Class("pill")], [Doc.TextView(Map((fs) => String(length_1(fs))+" file(s)", files.View))])]))]), Doc.Element("div", [Class("preview-card"), DynamicStyle("border-color", accentView), DynamicStyle("background", Map((c) => c+"18", accentView))], [Doc.Element("span", [Class("preview-accent"), DynamicStyle("background", accentView)], []), Doc.Element("div", [], [Doc.Element("strong", [], [Doc.TextView(Map((s) => Trim(s.Profile.DisplayName)==""?"Unnamed profile":s.Profile.DisplayName, settingsView))]), Doc.Element("p", [Class("hint")], [Doc.TextView(Map2((_1, _2) => toSafe(planText(_2))+" plan · volume "+String(_1.Volume)+"% · "+toSafe(_1.Subscribe?"notifications on":"notifications off"), settingsView, plan.View))]), Doc.Element("p", [Class("hint")], [Doc.TextView(Map2((_1, _2) => _1.length===0?"No password set.":String(_1.length)+"-character password · date "+toSafe(_2), password.View, date.View))])])])]);
+  return Doc.Element("div", [Class("demo")], [Doc.Element("div", [Class("form-grid")], [formField("Display name", Doc.Input([Attr.Create("class", "input")], displayName)), formField("Accent", Doc.ColorInput([Attr.Create("class", "input color-input")], accent)), formField("Password", Doc.PasswordBox([Attr.Create("class", "input")], password)), formField("Sign-up date", Doc.DateInput([Attr.Create("class", "input")], date)), formField("Volume", Doc.Element("div", [Class("range-row")], [Doc.RangeInput([Class("range")], volume), Doc.Element("span", [Class("pill")], [Doc.TextView(Map_1((v) => String(v)+"%", volume.View))])])), formField("Plan", Doc.Select([Attr.Create("class", "input")], planText, ofArray([Free, Pro, Team]), plan)), formField("Notifications", Doc.Element("label", [Class("check")], [Doc.CheckBox([], subscribe), Doc.TextNode("Email me about updates")])), formField("Attachments", Doc.Element("div", [Class("range-row")], [Doc.FileInput([Class("file-input")], files), Doc.Element("span", [Class("pill")], [Doc.TextView(Map_1((fs) => String(length_1(fs))+" file(s)", files.View))])]))]), Doc.Element("div", [Class("preview-card"), DynamicStyle("border-color", accentView), DynamicStyle("background", Map_1((c) => c+"18", accentView))], [Doc.Element("span", [Class("preview-accent"), DynamicStyle("background", accentView)], []), Doc.Element("div", [], [Doc.Element("strong", [], [Doc.TextView(Map_1((s) => Trim(s.Profile.DisplayName)==""?"Unnamed profile":s.Profile.DisplayName, settingsView))]), Doc.Element("p", [Class("hint")], [Doc.TextView(Map2((_1, _2) => toSafe(planText(_2))+" plan · volume "+String(_1.Volume)+"% · "+toSafe(_1.Subscribe?"notifications on":"notifications off"), settingsView, plan.View))]), Doc.Element("p", [Class("hint")], [Doc.TextView(Map2((_1, _2) => _1.length===0?"No password set.":String(_1.length)+"-character password · date "+toSafe(_2), password.View, date.View))])])])]);
 }
 function popoverDemo(){
   return Doc.Element("div", [Class("demo")], [Doc.Element("button", [Class("btn btn-primary"), Attr.Create("popovertarget", "demo-popover-panel"), Attr.Create("popovertargetaction", "toggle")], [Doc.TextNode("Toggle popover")]), Doc.Element("div", [Attr.Create("id", "demo-popover-panel"), Attr.Create("popover", "auto"), Class("popover-card")], [Doc.Element("h3", [], [Doc.TextNode("Native popovers")]), Doc.Element("p", [], [Doc.TextNode("A top-layer element toggled declaratively with "), Doc.Element("code", [], [Doc.TextNode("popovertarget")]), Doc.TextNode(".")])]), Doc.Element("p", [Class("hint")], [Doc.TextNode("Click the button to open the panel; click outside it (or press Escape) to dismiss.")])]);
@@ -186,7 +186,7 @@ function selectedIndices(el){
   const options=el.querySelectorAll("option");
   const l=FSharpList.Cons(void 0, void 0);
   let last=l;
-  for(const i of Iter_1(range(0, options.length-1)))if(options[i].selected){
+  for(const i of Iter_1(range(0, options.length-1|0)))if(options[i].selected){
     const c=FSharpList.Cons(i, void 0);
     last.$1=c;
     last=c;
@@ -282,6 +282,9 @@ function range(min, max_1){
   const count=1+max_1-min;
   return count<=0?[]:init_1(count, (x) => x+min);
 }
+function toStr(x){
+  return x==null?"":typeof x=="boolean"?x?"True":"False":String(x);
+}
 function KeyValue(kvp){
   return[kvp.K, kvp.V];
 }
@@ -300,12 +303,6 @@ function RunTests(tests){
       if(typeof e=="object"&&isIDisposable(e))e.Dispose();
     }
   });
-}
-function GetFieldValues(o){
-  const r=[];
-  let k;
-  for(var k_1 in o)r.push(o[k_1]);
-  return r;
 }
 function Equals(a, b){
   if(a===b)return true;
@@ -345,7 +342,7 @@ function arrayEquals(a, b){
     while(eq&&i<length_1(a))
       {
         !Equals(get(a, i), get(b, i))?eq=false:void 0;
-        i=i+1;
+        i=i+1|0;
       }
     return eq;
   }
@@ -356,7 +353,7 @@ function dateEquals(a, b){
 }
 function Hash(o){
   const m=typeof o;
-  return m=="function"?0:m=="boolean"?o?1:0:m=="number"?o:m=="string"?hashString(o):m=="object"?o==null?0:o instanceof Array?hashArray(o):hashObject(o):m=="bigint"?hashString(String(o)):m=="symbol"?hashString(o.description):0;
+  return m=="function"?0:m=="boolean"?o?1:0:m=="number"?o:m=="string"?hashString(o):m=="object"?o==null?0:o instanceof Array?hashArray(o):hashObject(o):m=="bigint"?hashString(toStr(o)):m=="symbol"?hashString(o.description):0;
 }
 function Compare(a, b){
   if(a===b)return 0;
@@ -366,7 +363,7 @@ function Compare(a, b){
       case 0:
         return typeof b=="undefined"?0:-1;
       case 1:
-        return a<b?-1:1;
+        return a<b?-1:a>b?1:a===a?1:b===b?-1:0;
       case 2:
         if(a===null)return -1;
         else if(b===null)return 1;
@@ -397,13 +394,13 @@ function hashString(s){
   if(s===null)return 0;
   else {
     hash=5381;
-    for(let i=0, _1=s.length-1;i<=_1;i++)hash=hashMix(hash, s[i].charCodeAt());
+    for(let i=0, _1=s.length-1|0;i<=_1;i++)hash=hashMix(hash, s[i].charCodeAt());
     return hash;
   }
 }
 function hashArray(o){
   let h=-34948909;
-  for(let i=0, _1=length_1(o)-1;i<=_1;i++)h=hashMix(h, Hash(get(o, i)));
+  for(let i=0, _1=length_1(o)-1|0;i<=_1;i++)h=hashMix(h, Hash(get(o, i)));
   return h;
 }
 function hashObject(o){
@@ -429,7 +426,7 @@ function compareArrays(a, b){
     while(cmp===0&&i<length_1(a))
       {
         cmp=Compare(get(a, i), get(b, i));
-        i=i+1;
+        i=i+1|0;
       }
     return cmp;
   }
@@ -438,7 +435,7 @@ function compareDates(a, b){
   return Compare(a.getTime(), b.getTime());
 }
 function hashMix(x, y){
-  return(x<<5)+x+y;
+  return((x<<5)+x|0)+y|0;
 }
 class Var extends Object_1 { }
 function LoadLocalTemplates(baseName){
@@ -455,26 +452,26 @@ function LoadNestedTemplates(root, baseName){
   const loadedTpls=LoadedTemplateFile(baseName);
   const rawTpls=new Dictionary("New_5");
   const wsTemplates=root.querySelectorAll("[ws-template]");
-  for(let i=0, _1=wsTemplates.length-1;i<=_1;i++){
+  for(let i=0, _1=wsTemplates.length-1|0;i<=_1;i++){
     const node=wsTemplates[i];
     const name=node.getAttribute("ws-template").toLowerCase();
     node.removeAttribute("ws-template");
     rawTpls.set_Item(name, FakeRootSingle(node));
   }
   const wsChildrenTemplates=root.querySelectorAll("[ws-children-template]");
-  for(let i_1=0, _2=wsChildrenTemplates.length-1;i_1<=_2;i_1++){
+  for(let i_1=0, _2=wsChildrenTemplates.length-1|0;i_1<=_2;i_1++){
     const node_1=wsChildrenTemplates[i_1];
     const name_1=node_1.getAttribute("ws-children-template").toLowerCase();
     node_1.removeAttribute("ws-children-template");
     rawTpls.set_Item(name_1, FakeRoot(node_1));
   }
   const html5TemplateBasedTemplates=root.querySelectorAll("template[id]");
-  for(let i_2=0, _3=html5TemplateBasedTemplates.length-1;i_2<=_3;i_2++){
+  for(let i_2=0, _3=html5TemplateBasedTemplates.length-1|0;i_2<=_3;i_2++){
     const node_2=html5TemplateBasedTemplates[i_2];
     rawTpls.set_Item(node_2.getAttribute("id").toLowerCase(), FakeRootFromHTMLTemplate(node_2));
   }
   const html5TemplateBasedTemplates_1=root.querySelectorAll("template[name]");
-  for(let i_3=0, _4=html5TemplateBasedTemplates_1.length-1;i_3<=_4;i_3++){
+  for(let i_3=0, _4=html5TemplateBasedTemplates_1.length-1|0;i_3<=_4;i_3++){
     const node_3=html5TemplateBasedTemplates_1[i_3];
     rawTpls.set_Item(node_3.getAttribute("name").toLowerCase(), FakeRootFromHTMLTemplate(node_3));
   }
@@ -543,7 +540,7 @@ function FakeRoot(parent){
 function FakeRootFromHTMLTemplate(parent){
   const fakeroot=globalThis.document.createElement("div");
   const content=parent.content;
-  for(let i=0, _1=content.childNodes.length-1;i<=_1;i++)fakeroot.appendChild(content.childNodes[i].cloneNode(true));
+  for(let i=0, _1=content.childNodes.length-1|0;i<=_1;i++)fakeroot.appendChild(content.childNodes[i].cloneNode(true));
   return fakeroot;
 }
 function PrepareTemplateStrict(baseName, name, fakeroot, prepareLocalTemplate){
@@ -563,7 +560,7 @@ function PrepareTemplateStrict(baseName, name, fakeroot, prepareLocalTemplate){
         case 1:
           const name_2=string(_1.nodeName, Some(3), null).toLowerCase();
           const m=name_2.indexOf(".");
-          const p=m===-1?[baseName, name_2]:[string(name_2, null, Some(m-1)), string(name_2, Some(m+1), null)];
+          const p=m===-1?[baseName, name_2]:[string(name_2, null, Some(m-1|0)), string(name_2, Some(m+1|0), null)];
           const instName=p[1];
           const instBaseName=p[0];
           if(instBaseName!=""&&!LoadedTemplates().ContainsKey(instBaseName))return failNotLoaded(instName);
@@ -577,13 +574,13 @@ function PrepareTemplateStrict(baseName, name, fakeroot, prepareLocalTemplate){
               const usedHoles=new HashSet("New_3");
               const mappings=new Dictionary("New_5");
               const attrs=_1.attributes;
-              for(let i=0, _2=attrs.length-1;i<=_2;i++){
+              for(let i=0, _2=attrs.length-1|0;i<=_2;i++){
                 const name_3=attrs.item(i).name.toLowerCase();
                 const m_1=attrs.item(i).nodeValue;
                 mappings.set_Item(name_3, m_1==""?name_3:m_1.toLowerCase());
                 if(!usedHoles.SAdd(name_3))console.warn("Hole mapped twice", name_3);
               }
-              for(let i_1=0, _3=_1.childNodes.length-1;i_1<=_3;i_1++){
+              for(let i_1=0, _3=_1.childNodes.length-1|0;i_1<=_3;i_1++){
                 const n=_1.childNodes[i_1];
                 if(Equals(n.nodeType, Node.ELEMENT_NODE))if(!usedHoles.SAdd(n.nodeName.toLowerCase()))console.warn("Hole filled twice", instName);
               }
@@ -599,7 +596,7 @@ function PrepareTemplateStrict(baseName, name, fakeroot, prepareLocalTemplate){
               }
               removeHolesExcept(instance, usedHoles);
               if(!singleTextFill){
-                for(let i_2=0, _4=_1.childNodes.length-1;i_2<=_4;i_2++){
+                for(let i_2=0, _4=_1.childNodes.length-1|0;i_2<=_4;i_2++){
                   const n_1=_1.childNodes[i_2];
                   if(Equals(n_1.nodeType, Node.ELEMENT_NODE))if(n_1.hasAttributes())fillInstanceAttrs(instance, n_1);
                   else fillDocHole(instance, n_1);
@@ -628,7 +625,7 @@ function PrepareTemplateStrict(baseName, name, fakeroot, prepareLocalTemplate){
     };
     foreachNotPreserved(instance, "[ws-attr-holes]", (e) => {
       const holeAttrs=SplitChars(e.getAttribute("ws-attr-holes"), [" "], 1);
-      for(let i=0, _1=holeAttrs.length-1;i<=_1;i++){
+      for(let i=0, _1=holeAttrs.length-1|0;i<=_1;i++){
         const attrName=get(holeAttrs, i);
         const this_1=new RegExp("\\${"+name_2+"}", "ig");
         const str=e.getAttribute(attrName);
@@ -677,7 +674,7 @@ function PrepareTemplateStrict(baseName, name, fakeroot, prepareLocalTemplate){
           const m_1=el.querySelector("[ws-children-template]");
           if(Equals(m_1, null)){
             const idTemplates=el.querySelectorAll("template[id]");
-            for(let i=1, _1=idTemplates.length-1;i<=_1;i++){
+            for(let i=1, _1=idTemplates.length-1|0;i<=_1;i++){
               const n=idTemplates[i];
               if(!processedHTML5Templates.Contains(n)){
                 PrepareTemplateStrict(baseName, Some(n.getAttribute("id")), n, null);
@@ -685,7 +682,7 @@ function PrepareTemplateStrict(baseName, name, fakeroot, prepareLocalTemplate){
               }
             }
             const nameTemplates=el.querySelectorAll("template[name]");
-            for(let i_1=1, _2=nameTemplates.length-1;i_1<=_2;i_1++){
+            for(let i_1=1, _2=nameTemplates.length-1|0;i_1<=_2;i_1++){
               const n_1=nameTemplates[i_1];
               if(!processedHTML5Templates.Contains(n_1)){
                 PrepareTemplateStrict(baseName, Some(n_1.getAttribute("name")), n_1, null);
@@ -925,7 +922,7 @@ function InlineTemplate(el, fillWith){
     const re=new RegExp(TextHoleRE(), "g");
     const holeAttrs=SplitChars(e_1.getAttribute("ws-attr-holes"), [" "], 1);
     e_1.removeAttribute("ws-attr-holes");
-    for(let i=0, _6=holeAttrs.length-1;i<=_6;i++){
+    for(let i=0, _6=holeAttrs.length-1|0;i<=_6;i++){
       let _5;
       const attrName=get(holeAttrs, i);
       const s=e_1.getAttribute(attrName);
@@ -934,7 +931,7 @@ function InlineTemplate(el, fillWith){
       const res=[];
       while(m=re.exec(s),m!==null)
         {
-          const textBefore=string(s, Some(lastIndex), Some(re.lastIndex-get(m, 0).length-1));
+          const textBefore=string(s, Some(lastIndex), Some((re.lastIndex-get(m, 0).length|0)-1|0));
           lastIndex=re.lastIndex;
           res.push([textBefore, get(m, 1)]);
         }
@@ -951,7 +948,7 @@ function InlineTemplate(el, fillWith){
             o=v;
           }}), o];
           const holeContent=m_1[0]?m_1[1].AsChoiceView:Choice1Of2("");
-          return holeContent.$==1?[textBefore_1, FSharpList.Cons(textAfter==""?holeContent.$0:Map((s_5) => s_5+textAfter, holeContent.$0), views)]:[textBefore_1+holeContent.$0+textAfter, views];
+          return holeContent.$==1?[textBefore_1, FSharpList.Cons(textAfter==""?holeContent.$0:Map_1((s_5) => s_5+textAfter, holeContent.$0), views)]:[textBefore_1+holeContent.$0+textAfter, views];
         };
       })(_7))(_8), res, [finalText, FSharpList.Empty]);
       if(value[1].$==1){
@@ -963,7 +960,7 @@ function InlineTemplate(el, fillWith){
             }
             else {
               const s_2=value[0];
-              _5=Dynamic(attrName, Map((vs) => s_2+concat("", vs), Sequence(value[1])));
+              _5=Dynamic(attrName, Map_1((vs) => s_2+concat("", vs), Sequence(value[1])));
             }
           }
           else {
@@ -974,7 +971,7 @@ function InlineTemplate(el, fillWith){
         else if(value[0]=="")_5=Dynamic(attrName, value[1].$0);
         else {
           const s_4=value[0];
-          _5=Dynamic(attrName, Map((v) => s_4+v, value[1].$0));
+          _5=Dynamic(attrName, Map_1((v) => s_4+v, value[1].$0));
         }
       }
       else _5=Attr.Create(attrName, value[0]);
@@ -1030,7 +1027,7 @@ class Doc extends Object_1 {
   }
   static TextView(txt){
     const node=CreateTextNode();
-    return Doc.Mk(TextDoc(node), Map((t) => {
+    return Doc.Mk(TextDoc(node), Map_1((t) => {
       UpdateTextNode(node, t);
     }, txt));
   }
@@ -1077,7 +1074,7 @@ class Doc extends Object_1 {
     return new Doc(node, updates);
   }
   static BindView(f, view){
-    return Doc.EmbedView(Map(f, view));
+    return Doc.EmbedView(Map_1(f, view));
   }
   static InputArea(attr_1, var_1){
     return Doc.InputInternal("textarea", () => append_1(attr_1, [Value(var_1)]));
@@ -1098,7 +1095,7 @@ class Doc extends Object_1 {
   static Radio(attrs, value, var_1){
     const el=globalThis.document.createElement("input");
     el.addEventListener("click", () => var_1.Set(value), false);
-    const valAttr=DynamicProp("checked", Map((x) => Equals(x, value), var_1.View));
+    const valAttr=DynamicProp("checked", Map_1((x) => Equals(x, value), var_1.View));
     const _____=Attr.Create;
     return Elt_1.New(el, Attr.Concat(append(ofArray([_____("type", "radio"), _____("name", var_1.Id), valAttr]), ofSeq(attrs))), Doc.Empty);
   }
@@ -1110,7 +1107,7 @@ class Doc extends Object_1 {
   }
   static EmbedView(view){
     const node=CreateEmbedNode();
-    return Doc.Mk(EmbedDoc(node), Map(() => { }, Bind((doc) => {
+    return Doc.Mk(EmbedDoc(node), Map_1(() => { }, Bind((doc) => {
       UpdateEmbedNode(node, doc.docNode);
       return doc.updates;
     }, view)));
@@ -1154,7 +1151,7 @@ class Doc extends Object_1 {
     const options=[FSharpList.Empty];
     const setSelectedItem=(el_1, item) => {
       const options_=el_1.options;
-      for(let i=0, _1=options_.length-1;i<=_1;i++){
+      for(let i=0, _1=options_.length-1|0;i<=_1;i++){
         const option=options_.item(i);
         option.selected=contains(options[0].get_Item(option.index), item);
       }
@@ -1165,7 +1162,7 @@ class Doc extends Object_1 {
       const selectedOptions=el.selectedOptions;
       const l=FSharpList.Cons(void 0, void 0);
       let last=l;
-      for(const i of Iter_1(range(0, selectedOptions.length-1))){
+      for(const i of Iter_1(range(0, selectedOptions.length-1|0))){
         const option=selectedOptions.item(i);
         const c=FSharpList.Cons(options[0].get_Item(option.index), void 0);
         last.$1=c;
@@ -1180,7 +1177,7 @@ class Doc extends Object_1 {
     }), AppendTree(selectedItemAttr, Attr.Concat(attrs)))), optionElements(options));
   }
   static Flatten(view){
-    return Doc.EmbedView(Map((x) => Doc.Concat(x), view));
+    return Doc.EmbedView(Map_1((x) => Doc.Concat(x), view));
   }
   static Clickable(elem, action){
     const el=globalThis.document.createElement(elem);
@@ -1279,15 +1276,15 @@ let _c=Lazy((_i) => class $StartupCode_Main {
     const v=_c_1.Create_1(New_3(0, 0, 0));
     function f(n){
       const w=v.Get();
-      v.Set(New_3(w.i+1, n, n-w.n));
+      v.Set(New_3(w.i+1|0, n, n-w.n));
       requestAnimationFrame((x) => {
-        m=m+1;
+        m=m+1|0;
         f(x);
       });
     }
     const unchanging=_c_1.Create_1("unchanging");
     requestAnimationFrame(f);
-    const _1=Doc.Element("div", [Class("metrics")], [Doc.Element("div", [Class("metric")], [Doc.Element("span", [Class("metric-label")], [Doc.TextNode("Frame")]), Doc.Element("span", [Class("metric-value")], [Doc.TextView(Map((t) => String(t.i), v.View))])]), Doc.Element("div", [Class("metric")], [Doc.Element("span", [Class("metric-label")], [Doc.TextNode("Started")]), Doc.Element("span", [Class("metric-value")], [Doc.TextView(Map((t) => t.n.toFixed(1), v.View))])]), Doc.Element("div", [Class("metric")], [Doc.Element("span", [Class("metric-label")], [Doc.TextNode("Last frame")]), Doc.Element("span", [Class("metric-value")], [Doc.TextView(Map((t) => t.d.toFixed(1)+" ms", v.View))])]), Doc.Element("div", [Style("display", "none")], [Doc.TextView(unchanging.View)])]);
+    const _1=Doc.Element("div", [Class("metrics")], [Doc.Element("div", [Class("metric")], [Doc.Element("span", [Class("metric-label")], [Doc.TextNode("Frame")]), Doc.Element("span", [Class("metric-value")], [Doc.TextView(Map_1((t) => String(t.i), v.View))])]), Doc.Element("div", [Class("metric")], [Doc.Element("span", [Class("metric-label")], [Doc.TextNode("Started")]), Doc.Element("span", [Class("metric-value")], [Doc.TextView(Map_1((t) => t.n.toFixed(1), v.View))])]), Doc.Element("div", [Class("metric")], [Doc.Element("span", [Class("metric-label")], [Doc.TextNode("Last frame")]), Doc.Element("span", [Class("metric-value")], [Doc.TextView(Map_1((t) => t.d.toFixed(1)+" ms", v.View))])]), Doc.Element("div", [Style("display", "none")], [Doc.TextView(unchanging.View)])]);
     LoadLocalTemplates("");
     Doc.RunById("stresstest", _1);
     const _2=TestCategory("Var");
@@ -1295,8 +1292,8 @@ let _c=Lazy((_i) => class $StartupCode_Main {
       Test("Create").Run(Runner.Yield([_c_1.Create_1(1), _c_1.Create_1("a")]).Expect(() => 0));
       Test("CreateWaiting").Run(Runner.Yield(_c_1.CreateWaiting()).EqualMsg((rv_3) => rv_3.Get(), () => null, "initial").For((a) => {
         const count=[0];
-        const m_1=Map((x) => {
-          count[0]=count[0]+1;
+        const m_1=Map_1((x) => {
+          count[0]=count[0]+1|0;
           return x==null?"wrong":x+"!";
         }, a.View);
         a.Set("hi");
@@ -1311,7 +1308,7 @@ let _c=Lazy((_i) => class $StartupCode_Main {
       }).EqualMsg((rv_3) => rv_3.Get(), () => 35, "Var.Set"));
       const _11=Test("Update");
       const rv=_c_1.Create_1(4);
-      _c_1.Update(rv, (y) => 16+y);
+      _c_1.Update(rv, (y) => 16+y|0);
       _11.Run(Runner.Yield(rv).Equal((rv_3) => rv_3.Get(), () => 20));
       const _12=Test("SetFinal");
       const rv_1=_c_1.Create_1(5);
@@ -1347,119 +1344,119 @@ let _c=Lazy((_i) => class $StartupCode_Main {
       const _13=Test("Map");
       const count=[0];
       const rv_1=_c_1.Create_1(7);
-      _13.Run(Runner.Yield([count, rv_1, GetAsync(Map((x) => {
-        count[0]=count[0]+1;
-        return x+15;
-      }, rv_1.View))]).EqualMsgAsync((t) => t[2], () => 7+15, "initial").For((a_1) => {
+      _13.Run(Runner.Yield([count, rv_1, GetAsync(Map_1((x) => {
+        count[0]=count[0]+1|0;
+        return x+15|0;
+      }, rv_1.View))]).EqualMsgAsync((t) => t[2], () => 7+15|0, "initial").For((a_1) => {
         const rv_7=a_1[1];
         rv_7.Set(23);
         return Runner.Yield([a_1[0], rv_7, a_1[2]]);
-      }).EqualMsgAsync((t) => t[2], () => 23+15, "after set").EqualMsg((t) => t[0][0], () => 2, "function call count"));
+      }).EqualMsgAsync((t) => t[2], () => 23+15|0, "after set").EqualMsg((t) => t[0][0], () => 2, "function call count"));
       const _14=Test("MapCached");
       const count_1=[0];
       const rv_2=_c_1.Create_1(9);
       _14.Run(Runner.Yield([count_1, rv_2, GetAsync(MapCached((x) => {
-        count_1[0]=count_1[0]+1;
-        return x+21;
-      }, rv_2.View))]).EqualMsgAsync((t) => t[2], () => 9+21, "initial").For((a_1) => {
+        count_1[0]=count_1[0]+1|0;
+        return x+21|0;
+      }, rv_2.View))]).EqualMsgAsync((t) => t[2], () => 9+21|0, "initial").For((a_1) => {
         const rv_7=a_1[1];
         rv_7.Set(66);
         return Runner.Yield([a_1[0], rv_7, a_1[2]]);
-      }).EqualMsgAsync((t) => t[2], () => 66+21, "after set").For((a_1) => {
+      }).EqualMsgAsync((t) => t[2], () => 66+21|0, "after set").For((a_1) => {
         const rv_7=a_1[1];
         rv_7.Set(66);
         return Runner.Yield([a_1[0], rv_7, a_1[2]]);
-      }).EqualMsgAsync((t) => t[2], () => 66+21, "after set to the same value").EqualMsg((t) => t[0][0], () => 2, "function call count"));
+      }).EqualMsgAsync((t) => t[2], () => 66+21|0, "after set to the same value").EqualMsg((t) => t[0][0], () => 2, "function call count"));
       const _15=Test("MapCachedBy");
       const count_2=[0];
       const rv_3=_c_1.Create_1(9);
       _15.Run(Runner.Yield([count_2, rv_3, GetAsync(MapCachedBy((_33, _34) => _33%10===_34%10, (x) => {
-        count_2[0]=count_2[0]+1;
-        return x+21;
-      }, rv_3.View))]).EqualMsgAsync((t) => t[2], () => 9+21, "initial").For((a_1) => {
+        count_2[0]=count_2[0]+1|0;
+        return x+21|0;
+      }, rv_3.View))]).EqualMsgAsync((t) => t[2], () => 9+21|0, "initial").For((a_1) => {
         const rv_7=a_1[1];
         rv_7.Set(66);
         return Runner.Yield([a_1[0], rv_7, a_1[2]]);
-      }).EqualMsgAsync((t) => t[2], () => 66+21, "after set").For((a_1) => {
+      }).EqualMsgAsync((t) => t[2], () => 66+21|0, "after set").For((a_1) => {
         const rv_7=a_1[1];
         rv_7.Set(56);
         return Runner.Yield([a_1[0], rv_7, a_1[2]]);
-      }).EqualMsgAsync((t) => t[2], () => 66+21, "after set to the same value").EqualMsg((t) => t[0][0], () => 2, "function call count"));
+      }).EqualMsgAsync((t) => t[2], () => 66+21|0, "after set to the same value").EqualMsg((t) => t[0][0], () => 2, "function call count"));
       const _16=Test("MapAsync");
       const count_3=[0];
       const rv_4=_c_1.Create_1(11);
       _16.Run(Runner.Yield([count_3, rv_4, GetAsync(MapAsync((x) => {
         const f_2=() => {
-          count_3[0]=count_3[0]+1;
-          return Return(x*43);
+          count_3[0]=count_3[0]+1|0;
+          return Return(Math.imul(x, 43));
         };
         return Delay((_33, _34) =>(f_2(_33))(_34));
-      }, rv_4.View))]).EqualMsgAsync((t) => t[2], () => 11*43, "initial").For((a_1) => {
+      }, rv_4.View))]).EqualMsgAsync((t) => t[2], () => Math.imul(11, 43), "initial").For((a_1) => {
         const rv_7=a_1[1];
         rv_7.Set(45);
         return Runner.Yield([a_1[0], rv_7, a_1[2]]);
-      }).EqualMsgAsync((t) => t[2], () => 45*43, "after set").EqualMsg((t) => t[0][0], () => 2, "function call count"));
+      }).EqualMsgAsync((t) => t[2], () => Math.imul(45, 43), "after set").EqualMsg((t) => t[0][0], () => 2, "function call count"));
       const _17=Test("Map2");
       const count_4=[0];
       const rv1=_c_1.Create_1(29);
       const rv2=_c_1.Create_1(8);
       _17.Run(Runner.Yield([count_4, rv1, rv2, GetAsync(Map2((_33, _34) => {
-        count_4[0]=count_4[0]+1;
-        return _33*_34;
-      }, rv1.View, rv2.View))]).EqualMsgAsync((t) => t[3], () => 29*8, "initial").For((a_1) => {
+        count_4[0]=count_4[0]+1|0;
+        return Math.imul(_33, _34);
+      }, rv1.View, rv2.View))]).EqualMsgAsync((t) => t[3], () => Math.imul(29, 8), "initial").For((a_1) => {
         const rv1_8=a_1[1];
         rv1_8.Set(78);
         return Runner.Yield([a_1[0], rv1_8, a_1[2], a_1[3]]);
-      }).EqualMsgAsync((t) => t[3], () => 78*8, "after set v1").For((a_1) => {
+      }).EqualMsgAsync((t) => t[3], () => Math.imul(78, 8), "after set v1").For((a_1) => {
         const rv2_8=a_1[2];
         rv2_8.Set(30);
         return Runner.Yield([a_1[0], a_1[1], rv2_8, a_1[3]]);
-      }).EqualMsgAsync((t) => t[3], () => 78*30, "after set v2").EqualMsg((t) => t[0][0], () => 3, "function call count"));
+      }).EqualMsgAsync((t) => t[3], () => Math.imul(78, 30), "after set v2").EqualMsg((t) => t[0][0], () => 3, "function call count"));
       const _18=Test("MapAsync2");
       const count_5=[0];
       const rv1_1=_c_1.Create_1(36);
       const rv2_1=_c_1.Create_1(22);
       _18.Run(Runner.Yield([count_5, rv1_1, rv2_1, GetAsync(MapAsync2((_33, _34) => {
         const f_2=() => {
-          count_5[0]=count_5[0]+1;
-          return Return(_33-_34);
+          count_5[0]=count_5[0]+1|0;
+          return Return(_33-_34|0);
         };
         return Delay((_35, _36) =>(f_2(_35))(_36));
-      }, rv1_1.View, rv2_1.View))]).EqualMsgAsync((t) => t[3], () => 36-22, "initial").For((a_1) => {
+      }, rv1_1.View, rv2_1.View))]).EqualMsgAsync((t) => t[3], () => 36-22|0, "initial").For((a_1) => {
         const rv1_8=a_1[1];
         rv1_8.Set(82);
         return Runner.Yield([a_1[0], rv1_8, a_1[2], a_1[3]]);
-      }).EqualMsgAsync((t) => t[3], () => 82-22, "after set v1").For((a_1) => {
+      }).EqualMsgAsync((t) => t[3], () => 82-22|0, "after set v1").For((a_1) => {
         const rv2_8=a_1[2];
         rv2_8.Set(13);
         return Runner.Yield([a_1[0], a_1[1], rv2_8, a_1[3]]);
-      }).EqualMsgAsync((t) => t[3], () => 82-13, "after set v2").EqualMsg((t) => t[0][0], () => 3, "function call count"));
+      }).EqualMsgAsync((t) => t[3], () => 82-13|0, "after set v2").EqualMsg((t) => t[0][0], () => 3, "function call count"));
       const _19=Test("Apply");
       const count_6=[0];
       const rv1_2=_c_1.Create_1((x) => {
-        count_6[0]=count_6[0]+1;
-        return x+5;
+        count_6[0]=count_6[0]+1|0;
+        return x+5|0;
       });
       const rv2_2=_c_1.Create_1(57);
-      _19.Run(Runner.Yield([count_6, rv1_2, rv2_2, GetAsync(Apply(rv1_2.View, rv2_2.View))]).EqualMsgAsync((t) => t[3], () => 57+5, "initial").For((a_1) => {
+      _19.Run(Runner.Yield([count_6, rv1_2, rv2_2, GetAsync(Apply(rv1_2.View, rv2_2.View))]).EqualMsgAsync((t) => t[3], () => 57+5|0, "initial").For((a_1) => {
         const rv1_8=a_1[1];
         const count_8=a_1[0];
         rv1_8.Set((x) => {
-          count_8[0]=count_8[0]+1;
-          return x*4;
+          count_8[0]=count_8[0]+1|0;
+          return Math.imul(x, 4);
         });
         return Runner.Yield([count_8, rv1_8, a_1[2], a_1[3]]);
-      }).EqualMsgAsync((t) => t[3], () => 57*4, "after set v1").For((a_1) => {
+      }).EqualMsgAsync((t) => t[3], () => Math.imul(57, 4), "after set v1").For((a_1) => {
         const rv2_8=a_1[2];
         rv2_8.Set(33);
         return Runner.Yield([a_1[0], a_1[1], rv2_8, a_1[3]]);
-      }).EqualMsgAsync((t) => t[3], () => 33*4, "after set v2").EqualMsg((t) => t[0][0], () => 3, "function call count"));
+      }).EqualMsgAsync((t) => t[3], () => Math.imul(33, 4), "after set v2").EqualMsg((t) => t[0][0], () => 3, "function call count"));
       const _20=Test("Join");
       const count_7=[0];
       const rv1_3=_c_1.Create_1(76);
       const rv2_3=_c_1.Create_1(rv1_3.View);
-      _20.Run(Runner.Yield([count_7, rv1_3, rv2_3, GetAsync(Join(Map((x) => {
-        count_7[0]=count_7[0]+1;
+      _20.Run(Runner.Yield([count_7, rv1_3, rv2_3, GetAsync(Join(Map_1((x) => {
+        count_7[0]=count_7[0]+1|0;
         return x;
       }, rv2_3.View)))]).EqualMsgAsync((t) => t[3], () => 76, "initial").For((a_1) => {
         const rv1_8=a_1[1];
@@ -1468,8 +1465,8 @@ let _c=Lazy((_i) => class $StartupCode_Main {
       }).EqualMsgAsync((t) => t[3], () => 44, "after set inner").For((a_1) => {
         const rv2_8=a_1[2];
         const count_8=a_1[0];
-        rv2_8.Set(Map((x) => {
-          count_8[0]=count_8[0]+1;
+        rv2_8.Set(Map_1((x) => {
+          count_8[0]=count_8[0]+1|0;
           return x;
         }, Const(39)));
         return Runner.Yield([count_8, a_1[1], rv2_8, a_1[3]]);
@@ -1480,20 +1477,20 @@ let _c=Lazy((_i) => class $StartupCode_Main {
       const rv1_4=_c_1.Create_1(93);
       const rv2_4=_c_1.Create_1(27);
       _21.Run(Runner.Yield([outerCount, innerCount, rv1_4, rv2_4, GetAsync(BindInner((x) => {
-        outerCount[0]=outerCount[0]+1;
-        return Map((y) => {
-          innerCount[0]=innerCount[0]+1;
-          return x+y;
+        outerCount[0]=outerCount[0]+1|0;
+        return Map_1((y) => {
+          innerCount[0]=innerCount[0]+1|0;
+          return x+y|0;
         }, rv1_4.View);
-      }, rv2_4.View))]).EqualMsgAsync((t) => t[4], () => 93+27, "initial").For((a_1) => {
+      }, rv2_4.View))]).EqualMsgAsync((t) => t[4], () => 93+27|0, "initial").For((a_1) => {
         const rv1_8=a_1[2];
         rv1_8.Set(74);
         return Runner.Yield([a_1[0], a_1[1], rv1_8, a_1[3], a_1[4]]);
-      }).EqualMsgAsync((t) => t[4], () => 74+27, "after set inner").For((a_1) => {
+      }).EqualMsgAsync((t) => t[4], () => 74+27|0, "after set inner").For((a_1) => {
         const rv2_8=a_1[3];
         rv2_8.Set(22);
         return Runner.Yield([a_1[0], a_1[1], a_1[2], rv2_8, a_1[4]]);
-      }).EqualMsgAsync((t) => t[4], () => 74+22, "after set outer").EqualMsg((t) =>[t[0][0], t[1][0]], () =>[2, 3], "function call count"));
+      }).EqualMsgAsync((t) => t[4], () => 74+22|0, "after set outer").EqualMsg((t) =>[t[0][0], t[1][0]], () =>[2, 3], "function call count"));
       const _22=Test("Bind with outside Map");
       const outerCount_1=[0];
       const innerCount1=[0];
@@ -1501,16 +1498,16 @@ let _c=Lazy((_i) => class $StartupCode_Main {
       const o=_c_1.Create_1(true);
       const i1=_c_1.Create_1(1);
       const i2=_c_1.Create_1(2);
-      const m1=Map((x) => {
-        innerCount1[0]=innerCount1[0]+1;
-        return x*x;
+      const m1=Map_1((x) => {
+        innerCount1[0]=innerCount1[0]+1|0;
+        return Math.imul(x, x);
       }, i1.View);
-      const m2=Map((x) => {
-        innerCount2[0]=innerCount2[0]+1;
-        return x*x;
+      const m2=Map_1((x) => {
+        innerCount2[0]=innerCount2[0]+1|0;
+        return Math.imul(x, x);
       }, i2.View);
       _22.Run(Runner.Yield([outerCount_1, innerCount1, innerCount2, o, i1, i2, m1, m2, GetAsync(Bind((x) => {
-        outerCount_1[0]=outerCount_1[0]+1;
+        outerCount_1[0]=outerCount_1[0]+1|0;
         return x?m1:m2;
       }, o.View))]).EqualMsgAsync((t) => t[8], () => 1, "initial").For((a_1) => {
         const i1_2=a_1[4];
@@ -1532,16 +1529,16 @@ let _c=Lazy((_i) => class $StartupCode_Main {
       const o_1=_c_1.Create_1(true);
       const i1_1=_c_1.Create_1(1);
       const i2_1=_c_1.Create_1(2);
-      const m1_1=Map((x) => {
-        innerCount1_1[0]=innerCount1_1[0]+1;
-        return x*x;
+      const m1_1=Map_1((x) => {
+        innerCount1_1[0]=innerCount1_1[0]+1|0;
+        return Math.imul(x, x);
       }, i1_1.View);
-      const m2_1=Map((x) => {
-        innerCount2_1[0]=innerCount2_1[0]+1;
-        return x*x;
+      const m2_1=Map_1((x) => {
+        innerCount2_1[0]=innerCount2_1[0]+1|0;
+        return Math.imul(x, x);
       }, i2_1.View);
       _23.Run(Runner.Yield([outerCount_2, innerCount1_1, innerCount2_1, o_1, i1_1, i2_1, m1_1, m2_1, GetAsync(BindInner((x) => {
-        outerCount_2[0]=outerCount_2[0]+1;
+        outerCount_2[0]=outerCount_2[0]+1|0;
         return x?m1_1:m2_1;
       }, o_1.View))]).EqualMsgAsync((t) => t[8], () => 1, "initial").For((a_1) => {
         const i1_2=a_1[4];
@@ -1560,13 +1557,13 @@ let _c=Lazy((_i) => class $StartupCode_Main {
       const outerCount_3=[0];
       const innerCount_1=[0];
       const rv1_5=_c_1.Create_1(false);
-      const v1=Map((x) => {
-        outerCount_3[0]=outerCount_3[0]+1;
+      const v1=Map_1((x) => {
+        outerCount_3[0]=outerCount_3[0]+1|0;
         return x;
       }, rv1_5.View);
       const rv2_5=_c_1.Create_1(0);
-      const v2=Map((x) => {
-        innerCount_1[0]=innerCount_1[0]+1;
+      const v2=Map_1((x) => {
+        innerCount_1[0]=innerCount_1[0]+1|0;
         return x;
       }, rv2_5.View);
       _24.Run(Runner.Yield([outerCount_3, innerCount_1, rv1_5, v1, rv2_5, v2, GetAsync(UpdateWhile(1, v1, v2))]).EqualMsgAsync((t) => t[6], () => 1, "initial").For((a_1) => {
@@ -1594,12 +1591,12 @@ let _c=Lazy((_i) => class $StartupCode_Main {
       const outerCount_4=[0];
       const innerCount_2=[0];
       const rv1_6=_c_1.Create_1();
-      const v1_1=Map(() => {
-        outerCount_4[0]=outerCount_4[0]+1;
+      const v1_1=Map_1(() => {
+        outerCount_4[0]=outerCount_4[0]+1|0;
       }, rv1_6.View);
       const rv2_6=_c_1.Create_1(0);
-      const v2_1=Map((x) => {
-        innerCount_2[0]=innerCount_2[0]+1;
+      const v2_1=Map_1((x) => {
+        innerCount_2[0]=innerCount_2[0]+1|0;
         return x;
       }, rv2_6.View);
       _25.Run(Runner.Yield([outerCount_4, innerCount_2, rv1_6, v1_1, rv2_6, v2_1, GetAsync(SnapshotOn(1, v1_1, v2_1))]).EqualMsgAsync((t) => t[6], () => 1, "initial").For((a_1) => {
@@ -1624,16 +1621,16 @@ let _c=Lazy((_i) => class $StartupCode_Main {
       const innerCount_3=[0];
       const rv1_7=_c_1.Create_1(93);
       const rv2_7=_c_1.Create_1(27);
-      const v2_2=Map((x) => {
-        innerCount_3[0]=innerCount_3[0]+1;
+      const v2_2=Map_1((x) => {
+        innerCount_3[0]=innerCount_3[0]+1|0;
         return x;
       }, rv2_7.View);
       const rvs=Iterate(function*(){
-        seqCount[0]=seqCount[0]+1;
+        seqCount[0]=seqCount[0]+1|0;
         yield rv1_7.View;
         if(seqCount[0]===2)yield v2_2;
       });
-      _26.Run(Runner.Yield([seqCount, innerCount_3, rv1_7, rv2_7, v2_2, rvs, GetAsync(Map(ofSeq, Sequence(rvs)))]).EqualMsgAsync((t) => t[6], () => ofArray([93]), "initial").For((a_1) => {
+      _26.Run(Runner.Yield([seqCount, innerCount_3, rv1_7, rv2_7, v2_2, rvs, GetAsync(Map_1(ofSeq, Sequence(rvs)))]).EqualMsgAsync((t) => t[6], () => ofArray([93]), "initial").For((a_1) => {
         const rv1_8=a_1[2];
         rv1_8.Set(94);
         return Runner.Yield([a_1[0], a_1[1], rv1_8, a_1[3], a_1[4], a_1[5], a_1[6]]);
@@ -1688,9 +1685,9 @@ let _c=Lazy((_i) => class $StartupCode_Main {
         rv_7.Set(43);
         return Runner.Yield([rv_7, a_1[1], a_1[2], a_1[3]]);
       }).EqualMsgAsync((t) => t[3], () => 43, "async after set"));
-      Test("V").Run(Runner.Yield(Const(12)).EqualMsgAsync(GetAsync, () => 12, "Const").For((a_1) => Runner.Yield([a_1, Map((_33) =>"b"+String(_33), a_1)])).EqualMsgAsync((t) => GetAsync(t[1]), () =>"b12", "Map").For((a_1) => {
+      Test("V").Run(Runner.Yield(Const(12)).EqualMsgAsync(GetAsync, () => 12, "Const").For((a_1) => Runner.Yield([a_1, Map_1((_33) =>"b"+String(_33), a_1)])).EqualMsgAsync((t) => GetAsync(t[1]), () =>"b12", "Map").For((a_1) => {
         const vconst=a_1[0];
-        return Runner.Yield([vconst, a_1[1], Map((_33) => _33+_33, vconst)]);
+        return Runner.Yield([vconst, a_1[1], Map_1((_33) => _33+_33|0, vconst)]);
       }).EqualMsgAsync((t) => GetAsync(t[2]), () => 24, "Map using the same view twice").For((a_1) => {
         const vmap=a_1[1];
         const vconst=a_1[0];
@@ -1718,35 +1715,35 @@ let _c=Lazy((_i) => class $StartupCode_Main {
       const _31=Test("Stress test");
       const n=400;
       const sheet=init_2(n, n, () => _c_1.Create_1(Const(0)));
-      for(let i_1=1, _33=n-1;i_1<=_33;i_1++){
+      for(let i_1=1, _33=n-1|0;i_1<=_33;i_1++){
         const i=i_1;
-        get2D(sheet, 0, i_1).Set(Join(get2D(sheet, 0, i_1-1).View));
-        get2D(sheet, i_1, 0).Set(Join(get2D(sheet, i_1-1, 0).View));
-        for(let j_1=1, _34=n-1;j_1<=_34;j_1++){
+        get2D(sheet, 0, i_1).Set(Join(get2D(sheet, 0, i_1-1|0).View));
+        get2D(sheet, i_1, 0).Set(Join(get2D(sheet, i_1-1|0, 0).View));
+        for(let j_1=1, _34=n-1|0;j_1<=_34;j_1++){
           const j=j_1;
           const set_1=(f_2) => {
-            get2D(sheet, i, j).Set(Map2((_35, _36) =>(f_2(_35))(_36), Join(get2D(sheet, i-1, j).View), Join(get2D(sheet, i, j-1).View)));
+            get2D(sheet, i, j).Set(Map2((_35, _36) =>(f_2(_35))(_36), Join(get2D(sheet, i-1|0, j).View), Join(get2D(sheet, i, j-1|0).View)));
           };
           if(i_1===100&&j_1===100)set_1((a_1) =>(b) => {
             console.log("calculating value at (100, 100)");
-            return(a_1+b)%1000000;
+            return(a_1+b|0)%1000000;
           });
-          else i_1===n-1&&j_1===n-1?set_1((a_1) =>(b) => {
+          else i_1===(n-1|0)&&j_1===(n-1|0)?set_1((a_1) =>(b) => {
             console.log("calculating final value");
-            return(a_1+b)%1000000;
-          }):set_1((a_1) =>(b) =>(a_1+b)%1000000);
+            return(a_1+b|0)%1000000;
+          }):set_1((a_1) =>(b) =>(a_1+b|0)%1000000);
         }
       }
       _31.Run(Runner.Yield([n, sheet]).EqualAsync((t) => {
         const n_2=t[0];
-        return GetAsync(Join(get2D(t[1], n_2-1, n_2-1).View));
+        return GetAsync(Join(get2D(t[1], n_2-1|0, n_2-1|0).View));
       }, () => 0).For((a_1) => {
         const sheet_1=a_1[1];
         get2D(sheet_1, 0, 0).Set(Const(1));
         return Runner.Yield([a_1[0], sheet_1]);
       }).EqualAsync((t) => {
         const n_2=t[0];
-        return GetAsync(Join(get2D(t[1], n_2-1, n_2-1).View));
+        return GetAsync(Join(get2D(t[1], n_2-1|0, n_2-1|0).View));
       }, () => 272000).For((a_1) => {
         globalThis.stressTest=a_1[1];
         return Runner.Zero();
@@ -1754,8 +1751,8 @@ let _c=Lazy((_i) => class $StartupCode_Main {
       const _32=Test("Long chain");
       const n_1=1000;
       const v_1=_c_1.Create_1(0);
-      _32.Run(Runner.Yield([n_1, v_1, nth(n_1-1, unfold((a_1) => {
-        const b=Map((y) => 1+y, a_1);
+      _32.Run(Runner.Yield([n_1, v_1, nth(n_1-1|0, unfold((a_1) => {
+        const b=Map_1((y) => 1+y|0, a_1);
         return Some([b, b]);
       }, v_1.View))]).EqualAsync((t) => GetAsync(t[2]), () => 1000).For((a_1) => {
         const v_2=a_1[1];
@@ -1776,7 +1773,7 @@ let _c=Lazy((_i) => class $StartupCode_Main {
         const f_1=_14[2];
         return(t) =>[t[0], t[1], f_1];
       })(_12))(_13));
-      _11.Run(Runner.Yield([u, l, GetAsync(Map(ofSeq, u.v)), GetAsync(Map(ofSeq, l.v))]).EqualMsgAsync((t) => t[3], () => ofArray([[1, "11", 1], [2, "22", 2]]), "initialization").For((a) => {
+      _11.Run(Runner.Yield([u, l, GetAsync(Map_1(ofSeq, u.v)), GetAsync(Map_1(ofSeq, l.v))]).EqualMsgAsync((t) => t[3], () => ofArray([[1, "11", 1], [2, "22", 2]]), "initialization").For((a) => {
         const u_1=a[0];
         u_1.UpdateBy(() => Some([1, "111"]), 1);
         return Runner.Yield([u_1, a[1], a[2], a[3]]);
@@ -2015,7 +2012,7 @@ let _c=Lazy((_i) => class $StartupCode_Main {
       }));
       const _18=Test("Select");
       const rv_7=_c_1.Create_1(B);
-      const sel=Doc.Select([], String, ofArray([A, B, C]), rv_7);
+      const sel=Doc.Select([], toStr, ofArray([A, B, C]), rv_7);
       _18.Run(Runner.Yield([rv_7, sel, mount(sel)]).EqualMsgAsync((t) => {
         const sel_1=t[1];
         return afterUpdate(() => selectedIndices(sel_1.elt));
@@ -2037,7 +2034,7 @@ let _c=Lazy((_i) => class $StartupCode_Main {
       }));
       const _19=Test("SelectMultiple");
       const rv_8=_c_1.Create_1(ofArray([B]));
-      const host=mount(Doc.SelectMultiple([], String, ofArray([A, B, C]), rv_8));
+      const host=mount(Doc.SelectMultiple([], toStr, ofArray([A, B, C]), rv_8));
       _19.Run(Runner.Yield([rv_8, host, host.querySelector("select")]).EqualMsgAsync((t) => {
         const sel_1=t[2];
         return afterUpdate(() => selectedIndices(sel_1));
@@ -2201,7 +2198,7 @@ let _c=Lazy((_i) => class $StartupCode_Main {
       }));
       const _12=Test("V notation for a Doc");
       const rv_1=_c_1.Create_1("ab");
-      const el_1=Doc.Element("div", [], [Doc.EmbedView(Map((_18) => Doc.Element("ul", [], map_1((c) => Doc.Element("li", [], [Doc.TextNode(c)]), _18)), rv_1.View))]);
+      const el_1=Doc.Element("div", [], [Doc.EmbedView(Map_1((_18) => Doc.Element("ul", [], map_1((c) => Doc.Element("li", [], [Doc.TextNode(c)]), _18)), rv_1.View))]);
       _12.Run(Runner.Yield([rv_1, el_1, mount(el_1), () =>[el_1.elt.querySelectorAll("li").length, el_1.GetText()]]).EqualMsgAsync((t) => afterUpdate(t[3]), () =>[2, "ab"], "initial list").For((a) => {
         const rv_3=a[0];
         rv_3.Set("xyz");
@@ -2246,7 +2243,7 @@ let _c=Lazy((_i) => class $StartupCode_Main {
       const _14=Test("Button");
       const clicks=[0];
       const btn=Doc.Button("Click me", [], () => {
-        clicks[0]=clicks[0]+1;
+        clicks[0]=clicks[0]+1|0;
       });
       _14.Run(Runner.Yield([clicks, btn, mount(btn)]).EqualMsg((t) => t[1].GetText(), () =>"Click me", "caption").For((a) => {
         const btn_1=a[1];
@@ -2261,7 +2258,7 @@ let _c=Lazy((_i) => class $StartupCode_Main {
       const counter_1=_c_1.Create_1(0);
       const updater=Doc.Element("div", [], []).ToUpdater();
       const host=mount(updater);
-      const child=Doc.Element("span", [], [Doc.TextView(Map(String, counter_1.View))]);
+      const child=Doc.Element("span", [], [Doc.TextView(Map_1(String, counter_1.View))]);
       updater.elt.appendChild(child.elt);
       updater.AddUpdated(child);
       counter_1.Set(1);
@@ -2308,7 +2305,7 @@ let _c=Lazy((_i) => class $StartupCode_Main {
       const host_1=globalThis.document.createElement("div");
       globalThis.document.body.appendChild(host_1);
       const _17=NamedTemplate("local", Some("holes"), [new Text("text", "filled text"), new Attribute("attr", Class("filled-attr")), new Event_1("click", () =>() => {
-        clicks_1[0]=clicks_1[0]+1;
+        clicks_1[0]=clicks_1[0]+1|0;
       }), new VarStr("input", rv_2)]);
       LoadLocalTemplates("");
       Doc.Run(host_1, _17);
@@ -2386,7 +2383,7 @@ let _c=Lazy((_i) => class $StartupCode_Main {
       }).EqualMsgAsync((t) => GetAsync(t[1].view), () => Some("a"), "after trigger"));
       const _15=Test("MapSeqCached and Sequence of Var views (ui#67)");
       const inputs=_c_1.Create_1([]);
-      _15.Run(Runner.Yield([inputs, Map(length, Join(MapCached(Sequence, MapSeqCached((x) => x.View, inputs.View))))]).EqualMsgAsync((t) => GetAsync(t[1]), () => 0, "empty").For((a) => {
+      _15.Run(Runner.Yield([inputs, Map_1(length, Join(MapCached(Sequence, MapSeqCached((x) => x.View, inputs.View))))]).EqualMsgAsync((t) => GetAsync(t[1]), () => 0, "empty").For((a) => {
         const inputs_1=a[0];
         inputs_1.Set(FSharpList.Cons(_c_1.Create_1(false), ofSeq(inputs_1.Get())));
         return Runner.Yield([inputs_1, a[1]]);
@@ -2404,7 +2401,7 @@ let _c=Lazy((_i) => class $StartupCode_Main {
     this.LensAndSubmitterTest=s_8;
     this.themeStorageKey="websharper-ui-theme";
     this.theme=_c_1.Create_1("light");
-    this.themeLabel=Map((t) => t=="dark"?"\u2600\ufe0f Light mode":"\ud83c\udf19 Dark mode", theme().View);
+    this.themeLabel=Map_1((t) => t=="dark"?"\u2600\ufe0f Light mode":"\ud83c\udf19 Dark mode", theme().View);
   }
 });
 let _c_1=Lazy((_i) => class Var_1 extends Object_1 {
@@ -2416,7 +2413,7 @@ let _c_1=Lazy((_i) => class Var_1 extends Object_1 {
   }
   static Lens(var_1, get_1, update){
     const id=Id_1();
-    const view=Map(get_1, var_1.View);
+    const view=Map_1(get_1, var_1.View);
     return new class extends Var {
       constructor(){
         super();
@@ -2464,8 +2461,8 @@ let _c_1=Lazy((_i) => class Var_1 extends Object_1 {
   }
   static { }
 });
-function Map(fn, a){
-  return CreateLazy(() => Map_2(fn, a()));
+function Map_1(fn, a){
+  return CreateLazy(() => Map_3(fn, a()));
 }
 function Map2(fn, a, a_1){
   return CreateLazy(() => Map2_1(fn, a(), a_1()));
@@ -2504,14 +2501,14 @@ function Apply(fn, view){
   return Map2((_1, _2) => _1(_2), fn, view);
 }
 function BindInner(fn, view){
-  return JoinInner(Map(fn, view));
+  return JoinInner(Map_1(fn, view));
 }
 function Bind(fn, view){
-  return Join(Map(fn, view));
+  return Join(Map_1(fn, view));
 }
 function UpdateWhile(def, v1, v2){
   let value=def;
-  return BindInner((pred) => pred?Map((v) => {
+  return BindInner((pred) => pred?Map_1((v) => {
     value=v;
     return v;
   }, v2):Const(value), v1);
@@ -2562,7 +2559,7 @@ function CreateLazy(observe){
 }
 function MapSeqCachedBy(key, conv, view){
   let state=new Dictionary("New_5");
-  return Map((xs) => {
+  return Map_1((xs) => {
     const prevState=state;
     const newState=new Dictionary("New_5");
     const result=mapInPlace((x) => {
@@ -2628,7 +2625,7 @@ function Wrap(underlying, extract, createItem, updateItem){
 }
 function ofArray(arr){
   let r=FSharpList.Empty;
-  for(let i=length_1(arr)-1, _1=0;i>=_1;i--)r=FSharpList.Cons(get(arr, i), r);
+  for(let i=length_1(arr)-1|0, _1=0;i>=_1;i--)r=FSharpList.Cons(get(arr, i), r);
   return r;
 }
 function ofSeq(s){
@@ -2716,7 +2713,7 @@ function mapi(f, x){
         else {
           const t=Create_3(FSharpList, {$:1});
           r=(r.$1=t,t);
-          i=i+1;
+          i=i+1|0;
         }
       }
     r.$1=FSharpList.Empty;
@@ -2803,7 +2800,7 @@ function contains(el, x){
   return c;
 }
 function listEmpty(){
-  return FailWith("The input list was empty.");
+  throw new ArgumentException("New", "The input list was empty.");
 }
 function New(Name, Done){
   return{Name:Name, Done:Done};
@@ -2818,7 +2815,7 @@ class ListModel extends Object_1 {
     return exists_2((it) => Equals(this.key(it), key), this.u0076ar.Get());
   }
   get LengthAsView(){
-    return Map((arr) => length_1(arr), this.u0076ar.View);
+    return Map_1((arr) => length_1(arr), this.u0076ar.View);
   }
   RemoveByKey(key){
     this.u0076ar.Set(this.storage.SRemoveIf((i) => Equals(this.key(i), key), this.u0076ar.Get()));
@@ -2881,7 +2878,7 @@ class ListModel extends Object_1 {
       this.key=key_1;
       this.u0076ar=var_1;
       this.storage=storage_1;
-      this.v=Map((x) => x.slice(), this.u0076ar.View);
+      this.v=Map_1((x) => x.slice(), this.u0076ar.View);
       this.it=new Dictionary("New_5");
     }
   }
@@ -2912,7 +2909,7 @@ function length(s){
     const e=Get_1(s);
     try {
       while(e.MoveNext())
-        i=i+1;
+        i=i+1|0;
       return i;
     }
     finally {
@@ -2937,21 +2934,21 @@ function map_1(f, s){
 function head_1(s){
   const e=Get_1(s);
   try {
-    return e.MoveNext()?e.Current:insufficient();
+    return e.MoveNext()?e.Current:insufficientArg();
   }
   finally {
     if(typeof e=="object"&&isIDisposable(e))e.Dispose();
   }
 }
 function nth(index, s){
-  if(index<0)FailWith("negative index requested");
+  if(index<0)throw new ArgumentException("New", "The input must be non-negative.");
   let pos=-1;
   const e=Get_1(s);
   try {
     while(pos<index)
       {
-        !e.MoveNext()?insufficient():void 0;
-        pos=pos+1;
+        !e.MoveNext()?insufficientArg():void 0;
+        pos=pos+1|0;
       }
     return e.Current;
   }
@@ -2988,7 +2985,7 @@ function take(n, s){
   return{GetEnumerator:() => {
     let e=Get_1(s);
     return new T(0, null, (o) => {
-      o.s=o.s+1;
+      o.s=o.s+1|0;
       if(o.s>n)return false;
       else {
         const en=e;
@@ -3003,7 +3000,7 @@ function take(n, s){
 function initInfinite(f){
   return{GetEnumerator:() => new T(0, null, (e) => {
     e.c=f(e.s);
-    e.s=e.s+1;
+    e.s=e.s+1|0;
     return true;
   }, void 0)};
 }
@@ -3043,7 +3040,8 @@ function fold(f, x, s){
 }
 function findIndex(p, s){
   const m=tryFindIndex(p, s);
-  return m==null?FailWith("KeyNotFoundException"):m.$0;
+  if(m==null)throw new KeyNotFoundException("New");
+  else return m.$0;
 }
 function tryFindIndex(ok, s){
   const e=Get_1(s);
@@ -3052,7 +3050,7 @@ function tryFindIndex(ok, s){
     let i=0;
     while(loop&&e.MoveNext())
       if(ok(e.Current))loop=false;
-      else i=i+1;
+      else i=i+1|0;
     return loop?null:Some(i);
   }
   finally {
@@ -3089,7 +3087,7 @@ function forall(p, s){
   return!exists_1((x) =>!p(x), s);
 }
 function seqEmpty(){
-  return FailWith("The input sequence was empty.");
+  throw new ArgumentException("New", "The input sequence was empty.");
 }
 function exists_1(p, s){
   const e=Get_1(s);
@@ -3157,7 +3155,7 @@ function Concat(xs){
 function get_Empty(){
   return Anim(Empty_1());
 }
-function Map_1(f, anim){
+function Map_2(f, anim){
   const f_1=anim.Compute;
   return Def(anim.Duration, (x) => f(f_1(x)));
 }
@@ -3309,7 +3307,7 @@ function get(arr, n){
   return arr[n];
 }
 function length_1(arr){
-  return arr.dims===2?arr.length*arr.length:arr.length;
+  return arr.dims===2?Math.imul(arr.length, arr.length?arr[0].length:0):arr.length;
 }
 function set2D(arr, n1, n2, x){
   checkBounds2D(arr, n1, n2);
@@ -3319,7 +3317,7 @@ function checkBounds2D(arr, n1, n2){
   if(n1<0||n2<0||n1>=arr.length||n2>=(arr.length?arr[0].length:0))throw new IndexOutOfRangeException("New");
 }
 function checkBounds(arr, n){
-  if(n<0||n>=arr.length)FailWith("Index was outside the bounds of the array.");
+  if(n<0||n>=arr.length)throw new IndexOutOfRangeException("New");
 }
 function zeroCreate2D(n, m){
   const arr=init_3(n, () => create(m, null));
@@ -3339,11 +3337,11 @@ class Dictionary extends Object_1 {
     this.set(k, v);
   }
   ContainsKey(k){
-    const d=this.data[this.hash(k)];
+    const d=this.data.get(this.hash(k));
     return d==null?false:exists_2((a) => this.equals.apply(null, [(KeyValue(a))[0], k]), d);
   }
   TryGetValue(k, res){
-    const d=this.data[this.hash(k)];
+    const d=this.data.get(this.hash(k));
     if(d==null)return false;
     else {
       const v=tryPick((a) => {
@@ -3361,15 +3359,15 @@ class Dictionary extends Object_1 {
   }
   set(k, v){
     const h=this.hash(k);
-    const d=this.data[h];
+    const d=this.data.get(h);
     if(d==null){
-      this.count=this.count+1;
-      this.data[h]=new Array({K:k, V:v});
+      this.count=this.count+1|0;
+      this.data.set(h, new Array({K:k, V:v}));
     }
     else {
       const m=tryFindIndex_1((a) => this.equals.apply(null, [(KeyValue(a))[0], k]), d);
       if(m==null){
-        this.count=this.count+1;
+        this.count=this.count+1|0;
         d.push({K:k, V:v});
       }
       else d[m.$0]={K:k, V:v};
@@ -3380,15 +3378,15 @@ class Dictionary extends Object_1 {
   }
   remove(k){
     const h=this.hash(k);
-    const d=this.data[h];
+    const d=this.data.get(h);
     if(d==null)return false;
     else {
       const r=filter_2((a) =>!this.equals.apply(null, [(KeyValue(a))[0], k]), d);
-      return length_1(r)<d.length&&(this.count=this.count-1,this.data[h]=r,true);
+      return length_1(r)<d.length&&(this.count=this.count-1|0,length_1(r)===0?this.data["delete"](h):this.data.set(h, r),true);
     }
   }
   get(k){
-    const d=this.data[this.hash(k)];
+    const d=this.data.get(this.hash(k));
     return d==null?notPresent():pick((a) => {
       const a_1=KeyValue(a);
       return this.equals.apply(null, [a_1[0], k])?Some(a_1[1]):null;
@@ -3398,7 +3396,8 @@ class Dictionary extends Object_1 {
     return new ValueCollection(this);
   }
   GetEnumerator(){
-    return Get0(concat_1(GetFieldValues(this.data)));
+    const m=this.data;
+    return Get0(Array.prototype.concat.apply([], Array.from(m.values())));
   }
   constructor(i, _1, _2, _3){
     if(i=="New_5"){
@@ -3415,7 +3414,7 @@ class Dictionary extends Object_1 {
       this.equals=equals;
       this.hash=hash;
       this.count=0;
-      this.data=[];
+      this.data=new Map();
       const e=Get_1(init_4);
       try {
         while(e.MoveNext())
@@ -3560,7 +3559,7 @@ function ParseHTMLIntoFakeRoot(elem){
           else {
             const i=a;
             elt=elt.lastChild;
-            a=i-1;
+            a=i-1|0;
           }
         }
     }
@@ -3584,11 +3583,11 @@ function rtagName(){
 }
 function IterSelector(el, selector, f){
   const l=el.querySelectorAll(selector);
-  for(let i=0, _1=l.length-1;i<=_1;i++)f(l[i]);
+  for(let i=0, _1=l.length-1|0;i<=_1;i++)f(l[i]);
 }
 function ChildrenArray(element){
   const a=[];
-  for(let i=0, _1=element.childNodes.length-1;i<=_1;i++)a.push(element.childNodes[i]);
+  for(let i=0, _1=element.childNodes.length-1|0;i<=_1;i++)a.push(element.childNodes[i]);
   return a;
 }
 function InsertAt(parent, pos, node){
@@ -3602,7 +3601,7 @@ function InsertAt(parent, pos, node){
 }
 function IterSelectorDoc(selector, f){
   const l=globalThis.document.querySelectorAll(selector);
-  for(let i=0, _1=l.length-1;i<=_1;i++)f(l[i]);
+  for(let i=0, _1=l.length-1|0;i<=_1;i++)f(l[i]);
 }
 function RemoveNode(parent, el){
   if(el.parentNode===parent)parent.removeChild(el);
@@ -3684,7 +3683,7 @@ class FSharpEvent extends Object_1 {
 }
 function init_2(n, m, f){
   const array=zeroCreate2D(n, m);
-  for(let i=0, _1=n-1;i<=_1;i++)for(let j=0, _2=m-1;j<=_2;j++)set2D(array, i, j, f(i, j));
+  for(let i=0, _1=n-1|0;i<=_1;i++)for(let j=0, _2=m-1|0;j<=_2;j++)set2D(array, i, j, f(i, j));
   return array;
 }
 function EncodeList(encEl){
@@ -3709,7 +3708,7 @@ function DecodeList(decEl){
 class CheckedInput {
   static Make(x){
     let c;
-    return CheckedInput.Valid(x, (c=x,String(c)));
+    return CheckedInput.Valid(x, (c=x,toStr(c)));
   }
   static Valid(value, inputText){
     return Create_3(CheckedInput, {
@@ -3897,7 +3896,7 @@ class VarStr extends TemplateHole {
     (addAttr(el))(Value(this.fillWith));
   }
   get AsChoiceView(){
-    return Choice2Of2(Map(String, this.fillWith.View));
+    return Choice2Of2(Map_1((v) => v??"", this.fillWith.View));
   }
   constructor(name, fillWith){
     super();
@@ -3906,7 +3905,7 @@ class VarStr extends TemplateHole {
   }
 }
 function CreateOption(input){
-  return new Submitter(Map(Some, input), null);
+  return new Submitter(Map_1(Some, input), null);
 }
 class Submitter extends Object_1 {
   input;
@@ -3974,7 +3973,7 @@ class ConcreteVar extends Var {
     this.id=Int();
   }
 }
-function Map_2(fn, sn){
+function Map_3(fn, sn){
   const m=sn.s;
   if(m!=null&&m.$==0)return{s:Forever(fn(m.$0))};
   else {
@@ -4011,7 +4010,7 @@ function Sequence_1(snaps){
   if(snaps_1.length==0)return{s:Forever([])};
   else {
     const res={s:Waiting([], [])};
-    let w=length_1(snaps_1)-1;
+    let w=length_1(snaps_1)-1|0;
     const cont=() => {
       if(w===0){
         const vs=map_2((s) => {
@@ -4024,7 +4023,7 @@ function Sequence_1(snaps){
         }, snaps_1))MarkForever(res, vs);
         else MarkReady(res, vs);
       }
-      else w=w-1;
+      else w=w-1|0;
     };
     iter_2((s) => {
       When(s, cont, res);
@@ -4058,7 +4057,7 @@ function CreateForeverAsync(a){
   return o;
 }
 function MapCachedBy_1(eq, prev, fn, sn){
-  return Map_2((x) => {
+  return Map_3((x) => {
     let _1;
     const m=prev[0];
     if(m!=null&&m.$==1&&(eq(x, m.$0[0])&&(_1=[m.$0[0], m.$0[1]],true)))return _1[1];
@@ -4152,10 +4151,10 @@ function MarkDone(res, sn, v){
   else MarkReady(res, v);
 }
 function Map2Opt1(fn, x, sn2){
-  return Map_2((y) => fn(x, y), sn2);
+  return Map_3((y) => fn(x, y), sn2);
 }
 function Map2Opt2(fn, y, sn1){
-  return Map_2((x) => fn(x, y), sn1);
+  return Map_3((x) => fn(x, y), sn1);
 }
 function ValueAndForever(snap){
   const m=snap.s;
@@ -4166,7 +4165,7 @@ function MarkForever(sn, v){
   if(m!=null&&m.$==3){
     sn.s=Forever(v);
     const qa=m.$0;
-    for(let i=0, _1=length_1(qa)-1;i<=_1;i++)(get(qa, i))(v);
+    for(let i=0, _1=length_1(qa)-1|0;i<=_1;i++)(get(qa, i))(v);
   }
 }
 function MarkReady(sn, v){
@@ -4174,7 +4173,7 @@ function MarkReady(sn, v){
   if(m!=null&&m.$==3){
     sn.s=Ready(v, m.$1);
     const qa=m.$0;
-    for(let i=0, _1=length_1(qa)-1;i<=_1;i++)(get(qa, i))(v);
+    for(let i=0, _1=length_1(qa)-1|0;i<=_1;i++)(get(qa, i))(v);
   }
 }
 function JoinInner_1(snap){
@@ -4215,7 +4214,7 @@ function EnqueueSafe(q, x){
   if(q.length%20===0){
     const qcopy=q.slice(0);
     Clear(q);
-    for(let i=0, _1=length_1(qcopy)-1;i<=_1;i++){
+    for(let i=0, _1=length_1(qcopy)-1|0;i<=_1;i++){
       const o=get(qcopy, i);
       if(typeof o=="object")(((sn) => {
         if(sn.s)q.push(sn);
@@ -4290,16 +4289,16 @@ function Map3_1(fn, sn1, sn2, sn3){
   }
 }
 function Map3Opt1(fn, x, y, sn3){
-  return Map_2((z) => fn(x, y, z), sn3);
+  return Map_3((z) => fn(x, y, z), sn3);
 }
 function Map3Opt2(fn, x, z, sn2){
-  return Map_2((y) => fn(x, y, z), sn2);
+  return Map_3((y) => fn(x, y, z), sn2);
 }
 function Map3Opt3(fn, x, sn2, sn3){
   return Map2_1((_1, _2) => fn(x, _1, _2), sn2, sn3);
 }
 function Map3Opt4(fn, y, z, sn1){
-  return Map_2((x) => fn(x, y, z), sn1);
+  return Map_3((x) => fn(x, y, z), sn1);
 }
 function Map3Opt5(fn, y, sn1, sn3){
   return Map2_1((_1, _2) => fn(_1, y, _2), sn1, sn3);
@@ -4309,6 +4308,10 @@ function Map3Opt6(fn, z, sn1, sn2){
 }
 function Trim(s){
   return s.replace(new RegExp("^\\s+"), "").replace(new RegExp("\\s+$"), "");
+}
+function SubstringChecked(s, ix, ct){
+  if(ix<0||ct<0||(ix+ct|0)>s.length)throw new ArgumentOutOfRangeException("New_1", "length");
+  return Substring(s, ix, ct);
 }
 function Substring(s, ix, ct){
   return s.substr(ix, ct);
@@ -4323,7 +4326,7 @@ function StartsWith(t, s){
   return t.substring(0, s.length)==s;
 }
 function Split(s, pat, opts){
-  return opts===1?filter_2((x) => x!=="", SplitWith(s, pat)):SplitWith(s, pat);
+  return(opts&1)!==0?filter_2((x) => x!=="", (opts&2)!==0?map_2((x) => Trim(x), SplitWith(s, pat)):SplitWith(s, pat)):(opts&2)!==0?map_2((x) => Trim(x), SplitWith(s, pat)):SplitWith(s, pat);
 }
 function RegexEscape(s){
   return s.replace(new RegExp("[-\\/\\\\^$*+?.()|[\\]{}]", "g"), "\\$&");
@@ -4345,7 +4348,7 @@ function exists_2(f, x){
   let i=0;
   while(!e&&i<length_1(x))
     if(f(x[i]))e=true;
-    else i=i+1;
+    else i=i+1|0;
   return e;
 }
 function tryFindIndex_1(f, arr){
@@ -4354,7 +4357,7 @@ function tryFindIndex_1(f, arr){
   while(i<arr.length&&res==null)
     {
       f(arr[i])?res=Some(i):void 0;
-      i=i+1;
+      i=i+1|0;
     }
   return res;
 }
@@ -4373,7 +4376,7 @@ function sortInPlace(arr){
 }
 function filter_2(f, arr){
   const r=[];
-  for(let i=0, _1=arr.length-1;i<=_1;i++)if(f(arr[i]))r.push(arr[i]);
+  for(let i=0, _1=arr.length-1|0;i<=_1;i++)if(f(arr[i]))r.push(arr[i]);
   return r;
 }
 function ofSeq_1(xs){
@@ -4393,18 +4396,18 @@ function ofSeq_1(xs){
   }
 }
 function iter_2(f, arr){
-  for(let i=0, _1=arr.length-1;i<=_1;i++)f(arr[i]);
+  for(let i=0, _1=arr.length-1|0;i<=_1;i++)f(arr[i]);
 }
 function map_2(f, arr){
   const r=new Array(arr.length);
-  for(let i=0, _1=arr.length-1;i<=_1;i++)r[i]=f(arr[i]);
+  for(let i=0, _1=arr.length-1|0;i<=_1;i++)r[i]=f(arr[i]);
   return r;
 }
 function forall_2(f, x){
   let a=true;
   let i=0;
   while(a&&i<length_1(x))
-    if(f(x[i]))i=i+1;
+    if(f(x[i]))i=i+1|0;
     else a=false;
   return a;
 }
@@ -4415,41 +4418,39 @@ function tryPick(f, arr){
     {
       const m=f(arr[i]);
       if(m!=null&&m.$==1)res=m;
-      i=i+1;
+      i=i+1|0;
     }
   return res;
 }
 function init_3(size, f){
-  if(size<0)FailWith("Negative size given.");
+  if(size<0)throw new ArgumentException("New", "The input must be non-negative.");
   const r=new Array(size);
-  for(let i=0, _1=size-1;i<=_1;i++)r[i]=f(i);
+  for(let i=0, _1=size-1|0;i<=_1;i++)r[i]=f(i);
   return r;
 }
 function foldBack(f, arr, zero){
   let acc=zero;
   const len=arr.length;
-  for(let i=1, _1=len;i<=_1;i++)acc=f(arr[len-i], acc);
+  for(let i=1, _1=len;i<=_1;i++)acc=f(arr[len-i|0], acc);
   return acc;
 }
 function pick(f, arr){
   const m=tryPick(f, arr);
-  return m==null?FailWith("KeyNotFoundException"):m.$0;
+  if(m==null)throw new KeyNotFoundException("New");
+  else return m.$0;
 }
 function choose(f, arr){
   const q=[];
-  for(let i=0, _1=arr.length-1;i<=_1;i++){
+  for(let i=0, _1=arr.length-1|0;i<=_1;i++){
     const m=f(arr[i]);
     if(m==null){ }
     else q.push(m.$0);
   }
   return q;
 }
-function concat_1(xs){
-  return Array.prototype.concat.apply([], ofSeq_1(xs));
-}
 function create(size, value){
   const r=new Array(size);
-  for(let i=0, _1=size-1;i<=_1;i++)r[i]=value;
+  for(let i=0, _1=size-1|0;i<=_1;i++)r[i]=value;
   return r;
 }
 function Get_1(x){
@@ -4458,13 +4459,13 @@ function Get_1(x){
 function ArrayEnumerator(s){
   return new T(0, null, (e) => {
     const i=e.s;
-    return i<length_1(s)&&(e.c=get(s, i),e.s=i+1,true);
+    return i<length_1(s)&&(e.c=get(s, i),e.s=i+1|0,true);
   }, void 0);
 }
 function StringEnumerator(s){
   return new T(0, null, (e) => {
     const i=e.s;
-    return i<s.length&&(e.c=s[i],e.s=i+1,true);
+    return i<s.length&&(e.c=s[i],e.s=i+1|0,true);
   }, void 0);
 }
 function Get0(x){
@@ -4554,11 +4555,11 @@ class Trans extends Object_1 {
   }
 }
 function Id_1(){
-  set_counter(counter()+1);
+  set_counter(counter()+1|0);
   return"uid"+String(counter());
 }
 function Int(){
-  set_counter(counter()+1);
+  set_counter(counter()+1|0);
   return counter();
 }
 function set_counter(_1){
@@ -4596,13 +4597,13 @@ class HashSet extends Object_1 {
     return this.add(item);
   }
   Contains(item){
-    const arr=this.data[this.hash(item)];
+    const arr=this.data.get(this.hash(item));
     return arr==null?false:this.arrContains(item, arr);
   }
   add(item){
     const h=this.hash(item);
-    const arr=this.data[h];
-    return arr==null?(this.data[h]=[item],this.count=this.count+1,true):this.arrContains(item, arr)?false:(arr.push(item),this.count=this.count+1,true);
+    const arr=this.data.get(h);
+    return arr==null?(this.data.set(h, [item]),this.count=this.count+1|0,true):this.arrContains(item, arr)?false:(arr.push(item),this.count=this.count+1|0,true);
   }
   arrContains(item, arr){
     let c=true;
@@ -4610,11 +4611,12 @@ class HashSet extends Object_1 {
     const l=arr.length;
     while(c&&i<l)
       if(this.equals.apply(null, [arr[i], item]))c=false;
-      else i=i+1;
+      else i=i+1|0;
     return!c;
   }
   GetEnumerator(){
-    return Get_1(concat_2(this.data));
+    const m=this.data;
+    return Get_1(Array.prototype.concat.apply([], Array.from(m.values())));
   }
   ExceptWith(xs){
     const e=Get_1(xs);
@@ -4631,19 +4633,22 @@ class HashSet extends Object_1 {
   }
   IntersectWith(xs){
     const other=new HashSet("New_4", xs, this.equals, this.hash);
-    const all=concat_2(this.data);
-    for(let i=0, _1=all.length-1;i<=_1;i++){
+    const m=this.data;
+    const all=Array.prototype.concat.apply([], Array.from(m.values()));
+    for(let i=0, _1=all.length-1|0;i<=_1;i++){
       const item=all[i];
       if(!other.Contains(item))this.Remove(item);
     }
   }
   Remove(item){
-    const arr=this.data[this.hash(item)];
-    return arr==null?false:this.arrRemove(item, arr)&&(this.count=this.count-1,true);
+    const h=this.hash(item);
+    const arr=this.data.get(h);
+    return arr==null?false:this.arrRemove(item, arr)&&(this.count=this.count-1|0,arr.length===0?this.data["delete"](h):void 0,true);
   }
   CopyTo(arr, index){
-    const all=concat_2(this.data);
-    for(let i=0, _1=all.length-1;i<=_1;i++)set(arr, i+index, all[i]);
+    const m=this.data;
+    const all=Array.prototype.concat.apply([], Array.from(m.values()));
+    for(let i=0, _1=all.length-1|0;i<=_1;i++)set(arr, i+index|0, all[i]);
   }
   arrRemove(item, arr){
     let c=true;
@@ -4654,7 +4659,7 @@ class HashSet extends Object_1 {
         arr.splice(i, 1);
         c=false;
       }
-      else i=i+1;
+      else i=i+1|0;
     return!c;
   }
   constructor(i, _1, _2, _3){
@@ -4679,7 +4684,7 @@ class HashSet extends Object_1 {
       super();
       this.equals=equals;
       this.hash=hash;
-      this.data=[];
+      this.data=new Map();
       this.count=0;
       const e=Get_1(init_5);
       try {
@@ -5060,7 +5065,7 @@ class Runner {
     return this.AddTest((_1, _2) => _1.strictEqual(value(_2), true, message));
   }
   AddTest(t){
-    return Runner.Runner((asserter) => Map_3((args) => {
+    return Runner.Runner((asserter) => Map_4((args) => {
       t(asserter, args);
       return args;
     }, this.Invoke(asserter)));
@@ -5084,7 +5089,7 @@ class Runner {
 function WithTimeout(_1, a){
   return a;
 }
-function Map_3(f, x){
+function Map_4(f, x){
   if(x.$==1){
     const args=x.$0;
     const f_1=() => {
@@ -5251,7 +5256,7 @@ function checkCancel(r){
 function Register(ct, callback){
   if(ct===noneCT())return{Dispose(){ }};
   else {
-    const i=ct.r.push(callback)-1;
+    const i=ct.r.push(callback)-1|0;
     return{Dispose(){
       return set(ct.r, i, () => { });
     }};
@@ -5288,7 +5293,7 @@ class Event_2 {
   Handlers;
   Trigger(x){
     const a=this.Handlers.slice();
-    for(let i=0, _1=a.length-1;i<=_1;i++)(get(a, i))(null, x);
+    for(let i=0, _1=a.length-1|0;i<=_1;i++)(get(a, i))(null, x);
   }
   Subscribe_1(observer_1){
     const this_1=this;
@@ -5342,14 +5347,14 @@ function TreeReduce(defaultValue, reduction, array){
           return get(array, off);
         case 2:
           const l2=len/2>>0;
-          return reduction((loop(off))(l2), (loop(off+l2))(len-l2));
+          return reduction((loop(off))(l2), (loop(off+l2|0))(len-l2|0));
       }
     };
   }
   return(loop(0))(l);
 }
 function mapInPlace(f, arr){
-  for(let i=0, _1=arr.length-1;i<=_1;i++)arr[i]=f(arr[i]);
+  for(let i=0, _1=arr.length-1|0;i<=_1;i++)arr[i]=f(arr[i]);
   return arr;
 }
 function MapTreeReduce(mapping, defaultValue, reduction, array){
@@ -5363,7 +5368,7 @@ function MapTreeReduce(mapping, defaultValue, reduction, array){
           return mapping(get(array, off));
         case 2:
           const l2=len/2>>0;
-          return reduction((loop(off))(l2), (loop(off+l2))(len-l2));
+          return reduction((loop(off))(l2), (loop(off+l2|0))(len-l2|0));
       }
     };
   }
@@ -5416,7 +5421,7 @@ function Obsolete(sn){
   const m=sn.s;
   if(!(m==null||(m!=null&&m.$==2?(_1=m.$1,false):m!=null&&m.$==3?(_1=m.$1,false):true))){
     sn.s=null;
-    for(let i=0, _2=length_1(_1)-1;i<=_2;i++){
+    for(let i=0, _2=length_1(_1)-1|0;i<=_2;i++){
       const o=get(_1, i);
       if(typeof o=="object")(((sn_1) => {
         Obsolete(sn_1);
@@ -5453,10 +5458,26 @@ class DynamicAttrNode extends Object_1 {
     this.push=push;
     this.value=void 0;
     this.dirty=false;
-    this.updates=Map((x) => {
+    this.updates=Map_1((x) => {
       this.value=x;
       this.dirty=true;
     }, view);
+  }
+}
+class ArgumentOutOfRangeException extends Error {
+  constructor(i, _1, _2){
+    let argumentName;
+    if(i=="New_1"){
+      argumentName=_1;
+      i="New";
+      _1=argumentName;
+      _2="Specified argument was out of the range of valid values.";
+    }
+    if(i=="New"){
+      const argumentName_1=_1;
+      const message=_2;
+      super(message+"\nParameter name: "+argumentName_1);
+    }
   }
 }
 class ArrayStorage extends Object_1 {
@@ -5523,7 +5544,7 @@ class AnimatedAttrNode extends Object_1 {
     return WhenDone(() => {
       this.dirty=true;
       this.visible=null;
-    }, m!=null&&m.$==1?Pack(Map_1((v) => {
+    }, m!=null&&m.$==1?Pack(Map_2((v) => {
       this.pushVisible(parent, v);
     }, AnimateExit(this.tr, m.$0))):get_Empty());
   }
@@ -5533,12 +5554,12 @@ class AnimatedAttrNode extends Object_1 {
     const _4=this.logical;
     switch(_3==null?_4!=null&&_4.$==1?(_1=_4.$0,1):2:_4!=null&&_4.$==1?this.dirty?(_1=[_4.$0, _3.$0],0):2:2){
       case 0:
-        _2=Pack(Map_1((v) => {
+        _2=Pack(Map_2((v) => {
           this.pushVisible(parent, v);
         }, AnimateChange(this.tr, _1[1], _1[0])));
         break;
       case 1:
-        _2=Pack(Map_1((v) => {
+        _2=Pack(Map_2((v) => {
           this.pushVisible(parent, v);
         }, AnimateEnter(this.tr, _1)));
         break;
@@ -5556,7 +5577,7 @@ class AnimatedAttrNode extends Object_1 {
     const _3=this.logical;
     return WhenDone(() => {
       this.sync(parent);
-    }, _2!=null&&_2.$==1&&(_3!=null&&_3.$==1&&(this.dirty&&(_1=[_3.$0, _2.$0],true)))?Pack(Map_1((v) => {
+    }, _2!=null&&_2.$==1&&(_3!=null&&_3.$==1&&(this.dirty&&(_1=[_3.$0, _2.$0],true)))?Pack(Map_2((v) => {
       this.pushVisible(parent, v);
     }, AnimateChange(this.tr, _1[1], _1[0]))):get_Empty());
   }
@@ -5568,7 +5589,7 @@ class AnimatedAttrNode extends Object_1 {
     this.logical=null;
     this.visible=null;
     this.dirty=true;
-    this.updates=Map((x) => {
+    this.updates=Map_1((x) => {
       this.logical=Some(x);
       this.dirty=true;
     }, view);
@@ -5584,7 +5605,7 @@ function convertTextNode(n){
   const strRE=new RegExp(TextHoleRE(), "g");
   while(m=strRE.exec(s),m!==null)
     {
-      n.parentNode.insertBefore(globalThis.document.createTextNode(string(s, Some(li), Some(strRE.lastIndex-get(m, 0).length-1))), n);
+      n.parentNode.insertBefore(globalThis.document.createTextNode(string(s, Some(li), Some((strRE.lastIndex-get(m, 0).length|0)-1|0))), n);
       li=strRE.lastIndex;
       const hole=globalThis.document.createElement("span");
       hole.setAttribute("ws-replace", get(m, 1).toLowerCase());
@@ -5624,7 +5645,7 @@ function removeHolesExcept(instance, dontRemove){
   });
   foreachNotPreserved(instance, "[ws-attr-holes]", (e) => {
     const holeAttrs=SplitChars(e.getAttribute("ws-attr-holes"), [" "], 1);
-    for(let i=0, _1=holeAttrs.length-1;i<=_1;i++){
+    for(let i=0, _1=holeAttrs.length-1|0;i<=_1;i++){
       const attrName=get(holeAttrs, i);
       const this_1=new RegExp(TextHoleRE(), "g");
       e.setAttribute(attrName, e.getAttribute(attrName).replace(this_1, (_2, _3) => dontRemove.Contains(_3)?_2:""));
@@ -5638,7 +5659,7 @@ function fillInstanceAttrs(instance, fillWith){
   if(Equals(m, null))console.warn("Filling non-existent attr hole", name);
   else {
     m.removeAttribute("ws-attr");
-    for(let i=0, _1=fillWith.attributes.length-1;i<=_1;i++){
+    for(let i=0, _1=fillWith.attributes.length-1|0;i<=_1;i++){
       const a=fillWith.attributes.item(i);
       if(a.name=="class"&&m.hasAttribute("class"))m.setAttribute("class", m.getAttribute("class")+" "+a.nodeValue);
       else m.setAttribute(a.name, a.nodeValue);
@@ -5672,7 +5693,7 @@ function mapHoles(t, mappings){
   });
   foreachNotPreserved(t, "[ws-attr-holes]", (e) => {
     const holeAttrs=SplitChars(e.getAttribute("ws-attr-holes"), [" "], 1);
-    for(let i=0, _1=holeAttrs.length-1;i<=_1;i++){
+    for(let i=0, _1=holeAttrs.length-1|0;i<=_1;i++){
       const attrName=get(holeAttrs, i);
       e.setAttribute(attrName, fold((_2, _3) => {
         const a=KeyValue(_3);
@@ -5693,7 +5714,7 @@ function convertAttrs(el){
   const toRemove=[];
   const events=[];
   const holedAttrs=[];
-  for(let i=0, _1=attrs.length-1;i<=_1;i++){
+  for(let i=0, _1=attrs.length-1|0;i<=_1;i++){
     const a=attrs.item(i);
     if(StartsWith(a.nodeName, "ws-on")&&a.nodeName!="ws-onafterrender"&&a.nodeName!="ws-on"){
       toRemove.push(a.nodeName);
@@ -5725,35 +5746,38 @@ function string(source, start, finish){
   if(start==null){
     if(finish!=null&&finish.$==1){
       const f=finish.$0;
-      return f<0?"":source.slice(0, f+1);
+      return f<0?"":source.slice(0, f+1|0);
     }
     else return"";
   }
   else if(finish==null)return source.slice(start.$0);
   else {
     const f_1=finish.$0;
-    return f_1<0?"":source.slice(start.$0, f_1+1);
+    return f_1<0?"":source.slice(start.$0, f_1+1|0);
   }
 }
-function insufficient(){
-  return FailWith("The input sequence has an insufficient number of elements.");
+function insufficientArg(){
+  throw new ArgumentException("New", "The input sequence has an insufficient number of elements.");
 }
 function mapiInPlace(f, arr){
-  for(let i=0, _1=arr.length-1;i<=_1;i++)arr[i]=f(i, arr[i]);
+  for(let i=0, _1=arr.length-1|0;i<=_1;i++)arr[i]=f(i, arr[i]);
   return arr;
 }
 function mapInPlace_1(f, arr){
-  for(let i=0, _1=arr.length-1;i<=_1;i++)arr[i]=f(arr[i]);
+  for(let i=0, _1=arr.length-1|0;i<=_1;i++)arr[i]=f(arr[i]);
 }
 function nonNegative(){
-  return FailWith("The input must be non-negative.");
+  throw new ArgumentException("New", "The input must be non-negative.");
+}
+function insufficient(){
+  throw new InvalidOperationException("New", "The input sequence has an insufficient number of elements.");
 }
 function arrContains(item, arr){
   let c=true;
   let i=0;
   while(c&&i<length_1(arr))
     if(Equals(arr[i], item))c=false;
-    else i=i+1;
+    else i=i+1|0;
   return!c;
 }
 class KeyCollection extends Object_1 {
@@ -5775,7 +5799,7 @@ function StartProcessor(procAsync){
     const f=() => {
       const f_1=() => {
         const m=st;
-        return Equals(m, 1)?(st=0,Zero()):Equals(m, 2)?(st=1,work()):Zero();
+        return m===1?(st=0,Zero()):m===2?(st=1,work()):Zero();
       };
       return Bind_1(procAsync, (_1, _2) =>(f_1(_1))(_2));
     };
@@ -5783,11 +5807,11 @@ function StartProcessor(procAsync){
   }
   return() => {
     const m=st;
-    if(Equals(m, 0)){
+    if(m===0){
       st=1;
       Start(work(), null);
     }
-    else Equals(m, 1)?st=2:void 0;
+    else m===1?st=2:void 0;
   };
 }
 function Choice1Of2(Item){
@@ -5837,6 +5861,24 @@ class IndexOutOfRangeException extends Error {
     }
   }
 }
+class ArgumentException extends Error {
+  paramName;
+  constructor(i, _1, _2){
+    let message;
+    if(i=="New"){
+      message=_1;
+      i="New_2";
+      _1=message;
+      _2=null;
+    }
+    if(i=="New_2"){
+      const message_1=_1;
+      const paramName=_2;
+      super(paramName==null?message_1:message_1+" (Parameter '"+paramName+"')");
+      this.paramName=paramName;
+    }
+  }
+}
 function New_7(DynElem, DynFlags, DynNodes, OnAfterRender_1){
   const _1={
     DynElem:DynElem, 
@@ -5877,7 +5919,7 @@ function ApplyValue(get_1, set_1, var_1){
   }, (x) => {
     const _1=set_1(x);
     return(_2) => _2==null?void 0:_1(_2.$0);
-  }, Map((v) => expectedValue!=null&&expectedValue.$==1&&(Equals(expectedValue.$0, v)&&true)?null:Some(v), var_1.View)];
+  }, Map_1((v) => expectedValue!=null&&expectedValue.$==1&&(Equals(expectedValue.$0, v)&&true)?null:Some(v), var_1.View)];
 }
 function StringSet(){
   return _c_6.StringSet;
@@ -5910,7 +5952,7 @@ function FileApplyValue(get_1, set_1, var_1){
   }, (x) => {
     const _1=set_1(x);
     return(_2) => _2==null?void 0:_1(_2.$0);
-  }, Map((v) => expectedValue!=null&&expectedValue.$==1&&(Equals(expectedValue.$0, v)&&true)?null:Some(v), var_1.View)];
+  }, Map_1((v) => expectedValue!=null&&expectedValue.$==1&&(Equals(expectedValue.$0, v)&&true)?null:Some(v), var_1.View)];
 }
 function FileSetUnchecked(){
   return _c_6.FileSetUnchecked;
@@ -6110,7 +6152,7 @@ class Scheduler extends Object_1 {
         loop=false;
       }
       else {
-        (this.robin.shift())();
+        (Dequeue(this.robin))();
         Date.now()-t>40?(setTimeout(() => {
           this.tick();
         }, 0),loop=false):void 0;
@@ -6177,7 +6219,7 @@ let _c_6=Lazy((_i) => class Client {
     this.EmptyAttr=null;
     this.BoolCheckedApply=(var_1) =>[(el) => {
       el.addEventListener("change", () => var_1.Get()!=el.checked?var_1.Set(el.checked):void 0);
-    }, (_1) =>(_2) => _2!=null&&_2.$==1?void(_1.checked=_2.$0):void 0, Map(Some, var_1.View)];
+    }, (_1) =>(_2) => _2!=null&&_2.$==1?void(_1.checked=_2.$0):void 0, Map_1(Some, var_1.View)];
     this.StringSet=(el) =>(s_8) => {
       el.value=s_8;
     };
@@ -6187,7 +6229,7 @@ let _c_6=Lazy((_i) => class Client {
     this.StringApply=(v) => ApplyValue(g, s, v);
     this.StringListSet=(el) =>(s_8) => {
       const options_=el.options;
-      for(let i=0, _1=options_.length-1;i<=_1;i++){
+      for(let i=0, _1=options_.length-1|0;i<=_1;i++){
         const option=options_.item(i);
         option.selected=arrContains(option.value, s_8);
       }
@@ -6195,7 +6237,7 @@ let _c_6=Lazy((_i) => class Client {
     this.StringListGet=(el) => {
       const selectedOptions=el.selectedOptions;
       const a=[];
-      for(const i of Iter_1(range(0, selectedOptions.length-1))){
+      for(const i of Iter_1(range(0, selectedOptions.length-1|0))){
         const option=selectedOptions.item(i);
         a.push(option.value);
       }
@@ -6210,7 +6252,7 @@ let _c_6=Lazy((_i) => class Client {
     this.DateTimeGetUnchecked=(el) => {
       let o, m;
       const s_8=el.value;
-      if(isBlank(s_8))return Some(-8640000000000000);
+      if(isBlank(s_8))return Some(CreateUnchecked(1, 1, 1, 0, 0, 0, 0));
       else {
         o=0;
         const m_1=TryParse_1(s_8);
@@ -6225,7 +6267,7 @@ let _c_6=Lazy((_i) => class Client {
     this.FileGetUnchecked=(el) => {
       const files=el.files;
       const a=[];
-      for(const i of Iter_1(range(0, files.length-1)))a.push(files.item(i));
+      for(const i of Iter_1(range(0, files.length-1|0)))a.push(files.item(i));
       return Some(a);
     };
     const g_3=FileGetUnchecked();
@@ -6427,6 +6469,27 @@ let _c_8=Lazy((_i) => class $StartupCode_Concurrency {
 function Clear(a){
   a.splice(0, length_1(a));
 }
+function Dequeue(queue){
+  if(length_1(queue)===0)throw new InvalidOperationException("New", "Queue empty.");
+  return queue.shift();
+}
+class InvalidOperationException extends Error {
+  constructor(i, _1, _2){
+    let message;
+    if(i=="New"){
+      message=_1;
+      i="New_2";
+      _1=message;
+      _2=null;
+    }
+    if(i=="New_2"){
+      const message_1=_1;
+      const innerExn=_2;
+      super(message_1);
+      this.inner=innerExn;
+    }
+  }
+}
 function isBlank(s){
   return forall_1(IsWhiteSpace, s);
 }
@@ -6441,12 +6504,6 @@ class KeyNotFoundException extends Error {
       super(message);
     }
   }
-}
-function concat_2(o){
-  const r=[];
-  let k;
-  for(var k_1 in o)r.push.apply(r, o[k_1]);
-  return r;
 }
 function Filter_1(ok, set_1){
   return new HashSet("New_2", filter_2(ok, ToArray_2(set_1)));
@@ -6482,6 +6539,11 @@ class CancellationTokenSource extends Object_1 {
 function IsWhiteSpace(c){
   return c.match(new RegExp("\\s"))!==null;
 }
+function CreateUnchecked(y, mo, d, h, m, s, ms){
+  const d_1=new Date(y, mo-1, d, h, m, s, ms);
+  if(y<99)d_1.setFullYear(y);
+  return d_1.getTime();
+}
 function TryParse_1(s){
   const d=Date.parse(s);
   return isNaN(d)?null:Some(d);
@@ -6489,7 +6551,7 @@ function TryParse_1(s){
 function TryParse_2(s, min, max_1, r){
   const x=+s;
   const ok=x===x-x%1&&x>=min&&x<=max_1;
-  if(ok)r.set(x);
+  r.set(ok?x:0);
   return ok;
 }
 function Children(elem, delims){
